@@ -2,10 +2,13 @@ import 'src/global.css';
 
 // ----------------------------------------------------------------------
 
+import { Provider as ReduxProvider } from 'react-redux';
+
 import { Router } from 'src/routes/sections';
 
 import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
 
+import { store } from 'src/redux/store';
 import { CONFIG } from 'src/config-global';
 import { LocalizationProvider } from 'src/locales';
 import { I18nProvider } from 'src/locales/i18n-provider';
@@ -40,18 +43,20 @@ export default function App() {
     <I18nProvider>
       <LocalizationProvider>
         <AuthProvider>
-          <SettingsProvider settings={defaultSettings}>
-            <ThemeProvider>
-              <MotionLazy>
-                <CheckoutProvider>
-                  <Snackbar />
-                  <ProgressBar />
-                  <SettingsDrawer />
-                  <Router />
-                </CheckoutProvider>
-              </MotionLazy>
-            </ThemeProvider>
-          </SettingsProvider>
+          <ReduxProvider store={store}>
+            <SettingsProvider settings={defaultSettings}>
+              <ThemeProvider>
+                <MotionLazy>
+                  <CheckoutProvider>
+                    <Snackbar />
+                    <ProgressBar />
+                    <SettingsDrawer />
+                    <Router />
+                  </CheckoutProvider>
+                </MotionLazy>
+              </ThemeProvider>
+            </SettingsProvider>
+          </ReduxProvider>
         </AuthProvider>
       </LocalizationProvider>
     </I18nProvider>

@@ -37,6 +37,7 @@ const ICONS = {
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
+  vehicle: icon('ic_vehicle'),
 };
 
 // ----------------------------------------------------------------------
@@ -87,6 +88,19 @@ export const navData = [
           { title: 'Edit', path: paths.dashboard.product.demo.edit },
         ],
       },
+
+      {
+        title: 'Vehicle',
+        path: paths.dashboard.vehicle.root,
+        icon: ICONS.vehicle,
+        children: [
+          { title: 'List', path: paths.dashboard.vehicle.root },
+          { title: 'Details', path: paths.dashboard.vehicle.demo.details },
+          { title: 'Create', path: paths.dashboard.vehicle.new },
+          { title: 'Edit', path: paths.dashboard.vehicle.demo.edit },
+        ],
+      },
+
       {
         title: 'Order',
         path: paths.dashboard.order.root,

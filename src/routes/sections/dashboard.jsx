@@ -23,6 +23,13 @@ const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/detail
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
 const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
+
+// Product
+const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
+const VehicleListPage = lazy(() => import('src/pages/dashboard/vehicle/list'));
+const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
+const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
+
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -108,6 +115,16 @@ export const dashboardRoutes = [
           { path: ':id', element: <ProductDetailsPage /> },
           { path: 'new', element: <ProductCreatePage /> },
           { path: ':id/edit', element: <ProductEditPage /> },
+        ],
+      },
+      {
+        path: 'vehicle',
+        children: [
+          { element: <VehicleListPage />, index: true },
+          { path: 'list', element: <VehicleListPage /> },
+          { path: ':id', element: <VehicleDetailsPage /> },
+          { path: 'new', element: <VehicleCreatePage /> },
+          { path: ':id/edit', element: <VehicleEditPage /> },
         ],
       },
       {
