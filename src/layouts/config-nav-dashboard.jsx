@@ -38,6 +38,8 @@ const ICONS = {
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
   vehicle: icon('ic_vehicle'),
+  driver: icon('ic-user'),
+  pump: icon('ic_pump'),
 };
 
 // ----------------------------------------------------------------------
@@ -98,6 +100,30 @@ export const navData = [
           { title: 'Details', path: paths.dashboard.vehicle.demo.details },
           { title: 'Create', path: paths.dashboard.vehicle.new },
           { title: 'Edit', path: paths.dashboard.vehicle.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Driver',
+        path: paths.dashboard.driver.root,
+        icon: ICONS.driver,
+        children: [
+          { title: 'List', path: paths.dashboard.driver.root },
+          { title: 'Details', path: paths.dashboard.driver.demo.details },
+          { title: 'Create', path: paths.dashboard.driver.new },
+          { title: 'Edit', path: paths.dashboard.driver.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Pump',
+        path: paths.dashboard.pump.root,
+        icon: ICONS.pump,
+        children: [
+          { title: 'List', path: paths.dashboard.pump.root },
+          { title: 'Details', path: paths.dashboard.pump.demo.details },
+          { title: 'Create', path: paths.dashboard.pump.new },
+          { title: 'Edit', path: paths.dashboard.pump.demo.edit },
         ],
       },
 

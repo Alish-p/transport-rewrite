@@ -144,6 +144,30 @@ export const paths = {
       },
     },
 
+    driver: {
+      root: `${ROOTS.DASHBOARD}/driver`,
+      new: `${ROOTS.DASHBOARD}/driver/new`,
+      list: `${ROOTS.DASHBOARD}/driver/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/driver/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/driver/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/driver/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/driver/${MOCK_ID}/edit`,
+      },
+    },
+
+    pump: {
+      root: `${ROOTS.DASHBOARD}/pump`,
+      new: `${ROOTS.DASHBOARD}/pump/new`,
+      list: `${ROOTS.DASHBOARD}/pump/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/pump/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/pump/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}/edit`,
+      },
+    },
+
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,

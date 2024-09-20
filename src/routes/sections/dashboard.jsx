@@ -18,17 +18,30 @@ const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
 const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
 const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
 const OverviewCoursePage = lazy(() => import('src/pages/dashboard/course'));
+
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
 const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 
-// Product
+// Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
 const VehicleListPage = lazy(() => import('src/pages/dashboard/vehicle/list'));
 const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
 const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
+
+// Driver
+const DriverDetailsPage = lazy(() => import('src/pages/dashboard/driver/details'));
+const DriverListPage = lazy(() => import('src/pages/dashboard/driver/list'));
+const DriverCreatePage = lazy(() => import('src/pages/dashboard/driver/new'));
+const DriverEditPage = lazy(() => import('src/pages/dashboard/driver/edit'));
+
+// Pump
+const PumpDetailsPage = lazy(() => import('src/pages/dashboard/pump/details'));
+const PumpListPage = lazy(() => import('src/pages/dashboard/pump/list'));
+const PumpCreatePage = lazy(() => import('src/pages/dashboard/pump/new'));
+const PumpEditPage = lazy(() => import('src/pages/dashboard/pump/edit'));
 
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
@@ -125,6 +138,28 @@ export const dashboardRoutes = [
           { path: ':id', element: <VehicleDetailsPage /> },
           { path: 'new', element: <VehicleCreatePage /> },
           { path: ':id/edit', element: <VehicleEditPage /> },
+        ],
+      },
+
+      {
+        path: 'driver',
+        children: [
+          { element: <DriverListPage />, index: true },
+          { path: 'list', element: <DriverListPage /> },
+          { path: ':id', element: <DriverDetailsPage /> },
+          { path: 'new', element: <DriverCreatePage /> },
+          { path: ':id/edit', element: <DriverEditPage /> },
+        ],
+      },
+
+      {
+        path: 'pump',
+        children: [
+          { element: <PumpListPage />, index: true },
+          { path: 'list', element: <PumpListPage /> },
+          { path: ':id', element: <PumpDetailsPage /> },
+          { path: 'new', element: <PumpCreatePage /> },
+          { path: ':id/edit', element: <PumpEditPage /> },
         ],
       },
       {
