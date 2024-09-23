@@ -17,16 +17,16 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePump, fetchPumps } from 'src/redux/slices/pump';
+import { deleteRoute, fetchRoutes } from 'src/redux/slices/route';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -42,32 +42,36 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import PumpTableRow from '../pump-table-row';
-import PumpTableToolbar from '../pump-table-toolbar';
-import PumpTableFiltersResult from '../pump-table-filters-result';
+import RouteTableRow from '../route-table-row';
+import RouteTableToolbar from '../route-table-toolbar';
+import { DashboardContent } from '../../../layouts/dashboard';
+import RouteTableFiltersResult from '../route-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'pumpName', label: 'Pump Name', type: 'string' },
-  { id: 'placeName', label: 'Place Name', type: 'string' },
-  { id: 'ownerName', label: 'Owner Name', type: 'string' },
-  { id: 'ownerCellNo', label: 'Owner Cell No', type: 'string' },
-  { id: 'pumpPhoneNo', label: 'Pump Phone No', type: 'string' },
-  { id: 'taluk', label: 'Taluk', type: 'string' },
-  { id: 'district', label: 'District', type: 'string' },
-  { id: 'address', label: 'Address', type: 'string' },
+  { id: 'routeName', label: 'Route Name', type: 'string' },
+  { id: 'fromPlace', label: 'From Place', type: 'string' },
+  { id: 'toPlace', label: 'To Place', type: 'string' },
+  { id: 'tollAmt', label: 'Toll Amount', type: 'number' },
+  { id: 'noOfDays', label: 'Number of Days', type: 'number' },
+  { id: 'tripType', label: 'Trip Type', type: 'string' },
+  { id: 'ratePerTon', label: 'Rate Per Ton', type: 'number' },
+  { id: 'distance', label: 'Distance', type: 'number' },
+  { id: 'validFromDate', label: 'Valid From Date', type: 'date' },
+  { id: 'transportType', label: 'Transport Type', type: 'string' },
   { id: '' },
 ];
 
 const defaultFilters = {
-  pumpName: '',
-  placeName: '',
+  routeName: '',
+  fromPlace: '',
+  toPlace: '',
 };
 
 // ----------------------------------------------------------------------
 
-export function PumpListView() {
+export function RouteListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -78,16 +82,16 @@ export function PumpListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    dispatch(fetchPumps());
+    dispatch(fetchRoutes());
   }, [dispatch]);
 
-  const { pumps, isLoading } = useSelector((state) => state.pump);
+  const { routes, isLoading } = useSelector((state) => state.route);
 
   useEffect(() => {
-    if (pumps.length) {
-      setTableData(pumps);
+    if (routes.length) {
+      setTableData(routes);
     }
-  }, [pumps]);
+  }, [routes]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -99,7 +103,7 @@ export function PumpListView() {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.pumpName || !!filters.placeName;
+  const canReset = !!filters.routeName || !!filters.fromPlace || !!filters.toPlace;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -115,18 +119,19 @@ export function PumpListView() {
   );
 
   const handleDeleteRow = (id) => {
-    dispatch(deletePump(id));
+    dispatch(deleteRoute(id));
+    toast.success('Route Deleted successfully!', {});
   };
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.pump.edit(paramCase(id)));
+    navigate(paths.dashboard.route.edit(paramCase(id)));
   };
 
   const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.pump.details(id));
+      router.push(paths.dashboard.route.details(id));
     },
     [router]
   );
@@ -139,28 +144,28 @@ export function PumpListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Pumps List"
+          heading="Route List"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Pumps',
-              href: paths.dashboard.pump.root,
+              name: 'Route',
+              href: paths.dashboard.route.root,
             },
             {
-              name: 'Pumps List',
+              name: 'Route List',
             },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.pump.new}
+              href={paths.dashboard.route.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Pump
+              New Route
             </Button>
           }
           sx={{
@@ -170,10 +175,10 @@ export function PumpListView() {
 
         {/* Table Section */}
         <Card>
-          <PumpTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <RouteTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
 
           {canReset && (
-            <PumpTableFiltersResult
+            <RouteTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -186,11 +191,11 @@ export function PumpListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={tableData.length}
+              rowCount={dataFiltered.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  dataFiltered.map((row) => row._id)
                 )
               }
               action={
@@ -253,7 +258,7 @@ export function PumpListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <PumpTableRow
+                      <RouteTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
@@ -319,7 +324,7 @@ export function PumpListView() {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { pumpName, placeName } = filters;
+  const { routeName, fromPlace, toPlace } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -331,17 +336,24 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (pumpName) {
+  if (routeName) {
     inputData = inputData.filter(
       (record) =>
-        record.pumpName && record.pumpName.toLowerCase().indexOf(pumpName.toLowerCase()) !== -1
+        record.routeName && record.routeName.toLowerCase().indexOf(routeName.toLowerCase()) !== -1
     );
   }
 
-  if (placeName) {
+  if (fromPlace) {
     inputData = inputData.filter(
       (record) =>
-        record.placeName && record.placeName.toLowerCase().indexOf(placeName.toLowerCase()) !== -1
+        record.fromPlace && record.fromPlace.toLowerCase().indexOf(fromPlace.toLowerCase()) !== -1
+    );
+  }
+
+  if (toPlace) {
+    inputData = inputData.filter(
+      (record) =>
+        record.toPlace && record.toPlace.toLowerCase().indexOf(toPlace.toLowerCase()) !== -1
     );
   }
 

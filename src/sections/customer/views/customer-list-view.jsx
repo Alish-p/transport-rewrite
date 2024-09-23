@@ -1,19 +1,16 @@
+import { useNavigate } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
+// @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-
-// _mock
-
-import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -25,7 +22,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePump, fetchPumps } from 'src/redux/slices/pump';
+import { deleteCustomer, fetchCustomers } from 'src/redux/slices/customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -42,32 +39,31 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import PumpTableRow from '../pump-table-row';
-import PumpTableToolbar from '../pump-table-toolbar';
-import PumpTableFiltersResult from '../pump-table-filters-result';
+import CustomerTableRow from '../customer-table-row';
+import CustomerTableToolbar from '../customer-table-toolbar';
+import CustomerTableFiltersResult from '../customer-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'pumpName', label: 'Pump Name', type: 'string' },
-  { id: 'placeName', label: 'Place Name', type: 'string' },
-  { id: 'ownerName', label: 'Owner Name', type: 'string' },
-  { id: 'ownerCellNo', label: 'Owner Cell No', type: 'string' },
-  { id: 'pumpPhoneNo', label: 'Pump Phone No', type: 'string' },
-  { id: 'taluk', label: 'Taluk', type: 'string' },
-  { id: 'district', label: 'District', type: 'string' },
-  { id: 'address', label: 'Address', type: 'string' },
+  { id: 'customerName', name: 'customerName', label: 'Customer Name', type: 'text' },
+  { id: 'GSTNo', name: 'GSTNo', label: 'GST No', type: 'text' },
+  { id: 'PANNo', name: 'PANNo', label: 'PAN No', type: 'text' },
+  { id: 'cellNo', name: 'cellNo', label: 'Cell No', type: 'text' },
+  { id: 'address', name: 'address', label: 'Address', type: 'text' },
+  { id: 'place', name: 'place', label: 'Place', type: 'text' },
   { id: '' },
 ];
 
 const defaultFilters = {
-  pumpName: '',
-  placeName: '',
+  customerName: '',
+  GSTNo: '',
+  PANNo: '',
 };
 
 // ----------------------------------------------------------------------
 
-export function PumpListView() {
+export function CustomerListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -78,16 +74,16 @@ export function PumpListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    dispatch(fetchPumps());
+    dispatch(fetchCustomers());
   }, [dispatch]);
 
-  const { pumps, isLoading } = useSelector((state) => state.pump);
+  const { customers } = useSelector((state) => state.customer);
 
   useEffect(() => {
-    if (pumps.length) {
-      setTableData(pumps);
+    if (customers.length) {
+      setTableData(customers);
     }
-  }, [pumps]);
+  }, [customers]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -99,7 +95,7 @@ export function PumpListView() {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.pumpName || !!filters.placeName;
+  const canReset = !!filters.customerName || !!filters.GSTNo || !!filters.PANNo;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -115,18 +111,18 @@ export function PumpListView() {
   );
 
   const handleDeleteRow = (id) => {
-    dispatch(deletePump(id));
+    dispatch(deleteCustomer(id));
   };
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.pump.edit(paramCase(id)));
+    navigate(paths.dashboard.customer.edit(paramCase(id)));
   };
 
   const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.pump.details(id));
+      router.push(paths.dashboard.customer.details(id));
     },
     [router]
   );
@@ -139,28 +135,28 @@ export function PumpListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Pumps List"
+          heading="Customers List"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Pumps',
-              href: paths.dashboard.pump.root,
+              name: 'Customers',
+              href: paths.dashboard.customer.root,
             },
             {
-              name: 'Pumps List',
+              name: 'Customers List',
             },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.pump.new}
+              href={paths.dashboard.customer.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Pump
+              New Customer
             </Button>
           }
           sx={{
@@ -170,10 +166,14 @@ export function PumpListView() {
 
         {/* Table Section */}
         <Card>
-          <PumpTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <CustomerTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={dataFiltered}
+          />
 
           {canReset && (
-            <PumpTableFiltersResult
+            <CustomerTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -186,11 +186,11 @@ export function PumpListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={tableData.length}
+              rowCount={dataFiltered.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  dataFiltered.map((row) => row._id)
                 )
               }
               action={
@@ -253,7 +253,7 @@ export function PumpListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <PumpTableRow
+                      <CustomerTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
@@ -319,7 +319,7 @@ export function PumpListView() {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { pumpName, placeName } = filters;
+  const { customerName, GSTNo, PANNo } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -331,17 +331,23 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (pumpName) {
+  if (customerName) {
     inputData = inputData.filter(
       (record) =>
-        record.pumpName && record.pumpName.toLowerCase().indexOf(pumpName.toLowerCase()) !== -1
+        record.customerName &&
+        record.customerName.toLowerCase().indexOf(customerName.toLowerCase()) !== -1
     );
   }
 
-  if (placeName) {
+  if (GSTNo) {
     inputData = inputData.filter(
-      (record) =>
-        record.placeName && record.placeName.toLowerCase().indexOf(placeName.toLowerCase()) !== -1
+      (record) => record.GSTNo && record.GSTNo.toLowerCase().indexOf(GSTNo.toLowerCase()) !== -1
+    );
+  }
+
+  if (PANNo) {
+    inputData = inputData.filter(
+      (record) => record.PANNo && record.PANNo.toLowerCase().indexOf(PANNo.toLowerCase()) !== -1
     );
   }
 

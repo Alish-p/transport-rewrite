@@ -143,7 +143,6 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/vehicle/${MOCK_ID}/edit`,
       },
     },
-
     driver: {
       root: `${ROOTS.DASHBOARD}/driver`,
       new: `${ROOTS.DASHBOARD}/driver/new`,
@@ -155,7 +154,6 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/driver/${MOCK_ID}/edit`,
       },
     },
-
     pump: {
       root: `${ROOTS.DASHBOARD}/pump`,
       new: `${ROOTS.DASHBOARD}/pump/new`,
@@ -165,6 +163,50 @@ export const paths = {
       demo: {
         details: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}`,
         edit: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}/edit`,
+      },
+    },
+    customer: {
+      root: `${ROOTS.DASHBOARD}/customer`,
+      new: `${ROOTS.DASHBOARD}/customer/new`,
+      list: `${ROOTS.DASHBOARD}/customer/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/customer/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/customer/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/customer/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/customer/${MOCK_ID}/edit`,
+      },
+    },
+    transporter: {
+      root: `${ROOTS.DASHBOARD}/transporter`,
+      new: `${ROOTS.DASHBOARD}/transporter/new`,
+      list: `${ROOTS.DASHBOARD}/transporter/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/transporter/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/transporter/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/transporter/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/transporter/${MOCK_ID}/edit`,
+      },
+    },
+    route: {
+      root: `${ROOTS.DASHBOARD}/route`,
+      new: `${ROOTS.DASHBOARD}/route/new`,
+      list: `${ROOTS.DASHBOARD}/route/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/route/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/route/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/route/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/route/${MOCK_ID}/edit`,
+      },
+    },
+    expense: {
+      root: `${ROOTS.DASHBOARD}/expense`,
+      new: `${ROOTS.DASHBOARD}/expense/new`,
+      list: `${ROOTS.DASHBOARD}/expense/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/expense/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/expense/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/expense/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/expense/${MOCK_ID}/edit`,
       },
     },
 

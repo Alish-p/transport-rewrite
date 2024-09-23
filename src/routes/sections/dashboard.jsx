@@ -43,6 +43,30 @@ const PumpListPage = lazy(() => import('src/pages/dashboard/pump/list'));
 const PumpCreatePage = lazy(() => import('src/pages/dashboard/pump/new'));
 const PumpEditPage = lazy(() => import('src/pages/dashboard/pump/edit'));
 
+// Customer
+const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customer/details'));
+const CustomerListPage = lazy(() => import('src/pages/dashboard/customer/list'));
+const CustomerCreatePage = lazy(() => import('src/pages/dashboard/customer/new'));
+const CustomerEditPage = lazy(() => import('src/pages/dashboard/customer/edit'));
+
+// Transporter
+const TransporterDetailsPage = lazy(() => import('src/pages/dashboard/transporter/details'));
+const TransporterListPage = lazy(() => import('src/pages/dashboard/transporter/list'));
+const TransporterCreatePage = lazy(() => import('src/pages/dashboard/transporter/new'));
+const TransporterEditPage = lazy(() => import('src/pages/dashboard/transporter/edit'));
+
+// Route
+const RouteDetailsPage = lazy(() => import('src/pages/dashboard/route/details'));
+const RouteListPage = lazy(() => import('src/pages/dashboard/route/list'));
+const RouteCreatePage = lazy(() => import('src/pages/dashboard/route/new'));
+const RouteEditPage = lazy(() => import('src/pages/dashboard/route/edit'));
+
+// Expense
+const ExpenseDetailsPage = lazy(() => import('src/pages/dashboard/expense/details'));
+const ExpenseListPage = lazy(() => import('src/pages/dashboard/expense/list'));
+const ExpenseCreatePage = lazy(() => import('src/pages/dashboard/expense/new'));
+const ExpenseEditPage = lazy(() => import('src/pages/dashboard/expense/edit'));
+
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -160,6 +184,49 @@ export const dashboardRoutes = [
           { path: ':id', element: <PumpDetailsPage /> },
           { path: 'new', element: <PumpCreatePage /> },
           { path: ':id/edit', element: <PumpEditPage /> },
+        ],
+      },
+
+      {
+        path: 'customer',
+        children: [
+          { element: <CustomerListPage />, index: true },
+          { path: 'list', element: <CustomerListPage /> },
+          { path: ':id', element: <CustomerDetailsPage /> },
+          { path: 'new', element: <CustomerCreatePage /> },
+          { path: ':id/edit', element: <CustomerEditPage /> },
+        ],
+      },
+
+      {
+        path: 'transporter',
+        children: [
+          { element: <TransporterListPage />, index: true },
+          { path: 'list', element: <TransporterListPage /> },
+          { path: ':id', element: <TransporterDetailsPage /> },
+          { path: 'new', element: <TransporterCreatePage /> },
+          { path: ':id/edit', element: <TransporterEditPage /> },
+        ],
+      },
+
+      {
+        path: 'route',
+        children: [
+          { element: <RouteListPage />, index: true },
+          { path: 'list', element: <RouteListPage /> },
+          { path: ':id', element: <RouteDetailsPage /> },
+          { path: 'new', element: <RouteCreatePage /> },
+          { path: ':id/edit', element: <RouteEditPage /> },
+        ],
+      },
+      {
+        path: 'expense',
+        children: [
+          { element: <ExpenseListPage />, index: true },
+          { path: 'list', element: <ExpenseListPage /> },
+          { path: ':id', element: <ExpenseDetailsPage /> },
+          { path: 'new', element: <ExpenseCreatePage /> },
+          { path: ':id/edit', element: <ExpenseEditPage /> },
         ],
       },
       {

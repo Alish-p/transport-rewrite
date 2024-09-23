@@ -40,6 +40,10 @@ const ICONS = {
   vehicle: icon('ic_vehicle'),
   driver: icon('ic-user'),
   pump: icon('ic_pump'),
+  customer: icon('ic_customer'),
+  transporter: icon('ic_transporter'),
+  route: icon('ic_map'),
+  expense: icon('ic_expense'),
 };
 
 // ----------------------------------------------------------------------
@@ -116,6 +120,30 @@ export const navData = [
       },
 
       {
+        title: 'Customer',
+        path: paths.dashboard.customer.root,
+        icon: ICONS.customer,
+        children: [
+          { title: 'List', path: paths.dashboard.customer.root },
+          { title: 'Details', path: paths.dashboard.customer.demo.details },
+          { title: 'Create', path: paths.dashboard.customer.new },
+          { title: 'Edit', path: paths.dashboard.customer.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Transporter',
+        path: paths.dashboard.transporter.root,
+        icon: ICONS.transporter,
+        children: [
+          { title: 'List', path: paths.dashboard.transporter.root },
+          { title: 'Details', path: paths.dashboard.transporter.demo.details },
+          { title: 'Create', path: paths.dashboard.transporter.new },
+          { title: 'Edit', path: paths.dashboard.transporter.demo.edit },
+        ],
+      },
+
+      {
         title: 'Pump',
         path: paths.dashboard.pump.root,
         icon: ICONS.pump,
@@ -124,6 +152,30 @@ export const navData = [
           { title: 'Details', path: paths.dashboard.pump.demo.details },
           { title: 'Create', path: paths.dashboard.pump.new },
           { title: 'Edit', path: paths.dashboard.pump.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Route',
+        path: paths.dashboard.route.root,
+        icon: ICONS.route,
+        children: [
+          { title: 'List', path: paths.dashboard.route.root },
+          { title: 'Details', path: paths.dashboard.route.demo.details },
+          { title: 'Create', path: paths.dashboard.route.new },
+          { title: 'Edit', path: paths.dashboard.route.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Expense',
+        path: paths.dashboard.expense.root,
+        icon: ICONS.expense,
+        children: [
+          { title: 'List', path: paths.dashboard.expense.root },
+          { title: 'Details', path: paths.dashboard.expense.demo.details },
+          { title: 'Create', path: paths.dashboard.expense.new },
+          { title: 'Edit', path: paths.dashboard.expense.demo.edit },
         ],
       },
 
