@@ -1,5 +1,4 @@
 import sumBy from 'lodash/sumBy';
-// import { paramCase } from 'change-case';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
@@ -26,7 +25,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
+import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { deleteExpense, fetchExpenses } from 'src/redux/slices/expense';
@@ -88,7 +87,7 @@ export function ExpenseListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const dateError = fIsAfter(filters.endDate, filters.fromDate);
+  const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
     dispatch(fetchExpenses());
@@ -593,11 +592,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   }
   if (!dateError) {
     if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (expense) =>
-          fTimestamp(expense.date) >= fTimestamp(fromDate) &&
-          fTimestamp(expense.date) <= fTimestamp(endDate)
-      );
+      inputData = inputData.filter((expense) => fIsBetween(expense.date, fromDate, endDate));
     }
   }
 

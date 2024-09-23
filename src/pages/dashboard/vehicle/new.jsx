@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { VehicleCreateView } from '../../../sections/vehicle/views';
+import { VehicleCreateView } from 'src/sections/vehicle/views';
 
 // ----------------------------------------------------------------------
 

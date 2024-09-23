@@ -1,0 +1,216 @@
+// mock data
+
+// @mui
+import { useTheme } from '@mui/material/styles';
+import { Box, Card, Grid, Stack, Button, CardHeader } from '@mui/material';
+// components
+
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+
+import { paths } from 'src/routes/paths';
+
+import { updateTrip } from 'src/redux/slices/trip';
+
+import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
+import TripToolbar from '../widgets/TripToolbar';
+import DriverCard from '../widgets/DriverWidgets';
+import VehicleCard from '../widgets/VehicleWidgets';
+import SimpleSubtripList from '../basic-subtrip-table';
+import { DashboardContent } from '../../../layouts/dashboard';
+import ChartColumnMultiple from '../widgets/SubtripColumnChart';
+import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
+import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
+// sections
+// import { AnalyticsWidgetSummary, AnalyticsCurrentVisits } from '../../general/analytics';
+
+// ----------------------------------------------------------------------
+
+export function TripDetailView({ trip }) {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const closeTrip = async () => {
+    try {
+      await dispatch(
+        updateTrip(trip._id, {
+          id: trip._id,
+          tripStatus: 'closed',
+          toDate: new Date(),
+        })
+      );
+      toast.success('Trip closed successfully!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to close the trip. Please try again.');
+    }
+  };
+
+  // Function to check if all subtrips have status "billed"
+  const allSubtripsBilled = trip?.subtrips?.every((subtrip) => subtrip.subtripStatus === 'billed');
+
+  const totalTrips = trip?.subtrips?.length;
+  const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
+  const totalExpenses = trip.subtrips.reduce((sum, subtrip) => {
+    const subtripExpenses = subtrip.expenses.reduce(
+      (subSum, expense) => subSum + expense.amount,
+      0
+    );
+    return sum + subtripExpenses;
+  }, 0);
+
+  const totalIncome = trip.subtrips.reduce((sum, subtrip) => sum + subtrip.rate, 0);
+
+  const totalDieselAmt = trip.subtrips.reduce((sum, subtrip) => {
+    const dieselExpenses = subtrip.expenses
+      .filter((expense) => expense.expenseType === 'fuel')
+      .reduce((subSum, expense) => subSum + expense.amount, 0);
+    return sum + dieselExpenses;
+  }, 0);
+
+  const totalKm = trip.subtrips.reduce((sum, subtrip) => {
+    const kmCovered = subtrip.endKm - subtrip.startKm;
+    return sum + kmCovered;
+  }, 0);
+
+  return (
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Trips Dashboard"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Trips List', href: paths.dashboard.trip.list },
+          { name: 'Trip Dashboard' },
+        ]}
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      <TripToolbar
+        backLink={paths.dashboard.trip.list}
+        status={trip.tripStatus}
+        tripData={trip}
+        onTripClose={closeTrip}
+        isCloseDisabled={!allSubtripsBilled}
+        onEdit={() => {
+          navigate(paths.dashboard.trip.edit(trip._id));
+        }}
+      />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+              <AnalyticsWidgetSummary
+                title="Total Trips"
+                total={totalTrips}
+                icon="ant-design:car-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+              <AnalyticsWidgetSummary
+                title="Total Expenses"
+                total={totalExpenses}
+                color="error"
+                icon="ant-design:dollar-circle-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+              <AnalyticsWidgetSummary
+                title="Total Income"
+                total={totalIncome}
+                color="success"
+                icon="ant-design:euro-circle-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+            </Stack>
+
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+              <AnalyticsWidgetSummary
+                title="Total Kilometers"
+                total={totalKm}
+                color="info"
+                icon="ant-design:environment-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+              <AnalyticsWidgetSummary
+                title="Total Diesel Amount"
+                total={totalDieselAmt}
+                color="warning"
+                icon="ant-design:fire-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+              <AnalyticsWidgetSummary
+                title="Total AdBlue Amount"
+                total={totalAdblueAmt}
+                color="primary"
+                icon="ant-design:medicine-box-filled"
+                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+              />
+            </Stack>
+            <Grid item xs={12} md={12}>
+              <Card sx={{ minHeight: 400 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 3,
+                    px: 3,
+                  }}
+                >
+                  <CardHeader title="Subtrip List" subheader="Detail of Subtrip" />
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      navigate({
+                        pathname: paths.dashboard.subtrip.new,
+                        search: `?id=${trip._id}`,
+                      });
+                    }}
+                  >
+                    New Subtrip
+                  </Button>
+                </Box>
+                <SimpleSubtripList subtrips={trip.subtrips} />
+              </Card>
+            </Grid>
+            <Grid item container spacing={1} xs={12} md={12}>
+              <Grid item xs={5} md={6}>
+                <AnalyticsCurrentVisits
+                  title="SubTrip Status"
+                  chart={{
+                    series: [
+                      {
+                        label: 'Completed',
+                        value: trip?.subtrips?.filter((st) => st.tripStatus === '1').length,
+                      },
+                      {
+                        label: 'In Progress',
+                        value: trip?.subtrips?.filter((st) => st.tripStatus !== '1').length,
+                      },
+                    ],
+                    colors: [theme.palette.primary.main, theme.palette.info.main],
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5} md={6}>
+                <ChartColumnMultiple
+                  subtrips={trip.subtrips}
+                  title="Subtrip Profit/Expense"
+                  subheader="Profit and expense Subtrip Wise"
+                />
+              </Grid>
+            </Grid>
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+            <DriverCard driver={trip.driverId} />
+            <VehicleCard vehicle={trip.vehicleId} />
+          </Stack>
+        </Grid>
+      </Grid>
+    </DashboardContent>
+  );
+}

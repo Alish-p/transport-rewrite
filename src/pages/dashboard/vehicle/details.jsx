@@ -3,10 +3,11 @@ import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
+import { paramCase } from 'src/utils/change-case';
+
 import { CONFIG } from 'src/config-global';
 
-import { paramCase } from '../../../utils/change-case';
-import { VehicleDetailView } from '../../../sections/vehicle/views';
+import { VehicleDetailView } from 'src/sections/vehicle/views';
 
 // ----------------------------------------------------------------------
 

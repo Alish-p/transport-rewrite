@@ -33,7 +33,7 @@ export function HomeMinimal({ sx, ...other }) {
       <SectionTitle
         caption="Visualizing Success"
         title="What's in"
-        txtGradient="Minimal?"
+        txtGradient="Transport + ?"
         sx={{ mb: { xs: 5, md: 8 }, textAlign: { xs: 'center', md: 'left' } }}
       />
 
@@ -135,17 +135,26 @@ export function HomeMinimal({ sx, ...other }) {
 const ITEMS = [
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-make-brand.svg`,
-    title: 'Branding',
-    description: 'Consistent design makes it easy to brand your own.',
+    title: 'Fleet Management',
+    description:
+      'Streamline your fleet operations with real-time tracking, maintenance scheduling, and fuel monitoring.',
   },
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-design.svg`,
-    title: 'UI & UX design',
-    description: 'The kit is built on the principles of the atomic design system.',
+    title: 'Invoice Generation',
+    description:
+      'Generate accurate invoices instantly and automate your billing processes for faster payments.',
   },
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-development.svg`,
-    title: 'Development',
-    description: 'Easy to customize and extend, saving you time and money.',
+    title: 'Salary Management',
+    description:
+      'Efficiently manage driver and employee salaries with automated payroll and reporting features.',
+  },
+  {
+    icon: `${CONFIG.site.basePath}/assets/icons/home/ic-design.svg`,
+    title: 'Tire Management',
+    description:
+      'Keep track of tire usage, performance, and replacement cycles to reduce costs and improve safety.',
   },
 ];

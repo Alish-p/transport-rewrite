@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { DriverCreateView } from '../../../sections/driver/views';
+import { DriverCreateView } from 'src/sections/driver/views';
 
 // ----------------------------------------------------------------------
 

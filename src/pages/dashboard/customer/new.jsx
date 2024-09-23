@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { CustomerCreateView } from '../../../sections/customer/views';
+import { CustomerCreateView } from 'src/sections/customer/views';
 
 // ----------------------------------------------------------------------
 

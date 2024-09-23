@@ -1,8 +1,10 @@
 import { paths } from 'src/routes/paths';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import ExpenseForm from '../expense-form';
 import { DashboardContent } from 'src/layouts/dashboard';
+
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
+import ExpenseForm from '../expense-form';
 
 // ----------------------------------------------------------------------
 

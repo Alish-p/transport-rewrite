@@ -24,6 +24,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { DashboardContent } from 'src/layouts/dashboard';
 import { deleteRoute, fetchRoutes } from 'src/redux/slices/route';
 
 import { toast } from 'src/components/snackbar';
@@ -44,7 +45,6 @@ import {
 
 import RouteTableRow from '../route-table-row';
 import RouteTableToolbar from '../route-table-toolbar';
-import { DashboardContent } from '../../../layouts/dashboard';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
 // ----------------------------------------------------------------------

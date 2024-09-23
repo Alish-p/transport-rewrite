@@ -90,6 +90,7 @@ export const fetchSubtrips = () => async (dispatch) => {
 
 export const fetchSubtrip = (id) => async (dispatch) => {
   dispatch(startLoading());
+
   try {
     const response = await axios.get(`/api/subtrips/${id}`);
     dispatch(getSubtripSuccess(response.data));

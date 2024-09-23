@@ -1,9 +1,10 @@
 import { paths } from 'src/routes/paths';
 
+import { DashboardContent } from 'src/layouts/dashboard';
+
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import DriverForm from '../driver-form';
-import { DashboardContent } from '../../../layouts/dashboard';
 
 // ----------------------------------------------------------------------
 

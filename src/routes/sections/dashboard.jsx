@@ -67,6 +67,18 @@ const ExpenseListPage = lazy(() => import('src/pages/dashboard/expense/list'));
 const ExpenseCreatePage = lazy(() => import('src/pages/dashboard/expense/new'));
 const ExpenseEditPage = lazy(() => import('src/pages/dashboard/expense/edit'));
 
+// Subtrip
+const SubtripDetailsPage = lazy(() => import('src/pages/dashboard/subtrip/details'));
+const SubtripListPage = lazy(() => import('src/pages/dashboard/subtrip/list'));
+const SubtripCreatePage = lazy(() => import('src/pages/dashboard/subtrip/new'));
+const SubtripEditPage = lazy(() => import('src/pages/dashboard/subtrip/edit'));
+
+// Trip
+const TripDetailsPage = lazy(() => import('src/pages/dashboard/trip/details'));
+const TripListPage = lazy(() => import('src/pages/dashboard/trip/list'));
+const TripCreatePage = lazy(() => import('src/pages/dashboard/trip/new'));
+const TripEditPage = lazy(() => import('src/pages/dashboard/trip/edit'));
+
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -227,6 +239,26 @@ export const dashboardRoutes = [
           { path: ':id', element: <ExpenseDetailsPage /> },
           { path: 'new', element: <ExpenseCreatePage /> },
           { path: ':id/edit', element: <ExpenseEditPage /> },
+        ],
+      },
+      {
+        path: 'subtrip',
+        children: [
+          { element: <SubtripListPage />, index: true },
+          { path: 'list', element: <SubtripListPage /> },
+          { path: ':id', element: <SubtripDetailsPage /> },
+          { path: 'new', element: <SubtripCreatePage /> },
+          { path: ':id/edit', element: <SubtripEditPage /> },
+        ],
+      },
+      {
+        path: 'trip',
+        children: [
+          { element: <TripListPage />, index: true },
+          { path: 'list', element: <TripListPage /> },
+          { path: ':id', element: <TripDetailsPage /> },
+          { path: 'new', element: <TripCreatePage /> },
+          { path: ':id/edit', element: <TripEditPage /> },
         ],
       },
       {

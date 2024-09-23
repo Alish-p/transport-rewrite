@@ -44,6 +44,8 @@ const ICONS = {
   transporter: icon('ic_transporter'),
   route: icon('ic_map'),
   expense: icon('ic_expense'),
+  subtrip: icon('ic_subtrip'),
+  trip: icon('ic_trip'),
 };
 
 // ----------------------------------------------------------------------
@@ -176,6 +178,30 @@ export const navData = [
           { title: 'Details', path: paths.dashboard.expense.demo.details },
           { title: 'Create', path: paths.dashboard.expense.new },
           { title: 'Edit', path: paths.dashboard.expense.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Subtrip',
+        path: paths.dashboard.subtrip.root,
+        icon: ICONS.subtrip,
+        children: [
+          { title: 'List', path: paths.dashboard.subtrip.root },
+          { title: 'Details', path: paths.dashboard.subtrip.demo.details },
+          { title: 'Create', path: paths.dashboard.subtrip.new },
+          { title: 'Edit', path: paths.dashboard.subtrip.demo.edit },
+        ],
+      },
+
+      {
+        title: 'Trip',
+        path: paths.dashboard.trip.root,
+        icon: ICONS.trip,
+        children: [
+          { title: 'List', path: paths.dashboard.trip.root },
+          { title: 'Details', path: paths.dashboard.trip.demo.details },
+          { title: 'Create', path: paths.dashboard.trip.new },
+          { title: 'Edit', path: paths.dashboard.trip.demo.edit },
         ],
       },
 

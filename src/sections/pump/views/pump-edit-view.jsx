@@ -1,7 +1,10 @@
 import { paths } from 'src/routes/paths';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import PumpForm from '../pump-form';
+
 import { DashboardContent } from 'src/layouts/dashboard';
+
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
+import PumpForm from '../pump-form';
 
 export function PumpEditView({ pump }) {
   return (

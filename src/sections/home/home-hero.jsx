@@ -70,9 +70,9 @@ export function HomeHero({ sx, ...other }) {
         }}
       >
         <Box component="span" sx={{ width: 1, opacity: 0.24 }}>
-          Boost your building
+          Boost your Logistics
         </Box>
-        process with
+        Management with
         <Box
           component={m.span}
           animate={{ backgroundPosition: '200% center' }}
@@ -90,7 +90,7 @@ export function HomeHero({ sx, ...other }) {
             ml: { xs: 0.75, md: 1, xl: 1.5 },
           }}
         >
-          Minimal
+          Transport ++
         </Box>
       </Box>
     </MInview>
@@ -106,7 +106,8 @@ export function HomeHero({ sx, ...other }) {
           [theme.breakpoints.up(lgKey)]: { fontSize: 20, lineHeight: '36px' },
         }}
       >
-        {`The starting point for your next project is based on MUI. \nEasy customization helps you build apps faster and better.`}
+        The driving force behind your logistics. Seamless operations and easy customization for
+        faster, smarter transport management.
       </Typography>
     </MInview>
   );
@@ -147,21 +148,7 @@ export function HomeHero({ sx, ...other }) {
             variant="contained"
             startIcon={<Iconify width={24} icon="iconoir:flash" />}
           >
-            <span>
-              Live preview
-              <Box
-                component="small"
-                sx={{
-                  mt: '-3px',
-                  opacity: 0.64,
-                  display: 'flex',
-                  fontSize: theme.typography.pxToRem(10),
-                  fontWeight: theme.typography.fontWeightMedium,
-                }}
-              >
-                v{CONFIG.site.version}
-              </Box>
-            </span>
+            <span>Login for Existing Customers</span>
           </Button>
 
           <Link
@@ -173,7 +160,7 @@ export function HomeHero({ sx, ...other }) {
             underline="always"
             sx={{ gap: 0.5, alignItems: 'center', display: 'inline-flex' }}
           >
-            Get free version
+            Contact US
             <Iconify width={16} icon="eva:external-link-fill" />
           </Link>
         </Stack>
@@ -190,7 +177,7 @@ export function HomeHero({ sx, ...other }) {
           startIcon={<Iconify width={24} icon="solar:figma-outline" />}
           sx={{ borderColor: 'text.primary' }}
         >
-          Figma preview
+          Contact Us
         </Button>
       </MInview>
     </Box>

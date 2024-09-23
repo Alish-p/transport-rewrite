@@ -209,7 +209,29 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/expense/${MOCK_ID}/edit`,
       },
     },
+    subtrip: {
+      root: `${ROOTS.DASHBOARD}/subtrip`,
+      new: `${ROOTS.DASHBOARD}/subtrip/new`,
+      list: `${ROOTS.DASHBOARD}/subtrip/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/subtrip/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/subtrip/${MOCK_ID}/edit`,
+      },
+    },
 
+    trip: {
+      root: `${ROOTS.DASHBOARD}/trip`,
+      new: `${ROOTS.DASHBOARD}/trip/new`,
+      list: `${ROOTS.DASHBOARD}/trip/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/trip/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/trip/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/trip/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/trip/${MOCK_ID}/edit`,
+      },
+    },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,
