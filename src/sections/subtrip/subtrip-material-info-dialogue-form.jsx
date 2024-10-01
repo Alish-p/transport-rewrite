@@ -21,7 +21,7 @@ import { addMaterialInfo } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
 
-import { Form, Field } from '../../components/hook-form';
+import { Form, Field, schemaHelper } from '../../components/hook-form';
 
 const validationSchema = zod.object({
   consignee: zod
@@ -35,13 +35,15 @@ const validationSchema = zod.object({
   shipmentNo: zod.string().optional(),
   orderNo: zod.string().optional(),
   ewayBill: zod.string().optional(),
-  ewayExpiryDate: zod.date().optional(),
+  ewayExpiryDate: schemaHelper.date({
+    message: { required_error: 'EwayExpiry date is required!' },
+  }),
   materialType: zod.string().optional(),
   quantity: zod.number().positive().int(),
   grade: zod.string().optional(),
   tds: zod.number().int().optional(),
   driverAdvance: zod.number().int().optional(),
-  dieselLtr: zod.number().int().optional(),
+  dieselLtr: zod.any(),
   pumpCd: zod.string().optional(),
 });
 
@@ -60,7 +62,7 @@ const defaultValues = {
   grade: '',
   tds: 0,
   driverAdvance: 0,
-  dieselLtr: 0,
+  dieselLtr: 'Full',
   pumpCd: '',
 };
 
@@ -102,6 +104,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       setShowDialog(false);
     } catch (error) {
       console.error(error);
+      toast.error('Error !! ');
     }
   };
 
@@ -176,7 +179,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
               display="grid"
               gridTemplateColumns={{
                 xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
+                sm: 'repeat(3, 1fr)',
               }}
             >
               <Field.Select native name="pumpCd" label="Pump">
@@ -193,23 +196,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
                 type="number"
                 helperText={`Driver Advance for this Route is usually "${advanceAmt} ₹"`}
               />
-            </Box>
-            <Box
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)', // Full width for each field on extra small screens
-                sm: '65% 5% 20%', // Two columns for the second row
-              }}
-              columnGap={2}
-              sx={{ mt: 3 }}
-            >
-              <Field.Text name="dieselLtr" label="Diesel (Ltr)" />
-              <Typography sx={{ mt: 2, mx: 0, width: 1 }}>OR</Typography>
-              <Field.Switch
-                name="isFullTank"
-                label="Full-Tank ?"
-                labelPlacement="top"
-                sx={{ width: 1 }}
+              <Field.Text
+                name="dieselLtr"
+                label="Diesel (Ltr)"
+                helperText={'Select "Full" in case Full-tank or LTR'}
               />
             </Box>
           </Form>

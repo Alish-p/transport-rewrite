@@ -1,17 +1,20 @@
+/* eslint-disable react/prop-types */
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+// @mui
+import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
+// utils
 import { fCurrency, fShortenNumber } from 'src/utils/format-number';
 
-import { varAlpha } from 'src/theme/styles';
-
+// components
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function InvoiceAnalytic({ title, total, icon, color, percent, price }) {
+export default function InvoiceAnalytic({ title, total, icon, color, percent, price }) {
   return (
     <Stack
       spacing={2.5}
@@ -24,24 +27,24 @@ export function InvoiceAnalytic({ title, total, icon, color, percent, price }) {
         <Iconify icon={icon} width={32} sx={{ color, position: 'absolute' }} />
 
         <CircularProgress
+          variant="determinate"
+          value={percent}
           size={56}
           thickness={2}
-          value={percent}
-          variant="determinate"
           sx={{ color, opacity: 0.48 }}
         />
 
         <CircularProgress
-          size={56}
-          value={100}
-          thickness={3}
           variant="determinate"
+          value={100}
+          size={56}
+          thickness={3}
           sx={{
             top: 0,
             left: 0,
             opacity: 0.48,
             position: 'absolute',
-            color: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
+            color: (theme) => alpha(theme.palette.grey[500], 0.16),
           }}
         />
       </Stack>
@@ -50,7 +53,7 @@ export function InvoiceAnalytic({ title, total, icon, color, percent, price }) {
         <Typography variant="subtitle1">{title}</Typography>
 
         <Box component="span" sx={{ color: 'text.disabled', typography: 'body2' }}>
-          {fShortenNumber(total)} invoices
+          {fShortenNumber(total) || 0} Invoices
         </Box>
 
         <Typography variant="subtitle2">{fCurrency(price)}</Typography>

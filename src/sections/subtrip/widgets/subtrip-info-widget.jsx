@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
@@ -30,16 +29,16 @@ export default function LRInfoCard({ subtrip }) {
     tripId: { _id },
     startDate,
     endDate,
-    rate,
-    subtripStatus,
-    loadingWeight,
-    UnloadingWeight,
+    rate = '-',
+    subtripStatus = '-',
+    loadingWeight = '-',
+    UnloadingWeight = '-',
     startKm = '-',
     endKm = '-',
-    tds,
-    invoiceNo,
-    orderNo,
-    shipmentNo,
+    tds = '-',
+    invoiceNo = '-',
+    orderNo = '-',
+    shipmentNo = '-',
   } = subtrip;
 
   const renderCustomer = (
@@ -70,15 +69,6 @@ export default function LRInfoCard({ subtrip }) {
               {_id}
             </Box>
           </Box>
-
-          <Button
-            size="small"
-            color="error"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ mt: 1 }}
-          >
-            Add to Blacklist
-          </Button>
         </Stack>
       </Stack>
     </>
@@ -86,14 +76,7 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderRoute = (
     <>
-      <CardHeader
-        title="Route"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
+      <CardHeader title="Route" />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
@@ -134,14 +117,7 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderMaterial = (
     <>
-      <CardHeader
-        title="Material"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
+      <CardHeader title="Material" />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
@@ -205,14 +181,7 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderWeight = (
     <>
-      <CardHeader
-        title="Weight"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
+      <CardHeader title="Weight" />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>

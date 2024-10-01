@@ -1,243 +1,180 @@
-import { useState, useCallback } from 'react';
+import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
-import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import { styled } from '@mui/material/styles';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
+import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
+import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { INVOICE_STATUS_OPTIONS } from 'src/_mock';
-
 import { Label } from 'src/components/label';
-import { Scrollbar } from 'src/components/scrollbar';
-
-import { InvoiceToolbar } from './invoice-toolbar';
-
-// ----------------------------------------------------------------------
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  [`& .${tableCellClasses.root}`]: {
-    textAlign: 'right',
+  '& td': {
+    // textAlign: 'center',
     borderBottom: 'none',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
 }));
 
-// ----------------------------------------------------------------------
+function calculateTotal(subtrips) {
+  return subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0);
+}
 
-export function InvoiceDetails({ invoice }) {
-  const [currentStatus, setCurrentStatus] = useState(invoice?.status);
-
-  const handleChangeStatus = useCallback((event) => {
-    setCurrentStatus(event.target.value);
-  }, []);
-
-  const renderTotal = (
-    <>
-      <StyledTableRow>
-        <TableCell colSpan={3} />
-        <TableCell sx={{ color: 'text.secondary' }}>
-          <Box sx={{ mt: 2 }} />
-          Subtotal
-        </TableCell>
-        <TableCell width={120} sx={{ typography: 'subtitle2' }}>
-          <Box sx={{ mt: 2 }} />
-          {fCurrency(invoice?.subtotal)}
-        </TableCell>
-      </StyledTableRow>
-
-      <StyledTableRow>
-        <TableCell colSpan={3} />
-        <TableCell sx={{ color: 'text.secondary' }}>Shipping</TableCell>
-        <TableCell width={120} sx={{ color: 'error.main', typography: 'body2' }}>
-          - {fCurrency(invoice?.shipping)}
-        </TableCell>
-      </StyledTableRow>
-
-      <StyledTableRow>
-        <TableCell colSpan={3} />
-        <TableCell sx={{ color: 'text.secondary' }}>Discount</TableCell>
-        <TableCell width={120} sx={{ color: 'error.main', typography: 'body2' }}>
-          - {fCurrency(invoice?.discount)}
-        </TableCell>
-      </StyledTableRow>
-
-      <StyledTableRow>
-        <TableCell colSpan={3} />
-        <TableCell sx={{ color: 'text.secondary' }}>Taxes</TableCell>
-        <TableCell width={120}>{fCurrency(invoice?.taxes)}</TableCell>
-      </StyledTableRow>
-
-      <StyledTableRow>
-        <TableCell colSpan={3} />
-        <TableCell sx={{ typography: 'subtitle1' }}>Total</TableCell>
-        <TableCell width={140} sx={{ typography: 'subtitle1' }}>
-          {fCurrency(invoice?.totalAmount)}
-        </TableCell>
-      </StyledTableRow>
-    </>
-  );
-
-  const renderFooter = (
-    <Box gap={2} display="flex" alignItems="center" flexWrap="wrap" sx={{ py: 3 }}>
-      <div>
-        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-          NOTES
-        </Typography>
-        <Typography variant="body2">
-          We appreciate your business. Should you need us to add VAT or extra notes let us know!
-        </Typography>
-      </div>
-
-      <Box flexGrow={{ md: 1 }} sx={{ textAlign: { md: 'right' } }}>
-        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-          Have a question?
-        </Typography>
-        <Typography variant="body2">support@minimals.cc</Typography>
-      </Box>
-    </Box>
-  );
-
-  const renderList = (
-    <Scrollbar sx={{ mt: 5 }}>
-      <Table sx={{ minWidth: 960 }}>
-        <TableHead>
-          <TableRow>
-            <TableCell width={40}>#</TableCell>
-
-            <TableCell sx={{ typography: 'subtitle2' }}>Description</TableCell>
-
-            <TableCell>Qty</TableCell>
-
-            <TableCell align="right">Unit price</TableCell>
-
-            <TableCell align="right">Total</TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {invoice?.items.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{index + 1}</TableCell>
-
-              <TableCell>
-                <Box sx={{ maxWidth: 560 }}>
-                  <Typography variant="subtitle2">{row.title}</Typography>
-
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-                    {row.description}
-                  </Typography>
-                </Box>
-              </TableCell>
-
-              <TableCell>{row.quantity}</TableCell>
-
-              <TableCell align="right">{fCurrency(row.price)}</TableCell>
-
-              <TableCell align="right">{fCurrency(row.price * row.quantity)}</TableCell>
-            </TableRow>
-          ))}
-
-          {renderTotal}
-        </TableBody>
-      </Table>
-    </Scrollbar>
-  );
+export default function InvoiceDetails({ invoiceNo, subtrips, customer, status, createdDate }) {
+  const totalAmount = useMemo(() => calculateTotal(subtrips), [subtrips]);
 
   return (
-    <>
-      <InvoiceToolbar
-        invoice={invoice}
-        currentStatus={currentStatus || ''}
-        onChangeStatus={handleChangeStatus}
-        statusOptions={INVOICE_STATUS_OPTIONS}
-      />
-
-      <Card sx={{ pt: 5, px: 5 }}>
+    <Card sx={{ pt: 5, px: 5 }}>
+      <Box
+        rowGap={5}
+        display="grid"
+        alignItems="center"
+        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+      >
         <Box
-          rowGap={5}
-          display="grid"
-          alignItems="center"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
-        >
-          <Box
-            component="img"
-            alt="logo"
-            src="/logo/logo-single.svg"
-            sx={{ width: 48, height: 48 }}
-          />
+          component="img"
+          alt="logo"
+          src="/logo/logo_single.svg"
+          sx={{ width: 48, height: 48 }}
+        />
 
-          <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-            <Label
-              variant="soft"
-              color={
-                (currentStatus === 'paid' && 'success') ||
-                (currentStatus === 'pending' && 'warning') ||
-                (currentStatus === 'overdue' && 'error') ||
-                'default'
-              }
-            >
-              {currentStatus}
-            </Label>
+        <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
+          <Label variant="soft" color="default">
+            {status || 'Draft'}
+          </Label>
+          <Typography variant="h6">{invoiceNo || 'INV - XXX'}</Typography>
+        </Stack>
 
-            <Typography variant="h6">{invoice?.invoiceNumber}</Typography>
-          </Stack>
+        <Stack sx={{ typography: 'body2' }}>
+          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+            Invoice From
+          </Typography>
+          Shree EnterPrise
+          <br />
+          Mudhol Opp-Reliance Trend
+          <br />
+          Phone: {7575049646}
+          <br />
+        </Stack>
 
-          <Stack sx={{ typography: 'body2' }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Invoice from
-            </Typography>
-            {invoice?.invoiceFrom.name}
-            <br />
-            {invoice?.invoiceFrom.fullAddress}
-            <br />
-            Phone: {invoice?.invoiceFrom.phoneNumber}
-            <br />
-          </Stack>
+        <Stack sx={{ typography: 'body2' }}>
+          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+            Invoice To
+          </Typography>
+          {customer && (
+            <>
+              {customer.customerName}
+              <br />
+              {customer.address}
+              <br />
+              Phone: {customer.cellNo}
+              <br />
+            </>
+          )}
+        </Stack>
 
-          <Stack sx={{ typography: 'body2' }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Invoice to
-            </Typography>
-            {invoice?.invoiceTo.name}
-            <br />
-            {invoice?.invoiceTo.fullAddress}
-            <br />
-            Phone: {invoice?.invoiceTo.phoneNumber}
-            <br />
-          </Stack>
+        <Stack sx={{ typography: 'body2' }}>
+          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+            Created
+          </Typography>
+          {createdDate && fDate(createdDate)}
+        </Stack>
+        <Stack sx={{ typography: 'body2' }}>
+          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+            Due Date
+          </Typography>
+          {createdDate && fDate(createdDate)}
+        </Stack>
+      </Box>
 
-          <Stack sx={{ typography: 'body2' }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Date create
-            </Typography>
-            {fDate(invoice?.createDate)}
-          </Stack>
+      <TableContainer sx={{ overflow: 'unset', mt: 5 }}>
+        <Table sx={{ minWidth: 960 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell width={40}>#</TableCell>
+              <TableCell sx={{ typography: 'subtitle2' }}>Consignee</TableCell>
+              <TableCell>Destination</TableCell>
+              <TableCell>Vehicle No</TableCell>
+              <TableCell>LR No</TableCell>
+              <TableCell>Invoice No</TableCell>
+              <TableCell>Disp Date</TableCell>
 
-          <Stack sx={{ typography: 'body2' }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Due date
-            </Typography>
-            {fDate(invoice?.dueDate)}
-          </Stack>
-        </Box>
+              <TableCell>QTY(MT)</TableCell>
+              <TableCell>Rate/MT</TableCell>
+              <TableCell>Freight</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {subtrips &&
+              subtrips.map((st, index) => (
+                <TableRow key={st._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{st.consignee}</TableCell>
+                  <TableCell>{st.unloadingPoint}</TableCell>
+                  <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                  <TableCell>{st._id}</TableCell>
+                  <TableCell>{st.invoiceNo}</TableCell>
+                  <TableCell>{fDate(st.startDate)}</TableCell>
+                  <TableCell>{st.loadingWeight}</TableCell>
+                  <TableCell>{fCurrency(st.rate)}</TableCell>
+                  <TableCell>{fCurrency(st.rate * st.loadingWeight)}</TableCell>
+                </TableRow>
+              ))}
+            <StyledTableRow>
+              <TableCell colSpan={8} />
+              <TableCell sx={{ typography: 'subtitle2' }}>Total</TableCell>
+              <TableCell sx={{ typography: 'subtitle2' }}>{fCurrency(totalAmount)}</TableCell>
+            </StyledTableRow>
+            <StyledTableRow>
+              <TableCell colSpan={8} />
+              <TableCell sx={{ typography: 'subtitle2' }}>CGST(+6%)</TableCell>
+              <TableCell sx={{ typography: 'subtitle2' }}>
+                {fCurrency(totalAmount * 0.06)}
+              </TableCell>
+            </StyledTableRow>
+            <StyledTableRow>
+              <TableCell colSpan={8} />
+              <TableCell sx={{ typography: 'subtitle2' }}>SGST(+6%)</TableCell>
+              <TableCell sx={{ typography: 'subtitle2' }}>
+                {fCurrency(totalAmount * 0.06)}
+              </TableCell>
+            </StyledTableRow>
 
-        {renderList}
+            <StyledTableRow>
+              <TableCell colSpan={8} />
+              <TableCell sx={{ typography: 'subtitle2' }}>Net-Total</TableCell>
+              <TableCell sx={{ typography: 'subtitle2', color: 'red' }}>
+                {fCurrency(totalAmount * 1.12)}
+              </TableCell>
+            </StyledTableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-        <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
+      <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
 
-        {renderFooter}
-      </Card>
-    </>
+      <Grid container>
+        <Grid xs={12} md={9} sx={{ py: 3 }}>
+          <Typography variant="subtitle2">NOTES</Typography>
+          <Typography variant="body2">Shree EnterPrises</Typography>
+        </Grid>
+        <Grid xs={12} md={3} sx={{ py: 3, textAlign: 'right' }}>
+          <Typography variant="subtitle2">For-Shree EnterPrises</Typography>
+          <Typography variant="body2"> Authorised Signatory</Typography>
+        </Grid>
+      </Grid>
+    </Card>
   );
 }

@@ -4,14 +4,24 @@ import { useDispatch } from 'react-redux';
 import { useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, List, Stack, Button, ListItem, ListItemText } from '@mui/material';
+import {
+  Box,
+  List,
+  Stack,
+  Button,
+  Dialog,
+  ListItem,
+  DialogTitle,
+  ListItemText,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 
 import { closeTrip } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
 // form components
 import { Form, Field } from 'src/components/hook-form';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
 const validationSchema = zod.object({
   userConfirm: zod.boolean().refine((val) => val === true, {
@@ -61,32 +71,35 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
   }, [showDialog, handleReset]);
 
   return (
-    <ConfirmDialog
+    <Dialog
       open={showDialog}
       onClose={() => setShowDialog(false)}
-      title="Close Subtrip"
-      content={
-        <Box>
-          <Form methods={methods} onSubmit={onSubmit}>
-            <List sx={{ listStyle: 'decimal', pl: 4 }}>
-              <ListItem sx={{ display: 'list-item' }}>
-                <ListItemText primary="Please confirm that you have added all the related information and expenses to the sub-trip." />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item' }}>
-                <ListItemText primary="The signed LR is received without any errors." />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item' }}>
-                <ListItemText primary="You will not be able to edit this LR once it is closed." />
-              </ListItem>
-            </List>
+      fullWidth
+      maxWidth={false}
+      PaperProps={{ sx: { maxWidth: 720 } }}
+    >
+      <DialogTitle> Close Subtrip </DialogTitle>
+      <DialogContent>
+        <Form methods={methods} onSubmit={onSubmit}>
+          <List sx={{ listStyle: 'decimal', pl: 4 }}>
+            <ListItem sx={{ display: 'list-item' }}>
+              <ListItemText primary="Please confirm that you have added all the related information and expenses to the sub-trip." />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <ListItemText primary="The signed LR is received without any errors." />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <ListItemText primary="You will not be able to edit this LR once it is closed." />
+            </ListItem>
+          </List>
 
-            <Box mt={3} rowGap={3} columnGap={2} display="grid">
-              <Field.Checkbox name="userConfirm" label="I confirm" />
-            </Box>
-          </Form>
-        </Box>
-      }
-      action={
+          <Box mt={3} rowGap={3} columnGap={2} display="grid">
+            <Field.Checkbox name="userConfirm" label="I confirm" />
+          </Box>
+        </Form>
+      </DialogContent>
+
+      <DialogActions>
         <Stack direction="row" spacing={1}>
           <Button
             type="reset"
@@ -106,7 +119,7 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
             Close
           </Button>
         </Stack>
-      }
-    />
+      </DialogActions>
+    </Dialog>
   );
 }

@@ -6,7 +6,7 @@ import { CONFIG } from 'src/config-global';
 
 import { TripListView } from 'src/sections/trip/views';
 
-import { fetchTrips } from '../../../redux/slices/trip';
+import { fetchTrips } from 'src/redux/slices/trip';
 
 // ----------------------------------------------------------------------
 

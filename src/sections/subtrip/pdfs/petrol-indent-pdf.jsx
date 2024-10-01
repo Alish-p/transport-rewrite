@@ -100,14 +100,15 @@ const useStyles = () =>
 
 // ----------------------------------------------------------------------
 
-export default function IndentPdf({ subtripData }) {
+export default function IndentPdf({ subtrip }) {
   const {
     _id,
     customerId,
     startDate,
     expenses,
+    initialDiesel,
     tripId: { driverId, vehicleId },
-  } = subtripData;
+  } = subtrip;
 
   const styles = useStyles();
 
@@ -171,7 +172,7 @@ export default function IndentPdf({ subtripData }) {
           >
             <View style={[{ display: 'flex' }]}>
               <Text style={[styles.subtitle2]}>TO:</Text>
-              <Text style={styles.body2}>{expenses[1]?.pumpCd?.pumpName}</Text>
+              <Text style={styles.body2}>{expenses[0]?.pumpCd?.pumpName}</Text>
             </View>
           </View>
 
@@ -327,7 +328,7 @@ export default function IndentPdf({ subtripData }) {
               styles.border,
             ]}
           >
-            <Text style={[styles.body2]}>{expenses[1]?.dieselLtr} </Text>
+            <Text style={[styles.body2]}>{initialDiesel} </Text>
           </View>
           <View
             style={[

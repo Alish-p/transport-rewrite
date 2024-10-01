@@ -1,9 +1,10 @@
+/* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
+// @mui
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import NoSsr from '@mui/material/NoSsr';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Tooltip from '@mui/material/Tooltip';
@@ -12,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
+// routes
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -20,42 +22,18 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 
-import { InvoicePDF } from './invoice-pdf';
+import InvoicePDF from './invoice-pdf';
 
 // ----------------------------------------------------------------------
 
-export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
+export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
   const router = useRouter();
 
   const view = useBoolean();
 
   const handleEdit = useCallback(() => {
-    router.push(paths.dashboard.invoice.edit(`${invoice?.id}`));
-  }, [invoice?.id, router]);
-
-  const renderDownload = (
-    <NoSsr>
-      <PDFDownloadLink
-        document={
-          invoice ? <InvoicePDF invoice={invoice} currentStatus={currentStatus} /> : <span />
-        }
-        fileName={invoice?.invoiceNumber}
-        style={{ textDecoration: 'none' }}
-      >
-        {({ loading }) => (
-          <Tooltip title="Download">
-            <IconButton>
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                <Iconify icon="eva:cloud-download-fill" />
-              )}
-            </IconButton>
-          </Tooltip>
-        )}
-      </PDFDownloadLink>
-    </NoSsr>
-  );
+    router.push(paths.dashboard.invoice.edit(invoice?._id));
+  }, [invoice._id, router]);
 
   return (
     <>
@@ -78,7 +56,23 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
             </IconButton>
           </Tooltip>
 
-          {renderDownload}
+          <PDFDownloadLink
+            document={<InvoicePDF invoice={invoice} currentStatus={currentStatus} />}
+            fileName={invoice._id}
+            style={{ textDecoration: 'none' }}
+          >
+            {({ loading }) => (
+              <Tooltip title="Download">
+                <IconButton>
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    <Iconify icon="eva:cloud-download-fill" />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+          </PDFDownloadLink>
 
           <Tooltip title="Print">
             <IconButton>
@@ -105,9 +99,9 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
           label="Status"
           value={currentStatus}
           onChange={onChangeStatus}
-          inputProps={{ id: `status-select-label` }}
-          InputLabelProps={{ htmlFor: `status-select-label` }}
-          sx={{ maxWidth: 160 }}
+          sx={{
+            maxWidth: 160,
+          }}
         >
           {statusOptions.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -119,7 +113,11 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
 
       <Dialog fullScreen open={view.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions sx={{ p: 1.5 }}>
+          <DialogActions
+            sx={{
+              p: 1.5,
+            }}
+          >
             <Button color="inherit" variant="contained" onClick={view.onFalse}>
               Close
             </Button>
@@ -127,7 +125,7 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              {invoice && <InvoicePDF invoice={invoice} currentStatus={currentStatus} />}
+              <InvoicePDF invoice={invoice} currentStatus={currentStatus} />
             </PDFViewer>
           </Box>
         </Box>

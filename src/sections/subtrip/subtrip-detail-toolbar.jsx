@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useNavigate } from 'react-router';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
@@ -37,7 +36,6 @@ export default function SubtripToolbar({
   const viewPopover = usePopover();
   const downloadPopover = usePopover();
 
-  const navigate = useNavigate();
   const viewLR = useBoolean();
   const viewIntent = useBoolean();
 
@@ -182,7 +180,7 @@ export default function SubtripToolbar({
               viewPopover.onClose();
               viewLR.onTrue();
             }}
-            disabled={subtrip.subtripStatus !== 'loaded'}
+            disabled={subtrip.subtripStatus === 'in-queue'}
           >
             Lorry Receipt (LR)
           </MenuItem>
@@ -191,7 +189,7 @@ export default function SubtripToolbar({
               viewPopover.onClose();
               viewIntent.onTrue();
             }}
-            disabled={subtrip.subtripStatus !== 'loaded'}
+            disabled={subtrip.subtripStatus === 'in-queue'}
           >
             Petrol Pump Intent
           </MenuItem>
@@ -209,8 +207,7 @@ export default function SubtripToolbar({
           <PDFDownloadLink
             document={<LRPDF subtrip={subtrip} />}
             fileName={subtrip._id}
-            style={{ textDecoration: 'none' }}
-            color="green"
+            style={{ textDecoration: 'none', color: 'green' }}
             onClick={() => {
               downloadPopover.onClose();
             }}
@@ -235,8 +232,7 @@ export default function SubtripToolbar({
           <PDFDownloadLink
             document={<IndentPdf subtrip={subtrip} />}
             fileName={`${subtrip._id}_indent`}
-            style={{ textDecoration: 'none' }}
-            color="green"
+            style={{ textDecoration: 'none', color: 'green' }}
             onClick={() => {
               downloadPopover.onClose();
             }}

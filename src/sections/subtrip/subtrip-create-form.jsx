@@ -19,7 +19,9 @@ import { addSubtrip } from 'src/redux/slices/subtrip';
 import { fetchCustomers } from 'src/redux/slices/customer';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { today } from '../../utils/format-time';
 
 const NewTripSchema = zod.object({
   tripId: zod
@@ -32,6 +34,7 @@ const NewTripSchema = zod.object({
   customerId: zod.string().min(1, { message: 'Customer ID is required' }),
   loadingPoint: zod.string().min(1, { message: 'Loading Point is required' }),
   unloadingPoint: zod.string().min(1, { message: 'Unloading Point is required' }),
+  startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
 });
 
 export default function SubtripCreateForm({ currentTrip }) {
@@ -46,6 +49,7 @@ export default function SubtripCreateForm({ currentTrip }) {
       customerId: '',
       loadingPoint: '',
       unloadingPoint: '',
+      startDate: today(),
     }),
     [currentTrip]
   );

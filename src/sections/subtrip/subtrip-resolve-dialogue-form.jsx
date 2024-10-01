@@ -4,14 +4,21 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, Stack, Button } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 
 import { resolveLR } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
 // form components
 import { Form, Field } from 'src/components/hook-form';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
 const validationSchema = zod.object({
   remarks: zod.string().optional(),
@@ -59,28 +66,23 @@ export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
   }, [showDialog]);
 
   return (
-    <ConfirmDialog
+    <Dialog
       open={showDialog}
       onClose={() => setShowDialog(false)}
-      title="Resolve Subtrip"
-      content={
+      fullWidth
+      maxWidth={false}
+      PaperProps={{ sx: { maxWidth: 720 } }}
+    >
+      <DialogTitle>Resolve Subtrip</DialogTitle>
+      <DialogContent>
         <Box sx={{ marginTop: '6px' }}>
           <Form methods={methods} onSubmit={onSubmit}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <Field.Text name="remarks" label="Remarks" type="text" />
-            </Box>
+            <Field.Editor name="remarks" label="Remarks" fullItem sx={{ maxHeight: 480 }} />
           </Form>
         </Box>
-      }
-      action={
+      </DialogContent>
+      <DialogActions>
+        {' '}
         <Stack direction="row" spacing={1}>
           <Button type="reset" onClick={handleReset} variant="outlined" loading={isSubmitting}>
             Reset
@@ -94,7 +96,7 @@ export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
             Resolve
           </Button>
         </Stack>
-      }
-    />
+      </DialogActions>
+    </Dialog>
   );
 }

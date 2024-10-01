@@ -1,4 +1,3 @@
-// ---------------------------------------------------------------
 import { z as zod } from 'zod';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -19,24 +18,55 @@ import { receiveLR } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
 
-import { Form, Field } from '../../components/hook-form';
+import { today } from '../../utils/format-time';
+import { Form, Field, schemaHelper } from '../../components/hook-form';
 // form components
 
-const validationSchema = zod.object({
-  remarks: zod.string().optional(),
-  unloadingWeight: zod
-    .number({ required_error: 'Unloading weight is required' })
-    .refine((val, ctx) => val <= ctx.parent.loadingWeight, {
-      message: 'Unloading weight must be less than or equal to loading weight',
-      path: ['unloadingWeight'], // This tells Zod which field to point to in case of error
-    }),
-  endKm: zod
-    .number({ required_error: 'End Km is required' })
-    .refine((val, ctx) => val >= ctx.parent.startKm, {
-      message: 'End Km must be greater than Start Km',
-      path: ['endKm'], // This tells Zod which field to point to in case of error
-    }),
-});
+const validationSchema = zod
+  .object({
+    remarks: zod.string().optional(),
+    loadingWeight: zod
+      .number({ required_error: 'Loading weight is required' })
+      .positive({ message: 'Loading weight must be a positive number' }),
+    unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
+    deductedWeight: zod
+      .number({ required_error: 'Deducted weight is required' })
+      .min(0, { message: 'Deducted weight cannot be negative' }),
+    startKm: zod
+      .number({ required_error: 'Start Km is required' })
+      .positive({ message: 'Start Km must be a positive number' }),
+    endKm: zod.number({ required_error: 'End Km is required' }),
+    totalKm: zod
+      .number()
+      .min(0, { message: 'Total Km must be zero or a positive number' })
+      .optional(),
+    endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
+
+    detentionTime: zod
+      .number({ required_error: 'Detention time is required' })
+      .min(0, { message: 'Detention time must be zero or a positive number' }),
+    hasError: zod.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    // Validate unloadingWeight <= loadingWeight
+    if (values.unloadingWeight > values.loadingWeight) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Unloading weight must be less than or equal to loading weight',
+        path: ['unloadingWeight'],
+      });
+    }
+
+    // Validate endKm >= startKm
+    if (values.endKm < values.startKm) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'End Km must be greater than or equal to Start Km',
+        path: ['endKm'],
+      });
+    }
+  });
+
 // ---------------------------------------------------------------
 
 export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
@@ -52,7 +82,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     startKm,
     endKm: 0,
     totalKm: 0,
-    endDate: null,
+    endDate: today(),
     detentionTime: 0,
     hasError: false,
   };
@@ -60,6 +90,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const methods = useForm({
     resolver: zodResolver(validationSchema),
     defaultValues,
+    mode: 'all',
   });
 
   const {

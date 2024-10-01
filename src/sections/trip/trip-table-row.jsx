@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
 
+import { useNavigate } from 'react-router';
+
 // @mui
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -16,12 +18,14 @@ import { Box, Paper, Stack, Collapse, MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate, fDateTime } from 'src/utils/format-time';
+import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { paths } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -47,6 +51,7 @@ export default function VehicleTableRow({
   const confirm = useBoolean();
   const collapse = useBoolean();
   const popover = usePopover();
+  const navigate = useNavigate();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
@@ -93,7 +98,7 @@ export default function VehicleTableRow({
       <TableCell>
         <ListItemText
           primary={fDate(new Date(fromDate))}
-          secondary={fDateTime(new Date(fromDate), 'p')}
+          secondary={fTime(new Date(fromDate))}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             mt: 0.5,
@@ -105,7 +110,7 @@ export default function VehicleTableRow({
       <TableCell>
         <ListItemText
           primary={toDate ? fDate(new Date(toDate)) : '--'}
-          secondary={toDate ? fDateTime(new Date(toDate), 'p') : '--'}
+          secondary={toDate ? fTime(new Date(toDate)) : '--'}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             mt: 0.5,
@@ -179,7 +184,7 @@ export default function VehicleTableRow({
                       noWrap
                       variant="body2"
                       onClick={() => {
-                        onViewRow(_id);
+                        navigate(paths.dashboard.subtrip.details(subtrip._id));
                       }}
                       sx={{ color: 'primary', cursor: 'pointer' }}
                     >
@@ -202,7 +207,7 @@ export default function VehicleTableRow({
                     noWrap
                     variant="body2"
                     onClick={() => {
-                      onViewRow(_id);
+                      navigate(paths.dashboard.subtrip.details(subtrip._id));
                     }}
                     sx={{ cursor: 'pointer' }}
                   >

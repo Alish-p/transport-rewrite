@@ -100,7 +100,7 @@ const useStyles = () =>
 
 // ----------------------------------------------------------------------
 
-export default function LRPDF({ subtripData }) {
+export default function LRPDF({ subtrip }) {
   const {
     _id,
     customerId,
@@ -116,7 +116,7 @@ export default function LRPDF({ subtripData }) {
     unloadingPoint,
 
     tripId: { driverId, vehicleId },
-  } = subtripData;
+  } = subtrip;
 
   const styles = useStyles();
 

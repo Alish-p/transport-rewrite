@@ -15,7 +15,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleCard({ vehicle }) {
+export default function VehicleCard({ vehicle, onVehicleEdit }) {
   const {
     vehicleNo,
     vehicleType,
@@ -38,7 +38,7 @@ export default function VehicleCard({ vehicle }) {
       <CardHeader
         title="Vehicle Details"
         action={
-          <IconButton>
+          <IconButton onClick={onVehicleEdit}>
             <Iconify icon="solar:pen-bold" />
           </IconButton>
         }

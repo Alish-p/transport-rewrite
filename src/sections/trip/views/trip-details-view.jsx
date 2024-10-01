@@ -2,7 +2,7 @@
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Box, Card, Grid, Stack, Button, CardHeader } from '@mui/material';
+import { Card, Grid, Stack, Button, Typography } from '@mui/material';
 // components
 
 import { useDispatch } from 'react-redux';
@@ -19,7 +19,7 @@ import TripToolbar from '../widgets/TripToolbar';
 import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
-import { DashboardContent } from '../../../layouts/dashboard';
+import { DashboardContent } from 'src/layouts/dashboard';
 import ChartColumnMultiple from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
@@ -148,17 +148,9 @@ export function TripDetailView({ trip }) {
               />
             </Stack>
             <Grid item xs={12} md={12}>
-              <Card sx={{ minHeight: 400 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 3,
-                    px: 3,
-                  }}
-                >
-                  <CardHeader title="Subtrip List" subheader="Detail of Subtrip" />
+              <Card sx={{ minHeight: 400, padding: '10px' }}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" m={2}>
+                  <Typography variant="h5"> Subtrip List </Typography>
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -170,7 +162,7 @@ export function TripDetailView({ trip }) {
                   >
                     New Subtrip
                   </Button>
-                </Box>
+                </Stack>
                 <SimpleSubtripList subtrips={trip.subtrips} />
               </Card>
             </Grid>
@@ -206,8 +198,18 @@ export function TripDetailView({ trip }) {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
-            <DriverCard driver={trip.driverId} />
-            <VehicleCard vehicle={trip.vehicleId} />
+            <DriverCard
+              driver={trip.driverId}
+              onDriverEdit={() => {
+                navigate(paths.dashboard.driver.edit(trip?.driverId?._id));
+              }}
+            />
+            <VehicleCard
+              vehicle={trip.vehicleId}
+              onVehicleEdit={() => {
+                navigate(paths.dashboard.vehicle.edit(trip?.vehicleId?._id));
+              }}
+            />
           </Stack>
         </Grid>
       </Grid>

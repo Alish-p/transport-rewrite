@@ -10,12 +10,15 @@ import { Box, Card, Grid, Stack, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
 import { addTrip, updateTrip } from 'src/redux/slices/trip';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { fVehicleNo } from '../../utils/format-number';
 
 const NewTripSchema = zod.object({
   driverId: zod
@@ -26,7 +29,7 @@ const NewTripSchema = zod.object({
     .any()
     .nullable()
     .refine((val) => val !== null, { message: 'Vehicle is required' }),
-  fromDate: zod.date({ required_error: 'From Date is required' }),
+  fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
   remarks: zod.string().optional(),
 });
 
@@ -42,7 +45,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
       vehicleId: currentTrip?.vehicleId
         ? { label: currentTrip?.vehicleId?.vehicleNo, value: currentTrip?.vehicleId?._id }
         : null,
-      fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : new Date(),
+      fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : today(),
       remarks: currentTrip?.remarks || 'Remarks',
     }),
     [currentTrip]
@@ -106,7 +109,10 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Field.Autocomplete
                 name="vehicleId"
                 label="Vehicle"
-                options={vehicles.map((c) => ({ label: c.vehicleNo, value: c._id }))}
+                options={vehicles.map((c) => ({
+                  label: `[${c.vehicleType}]  ${fVehicleNo(c.vehicleNo)}`,
+                  value: c._id,
+                }))}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />

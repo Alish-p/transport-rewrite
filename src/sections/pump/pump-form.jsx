@@ -58,6 +58,7 @@ export default function PumpForm({ currentPump }) {
   const methods = useForm({
     resolver: zodResolver(NewPumpSchema),
     defaultValues,
+    mode: 'all',
   });
 
   const {
