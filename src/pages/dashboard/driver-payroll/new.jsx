@@ -4,22 +4,22 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 import { useDispatch } from 'src/redux/store';
-import { fetchCustomers } from 'src/redux/slices/customer';
+import { fetchDrivers } from 'src/redux/slices/driver';
 
-import { InvoiceCreateView } from 'src/sections/invoice/views';
+import { DriverPayrollCreateView } from 'src/sections/driver-payroll/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Create a new Invoice | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Create a new Driver Payroll | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchCustomers());
+    dispatch(fetchDrivers());
   }, [dispatch]);
 
-  const { customers } = useSelector((state) => state.customer);
+  const { drivers } = useSelector((state) => state.driver);
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <InvoiceCreateView customerList={customers} />
+      <DriverPayrollCreateView driverList={drivers} />
     </>
   );
 }

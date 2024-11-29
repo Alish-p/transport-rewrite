@@ -19,12 +19,12 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
+export default function DriverPayrollTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
 
-  const handleFilterCustomerName = useCallback(
+  const handleFilterDriverName = useCallback(
     (event) => {
-      onFilters('customer', event.target.value);
+      onFilters('driver', event.target.value);
     },
     [onFilters]
   );
@@ -66,9 +66,9 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
       >
         <TextField
           fullWidth
-          value={filters.customer}
-          onChange={handleFilterCustomerName}
-          placeholder="Search customer ..."
+          value={filters.driver}
+          onChange={handleFilterDriverName}
+          placeholder="Search driver ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -145,7 +145,7 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           <MenuItem
             onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Invoice-list');
+              exportToExcel(tableData, 'Driver-list');
             }}
           >
             <Iconify icon="solar:export-bold" />

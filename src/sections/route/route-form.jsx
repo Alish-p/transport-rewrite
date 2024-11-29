@@ -19,7 +19,7 @@ import { addRoute, updateRoute } from 'src/redux/slices/route';
 // components
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { tripType } from './RouteTableConfig';
 import { vehicleTypes } from '../vehicle/vehicle-config';
@@ -34,9 +34,9 @@ export const NewRouteSchema = zod.object({
   tripType: zod.string().min(1, { message: 'Trip Type is required' }),
   ratePerTon: zod.number({ required_error: 'Rate per Ton is required' }),
   distance: zod.number({ required_error: 'Distance is required' }),
-  validFromDate: zod.date({ required_error: 'Valid From Date is required' }),
+  validFromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
   transportType: zod.string().min(1, { message: 'Transport Type is required' }),
-  validTillDate: zod.date({ required_error: 'Valid Till Date is required' }),
+  validTillDate: schemaHelper.date({ message: { required_error: 'Till date is required!' } }),
   salary: zod.array(
     zod.object({
       vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),

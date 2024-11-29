@@ -9,7 +9,6 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 // @mui
@@ -18,8 +17,8 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -31,13 +30,12 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
-import { deleteInvoice, fetchInvoices } from 'src/redux/slices/invoice';
+import { deleteInvoice } from 'src/redux/slices/invoice';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -50,6 +48,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { DashboardContent } from '../../../layouts/dashboard';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
@@ -58,12 +57,11 @@ import InvoiceTableFiltersResult from '../invoice-list/invoice-table-filters-res
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: '_id', label: 'Invoice ID' },
-  { id: 'customerId', label: 'Customer' },
+  { id: '_id', label: 'Invoice' },
   { id: 'invoiceStatus', label: 'Invoice Status' },
-  { id: 'amount', label: 'Amount' },
   { id: 'createdDate', label: 'Created Date' },
-  { id: 'dueDate', label: 'Due Date' },
+  { id: 'amount', label: 'Amount' },
+  { id: '', label: '' },
 ];
 
 const defaultFilters = {
@@ -76,9 +74,8 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function InvoiceListView() {
+export function InvoiceListView({ invoices }) {
   const theme = useTheme();
-  const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -89,12 +86,6 @@ export function InvoiceListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
-
-  useEffect(() => {
-    dispatch(fetchInvoices());
-  }, [dispatch]);
-
-  const { invoices, isLoading } = useSelector((state) => state.invoice);
 
   useEffect(() => {
     if (invoices.length) {
@@ -179,7 +170,7 @@ export function InvoiceListView() {
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <DashboardContent>
         <CustomBreadcrumbs
           heading="Invoice List"
           links={[
@@ -413,7 +404,7 @@ export function InvoiceListView() {
             onChangeDense={table.onChangeDense}
           />
         </Card>
-      </Container>
+      </DashboardContent>
 
       {/* Delete Confirmations dialogue */}
       <ConfirmDialog
@@ -446,7 +437,7 @@ export function InvoiceListView() {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, pump, InvoiceType, fromDate, endDate } = filters;
+  const { customer, subtrip, invoiceStatus, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -458,26 +449,21 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (vehicleNo) {
+  if (customer) {
     inputData = inputData.filter(
       (record) =>
-        record.vehicleId &&
-        record.vehicleId.vehicleNo &&
-        record.vehicleId.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
+        record.customerId &&
+        record.customerId.customerName.toLowerCase().indexOf(customer.toLowerCase()) !== -1
+    );
+  }
+  if (subtrip) {
+    inputData = inputData.filter(
+      (record) => record.subtrips && record.subtrips.some((st) => st._id === subtrip)
     );
   }
 
-  if (pump) {
-    inputData = inputData.filter(
-      (record) =>
-        record.pumpCd &&
-        record.pumpCd.pumpName &&
-        record.pumpCd.pumpName.toLowerCase().indexOf(pump.toLowerCase()) !== -1
-    );
-  }
-
-  if (InvoiceType !== 'all') {
-    inputData = inputData.filter((record) => record.InvoiceType === InvoiceType);
+  if (invoiceStatus !== 'all') {
+    inputData = inputData.filter((record) => record.invoiceStatus === invoiceStatus);
   }
   if (!dateError) {
     if (fromDate && endDate) {

@@ -2,23 +2,23 @@ import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchInvoices } from 'src/redux/slices/invoice';
 import { useSelector, useDispatch } from 'src/redux/store';
+import { fetchPayrollReceipts } from 'src/redux/slices/driver-payroll';
 
-import { InvoiceListView } from 'src/sections/invoice/views';
+import { DriverPayrollListView } from 'src/sections/driver-payroll/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice list | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `DriverPayroll list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchInvoices());
+    dispatch(fetchPayrollReceipts());
   }, [dispatch]);
 
-  const { invoices, isLoading } = useSelector((state) => state.invoice);
+  const { payrollReceipts, isLoading } = useSelector((state) => state.driverPayroll);
 
   return (
     <>
@@ -26,7 +26,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <InvoiceListView invoices={invoices} />
+      <DriverPayrollListView payrollReceipts={payrollReceipts} />
     </>
   );
 }

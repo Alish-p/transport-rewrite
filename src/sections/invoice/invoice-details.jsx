@@ -32,8 +32,14 @@ function calculateTotal(subtrips) {
   return subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0);
 }
 
-export default function InvoiceDetails({ invoiceNo, subtrips, customer, status, createdDate }) {
-  const totalAmount = useMemo(() => calculateTotal(subtrips), [subtrips]);
+export default function InvoiceDetails({
+  invoiceNo,
+  selectedSubtripsData,
+  customer,
+  status,
+  createdDate,
+}) {
+  const totalAmount = useMemo(() => calculateTotal(selectedSubtripsData), [selectedSubtripsData]);
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -117,8 +123,8 @@ export default function InvoiceDetails({ invoiceNo, subtrips, customer, status, 
             </TableRow>
           </TableHead>
           <TableBody>
-            {subtrips &&
-              subtrips.map((st, index) => (
+            {selectedSubtripsData &&
+              selectedSubtripsData.map((st, index) => (
                 <TableRow key={st._id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{st.consignee}</TableCell>

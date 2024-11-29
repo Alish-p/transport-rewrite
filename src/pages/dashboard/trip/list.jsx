@@ -3,10 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CONFIG } from 'src/config-global';
+import { fetchTrips } from 'src/redux/slices/trip';
 
 import { TripListView } from 'src/sections/trip/views';
-
-import { fetchTrips } from 'src/redux/slices/trip';
 
 // ----------------------------------------------------------------------
 

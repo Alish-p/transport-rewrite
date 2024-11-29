@@ -1,15 +1,8 @@
-import {
-  Table,
-  Paper,
-  TableRow,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableContainer,
-} from '@mui/material';
+import { Table, Paper, TableBody, TableContainer } from '@mui/material';
 
 import ExpenseListRow from './basic-expense-table-row';
 import { expenseTableConfig } from './basic-expense-table-config';
+import { TableNoData, TableHeadCustom } from '../../components/table';
 
 // ----------------------------------------------------------------------
 
@@ -17,16 +10,8 @@ export default function ExpenseListTable({ expenses, onDeleteRow, onEditRow }) {
   return (
     <TableContainer component={Paper}>
       <Table>
-        <TableHead>
-          <TableRow>
-            {expenseTableConfig.map((config) => (
-              <TableCell key={config.id} align={config.type === 'number' ? 'right' : 'left'}>
-                {config.label}
-              </TableCell>
-            ))}
-            <TableCell />
-          </TableRow>
-        </TableHead>
+        <TableHeadCustom headLabel={expenseTableConfig} />
+
         <TableBody>
           {expenses.map((expense) => (
             <ExpenseListRow
@@ -36,6 +21,7 @@ export default function ExpenseListTable({ expenses, onDeleteRow, onEditRow }) {
               onEditRow={() => onEditRow(expense)}
             />
           ))}
+          <TableNoData notFound={expenses.length === 0} />
         </TableBody>
       </Table>
     </TableContainer>

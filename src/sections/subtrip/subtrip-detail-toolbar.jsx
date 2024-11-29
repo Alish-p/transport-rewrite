@@ -31,6 +31,7 @@ export default function SubtripToolbar({
   onSubtripClose,
   onEdit,
   onResolve,
+  onDriverSalaryInfo,
 }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
@@ -154,6 +155,14 @@ export default function SubtripToolbar({
             disabled={!(subtrip.subtripStatus === 'error')}
           >
             Resolve
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              actionPopover.onClose();
+              onDriverSalaryInfo();
+            }}
+          >
+            Driver Salary Info
           </MenuItem>
           <MenuItem
             onClick={() => {

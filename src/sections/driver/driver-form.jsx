@@ -18,7 +18,7 @@ import { addDriver, updateDriver } from 'src/redux/slices/driver';
 
 // components
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -36,8 +36,8 @@ export const NewDriverSchema = zod.object({
     .string()
     .min(1, { message: 'Driver Cell No is required' })
     .regex(/^[0-9]{10}$/, { message: 'Driver Cell No must be exactly 10 digits' }),
-  licenseFrom: zod.date({ required_error: 'License From date is required' }),
-  licenseTo: zod.date({ required_error: 'License To date is required' }),
+  licenseFrom: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
+  licenseTo: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
   aadharNo: zod
     .string()
     .min(1, { message: 'Aadhar No is required' })
@@ -53,7 +53,7 @@ export const NewDriverSchema = zod.object({
   experience: zod
     .number({ required_error: 'Experience is required' })
     .min(0, { message: 'Experience must be at least 0 years' }),
-  dob: zod.date({ required_error: 'Date of Birth is required' }),
+  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }),
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
   bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
   accNo: zod

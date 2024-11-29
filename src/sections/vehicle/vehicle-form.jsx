@@ -20,7 +20,7 @@ import { addVehicle, updateVehicle } from 'src/redux/slices/vehicle';
 
 // components
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // assets
 import { modelType, engineType, vehicleTypes, vehicleCompany } from './vehicle-config';
@@ -49,8 +49,8 @@ export const NewVehicleSchema = zod.object({
   fuelTankCapacity: zod
     .number()
     .min(1, { message: 'Fuel Tank Capacity is required and must be at least 1' }),
-  fromDate: zod.date({ required_error: 'From Date is required' }),
-  toDate: zod.date({ required_error: 'To Date is required' }),
+  fromDate: schemaHelper.date({ message: { required_error: 'From Date is required!' } }),
+  toDate: schemaHelper.date({ message: { required_error: 'To Date is required!' } }),
   transporter: zod.string().min(1, { message: 'Transport Company is required' }),
 });
 
@@ -76,7 +76,9 @@ export default function VehicleForm({ currentVehicle }) {
       engineType: currentVehicle?.engineType || '',
       fuelTankCapacity: currentVehicle?.fuelTankCapacity || 0,
       fromDate: currentVehicle?.fromDate ? new Date(currentVehicle?.fromDate) : new Date(),
-      toDate: currentVehicle?.toDate ? new Date(currentVehicle?.toDate) : new Date(),
+      toDate: currentVehicle?.toDate
+        ? new Date(currentVehicle?.toDate)
+        : new Date().setFullYear(new Date().getFullYear() + 1),
       transporter: currentVehicle?.transporter?._id || '',
     }),
     [currentVehicle]
@@ -228,8 +230,8 @@ export default function VehicleForm({ currentVehicle }) {
                   </option>
                 ))}
               </Field.Select>
-              <Field.DatePicker name="fromDate" label="From Date" type="date" />
-              <Field.DatePicker name="toDate" label="To Date" type="date" />
+              <Field.DatePicker name="fromDate" label="From Date" />
+              <Field.DatePicker name="toDate" label="To Date" />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

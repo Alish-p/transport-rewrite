@@ -200,3 +200,22 @@ export const fetchClosedTripsByCustomerAndDate = async (customerId, fromDate, to
     throw error;
   }
 };
+
+// Billing...
+export const fetchTripsCompletedByDriverAndDate = async (
+  driverId,
+  periodStartDate,
+  periodEndDate
+) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const response = await axios.post('/api/subtrips/fetchTripsCompletedByDriverAndDate', {
+      driverId,
+      fromDate: periodStartDate,
+      toDate: periodEndDate,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

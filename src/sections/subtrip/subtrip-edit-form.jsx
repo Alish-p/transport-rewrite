@@ -19,7 +19,7 @@ import { fetchRoutes } from 'src/redux/slices/route';
 import { fetchCustomers } from 'src/redux/slices/customer';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 const NewTripSchema = zod.object({
   routeCd: zod.string().min(1, { message: 'Route Code is required' }),
@@ -31,13 +31,15 @@ const NewTripSchema = zod.object({
   startKm: zod.number({ required_error: 'Start Km is required' }),
   endKm: zod.number({ required_error: 'End Km is required' }),
   rate: zod.number({ required_error: 'Rate is required' }),
-  subtripStartDate: zod.date({ required_error: 'Start Date is required' }),
-  subtripEndDate: zod.date({ required_error: 'End Date is required' }),
+  subtripStartDate: schemaHelper.date({ message: { required_error: 'Start Date is required!' } }),
+  subtripEndDate: schemaHelper.date({ message: { required_error: 'End Date is required!' } }),
   invoiceNo: zod.string().min(1, { message: 'Invoice No is required' }),
   shipmentNo: zod.string().min(1, { message: 'Shipment No is required' }),
   orderNo: zod.string().min(1, { message: 'Order No is required' }),
   ewayBill: zod.string().min(1, { message: 'E-way Bill is required' }),
-  ewayExpiryDate: zod.date({ required_error: 'E-way Expiry Date is required' }),
+  ewayExpiryDate: schemaHelper.date({
+    message: { required_error: 'Eway Expiry Date is required!' },
+  }),
   materialType: zod.string().min(1, { message: 'Material Type is required' }),
   quantity: zod.number({ required_error: 'Quantity is required' }),
   grade: zod.string().min(1, { message: 'Grade is required' }),

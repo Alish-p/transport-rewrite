@@ -17,6 +17,7 @@ export function RHFTextField({ name, helperText, type, ...other }) {
           fullWidth
           type={type}
           value={type === 'number' && field.value === 0 ? '' : field.value}
+          InputLabelProps={type === 'number' ? { shrink: true } : undefined}
           onChange={(event) => {
             if (type === 'number') {
               field.onChange(Number(event.target.value));

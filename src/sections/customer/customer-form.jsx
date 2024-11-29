@@ -32,10 +32,11 @@ export const NewCustomerSchema = zod.object({
     .max(6, { message: 'Pin Code must be exactly 6 digits' })
     .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
   cellNo: zod
-    .string()
-    .min(10, { message: 'Cell No must be exactly 10 digits' })
-    .max(10, { message: 'Cell No must be exactly 10 digits' })
-    .regex(/^[0-9]{10}$/, { message: 'Cell No must be a number' }),
+    .number()
+    .int({ message: 'Cell No must be an integer' })
+    .refine((val) => String(val).length === 10, {
+      message: 'Cell No must be exactly 10 digits',
+    }),
   GSTNo: zod.string().min(1, { message: 'GST No is required' }),
   PANNo: zod
     .string()
@@ -69,7 +70,7 @@ export default function CustomerNewForm({ currentCustomer }) {
       place: currentCustomer?.place || '',
       state: currentCustomer?.state || '',
       pinCode: currentCustomer?.pinCode || '',
-      cellNo: currentCustomer?.cellNo || '',
+      cellNo: currentCustomer?.cellNo || 0,
       GSTNo: currentCustomer?.GSTNo || '',
       PANNo: currentCustomer?.PANNo || '',
       consignees: currentCustomer?.consignees || [
@@ -143,7 +144,7 @@ export default function CustomerNewForm({ currentCustomer }) {
               <Field.Text name="place" label="Place" />
               <Field.Text name="state" label="State" />
               <Field.Text name="pinCode" label="Pin Code" />
-              <Field.Text name="cellNo" label="Cell No" />
+              <Field.Text name="cellNo" label="Cell No" type="number" />
               <Field.Text name="GSTNo" label="GST No" />
               <Field.Text name="PANNo" label="PAN No" />
             </Box>

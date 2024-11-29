@@ -1,21 +1,20 @@
-import sumBy from 'lodash/sumBy';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 // @mui
-import { alpha, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+
+// _mock
+
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -27,10 +26,9 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
-import { deleteTrip } from 'src/redux/slices/trip';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { deletePayrollReceipt } from 'src/redux/slices/driver-payroll';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -46,35 +44,31 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import TripTableRow from '../trip-table-row';
-import TripAnalytic from '../widgets/trip-analytic';
-import TripTableToolbar from '../trip-table-toolbar';
-import TripTableFiltersResult from '../trip-table-filters-result';
+import DriverPayrollTableRow from '../driver-payroll-list/driver-payroll-table-row';
+import DriverPayrollTableToolbar from '../driver-payroll-list/driver-payroll-table-toolbar';
+import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payroll-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Vehicle Number & ID' },
-  { id: 'driverName', label: 'Driver Name' },
-  { id: 'tripStatus', label: 'Trip Status' },
-  { id: 'fromDate', label: 'From Date' },
-  { id: 'toDate', label: 'To Date' },
-  { id: 'remarks', label: 'Remarks' },
-  { id: '' },
+  { id: '_id', label: '#' },
+  { id: 'driver', label: 'Driver' },
+  { id: 'createdDate', label: 'Created Date' },
+  { id: 'amount', label: 'Amount' },
+  { id: 'duration', label: 'Duration' },
+  { id: '', label: '' },
 ];
 
 const defaultFilters = {
-  tripNo: '',
   driver: '',
-  vehicleNo: '',
-  tripStatus: 'all',
+  subtrip: '',
   fromDate: null,
   endDate: null,
 };
 
 // ----------------------------------------------------------------------
 
-export function TripListView({ trips }) {
+export function DriverPayrollListView({ payrollReceipts }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -88,10 +82,10 @@ export function TripListView({ trips }) {
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
-    if (trips.length) {
-      setTableData(trips);
+    if (payrollReceipts.length) {
+      setTableData(payrollReceipts);
     }
-  }, [trips]);
+  }, [payrollReceipts]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -105,31 +99,9 @@ export function TripListView({ trips }) {
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
-    !!filters.vehicleNo ||
-    !!filters.tripNo ||
-    !!filters.driver ||
-    filters.tripStatus !== 'all' ||
-    (!!filters.fromDate && !!filters.endDate);
+    !!filters.driver || !!filters.subtrip || (!!filters.fromDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const getTripLength = (tripStatus) =>
-    tableData.filter((item) => item.tripStatus === tripStatus).length;
-
-  const getTotalAmount = (tripStatus) =>
-    sumBy(
-      tableData.filter((item) => item.tripStatus === tripStatus),
-      'totalAmount'
-    );
-
-  const getPercentByTripStatus = (tripStatus) =>
-    (getTripLength(tripStatus) / tableData.length) * 100;
-
-  const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'billed', label: 'Billed', color: 'success', count: getTripLength('billed') },
-    { value: 'pending', label: 'Pending', color: 'error', count: getTripLength('pending') },
-  ];
 
   const handleFilters = useCallback(
     (name, value) => {
@@ -143,24 +115,23 @@ export function TripListView({ trips }) {
   );
 
   const handleDeleteRow = (id) => {
-    dispatch(deleteTrip(id));
+    dispatch(deletePayrollReceipt(id));
   };
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.trip.edit(paramCase(id)));
+    navigate(paths.dashboard.driverPayroll.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.trip.details(id));
+      router.push(paths.dashboard.driverPayroll.details(id));
     },
     [router]
   );
 
-  const handleFilterTripStatus = useCallback(
+  const handleFilterInvoiceStatus = useCallback(
     (event, newValue) => {
-      handleFilters('tripStatus', newValue);
+      handleFilters('invoiceStatus', newValue);
     },
     [handleFilters]
   );
@@ -173,28 +144,28 @@ export function TripListView({ trips }) {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Trip List"
+          heading="Payslip List"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Trip',
-              href: paths.dashboard.trip.root,
+              name: 'Driver Salary',
+              href: paths.dashboard.driverPayroll.root,
             },
             {
-              name: 'Trip List',
+              name: 'List',
             },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.trip.new}
+              href={paths.dashboard.driverPayroll.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Trip
+              New Payslip
             </Button>
           }
           sx={{
@@ -202,84 +173,16 @@ export function TripListView({ trips }) {
           }}
         />
 
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <TripAnalytic
-                title="All"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <TripAnalytic
-                title="Billed"
-                total={getTripLength('billed')}
-                percent={getPercentByTripStatus('billed')}
-                price={getTotalAmount('billed')}
-                icon="solar:file-check-bold-duotone"
-                color={theme.palette.success.main}
-              />
-
-              <TripAnalytic
-                title="Pending"
-                total={getTripLength('pending')}
-                percent={getPercentByTripStatus('pending')}
-                price={getTotalAmount('pending')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
-
         {/* Table Section */}
         <Card>
-          {/* filtering Tabs */}
-          <Tabs
-            value={filters.tripStatus}
-            onChange={handleFilterTripStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.vehicleType) && 'filled') ||
-                      'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <TripTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <DriverPayrollTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={dataFiltered}
+          />
 
           {canReset && (
-            <TripTableFiltersResult
+            <DriverPayrollTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -359,7 +262,7 @@ export function TripListView({ trips }) {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <TripTableRow
+                      <DriverPayrollTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
@@ -409,7 +312,7 @@ export function TripListView({ trips }) {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRows();
+              // handleDeleteRows();
               confirm.onFalse();
             }}
           >
@@ -425,7 +328,7 @@ export function TripListView({ trips }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, tripNo, driver, tripStatus, fromDate, endDate } = filters;
+  const { driver, subtrip, invoiceStatus, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -441,34 +344,24 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
     inputData = inputData.filter(
       (record) =>
         record.driverId &&
-        record.driverId.driverName &&
         record.driverId.driverName.toLowerCase().indexOf(driver.toLowerCase()) !== -1
     );
   }
-
-  if (vehicleNo) {
+  if (subtrip) {
     inputData = inputData.filter(
-      (record) =>
-        record.vehicleId &&
-        record.vehicleId.vehicleNo &&
-        record.vehicleId.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
-    );
-  }
-  if (tripNo) {
-    inputData = inputData.filter(
-      (record) => record._id && record._id.toLowerCase().indexOf(tripNo.toLowerCase()) !== -1
+      (record) => record.subtrips && record.subtrips.some((st) => st._id === subtrip)
     );
   }
 
-  if (tripStatus !== 'all') {
-    inputData = inputData.filter((record) => record.tripStatus === tripStatus);
+  if (invoiceStatus !== 'all') {
+    inputData = inputData.filter((record) => record.invoiceStatus === invoiceStatus);
   }
   if (!dateError) {
     if (fromDate && endDate) {
       inputData = inputData.filter(
-        (trip) =>
-          fTimestamp(trip.fromDate) >= fTimestamp(fromDate) &&
-          fTimestamp(trip.fromDate) <= fTimestamp(endDate)
+        (Invoice) =>
+          fTimestamp(Invoice.date) >= fTimestamp(fromDate) &&
+          fTimestamp(Invoice.date) <= fTimestamp(endDate)
       );
     }
   }

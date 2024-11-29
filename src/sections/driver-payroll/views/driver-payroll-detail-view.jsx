@@ -1,14 +1,10 @@
-import { useParams } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
-import { fetchInvoice } from 'src/redux/slices/invoice';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoiceDetails from '../invoice-details';
-import InvoiceToolbar from '../invoice-toolbar';
+import PayslipDetail from '../driver-salary-details';
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -17,21 +13,21 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
 ];
 
-export function InvoiceDetailView() {
-  const dispatch = useDispatch();
-  const { id } = useParams();
-  const { invoice, isLoading } = useSelector((state) => state.invoice);
-
-  useEffect(() => {
-    dispatch(fetchInvoice(id));
-  }, [dispatch, id]);
-
+export function DriverPayrollDetailView({ payslip, loading }) {
   const handleChangeStatus = useCallback((event) => {
     setCurrentStatus(event.target.value);
   }, []);
 
-  const { subtrips, customerId: customer, invoiceStatus, createdDate, _id } = invoice || {};
-  const [currentStatus, setCurrentStatus] = useState(invoice?.invoiceStatus);
+  const {
+    _id,
+    subtripComponents,
+    driverId: driver,
+    invoiceStatus,
+    createdDate,
+    otherSalaryComponent,
+  } = payslip || {};
+
+  const [currentStatus, setCurrentStatus] = useState(payslip?.invoiceStatus);
 
   return (
     <DashboardContent>
@@ -39,26 +35,27 @@ export function InvoiceDetailView() {
         heading="INV-123"
         links={[
           { name: 'Dashboard', href: '/dashboard' },
-          { name: 'Invoice', href: '/dashboard/invoice' },
-          { name: 'INV-123' },
+          { name: 'Payslip', href: '/dashboard/payslip' },
+          { name: 'PAY-123' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {invoice && (
+      {/* {payslip && (
         <InvoiceToolbar
           invoice={invoice}
           currentStatus={currentStatus || ''}
           onChangeStatus={handleChangeStatus}
           statusOptions={INVOICE_STATUS_OPTIONS}
         />
-      )}
+      )} */}
 
-      <InvoiceDetails
+      <PayslipDetail
         invoiceNo={_id}
-        selectedSubtripsData={subtrips}
-        customer={customer}
+        selectedSubtripsData={subtripComponents?.map((st) => st.subtripId)}
+        driver={driver}
         status={currentStatus}
         createdDate={createdDate}
+        otherSalaryComponent={otherSalaryComponent}
       />
     </DashboardContent>
   );

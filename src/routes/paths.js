@@ -242,6 +242,16 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/invoice/${MOCK_ID}/edit`,
       },
     },
+    driverPayroll: {
+      root: `${ROOTS.DASHBOARD}/driverPayroll`,
+      new: `${ROOTS.DASHBOARD}/driverPayroll/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}/edit`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/driverPayroll/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/driverPayroll/${MOCK_ID}/edit`,
+      },
+    },
     post: {
       root: `${ROOTS.DASHBOARD}/post`,
       new: `${ROOTS.DASHBOARD}/post/new`,

@@ -46,7 +46,7 @@ const ICONS = {
   expense: icon('ic_expense'),
   subtrip: icon('ic_subtrip'),
   trip: icon('ic_trip'),
-  driverSalary: <Iconify icon="healthicons:truck-driver" />,
+  driverPayroll: <Iconify icon="healthicons:truck-driver" />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
 };
 // ----------------------------------------------------------------------
@@ -300,14 +300,14 @@ export const navData = [
         ],
       },
       {
-        title: 'Driver Salary',
-        path: paths.dashboard.invoice.root,
-        icon: ICONS.driverSalary,
+        title: 'Driver Payroll',
+        path: paths.dashboard.driverPayroll.root,
+        icon: ICONS.driverPayroll,
         children: [
-          { title: 'List', path: paths.dashboard.invoice.root },
-          { title: 'Details', path: paths.dashboard.invoice.demo.details },
-          { title: 'Create', path: paths.dashboard.invoice.new },
-          { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
+          { title: 'List', path: paths.dashboard.driverPayroll.root },
+          { title: 'Details', path: paths.dashboard.driverPayroll.demo.details },
+          { title: 'Create', path: paths.dashboard.driverPayroll.new },
+          { title: 'Edit', path: paths.dashboard.driverPayroll.demo.edit },
         ],
       },
       {

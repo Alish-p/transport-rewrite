@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
 
 import { updateTrip } from 'src/redux/slices/trip';
+import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -19,7 +20,6 @@ import TripToolbar from '../widgets/TripToolbar';
 import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
-import { DashboardContent } from 'src/layouts/dashboard';
 import ChartColumnMultiple from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';

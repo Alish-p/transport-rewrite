@@ -32,7 +32,7 @@ export default function LRInfoCard({ subtrip }) {
     rate = '-',
     subtripStatus = '-',
     loadingWeight = '-',
-    UnloadingWeight = '-',
+    unloadingWeight = '-',
     startKm = '-',
     endKm = '-',
     tds = '-',
@@ -193,7 +193,7 @@ export default function LRInfoCard({ subtrip }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Unloading Weight
           </Box>
-          {UnloadingWeight}
+          {unloadingWeight}
         </Stack>
       </Stack>
     </>

@@ -75,7 +75,9 @@ export const addInvoice = (data) => async (dispatch) => {
   try {
     const response = await axios.post(`/api/invoices`, data);
     dispatch(addInvoiceSuccess(response.data));
+    return response.data;
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };

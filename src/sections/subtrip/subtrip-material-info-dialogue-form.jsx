@@ -154,18 +154,23 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
 
-              <Field.Text name="loadingWeight" label="Loading Weight" type="number" />
-              <Field.Text name="startKm" label="Start Km" type="number" />
-              <Field.Text name="rate" label="Rate" type="number" />
+              <Field.Text
+                name="loadingWeight"
+                label="Loading Weight"
+                type="number"
+                placeholder={0}
+              />
+              <Field.Text name="startKm" label="Start Km" type="number" placeholder={0} />
+              <Field.Text name="rate" label="Rate" type="number" placeholder={0} />
               <Field.Text name="invoiceNo" label="Invoice No" />
               <Field.Text name="shipmentNo" label="Shipment No" />
               <Field.Text name="orderNo" label="Order No" />
               <Field.Text name="ewayBill" label="Eway Bill" />
               <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" />
               <Field.Text name="materialType" label="Material Type" />
-              <Field.Text name="quantity" label="Quantity" type="number" />
+              <Field.Text name="quantity" label="Quantity" type="number" placeholder={0} />
               <Field.Text name="grade" label="Grade" />
-              <Field.Text name="tds" label="TDS" type="number" required />
+              <Field.Text name="tds" label="TDS" type="number" required placeholder={0} />
             </Box>
             <Divider sx={{ marginBlock: '20px' }} />
 

@@ -4,7 +4,6 @@
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -16,7 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -25,7 +24,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleTableRow({
+export default function DriverPayrollTableRow({
   row,
   selected,
   onSelectRow,
@@ -33,7 +32,7 @@ export default function VehicleTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, customerId, invoiceStatus, createdDate, dueDate } = row;
+  const { _id, driverId, createdDate, periodStartDate, periodEndDate } = row;
 
   const confirm = useBoolean();
 
@@ -45,16 +44,15 @@ export default function VehicleTableRow({
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
+        <TableCell>
+          <Label variant="soft">{_id}</Label>
+        </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={_id} sx={{ mr: 2 }}>
-            {customerId?.customerName.slice(0, 2).toUpperCase()}
-          </Avatar>
-
           <ListItemText
             disableTypography
             primary={
               <Typography variant="body2" noWrap>
-                {_id}
+                {driverId?.driverName}
               </Typography>
             }
             secondary={
@@ -64,15 +62,10 @@ export default function VehicleTableRow({
                 onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
-                {customerId?.customerName}
+                {driverId?.driverCellNo}
               </Link>
             }
           />
-        </TableCell>
-        <TableCell>
-          <Label variant="soft" color={invoiceStatus === 'paid' ? 'success' : 'error'}>
-            {invoiceStatus}
-          </Label>
         </TableCell>
         <TableCell>
           <ListItemText
@@ -91,6 +84,18 @@ export default function VehicleTableRow({
           <ListItemText
             primary={2010}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+
+        <TableCell>
+          <ListItemText
+            primary={fDateRangeShortLabel(periodStartDate, periodEndDate)}
+            primaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+              color: 'text.disabled',
+            }}
           />
         </TableCell>
 
