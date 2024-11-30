@@ -226,7 +226,7 @@ const ITEMS = [
     title: 'Dark mode',
     subtitle: 'A dark theme that feels easier on the eyes.',
     icon: 'solar:cloudy-moon-bold-duotone',
-    imgUrl: [`${CONFIG.site.basePath}/assets/images/home/highlight-darkmode.webp`],
+    imgUrl: [`${CONFIG.site.basePath}/assets/images/home/actual_home.png`],
   },
   {
     title: 'Color presets',

@@ -51,9 +51,9 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total active users"
+            title="Total Trips Completed"
             percent={2.6}
-            total={18765}
+            total={1765}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [15, 18, 12, 51, 68, 11, 39, 37],
@@ -63,7 +63,7 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total installed"
+            title="Total Vehicles"
             percent={0.2}
             total={4876}
             chart={{
@@ -76,7 +76,7 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total downloads"
+            title="Total Invoices Generated"
             percent={-0.1}
             total={678}
             chart={{
@@ -89,14 +89,14 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
-            title="Current download"
-            subheader="Downloaded by operating system"
+            title="Invoices"
+            subheader="Invoice generated through the dashboard"
             chart={{
               series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
+                { label: 'Pending', value: 144 },
+                { label: 'Draft', value: 535 },
+                { label: 'Billed', value: 443 },
+                { label: 'Cpmpleted', value: 743 },
               ],
             }}
           />
@@ -104,7 +104,7 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
-            title="Area installed"
+            title="Trips Completed"
             subheader="(+43%) than last year"
             chart={{
               categories: [
@@ -125,25 +125,22 @@ export function OverviewAppView() {
                 {
                   name: '2022',
                   data: [
-                    { name: 'Asia', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Europe', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Americas', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
+                    { name: 'Own', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
+                    { name: 'Market', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
                   ],
                 },
                 {
                   name: '2023',
                   data: [
-                    { name: 'Asia', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Europe', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Americas', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
+                    { name: 'Own', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
+                    { name: 'Market', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
                   ],
                 },
                 {
                   name: '2024',
                   data: [
-                    { name: 'Asia', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Europe', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Americas', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
+                    { name: 'Own', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
+                    { name: 'Market', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
                   ],
                 },
               ],
