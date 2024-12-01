@@ -79,7 +79,7 @@ export async function setSession(accessToken) {
       const decodedToken = jwtDecode(accessToken); // ~3 days by minimals server
 
       if (decodedToken && 'exp' in decodedToken) {
-        tokenExpired(decodedToken.exp);
+        // tokenExpired(decodedToken.exp);
       } else {
         throw new Error('Invalid access token!');
       }

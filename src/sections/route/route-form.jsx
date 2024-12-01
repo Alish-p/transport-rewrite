@@ -232,7 +232,7 @@ export default function RouteForm({ currentRoute }) {
                   <Box gridColumn="span 3">
                     <Field.Text
                       name={`salary[${index}].advanceAmt`}
-                      label="Advance Amtount"
+                      label="Advance Amount"
                       type="number"
                     />
                   </Box>

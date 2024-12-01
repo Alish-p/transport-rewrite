@@ -32,20 +32,20 @@ export function OverviewAppView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid xs={12} md={7}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+            title={`Welcome back 👋 \n ${'Alis' || user?.displayName} `}
+            description="Begin leveraging the Transport Plus portal to streamline and manage your logistics operations seamlessly."
             img={<SeoIllustration hideBackground />}
             action={
               <Button variant="contained" color="primary">
-                Go now
+                Explore
               </Button>
             }
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={5}>
           <AppFeatured list={_appFeatured} />
         </Grid>
 
