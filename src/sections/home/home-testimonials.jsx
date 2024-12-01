@@ -221,53 +221,54 @@ const base = (index) => ({
 const TESTIMONIALS = [
   {
     ...base(1),
-    category: 'Design Quality',
-    content: `The quality of this template is very good, the TypeScript files are neat and the communication with the team behind this template is very good! I would recommend this template for any kind of project, as they implement new features every now and then and enhance their design. I will definitely be using more templates from this team and re-purchasing this template for other projects.`,
+    category: 'Fleet Management',
+    content: `The fleet tracking feature is extremely reliable, and the user interface is intuitive. The platform helps streamline operations effectively, and the support team is highly responsive! I recommend this solution to any logistics business aiming to optimize performance.`,
     postedAt: 'April 20, 2024 23:15:30',
   },
   {
     ...base(2),
-    category: 'Design Quality',
-    content: `Amazing. I've never purchased complete front ends before, but I'll definitely be doing this again!`,
+    category: 'Fuel Management',
+    content: `Fantastic platform! The fuel tracking and consumption analysis have helped us significantly cut costs. I’m definitely sticking with this for our fleet management needs.`,
     postedAt: 'March 19, 2024 23:15:30',
   },
   {
     ...base(3),
-    category: 'Code Quality',
-    content: `Clean & Complete (Design & Code). Thansk Minimal team :)`,
+    category: 'Driver Management',
+    content: `The system is clean and easy to use, especially for assigning trips and managing driver payments. Thanks to the Transport ++ team for making logistics so efficient!`,
     postedAt: 'April 19, 2023 23:15:30',
   },
   {
     ...base(4),
     category: 'Customer Support',
-    content: `Thanks to Minimal for customer support with email. I solved the problem. And the code quality is good, too.`,
+    content: `The customer support team was amazing in resolving my queries promptly. The system’s functionality and ease of use are excellent, making it a must-have for any logistics business.`,
     postedAt: 'May 19, 2023 23:15:30',
   },
   {
     ...base(5),
-    category: 'Customer Support',
+    category: 'Tire Management',
     content:
-      'Great UI kit, really beautiful as well. Also the customer support is very warm-hearted. However, I hope the components and themes can be provided as a separated project (package).',
+      'The tire tracking feature is very effective and has helped us improve safety while reducing costs. The team is also quick to respond to support requests. Highly recommended!',
     postedAt: 'June 19, 2023 23:15:30',
   },
   {
     ...base(6),
-    category: 'Design Quality',
-    content: 'I would never have been able to create all these beautifull components myself!',
+    category: 'Customizability',
+    content:
+      'This platform is incredibly customizable. It allowed us to tailor the features to meet our specific operational needs perfectly.',
     postedAt: 'July 19, 2023 23:15:30',
   },
   {
     ...base(7),
-    category: 'Code Quality',
+    category: 'Cost Efficiency',
     content:
-      'The quality of this template is excellent. However, as an individual, the cost of obtaining the TypeScript Source version is beyond my means. Despite my strong desire to acquire it, my limited personal budget does not allow me to do so.',
+      'The platform offers excellent value for money, especially for optimizing fuel usage and improving operational efficiency. It’s an investment every logistics business should consider.',
     postedAt: 'August 19, 2023 23:15:30',
   },
   {
     ...base(8),
-    category: 'Customizability',
+    category: 'Performance',
     content:
-      'The design and code quality are impressive. Regular updates and excellent customer support are major advantages.',
+      'This platform is a game-changer for logistics. The real-time tracking, customizable reports, and regular updates make managing a fleet seamless and efficient.',
     postedAt: 'September 19, 2023 23:15:30',
   },
 ];
