@@ -67,13 +67,13 @@ export function VehicleDetailView({ vehicle }) {
   } = vehicle || {};
 
   const description = `
-
+[](/)
 **Vehicle Number:** ${vehicleNo}  
 **Vehicle Type:** ${vehicleType}  
 **Model Type:** ${modelType}  
 **Manufacturer:** ${vehicleCompany} 
 
-[](/)
+
 
 ###### Specifications
 -  Number of Tyres: ${noOfTyres}
@@ -96,6 +96,24 @@ export function VehicleDetailView({ vehicle }) {
 
 
 
+`;
+
+  const expensesMarkdown = `
+  [](/)
+### Vehicle Expenses
+Below is a summary of recent expenses for this vehicle.
+
+| Date          | Expense Type   | Description             | Amount   | Paid Through | Slip Number |
+| :------------ | :-------------| :----------------------- | :------- | :----------- | :---------- |
+| 01-Nov-2023   | Fuel           | Diesel - 100 Liters     | $500     | Online       | SL-001      |
+| 05-Nov-2023   | Maintenance    | Oil Change              | $150     | Cash         | SL-002      |
+| 10-Nov-2023   | Toll           | Toll Charges            | $50      | Online       | SL-003      |
+| 15-Nov-2023   | Repair         | Brake Pad Replacement   | $300     | Bank Transfer| SL-004      |
+| 20-Nov-2023   | Fuel           | Diesel - 150 Liters     | $750     | Online       | SL-005      |
+
+---
+
+For further details, please refer to the expense logs.
 `;
 
   return (
@@ -142,7 +160,11 @@ export function VehicleDetailView({ vehicle }) {
           </Box>
         )}
 
-        {tabValue === 'expenses' && <Box sx={{ p: 3 }}>Expenses</Box>}
+        {tabValue === 'expenses' && (
+          <Box sx={{ p: 3 }}>
+            <Markdown children={expensesMarkdown} />
+          </Box>
+        )}
       </Card>
     </DashboardContent>
   );

@@ -1,38 +1,22 @@
 // ExpenseListRow.js
-import { useState } from 'react';
 
-import { TableRow, MenuItem, TableCell, IconButton } from '@mui/material';
+import { Button, TableRow, MenuItem, TableCell, IconButton } from '@mui/material';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { expenseTableConfig } from './basic-expense-table-config';
-import { usePopover, CustomPopover } from '../../components/custom-popover';
 
 // ----------------------------------------------------------------------
 
 export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [openPopover, setOpenPopover] = useState(null);
   const popover = usePopover();
-
-  const handleOpenConfirm = () => {
-    setOpenConfirm(true);
-  };
-
-  const handleCloseConfirm = () => {
-    setOpenConfirm(false);
-  };
-
-  const handleOpenPopover = (event) => {
-    setOpenPopover(event.currentTarget);
-  };
-
-  const handleClosePopover = () => {
-    setOpenPopover(null);
-  };
+  const confirm = useBoolean();
 
   return (
     <>
@@ -43,13 +27,18 @@ export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
           </TableCell>
         ))}
         <TableCell align="right">
-          <IconButton color={openPopover ? 'primary' : 'default'} onClick={handleOpenPopover}>
+          <IconButton color={popover.open ? 'primary' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
 
-      <CustomPopover open={popover.open} onClose={popover.onClose}>
+      <CustomPopover
+        open={popover.open}
+        onClose={popover.onClose}
+        anchorEl={popover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
         <MenuItem onClick={() => onEditRow(row)}>
           <Iconify icon="eva:edit-fill" />
           Edit
@@ -57,8 +46,8 @@ export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
 
         <MenuItem
           onClick={() => {
-            handleOpenConfirm();
-            handleClosePopover();
+            confirm.onTrue();
+            popover.onClose();
           }}
           sx={{ color: 'error.main' }}
         >
@@ -68,14 +57,14 @@ export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
       </CustomPopover>
 
       <ConfirmDialog
-        open={openConfirm}
-        onClose={handleCloseConfirm}
+        open={confirm.value}
+        onClose={confirm.onFalse}
         title="Delete"
         content="Are you sure you want to delete this expense?"
         action={
-          <MenuItem variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={onDeleteRow}>
             Delete
-          </MenuItem>
+          </Button>
         }
       />
     </>

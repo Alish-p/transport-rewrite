@@ -14,12 +14,12 @@ import {
   DialogActions,
 } from '@mui/material';
 
+import { today } from 'src/utils/format-time';
+
 import { receiveLR } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
-
-import { today } from '../../utils/format-time';
-import { Form, Field, schemaHelper } from '../../components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 // form components
 
 const validationSchema = zod
@@ -163,7 +163,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
                 label="Deducted Weight"
                 type="number"
                 disabled
-                showZero
+                placeholder="0"
               />
 
               <Field.Text name="startKm" label="Start Km" type="number" disabled />
@@ -172,7 +172,12 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
               <Field.DatePicker name="endDate" label="End Date" />
 
-              <Field.Text name="detentionTime" label="Detention Time" type="number" />
+              <Field.Text
+                name="detentionTime"
+                label="Detention Time"
+                type="number"
+                placeholder="0"
+              />
               <Field.Text name="remarks" label="Remarks" type="text" />
             </Box>
 

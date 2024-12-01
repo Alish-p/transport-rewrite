@@ -43,7 +43,7 @@ export const NewDriverSchema = zod.object({
     .min(1, { message: 'Aadhar No is required' })
     .regex(
       /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/,
-      { message: 'Aadhar No must be a valid format' }
+      { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
   guarantorName: zod.string().min(1, { message: 'Guarantor Name is required' }),
   guarantorCellNo: zod
@@ -75,7 +75,9 @@ export default function DriverForm({ currentDriver }) {
       driverPresentAddress: currentDriver?.driverPresentAddress || '',
       driverCellNo: currentDriver?.driverCellNo || '',
       licenseFrom: currentDriver?.licenseFrom ? new Date(currentDriver.licenseFrom) : new Date(),
-      licenseTo: currentDriver?.licenseTo ? new Date(currentDriver.licenseTo) : new Date(),
+      licenseTo: currentDriver?.licenseTo
+        ? new Date(currentDriver.licenseTo)
+        : new Date().setFullYear(new Date().getFullYear() + 2),
       aadharNo: currentDriver?.aadharNo || '',
       guarantorName: currentDriver?.guarantorName || '',
       guarantorCellNo: currentDriver?.guarantorCellNo || '',

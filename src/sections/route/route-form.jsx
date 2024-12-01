@@ -268,7 +268,7 @@ export default function RouteForm({ currentRoute }) {
               onClick={handleAddSalary}
               sx={{ mt: 3 }}
             >
-              Add Consignee
+              Add Vehicle Type
             </Button>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

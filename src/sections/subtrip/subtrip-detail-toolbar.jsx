@@ -159,14 +159,6 @@ export default function SubtripToolbar({
           <MenuItem
             onClick={() => {
               actionPopover.onClose();
-              onDriverSalaryInfo();
-            }}
-          >
-            Driver Salary Info
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              actionPopover.onClose();
               onSubtripClose();
             }}
             disabled={!(subtrip.subtripStatus === 'received')}

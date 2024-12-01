@@ -19,7 +19,6 @@ import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import ExpenseChartWidget from '../widgets/expense-chart-widget';
-import { DriverSalaryDialogue } from '../driver-salary-dialogue';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
@@ -38,7 +37,6 @@ export function SubtripDetailView({ subtrip, loading }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showExpenseDialog, setShowExpenseDialog] = useState(false);
-  const [showDriverSalaryDialog, setShowDriverSalaryDialog] = useState(false);
 
   if (loading) return <div>Loading...</div>;
   if (!subtrip) return <div>Fetching...</div>;
@@ -73,7 +71,6 @@ export function SubtripDetailView({ subtrip, loading }) {
           status={subtrip.subtripStatus}
           subtrip={subtrip}
           onAddMaterialInfo={() => setShowMaterialDialog(true)}
-          onDriverSalaryInfo={() => setShowDriverSalaryDialog(true)}
           onRecieve={() => setShowRecieveDialog(true)}
           onEdit={() => {
             navigate(paths.dashboard.subtrip.edit(subtrip._id));
@@ -205,13 +202,6 @@ export function SubtripDetailView({ subtrip, loading }) {
         subtripId={subtrip._id}
         routeInfo={subtrip?.routeCd}
         vehicleInfo={subtrip?.tripId?.vehicleId}
-      />
-
-      {/* Add Expense Dialog */}
-      <DriverSalaryDialogue
-        showDialog={showDriverSalaryDialog}
-        setShowDialog={setShowDriverSalaryDialog}
-        subtrip={subtrip}
       />
     </>
   );

@@ -102,9 +102,9 @@ export const navData = [
         icon: ICONS.trip,
         children: [
           { title: 'List', path: paths.dashboard.trip.root },
-          { title: 'Details', path: paths.dashboard.trip.demo.details },
           { title: 'Create', path: paths.dashboard.trip.new },
-          { title: 'Edit', path: paths.dashboard.trip.demo.edit },
+          // { title: 'Details', path: paths.dashboard.trip.demo.details },
+          // { title: 'Edit', path: paths.dashboard.trip.demo.edit },
         ],
       },
       {
@@ -113,9 +113,10 @@ export const navData = [
         icon: ICONS.subtrip,
         children: [
           { title: 'List', path: paths.dashboard.subtrip.root },
-          { title: 'Details', path: paths.dashboard.subtrip.demo.details },
           { title: 'Create', path: paths.dashboard.subtrip.new },
-          { title: 'Edit', path: paths.dashboard.subtrip.demo.edit },
+
+          // { title: 'Details', path: paths.dashboard.subtrip.demo.details },
+          // { title: 'Edit', path: paths.dashboard.subtrip.demo.edit },
         ],
       },
 
@@ -125,9 +126,10 @@ export const navData = [
         icon: ICONS.expense,
         children: [
           { title: 'List', path: paths.dashboard.expense.root },
-          { title: 'Details', path: paths.dashboard.expense.demo.details },
           { title: 'Create', path: paths.dashboard.expense.new },
-          { title: 'Edit', path: paths.dashboard.expense.demo.edit },
+
+          // { title: 'Details', path: paths.dashboard.expense.demo.details },
+          // { title: 'Edit', path: paths.dashboard.expense.demo.edit },
         ],
       },
 
@@ -137,9 +139,10 @@ export const navData = [
         icon: ICONS.vehicle,
         children: [
           { title: 'List', path: paths.dashboard.vehicle.root },
-          { title: 'Details', path: paths.dashboard.vehicle.demo.details },
           { title: 'Create', path: paths.dashboard.vehicle.new },
-          { title: 'Edit', path: paths.dashboard.vehicle.demo.edit },
+
+          // { title: 'Details', path: paths.dashboard.vehicle.demo.details },
+          // { title: 'Edit', path: paths.dashboard.vehicle.demo.edit },
         ],
       },
 
@@ -149,9 +152,10 @@ export const navData = [
         icon: ICONS.driver,
         children: [
           { title: 'List', path: paths.dashboard.driver.root },
-          { title: 'Details', path: paths.dashboard.driver.demo.details },
           { title: 'Create', path: paths.dashboard.driver.new },
-          { title: 'Edit', path: paths.dashboard.driver.demo.edit },
+
+          // { title: 'Details', path: paths.dashboard.driver.demo.details },
+          // { title: 'Edit', path: paths.dashboard.driver.demo.edit },
         ],
       },
 
@@ -161,9 +165,9 @@ export const navData = [
         icon: ICONS.customer,
         children: [
           { title: 'List', path: paths.dashboard.customer.root },
-          { title: 'Details', path: paths.dashboard.customer.demo.details },
           { title: 'Create', path: paths.dashboard.customer.new },
-          { title: 'Edit', path: paths.dashboard.customer.demo.edit },
+          // { title: 'Details', path: paths.dashboard.customer.demo.details },
+          // { title: 'Edit', path: paths.dashboard.customer.demo.edit },
         ],
       },
 
@@ -173,9 +177,9 @@ export const navData = [
         icon: ICONS.transporter,
         children: [
           { title: 'List', path: paths.dashboard.transporter.root },
-          { title: 'Details', path: paths.dashboard.transporter.demo.details },
           { title: 'Create', path: paths.dashboard.transporter.new },
-          { title: 'Edit', path: paths.dashboard.transporter.demo.edit },
+          // { title: 'Details', path: paths.dashboard.transporter.demo.details },
+          // { title: 'Edit', path: paths.dashboard.transporter.demo.edit },
         ],
       },
 
@@ -185,9 +189,9 @@ export const navData = [
         icon: ICONS.pump,
         children: [
           { title: 'List', path: paths.dashboard.pump.root },
-          { title: 'Details', path: paths.dashboard.pump.demo.details },
           { title: 'Create', path: paths.dashboard.pump.new },
-          { title: 'Edit', path: paths.dashboard.pump.demo.edit },
+          // { title: 'Details', path: paths.dashboard.pump.demo.details },
+          // { title: 'Edit', path: paths.dashboard.pump.demo.edit },
         ],
       },
 
@@ -197,9 +201,9 @@ export const navData = [
         icon: ICONS.route,
         children: [
           { title: 'List', path: paths.dashboard.route.root },
-          { title: 'Details', path: paths.dashboard.route.demo.details },
           { title: 'Create', path: paths.dashboard.route.new },
-          { title: 'Edit', path: paths.dashboard.route.demo.edit },
+          // { title: 'Details', path: paths.dashboard.route.demo.details },
+          // { title: 'Edit', path: paths.dashboard.route.demo.edit },
         ],
       },
 
@@ -294,9 +298,9 @@ export const navData = [
         icon: ICONS.invoice,
         children: [
           { title: 'List', path: paths.dashboard.invoice.root },
-          { title: 'Details', path: paths.dashboard.invoice.demo.details },
           { title: 'Create', path: paths.dashboard.invoice.new },
-          { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
+          // { title: 'Details', path: paths.dashboard.invoice.demo.details },
+          // { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
         ],
       },
       {
@@ -305,22 +309,22 @@ export const navData = [
         icon: ICONS.driverPayroll,
         children: [
           { title: 'List', path: paths.dashboard.driverPayroll.root },
-          { title: 'Details', path: paths.dashboard.driverPayroll.demo.details },
           { title: 'Create', path: paths.dashboard.driverPayroll.new },
-          { title: 'Edit', path: paths.dashboard.driverPayroll.demo.edit },
+          // { title: 'Details', path: paths.dashboard.driverPayroll.demo.details },
+          // { title: 'Edit', path: paths.dashboard.driverPayroll.demo.edit },
         ],
       },
-      {
-        title: 'Transporter Payment',
-        path: paths.dashboard.invoice.root,
-        icon: ICONS.transporterPayment,
-        children: [
-          { title: 'List', path: paths.dashboard.invoice.root },
-          { title: 'Details', path: paths.dashboard.invoice.demo.details },
-          { title: 'Create', path: paths.dashboard.invoice.new },
-          { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
-        ],
-      },
+      // {
+      //   title: 'Transporter Payment',
+      //   path: paths.dashboard.invoice.root,
+      //   icon: ICONS.transporterPayment,
+      //   children: [
+      //     { title: 'List', path: paths.dashboard.invoice.root },
+      //     { title: 'Create', path: paths.dashboard.invoice.new },
+      //     { title: 'Details', path: paths.dashboard.invoice.demo.details },
+      //     { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
+      //   ],
+      // },
     ],
   },
   /**

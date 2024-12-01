@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
-import { useParams } from 'src/routes/hooks';
+import { useSearchParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useDispatch } from 'src/redux/store';
@@ -16,7 +16,12 @@ const metadata = { title: `Create a new Subtrip | Dashboard - ${CONFIG.site.name
 
 export default function Page() {
   const dispatch = useDispatch();
-  const { id: currentTrip } = useParams();
+  const searchParams = useSearchParams();
+
+  // Get the `id` query parameter
+  const currentTrip = searchParams.get('id');
+
+  console.log({ currentTrip });
 
   useEffect(() => {
     dispatch(fetchTrips());

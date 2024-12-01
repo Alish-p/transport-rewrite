@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Stack,
+  Alert,
   Dialog,
   Button,
   Divider,
@@ -21,6 +22,7 @@ import { addMaterialInfo } from 'src/redux/slices/subtrip';
 
 import { toast } from 'src/components/snackbar';
 
+import { getSalaryDetailsByVehicleType } from '../../utils/utils';
 import { Form, Field, schemaHelper } from '../../components/hook-form';
 
 const validationSchema = zod.object({
@@ -73,7 +75,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   const vehicleId = tripId?.vehicleId?._id;
   const consignees = customerId?.consignees;
-  const advanceAmt = routeCd?.advanceAmt;
+
+  const { advanceAmt } = getSalaryDetailsByVehicleType(routeCd, tripId?.vehicleId?.vehicleType);
 
   const dispatch = useDispatch();
 
@@ -195,19 +198,18 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
                   </option>
                 ))}
               </Field.Select>
-              <Field.Text
-                name="driverAdvance"
-                label="Driver Advance"
-                type="number"
-                helperText={`Driver Advance for this Route is usually "${advanceAmt} ₹"`}
-              />
-              <Field.Text
-                name="dieselLtr"
-                label="Diesel (Ltr)"
-                helperText={'Select "Full" in case Full-tank or LTR'}
-              />
+              <Field.Text name="driverAdvance" label="Driver Advance" type="number" />
+              <Field.Text name="dieselLtr" label="Diesel" />
             </Box>
           </Form>
+
+          <Alert severity="info" variant="outlined" sx={{ my: 2 }}>
+            {`For this route, the usual driver advance is "${advanceAmt} ₹".`}
+          </Alert>
+
+          <Alert severity="success" variant="outlined" sx={{ my: 2 }}>
+            {`Please select "Full Diesel" for a full tank or specify the quantity in liters.`}
+          </Alert>
         </Box>
       </DialogContent>
 
