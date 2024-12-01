@@ -1,21 +1,7 @@
-export const mapExpensesToChartData = (expenses) => {
-  const expenseTypes = [
-    'all',
-    'diesel',
-    'adblue',
-    'driver-salary',
-    'trip-advance',
-    'trip-extra-advance',
-    'puncher',
-    'tyre-expense',
-    'police',
-    'rto',
-    'toll',
-    'vehicle-repair',
-    'other',
-  ];
+import { EXPENSE_TYPES } from '../../constant';
 
-  const expenseData = expenseTypes.map((type) => {
+export const mapExpensesToChartData = (expenses) => {
+  const expenseData = EXPENSE_TYPES.map((type) => {
     const total = expenses
       .filter((expense) => expense.expenseType === type)
       .reduce((sum, expense) => sum + expense.amount, 0);

@@ -116,8 +116,8 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
       demo: {
-        details: `${ROOTS.DASHBOARD}/vehicle/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/vehicle/${MOCK_ID}/edit`,
+        details: `${ROOTS.DASHBOARD}/vehicle/674aeb4e174badde33145f16`,
+        edit: `${ROOTS.DASHBOARD}/vehicle/674aeb4e174badde33145f16/edit`,
       },
     },
     driver: {

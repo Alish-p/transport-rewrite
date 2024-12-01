@@ -25,8 +25,9 @@ export default function SubtripListRow({ row }) {
               case '_id':
                 return (
                   <Link
+                    sx={{ cursor: 'pointer' }}
                     onClick={() => {
-                      navigate(paths.dashboardsubtrip.detail(paramCase(row._id)));
+                      navigate(paths.dashboard.subtrip.details(paramCase(row._id)));
                     }}
                   >
                     # {row._id}

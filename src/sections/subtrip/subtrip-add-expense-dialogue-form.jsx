@@ -24,6 +24,8 @@ import { addExpense } from 'src/redux/slices/subtrip';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { EXPENSE_TYPES } from '../../constant';
+
 // Validation Schema
 const validationSchema = zod
   .object({
@@ -167,20 +169,7 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
           >
             <Field.DatePicker name="date" label="Date" />
             <Field.Select name="expenseType" label="Expense Type">
-              {[
-                'diesel',
-                'adblue',
-                'driver-salary',
-                'trip-advance',
-                'trip-extra-advance',
-                'puncher',
-                'tyre-expense',
-                'police',
-                'rto',
-                'toll',
-                'vehicle-repair',
-                'other',
-              ].map((type) => (
+              {EXPENSE_TYPES.map((type) => (
                 <MenuItem key={type} value={type}>
                   {type.replace(/-/g, ' ')}
                 </MenuItem>

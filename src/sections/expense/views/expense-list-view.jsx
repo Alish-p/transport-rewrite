@@ -200,7 +200,7 @@ export function ExpenseListView() {
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.expense.detail(id));
+      router.push(paths.dashboard.expense.details(id));
     },
     [router]
   );
