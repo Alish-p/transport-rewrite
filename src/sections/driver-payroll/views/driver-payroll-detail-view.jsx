@@ -5,6 +5,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import PayslipDetail from '../driver-salary-details';
+import DriverSalaryToolbar from '../driver-salary-toolbar';
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -40,14 +41,14 @@ export function DriverPayrollDetailView({ payslip, loading }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {/* {payslip && (
-        <InvoiceToolbar
-          invoice={invoice}
+      {payslip && (
+        <DriverSalaryToolbar
+          payslip={payslip}
           currentStatus={currentStatus || ''}
           onChangeStatus={handleChangeStatus}
           statusOptions={INVOICE_STATUS_OPTIONS}
         />
-      )} */}
+      )}
 
       <PayslipDetail
         invoiceNo={_id}

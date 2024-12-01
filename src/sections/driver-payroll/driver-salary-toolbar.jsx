@@ -22,18 +22,23 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 
-import InvoicePDF from './driver-salary-pdf';
+import DriverSalaryPDF from './driver-salary-pdf';
 
 // ----------------------------------------------------------------------
 
-export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
+export default function DriverSalaryToolbar({
+  payslip,
+  currentStatus,
+  statusOptions,
+  onChangeStatus,
+}) {
   const router = useRouter();
 
   const view = useBoolean();
 
   const handleEdit = useCallback(() => {
-    router.push(paths.dashboard.invoice.edit(invoice?._id));
-  }, [invoice._id, router]);
+    router.push(paths.dashboard.driverPayroll.edit(payslip?._id));
+  }, [payslip._id, router]);
 
   return (
     <>
@@ -57,8 +62,8 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
           </Tooltip>
 
           <PDFDownloadLink
-            document={<InvoicePDF invoice={invoice} currentStatus={currentStatus} />}
-            fileName={invoice._id}
+            document={<DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />}
+            fileName={payslip._id}
             style={{ textDecoration: 'none' }}
           >
             {({ loading }) => (
@@ -125,7 +130,7 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <InvoicePDF invoice={invoice} currentStatus={currentStatus} />
+              <DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />
             </PDFViewer>
           </Box>
         </Box>

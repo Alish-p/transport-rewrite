@@ -81,8 +81,15 @@ const useStyles = () =>
     []
   );
 
-export default function InvoicePDF({ invoice, currentStatus }) {
-  const { _id, subtrips, customer, status, createdDate } = invoice;
+export default function PayslipPDF({ driverSalary, currentStatus }) {
+  const {
+    _id,
+    subtripComponents,
+    driverId: driver,
+    invoiceStatus,
+    createdDate,
+    otherSalaryComponent,
+  } = driverSalary || {};
 
   const totalAmount = 5000;
 
@@ -101,19 +108,19 @@ export default function InvoicePDF({ invoice, currentStatus }) {
         </View>
         <View style={[styles.gridContainer, styles.mb40]}>
           <View style={styles.col6}>
-            <Text style={[styles.subtitle2, styles.mb4]}>Invoice from</Text>
+            <Text style={[styles.subtitle2, styles.mb4]}>Payslip from</Text>
             <Text style={styles.body2}>Shree EnterPrise</Text>
             <Text style={styles.body2}>Mudhol Opp-Reliance Trend</Text>
             <Text style={styles.body2}>Phone: {7575049646}</Text>
           </View>
 
           <View style={styles.col6}>
-            <Text style={[styles.subtitle2, styles.mb4]}>Invoice to</Text>
-            {customer && (
+            <Text style={[styles.subtitle2, styles.mb4]}>Payslip to</Text>
+            {driver && (
               <>
-                <Text style={styles.body2}>{customer.customerName}</Text>
-                <Text style={styles.body2}>{customer.address}</Text>
-                <Text style={styles.body2}>Phone: {customer.cellNo}</Text>
+                <Text style={styles.body2}>{driver.driverName}</Text>
+                <Text style={styles.body2}>{driver.driverPresentAddress}</Text>
+                <Text style={styles.body2}>Phone: {driver.driverCellNo}</Text>
               </>
             )}
           </View>
@@ -128,8 +135,8 @@ export default function InvoicePDF({ invoice, currentStatus }) {
             <Text style={styles.body2}>{fDate(createdDate)}</Text>
           </View>
         </View>
-        <Text style={[styles.subtitle1, styles.mb8]}>Invoice Details</Text>
-        Consignee Destination Vehicle No LR No Invoice No Disp Date
+        <Text style={[styles.subtitle1, styles.mb8]}>Payslip Details</Text>
+        Consignee Destination Vehicle No LR No Payslip No Disp Date
         <View style={styles.table}>
           <View>
             <View style={styles.tableRow}>
@@ -138,39 +145,27 @@ export default function InvoicePDF({ invoice, currentStatus }) {
               </View>
 
               <View style={styles.tableCell_2}>
-                <Text style={styles.subtitle2}>Consignee</Text>
+                <Text style={styles.subtitle2}>Payment Type </Text>
               </View>
 
               <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Destination</Text>
+                <Text style={styles.subtitle2}>Subtrip ID </Text>
               </View>
 
               <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Vehicle No</Text>
+                <Text style={styles.subtitle2}>Route Name </Text>
               </View>
               <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>LR No</Text>
+                <Text style={styles.subtitle2}>Trip End Date</Text>
               </View>
               <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Invoice No </Text>
-              </View>
-              <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Disp Date</Text>
-              </View>
-              <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>QTY(MT) </Text>
-              </View>
-              <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Rate/MT </Text>
-              </View>
-              <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Freight</Text>
+                <Text style={styles.subtitle2}>Payment</Text>
               </View>
             </View>
           </View>
 
           <View>
-            {subtrips.map((subtrip, index) => (
+            {subtripComponents.map((subtrip, index) => (
               <View style={styles.tableRow} key={subtrip._id}>
                 <View style={styles.tableCell_1}>
                   <Text>{index + 1}</Text>
