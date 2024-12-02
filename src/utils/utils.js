@@ -1,7 +1,26 @@
-export const calculateDriverSalary = (subtrip, vehicleType) => {
-  const { fixedSalary, percentageSalary } = subtrip.routeCd.salary[0];
-  const comission = subtrip.rate * subtrip.loadingWeight * 0.95 * percentageSalary * 0.01;
-  return comission + fixedSalary;
+/**
+ * Calculates the total driver salary from a single subtrip's expenses.
+ *
+ * @param {Object} subtrip - The subtrip object containing expenses.
+ * @returns {number} - The total driver salary for the subtrip.
+ */
+export const calculateDriverSalary = (subtrip) => {
+  if (!subtrip.expenses || !Array.isArray(subtrip.expenses)) {
+    return 0;
+  }
+
+  // Filter expenses for driver-salary type
+  const driverSalaryExpenses = subtrip.expenses.filter(
+    (expense) => expense.expenseType === 'driver-salary'
+  );
+
+  // Sum the amounts of driver-salary expenses
+  const totalDriverSalary = driverSalaryExpenses.reduce(
+    (accumulator, expense) => accumulator + (expense.amount || 0),
+    0
+  );
+
+  return totalDriverSalary;
 };
 
 /**

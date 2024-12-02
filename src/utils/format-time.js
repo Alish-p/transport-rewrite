@@ -237,3 +237,13 @@ export function fSub({
 
   return result;
 }
+
+/**
+ * Returns the first day of the current month.
+ *
+ * @returns {Date} - A Date object representing the first day of the current month.
+ */
+export const getFirstDayOfCurrentMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+};

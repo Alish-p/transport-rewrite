@@ -9,8 +9,8 @@ import { Stack, Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
+import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
 import { addInvoice } from 'src/redux/slices/invoice';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -55,7 +55,7 @@ export function InvoiceCreateView({ customerList }) {
       customerId: '',
       invoiceStatus: '',
       createdDate: new Date(),
-      fromDate: new Date(),
+      fromDate: getFirstDayOfCurrentMonth(),
       toDate: new Date(),
       dueDate: null,
       selectedSubtrips: [],

@@ -9,8 +9,8 @@ import { Stack, Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
+import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { addPayrollReceipt } from 'src/redux/slices/driver-payroll';
@@ -71,7 +71,7 @@ export function DriverPayrollCreateView({ driverList }) {
       driverId: '',
       status: '',
       createdDate: new Date(),
-      periodStartDate: new Date(),
+      periodStartDate: getFirstDayOfCurrentMonth(),
       periodEndDate: new Date(),
       selectedSubtrips: [],
       totalSalary: 0,
