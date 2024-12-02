@@ -65,6 +65,9 @@ const RouteEditPage = lazy(() => import('src/pages/dashboard/route/edit'));
 const ExpenseDetailsPage = lazy(() => import('src/pages/dashboard/expense/details'));
 const ExpenseListPage = lazy(() => import('src/pages/dashboard/expense/list'));
 const ExpenseCreatePage = lazy(() => import('src/pages/dashboard/expense/new'));
+const VehicleExpenseCreatePage = lazy(
+  () => import('src/pages/dashboard/expense/newVehicleExpense')
+);
 const ExpenseEditPage = lazy(() => import('src/pages/dashboard/expense/edit'));
 
 // Subtrip
@@ -245,7 +248,8 @@ export const dashboardRoutes = [
           { element: <ExpenseListPage />, index: true },
           { path: 'list', element: <ExpenseListPage /> },
           { path: ':id', element: <ExpenseDetailsPage /> },
-          { path: 'new', element: <ExpenseCreatePage /> },
+          { path: 'new-subtrip-expense', element: <ExpenseCreatePage /> },
+          { path: 'new-vehicle-expense', element: <VehicleExpenseCreatePage /> },
           { path: ':id/edit', element: <ExpenseEditPage /> },
         ],
       },

@@ -6,4 +6,5 @@ export const subtripConfig = [
   { id: 'rate', label: 'Rate', type: 'number' },
   { id: 'subtripStatus', label: 'Status', type: 'text' },
   { id: 'materialType', label: 'Material Type', type: 'text' },
+  { id: '', label: '', type: '' },
 ];

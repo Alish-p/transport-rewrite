@@ -7,7 +7,6 @@ import { HomeHero } from '../home-hero';
 import { HomeFAQs } from '../home-faqs';
 import { HomeMinimal } from '../home-minimal';
 import { HomePricing } from '../home-pricing';
-import { HomeForDesigner } from '../home-for-designer';
 import { HomeTestimonials } from '../home-testimonials';
 import { HomeIntegrations } from '../home-integrations';
 import { HomeHugePackElements } from '../home-hugepack-elements';
@@ -35,7 +34,7 @@ export function HomeView() {
 
         <HomeHugePackElements />
 
-        <HomeForDesigner />
+        {/* <HomeForDesigner /> */}
 
         <HomeHighlightFeatures />
 

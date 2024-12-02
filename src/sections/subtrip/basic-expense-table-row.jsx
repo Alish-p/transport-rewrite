@@ -1,6 +1,14 @@
 // ExpenseListRow.js
 
-import { Button, TableRow, MenuItem, TableCell, IconButton } from '@mui/material';
+import {
+  Button,
+  Divider,
+  TableRow,
+  MenuItem,
+  MenuList,
+  TableCell,
+  IconButton,
+} from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -14,7 +22,7 @@ import { expenseTableConfig } from './basic-expense-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
+export default function ExpenseListRow({ row, onDeleteRow, onEditRow, onViewRow }) {
   const popover = usePopover();
   const confirm = useBoolean();
 
@@ -39,21 +47,27 @@ export default function ExpenseListRow({ row, onDeleteRow, onEditRow }) {
         anchorEl={popover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuItem onClick={() => onEditRow(row)}>
-          <Iconify icon="eva:edit-fill" />
-          Edit
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="eva:trash-2-outline" />
-          Delete
-        </MenuItem>
+        <MenuList>
+          <MenuItem onClick={() => onViewRow(row)}>
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
+          <MenuItem onClick={() => onEditRow(row)}>
+            <Iconify icon="eva:edit-fill" />
+            Edit
+          </MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="eva:trash-2-outline" />
+            Delete
+          </MenuItem>
+        </MenuList>
       </CustomPopover>
 
       <ConfirmDialog

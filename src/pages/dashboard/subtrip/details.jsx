@@ -25,6 +25,9 @@ export default function Page() {
 
   console.log(subtripData);
 
+  if (isLoading) return <div>Loading...</div>;
+  if (!subtripData) return <div>Fetching...</div>;
+
   return (
     <>
       <Helmet>

@@ -27,7 +27,10 @@ export default function Page() {
     dispatch(fetchTrips());
   }, [dispatch]);
 
-  const { trips } = useSelector((state) => state.trip);
+  const { trips, loading } = useSelector((state) => state.trip);
+
+  if (loading) return <div>Loading...</div>;
+  if (!trips) return <div>No Trips Available...</div>;
 
   return (
     <>

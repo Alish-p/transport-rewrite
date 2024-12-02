@@ -1,12 +1,12 @@
 // ------------------------------------------------------------------------
 import { z as zod } from 'zod';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Tab, Card, Grid, Tabs, Stack, MenuItem, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, MenuItem, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -14,10 +14,9 @@ import { dispatch } from 'src/redux/store';
 import { addExpense, updateExpense } from 'src/redux/slices/expense';
 
 import { toast } from 'src/components/snackbar';
-import { SvgColor } from 'src/components/svg-color';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { expenseTypes } from './expense-config';
+import { subtripExpenseTypes as expenseTypes } from './expense-config';
 
 export const ExpenseSchema = zod.object({
   subtripId: zod
@@ -45,8 +44,6 @@ export const ExpenseSchema = zod.object({
 
 export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = [] }) {
   const navigate = useNavigate();
-
-  const [expenseCategory, setExpenseCategory] = useState('subtrip');
 
   const defaultValues = useMemo(
     () => ({
@@ -86,7 +83,7 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
     try {
       const formData = {
         ...data,
-        expenseCategory,
+        expenseCategory: 'vehicle',
         subtripId: data?.subtripId?.value,
         vehicleId: data.vehicleId?._id,
       };
@@ -106,35 +103,6 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
   };
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        spacing={3}
-        sx={{ paddingLeft: 15 }}
-      >
-        <Tabs value={expenseCategory} onChange={(event, newValue) => setExpenseCategory(newValue)}>
-          <Tab
-            iconPosition="top"
-            key="subtrip"
-            icon={
-              <SvgColor src="/assets/icons/navbar/ic_trip.svg" sx={{ width: 0.5, height: 0.5 }} />
-            }
-            label="Subtrip Expense"
-            value="subtrip"
-          />
-          <Tab
-            iconPosition="top"
-            key="vehicle"
-            icon={
-              <SvgColor src="/assets/icons/navbar/ic_vehicle.svg" sx={{ width: 1, height: 1 }} />
-            }
-            label="Vehicle Expense"
-            value="vehicle"
-          />
-        </Tabs>
-      </Grid>
-
       <Grid container spacing={3} sx={{ pt: 5 }}>
         <Grid item xs={12} md={3}>
           <Box sx={{ pt: 2, pb: 5, px: 3 }}>
@@ -149,29 +117,14 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box rowGap={3} columnGap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
-              {expenseCategory === 'subtrip' ? (
-                <Field.Autocomplete
-                  freeSolo
-                  name="subtripId"
-                  label="Subtrip"
-                  options={subtrips.map((c) => ({
-                    label: `${c._id} - ${c.routeCd.routeName} (${c.loadingPoint} to ${c.unloadingPoint})`,
-                    value: c._id,
-                  }))}
-                  getOptionLabel={(option) => option.label}
-                  isOptionEqualToValue={(option, value) => option.value === value.value}
-                  helperText="Vehicle MH08AB1233 is associated with this Subtrip"
-                />
-              ) : (
-                <Field.Autocomplete
-                  freeSolo
-                  name="vehicleId"
-                  label="Vehicle ID"
-                  options={vehicles.map((v) => ({ label: v.vehicleNo, value: v._id }))}
-                  getOptionLabel={(option) => option.label}
-                  isOptionEqualToValue={(option, value) => option.value === value.value}
-                />
-              )}
+              <Field.Autocomplete
+                freeSolo
+                name="vehicleId"
+                label="Vehicle ID"
+                options={vehicles.map((v) => ({ label: v.vehicleNo, value: v._id }))}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
 
               <Field.DatePicker name="date" label="Date" />
               <Field.Select name="expenseType" label="Expense Type">

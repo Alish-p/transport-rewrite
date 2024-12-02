@@ -9,7 +9,6 @@ import { Box, Grid, Card, Stack, Button, CardHeader } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { info, error, primary, success, warning, secondary } from 'src/theme/core/palette';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -18,7 +17,7 @@ import LRInfo from '../widgets/subtrip-info-widget';
 import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
-import ExpenseChartWidget from '../widgets/expense-chart-widget';
+import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
@@ -37,9 +36,6 @@ export function SubtripDetailView({ subtrip, loading }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showExpenseDialog, setShowExpenseDialog] = useState(false);
-
-  if (loading) return <div>Loading...</div>;
-  if (!subtrip) return <div>Fetching...</div>;
 
   const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
   const totalDieselLtr = subtrip?.expenses?.reduce(
@@ -147,11 +143,10 @@ export function SubtripDetailView({ subtrip, loading }) {
                 </Card>
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-                <ExpenseChartWidget
+                <ExpenseChart
                   title="Expense Details"
                   chart={{
                     series: expenseChartData,
-                    colors: [primary, info, error, warning, success, secondary, info, error],
                   }}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />

@@ -1,87 +1,70 @@
-import { Card, CardHeader } from '@mui/material';
-// @mui
-import { styled, useTheme } from '@mui/material/styles';
+import Card from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
+import { useTheme } from '@mui/material/styles';
+import CardHeader from '@mui/material/CardHeader';
 
-// utils
 import { fNumber } from 'src/utils/format-number';
 
-// components
-import { Chart, useChart } from 'src/components/chart';
+import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-const CHART_HEIGHT = 400;
-
-const LEGEND_HEIGHT = 72;
-
-const StyledChart = styled('div')(({ theme }) => ({
-  height: CHART_HEIGHT,
-  marginTop: theme.spacing(5),
-  '& .apexcharts-canvas svg': {
-    height: CHART_HEIGHT,
-  },
-  '& .apexcharts-canvas svg,.apexcharts-canvas foreignObject': {
-    overflow: 'visible',
-  },
-  '& .apexcharts-legend': {
-    height: LEGEND_HEIGHT,
-    alignContent: 'center',
-    position: 'relative !important',
-    borderTop: `solid 1px ${theme.palette.divider}`,
-    top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
-  },
-}));
-
-// ----------------------------------------------------------------------
-
-export default function ExpenseChartWidget({ title, subheader, chart, ...other }) {
+export function ExpenseChart({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
-  const { colors, series, options } = chart;
+  const chartSeries = chart.series.map((item) => item.value);
 
-  const chartSeries = series.map((i) => i.value);
+  const chartColors = chart.colors ?? [
+    theme.palette.secondary.dark,
+    theme.palette.error.main,
+    theme.palette.primary.main,
+    theme.palette.warning.main,
+    theme.palette.info.dark,
+    theme.palette.info.main,
+    theme.palette.success.main,
+    theme.palette.warning.dark,
+    theme.palette.info.light,
+    theme.palette.error.dark,
+    theme.palette.success.light,
+    theme.palette.secondary.dark,
+  ];
 
   const chartOptions = useChart({
-    chart: {
-      sparkline: {
-        enabled: true,
-      },
-    },
-    colors,
-    labels: series.map((i) => i.label),
-    stroke: {
-      colors: [theme.palette.background.paper],
-    },
-    legend: {
-      floating: true,
-      horizontalAlign: 'center',
-    },
-    dataLabels: {
-      enabled: true,
-      dropShadow: { enabled: false },
-    },
+    chart: { sparkline: { enabled: true } },
+    colors: chartColors,
+    labels: chart.series.map((item) => item.label),
+    stroke: { width: 0 },
+    dataLabels: { enabled: true, dropShadow: { enabled: false } },
     tooltip: {
-      fillSeriesColor: false,
       y: {
         formatter: (value) => fNumber(value),
-        title: {
-          formatter: (seriesName) => `${seriesName}`,
-        },
+        title: { formatter: (seriesName) => `${seriesName}` },
       },
     },
-    plotOptions: {
-      pie: { donut: { labels: { show: false } } },
-    },
-    ...options,
+    plotOptions: { pie: { donut: { labels: { show: false } } } },
+    ...chart.options,
   });
 
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
 
-      <StyledChart dir="ltr">
-        <Chart type="pie" series={chartSeries} options={chartOptions} height={280} />
-      </StyledChart>
+      <Chart
+        type="pie"
+        series={chartSeries}
+        options={chartOptions}
+        width={{ xs: 240, xl: 260 }}
+        height={{ xs: 240, xl: 260 }}
+        sx={{ my: 6, mx: 'auto' }}
+      />
+
+      <Divider sx={{ borderStyle: 'dashed' }} />
+
+      <ChartLegends
+        labels={chartOptions?.labels}
+        colors={chartOptions?.colors}
+        sx={{ p: 3, justifyContent: 'center' }}
+      />
     </Card>
   );
 }

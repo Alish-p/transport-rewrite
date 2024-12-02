@@ -4,7 +4,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import ExpenseForm from '../expense-form';
+import ExpenseForm from '../subtrip-expense-form';
 
 // ----------------------------------------------------------------------
 

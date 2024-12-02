@@ -190,9 +190,19 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
             )}
             {expenseType === 'driver-salary' && (
               <>
-                <Field.Text name="fixedSalary" label="Fixed Salary" type="number" />
-                <Field.Text name="variableSalary" label="Variable Salary" type="number" />
-                <Field.Text name="performanceSalary" label="Performance Salary" type="number" />
+                <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
+                <Field.Text
+                  name="variableSalary"
+                  label="Variable Salary"
+                  type="number"
+                  placeholder="0"
+                />
+                <Field.Text
+                  name="performanceSalary"
+                  label="Performance Salary"
+                  type="number"
+                  placeholder="0"
+                />
               </>
             )}
             <Field.Text

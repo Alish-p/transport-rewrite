@@ -4,9 +4,9 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 import { useDispatch } from 'src/redux/store';
-import { fetchSubtrips } from 'src/redux/slices/subtrip';
+import { fetchVehicles } from 'src/redux/slices/vehicle';
 
-import { SubtripExpenseCreateView } from 'src/sections/expense/views';
+import { VehicleExpenseCreateView } from 'src/sections/expense/views/vehicle-expense-create-view';
 
 // ----------------------------------------------------------------------
 
@@ -16,10 +16,10 @@ export default function Page() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchSubtrips());
+    dispatch(fetchVehicles());
   }, [dispatch]);
 
-  const { subtrips } = useSelector((state) => state.subtrip);
+  const { vehicles } = useSelector((state) => state.vehicle);
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripExpenseCreateView subtrips={subtrips} />
+      <VehicleExpenseCreateView vehicles={vehicles} />
     </>
   );
 }

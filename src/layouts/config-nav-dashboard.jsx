@@ -126,7 +126,8 @@ export const navData = [
         icon: ICONS.expense,
         children: [
           { title: 'List', path: paths.dashboard.expense.root },
-          { title: 'Create', path: paths.dashboard.expense.new },
+          { title: 'Add Expense to Subtrip', path: paths.dashboard.expense.new },
+          { title: 'Add Expense to Vehicle ', path: paths.dashboard.expense.newVehicleExpense },
 
           // { title: 'Details', path: paths.dashboard.expense.demo.details },
           // { title: 'Edit', path: paths.dashboard.expense.demo.edit },

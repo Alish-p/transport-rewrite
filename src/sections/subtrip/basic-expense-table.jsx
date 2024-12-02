@@ -32,6 +32,7 @@ export default function ExpenseListTable({ expenses }) {
                 dispatch(deleteExpense(expense._id));
               }}
               onEditRow={() => navigate(paths.dashboard.expense.edit(expense._id))}
+              onViewRow={() => navigate(paths.dashboard.expense.details(expense._id))}
             />
           ))}
           <TableNoData notFound={expenses.length === 0} />

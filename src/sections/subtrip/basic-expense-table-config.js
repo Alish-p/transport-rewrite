@@ -7,4 +7,5 @@ export const expenseTableConfig = [
   { id: 'paidThrough', label: 'Paid Through', type: 'string' },
   { id: 'authorisedBy', label: 'Authorised By', type: 'string' },
   { id: 'remarks', label: 'Remarks', type: 'string' },
+  { id: '' },
 ];

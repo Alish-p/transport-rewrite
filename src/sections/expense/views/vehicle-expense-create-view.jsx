@@ -4,13 +4,13 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import ExpenseNewForm from '../expense-form';
+import ExpenseNewForm from '../vehicle-expense-form';
 
-export function ExpenseCreateView({ subtrips, vehicles }) {
+export function VehicleExpenseCreateView({ vehicles }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Add New Expense"
+        heading="Add New Expense to Vehicle"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Expenses List', href: paths.dashboard.expense.list },
@@ -19,7 +19,7 @@ export function ExpenseCreateView({ subtrips, vehicles }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseNewForm subtrips={subtrips} vehicles={vehicles} />
+      <ExpenseNewForm vehicles={vehicles} />
     </DashboardContent>
   );
 }
