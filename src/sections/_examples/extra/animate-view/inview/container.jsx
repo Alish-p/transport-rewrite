@@ -11,7 +11,7 @@ import { getVariant } from '../get-variant';
 
 // ----------------------------------------------------------------------
 
-const TEXT = 'Minimals';
+const TEXT = 'Transport+';
 
 const IMG = [
   _mock.image.cover(2),
