@@ -13,15 +13,15 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { useMockedUser } from 'src/auth/hooks';
 import { RoleBasedGuard } from 'src/auth/guard';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function PermissionDeniedView() {
   const [role, setRole] = useState('admin');
 
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const handleChangeRole = useCallback((event, newRole) => {
     if (newRole !== null) {

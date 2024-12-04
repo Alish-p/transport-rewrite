@@ -8,14 +8,13 @@ import { fToNow } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
-import { useMockedUser } from 'src/auth/hooks';
-
 import { useMessage } from './hooks/use-message';
+import { useAuthContext } from '../../auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function ChatMessageItem({ message, participants, onOpenLightbox }) {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const { me, senderDetails, hasImage } = useMessage({
     message,

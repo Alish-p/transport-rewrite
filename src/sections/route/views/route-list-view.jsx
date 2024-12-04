@@ -12,8 +12,8 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -24,8 +24,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { deleteRoute } from 'src/redux/slices/route';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteRoute, fetchRoutes } from 'src/redux/slices/route';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -71,7 +71,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function RouteListView() {
+export function RouteListView({ routes }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -80,12 +80,6 @@ export function RouteListView() {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchRoutes());
-  }, [dispatch]);
-
-  const { routes, isLoading } = useSelector((state) => state.route);
 
   useEffect(() => {
     if (routes.length) {

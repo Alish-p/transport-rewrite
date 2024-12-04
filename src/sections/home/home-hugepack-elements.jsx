@@ -44,8 +44,12 @@ export function HomeHugePackElements({ sx, ...other }) {
             columnSpacing={{ xs: 0, md: 8 }}
           >
             <Grid xs={12} md={6} lg={7}>
-              <SectionCaption title="Interface Starter Kit" />
-              <SectionTitle title="Large bundle of" txtGradient="elements" sx={{ mt: 3 }} />
+              <SectionCaption title="Transport Management System" />
+              <SectionTitle
+                title="Efficient tracking of"
+                txtGradient="vehicles and trips"
+                sx={{ mt: 3 }}
+              />
             </Grid>
 
             <Grid xs={12} md={6} lg={5}>
@@ -58,10 +62,10 @@ export function HomeHugePackElements({ sx, ...other }) {
                   }}
                 >
                   <Box component="span" sx={{ color: 'text.primary' }}>
-                    Explore a comprehensive range of elements
+                    Manage your transport operations seamlessly
                   </Box>
                   <br />
-                  like menus, sliders, buttons, inputs, and others, all conveniently gathered here.
+                  with features like route planning, fuel tracking, salary management, and more.
                 </Typography>
               </m.div>
             </Grid>
@@ -74,11 +78,11 @@ export function HomeHugePackElements({ sx, ...other }) {
               variant="outlined"
               target="_blank"
               rel="noopener"
-              href={paths.components}
+              href={paths.transportFeatures}
               endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
               sx={{ mt: 5, mx: 'auto' }}
             >
-              Browse components
+              Explore features
             </Button>
           </m.div>
         </Container>
@@ -188,7 +192,7 @@ function ScrollContent() {
             sx={{
               height: { xs: 400, md: 480 },
               width: { xs: '600%', md: '400%' },
-              backgroundImage: `url(${CONFIG.site.basePath}/assets/images/home/bundle-${theme.palette.mode}-2.webp)`,
+              backgroundImage: `url(${CONFIG.site.basePath}/assets/images/home/bundle_transport1.png)`,
             }}
           />
         </StyledContent>

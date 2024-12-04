@@ -4,7 +4,7 @@ import { _mock } from 'src/_mock';
 
 // Change:
 // import { useMockedUser } from 'src/auth/hooks';
-// const { user } = useMockedUser();
+// const { user } = useAuthContext();
 
 // To:
 // import { useAuthContext } from 'src/auth/hooks';

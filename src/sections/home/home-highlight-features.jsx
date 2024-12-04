@@ -223,20 +223,20 @@ function Item({ item, sx, ...other }) {
 
 const ITEMS = [
   {
-    title: 'Dark mode',
+    title: 'Dashboard',
     subtitle: 'A dark theme that feels easier on the eyes.',
     icon: 'solar:cloudy-moon-bold-duotone',
-    imgUrl: [`${CONFIG.site.basePath}/assets/images/home/actual_home.png`],
+    imgUrl: [`${CONFIG.site.basePath}/assets/images/home/dashboard-1.png`],
   },
   {
-    title: 'Color presets',
+    title: 'Details Page for Each Entity',
     subtitle: 'Express your own style with just one click.',
     icon: 'solar:pallete-2-bold-duotone',
     imgUrl: [
-      `${CONFIG.site.basePath}/assets/images/home/highlight-presets-1.webp`,
-      `${CONFIG.site.basePath}/assets/images/home/highlight-presets-2.webp`,
-      `${CONFIG.site.basePath}/assets/images/home/highlight-presets-3.webp`,
-      `${CONFIG.site.basePath}/assets/images/home/highlight-presets-4.webp`,
+      `${CONFIG.site.basePath}/assets/images/home/1.png`,
+      `${CONFIG.site.basePath}/assets/images/home/2.png`,
+      `${CONFIG.site.basePath}/assets/images/home/details-3.png`,
+      `${CONFIG.site.basePath}/assets/images/home/details-4.png`,
       `${CONFIG.site.basePath}/assets/images/home/highlight-presets-5.webp`,
     ],
   },
