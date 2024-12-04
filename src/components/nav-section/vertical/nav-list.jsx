@@ -6,12 +6,15 @@ import { useActiveLink } from 'src/routes/hooks/use-active-link';
 
 import { NavItem } from './nav-item';
 import { navSectionClasses } from '../classes';
+import { useAuthContext } from '../../../auth/hooks';
 import { NavUl, NavLi, NavCollapse } from '../styles';
 
 // ----------------------------------------------------------------------
 
 export function NavList({ data, render, depth, slotProps, enabledRootRedirect }) {
   const pathname = usePathname();
+
+  const { user } = useAuthContext();
 
   const active = useActiveLink(data.path, !!data.children);
 
@@ -59,8 +62,8 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
   );
 
   // Hidden item by role
-  if (data.roles && slotProps?.currentRole) {
-    if (!data?.roles?.includes(slotProps?.currentRole)) {
+  if (data.roles && user?.role) {
+    if (!data?.roles?.includes(user?.role)) {
       return null;
     }
   }

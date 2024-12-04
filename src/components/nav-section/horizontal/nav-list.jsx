@@ -10,6 +10,8 @@ import { useActiveLink } from 'src/routes/hooks/use-active-link';
 
 import { paper } from 'src/theme/styles';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { NavItem } from './nav-item';
 import { NavUl, NavLi } from '../styles';
 import { navSectionClasses } from '../classes';
@@ -20,6 +22,8 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
   const theme = useTheme();
 
   const pathname = usePathname();
+
+  const { user } = useAuthContext();
 
   const navItemRef = useRef(null);
 
@@ -71,8 +75,8 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
   );
 
   // Hidden item by role
-  if (data.roles && slotProps?.currentRole) {
-    if (!data?.roles?.includes(slotProps?.currentRole)) {
+  if (data.roles && user?.role) {
+    if (!data?.roles?.includes(user?.role)) {
       return null;
     }
   }
