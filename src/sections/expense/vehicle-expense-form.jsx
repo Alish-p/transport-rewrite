@@ -29,7 +29,7 @@ export const ExpenseSchema = zod.object({
     .refine((val) => val !== null, { message: 'Vehicle ID is required' }),
   date: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
   expenseType: zod.string().min(1, { message: 'Expense Type is required' }),
-  installment: zod.number().min(0).optional(),
+
   amount: zod
     .number({ required_error: 'Amount is required' })
     .min(0, { message: 'Amount must be at least 0' }),
@@ -51,7 +51,7 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
       vehicleId: currentExpense?.vehicleId || '',
       date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
       expenseType: currentExpense?.expenseType || '',
-      installment: currentExpense?.installment || 0,
+
       amount: currentExpense?.amount || 0,
       slipNo: currentExpense?.slipNo || '',
       pumpCd: currentExpense?.pumpCd || null,
@@ -134,7 +134,7 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Text name="installment" label="Installment" type="number" />
+
               <Field.Text name="amount" label="Amount" type="number" />
               <Field.Text name="slipNo" label="Slip No" />
               {values.expenseType === 'diesel' && (
