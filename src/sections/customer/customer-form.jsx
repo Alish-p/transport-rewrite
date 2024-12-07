@@ -1,5 +1,4 @@
 import { toast } from 'sonner';
-// ----------------------------------------------------------------------
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +7,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Divider, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -56,6 +55,16 @@ export const NewCustomerSchema = zod.object({
         .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
     })
   ),
+  bankDetails: zod.object({
+    bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
+    bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
+    ifscCode: zod.string().min(1, { message: 'IFSC Code is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: zod
+      .string()
+      .min(1, { message: 'Account No is required' })
+      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
+  }),
 });
 
 // ----------------------------------------------------------------------
@@ -76,6 +85,13 @@ export default function CustomerNewForm({ currentCustomer }) {
       consignees: currentCustomer?.consignees || [
         { name: '', address: '', state: '', pinCode: '' },
       ],
+      bankDetails: {
+        bankCd: currentCustomer?.bankDetails?.bankCd || '',
+        bankBranch: currentCustomer?.bankDetails?.bankBranch || '',
+        ifscCode: currentCustomer?.bankDetails?.ifscCode || '',
+        place: currentCustomer?.bankDetails?.place || '',
+        accNo: currentCustomer?.bankDetails?.accNo || '',
+      },
     }),
     [currentCustomer]
   );
@@ -83,6 +99,7 @@ export default function CustomerNewForm({ currentCustomer }) {
   const methods = useForm({
     resolver: zodResolver(NewCustomerSchema),
     defaultValues,
+    mode: 'onBlur', // Validate on input blur, can use 'onChange' if preferred
   });
 
   const {
@@ -125,94 +142,133 @@ export default function CustomerNewForm({ currentCustomer }) {
     remove(index);
   };
 
+  // Separate render methods
+
+  const renderCustomerDetails = () => (
+    <Card sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Customer Details
+      </Typography>
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(2, 1fr)',
+        }}
+      >
+        <Field.Text name="customerName" label="Customer Name" />
+        <Field.Text name="address" label="Address" />
+        <Field.Text name="place" label="Place" />
+        <Field.Text name="state" label="State" />
+        <Field.Text name="pinCode" label="Pin Code" />
+        <Field.Text name="cellNo" label="Cell No" type="number" />
+        <Field.Text name="GSTNo" label="GST No" />
+        <Field.Text name="PANNo" label="PAN No" />
+      </Box>
+    </Card>
+  );
+
+  const renderBankDetails = () => (
+    <Card sx={{ p: 3, mt: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Bank Details
+      </Typography>
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(2, 1fr)',
+        }}
+      >
+        <Field.Text name="bankDetails.bankCd" label="Bank Code" />
+        <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
+        <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
+        <Field.Text name="bankDetails.place" label="Place" />
+        <Field.Text name="bankDetails.accNo" label="Account No" />
+      </Box>
+    </Card>
+  );
+
+  const renderConsignees = () => (
+    <Card sx={{ p: 3, mt: 3 }}>
+      <Typography variant="h6" sx={{ color: 'text.disabled', mb: 3 }}>
+        Consignees
+      </Typography>
+
+      {fields.map((field, index) => (
+        <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
+          <Box
+            rowGap={3}
+            columnGap={2}
+            display="grid"
+            gridTemplateColumns={{
+              xs: 'repeat(2, 1fr)',
+              sm: 'repeat(9, 1fr)',
+            }}
+          >
+            <Box gridColumn="span 2">
+              <Field.Text name={`consignees[${index}].name`} label="Consignee Name" />
+            </Box>
+            <Box gridColumn="span 2">
+              <Field.Text name={`consignees[${index}].address`} label="Consignee Address" />
+            </Box>
+            <Box gridColumn="span 2">
+              <Field.Text name={`consignees[${index}].state`} label="Consignee State" />
+            </Box>
+            <Box gridColumn="span 2">
+              <Field.Text name={`consignees[${index}].pinCode`} label="Consignee Pin Code" />
+            </Box>
+            <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
+              <Button
+                size="small"
+                color="error"
+                startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                onClick={() => handleRemoveConsignee(index)}
+              >
+                Remove
+              </Button>
+            </Box>
+          </Box>
+        </Stack>
+      ))}
+
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<Iconify icon="mingcute:add-line" />}
+        onClick={handleAddConsignee}
+        sx={{ mt: 3 }}
+      >
+        Add Consignee
+      </Button>
+    </Card>
+  );
+
+  const renderActions = () => (
+    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+        {!currentCustomer ? 'Create Customer' : 'Save Changes'}
+      </LoadingButton>
+    </Stack>
+  );
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <Field.Text name="customerName" label="Customer Name" />
-              <Field.Text name="address" label="Address" />
-              <Field.Text name="place" label="Place" />
-              <Field.Text name="state" label="State" />
-              <Field.Text name="pinCode" label="Pin Code" />
-              <Field.Text name="cellNo" label="Cell No" type="number" />
-              <Field.Text name="GSTNo" label="GST No" />
-              <Field.Text name="PANNo" label="PAN No" />
-            </Box>
-
-            <Typography variant="h6" sx={{ color: 'text.disabled', mt: 3 }}>
-              Consignees:
-            </Typography>
-
-            {fields.map((field, index) => (
-              <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
-                <Box
-                  rowGap={3}
-                  columnGap={2}
-                  display="grid"
-                  gridTemplateColumns={{
-                    xs: 'repeat(2, 1fr)',
-                    sm: 'repeat(9, 1fr)',
-                  }}
-                >
-                  <Box gridColumn="span 2">
-                    <Field.Text name={`consignees[${index}].name`} label="Consignee Name" />
-                  </Box>
-                  <Box gridColumn="span 2">
-                    <Field.Text name={`consignees[${index}].address`} label="Consignee Address" />
-                  </Box>
-                  <Box gridColumn="span 2">
-                    <Field.Text name={`consignees[${index}].state`} label="Consignee State" />
-                  </Box>
-                  <Box gridColumn="span 2">
-                    <Field.Text name={`consignees[${index}].pinCode`} label="Consignee Pin Code" />
-                  </Box>
-                  <Box
-                    gridColumn="span 1"
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Button
-                      size="small"
-                      color="error"
-                      startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                      onClick={() => handleRemoveConsignee(index)}
-                    >
-                      Remove
-                    </Button>
-                  </Box>
-                </Box>
-              </Stack>
-            ))}
-
-            <Button
-              size="small"
-              color="primary"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={handleAddConsignee}
-              sx={{ mt: 3 }}
-            >
-              Add Consignee
-            </Button>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentCustomer ? 'Create Customer' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+          {renderCustomerDetails()}
+          {renderBankDetails()}
+          {renderConsignees()}
         </Grid>
       </Grid>
+
+      <Divider sx={{ my: 3 }} />
+
+      {renderActions()}
     </Form>
   );
 }

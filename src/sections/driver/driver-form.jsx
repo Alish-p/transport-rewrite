@@ -5,9 +5,9 @@ import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/material';
+// @mui
+import { Card, Grid, Stack, Divider, Typography, InputAdornment } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -55,11 +55,16 @@ export const NewDriverSchema = zod.object({
     .min(0, { message: 'Experience must be at least 0 years' }),
   dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }),
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
-  bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
-  accNo: zod
-    .string()
-    .min(1, { message: 'Account No is required' })
-    .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
+  bankDetails: zod.object({
+    bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
+    bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
+    ifscCode: zod.string().min(1, { message: 'IFSC Code is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: zod
+      .string()
+      .min(1, { message: 'Account No is required' })
+      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
+  }),
 });
 
 // ----------------------------------------------------------------------
@@ -84,8 +89,13 @@ export default function DriverForm({ currentDriver }) {
       experience: currentDriver?.experience || 0,
       dob: currentDriver?.dob ? new Date(currentDriver.dob) : new Date(),
       permanentAddress: currentDriver?.permanentAddress || '',
-      bankCd: currentDriver?.bankCd || '',
-      accNo: currentDriver?.accNo || '',
+      bankDetails: {
+        bankCd: currentDriver?.bankDetails?.bankCd || '',
+        bankBranch: currentDriver?.bankDetails?.bankBranch || '',
+        ifscCode: currentDriver?.bankDetails?.ifscCode || '',
+        place: currentDriver?.bankDetails?.place || '',
+        accNo: currentDriver?.bankDetails?.accNo || '',
+      },
     }),
     [currentDriver]
   );
@@ -93,6 +103,7 @@ export default function DriverForm({ currentDriver }) {
   const methods = useForm({
     resolver: zodResolver(NewDriverSchema),
     defaultValues,
+    mode: 'all',
   });
 
   const {
@@ -134,8 +145,9 @@ export default function DriverForm({ currentDriver }) {
     },
     [setValue, values.images]
   );
+
   const handleRemoveFile = (inputFile) => {
-    const filtered = values.images && values.images?.filter((file) => file !== inputFile);
+    const filtered = values.images && values.images.filter((file) => file !== inputFile);
     setValue('images', filtered);
   };
 
@@ -143,85 +155,137 @@ export default function DriverForm({ currentDriver }) {
     setValue('images', []);
   };
 
+  const renderDriverDetails = () => (
+    <Card sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Driver Details
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="driverName" label="Driver Name" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="driverLicenceNo" label="Driver Licence No" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="driverPresentAddress" label="Driver Present Address" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text
+            name="driverCellNo"
+            label="Driver Cell No"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.DatePicker name="licenseFrom" label="License From" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.DatePicker name="licenseTo" label="License To" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="aadharNo" label="Aadhar No" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="guarantorName" label="Guarantor Name" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text
+            name="guarantorCellNo"
+            label="Guarantor Cell No"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text
+            name="experience"
+            label="Experience"
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">years</InputAdornment>,
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.DatePicker name="dob" label="Date of Birth" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="permanentAddress" label="Permanent Address" />
+        </Grid>
+      </Grid>
+    </Card>
+  );
+
+  const renderBankDetails = () => (
+    <Card sx={{ p: 3, my: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Bank Details
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="bankDetails.place" label="Place" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+        </Grid>
+      </Grid>
+    </Card>
+  );
+
+  const renderImages = () => (
+    <Card sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Images
+      </Typography>
+      <Field.Upload
+        multiple
+        thumbnail
+        name="images"
+        maxSize={3145728}
+        onDrop={handleDrop}
+        onRemove={handleRemoveFile}
+        onRemoveAll={handleRemoveAllFiles}
+        onUpload={() => console.log('ON UPLOAD')}
+      />
+    </Card>
+  );
+
+  const renderActions = () => (
+    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+        {!currentDriver ? 'Create Driver' : 'Save Changes'}
+      </LoadingButton>
+    </Stack>
+  );
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ pt: 10, pb: 5, px: 3 }}>
-            <Box sx={{ mb: 5 }}>
-              <Stack spacing={1}>
-                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                  Images
-                </Typography>
-
-                <Field.Upload
-                  multiple
-                  thumbnail
-                  name="images"
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  onRemove={handleRemoveFile}
-                  onRemoveAll={handleRemoveAllFiles}
-                  onUpload={() => console.log('ON UPLOAD')}
-                />
-              </Stack>
-            </Box>
-          </Card>
+        <Grid item xs={12} md={4}>
+          {renderImages()}
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <Field.Text name="driverName" label="Driver Name" />
-              <Field.Text name="driverLicenceNo" label="Driver Licence No" />
-              <Field.Text name="driverPresentAddress" label="Driver Present Address" />
-              <Field.Text
-                name="driverCellNo"
-                label="Driver Cell No"
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-                }}
-              />
-              <Field.DatePicker name="licenseFrom" label="License From" />
-              <Field.DatePicker name="licenseTo" label="License To" />
-              <Field.Text name="aadharNo" label="Aadhar No" />
-              <Field.Text name="guarantorName" label="Guarantor Name" />
-              <Field.Text
-                name="guarantorCellNo"
-                label="Guarantor Cell No"
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-                }}
-              />
-              <Field.Text
-                name="experience"
-                label="Experience"
-                type="number"
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">years</InputAdornment>,
-                }}
-              />
-              <Field.DatePicker name="dob" label="Date of Birth" />
-              <Field.Text name="permanentAddress" label="Permanent Address" />
-              <Field.Text name="bankCd" label="Bank Code" />
-              <Field.Text name="accNo" label="Account No" />
-            </Box>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentDriver ? 'Create Driver' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+        <Grid item xs={12} md={8}>
+          {renderDriverDetails()}
+          {renderBankDetails()}
         </Grid>
       </Grid>
+
+      <Divider sx={{ my: 3 }} />
+
+      {renderActions()}
     </Form>
   );
 }
