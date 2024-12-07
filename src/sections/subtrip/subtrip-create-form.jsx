@@ -10,30 +10,26 @@ import { Box, Card, Grid, Stack, Divider, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
 import { useSelector } from 'src/redux/store';
 import { fetchTrips } from 'src/redux/slices/trip';
-import { fetchRoutes } from 'src/redux/slices/route';
 import { addSubtrip } from 'src/redux/slices/subtrip';
 import { fetchCustomers } from 'src/redux/slices/customer';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { today } from '../../utils/format-time';
-
 const NewTripSchema = zod.object({
   tripId: zod
     .any()
     .nullable()
     .refine((val) => val !== null, {
-      message: 'Driver is required',
+      message: 'Trip is required',
     }),
-  routeCd: zod.string().min(1, { message: 'Route Code is required' }),
   customerId: zod.string().min(1, { message: 'Customer ID is required' }),
-  loadingPoint: zod.string().min(1, { message: 'Loading Point is required' }),
-  unloadingPoint: zod.string().min(1, { message: 'Unloading Point is required' }),
+  diNumber: zod.string().min(1, { message: 'DI/DO Number is required' }),
   startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
 });
 
@@ -45,11 +41,9 @@ export default function SubtripCreateForm({ currentTrip }) {
     () => ({
       // Subtrip
       tripId: currentTrip ? { label: currentTrip, value: currentTrip } : null,
-      routeCd: '',
       customerId: '',
-      loadingPoint: '',
-      unloadingPoint: '',
       startDate: today(),
+      diNumber: '',
     }),
     [currentTrip]
   );
@@ -57,10 +51,8 @@ export default function SubtripCreateForm({ currentTrip }) {
   useEffect(() => {
     dispatch(fetchCustomers());
     dispatch(fetchTrips());
-    dispatch(fetchRoutes());
   }, [dispatch]);
 
-  const { routes } = useSelector((state) => state.route);
   const { customers } = useSelector((state) => state.customer);
   const { trips } = useSelector((state) => state.trip);
 
@@ -71,14 +63,13 @@ export default function SubtripCreateForm({ currentTrip }) {
 
   const {
     reset,
-    watch,
-    control,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = async (data) => {
     try {
+      console.log('Submitting');
       const createdSubtrip = await dispatch(addSubtrip(data.tripId.value, data));
 
       reset();
@@ -105,25 +96,16 @@ export default function SubtripCreateForm({ currentTrip }) {
 
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-            <Field.Autocomplete
-              sx={{ mb: 2 }}
-              name="tripId"
-              label="Trip"
-              options={trips.map((c) => ({ label: c._id, value: c._id }))}
-              getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.value === value.value}
-              disabled={currentTrip}
-            />
-
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-              <Field.Select native name="routeCd" label="Route">
-                <option value="" />
-                {routes.map((route) => (
-                  <option key={route._id} value={route._id}>
-                    {route.routeName}
-                  </option>
-                ))}
-              </Field.Select>
+              <Field.Autocomplete
+                sx={{ mb: 2 }}
+                name="tripId"
+                label="Trip"
+                options={trips.map((c) => ({ label: c._id, value: c._id }))}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                disabled={currentTrip}
+              />
 
               <Field.Select native name="customerId" label="Customer">
                 <option value="">None</option>
@@ -135,14 +117,12 @@ export default function SubtripCreateForm({ currentTrip }) {
                 ))}
               </Field.Select>
 
-              <Field.Text name="loadingPoint" label="Loading Point" />
-              <Field.Text name="unloadingPoint" label="Unloading Point" />
+              <Field.Text name="diNumber" label="DI/DO No" />
               <Field.DatePicker name="startDate" label="Subtrip Start Date" />
             </Box>
           </Card>
         </Grid>
       </Grid>
-
       <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
           Create Trip

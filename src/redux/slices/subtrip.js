@@ -119,6 +119,7 @@ export const addMaterialInfo = (id, data) => async (dispatch) => {
     dispatch(updateSubtripSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -130,6 +131,7 @@ export const receiveLR = (id, data) => async (dispatch) => {
     dispatch(updateSubtripSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -141,6 +143,7 @@ export const resolveLR = (id, data) => async (dispatch) => {
     dispatch(updateSubtripSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -152,6 +155,7 @@ export const closeTrip = (id, data) => async (dispatch) => {
     dispatch(updateSubtripSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -162,6 +166,7 @@ export const updateSubtrip = (id, data) => async (dispatch) => {
     dispatch(updateSubtripSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -172,6 +177,7 @@ export const deleteSubtrip = (id) => async (dispatch) => {
     dispatch(deleteSubtripSuccess(id));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 
@@ -183,6 +189,7 @@ export const addExpense = (subtripId, expenseData) => async (dispatch) => {
     dispatch(addExpenseSuccess({ subtripId, expense: response.data }));
   } catch (error) {
     dispatch(hasError(error));
+    throw error;
   }
 };
 

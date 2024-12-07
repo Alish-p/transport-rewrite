@@ -5,11 +5,8 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Box, Dialog, Tooltip, MenuList, DialogActions } from '@mui/material';
-
-import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -18,6 +15,7 @@ import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import LRPDF from './pdfs/lorry-reciept-pdf';
+import { SUBTRIP_STATUS } from './constants';
 import IndentPdf from './pdfs/petrol-indent-pdf';
 
 // ----------------------------------------------------------------------
@@ -31,7 +29,6 @@ export default function SubtripToolbar({
   onSubtripClose,
   onEdit,
   onResolve,
-  onDriverSalaryInfo,
 }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
@@ -50,19 +47,18 @@ export default function SubtripToolbar({
         }}
       >
         <Stack spacing={1} direction="row" alignItems="flex-start">
-          <IconButton component={RouterLink} href={backLink}>
-            <Iconify icon="eva:arrow-ios-back-fill" />
-          </IconButton>
-
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center">
               <Typography variant="h4">Subtrip #{subtrip._id} </Typography>
               <Label
                 variant="soft"
+                s
                 color={
-                  (status === 'completed' && 'success') ||
-                  (status === 'In-queue' && 'warning') ||
-                  (status === 'cancelled' && 'error') ||
+                  (status === SUBTRIP_STATUS.IN_QUEUE && 'warning') ||
+                  (status === SUBTRIP_STATUS.LOADED && 'info') ||
+                  (status === SUBTRIP_STATUS.RECEIVED && 'secondary') ||
+                  (status === SUBTRIP_STATUS.CLOSED && 'success') ||
+                  (status === SUBTRIP_STATUS.ERROR && 'error') ||
                   'default'
                 }
               >
@@ -134,7 +130,7 @@ export default function SubtripToolbar({
               actionPopover.onClose();
               onAddMaterialInfo();
             }}
-            disabled={!(subtrip.subtripStatus === 'in-queue')}
+            disabled={!(subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE)}
           >
             Add Material
           </MenuItem>
@@ -181,7 +177,7 @@ export default function SubtripToolbar({
               viewPopover.onClose();
               viewLR.onTrue();
             }}
-            disabled={subtrip.subtripStatus === 'in-queue'}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
             Lorry Receipt (LR)
           </MenuItem>
@@ -190,9 +186,18 @@ export default function SubtripToolbar({
               viewPopover.onClose();
               viewIntent.onTrue();
             }}
-            disabled={subtrip.subtripStatus === 'in-queue'}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
             Petrol Pump Intent
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              viewPopover.onClose();
+              viewIntent.onTrue();
+            }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          >
+            Entry Pass
           </MenuItem>
         </MenuList>
       </CustomPopover>

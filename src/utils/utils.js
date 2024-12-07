@@ -26,26 +26,39 @@ export const calculateDriverSalary = (subtrip) => {
 /**
  * Get salary and route details based on vehicle type
  *
- * @param {Object} route - The route information object
+ * @param {Array} routes - The routes array
+ * @param {Object} currentRouteId - The route id
  * @param {String} vehicleType - The vehicle type to fetch details for
  * @returns {Object} - Object containing salary details and common route fields
  */
-export function getSalaryDetailsByVehicleType(route, vehicleType) {
-  if (!route || !vehicleType) {
-    throw new Error('Both route and vehicleType parameters are required.');
+export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleType) {
+  if (!routes || !Array.isArray(routes)) {
+    throw new Error('Routes must be a valid array.');
+  }
+  if (!currentRouteId || !vehicleType) {
+    throw new Error('Both currentRouteId and vehicleType parameters are required.');
   }
 
-  // Find the salary details for the given vehicleType
-  const salaryDetails = route.salary.find(
+  // Find the selected route by its ID
+  const selectedRoute = routes.find((route) => route._id === currentRouteId);
+
+  if (!selectedRoute) {
+    throw new Error(`No route found with ID: ${currentRouteId}`);
+  }
+
+  // Find the salary details for the given vehicle type
+  const salaryDetails = selectedRoute.salary.find(
     (item) => item.vehicleType.toLowerCase() === vehicleType.toLowerCase()
   );
 
   if (!salaryDetails) {
-    throw new Error(`No salary details found for vehicleType: ${vehicleType}`);
+    console.log(`No salary details found for vehicleType: ${vehicleType} in the selected route.`);
+    return {};
   }
 
   // Return combined details
   return {
+    routeName: selectedRoute.routeName,
     vehicleType: salaryDetails.vehicleType,
     fixedSalary: salaryDetails.fixedSalary,
     percentageSalary: salaryDetails.percentageSalary,
@@ -55,11 +68,11 @@ export function getSalaryDetailsByVehicleType(route, vehicleType) {
     adBlue: salaryDetails.adBlue,
     advanceAmt: salaryDetails.advanceAmt,
     // Common route fields
-    tollAmt: route.tollAmt,
-    distance: route.distance,
-    tripType: route.tripType,
-    fromPlace: route.fromPlace,
-    toPlace: route.toPlace,
-    noOfDays: route.noOfDays,
+    tollAmt: selectedRoute.tollAmt,
+    distance: selectedRoute.distance,
+    tripType: selectedRoute.tripType,
+    fromPlace: selectedRoute.fromPlace,
+    toPlace: selectedRoute.toPlace,
+    noOfDays: selectedRoute.noOfDays,
   };
 }

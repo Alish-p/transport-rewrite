@@ -18,10 +18,7 @@ export default function Page() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
 
-  // Get the `id` query parameter
   const currentTrip = searchParams.get('id');
-
-  console.log({ currentTrip });
 
   useEffect(() => {
     dispatch(fetchTrips());

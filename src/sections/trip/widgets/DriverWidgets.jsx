@@ -14,6 +14,8 @@ import { fDate } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
+import { _mock } from '../../../_mock';
+
 // ----------------------------------------------------------------------
 
 export default function DriverCard({ driver, onDriverEdit }) {
@@ -41,7 +43,9 @@ export default function DriverCard({ driver, onDriverEdit }) {
         }
       />
       <Stack direction="row" sx={{ p: 3 }}>
-        <Avatar src="/assets/avatar-25.webp" sx={{ width: 100, height: 100, mr: 2 }} />
+        <Avatar color="sucess" sx={{ width: 100, height: 100, mr: 2 }}>
+          <Avatar src={_mock.image.avatar(1)} sx={{ width: 100, height: 100, mr: 2 }} />
+        </Avatar>
 
         <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2' }}>
           <Typography variant="subtitle2">{driverName}</Typography>

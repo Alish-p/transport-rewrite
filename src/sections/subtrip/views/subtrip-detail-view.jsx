@@ -53,8 +53,11 @@ export function SubtripDetailView({ subtrip, loading }) {
           heading="Subtrip Dashboard"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Trip Dashboard', href: paths.dashboard.trip.details(subtrip.tripId._id) },
-            { name: 'SubTrip Dashboard' },
+            {
+              name: `${subtrip.tripId._id ?? 'Trip Dashboard'}`,
+              href: paths.dashboard.trip.details(subtrip.tripId._id),
+            },
+            { name: `${subtrip._id ?? 'Subtrip Dashboard'}` },
           ]}
           sx={{
             mb: { xs: 3, md: 5 },
@@ -194,7 +197,7 @@ export function SubtripDetailView({ subtrip, loading }) {
       <AddExpenseDialog
         showDialog={showExpenseDialog}
         setShowDialog={setShowExpenseDialog}
-        subtripId={subtrip._id}
+        subtripData={subtrip}
         routeInfo={subtrip?.routeCd}
         vehicleInfo={subtrip?.tripId?.vehicleId}
       />

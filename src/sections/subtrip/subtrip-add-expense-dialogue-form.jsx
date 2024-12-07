@@ -31,13 +31,17 @@ const validationSchema = zod
   .object({
     date: schemaHelper.date({ message: { required_error: 'Date is required!' } }),
     expenseType: zod.string({ required_error: 'Expense Type is required' }),
-    amount: zod.number({ required_error: 'Amount is required' }).int('Amount must be an integer'),
+    amount: zod.number({ required_error: 'Amount is required' }),
     slipNo: zod.string().optional(),
     pumpCd: zod.string().optional(),
     dieselLtr: zod.number().optional(),
+    dieselPrice: zod.number().optional(),
     remarks: zod.string().optional(),
     paidThrough: zod.string().optional(),
     authorisedBy: zod.string().optional(),
+    fixedSalary: zod.number().optional(),
+    variableSalary: zod.number().optional(),
+    performanceSalary: zod.number().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.expenseType === 'diesel') {
@@ -46,6 +50,31 @@ const validationSchema = zod
       }
       if (!data.dieselLtr || data.dieselLtr <= 0 || !Number.isInteger(data.dieselLtr)) {
         ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive integer' });
+      }
+      if (!data.dieselPrice || data.dieselPrice <= 0) {
+        ctx.addIssue({ path: ['dieselPrice'], message: 'Per Litre Diesel Price must be positive' });
+      }
+    }
+
+    if (data.expenseType === 'driver-salary') {
+      // Ensure these fields are present and non-negative if driver-salary is chosen
+      if (data.fixedSalary == null || data.fixedSalary < 0) {
+        ctx.addIssue({
+          path: ['fixedSalary'],
+          message: 'Fixed Salary must be a non-negative number',
+        });
+      }
+      if (data.variableSalary == null || data.variableSalary < 0) {
+        ctx.addIssue({
+          path: ['variableSalary'],
+          message: 'Variable Salary must be a non-negative number',
+        });
+      }
+      if (data.performanceSalary == null || data.performanceSalary < 0) {
+        ctx.addIssue({
+          path: ['performanceSalary'],
+          message: 'Performance Salary must be a non-negative number',
+        });
       }
     }
   });
@@ -57,13 +86,22 @@ const defaultValues = {
   slipNo: '',
   pumpCd: '',
   dieselLtr: 0,
+  dieselPrice: 0,
   remarks: '',
   paidThrough: '',
   authorisedBy: '',
+  fixedSalary: 0,
+  variableSalary: 0,
+  performanceSalary: 0,
 };
 
-// AddExpenseDialog Component
-export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicleInfo, routeInfo }) {
+export function AddExpenseDialog({
+  showDialog,
+  setShowDialog,
+  subtripData,
+  vehicleInfo,
+  routeInfo,
+}) {
   const dispatch = useDispatch();
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
   const {
@@ -75,10 +113,8 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
   } = methods;
   const { pumps } = useSelector((state) => state.pump);
 
-  const expenseType = watch('expenseType');
-  const fixedSalary = watch('fixedSalary');
-  const variableSalary = watch('variableSalary');
-  const performanceSalary = watch('performanceSalary');
+  const { expenseType, fixedSalary, variableSalary, performanceSalary, dieselLtr, dieselPrice } =
+    watch();
 
   const extractedData = routeInfo?.salary?.find(
     (s) => s.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase()
@@ -95,6 +131,8 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
     advanceAmt: extractedData?.advanceAmt || 0,
   };
 
+  const { _id, rate, loadingWeight } = subtripData || {};
+
   // Helper to reset form
   const handleReset = useCallback(() => reset(defaultValues), [reset]);
 
@@ -108,7 +146,7 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
     if (!showDialog) handleReset();
   }, [showDialog, handleReset]);
 
-  // Dynamic salary calculation
+  // Dynamic salary calculation for driver-salary
   useEffect(() => {
     if (expenseType === 'driver-salary') {
       const totalSalary =
@@ -119,26 +157,43 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
     }
   }, [expenseType, fixedSalary, variableSalary, performanceSalary, setValue]);
 
+  // Dynamic amount calculation for diesel
+  useEffect(() => {
+    if (expenseType === 'diesel') {
+      const totalAmount = (Number(dieselLtr) || 0) * (Number(dieselPrice) || 0);
+      setValue('amount', totalAmount, { shouldValidate: true });
+    }
+  }, [expenseType, dieselLtr, dieselPrice, setValue]);
+
   // Form submission
   const onSubmit = async (data) => {
     try {
       if (data.expenseType !== 'diesel') data.pumpCd = null;
+
       await dispatch(
-        addExpense(subtripId, { ...data, vehicleId: vehicleInfo?._id, expenseCategory: 'subtrip' })
+        addExpense(_id, {
+          ...data,
+          vehicleId: vehicleInfo?._id,
+          expenseCategory: 'subtrip',
+        })
       );
+
       toast.success('Expense added successfully!');
       handleReset();
       setShowDialog(false);
     } catch (error) {
       console.error(error);
+      toast.error(error?.error || 'Failed to add expense. Please try again.');
     }
   };
 
   // Alert Content Mapping
   const alertContent = {
     'driver-salary': [
-      `The fixed salary for this trip is calculated as Rate × Weight = 1250 × 32 = 3500.`,
-      `Variable Salary for this Trip is 5000.`,
+      `Fixed Salary for this Trip is ${extractedData?.fixedSalary || 0}.`,
+      `The Variable salary for this trip is calculated as Rate × Weight × Percentage = ${rate} × ${loadingWeight} × ${extractedResult.percentageSalary / 100} = ${
+        rate * loadingWeight * (extractedResult.percentageSalary / 100)
+      }.`,
     ],
     diesel: [
       `For trip ${extractedResult.routeName}, usual diesel consumption is ${extractedResult.diesel}Ltr.`,
@@ -175,6 +230,7 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
                 </MenuItem>
               ))}
             </Field.Select>
+
             {expenseType === 'diesel' && (
               <>
                 <Field.Select native name="pumpCd" label="Pump">
@@ -186,8 +242,10 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
                   ))}
                 </Field.Select>
                 <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
+                <Field.Text name="dieselPrice" label="Per Litre Diesel Price" type="number" />
               </>
             )}
+
             {expenseType === 'driver-salary' && (
               <>
                 <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
@@ -205,11 +263,12 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripId, vehicle
                 />
               </>
             )}
+
             <Field.Text
               name="amount"
               label="Amount"
               type="number"
-              disabled={expenseType === 'driver-salary'}
+              disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
             />
             <Field.Text name="slipNo" label="Slip No" />
             <Field.Text name="remarks" label="Remarks" />

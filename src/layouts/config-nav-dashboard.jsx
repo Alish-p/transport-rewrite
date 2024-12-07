@@ -186,7 +186,6 @@ export const navData = [
       {
         title: 'Invoice Creation',
         path: paths.dashboard.invoice.root,
-        roles: ['admin', 'manager'],
         icon: ICONS.invoice,
         children: [
           { title: 'List', path: paths.dashboard.invoice.root },
