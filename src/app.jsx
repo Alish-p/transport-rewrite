@@ -18,8 +18,6 @@ import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
-import { CheckoutProvider } from 'src/sections/checkout/context';
-
 import { AuthProvider } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
@@ -35,12 +33,10 @@ export default function App() {
             <SettingsProvider settings={defaultSettings}>
               <ThemeProvider>
                 <MotionLazy>
-                  <CheckoutProvider>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer />
-                    <Router />
-                  </CheckoutProvider>
+                  <Snackbar />
+                  <ProgressBar />
+                  <SettingsDrawer />
+                  <Router />
                 </MotionLazy>
               </ThemeProvider>
             </SettingsProvider>

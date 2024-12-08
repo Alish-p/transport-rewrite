@@ -9,7 +9,6 @@ import { authRoutes } from './auth';
 import { mainRoutes } from './main';
 import { authDemoRoutes } from './auth-demo';
 import { dashboardRoutes } from './dashboard';
-import { componentsRoutes } from './components';
 
 // ----------------------------------------------------------------------
 
@@ -41,9 +40,6 @@ export function Router() {
 
     // Main
     ...mainRoutes,
-
-    // Components
-    ...componentsRoutes,
 
     // No match
     { path: '*', element: <Navigate to="/404" replace /> },
