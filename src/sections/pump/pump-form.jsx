@@ -98,55 +98,58 @@ export default function PumpForm({ currentPump }) {
     }
   };
 
-  // Separate render methods
   const renderPumpDetails = () => (
-    <Card sx={{ p: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Pump Details
       </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-        }}
-      >
-        <Field.Text name="pumpName" label="Pump Name" />
-        <Field.Text name="placeName" label="Place Name" />
-        <Field.Text name="ownerName" label="Owner Name" />
-        <Field.Text name="ownerCellNo" label="Owner Cell No" />
-        <Field.Text name="pumpPhoneNo" label="Pump Phone No" />
-        <Field.Text name="taluk" label="Taluk" />
-        <Field.Text name="district" label="District" />
-        <Field.Text name="contactPerson" label="Contact Person" />
-        <Field.Text name="address" label="Address" />
-      </Box>
-    </Card>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="pumpName" label="Pump Name" />
+          <Field.Text name="placeName" label="Place Name" />
+          <Field.Text name="ownerName" label="Owner Name" />
+          <Field.Text name="ownerCellNo" label="Owner Cell No" />
+          <Field.Text name="pumpPhoneNo" label="Pump Phone No" />
+          <Field.Text name="taluk" label="Taluk" />
+          <Field.Text name="district" label="District" />
+          <Field.Text name="contactPerson" label="Contact Person" />
+          <Field.Text name="address" label="Address" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderBankDetails = () => (
-    <Card sx={{ p: 3, mt: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Bank Details
       </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-        }}
-      >
-        <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-        <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-        <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-        <Field.Text name="bankDetails.place" label="Place" />
-        <Field.Text name="bankDetails.accNo" label="Account No" />
-      </Box>
-    </Card>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
+          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
+          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
+          <Field.Text name="bankDetails.place" label="Place" />
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderActions = () => (

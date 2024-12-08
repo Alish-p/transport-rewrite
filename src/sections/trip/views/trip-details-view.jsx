@@ -1,12 +1,10 @@
-// mock data
-
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { Card, Grid, Stack, Button, Typography } from '@mui/material';
 // components
-
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
+
+import { useTheme } from '@mui/material/styles';
+import { Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -23,8 +21,50 @@ import SimpleSubtripList from '../basic-subtrip-table';
 import ChartColumnMultiple from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
-// sections
-// import { AnalyticsWidgetSummary, AnalyticsCurrentVisits } from '../../general/analytics';
+
+// ----------------------------------------------------------------------
+// Helper function to calculate trip dashboard data
+function getTripDashboardData(trip) {
+  const allSubtripsBilled = trip?.subtrips?.every((subtrip) => subtrip.subtripStatus === 'billed');
+
+  const totalTrips = trip?.subtrips?.length || 0;
+  const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
+
+  const totalExpenses =
+    trip?.subtrips?.reduce((sum, subtrip) => {
+      const subtripExpenses =
+        subtrip.expenses?.reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
+      return sum + subtripExpenses;
+    }, 0) || 0;
+
+  const totalIncome =
+    trip?.subtrips?.reduce((sum, subtrip) => sum + subtrip.rate * subtrip.loadingWeight, 0) || 0;
+
+  const totalDieselAmt =
+    trip?.subtrips?.reduce((sum, subtrip) => {
+      const dieselExpenses =
+        subtrip.expenses
+          ?.filter((expense) => expense.expenseType === 'fuel')
+          .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
+      return sum + dieselExpenses;
+    }, 0) || 0;
+
+  const totalKm =
+    trip?.subtrips?.reduce((sum, subtrip) => {
+      const kmCovered = (subtrip.endKm || 0) - (subtrip.startKm || 0);
+      return sum + kmCovered;
+    }, 0) || 0;
+
+  return {
+    allSubtripsBilled,
+    totalTrips,
+    totalAdblueAmt,
+    totalExpenses,
+    totalIncome,
+    totalDieselAmt,
+    totalKm,
+  };
+}
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +72,16 @@ export function TripDetailView({ trip }) {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const {
+    allSubtripsBilled,
+    totalTrips,
+    totalAdblueAmt,
+    totalExpenses,
+    totalIncome,
+    totalDieselAmt,
+    totalKm,
+  } = getTripDashboardData(trip);
 
   const closeTrip = async () => {
     try {
@@ -48,33 +98,6 @@ export function TripDetailView({ trip }) {
       toast.error('Failed to close the trip. Please try again.');
     }
   };
-
-  // Function to check if all subtrips have status "billed"
-  const allSubtripsBilled = trip?.subtrips?.every((subtrip) => subtrip.subtripStatus === 'billed');
-
-  const totalTrips = trip?.subtrips?.length;
-  const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
-  const totalExpenses = trip.subtrips.reduce((sum, subtrip) => {
-    const subtripExpenses = subtrip.expenses.reduce(
-      (subSum, expense) => subSum + expense.amount,
-      0
-    );
-    return sum + subtripExpenses;
-  }, 0);
-
-  const totalIncome = trip.subtrips.reduce((sum, subtrip) => sum + subtrip.rate, 0);
-
-  const totalDieselAmt = trip.subtrips.reduce((sum, subtrip) => {
-    const dieselExpenses = subtrip.expenses
-      .filter((expense) => expense.expenseType === 'fuel')
-      .reduce((subSum, expense) => subSum + expense.amount, 0);
-    return sum + dieselExpenses;
-  }, 0);
-
-  const totalKm = trip.subtrips.reduce((sum, subtrip) => {
-    const kmCovered = subtrip.endKm - subtrip.startKm;
-    return sum + kmCovered;
-  }, 0);
 
   return (
     <DashboardContent>

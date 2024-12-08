@@ -2,7 +2,6 @@ import { z as zod } from 'zod';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-// form
 import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
@@ -23,6 +22,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { tripType } from './RouteTableConfig';
 import { vehicleTypes } from '../vehicle/vehicle-config';
+
 // ----------------------------------------------------------------------
 
 export const NewRouteSchema = zod.object({
@@ -70,8 +70,7 @@ export default function RouteForm({ currentRoute }) {
       transportType: currentRoute?.transportType || '',
       validTillDate: new Date(
         currentRoute?.validTillDate || new Date().setFullYear(new Date().getFullYear() + 1)
-      ), // Default to 1 year in the future
-
+      ),
       salary: currentRoute?.salary || [
         {
           vehicleType: '',
@@ -85,7 +84,6 @@ export default function RouteForm({ currentRoute }) {
         },
       ],
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentRoute]
   );
 
@@ -138,145 +136,156 @@ export default function RouteForm({ currentRoute }) {
     remove(index);
   };
 
-  return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card sx={{ p: 3 }}>
+  const renderRouteDetails = () => (
+    <>
+      <Typography variant="h6" gutterBottom>
+        Customer Details
+      </Typography>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="routeName" label="Route Name" />
+          <Field.Text name="tollAmt" label="Toll Amount" type="number" />
+
+          <Field.Text name="fromPlace" label="From Place" />
+          <Field.Text name="toPlace" label="To Place" />
+          <Field.Text name="noOfDays" label="Number of Days" type="number" />
+
+          <Field.Select native name="tripType" label="Trip Type">
+            <option value="" />
+            {tripType.map(({ key, value }) => (
+              <option key={key} value={key}>
+                {value}
+              </option>
+            ))}
+          </Field.Select>
+
+          <Field.Text name="distance" label="Distance" type="number" />
+          <Field.DatePicker name="validFromDate" label="Valid From Date" />
+          <Field.Text name="transportType" label="Transport Type" />
+          <Field.DatePicker name="validTillDate" label="Valid Till Date" />
+        </Box>
+      </Card>
+    </>
+  );
+
+  const renderSalaryFields = () => (
+    <>
+      <Typography variant="h6" gutterBottom>
+        Salaries:
+      </Typography>
+
+      <Card sx={{ p: 3, mb: 3 }}>
+        {fields.map((field, index) => (
+          <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
             <Box
               rowGap={3}
               columnGap={2}
               display="grid"
               gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
+                xs: 'repeat(2, 1fr)',
+                sm: 'repeat(12, 1fr)',
               }}
+              sx={{ p: 3, border: '1px solid grey', borderRadius: '15px', m: 1 }}
             >
-              <Field.Text name="routeName" label="Route Name" />
-              <Field.Text name="tollAmt" label="Toll Amount" type="number" />
+              <Box gridColumn="span 3">
+                <Field.Select name={`salary[${index}].vehicleType`} label="Vehicle Type">
+                  {vehicleTypes.map(({ value, key }) => (
+                    <MenuItem key={key} value={value}>
+                      {value}
+                    </MenuItem>
+                  ))}
+                </Field.Select>
+              </Box>
 
-              <Field.Text name="fromPlace" label="From Place" />
-              <Field.Text name="toPlace" label="To Place" />
-              <Field.Text name="noOfDays" label="Number of Days" type="number" />
+              <Box gridColumn="span 3">
+                <Field.Text
+                  name={`salary[${index}].fixedSalary`}
+                  label="Fixed Salary"
+                  type="number"
+                />
+              </Box>
+              <Box gridColumn="span 3">
+                <Field.Text
+                  name={`salary[${index}].percentageSalary`}
+                  label="Percentage Salary"
+                  type="number"
+                />
+              </Box>
 
-              <Field.Select native name="tripType" label="Trip Type">
-                <option value="" />
-                {tripType.map(({ key, value }) => (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                ))}
-              </Field.Select>
+              <Box gridColumn="span 2">
+                <Field.Text name={`salary[${index}].fixMilage`} label="Fix Milage" type="number" />
+              </Box>
+              <Box gridColumn="span 3">
+                <Field.Text
+                  name={`salary[${index}].performanceMilage`}
+                  label="Performance Milage"
+                  type="number"
+                />
+              </Box>
+              <Box gridColumn="span 3">
+                <Field.Text
+                  name={`salary[${index}].advanceAmt`}
+                  label="Advance Amount"
+                  type="number"
+                />
+              </Box>
+              <Box gridColumn="span 3">
+                <Field.Text name={`salary[${index}].diesel`} label="diesel" type="number" />
+              </Box>
+              <Box gridColumn="span 2">
+                <Field.Text name={`salary[${index}].adBlue`} label="Adblue" type="number" />
+              </Box>
 
-              <Field.Text name="distance" label="Distance" type="number" />
-              <Field.DatePicker name="validFromDate" label="Valid From Date" />
-              <Field.Text name="transportType" label="Transport Type" />
-              <Field.DatePicker name="validTillDate" label="Valid Till Date" />
-            </Box>
-
-            <Typography variant="h6" sx={{ color: 'text.disabled', mt: 3 }}>
-              Salaries:
-            </Typography>
-
-            {fields.map((field, index) => (
-              <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
-                <Box
-                  rowGap={3}
-                  columnGap={2}
-                  display="grid"
-                  gridTemplateColumns={{
-                    xs: 'repeat(2, 1fr)',
-                    sm: 'repeat(12, 1fr)',
-                  }}
-                  sx={{ p: 2, border: '1px dashed grey', borderRadius: '15px', m: 5 }}
+              <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
+                <Button
+                  size="small"
+                  color="error"
+                  startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                  onClick={() => handleRemoveSalary(index)}
                 >
-                  <Box gridColumn="span 3">
-                    <Field.Select name={`salary[${index}].vehicleType`} label="Vehicle Type">
-                      {vehicleTypes.map(({ value, key }) => (
-                        <MenuItem key={key} value={value}>
-                          {value}
-                        </MenuItem>
-                      ))}
-                    </Field.Select>
-                  </Box>
+                  Remove
+                </Button>
+              </Box>
+            </Box>
+          </Stack>
+        ))}
 
-                  <Box gridColumn="span 3">
-                    <Field.Text
-                      name={`salary[${index}].fixedSalary`}
-                      label="Fixed Salary"
-                      type="number"
-                    />
-                  </Box>
-                  <Box gridColumn="span 3">
-                    <Field.Text
-                      name={`salary[${index}].percentageSalary`}
-                      label="Percentage Salary"
-                      type="number"
-                    />
-                  </Box>
+        <Button
+          size="small"
+          color="primary"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          onClick={handleAddSalary}
+          sx={{ mt: 3 }}
+        >
+          Add Vehicle Type
+        </Button>
+      </Card>
+    </>
+  );
 
-                  <Box gridColumn="span 2">
-                    <Field.Text
-                      name={`salary[${index}].fixMilage`}
-                      label="Fix Milage"
-                      type="number"
-                    />
-                  </Box>
-                  <Box gridColumn="span 3">
-                    <Field.Text
-                      name={`salary[${index}].performanceMilage`}
-                      label="Performance Milage"
-                      type="number"
-                    />
-                  </Box>
-                  <Box gridColumn="span 3">
-                    <Field.Text
-                      name={`salary[${index}].advanceAmt`}
-                      label="Advance Amount"
-                      type="number"
-                    />
-                  </Box>
-                  <Box gridColumn="span 3">
-                    <Field.Text name={`salary[${index}].diesel`} label="diesel" type="number" />
-                  </Box>
-                  <Box gridColumn="span 2">
-                    <Field.Text name={`salary[${index}].adBlue`} label="Adblue" type="number" />
-                  </Box>
+  const renderActions = () => (
+    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+        {!currentRoute ? 'Create Route' : 'Save Changes'}
+      </LoadingButton>
+    </Stack>
+  );
 
-                  <Box
-                    gridColumn="span 1"
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Button
-                      size="small"
-                      color="error"
-                      startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                      onClick={() => handleRemoveSalary(index)}
-                    >
-                      Remove
-                    </Button>
-                  </Box>
-                </Box>
-              </Stack>
-            ))}
-            <Button
-              size="small"
-              color="primary"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={handleAddSalary}
-              sx={{ mt: 3 }}
-            >
-              Add Vehicle Type
-            </Button>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentRoute ? 'Create Route' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+  return (
+    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          {renderRouteDetails()}
+          {renderSalaryFields()}
+          {renderActions()}
         </Grid>
       </Grid>
     </Form>

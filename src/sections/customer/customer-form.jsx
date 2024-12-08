@@ -7,7 +7,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -115,8 +115,6 @@ export default function CustomerNewForm({ currentCustomer }) {
     name: 'consignees',
   });
 
-  const values = watch();
-
   const onSubmit = async (data) => {
     try {
       if (!currentCustomer) {
@@ -145,107 +143,112 @@ export default function CustomerNewForm({ currentCustomer }) {
   // Separate render methods
 
   const renderCustomerDetails = () => (
-    <Card sx={{ p: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Customer Details
       </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-        }}
-      >
-        <Field.Text name="customerName" label="Customer Name" />
-        <Field.Text name="address" label="Address" />
-        <Field.Text name="place" label="Place" />
-        <Field.Text name="state" label="State" />
-        <Field.Text name="pinCode" label="Pin Code" />
-        <Field.Text name="cellNo" label="Cell No" type="number" />
-        <Field.Text name="GSTNo" label="GST No" />
-        <Field.Text name="PANNo" label="PAN No" />
-      </Box>
-    </Card>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="customerName" label="Customer Name" />
+          <Field.Text name="address" label="Address" />
+          <Field.Text name="place" label="Place" />
+          <Field.Text name="state" label="State" />
+          <Field.Text name="pinCode" label="Pin Code" />
+          <Field.Text name="cellNo" label="Cell No" type="number" />
+          <Field.Text name="GSTNo" label="GST No" />
+          <Field.Text name="PANNo" label="PAN No" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderBankDetails = () => (
-    <Card sx={{ p: 3, mt: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Bank Details
       </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-        }}
-      >
-        <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-        <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-        <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-        <Field.Text name="bankDetails.place" label="Place" />
-        <Field.Text name="bankDetails.accNo" label="Account No" />
-      </Box>
-    </Card>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
+          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
+          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
+          <Field.Text name="bankDetails.place" label="Place" />
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderConsignees = () => (
-    <Card sx={{ p: 3, mt: 3 }}>
-      <Typography variant="h6" sx={{ color: 'text.disabled', mb: 3 }}>
+    <>
+      <Typography variant="h6" gutterBottom>
         Consignees
       </Typography>
+      <Card sx={{ p: 3, mb: 3 }}>
+        {fields.map((field, index) => (
+          <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(2, 1fr)',
+                sm: 'repeat(9, 1fr)',
+              }}
+            >
+              <Box gridColumn="span 2">
+                <Field.Text name={`consignees[${index}].name`} label="Consignee Name" />
+              </Box>
+              <Box gridColumn="span 2">
+                <Field.Text name={`consignees[${index}].address`} label="Consignee Address" />
+              </Box>
+              <Box gridColumn="span 2">
+                <Field.Text name={`consignees[${index}].state`} label="Consignee State" />
+              </Box>
+              <Box gridColumn="span 2">
+                <Field.Text name={`consignees[${index}].pinCode`} label="Consignee Pin Code" />
+              </Box>
+              <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
+                <Button
+                  size="small"
+                  color="error"
+                  startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                  onClick={() => handleRemoveConsignee(index)}
+                >
+                  Remove
+                </Button>
+              </Box>
+            </Box>
+          </Stack>
+        ))}
 
-      {fields.map((field, index) => (
-        <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(2, 1fr)',
-              sm: 'repeat(9, 1fr)',
-            }}
-          >
-            <Box gridColumn="span 2">
-              <Field.Text name={`consignees[${index}].name`} label="Consignee Name" />
-            </Box>
-            <Box gridColumn="span 2">
-              <Field.Text name={`consignees[${index}].address`} label="Consignee Address" />
-            </Box>
-            <Box gridColumn="span 2">
-              <Field.Text name={`consignees[${index}].state`} label="Consignee State" />
-            </Box>
-            <Box gridColumn="span 2">
-              <Field.Text name={`consignees[${index}].pinCode`} label="Consignee Pin Code" />
-            </Box>
-            <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
-              <Button
-                size="small"
-                color="error"
-                startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                onClick={() => handleRemoveConsignee(index)}
-              >
-                Remove
-              </Button>
-            </Box>
-          </Box>
-        </Stack>
-      ))}
-
-      <Button
-        size="small"
-        color="primary"
-        startIcon={<Iconify icon="mingcute:add-line" />}
-        onClick={handleAddConsignee}
-        sx={{ mt: 3 }}
-      >
-        Add Consignee
-      </Button>
-    </Card>
+        <Button
+          size="small"
+          color="primary"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          onClick={handleAddConsignee}
+          sx={{ mt: 3 }}
+        >
+          Add Consignee
+        </Button>
+      </Card>
+    </>
   );
 
   const renderActions = () => (
@@ -265,8 +268,6 @@ export default function CustomerNewForm({ currentCustomer }) {
           {renderConsignees()}
         </Grid>
       </Grid>
-
-      <Divider sx={{ my: 3 }} />
 
       {renderActions()}
     </Form>

@@ -134,86 +134,92 @@ export default function TransporterForm({ currentTransporter }) {
   // Separate Render Methods
 
   const renderTransporterDetails = () => (
-    <Card sx={{ p: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Transporter Details
       </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-      >
-        <Field.Text name="transportName" label="Transport Name" />
-        <Field.Text name="address" label="Address" />
-        <Field.Text name="place" label="Place" />
-        <Field.Text name="pinNo" label="Pin No" />
-        <Field.Text name="cellNo" label="Cell No" />
-        <Field.Text name="ownerName" label="Owner Name" />
-        <Field.Text
-          name="phoneNo"
-          label="Phone No"
-          InputProps={{
-            startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-          }}
-        />
-        <Field.Text name="emailId" label="Email ID" />
-      </Box>
-    </Card>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+        >
+          <Field.Text name="transportName" label="Transport Name" />
+          <Field.Text name="address" label="Address" />
+          <Field.Text name="place" label="Place" />
+          <Field.Text name="pinNo" label="Pin No" />
+          <Field.Text name="cellNo" label="Cell No" />
+          <Field.Text name="ownerName" label="Owner Name" />
+          <Field.Text
+            name="phoneNo"
+            label="Phone No"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+            }}
+          />
+          <Field.Text name="emailId" label="Email ID" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderBankDetails = () => (
-    <Card sx={{ p: 3, mt: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Bank Details
-      </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-      >
-        <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-        <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-        <Field.Text name="bankDetails.accNo" label="Account No" />
-        <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-      </Box>
-    </Card>
+      </Typography>{' '}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+        >
+          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
+          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderAdditionalDetails = () => (
-    <Card sx={{ p: 3, mt: 3 }}>
+    <>
       <Typography variant="h6" gutterBottom>
         Additional Details
-      </Typography>
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-      >
-        <Field.Text name="paymentMode" label="Payment Mode" />
-        <Field.Text name="panNo" label="PAN No" />
-        <Field.Text name="gstNo" label="GST No" />
-        <Field.Select native name="transportType" label="Transport Type">
-          <option value="" />
-          {transportType.map(({ key, value }) => (
-            <option key={key} value={key}>
-              {value}
-            </option>
-          ))}
-        </Field.Select>
-        <Field.Text name="agreementNo" label="Agreement No" />
-        <Field.Text
-          name="tdsPercentage"
-          label="TDS Percentage"
-          type="number"
-          InputProps={{
-            endAdornment: <InputAdornment position="end">%</InputAdornment>,
-          }}
-        />
-      </Box>
-    </Card>
+      </Typography>{' '}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+        >
+          <Field.Text name="paymentMode" label="Payment Mode" />
+          <Field.Text name="panNo" label="PAN No" />
+          <Field.Text name="gstNo" label="GST No" />
+          <Field.Select native name="transportType" label="Transport Type">
+            <option value="" />
+            {transportType.map(({ key, value }) => (
+              <option key={key} value={key}>
+                {value}
+              </option>
+            ))}
+          </Field.Select>
+          <Field.Text name="agreementNo" label="Agreement No" />
+          <Field.Text
+            name="tdsPercentage"
+            label="TDS Percentage"
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+          />
+        </Box>
+      </Card>
+    </>
   );
 
   const renderActions = () => (

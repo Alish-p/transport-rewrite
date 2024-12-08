@@ -34,9 +34,9 @@ export default function SubtripListRow({ row }) {
                   </Link>
                 );
               case 'customerId':
-                return row?.customerId?.customerName;
+                return row?.customerId?.customerName ?? '-';
               case 'routeName':
-                return row.routeCd.routeName;
+                return row?.routeCd?.routeName ?? '-';
               case 'invoiceNo':
                 return row.invoiceNo;
               case 'startDate':

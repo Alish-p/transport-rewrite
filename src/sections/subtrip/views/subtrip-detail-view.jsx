@@ -44,8 +44,6 @@ export function SubtripDetailView({ subtrip, loading }) {
   );
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
 
-  const totalDetentionTime = subtrip.detentionTime;
-
   return (
     <>
       <DashboardContent>
@@ -113,7 +111,7 @@ export function SubtripDetailView({ subtrip, loading }) {
                 />
                 <AnalyticsWidgetSummary
                   title="Total Detention Time"
-                  total={totalDetentionTime}
+                  total={subtrip.detentionTime}
                   color="info"
                   icon="ant-design:clock-circle-filled"
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
