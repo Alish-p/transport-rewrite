@@ -4,7 +4,7 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Typography } from '@mui/material';
+import { Button, Divider, Typography } from '@mui/material';
 
 import { Field } from 'src/components/hook-form';
 
@@ -55,6 +55,8 @@ export default function ExtraSalaryComponent() {
                 name={`otherSalaryComponent[${index}].paymentType`}
                 label="Payment Type"
               >
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {[
                   { key: 'fixedSalary', value: 'Fixed Salary' },
                   { key: 'penalty', value: 'Penalty Deduction' },

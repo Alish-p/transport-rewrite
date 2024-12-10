@@ -10,6 +10,7 @@ import {
   Alert,
   Button,
   Dialog,
+  Divider,
   MenuItem,
   DialogTitle,
   DialogContent,
@@ -224,6 +225,8 @@ export function AddExpenseDialog({
           >
             <Field.DatePicker name="date" label="Date" />
             <Field.Select name="expenseType" label="Expense Type">
+              <MenuItem value="">None</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
               {EXPENSE_TYPES.map((type) => (
                 <MenuItem key={type} value={type}>
                   {type.replace(/-/g, ' ')}
@@ -233,12 +236,13 @@ export function AddExpenseDialog({
 
             {expenseType === 'diesel' && (
               <>
-                <Field.Select native name="pumpCd" label="Pump">
-                  <option value="" />
+                <Field.Select name="pumpCd" label="Pump">
+                  <MenuItem value="">None</MenuItem>
+                  <Divider sx={{ borderStyle: 'dashed' }} />
                   {pumps.map((pump) => (
-                    <option key={pump._id} value={pump._id}>
+                    <MenuItem key={pump._id} value={pump._id}>
                       {pump.pumpName}
-                    </option>
+                    </MenuItem>
                   ))}
                 </Field.Select>
                 <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />

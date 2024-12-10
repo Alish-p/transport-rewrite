@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -107,13 +107,13 @@ export default function SubtripCreateForm({ currentTrip }) {
                 disabled={currentTrip}
               />
 
-              <Field.Select native name="customerId" label="Customer">
-                <option value="">None</option>
+              <Field.Select name="customerId" label="Customer">
+                <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {customers.map((customer) => (
-                  <option key={customer._id} value={customer._id}>
+                  <MenuItem key={customer._id} value={customer._id}>
                     {customer.customerName}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
 

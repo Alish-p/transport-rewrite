@@ -11,6 +11,7 @@ import {
   Dialog,
   Button,
   Divider,
+  MenuItem,
   Typography,
   DialogTitle,
   DialogContent,
@@ -140,12 +141,13 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         display="grid"
         gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
       >
-        <Field.Select native name="routeCd" label="Route">
-          <option value="" />
+        <Field.Select name="routeCd" label="Route">
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
           {routes.map(({ _id: routeId, routeName }) => (
-            <option key={routeId} value={routeId}>
+            <MenuItem key={routeId} value={routeId}>
               {routeName}
-            </option>
+            </MenuItem>
           ))}
         </Field.Select>
         <Field.Text name="loadingPoint" label="Loading Point" />
@@ -201,12 +203,13 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
         gap={3}
       >
-        <Field.Select native name="pumpCd" label="Pump">
-          <option value="" />
+        <Field.Select name="pumpCd" label="Pump">
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
           {pumps.map(({ _id: pumpId, pumpName }) => (
-            <option key={pumpId} value={pumpId}>
+            <MenuItem key={pumpId} value={pumpId}>
               {pumpName}
-            </option>
+            </MenuItem>
           ))}
         </Field.Select>
         <Field.Text name="driverAdvance" label="Driver Advance" type="number" />

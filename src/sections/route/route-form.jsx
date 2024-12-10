@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, MenuItem, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -185,6 +185,8 @@ export default function RouteForm({ currentRoute }) {
             >
               <Box gridColumn="span 3">
                 <Field.Select name={`salary[${index}].vehicleType`} label="Vehicle Type">
+                  <MenuItem value="">None</MenuItem>
+                  <Divider sx={{ borderStyle: 'dashed' }} />
                   {vehicleTypes.map(({ value, key }) => (
                     <MenuItem key={key} value={value}>
                       {value}

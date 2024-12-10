@@ -5,8 +5,8 @@ import { useFormContext } from 'react-hook-form';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
+import { Divider, Typography } from '@mui/material';
 
 import { fetchTripsCompletedByDriverAndDate } from 'src/redux/slices/subtrip';
 
@@ -38,7 +38,8 @@ export default function SubtripsSelectors({ driversList }) {
         <Grid container spacing={2}>
           <Grid item xs={12} md={3}>
             <Field.Select name="driverId" label="Driver">
-              <MenuItem value="">Select Driver</MenuItem>
+              <MenuItem value="">None</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
               {driversList.map((driver) => (
                 <MenuItem key={driver._id} value={driver._id}>
                   {driver.driverName}

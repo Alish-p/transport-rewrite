@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -144,21 +144,23 @@ export default function TripForm({ currentTrip }) {
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-              <Field.Select native name="routeCd" label="Route">
-                <option value="" />
+              <Field.Select name="routeCd" label="Route">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {routes.map((route) => (
-                  <option key={route._id} value={route._id}>
+                  <MenuItem key={route._id} value={route._id}>
                     {route.routeName}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
 
               <Field.Select native name="customerId" label="Customer">
-                <option value="" />
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {customers.map((customer) => (
-                  <option key={customer._id} value={customer._id}>
+                  <MenuItem key={customer._id} value={customer._id}>
                     {customer.customerName}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
 

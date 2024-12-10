@@ -162,7 +162,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                   </span>
                 ) : (
                   <span>
-                    This is a <strong>market/transport vehicle</strong> managed by{' '}
+                    This is a <strong>market / transporter&apos;s vehicle</strong> managed by{' '}
                     {selectedVehicle?.transporter?.transportName ? (
                       <strong>{selectedVehicle.transporter.transportName}</strong>
                     ) : (

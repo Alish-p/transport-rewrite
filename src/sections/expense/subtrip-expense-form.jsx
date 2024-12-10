@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, MenuItem, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -132,6 +132,8 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
 
               <Field.DatePicker name="date" label="Date" />
               <Field.Select name="expenseType" label="Expense Type">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {expenseTypes.map(({ value, label }) => (
                   <MenuItem key={value} value={value}>
                     {label}

@@ -8,7 +8,7 @@ import { useMemo, useEffect, useCallback } from 'react';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -88,7 +88,7 @@ export default function VehicleForm({ currentVehicle }) {
       fuelTankCapacity: currentVehicle?.fuelTankCapacity || 0,
       isActive: currentVehicle?.isActive || true,
       isOwn: currentVehicle?.isOwn || true,
-      transporter: currentVehicle?.transporter?._id || null,
+      transporter: currentVehicle?.transporter?._id || '',
     }),
     [currentVehicle]
   );
@@ -243,28 +243,32 @@ export default function VehicleForm({ currentVehicle }) {
               }}
             >
               <Field.Text name="vehicleNo" label="Vehicle No" />
-              <Field.Select native name="vehicleType" label="Vehicle Type">
-                <option value="" />
+              <Field.Select name="vehicleType" label="Vehicle Type">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleTypes.map(({ key, value }) => (
-                  <option key={key} value={key}>
+                  <MenuItem key={key} value={key}>
                     {value}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Select native name="modelType" label="Model Type">
-                <option value="" />
+
+              <Field.Select name="modelType" label="Model Type">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {modelType.map(({ key, value }) => (
-                  <option key={key} value={key}>
+                  <MenuItem key={key} value={key}>
                     {value}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Select native name="vehicleCompany" label="Vehicle Company">
-                <option value="" />
+              <Field.Select name="vehicleCompany" label="Vehicle Company">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleCompany.map(({ key, value }) => (
-                  <option key={key} value={key}>
+                  <MenuItem key={key} value={key}>
                     {value}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
               <Field.Text name="noOfTyres" label="No Of Tyres" type="number" />
@@ -274,21 +278,23 @@ export default function VehicleForm({ currentVehicle }) {
               <Field.Text name="loadingCapacity" label="Loading Capacity" type="number" />
               <Field.Text name="fuelTankCapacity" label="Fuel Tank Capacity" type="number" />
 
-              <Field.Select native name="engineType" label="Engine Type">
-                <option value="" />
+              <Field.Select name="engineType" label="Engine Type">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
                 {engineType.map(({ key, value }) => (
-                  <option key={key} value={key}>
+                  <MenuItem key={key} value={key}>
                     {value}
-                  </option>
+                  </MenuItem>
                 ))}
               </Field.Select>
               {!values.isOwn && (
-                <Field.Select native name="transporter" label="Transport Company">
-                  <option value="" />
+                <Field.Select name="transporter" label="Transport Company">
+                  <MenuItem value="">None</MenuItem>
+                  <Divider sx={{ borderStyle: 'dashed' }} />
                   {transporters.map((transporter) => (
-                    <option key={transporter._id} value={transporter._id}>
+                    <MenuItem key={transporter._id} value={transporter._id}>
                       {transporter.transportName}
-                    </option>
+                    </MenuItem>
                   ))}
                 </Field.Select>
               )}

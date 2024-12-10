@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
+import { Divider } from '@mui/material';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -29,7 +30,8 @@ export default function SubtripsSelectors({ customersList }) {
       <Grid container spacing={2}>
         <Grid item xs={12} md={3}>
           <Field.Select name="customerId" label="Customer">
-            <MenuItem value="">Select Customer</MenuItem>
+            <MenuItem value="">None</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
             {customersList.map((customer) => (
               <MenuItem key={customer._id} value={customer._id}>
                 {customer.customerName}
