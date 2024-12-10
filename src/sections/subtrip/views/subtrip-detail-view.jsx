@@ -14,12 +14,14 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { mapExpensesToChartData } from '../utils';
 import LRInfo from '../widgets/subtrip-info-widget';
+import { Iconify } from '../../../components/iconify';
 import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
+import { SimpleStepper } from '../widgets/subtrip-completion-stepper';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
@@ -79,6 +81,20 @@ export function SubtripDetailView({ subtrip, loading }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+                <SimpleStepper
+                  steps={['In-Queue', 'Loaded', 'Error', 'Recieved', 'Closed', 'Billed']}
+                  icons={[
+                    <Iconify icon="eva:settings-2-outline" width={24} />,
+                    <Iconify icon="eva:person-add-outline" width={24} />,
+                    <Iconify icon="eva:monitor-outline" width={24} />,
+                    <Iconify icon="eva:monitor-outline" width={24} />,
+                    <Iconify icon="eva:monitor-outline" width={24} />,
+                    <Iconify icon="eva:monitor-outline" width={24} />,
+                  ]}
+                  currentStep={1}
+                />
+              </Stack>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <IncomeWidgetSummary
                   title="Income"

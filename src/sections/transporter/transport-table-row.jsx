@@ -15,7 +15,6 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -30,7 +29,7 @@ export default function TransporterTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { transportName, place, cellNo, ownerName, emailId, transportType } = row;
+  const { transportName, place, pumpPhoneNo, ownerName, emailId } = row;
 
   const confirm = useBoolean();
 
@@ -77,7 +76,7 @@ export default function TransporterTableRow({
 
         <TableCell>
           <ListItemText
-            primary={cellNo}
+            primary={pumpPhoneNo}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
@@ -94,12 +93,6 @@ export default function TransporterTableRow({
             primary={emailId}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
-        </TableCell>
-
-        <TableCell>
-          <Label variant="soft" color={transportType >= 20 ? 'success' : 'error'}>
-            {transportType}
-          </Label>
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1 }}>

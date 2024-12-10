@@ -14,10 +14,12 @@ export const subtripExpenseTypes = [
 ];
 
 export const vehicleExpenseTypes = [
-  { label: 'Tyre Puncher', value: 'puncher' },
-  { label: 'Tyre Expense', value: 'tyre-expense' },
-  { label: 'Police', value: 'police' },
-  { label: 'RTO', value: 'rto' },
-  { label: 'Vehicle Repair', value: 'vehicle-repair' },
+  { label: 'Insurance', value: 'puncher' },
+  { label: 'Permit', value: 'tyre-expense' },
+  { label: 'Passing', value: 'police' },
+  { label: 'Tyre', value: 'tyre' },
+  { label: 'Major Repair', value: 'vehicle-repair' },
+  { label: 'Fitness Certificate', value: 'vehicle-repair' },
+  { label: 'Over-Load Fees', value: 'vehicle-repair' },
   { label: 'Other', value: 'other' },
 ];

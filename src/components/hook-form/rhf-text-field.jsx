@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 
 // ----------------------------------------------------------------------
 
-export function RHFTextField({ name, helperText, type, ...other }) {
+export function RHFTextField({ name, helperText, placeholder, type, ...other }) {
   const { control } = useFormContext();
 
   return (
@@ -18,6 +18,7 @@ export function RHFTextField({ name, helperText, type, ...other }) {
           type={type}
           value={type === 'number' && field.value === 0 ? '' : field.value}
           InputLabelProps={type === 'number' ? { shrink: true } : undefined}
+          placeholder={type === 'number' && !placeholder ? '0' : placeholder}
           onChange={(event) => {
             if (type === 'number') {
               field.onChange(Number(event.target.value));

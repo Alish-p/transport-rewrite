@@ -122,7 +122,7 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
                 name="subtripId"
                 label="Subtrip"
                 options={subtrips.map((c) => ({
-                  label: `${c._id} - ${c.routeCd.routeName} (${c.loadingPoint} to ${c.unloadingPoint})`,
+                  label: `${c._id} - ${c?.routeCd?.routeName} (${c?.loadingPoint} to ${c?.unloadingPoint})`,
                   value: c._id,
                 }))}
                 getOptionLabel={(option) => option.label}

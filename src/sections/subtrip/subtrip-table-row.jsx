@@ -36,7 +36,7 @@ export default function SubtripTableRow({
   const {
     _id,
     customerId,
-    routeCd: { routeName },
+    routeCd: { routeName } = {},
     invoiceNo,
     subtripStatus,
     startDate,

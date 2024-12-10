@@ -19,8 +19,6 @@ import { addTransporter, updateTransporter } from 'src/redux/slices/transporter'
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
-import { transportType } from './TransporterTableConfig';
-
 // ----------------------------------------------------------------------
 
 export const NewTransporterSchema = zod.object({
@@ -32,17 +30,17 @@ export const NewTransporterSchema = zod.object({
     .min(6, { message: 'Pin No must be exactly 6 digits' })
     .max(6, { message: 'Pin No must be exactly 6 digits' })
     .regex(/^[0-9]{6}$/, { message: 'Pin No must be a number' }),
-  cellNo: zod
+  pumpPhoneNo: zod
     .string()
-    .min(10, { message: 'Cell No must be exactly 10 digits' })
-    .max(10, { message: 'Cell No must be exactly 10 digits' })
-    .regex(/^[0-9]{10}$/, { message: 'Cell No must be a number' }),
+    .min(10, { message: 'Pump Phone Number must be exactly 10 digits' })
+    .max(10, { message: 'Pump Phone Number must be exactly 10 digits' })
+    .regex(/^[0-9]{10}$/, { message: 'Pump Phone Number must be a number' }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  phoneNo: zod
+  ownerPhoneNo: zod
     .string()
-    .min(10, { message: 'Phone No must be exactly 10 digits' })
-    .max(10, { message: 'Phone No must be exactly 10 digits' })
-    .regex(/^[0-9]{10}$/, { message: 'Phone No must be a number' }),
+    .min(10, { message: 'Owner Phone Numver must be exactly 10 digits' })
+    .max(10, { message: 'Owner Phone Numver must be exactly 10 digits' })
+    .regex(/^[0-9]{10}$/, { message: 'Owner Phone Numver must be a number' }),
   emailId: zod
     .string()
     .min(1, { message: 'Email ID is required' })
@@ -83,9 +81,9 @@ export default function TransporterForm({ currentTransporter }) {
       address: currentTransporter?.address || '',
       place: currentTransporter?.place || '',
       pinNo: currentTransporter?.pinNo || '',
-      cellNo: currentTransporter?.cellNo || '',
+      pumpPhoneNo: currentTransporter?.pumpPhoneNo || '',
       ownerName: currentTransporter?.ownerName || '',
-      phoneNo: currentTransporter?.phoneNo || '',
+      ownerPhoneNo: currentTransporter?.ownerPhoneNo || '',
       emailId: currentTransporter?.emailId || '',
       bankDetails: {
         bankCd: currentTransporter?.bankDetails?.bankCd || '',
@@ -149,11 +147,17 @@ export default function TransporterForm({ currentTransporter }) {
           <Field.Text name="address" label="Address" />
           <Field.Text name="place" label="Place" />
           <Field.Text name="pinNo" label="Pin No" />
-          <Field.Text name="cellNo" label="Cell No" />
+          <Field.Text
+            name="pumpPhoneNo"
+            label="Pump Phone Number"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+            }}
+          />
           <Field.Text name="ownerName" label="Owner Name" />
           <Field.Text
-            name="phoneNo"
-            label="Phone No"
+            name="ownerPhoneNo"
+            label="Owner Phone Numver"
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
@@ -200,15 +204,6 @@ export default function TransporterForm({ currentTransporter }) {
           <Field.Text name="paymentMode" label="Payment Mode" />
           <Field.Text name="panNo" label="PAN No" />
           <Field.Text name="gstNo" label="GST No" />
-          <Field.Select native name="transportType" label="Transport Type">
-            <option value="" />
-            {transportType.map(({ key, value }) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </Field.Select>
-          <Field.Text name="agreementNo" label="Agreement No" />
           <Field.Text
             name="tdsPercentage"
             label="TDS Percentage"

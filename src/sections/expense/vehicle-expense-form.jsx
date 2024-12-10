@@ -16,7 +16,7 @@ import { addExpense, updateExpense } from 'src/redux/slices/expense';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { subtripExpenseTypes as expenseTypes } from './expense-config';
+import { vehicleExpenseTypes as expenseTypes } from './expense-config';
 
 export const ExpenseSchema = zod.object({
   subtripId: zod

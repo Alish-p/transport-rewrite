@@ -29,7 +29,7 @@ const NewTripSchema = zod.object({
       message: 'Trip is required',
     }),
   customerId: zod.string().min(1, { message: 'Customer ID is required' }),
-  diNumber: zod.string().min(1, { message: 'DI/DO Number is required' }),
+  diNumber: zod.string(),
   startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
 });
 

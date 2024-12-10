@@ -32,6 +32,7 @@ const validationSchema = zod
     deductedWeight: zod
       .number({ required_error: 'Deducted weight is required' })
       .min(0, { message: 'Deducted weight cannot be negative' }),
+    deductedAmount: zod.number().min(0, { message: 'Deducted weight cannot be negative' }),
     startKm: zod
       .number({ required_error: 'Start Km is required' })
       .positive({ message: 'Start Km must be a positive number' }),
@@ -42,9 +43,6 @@ const validationSchema = zod
       .optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
 
-    detentionTime: zod
-      .number({ required_error: 'Detention time is required' })
-      .min(0, { message: 'Detention time must be zero or a positive number' }),
     hasError: zod.boolean(),
   })
   .superRefine((values, ctx) => {
@@ -71,7 +69,6 @@ const validationSchema = zod
 
 export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const dispatch = useDispatch();
-
   const { _id, loadingWeight, startKm } = subtrip;
 
   const defaultValues = {
@@ -79,11 +76,11 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     loadingWeight,
     unloadingWeight: 0,
     deductedWeight: 0,
+    deductedAmount: 0,
     startKm,
     endKm: 0,
     totalKm: 0,
     endDate: today(),
-    detentionTime: 0,
     hasError: false,
   };
 
@@ -107,7 +104,6 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   useEffect(() => {
     const deductedWeight = loadingWeight - unloadingWeight;
     setValue('deductedWeight', deductedWeight);
-    setValue('hasError', deductedWeight !== 0);
 
     const totalKm = endKm - startKm;
     setValue('totalKm', totalKm);
@@ -169,22 +165,22 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
               <Field.Text name="startKm" label="Start Km" type="number" disabled />
               <Field.Text name="endKm" label="End Km" type="number" />
               <Field.Text name="totalKm" label="Total Trip Km" type="number" disabled />
+              <Field.Text
+                name="deductedAmount"
+                label="Deducted Amount"
+                type="number"
+                disabled={loadingWeight === unloadingWeight}
+              />
 
               <Field.DatePicker name="endDate" label="End Date" />
 
-              <Field.Text
-                name="detentionTime"
-                label="Detention Time"
-                type="number"
-                placeholder="0"
-              />
               <Field.Text name="remarks" label="Remarks" type="text" />
             </Box>
 
             <Box sx={{ marginTop: '20px' }}>
               <Field.Switch
                 name="hasError"
-                label={<Typography variant="subtitle2">Recievied With Error ?</Typography>}
+                label={<Typography variant="subtitle2">Recieved With Error?</Typography>}
               />
             </Box>
           </Form>

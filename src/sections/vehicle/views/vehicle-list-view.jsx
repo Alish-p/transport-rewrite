@@ -56,13 +56,12 @@ const TABLE_HEAD = [
   { id: 'vehicleNo', name: 'vehicleNo', label: 'Vehicle No' },
 
   {
-    id: 'vehicleCompany',
-    name: 'vehicleCompany',
-    label: 'Vehicle Company',
+    id: 'isOwn',
+    name: 'isOwn',
+    label: 'Ownership',
   },
   { id: 'noOfTyres', name: 'noOfTyres', label: 'No Of Tyres' },
-  { id: 'chasisNo', name: 'chasisNo', label: 'Chasis No' },
-  { id: 'engineNo', name: 'engineNo', label: 'Engine No' },
+
   {
     id: 'manufacturingYear',
     name: 'manufacturingYear',
@@ -71,7 +70,6 @@ const TABLE_HEAD = [
   { id: 'loadingCapacity', name: 'loadingCapacity', label: 'Loading Capacity' },
 
   { id: 'fuelTankCapacity', name: 'fuelTankCapacity', label: 'Fuel Tank Capacity' },
-  { id: 'fromDate', name: 'fromDate', label: 'From Date' },
   {
     id: 'transporter',
     name: 'transporter',

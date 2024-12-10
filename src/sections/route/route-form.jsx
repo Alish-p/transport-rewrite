@@ -20,7 +20,6 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { tripType } from './RouteTableConfig';
 import { vehicleTypes } from '../vehicle/vehicle-config';
 
 // ----------------------------------------------------------------------
@@ -31,17 +30,15 @@ export const NewRouteSchema = zod.object({
   fromPlace: zod.string().min(1, { message: 'From Place is required' }),
   toPlace: zod.string().min(1, { message: 'To Place is required' }),
   noOfDays: zod.number({ required_error: 'Number of Days is required' }),
-  tripType: zod.string().min(1, { message: 'Trip Type is required' }),
   ratePerTon: zod.number({ required_error: 'Rate per Ton is required' }),
   distance: zod.number({ required_error: 'Distance is required' }),
   validFromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-  transportType: zod.string().min(1, { message: 'Transport Type is required' }),
   validTillDate: schemaHelper.date({ message: { required_error: 'Till date is required!' } }),
   salary: zod.array(
     zod.object({
       vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
-      fixedSalary: zod.number().min(1, { message: 'Fixed Salary is required' }),
-      percentageSalary: zod.number().min(1, { message: 'Percentage Salary is required' }),
+      fixedSalary: zod.number().min(0, { message: 'Fixed Salary is required' }),
+      percentageSalary: zod.number().min(0, { message: 'Percentage Salary is required' }),
       fixMilage: zod.number({ required_error: 'Fixed Milage is required' }),
       performanceMilage: zod.number({ required_error: 'Performance Milage is required' }),
       advanceAmt: zod.number({ required_error: 'Advance Amount is required' }),
@@ -61,13 +58,13 @@ export default function RouteForm({ currentRoute }) {
       fromPlace: currentRoute?.fromPlace || '',
       toPlace: currentRoute?.toPlace || '',
       noOfDays: currentRoute?.noOfDays || 0,
-      tripType: currentRoute?.tripType || '',
+
       ratePerTon: currentRoute?.ratePerTon || 0,
       distance: currentRoute?.distance || 0,
       validFromDate: currentRoute?.validFromDate
         ? new Date(currentRoute?.validFromDate)
         : new Date(),
-      transportType: currentRoute?.transportType || '',
+
       validTillDate: new Date(
         currentRoute?.validTillDate || new Date().setFullYear(new Date().getFullYear() + 1)
       ),
@@ -158,18 +155,9 @@ export default function RouteForm({ currentRoute }) {
           <Field.Text name="toPlace" label="To Place" />
           <Field.Text name="noOfDays" label="Number of Days" type="number" />
 
-          <Field.Select native name="tripType" label="Trip Type">
-            <option value="" />
-            {tripType.map(({ key, value }) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </Field.Select>
-
           <Field.Text name="distance" label="Distance" type="number" />
           <Field.DatePicker name="validFromDate" label="Valid From Date" />
-          <Field.Text name="transportType" label="Transport Type" />
+
           <Field.DatePicker name="validTillDate" label="Valid Till Date" />
         </Box>
       </Card>

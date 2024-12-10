@@ -1,24 +1,23 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { Box, Card, Grid, Alert, Stack, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
+import { fVehicleNo } from 'src/utils/format-number';
 
 import { addTrip, updateTrip } from 'src/redux/slices/trip';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-import { fVehicleNo } from '../../utils/format-number';
 
 const NewTripSchema = zod.object({
   driverId: zod
@@ -51,6 +50,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     [currentTrip]
   );
 
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
     defaultValues,
@@ -60,7 +60,19 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     reset,
     handleSubmit,
     formState: { isSubmitting },
+    watch,
   } = methods;
+
+  const watchedVehicle = watch('vehicleId');
+
+  useEffect(() => {
+    if (watchedVehicle) {
+      const vehicle = vehicles.find((v) => v._id === watchedVehicle.value);
+      setSelectedVehicle(vehicle || null);
+    } else {
+      setSelectedVehicle(null);
+    }
+  }, [watchedVehicle, vehicles]);
 
   const onSubmit = async (data) => {
     try {
@@ -89,6 +101,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
       toast.error('An error occurred. Please try again.', { variant: 'error' });
     }
   };
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3} sx={{ pt: 10 }}>
@@ -109,9 +122,9 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Field.Autocomplete
                 name="vehicleId"
                 label="Vehicle"
-                options={vehicles.map((c) => ({
-                  label: `[${c.vehicleType}]  ${fVehicleNo(c.vehicleNo)}`,
-                  value: c._id,
+                options={vehicles.map((v) => ({
+                  label: `${fVehicleNo(v.vehicleNo)}`,
+                  value: v._id,
                 }))}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
@@ -120,7 +133,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                 freeSolo
                 name="driverId"
                 label="Driver"
-                options={drivers.map((c) => ({ label: c.driverName, value: c._id }))}
+                options={drivers.map((d) => ({ label: d.driverName, value: d._id }))}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
@@ -129,6 +142,37 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Field.Text name="remarks" label="Remarks" />
             </Box>
           </Card>
+
+          {selectedVehicle && (
+            <Box sx={{ mt: 3 }}>
+              {/* Vehicle Information Alert */}
+              <Alert severity="success" variant="outlined">
+                <strong>Vehicle Information: </strong>
+                This is a <strong>{selectedVehicle?.vehicleType}</strong> vehicle with{' '}
+                <strong>{selectedVehicle?.noOfTyres}</strong> tyres.
+              </Alert>
+
+              {/* Ownership Details Alert */}
+              <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
+                <strong>Ownership Details: </strong>
+
+                {selectedVehicle?.isOwn ? (
+                  <span>
+                    This is a <strong>company-owned vehicle.</strong>
+                  </span>
+                ) : (
+                  <span>
+                    This is a <strong>market/transport vehicle</strong> managed by{' '}
+                    {selectedVehicle?.transporter?.transportName ? (
+                      <strong>{selectedVehicle.transporter.transportName}</strong>
+                    ) : (
+                      <em>an unknown transporter.</em>
+                    )}
+                  </span>
+                )}
+              </Alert>
+            </Box>
+          )}
         </Grid>
       </Grid>
 
