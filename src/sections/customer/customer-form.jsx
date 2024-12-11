@@ -18,7 +18,7 @@ import { addCustomer, updateCustomer } from 'src/redux/slices/customer';
 
 // components
 import { Iconify } from 'src/components/iconify';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 export const NewCustomerSchema = zod.object({
   customerName: zod.string().min(1, { message: 'Customer Name is required' }),
@@ -30,12 +30,12 @@ export const NewCustomerSchema = zod.object({
     .min(6, { message: 'Pin Code must be exactly 6 digits' })
     .max(6, { message: 'Pin Code must be exactly 6 digits' })
     .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
-  cellNo: zod
-    .number()
-    .int({ message: 'Cell No must be an integer' })
-    .refine((val) => String(val).length === 10, {
-      message: 'Cell No must be exactly 10 digits',
-    }),
+  cellNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Guarantor Mobile No is required',
+      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
+    },
+  }),
   GSTNo: zod.string().min(1, { message: 'GST No is required' }),
   PANNo: zod
     .string()

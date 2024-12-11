@@ -8,14 +8,16 @@ export const schemaHelper = {
    * Phone number
    * defaultValue === null
    */
+  /**
+   * phoneNumber
+   * Validates phone numbers based on a regex pattern
+   */
   phoneNumber: (props) =>
     zod
       .string()
-      .min(1, {
-        message: props?.message?.required_error ?? 'Phone number is required!',
-      })
-      .refine((data) => props?.isValidPhoneNumber?.(data), {
-        message: props?.message?.invalid_type_error ?? 'Invalid phone number!',
+      .min(1, { message: props?.message?.required_error ?? 'Phone number is required' })
+      .regex(/^[0-9]{10}$/, {
+        message: props?.message?.invalid_error ?? 'Phone number must be exactly 10 digits',
       }),
   /**
    * date

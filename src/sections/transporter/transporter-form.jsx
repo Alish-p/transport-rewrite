@@ -17,7 +17,7 @@ import { dispatch } from 'src/redux/store';
 import { addTransporter, updateTransporter } from 'src/redux/slices/transporter';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -30,17 +30,19 @@ export const NewTransporterSchema = zod.object({
     .min(6, { message: 'Pin No must be exactly 6 digits' })
     .max(6, { message: 'Pin No must be exactly 6 digits' })
     .regex(/^[0-9]{6}$/, { message: 'Pin No must be a number' }),
-  pumpPhoneNo: zod
-    .string()
-    .min(10, { message: 'Pump Phone Number must be exactly 10 digits' })
-    .max(10, { message: 'Pump Phone Number must be exactly 10 digits' })
-    .regex(/^[0-9]{10}$/, { message: 'Pump Phone Number must be a number' }),
+  pumpPhoneNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Guarantor Mobile No is required',
+      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
+    },
+  }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  ownerPhoneNo: zod
-    .string()
-    .min(10, { message: 'Owner Phone Numver must be exactly 10 digits' })
-    .max(10, { message: 'Owner Phone Numver must be exactly 10 digits' })
-    .regex(/^[0-9]{10}$/, { message: 'Owner Phone Numver must be a number' }),
+  ownerPhoneNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Owner Mobile No is required',
+      invalid_error: 'Owner Mobile No must be exactly 10 digits',
+    },
+  }),
   emailId: zod
     .string()
     .min(1, { message: 'Email ID is required' })

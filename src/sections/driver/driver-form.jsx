@@ -32,10 +32,12 @@ export const NewDriverSchema = zod.object({
       message: 'Driver Licence No must be in the format: two letters followed by 13 digits',
     }),
   driverPresentAddress: zod.string().min(1, { message: 'Driver Present Address is required' }),
-  driverCellNo: zod
-    .string()
-    .min(1, { message: 'Driver Cell No is required' })
-    .regex(/^[0-9]{10}$/, { message: 'Driver Cell No must be exactly 10 digits' }),
+  driverCellNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Driver Cell No is required',
+      invalid_error: 'Driver Cell No must be exactly 10 digits',
+    },
+  }),
   licenseFrom: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
   licenseTo: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
   aadharNo: zod
@@ -46,10 +48,12 @@ export const NewDriverSchema = zod.object({
       { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
   guarantorName: zod.string().min(1, { message: 'Guarantor Name is required' }),
-  guarantorCellNo: zod
-    .string()
-    .min(1, { message: 'Guarantor Cell No is required' })
-    .regex(/^[0-9]{10}$/, { message: 'Guarantor Cell No must be exactly 10 digits' }),
+  guarantorCellNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Guarantor Mobile No is required',
+      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
+    },
+  }),
   experience: zod
     .number({ required_error: 'Experience is required' })
     .min(0, { message: 'Experience must be at least 0 years' }),

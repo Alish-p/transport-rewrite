@@ -18,7 +18,7 @@ import { addPump, updatePump } from 'src/redux/slices/pump';
 
 import { toast } from 'src/components/snackbar';
 // components
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -26,8 +26,18 @@ export const NewPumpSchema = zod.object({
   pumpName: zod.string().min(1, { message: 'Pump Name is required' }),
   placeName: zod.string().min(1, { message: 'Place Name is required' }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  ownerCellNo: zod.string().min(1, { message: 'Owner Cell No is required' }),
-  pumpPhoneNo: zod.string().min(1, { message: 'Pump Phone No is required' }),
+  ownerCellNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Owner Mobile No is required',
+      invalid_error: 'Owner Mobile No must be exactly 10 digits',
+    },
+  }),
+  pumpPhoneNo: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Pump Mobile No is required',
+      invalid_error: 'Pump Mobile No must be exactly 10 digits',
+    },
+  }),
   taluk: zod.string().min(1, { message: 'Taluk is required' }),
   district: zod.string().min(1, { message: 'District is required' }),
   contactPerson: zod.string().min(1, { message: 'Contact Person is required' }),
