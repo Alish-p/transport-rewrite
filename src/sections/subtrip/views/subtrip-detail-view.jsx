@@ -46,6 +46,17 @@ export function SubtripDetailView({ subtrip, loading }) {
   );
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
 
+  const statusToStepIndex = {
+    'in-Queue': 0,
+    loaded: 1,
+    error: 2,
+    received: 3,
+    closed: 4,
+    billed: 5,
+  };
+
+  const currentStep = statusToStepIndex[subtrip?.subtripStatus] ?? 0;
+
   return (
     <>
       <DashboardContent>
@@ -81,20 +92,18 @@ export function SubtripDetailView({ subtrip, loading }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-                <SimpleStepper
-                  steps={['In-Queue', 'Loaded', 'Error', 'Recieved', 'Closed', 'Billed']}
-                  icons={[
-                    <Iconify icon="eva:settings-2-outline" width={24} />,
-                    <Iconify icon="eva:person-add-outline" width={24} />,
-                    <Iconify icon="eva:monitor-outline" width={24} />,
-                    <Iconify icon="eva:monitor-outline" width={24} />,
-                    <Iconify icon="eva:monitor-outline" width={24} />,
-                    <Iconify icon="eva:monitor-outline" width={24} />,
-                  ]}
-                  currentStep={1}
-                />
-              </Stack>
+              <SimpleStepper
+                steps={['In-Queue', 'Loaded', 'Error', 'Recieved', 'Closed', 'Billed']}
+                icons={[
+                  <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />,
+                  <Iconify icon="mdi:truck" width={24} />,
+                  <Iconify icon="material-symbols:error-outline" width={24} />,
+                  <Iconify icon="material-symbols:call-received" width={24} />,
+                  <Iconify icon="zondicons:lock-closed" width={24} />,
+                  <Iconify icon="mdi:progress-tick" width={24} />,
+                ]}
+                currentStep={currentStep}
+              />
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <IncomeWidgetSummary
                   title="Income"

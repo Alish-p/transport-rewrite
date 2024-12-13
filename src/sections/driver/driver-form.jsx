@@ -5,8 +5,8 @@ import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { LoadingButton } from '@mui/lab';
 // @mui
+import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Divider, Typography, InputAdornment } from '@mui/material';
 
 // routes
@@ -17,6 +17,7 @@ import { dispatch } from 'src/redux/store';
 import { addDriver, updateDriver } from 'src/redux/slices/driver';
 
 // components
+import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
@@ -59,6 +60,7 @@ export const NewDriverSchema = zod.object({
     .min(0, { message: 'Experience must be at least 0 years' }),
   dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }),
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
+  isActive: zod.boolean().optional(),
   bankDetails: zod.object({
     bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
     bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
@@ -93,6 +95,7 @@ export default function DriverForm({ currentDriver }) {
       experience: currentDriver?.experience || 0,
       dob: currentDriver?.dob ? new Date(currentDriver.dob) : new Date(),
       permanentAddress: currentDriver?.permanentAddress || '',
+      isActive: currentDriver?.isActive,
       bankDetails: {
         bankCd: currentDriver?.bankDetails?.bankCd || '',
         bankBranch: currentDriver?.bankDetails?.bankBranch || '',
@@ -238,11 +241,21 @@ export default function DriverForm({ currentDriver }) {
   );
 
   const renderImages = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Images
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
+    <Card sx={{ pt: 10, mt: 4, pb: 5, px: 3 }}>
+      {currentDriver && (
+        <Label
+          color={values.isActive ? 'success' : 'error'}
+          sx={{ position: 'absolute', top: 24, right: 24 }}
+        >
+          {values.isActive ? 'Active' : 'Disabled'}
+        </Label>
+      )}
+
+      <Box sx={{ mb: 5 }}>
+        <Typography variant="h6" gutterBottom>
+          Images
+        </Typography>
+
         <Field.Upload
           multiple
           thumbnail
@@ -253,8 +266,27 @@ export default function DriverForm({ currentDriver }) {
           onRemoveAll={handleRemoveAllFiles}
           onUpload={() => console.log('ON UPLOAD')}
         />
-      </Card>
-    </>
+      </Box>
+
+      {currentDriver && (
+        <Field.Switch
+          name="isActive"
+          labelPlacement="start"
+          label={
+            <>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                Driver is Active ?
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                When disabled, this driver cannot be assigned to new trips, and no salary slips will
+                be generated for this driver.
+              </Typography>
+            </>
+          }
+          sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between' }}
+        />
+      )}
+    </Card>
   );
 
   const renderActions = () => (
@@ -268,10 +300,10 @@ export default function DriverForm({ currentDriver }) {
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={4}>
           {renderImages()}
         </Grid>
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={8}>
           {renderDriverDetails()}
           {renderBankDetails()}
         </Grid>

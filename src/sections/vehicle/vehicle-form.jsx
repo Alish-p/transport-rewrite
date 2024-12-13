@@ -86,8 +86,8 @@ export default function VehicleForm({ currentVehicle }) {
       loadingCapacity: currentVehicle?.loadingCapacity || 0,
       engineType: currentVehicle?.engineType || '',
       fuelTankCapacity: currentVehicle?.fuelTankCapacity || 0,
-      isActive: currentVehicle?.isActive || true,
-      isOwn: currentVehicle?.isOwn || true,
+      isActive: currentVehicle?.isActive,
+      isOwn: currentVehicle?.isOwn,
       transporter: currentVehicle?.transporter?._id || '',
     }),
     [currentVehicle]
