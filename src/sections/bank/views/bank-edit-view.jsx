@@ -4,30 +4,30 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import DriverForm from '../driver-form';
+import BankForm from '../bank-form';
 
-// ----------------------------------------------------------------------
-
-export function DriverEditView({ driver, bankList }) {
+export function BankEditView({ bank }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Edit Driver"
+        heading="Edit Bank"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Drivers List',
-            href: paths.dashboard.driver.list,
+            name: 'Bank List',
+            href: paths.dashboard.bank.list,
           },
-          { name: driver?.driverName },
+          { name: bank?.bankName },
         ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
       />
 
-      <DriverForm currentDriver={driver} bankList={bankList} />
+      <BankForm currentBank={bank} />
     </DashboardContent>
   );
 }

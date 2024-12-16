@@ -7,7 +7,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, Typography, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -20,6 +30,11 @@ import { addDriver, updateDriver } from 'src/redux/slices/driver';
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useRouter } from '../../routes/hooks';
+import { Iconify } from '../../components/iconify';
+import { useBoolean } from '../../hooks/use-boolean';
+import { BankListDialog } from './bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
@@ -62,9 +77,9 @@ export const NewDriverSchema = zod.object({
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
   isActive: zod.boolean().optional(),
   bankDetails: zod.object({
-    bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
-    bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
-    ifscCode: zod.string().min(1, { message: 'IFSC Code is required' }),
+    name: zod.string().min(1, { message: 'Name is required' }),
+    branch: zod.string().min(1, { message: 'Bank Branch is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
     place: zod.string().min(1, { message: 'Place is required' }),
     accNo: zod
       .string()
@@ -75,9 +90,22 @@ export const NewDriverSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function DriverForm({ currentDriver }) {
-  const navigate = useNavigate();
+function validateBankSelection(bankDetails) {
+  const requiredFields = ['name', 'ifsc', 'place', 'branch'];
 
+  // eslint-disable-next-line no-restricted-syntax
+  for (const field of requiredFields) {
+    if (!bankDetails[field] || bankDetails[field].trim() === '') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export default function DriverForm({ currentDriver, bankList }) {
+  const navigate = useNavigate();
+  const router = useRouter();
   const defaultValues = useMemo(
     () => ({
       driverName: currentDriver?.driverName || '',
@@ -97,10 +125,10 @@ export default function DriverForm({ currentDriver }) {
       permanentAddress: currentDriver?.permanentAddress || '',
       isActive: currentDriver?.isActive,
       bankDetails: {
-        bankCd: currentDriver?.bankDetails?.bankCd || '',
-        bankBranch: currentDriver?.bankDetails?.bankBranch || '',
-        ifscCode: currentDriver?.bankDetails?.ifscCode || '',
+        name: currentDriver?.bankDetails?.name || '',
+        ifsc: currentDriver?.bankDetails?.ifsc || '',
         place: currentDriver?.bankDetails?.place || '',
+        branch: currentDriver?.bankDetails?.branch || '',
         accNo: currentDriver?.bankDetails?.accNo || '',
       },
     }),
@@ -122,6 +150,10 @@ export default function DriverForm({ currentDriver }) {
   } = methods;
 
   const values = watch();
+
+  const { bankDetails } = values;
+
+  const bankDialogue = useBoolean();
 
   const onSubmit = async (data) => {
     try {
@@ -213,24 +245,36 @@ export default function DriverForm({ currentDriver }) {
     </>
   );
 
+  console.log({ values });
+
   const renderBankDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
         Bank Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3}>
+        <Stack sx={{ width: 1 }}>
+          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+              Bank Details:
+            </Typography>
+
+            <IconButton onClick={bankDialogue.onTrue}>
+              <Iconify icon="solar:pen-bold" />
+            </IconButton>
+          </Stack>
+
+          {validateBankSelection(bankDetails) && (
+            <Stack spacing={1}>
+              <Typography variant="subtitle2">{bankDetails?.name}</Typography>
+              <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
+              <Typography variant="body2">{bankDetails?.ifsc}</Typography>
+            </Stack>
+          )}
+        </Stack>
+        <Grid container spacing={3} my={2}>
           <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.place" label="Place" />
+            <Field.Text name="bankDetails.accNo" label="Account No" />
           </Grid>
           <Grid item xs={12} sm={6}>
             <Field.Text name="bankDetails.accNo" label="Account No" />
@@ -298,20 +342,45 @@ export default function DriverForm({ currentDriver }) {
   );
 
   return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          {renderImages()}
+    <>
+      <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            {renderImages()}
+          </Grid>
+          <Grid item xs={12} md={8}>
+            {renderDriverDetails()}
+            {renderBankDetails()}
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={8}>
-          {renderDriverDetails()}
-          {renderBankDetails()}
-        </Grid>
-      </Grid>
 
-      <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 3 }} />
 
-      {renderActions()}
-    </Form>
+        {renderActions()}
+      </Form>
+
+      <BankListDialog
+        title="Banks"
+        open={bankDialogue.value}
+        onClose={bankDialogue.onFalse}
+        selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+        onSelect={(bank) => {
+          setValue('bankDetails', bank);
+        }}
+        list={bankList}
+        action={
+          <Button
+            size="small"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{ alignSelf: 'flex-end' }}
+            onClick={() => {
+              router.push(paths.dashboard.bank.new);
+            }}
+          >
+            New
+          </Button>
+        }
+      />
+    </>
   );
 }

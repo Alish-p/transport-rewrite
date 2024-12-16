@@ -50,6 +50,12 @@ const RouteListPage = lazy(() => import('src/pages/dashboard/route/list'));
 const RouteCreatePage = lazy(() => import('src/pages/dashboard/route/new'));
 const RouteEditPage = lazy(() => import('src/pages/dashboard/route/edit'));
 
+// Bank
+const BankDetailsPage = lazy(() => import('src/pages/dashboard/bank/details'));
+const BankListPage = lazy(() => import('src/pages/dashboard/bank/list'));
+const BankCreatePage = lazy(() => import('src/pages/dashboard/bank/new'));
+const BankEditPage = lazy(() => import('src/pages/dashboard/bank/edit'));
+
 // Expense
 const ExpenseDetailsPage = lazy(() => import('src/pages/dashboard/expense/details'));
 const ExpenseListPage = lazy(() => import('src/pages/dashboard/expense/list'));
@@ -189,6 +195,16 @@ export const dashboardRoutes = [
           { path: ':id', element: <RouteDetailsPage /> },
           { path: 'new', element: <RouteCreatePage /> },
           { path: ':id/edit', element: <RouteEditPage /> },
+        ],
+      },
+      {
+        path: 'bank',
+        children: [
+          { element: <BankListPage />, index: true },
+          { path: 'list', element: <BankListPage /> },
+          { path: ':id', element: <BankDetailsPage /> },
+          { path: 'new', element: <BankCreatePage /> },
+          { path: ':id/edit', element: <BankEditPage /> },
         ],
       },
       {

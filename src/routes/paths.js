@@ -153,6 +153,18 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/customer/${MOCK_ID}/edit`,
       },
     },
+
+    bank: {
+      root: `${ROOTS.DASHBOARD}/bank`,
+      new: `${ROOTS.DASHBOARD}/bank/new`,
+      list: `${ROOTS.DASHBOARD}/bank/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/bank/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/bank/${id}`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/bank/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/bank/${MOCK_ID}/edit`,
+      },
+    },
     transporter: {
       root: `${ROOTS.DASHBOARD}/transporter`,
       new: `${ROOTS.DASHBOARD}/transporter/new`,

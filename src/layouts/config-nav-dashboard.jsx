@@ -43,6 +43,7 @@ const ICONS = {
   customer: icon('ic_customer'),
   transporter: icon('ic_transporter'),
   route: icon('ic_map'),
+  bank: icon('ic_bank'),
   expense: icon('ic_expense'),
   subtrip: icon('ic_subtrip'),
   trip: icon('ic_trip'),
@@ -175,6 +176,16 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.route.root },
           { title: 'Create', path: paths.dashboard.route.new },
+        ],
+      },
+
+      {
+        title: 'Bank',
+        path: paths.dashboard.bank.root,
+        icon: ICONS.bank,
+        children: [
+          { title: 'List', path: paths.dashboard.bank.root },
+          { title: 'Create', path: paths.dashboard.bank.new },
         ],
       },
     ],
