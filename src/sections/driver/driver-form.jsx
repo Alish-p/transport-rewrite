@@ -34,7 +34,8 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { useRouter } from '../../routes/hooks';
 import { Iconify } from '../../components/iconify';
 import { useBoolean } from '../../hooks/use-boolean';
-import { BankListDialog } from './bank-list-dialogue';
+import { validateBankSelection } from '../bank/BankConfig';
+import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ export const NewDriverSchema = zod.object({
   isActive: zod.boolean().optional(),
   bankDetails: zod.object({
     name: zod.string().min(1, { message: 'Name is required' }),
-    branch: zod.string().min(1, { message: 'Bank Branch is required' }),
+    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
     ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
     place: zod.string().min(1, { message: 'Place is required' }),
     accNo: zod
@@ -89,19 +90,6 @@ export const NewDriverSchema = zod.object({
 });
 
 // ----------------------------------------------------------------------
-
-function validateBankSelection(bankDetails) {
-  const requiredFields = ['name', 'ifsc', 'place', 'branch'];
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const field of requiredFields) {
-    if (!bankDetails[field] || bankDetails[field].trim() === '') {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 export default function DriverForm({ currentDriver, bankList }) {
   const navigate = useNavigate();
@@ -146,7 +134,7 @@ export default function DriverForm({ currentDriver, bankList }) {
     watch,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const values = watch();
@@ -245,39 +233,61 @@ export default function DriverForm({ currentDriver, bankList }) {
     </>
   );
 
-  console.log({ values });
+  console.log({ errors });
 
   const renderBankDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
         Bank Details
       </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Stack sx={{ width: 1 }}>
-          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              Bank Details:
-            </Typography>
+      <Card sx={{ p: 1, mb: 1 }}>
+        <Grid container spacing={1} my={1}>
+          <Grid item xs={12} sm={6}>
+            <Stack sx={{ width: 1 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{
+                  mb: 1,
+                  border: '1px solid grey',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
 
-            <IconButton onClick={bankDialogue.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Stack>
+                  borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+                }}
+                p={1}
+                onClick={bankDialogue.onTrue}
+              >
+                <Typography variant="subtitle2" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                  Bank Details
+                </Typography>
+                <IconButton>
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              </Stack>
 
-          {validateBankSelection(bankDetails) && (
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">{bankDetails?.name}</Typography>
-              <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
-              <Typography variant="body2">{bankDetails?.ifsc}</Typography>
+              <Typography typography="caption" sx={{ color: 'error.main', px: 1 }}>
+                {errors.bankDetails?.branch?.message}
+              </Typography>
+
+              <Stack direction="row" alignItems="center" sx={{ my: 1 }}>
+                <Field.Text name="bankDetails.accNo" label="Account No" />
+              </Stack>
             </Stack>
-          )}
-        </Stack>
-        <Grid container spacing={3} my={2}>
-          <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.accNo" label="Account No" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Grid item xs={12} sm={1}>
+            <Divider orientation="vertical" />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            {validateBankSelection(bankDetails) && (
+              <Stack spacing={1} alignItems="center" mb={1}>
+                <Typography variant="subtitle2">{bankDetails?.name}</Typography>
+                <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
+                <Typography variant="body2">{bankDetails?.ifsc}</Typography>
+                <Typography variant="body2">{bankDetails?.accNo}</Typography>
+              </Stack>
+            )}
           </Grid>
         </Grid>
       </Card>
@@ -359,13 +369,17 @@ export default function DriverForm({ currentDriver, bankList }) {
         {renderActions()}
       </Form>
 
+      {/* For Selection of bank */}
       <BankListDialog
         title="Banks"
         open={bankDialogue.value}
         onClose={bankDialogue.onFalse}
         selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
         onSelect={(bank) => {
-          setValue('bankDetails', bank);
+          setValue('bankDetails.branch', bank?.branch);
+          setValue('bankDetails.ifsc', bank?.ifsc);
+          setValue('bankDetails.place', bank?.place);
+          setValue('bankDetails.name', bank?.name);
         }}
         list={bankList}
         action={
