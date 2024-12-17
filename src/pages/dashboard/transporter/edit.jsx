@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
@@ -8,6 +9,9 @@ import { paramCase } from 'src/utils/change-case';
 import { CONFIG } from 'src/config-global';
 
 import { TransporterEditView } from 'src/sections/transporter/views';
+
+import { useDispatch } from '../../../redux/store';
+import { fetchBanks } from '../../../redux/slices/bank';
 
 // ----------------------------------------------------------------------
 
@@ -20,13 +24,21 @@ export default function Page() {
     state.transporter.transporters.find((transporter) => paramCase(transporter._id) === id)
   );
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchBanks());
+  }, [dispatch]);
+
+  const { banks } = useSelector((state) => state.bank);
+
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TransporterEditView transporter={currentTransporter} />
+      <TransporterEditView transporter={currentTransporter} bankList={banks || []} />
     </>
   );
 }

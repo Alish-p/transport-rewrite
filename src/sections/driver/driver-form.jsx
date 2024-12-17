@@ -351,6 +351,34 @@ export default function DriverForm({ currentDriver, bankList }) {
     </Stack>
   );
 
+  const renderDialogues = () => (
+    <BankListDialog
+      title="Banks"
+      open={bankDialogue.value}
+      onClose={bankDialogue.onFalse}
+      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+      onSelect={(bank) => {
+        setValue('bankDetails.branch', bank?.branch);
+        setValue('bankDetails.ifsc', bank?.ifsc);
+        setValue('bankDetails.place', bank?.place);
+        setValue('bankDetails.name', bank?.name);
+      }}
+      list={bankList}
+      action={
+        <Button
+          size="small"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          sx={{ alignSelf: 'flex-end' }}
+          onClick={() => {
+            router.push(paths.dashboard.bank.new);
+          }}
+        >
+          New
+        </Button>
+      }
+    />
+  );
+
   return (
     <>
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -367,34 +395,10 @@ export default function DriverForm({ currentDriver, bankList }) {
         <Divider sx={{ my: 3 }} />
 
         {renderActions()}
+        {renderDialogues()}
       </Form>
 
       {/* For Selection of bank */}
-      <BankListDialog
-        title="Banks"
-        open={bankDialogue.value}
-        onClose={bankDialogue.onFalse}
-        selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
-        onSelect={(bank) => {
-          setValue('bankDetails.branch', bank?.branch);
-          setValue('bankDetails.ifsc', bank?.ifsc);
-          setValue('bankDetails.place', bank?.place);
-          setValue('bankDetails.name', bank?.name);
-        }}
-        list={bankList}
-        action={
-          <Button
-            size="small"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ alignSelf: 'flex-end' }}
-            onClick={() => {
-              router.push(paths.dashboard.bank.new);
-            }}
-          >
-            New
-          </Button>
-        }
-      />
     </>
   );
 }

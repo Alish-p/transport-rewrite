@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Divider, Typography, IconButton } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -19,6 +19,12 @@ import { addPump, updatePump } from 'src/redux/slices/pump';
 import { toast } from 'src/components/snackbar';
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useRouter } from '../../routes/hooks';
+import { Iconify } from '../../components/iconify';
+import { useBoolean } from '../../hooks/use-boolean';
+import { validateBankSelection } from '../bank/BankConfig';
+import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
@@ -43,9 +49,9 @@ export const NewPumpSchema = zod.object({
   contactPerson: zod.string().min(1, { message: 'Contact Person is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
   bankDetails: zod.object({
-    bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
-    bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
-    ifscCode: zod.string().min(1, { message: 'IFSC Code is required' }),
+    name: zod.string().min(1, { message: 'Name is required' }),
+    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
     place: zod.string().min(1, { message: 'Place is required' }),
     accNo: zod
       .string()
@@ -56,8 +62,10 @@ export const NewPumpSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function PumpForm({ currentPump }) {
+export default function PumpForm({ currentPump, bankList }) {
   const navigate = useNavigate();
+  const router = useRouter();
+  const bankDialogue = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
@@ -71,10 +79,10 @@ export default function PumpForm({ currentPump }) {
       contactPerson: currentPump?.contactPerson || '',
       address: currentPump?.address || '',
       bankDetails: {
-        bankCd: currentPump?.bankDetails?.bankCd || '',
-        bankBranch: currentPump?.bankDetails?.bankBranch || '',
-        ifscCode: currentPump?.bankDetails?.ifscCode || '',
+        name: currentPump?.bankDetails?.name || '',
+        ifsc: currentPump?.bankDetails?.ifsc || '',
         place: currentPump?.bankDetails?.place || '',
+        branch: currentPump?.bankDetails?.branch || '',
         accNo: currentPump?.bankDetails?.accNo || '',
       },
     }),
@@ -89,9 +97,15 @@ export default function PumpForm({ currentPump }) {
 
   const {
     reset,
+    watch,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
+
+  const values = watch();
+
+  const { bankDetails } = values;
 
   const onSubmit = async (data) => {
     try {
@@ -143,21 +157,59 @@ export default function PumpForm({ currentPump }) {
         Bank Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
-          }}
-        >
-          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-          <Field.Text name="bankDetails.place" label="Place" />
-          <Field.Text name="bankDetails.accNo" label="Account No" />
-        </Box>
+        <Grid container spacing={1} my={1}>
+          <Grid item xs={12} sm={6}>
+            <Stack sx={{ width: 1 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{
+                  mb: 1,
+                  border: '1px solid grey',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+
+                  borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+                }}
+                p={1}
+                onClick={bankDialogue.onTrue}
+              >
+                <Typography variant="subtitle2" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                  Bank Details
+                </Typography>
+                <IconButton>
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              </Stack>
+
+              <Typography typography="caption" sx={{ color: 'error.main', px: 1 }}>
+                {errors.bankDetails?.branch?.message}
+              </Typography>
+
+              <Stack direction="row" alignItems="center" sx={{ my: 1 }}>
+                <Field.Text name="bankDetails.accNo" label="Account No" />
+              </Stack>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={1}>
+            <Divider orientation="vertical" />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            {validateBankSelection(bankDetails) && (
+              <Stack spacing={1} alignItems="center" mb={1}>
+                <Typography variant="subtitle2" color="primary.main">
+                  {bankDetails?.name}
+                </Typography>
+                <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
+                <Typography variant="body2">{bankDetails?.ifsc}</Typography>
+                <Typography variant="body2" color="GrayText">
+                  {bankDetails?.accNo}
+                </Typography>
+              </Stack>
+            )}
+          </Grid>
+        </Grid>
       </Card>
     </>
   );
@@ -168,6 +220,34 @@ export default function PumpForm({ currentPump }) {
         {!currentPump ? 'Create Pump' : 'Save Changes'}
       </LoadingButton>
     </Stack>
+  );
+
+  const renderDialogues = () => (
+    <BankListDialog
+      title="Banks"
+      open={bankDialogue.value}
+      onClose={bankDialogue.onFalse}
+      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+      onSelect={(bank) => {
+        setValue('bankDetails.branch', bank?.branch);
+        setValue('bankDetails.ifsc', bank?.ifsc);
+        setValue('bankDetails.place', bank?.place);
+        setValue('bankDetails.name', bank?.name);
+      }}
+      list={bankList}
+      action={
+        <Button
+          size="small"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          sx={{ alignSelf: 'flex-end' }}
+          onClick={() => {
+            router.push(paths.dashboard.bank.new);
+          }}
+        >
+          New
+        </Button>
+      }
+    />
   );
 
   return (
@@ -182,6 +262,7 @@ export default function PumpForm({ currentPump }) {
       <Divider sx={{ my: 3 }} />
 
       {renderActions()}
+      {renderDialogues()}
     </Form>
   );
 }

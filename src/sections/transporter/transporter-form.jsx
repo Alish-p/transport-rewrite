@@ -7,7 +7,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, Typography, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -18,6 +28,12 @@ import { addTransporter, updateTransporter } from 'src/redux/slices/transporter'
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useRouter } from '../../routes/hooks';
+import { Iconify } from '../../components/iconify';
+import { useBoolean } from '../../hooks/use-boolean';
+import { validateBankSelection } from '../bank/BankConfig';
+import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
@@ -49,12 +65,15 @@ export const NewTransporterSchema = zod.object({
     .email({ message: 'Email ID must be a valid email' }),
 
   bankDetails: zod.object({
-    bankCd: zod.string().min(1, { message: 'Bank Code is required' }),
-    bankBranch: zod.string().min(1, { message: 'Bank Branch is required' }),
-    ifscCode: zod.string().min(1, { message: 'IFSC Code is required' }),
-    accNo: zod.string().min(1, { message: 'Account No is required' }),
+    name: zod.string().min(1, { message: 'Name is required' }),
+    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: zod
+      .string()
+      .min(1, { message: 'Account No is required' })
+      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
   }),
-
   paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
   panNo: zod
     .string()
@@ -74,8 +93,10 @@ export const NewTransporterSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function TransporterForm({ currentTransporter }) {
+export default function TransporterForm({ currentTransporter, bankList }) {
   const navigate = useNavigate();
+  const router = useRouter();
+  const bankDialogue = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
@@ -88,10 +109,11 @@ export default function TransporterForm({ currentTransporter }) {
       ownerPhoneNo: currentTransporter?.ownerPhoneNo || '',
       emailId: currentTransporter?.emailId || '',
       bankDetails: {
-        bankCd: currentTransporter?.bankDetails?.bankCd || '',
-        ifscCode: currentTransporter?.bankDetails?.ifscCode || '',
+        name: currentTransporter?.bankDetails?.name || '',
+        ifsc: currentTransporter?.bankDetails?.ifsc || '',
+        place: currentTransporter?.bankDetails?.place || '',
+        branch: currentTransporter?.bankDetails?.branch || '',
         accNo: currentTransporter?.bankDetails?.accNo || '',
-        bankBranch: currentTransporter?.bankDetails?.bankBranch || '',
       },
       paymentMode: currentTransporter?.paymentMode || '',
       panNo: currentTransporter?.panNo || '',
@@ -110,9 +132,15 @@ export default function TransporterForm({ currentTransporter }) {
 
   const {
     reset,
+    watch,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
+
+  const values = watch();
+
+  const { bankDetails } = values;
 
   const onSubmit = async (data) => {
     try {
@@ -174,19 +202,61 @@ export default function TransporterForm({ currentTransporter }) {
     <>
       <Typography variant="h6" gutterBottom>
         Bank Details
-      </Typography>{' '}
+      </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-        >
-          <Field.Text name="bankDetails.bankCd" label="Bank Code" />
-          <Field.Text name="bankDetails.ifscCode" label="IFSC Code" />
-          <Field.Text name="bankDetails.accNo" label="Account No" />
-          <Field.Text name="bankDetails.bankBranch" label="Bank Branch" />
-        </Box>
+        <Grid container spacing={1} my={1}>
+          <Grid item xs={12} sm={6}>
+            <Stack sx={{ width: 1 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{
+                  mb: 1,
+                  border: '1px solid grey',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+
+                  borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+                }}
+                p={1}
+                onClick={bankDialogue.onTrue}
+              >
+                <Typography variant="subtitle2" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                  Bank Details
+                </Typography>
+                <IconButton>
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              </Stack>
+
+              <Typography typography="caption" sx={{ color: 'error.main', px: 1 }}>
+                {errors.bankDetails?.branch?.message}
+              </Typography>
+
+              <Stack direction="row" alignItems="center" sx={{ my: 1 }}>
+                <Field.Text name="bankDetails.accNo" label="Account No" />
+              </Stack>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={1}>
+            <Divider orientation="vertical" />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            {validateBankSelection(bankDetails) && (
+              <Stack spacing={1} alignItems="center" mb={1}>
+                <Typography variant="subtitle2" color="primary.main">
+                  {bankDetails?.name}
+                </Typography>
+                <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
+                <Typography variant="body2">{bankDetails?.ifsc}</Typography>
+                <Typography variant="body2" color="GrayText">
+                  {bankDetails?.accNo}
+                </Typography>
+              </Stack>
+            )}
+          </Grid>
+        </Grid>
       </Card>
     </>
   );
@@ -227,6 +297,34 @@ export default function TransporterForm({ currentTransporter }) {
     </Stack>
   );
 
+  const renderDialogues = () => (
+    <BankListDialog
+      title="Banks"
+      open={bankDialogue.value}
+      onClose={bankDialogue.onFalse}
+      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+      onSelect={(bank) => {
+        setValue('bankDetails.branch', bank?.branch);
+        setValue('bankDetails.ifsc', bank?.ifsc);
+        setValue('bankDetails.place', bank?.place);
+        setValue('bankDetails.name', bank?.name);
+      }}
+      list={bankList}
+      action={
+        <Button
+          size="small"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          sx={{ alignSelf: 'flex-end' }}
+          onClick={() => {
+            router.push(paths.dashboard.bank.new);
+          }}
+        >
+          New
+        </Button>
+      }
+    />
+  );
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
@@ -240,6 +338,7 @@ export default function TransporterForm({ currentTransporter }) {
       <Divider sx={{ my: 3 }} />
 
       {renderActions()}
+      {renderDialogues()}
     </Form>
   );
 }
