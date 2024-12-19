@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 // @mui
-import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -32,27 +31,7 @@ export default function VehicleTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const {
-    routeName,
-    tollAmt,
-    advanceAmt,
-    diesel,
-    adBlue,
-    fromPlace,
-    toPlace,
-    noOfDays,
-    driverSalary,
-    tripType,
-    fixMilage,
-    performanceMilage,
-    ratePerTon,
-    salary,
-    salaryPercentage,
-    distance,
-    validFromDate,
-    transportType,
-    validTillDate,
-  } = row;
+  const { routeName, tollAmt, fromPlace, toPlace, noOfDays, distance, validFromDate } = row;
 
   const confirm = useBoolean();
 
@@ -76,16 +55,6 @@ export default function VehicleTableRow({
               <Typography variant="body2" noWrap>
                 {routeName}
               </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {routeName}
-              </Link>
             }
           />
         </TableCell>
@@ -119,20 +88,6 @@ export default function VehicleTableRow({
 
         <TableCell>
           <ListItemText
-            primary={tripType}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
-            primary={ratePerTon}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
             primary={distance}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
@@ -141,13 +96,6 @@ export default function VehicleTableRow({
         <TableCell>
           <ListItemText
             primary={fDate(validFromDate)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
-            primary={transportType}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

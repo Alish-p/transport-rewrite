@@ -53,29 +53,23 @@ import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'vehicleNo', name: 'vehicleNo', label: 'Vehicle No' },
-
+  { id: 'vehicleNo', label: 'Vehicle No' },
   {
     id: 'isOwn',
-    name: 'isOwn',
     label: 'Ownership',
   },
-  { id: 'noOfTyres', name: 'noOfTyres', label: 'No Of Tyres' },
-
+  { id: 'noOfTyres', label: 'No Of Tyres' },
   {
     id: 'manufacturingYear',
-    name: 'manufacturingYear',
     label: 'Manufacturing Year',
   },
-  { id: 'loadingCapacity', name: 'loadingCapacity', label: 'Loading Capacity' },
-
-  { id: 'fuelTankCapacity', name: 'fuelTankCapacity', label: 'Fuel Tank Capacity' },
+  { id: 'loadingCapacity', label: 'Loading Capacity' },
+  { id: 'fuelTankCapacity', label: 'Fuel Tank Capacity' },
   {
     id: 'transporter',
-    name: 'transporter',
     label: 'Transport Company',
-    type: 'select',
   },
+  { id: '' },
 ];
 
 const defaultFilters = {

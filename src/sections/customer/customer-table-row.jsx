@@ -61,7 +61,7 @@ export default function CustomerTableRow({
                 onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
-                {customerName}
+                {place}
               </Link>
             }
           />
@@ -91,13 +91,6 @@ export default function CustomerTableRow({
         <TableCell>
           <ListItemText
             primary={address}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
-            primary={place}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

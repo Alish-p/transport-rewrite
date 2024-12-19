@@ -233,8 +233,6 @@ export default function DriverForm({ currentDriver, bankList }) {
     </>
   );
 
-  console.log({ errors });
-
   const renderBankDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
@@ -282,10 +280,14 @@ export default function DriverForm({ currentDriver, bankList }) {
           <Grid item xs={12} sm={4}>
             {validateBankSelection(bankDetails) && (
               <Stack spacing={1} alignItems="center" mb={1}>
-                <Typography variant="subtitle2">{bankDetails?.name}</Typography>
+                <Typography variant="subtitle2" color="primary.main">
+                  {bankDetails?.name}
+                </Typography>
                 <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
                 <Typography variant="body2">{bankDetails?.ifsc}</Typography>
-                <Typography variant="body2">{bankDetails?.accNo}</Typography>
+                <Typography variant="body2" color="GrayText">
+                  {bankDetails?.accNo}
+                </Typography>
               </Stack>
             )}
           </Grid>

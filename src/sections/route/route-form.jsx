@@ -136,7 +136,7 @@ export default function RouteForm({ currentRoute }) {
   const renderRouteDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
-        Customer Details
+        Route Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
         <Box

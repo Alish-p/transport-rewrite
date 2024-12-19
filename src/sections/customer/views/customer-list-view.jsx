@@ -46,12 +46,11 @@ import CustomerTableFiltersResult from '../customer-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'customerName', name: 'customerName', label: 'Customer Name', type: 'text' },
-  { id: 'GSTNo', name: 'GSTNo', label: 'GST No', type: 'text' },
-  { id: 'PANNo', name: 'PANNo', label: 'PAN No', type: 'text' },
-  { id: 'cellNo', name: 'cellNo', label: 'Cell No', type: 'text' },
-  { id: 'address', name: 'address', label: 'Address', type: 'text' },
-  { id: 'place', name: 'place', label: 'Place', type: 'text' },
+  { id: 'customerName', label: 'Customer Name' },
+  { id: 'GSTNo', label: 'GST No' },
+  { id: 'PANNo', label: 'PAN No' },
+  { id: 'cellNo', label: 'Cell No' },
+  { id: 'address', label: 'Address' },
   { id: '' },
 ];
 
