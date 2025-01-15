@@ -212,6 +212,15 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.driverPayroll.new },
         ],
       },
+      {
+        title: 'Transporter Payment',
+        path: paths.dashboard.transporterPayment.root,
+        icon: ICONS.transporterPayment,
+        children: [
+          { title: 'List', path: paths.dashboard.transporterPayment.root },
+          { title: 'Create', path: paths.dashboard.transporterPayment.new },
+        ],
+      },
     ],
   },
 ];

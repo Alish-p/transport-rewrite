@@ -226,3 +226,21 @@ export const fetchTripsCompletedByDriverAndDate = async (
     throw error;
   }
 };
+
+export const fetchClosedSubtripsByTransporterAndDate = async (
+  transporterId,
+  periodStartDate,
+  periodEndDate
+) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const response = await axios.post('/api/subtrips/fetchClosedSubtripsByTransporterAndDate', {
+      transporterId,
+      fromDate: periodStartDate,
+      toDate: periodEndDate,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

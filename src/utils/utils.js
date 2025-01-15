@@ -22,6 +22,27 @@ export const calculateDriverSalary = (subtrip) => {
 
   return totalDriverSalary;
 };
+/**
+ * Calculates the total Transporter Payment from a single subtrip's data.
+ *
+ * @param {Object} subtrip - The subtrip object containing expenses.
+ * @returns {number} - The total Transporter Payment for the subtrip.
+ */
+export const calculateTransporterPayment = (subtrip) => {
+  if (!subtrip.expenses || !Array.isArray(subtrip.expenses)) {
+    return 0;
+  }
+
+  // Total Income of subtrip
+  const rateAfterCommision = subtrip.rate - 100;
+  const totalFreightAmount = rateAfterCommision * subtrip.loadingWeight;
+
+  // Total Expense of subtrip
+  const totalExpense = subtrip?.expenses.reduce((acc, expense) => acc + expense.amount, 0);
+
+  // transporter Payment
+  return totalFreightAmount - totalExpense;
+};
 
 /**
  * Get salary and route details based on vehicle type

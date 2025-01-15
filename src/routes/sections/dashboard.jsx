@@ -89,6 +89,20 @@ const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-p
 const DriverPayrollCreatePage = lazy(() => import('src/pages/dashboard/driver-payroll/new'));
 const DriverPayrollEditPage = lazy(() => import('src/pages/dashboard/driver-payroll/edit'));
 
+// DriverPayroll
+const TransporterPaymentListPage = lazy(
+  () => import('src/pages/dashboard/transporter-payment/list')
+);
+const TransporterPaymentDetailsPage = lazy(
+  () => import('src/pages/dashboard/transporter-payment/details')
+);
+const TransporterPaymentCreatePage = lazy(
+  () => import('src/pages/dashboard/transporter-payment/new')
+);
+const TransporterPaymentEditPage = lazy(
+  () => import('src/pages/dashboard/transporter-payment/edit')
+);
+
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -257,6 +271,17 @@ export const dashboardRoutes = [
           { path: ':id', element: <DriverPayrollDetailsPage /> },
           { path: ':id/edit', element: <DriverPayrollEditPage /> },
           { path: 'new', element: <DriverPayrollCreatePage /> },
+        ],
+      },
+
+      {
+        path: 'transporterPayment',
+        children: [
+          { element: <TransporterPaymentListPage />, index: true },
+          { path: 'list', element: <TransporterPaymentListPage /> },
+          { path: ':id', element: <TransporterPaymentDetailsPage /> },
+          { path: ':id/edit', element: <TransporterPaymentEditPage /> },
+          { path: 'new', element: <TransporterPaymentCreatePage /> },
         ],
       },
 

@@ -13,6 +13,7 @@ import invoiceReducer from './slices/invoice';
 import customerReducer from './slices/customer';
 import transporterReducer from './slices/transporter';
 import driverPayrollReducer from './slices/driver-payroll';
+import transporterPaymentReducer from './slices/transporter-payment';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   expense: expenseReducer,
   invoice: invoiceReducer,
   driverPayroll: driverPayrollReducer,
+  transporterPayment: transporterPaymentReducer,
 });
 
 export default rootReducer;
