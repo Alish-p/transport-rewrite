@@ -31,7 +31,8 @@ export default function VehicleTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { routeName, tollAmt, fromPlace, toPlace, noOfDays, distance, validFromDate } = row;
+  const { routeName, tollAmt, fromPlace, toPlace, noOfDays, distance, validFromDate, customer } =
+    row;
 
   const confirm = useBoolean();
 
@@ -69,6 +70,13 @@ export default function VehicleTableRow({
         <TableCell>
           <ListItemText
             primary={toPlace}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+
+        <TableCell>
+          <ListItemText
+            primary={customer?.customerName}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

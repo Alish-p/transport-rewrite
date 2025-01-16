@@ -7,6 +7,7 @@ const initialState = {
   error: null,
   routes: [],
   route: null,
+  customerSpecificRoutes: [],
 };
 
 const routeSlice = createSlice({
@@ -23,6 +24,10 @@ const routeSlice = createSlice({
     getRoutesSuccess(state, action) {
       state.isLoading = false;
       state.routes = action.payload;
+    },
+    getCustomerSpecificRoutesSuccess(state, action) {
+      state.isLoading = false;
+      state.customerSpecificRoutes = action.payload;
     },
     getRouteSuccess(state, action) {
       state.isLoading = false;
@@ -58,6 +63,7 @@ export const {
   updateRouteSuccess,
   deleteRouteSuccess,
   resetRoute,
+  getCustomerSpecificRoutesSuccess,
 } = routeSlice.actions;
 
 export default routeSlice.reducer;
@@ -67,6 +73,18 @@ export const fetchRoutes = () => async (dispatch) => {
   try {
     const response = await axios.get('/api/routes');
     dispatch(getRoutesSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};
+
+export const fetchCustomerSpecificRoutes = (customerId) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    const response = await axios.post('/api/routes/fetchCustomerSpecificRoutes', {
+      customerId,
+    });
+    dispatch(getCustomerSpecificRoutesSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));
   }

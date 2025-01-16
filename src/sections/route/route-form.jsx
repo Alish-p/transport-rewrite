@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -12,7 +12,7 @@ import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography } from '@
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
+import { dispatch, useSelector } from 'src/redux/store';
 import { addRoute, updateRoute } from 'src/redux/slices/route';
 
 // components
@@ -21,32 +21,40 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { vehicleTypes } from '../vehicle/vehicle-config';
+import { fetchCustomers } from '../../redux/slices/customer';
 
 // ----------------------------------------------------------------------
 
-export const NewRouteSchema = zod.object({
-  routeName: zod.string().min(1, { message: 'Route Name is required' }),
-  tollAmt: zod.number({ required_error: 'Toll Amount is required' }),
-  fromPlace: zod.string().min(1, { message: 'From Place is required' }),
-  toPlace: zod.string().min(1, { message: 'To Place is required' }),
-  noOfDays: zod.number({ required_error: 'Number of Days is required' }),
-  ratePerTon: zod.number({ required_error: 'Rate per Ton is required' }),
-  distance: zod.number({ required_error: 'Distance is required' }),
-  validFromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-  validTillDate: schemaHelper.date({ message: { required_error: 'Till date is required!' } }),
-  salary: zod.array(
-    zod.object({
-      vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
-      fixedSalary: zod.number().min(0, { message: 'Fixed Salary is required' }),
-      percentageSalary: zod.number().min(0, { message: 'Percentage Salary is required' }),
-      fixMilage: zod.number({ required_error: 'Fixed Milage is required' }),
-      performanceMilage: zod.number({ required_error: 'Performance Milage is required' }),
-      advanceAmt: zod.number({ required_error: 'Advance Amount is required' }),
-      diesel: zod.number({ required_error: 'Diesel is required' }),
-      adBlue: zod.number({ required_error: 'Ad Blue is required' }),
-    })
-  ),
-});
+export const NewRouteSchema = zod
+  .object({
+    routeName: zod.string().min(1, { message: 'Route Name is required' }),
+    tollAmt: zod.number({ required_error: 'Toll Amount is required' }),
+    fromPlace: zod.string().min(1, { message: 'From Place is required' }),
+    toPlace: zod.string().min(1, { message: 'To Place is required' }),
+    noOfDays: zod.number({ required_error: 'Number of Days is required' }),
+    ratePerTon: zod.number({ required_error: 'Rate per Ton is required' }),
+    distance: zod.number({ required_error: 'Distance is required' }),
+    validFromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
+    validTillDate: schemaHelper.date({ message: { required_error: 'Till date is required!' } }),
+    isCustomerSpecific: zod.boolean(),
+    customer: zod.string().optional(),
+    salary: zod.array(
+      zod.object({
+        vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
+        fixedSalary: zod.number().min(0, { message: 'Fixed Salary is required' }),
+        percentageSalary: zod.number().min(0, { message: 'Percentage Salary is required' }),
+        fixMilage: zod.number({ required_error: 'Fixed Milage is required' }),
+        performanceMilage: zod.number({ required_error: 'Performance Milage is required' }),
+        advanceAmt: zod.number({ required_error: 'Advance Amount is required' }),
+        diesel: zod.number({ required_error: 'Diesel is required' }),
+        adBlue: zod.number({ required_error: 'Ad Blue is required' }),
+      })
+    ),
+  })
+  .refine((data) => !data.isCustomerSpecific || data.customer, {
+    message: 'Customer is required when the Route is not Generic',
+    path: ['customer'],
+  });
 
 export default function RouteForm({ currentRoute }) {
   const navigate = useNavigate();
@@ -68,6 +76,10 @@ export default function RouteForm({ currentRoute }) {
       validTillDate: new Date(
         currentRoute?.validTillDate || new Date().setFullYear(new Date().getFullYear() + 1)
       ),
+
+      isCustomerSpecific: currentRoute?.isCustomerSpecific || false,
+      customer: currentRoute?.customer?._id || '',
+
       salary: currentRoute?.salary || [
         {
           vehicleType: '',
@@ -89,17 +101,27 @@ export default function RouteForm({ currentRoute }) {
     defaultValues,
   });
 
+  useEffect(() => {
+    dispatch(fetchCustomers());
+  }, []);
+
+  const { customers } = useSelector((state) => state.customer);
+
   const {
     reset,
     handleSubmit,
     control,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
+    watch,
   } = methods;
 
+  const values = watch();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'salary',
   });
+
+  console.log({ errors });
 
   const onSubmit = async (data) => {
     try {
@@ -159,6 +181,56 @@ export default function RouteForm({ currentRoute }) {
           <Field.DatePicker name="validFromDate" label="Valid From Date" />
 
           <Field.DatePicker name="validTillDate" label="Valid Till Date" />
+        </Box>
+      </Card>
+    </>
+  );
+  const renderCustomerField = () => (
+    <>
+      <Typography variant="h6" gutterBottom>
+        Customer Details
+      </Typography>
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Switch
+            name="isCustomerSpecific"
+            labelPlacement="start"
+            label={
+              <>
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Customer-Specific Route?
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Enable this option if the route is specific to a customer. Leave it disabled for
+                  general or shared routes.
+                </Typography>
+              </>
+            }
+            sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between' }}
+          />
+          {values.isCustomerSpecific && (
+            <Field.Select
+              name="customer"
+              label="Customer"
+              sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between' }}
+            >
+              <MenuItem value="">None</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              {customers.map((customer) => (
+                <MenuItem key={customer._id} value={customer._id}>
+                  {customer.customerName}
+                </MenuItem>
+              ))}
+            </Field.Select>
+          )}
         </Box>
       </Card>
     </>
@@ -273,6 +345,7 @@ export default function RouteForm({ currentRoute }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
+          {renderCustomerField()}
           {renderRouteDetails()}
           {renderSalaryFields()}
           {renderActions()}

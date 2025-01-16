@@ -16,13 +16,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  ListSubheader,
 } from '@mui/material';
 
 import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
 import { fetchPumps } from 'src/redux/slices/pump';
-import { fetchRoutes } from 'src/redux/slices/route';
 import { addMaterialInfo } from 'src/redux/slices/subtrip';
+import { fetchCustomerSpecificRoutes } from 'src/redux/slices/route';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -81,7 +82,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const dispatch = useDispatch();
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
 
-  const { routes } = useSelector((state) => state.route);
+  const { customerSpecificRoutes: routes } = useSelector((state) => state.route);
   const { pumps } = useSelector((state) => state.pump);
 
   const {
@@ -122,11 +123,11 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   useEffect(() => {
     if (showDialog) {
       dispatch(fetchPumps());
-      dispatch(fetchRoutes());
+      dispatch(fetchCustomerSpecificRoutes(customerId?._id));
     } else {
       handleReset();
     }
-  }, [dispatch, showDialog, handleReset]);
+  }, [dispatch, showDialog, handleReset, customerId]);
 
   const renderRouteDetails = () => (
     <Stack spacing={1}>
@@ -144,11 +145,44 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         <Field.Select name="routeCd" label="Route">
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
-          {routes.map(({ _id: routeId, routeName }) => (
-            <MenuItem key={routeId} value={routeId}>
-              {routeName}
-            </MenuItem>
-          ))}
+          <ListSubheader
+            sx={{
+              fontSize: '0.7rem',
+              lineHeight: 1,
+              color: 'primary.main',
+              textAlign: 'start',
+              padding: '3px',
+              my: 1,
+            }}
+          >
+            Customer Specific Routes
+          </ListSubheader>
+          {routes
+            .filter((route) => route.isCustomerSpecific)
+            .map(({ _id: routeId, routeName }) => (
+              <MenuItem key={routeId} value={routeId}>
+                {routeName}
+              </MenuItem>
+            ))}
+          <ListSubheader
+            sx={{
+              fontSize: '0.7rem',
+              lineHeight: 1,
+              color: 'primary.main',
+              textAlign: 'start',
+              padding: '3px',
+              my: 1,
+            }}
+          >
+            Generic Routes
+          </ListSubheader>
+          {routes
+            .filter((route) => !route.isCustomerSpecific)
+            .map(({ _id: routeId, routeName }) => (
+              <MenuItem key={routeId} value={routeId}>
+                {routeName}
+              </MenuItem>
+            ))}
         </Field.Select>
         <Field.Text name="loadingPoint" label="Loading Point" />
         <Field.Text name="unloadingPoint" label="Unloading Point" />
