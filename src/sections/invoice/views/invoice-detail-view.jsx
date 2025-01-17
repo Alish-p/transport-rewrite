@@ -2,8 +2,8 @@ import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
-import { fetchInvoice } from 'src/redux/slices/invoice';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { fetchInvoice, updateInvoiceStatus } from 'src/redux/slices/invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -14,7 +14,6 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
-  { value: 'draft', label: 'Draft' },
 ];
 
 export function InvoiceDetailView() {
@@ -26,9 +25,14 @@ export function InvoiceDetailView() {
     dispatch(fetchInvoice(id));
   }, [dispatch, id]);
 
-  const handleChangeStatus = useCallback((event) => {
-    setCurrentStatus(event.target.value);
-  }, []);
+  const handleChangeStatus = useCallback(
+    (event) => {
+      const newStatus = event.target.value;
+      setCurrentStatus(newStatus);
+      dispatch(updateInvoiceStatus(id, newStatus));
+    },
+    [dispatch, id]
+  );
 
   const { subtrips, customerId: customer, invoiceStatus, createdDate, _id } = invoice || {};
   const [currentStatus, setCurrentStatus] = useState(invoice?.invoiceStatus);

@@ -81,3 +81,13 @@ export const addInvoice = (data) => async (dispatch) => {
     throw error;
   }
 };
+
+export const updateInvoiceStatus = (id, status) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    const response = await axios.put(`/api/invoices/${id}`, { invoiceStatus: status });
+    dispatch(getInvoiceSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};

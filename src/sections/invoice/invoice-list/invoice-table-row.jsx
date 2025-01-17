@@ -70,7 +70,16 @@ export default function VehicleTableRow({
           />
         </TableCell>
         <TableCell>
-          <Label variant="soft" color={invoiceStatus === 'paid' ? 'success' : 'error'}>
+          <Label
+            variant="soft"
+            color={
+              invoiceStatus === 'paid'
+                ? 'success'
+                : invoiceStatus === 'overdue'
+                  ? 'error'
+                  : 'warning'
+            }
+          >
             {invoiceStatus}
           </Label>
         </TableCell>

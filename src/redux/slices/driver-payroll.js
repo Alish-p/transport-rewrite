@@ -95,3 +95,13 @@ export const deletePayrollReceipt = (id) => async (dispatch) => {
     dispatch(hasError(error));
   }
 };
+
+export const updatePayrollStatus = (id, status) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    const response = await axios.put(`/api/driverPayroll/${id}`, { status });
+    dispatch(getPayrollReceiptSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};

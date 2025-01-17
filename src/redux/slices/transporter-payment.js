@@ -81,3 +81,13 @@ export const addPayment = (data) => async (dispatch) => {
     throw error;
   }
 };
+
+export const updateInvoiceStatus = (id, status) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    const response = await axios.put(`/api/transporter-payments/${id}`, { status });
+    dispatch(getPaymentSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};

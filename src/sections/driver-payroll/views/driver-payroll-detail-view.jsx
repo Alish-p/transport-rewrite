@@ -4,21 +4,18 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { dispatch } from '../../../redux/store';
 import PayslipDetail from '../driver-salary-details';
 import DriverSalaryToolbar from '../driver-salary-toolbar';
+import { updatePayrollStatus } from '../../../redux/slices/driver-payroll';
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
-  { value: 'draft', label: 'Draft' },
 ];
 
 export function DriverPayrollDetailView({ payslip, loading }) {
-  const handleChangeStatus = useCallback((event) => {
-    setCurrentStatus(event.target.value);
-  }, []);
-
   const {
     _id,
     subtripComponents,
@@ -29,6 +26,15 @@ export function DriverPayrollDetailView({ payslip, loading }) {
   } = payslip || {};
 
   const [currentStatus, setCurrentStatus] = useState(payslip?.invoiceStatus);
+
+  const handleChangeStatus = useCallback(
+    (event) => {
+      const newStatus = event.target.value;
+      setCurrentStatus(newStatus);
+      dispatch(updatePayrollStatus(_id, newStatus));
+    },
+    [_id]
+  );
 
   return (
     <DashboardContent>

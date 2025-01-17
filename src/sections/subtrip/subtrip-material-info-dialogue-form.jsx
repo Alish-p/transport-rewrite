@@ -89,6 +89,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
@@ -96,7 +97,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const consignees = customerId?.consignees || [];
   const { routeCd } = watch();
 
-  const { advanceAmt } = useMemo(
+  const { advanceAmt, toPlace, fromPlace } = useMemo(
     () =>
       routeCd
         ? getSalaryDetailsByVehicleType(routes, routeCd, tripId?.vehicleId?.vehicleType) || {}
@@ -128,6 +129,17 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       handleReset();
     }
   }, [dispatch, showDialog, handleReset, customerId]);
+
+  // Update loading and unloading points when route changes
+  useEffect(() => {
+    if (routeCd) {
+      const selectedRoute = routes.find((route) => route._id === routeCd);
+      if (selectedRoute) {
+        setValue('loadingPoint', selectedRoute.fromPlace || '');
+        setValue('unloadingPoint', selectedRoute.toPlace || '');
+      }
+    }
+  }, [routeCd, routes, setValue]);
 
   const renderRouteDetails = () => (
     <Stack spacing={1}>
@@ -164,6 +176,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
                 {routeName}
               </MenuItem>
             ))}
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
           <ListSubheader
             sx={{
               fontSize: '0.7rem',
@@ -184,8 +198,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
               </MenuItem>
             ))}
         </Field.Select>
-        <Field.Text name="loadingPoint" label="Loading Point" />
-        <Field.Text name="unloadingPoint" label="Unloading Point" />
+        <Field.Text name="loadingPoint" label="Loading Point" disabled />
+        <Field.Text name="unloadingPoint" label="Unloading Point" disabled />
       </Box>
     </Stack>
   );
