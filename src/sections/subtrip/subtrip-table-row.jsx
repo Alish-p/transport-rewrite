@@ -21,7 +21,8 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import { fDate, fDateTime } from '../../utils/format-time';
+import { SUBTRIP_STATUS_COLORS } from './constants';
+import { fDate, fTime } from '../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -101,7 +102,7 @@ export default function SubtripTableRow({
         <TableCell>
           <ListItemText
             primary={fDate(new Date(startDate))}
-            secondary={fDateTime(new Date(startDate))}
+            secondary={fTime(new Date(startDate))}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
@@ -111,7 +112,7 @@ export default function SubtripTableRow({
           />
         </TableCell>
         <TableCell>
-          <Label variant="soft" color={subtripStatus >= 20 ? 'success' : 'error'}>
+          <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>
             {subtripStatus}
           </Label>
         </TableCell>

@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -42,19 +42,24 @@ export const ExpenseSchema = zod.object({
 });
 // ------------------------------------------------------------------------
 
-export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = [] }) {
+export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = [], pumps = [] }) {
   const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
-      subtripId: currentExpense?.subtripId || null,
-      vehicleId: currentExpense?.vehicleId || '',
+      subtripId: currentExpense?.subtripId
+        ? { label: currentExpense?.subtripId, value: currentExpense?.subtripId }
+        : null,
+      vehicleId: currentExpense?.vehicleId
+        ? { label: currentExpense?.vehicleId?.vehicleNo, value: currentExpense?.vehicleId?._id }
+        : null,
       date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
       expenseType: currentExpense?.expenseType || '',
-
       amount: currentExpense?.amount || 0,
       slipNo: currentExpense?.slipNo || '',
-      pumpCd: currentExpense?.pumpCd || null,
+      pumpCd: currentExpense?.pumpCd
+        ? { label: currentExpense?.pumpCd?.pumpName, value: currentExpense?.pumpCd?._id }
+        : null,
       remarks: currentExpense?.remarks || '',
       dieselLtr: currentExpense?.dieselLtr || 0,
       paidThrough: currentExpense?.paidThrough || '',
@@ -72,12 +77,15 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
   const {
     reset,
     watch,
-
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const values = watch();
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSubmit = async (data) => {
     try {
@@ -118,7 +126,6 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
           <Card sx={{ p: 3 }}>
             <Box rowGap={3} columnGap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
               <Field.Autocomplete
-                freeSolo
                 name="subtripId"
                 label="Subtrip"
                 options={subtrips.map((c) => ({
@@ -127,7 +134,6 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
                 }))}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
-                helperText="Vehicle MH08AB1233 is associated with this Subtrip"
               />
 
               <Field.DatePicker name="date" label="Date" />
@@ -145,7 +151,16 @@ export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = 
               <Field.Text name="slipNo" label="Slip No" />
               {values.expenseType === 'diesel' && (
                 <>
-                  <Field.Text name="pumpCd" label="Pump Code" />
+                  <Field.Autocomplete
+                    name="pumpCd"
+                    label="Pump"
+                    options={pumps.map((p) => ({
+                      label: `${p.pumpName}`,
+                      value: p._id,
+                    }))}
+                    getOptionLabel={(option) => option.label}
+                    isOptionEqualToValue={(option, value) => option.value === value.value}
+                  />
                   <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
                 </>
               )}

@@ -8,7 +8,7 @@ import ExpenseForm from '../subtrip-expense-form';
 
 // ----------------------------------------------------------------------
 
-export function ExpenseEditView({ expense, subtrips, vehicles }) {
+export function ExpenseEditView({ expense, subtrips, vehicles, pumps }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function ExpenseEditView({ expense, subtrips, vehicles }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseForm currentExpense={expense} subtrips={subtrips} vehicles={vehicles} />
+      <ExpenseForm currentExpense={expense} subtrips={subtrips} vehicles={vehicles} pumps={pumps} />
     </DashboardContent>
   );
 }

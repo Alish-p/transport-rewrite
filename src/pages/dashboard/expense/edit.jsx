@@ -12,6 +12,8 @@ import { fetchVehicles } from 'src/redux/slices/vehicle';
 
 import { ExpenseEditView } from 'src/sections/expense/views';
 
+import { fetchPumps } from '../../../redux/slices/pump';
+
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Expense edit | Dashboard - ${CONFIG.site.name}` };
@@ -28,10 +30,12 @@ export default function Page() {
   useEffect(() => {
     dispatch(fetchSubtrips());
     dispatch(fetchVehicles());
+    dispatch(fetchPumps());
   }, [dispatch]);
 
   const { subtrips } = useSelector((state) => state.subtrip);
   const { vehicles } = useSelector((state) => state.vehicle);
+  const { pumps } = useSelector((state) => state.pump);
 
   return (
     <>
@@ -39,7 +43,12 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ExpenseEditView expense={currentExpense} subtrips={subtrips} vehicles={vehicles} />
+      <ExpenseEditView
+        expense={currentExpense}
+        subtrips={subtrips}
+        vehicles={vehicles}
+        pumps={pumps}
+      />
     </>
   );
 }

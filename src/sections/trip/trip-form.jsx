@@ -45,12 +45,13 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
         ? { label: currentTrip?.vehicleId?.vehicleNo, value: currentTrip?.vehicleId?._id }
         : null,
       fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : today(),
-      remarks: currentTrip?.remarks || 'Remarks',
+      remarks: currentTrip?.remarks || '',
     }),
     [currentTrip]
   );
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
     defaultValues,
@@ -64,6 +65,10 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   } = methods;
 
   const watchedVehicle = watch('vehicleId');
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   useEffect(() => {
     if (watchedVehicle) {
