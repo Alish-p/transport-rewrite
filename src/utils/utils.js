@@ -22,6 +22,7 @@ export const calculateDriverSalary = (subtrip) => {
 
   return totalDriverSalary;
 };
+
 /**
  * Calculates the total Transporter Payment from a single subtrip's data.
  *

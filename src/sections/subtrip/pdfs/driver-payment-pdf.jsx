@@ -19,11 +19,10 @@ const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
 const COMPANY = CONFIG.company;
 
-// ----------------------------------------------------------------------
-
-export default function IndentPdf({ subtrip }) {
+export default function DriverPaymentPdf({ subtrip }) {
   const {
     _id,
+    diNumber,
     customerId,
     startDate,
     expenses,
@@ -31,11 +30,13 @@ export default function IndentPdf({ subtrip }) {
     tripId: { driverId, vehicleId },
   } = subtrip;
 
+  console.log(subtrip);
+
   const styles = useStyles();
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Petrol Pump Intent</Text>
+      <Text style={[styles.h3, styles.mb4]}>Driver Payment For Subtrip {_id}</Text>
     </View>
   );
 
@@ -81,44 +82,41 @@ export default function IndentPdf({ subtrip }) {
     </View>
   );
 
-  const renderPumpRow = () => (
+  const renderDeclaration = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+      <View style={[styles.col12]}>
+        <Text style={[styles.p4, styles.subtitle2]}>
+          The total driver payment amount for this subtrip {_id} is as follows:
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderDriverRow = () => (
     <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
       <View style={[styles.gridContainer, styles.col8, styles.borderRight]}>
-        {/* Petrol Pump */}
-        <View style={[styles.col12, styles.horizontalCell, { justifyContent: 'flex-start' }]}>
-          <Text style={[styles.horizontalCellTitle]}>To:</Text>
-          <Text style={[styles.horizontalCellContent]}>{expenses[0]?.pumpCd?.pumpName}</Text>
+        {/* Driver */}
+
+        <View style={[styles.col12, { display: 'flex', alignItems: 'flex-start' }, styles.p4]}>
+          <Text style={[styles.subtitle2]}>{driverId?.driverName}</Text>
+          <Text style={styles.body2}>+91-{driverId?.driverCellNo}</Text>
+          <Text style={styles.body2}>{driverId?.permanentAddress} </Text>
+          <Text style={styles.body2}>
+            {`ACC No - ${driverId?.bankDetails?.accNo},${driverId?.bankDetails?.branch}, ${driverId?.bankDetails?.name}`}
+          </Text>
         </View>
       </View>
 
       {/* LR/Date */}
       <View style={[styles.col4, styles.gridContainer]}>
-        <View style={[styles.col6, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>LR No:</Text>
-          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
+        <View style={[styles.col12, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>DI/DO No: </Text>
+          <Text style={[styles.horizontalCellContent]}>{diNumber || '-'}</Text>
         </View>
-        <View style={[styles.col6, styles.horizontalCell]}>
+        <View style={[styles.col12, styles.horizontalCell]}>
           <Text style={[styles.horizontalCellTitle]}>Date :</Text>
           <Text style={styles.horizontalCellContent}>{fDate(startDate)}</Text>
         </View>
-      </View>
-    </View>
-  );
-
-  const renderEmptyLine = () => (
-    <View style={[styles.gridContainer, styles.borderLeft, styles.borderRight]}>
-      <View style={[styles.col12]}>
-        <Text style={{ textAlign: 'center', padding: 4 }}> </Text>
-      </View>
-    </View>
-  );
-
-  const renderDeclaration = () => (
-    <View style={[styles.gridContainer, styles, styles.border]}>
-      <View style={[styles.col12, styles.p4]}>
-        <Text style={[styles.subtitle2]}>
-          Please pay the amount mentioned below and provide fuel to the following vehicle details:
-        </Text>
       </View>
     </View>
   );
@@ -130,25 +128,20 @@ export default function IndentPdf({ subtrip }) {
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Driver Name</Text>
         </View>
-
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Driver Mobile No.</Text>
         </View>
-
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Vehicle No.</Text>
         </View>
-
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Vehicle Type</Text>
         </View>
-
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Diesel (Ltr)</Text>
+          <Text style={[styles.horizontalCellTitle]}>LR NO</Text>
         </View>
-
         <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Advance Amount (₹)</Text>
+          <Text style={[styles.horizontalCellTitle]}>Transporter</Text>
         </View>
       </View>
       {/* Values */}
@@ -166,10 +159,10 @@ export default function IndentPdf({ subtrip }) {
           <Text style={[styles.horizontalCellContent]}>{vehicleId?.noOfTyres} Tyre</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{initialDiesel}</Text>
+          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellContent]}>{expenses[0]?.amount}</Text>
+          <Text style={[styles.horizontalCellContent]}>{COMPANY.name}</Text>
         </View>
       </View>
     </>
@@ -178,11 +171,12 @@ export default function IndentPdf({ subtrip }) {
   return (
     <Document>
       <Page size="A4" style={styles.page} orientation="landscape">
+        {/* Headers */}
+
         {renderDocumentTitle()}
         {renderCompanyHeader()}
-        {renderPumpRow()}
-        {renderEmptyLine()}
         {renderDeclaration()}
+        {renderDriverRow()}
         {renderTableDetails()}
       </Page>
     </Document>

@@ -12,13 +12,22 @@ export const CONFIG = {
     basePath: import.meta.env.VITE_BASE_PATH ?? '',
     version: packageJson.version,
   },
-  /**
-   * Auth
-   * @method jwt | amplify | firebase | supabase | auth0
-   */
   auth: {
     method: 'jwt',
     skip: false,
     redirectPath: paths.dashboard.root,
+  },
+
+  company: {
+    name: 'Shree Enterprises',
+    tagline: 'Transport Contractor & Commission Agents',
+    address: {
+      line1: 'Plot No 16 & 17, Jamakhandi Road, Mudhol-587313.',
+      line2: 'Dist: BagalKot',
+      state: 'Karnataka',
+    },
+    email: 'shree.enterprises34064@gmail.com',
+    website: 'www.shreeenterprises.biz',
+    contacts: ['+91 9448134064', '+91 9448134064', '+91 9448134064'],
   },
 };

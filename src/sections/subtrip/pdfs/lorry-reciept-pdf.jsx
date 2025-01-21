@@ -4,6 +4,10 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 
 import { fDate } from 'src/utils/format-time';
 
+import { CONFIG } from 'src/config-global';
+
+import { pdfStyles } from './pdf-styles';
+
 // ----------------------------------------------------------------------
 
 Font.register({
@@ -11,99 +15,17 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-const useStyles = () =>
-  useMemo(
-    () =>
-      StyleSheet.create({
-        col1: { width: '8.33%' },
-        col2: { width: '16.67%' },
-        col4: { width: '33.33%' },
-        col8: { width: '66.67%' },
-        col6: { width: '50%' },
-        col12: { width: '100%' },
-        mb4: { marginBottom: 4 },
-        mb8: { marginBottom: 8 },
-        mb40: { marginBottom: 40 },
-        p4: { padding: 4 },
-        p8: { padding: 10 },
-        p40: { padding: 40 },
-
-        h1: { fontSize: 20, fontWeight: 700 },
-        h3: { fontSize: 16, fontWeight: 700 },
-        h4: { fontSize: 13, fontWeight: 700 },
-        body1: { fontSize: 10 },
-        body2: { fontSize: 9 },
-        subtitle1: { fontSize: 10, fontWeight: 700 },
-        subtitle2: { fontSize: 9, fontWeight: 700 },
-        alignRight: { textAlign: 'right' },
-        page: {
-          fontSize: 9,
-          lineHeight: 1.6,
-          fontFamily: 'Roboto',
-          backgroundColor: '#FFFFFF',
-          textTransform: 'capitalize',
-          padding: '40px 24px 120px 24px',
-        },
-        border: {
-          border: '1px solid black',
-        },
-        borderNT: {
-          borderBottom: '1px solid black',
-          borderRight: '1px solid black',
-          borderLeft: '1px solid black',
-        },
-        footer: {
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: 24,
-          margin: 'auto',
-          borderTopWidth: 1,
-          borderStyle: 'solid',
-          position: 'absolute',
-          borderColor: '#DFE3E8',
-        },
-
-        gridContainer: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        },
-        table: {
-          display: 'flex',
-          width: 'auto',
-        },
-        tableRow: {
-          padding: '8px 0',
-          flexDirection: 'row',
-          borderBottomWidth: 1,
-          borderStyle: 'solid',
-          borderColor: '#DFE3E8',
-        },
-        noBorder: {
-          paddingTop: 8,
-          paddingBottom: 0,
-          borderBottomWidth: 0,
-        },
-        tableCell_1: {
-          width: '5%',
-        },
-        tableCell_2: {
-          width: '50%',
-          paddingRight: 16,
-        },
-        tableCell_3: {
-          width: '15%',
-        },
-      }),
-    []
-  );
+const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
 // ----------------------------------------------------------------------
+
+const COMPANY = CONFIG.company;
 
 export default function LRPDF({ subtrip }) {
   const {
     _id,
     customerId,
+    consignee,
     ewayBill,
     invoiceNo,
     loadingPoint,
@@ -118,439 +40,261 @@ export default function LRPDF({ subtrip }) {
     tripId: { driverId, vehicleId },
   } = subtrip;
 
+  console.log({ subtrip });
+
   const styles = useStyles();
+
+  const renderDocumentTitle = () => (
+    <View style={[styles.gridContainer]}>
+      <Text style={[styles.h2, styles.mb4]}>Lorry Receipt</Text>
+    </View>
+  );
+
+  const renderCompanyHeader = () => (
+    <View style={[styles.gridContainer, styles.border]}>
+      <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
+        <View style={[styles.col4]}>
+          <Image source="/logo/Company-logo.png" style={{ width: 72, height: 72 }} />
+        </View>
+
+        <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
+          <Text style={[styles.h1]}>{COMPANY.name}</Text>
+          <Text style={styles.body2}>{COMPANY.tagline}</Text>
+          <Text style={styles.body2}>{COMPANY.address.line1} </Text>
+          <Text style={styles.body2}>{`${COMPANY.address.line2} , ${COMPANY.address.state}`}</Text>
+          {/* <Text style={styles.body2}>{COMPANY.email} </Text>
+              <Text style={styles.body2}>{COMPANY.website} </Text> */}
+        </View>
+      </View>
+
+      <View
+        style={[
+          styles.gridContainer,
+          styles.col4,
+          styles.p8,
+          { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+        ]}
+      >
+        {/* Left Column: Labels */}
+        <View style={{ flex: 1, marginRight: 16 }}>
+          <Text style={[styles.subtitle2]}>Mobile No</Text>
+          <Text style={[styles.subtitle2]}>Email</Text>
+          <Text style={[styles.subtitle2]}>Website</Text>
+        </View>
+
+        {/* Right Column: Values */}
+        <View style={{ flex: 2 }}>
+          <Text style={[styles.body2]}>{COMPANY.contacts[0]}</Text>
+          <Text style={[styles.body2]}>{COMPANY.email}</Text>
+          <Text style={styles.body2}>{COMPANY.website}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderConsignorRow = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+      <View style={[styles.gridContainer, styles.col8, styles.borderRight]}>
+        {/* vertical cell */}
+
+        <View style={[styles.col6, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Consignor:</Text>
+          <Text style={[styles.horizontalCellContent]}>{customerId?.customerName}</Text>
+        </View>
+        <View style={[styles.col6, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Consignee :</Text>
+          <Text style={styles.horizontalCellContent}>{consignee}</Text>
+        </View>
+      </View>
+
+      {/* Horizontal Cell */}
+      <View style={[styles.col4, styles.gridContainer]}>
+        <View style={[styles.col6, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>LR No:</Text>
+          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
+        </View>
+        <View style={[styles.col6, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Date :</Text>
+          <Text style={styles.horizontalCellContent}>{fDate(startDate)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderRouteRow = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+      <View style={[styles.gridContainer, styles.col8, styles.borderRight]}>
+        {/* Route */}
+        <View style={[styles.col6, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>From:</Text>
+          <Text style={[styles.horizontalCellContent]}>{loadingPoint}</Text>
+        </View>
+        <View style={[styles.col6, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>To :</Text>
+          <Text style={styles.horizontalCellContent}>{unloadingPoint}</Text>
+        </View>
+      </View>
+
+      {/* Invoice/Eway  */}
+      <View style={[styles.col4, styles.gridContainer]}>
+        <View style={[styles.col6, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Invoice No:</Text>
+          <Text style={[styles.horizontalCellContent]}>{invoiceNo}</Text>
+        </View>
+        <View style={[styles.col6, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Eway No:</Text>
+          <Text style={styles.horizontalCellContent}>{ewayBill}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderTableDetails = () => (
+    <>
+      {/* Order No Header */}
+      <View style={[styles.gridContainer, styles.border]}>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Token No.:</Text>
+        </View>
+
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Order No.:</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Vehicle NO.</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Qty. in (MT)</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>No. Of Bags</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Description</Text>
+        </View>
+      </View>
+      {/* Values */}
+      <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{0}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{orderNo}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{vehicleId?.vehicleNo}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{loadingWeight}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{loadingWeight}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellContent]}>P.P.C</Text>
+        </View>
+      </View>
+      {/* Vehicle Details Header */}
+      <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Driver Name</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Driver Mobile No.</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Driver DL No.</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Vehicle Type</Text>
+        </View>
+        <View style={[styles.col4, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Driver Signature</Text>
+        </View>
+      </View>
+      {/* Values */}
+      <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{driverId?.driverName}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{driverId?.driverCellNo}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{driverId?.driverLicenceNo}</Text>
+        </View>
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{vehicleId?.noOfTyres}</Text>
+        </View>
+        <View style={[styles.col4, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
+        </View>
+      </View>
+    </>
+  );
+
+  const renderEmptyLine = () => (
+    <View style={[styles.gridContainer, styles.borderLeft, styles.borderRight]}>
+      <View style={[styles.col12]}>
+        <Text style={{ textAlign: 'center', padding: 4 }}> </Text>
+      </View>
+    </View>
+  );
+
+  const renderDeclaration = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+      <View style={[styles.col12, styles.p4]}>
+        <Text style={[styles.subtitle2, styles.mb4]}>Declaration:</Text>
+
+        <Text style={[styles.body2, styles.mb2]}>
+          Delivery Instruction: All goods are accepted subject to terms & conditions given overleaf,
+          subject to Mudhol Jurisdiction.
+        </Text>
+
+        <Text style={[styles.body2, styles.mb2]}>
+          Caution: The consignment will not be detained, diverted, rerouted, or rebooked without the
+          consignee Bank&rsquo;s written permission. We will deliver at the destination.
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderSignature = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop, { height: '80px' }]}>
+      <View
+        style={[
+          styles.col6,
+          { display: 'flex', justifyContent: 'flex-end' },
+          styles.p4,
+          styles.borderRight,
+        ]}
+      >
+        <Text style={[styles.subtitle2]}>Reciever Seal & Signature</Text>
+      </View>
+      <View style={[styles.col6, { display: 'flex', justifyContent: 'flex-end' }, styles.p4]}>
+        <Text style={[styles.subtitle2]}>Authorised Signatory</Text>
+      </View>
+    </View>
+  );
 
   return (
     <Document>
       <Page size="A4" style={styles.page} orientation="landscape">
-        {/* Headers */}
-        <View style={[styles.gridContainer, styles.border]}>
-          <View style={[styles.gridContainer, styles.col8, styles.p8, styles.border]}>
-            <View style={[styles.col4]}>
-              <Image
-                source="https://images.pexels.com/photos/17966146/pexels-photo-17966146/free-photo-of-trona-pinnacles-in-californian-desert.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"
-                style={{ width: 48, height: 48 }}
-              />
-            </View>
+        {renderDocumentTitle()}
 
-            <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
-              <Text style={[styles.h1]}>Shree Enterprises</Text>
-              <Text style={styles.body2}>Transport Contractor & Commission Agents</Text>
-              <Text style={styles.body2}>Plot No 16 & 17, Jamakhandi Road, Mudhol-587313. </Text>
-              <Text style={styles.body2}>Dist: BagalKot State; Karnataka</Text>
-            </View>
-          </View>
+        {renderCompanyHeader()}
 
-          <View
-            style={[
-              styles.gridContainer,
-              styles.col4,
-              styles.p8,
-              styles.border,
-              { display: 'flex', alignItems: 'center' },
-            ]}
-          >
-            <View style={[styles.col6]}>
-              <Text style={[styles.subtitle2, styles.mb4]}>Office</Text>
-              <Text style={[styles.subtitle2, styles.mb4]}>JK</Text>
-              <Text style={[styles.subtitle2, styles.mb4]}>SE</Text>
-            </View>
+        {renderConsignorRow()}
 
-            <View style={[styles.col6]}>
-              <Text style={[styles.body2, styles.mb4]}>+7575049646</Text>
-              <Text style={styles.body2}>+7575049646</Text>
-              <Text style={styles.body2}>+7575049646</Text>
-            </View>
-          </View>
-        </View>
+        {renderRouteRow()}
 
-        {/* consignor */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.col8,
-              styles.border,
-              styles.p4,
-              {
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              },
-            ]}
-          >
-            <View style={[{ display: 'flex' }]}>
-              <Text style={[styles.subtitle2]}>Consignor:</Text>
-              <Text style={styles.body2}>JK Cement Works Muddapur</Text>
-            </View>
-            <View style={[{ display: 'flex' }]}>
-              <Text style={[styles.subtitle2]}>Consignor:</Text>
-              <Text style={styles.body2}>JK Cement Works Muddapur</Text>
-            </View>
-          </View>
+        {renderEmptyLine()}
 
-          <View style={[styles.col4, styles.gridContainer]}>
-            <View
-              style={[
-                styles.col6,
-                styles.border,
-                {
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  paddingHorizontal: '2px',
-                },
-              ]}
-            >
-              <Text style={[styles.subtitle2]}>LR No: </Text>
-              <Text style={[styles.body2]}>{_id}</Text>
-            </View>
-            <View style={[styles.col6, styles.border, styles.p4]}>
-              <Text style={[styles.body2, styles]}>Date :{fDate(startDate)}</Text>
-            </View>
-          </View>
-        </View>
+        {renderTableDetails()}
 
-        {/* Consignee */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.gridContainer,
-              styles.col8,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-              { paddingRight: '20px' },
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Consignee:</Text>
-            <Text style={styles.body2}>MS JK Cements Works</Text>
-          </View>
+        {renderDeclaration()}
 
-          <View style={[styles.col4, styles.gridContainer]}>
-            <View
-              style={[
-                styles.col6,
-                styles.border,
-                {
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  paddingHorizontal: '2px',
-                },
-              ]}
-            >
-              <Text style={[styles.subtitle2, styles]}>Invoice No: </Text>
-              <Text style={[styles.body2, { textAlign: 'center' }]}>{invoiceNo}</Text>
-            </View>
-            <View style={[styles.col6, styles.border, styles.p4]}>
-              <Text style={[styles.body2, styles]}>EWay No :{ewayBill}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* From - To */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.gridContainer,
-              styles.col8,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>From:</Text>
-            <Text style={styles.body2}>{loadingPoint}</Text>
-            <Text style={[styles.subtitle2]}>To:</Text>
-            <Text style={styles.body2}>{unloadingPoint}</Text>
-          </View>
-
-          <View style={[styles.col4, { display: 'flex', alignItems: 'center' }]}>
-            <Text style={[styles.body2, styles.mb4]}>Invoice No:{invoiceNo}</Text>
-          </View>
-        </View>
-
-        {/* Order No Header */}
-        <View style={[styles.gridContainer, styles.border]}>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Token No.:</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Order No.:</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Vehicle NO.</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Qty. in (MT)</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>No. Of Bags</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Description</Text>
-          </View>
-        </View>
-
-        {/* Values */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>0</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{orderNo}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{vehicleId?.vehicleNo}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{loadingWeight}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{quantity}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>P.P.C</Text>
-          </View>
-        </View>
-
-        {/* Vehicle Details Header */}
-        <View style={[styles.gridContainer, styles.border]}>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Driver Name</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Driver Mobile No.</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Driver DL No.</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Vehicle Type</Text>
-          </View>
-          <View
-            style={[
-              styles.col4,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Driver Signature</Text>
-          </View>
-        </View>
-
-        {/* Values */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{driverId?.driverName}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{driverId?.driverCellNo}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{driverId?.driverLicenceNo}</Text>
-          </View>
-          <View
-            style={[
-              styles.col2,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{vehicleId?.noOfTyres} Tyre</Text>
-          </View>
-          <View
-            style={[
-              styles.col4,
-              { display: 'flex', alignItems: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.body2]}>{}</Text>
-          </View>
-        </View>
-
-        {/* Declaration */}
-        <View style={[styles.gridContainer, styles, styles.border]}>
-          <View
-            style={[
-              styles.col12,
-              { display: 'flex', justifyContent: 'center' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Declaration:</Text>
-            <Text style={[styles.subtitle2]}>
-              Delivery Instruction: All goods are accepted subject to terms & condition given
-              overleaf subject to Mudhol Jurisdiction
-            </Text>
-            <Text style={[styles.subtitle2]}>
-              Caution: The Consignment will not be detained,diverted,rerouted or rebooked without
-              consignee Bank&rsquo;s written Permission,we will deliver at the destination.
-            </Text>
-          </View>
-        </View>
-
-        {/* Signatures */}
-        <View style={[styles.gridContainer, styles, styles.border, { height: '80px' }]}>
-          <View
-            style={[
-              styles.col6,
-              { display: 'flex', justifyContent: 'flex-end' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Reciever Seal & Signature</Text>
-          </View>
-          <View
-            style={[
-              styles.col6,
-              { display: 'flex', justifyContent: 'flex-end' },
-              styles.p4,
-              styles.border,
-            ]}
-          >
-            <Text style={[styles.subtitle2]}>Authorised Signatory</Text>
-          </View>
-        </View>
+        {renderSignature()}
       </Page>
     </Document>
   );

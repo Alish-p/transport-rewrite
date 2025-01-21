@@ -17,6 +17,9 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import LRPDF from './pdfs/lorry-reciept-pdf';
 import { SUBTRIP_STATUS } from './constants';
 import IndentPdf from './pdfs/petrol-indent-pdf';
+import EntryPassPdf from './pdfs/entry-pass-pdf';
+import DriverPaymentPdf from './pdfs/driver-payment-pdf';
+import TransporterPayment from './pdfs/transporter-payment-pdf';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +39,9 @@ export default function SubtripToolbar({
 
   const viewLR = useBoolean();
   const viewIntent = useBoolean();
+  const viewEntryPass = useBoolean();
+  const viewDriverPayment = useBoolean();
+  const viewTransporterPayment = useBoolean();
 
   return (
     <>
@@ -193,11 +199,29 @@ export default function SubtripToolbar({
           <MenuItem
             onClick={() => {
               viewPopover.onClose();
-              viewIntent.onTrue();
+              viewEntryPass.onTrue();
             }}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
             Entry Pass
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              viewPopover.onClose();
+              viewDriverPayment.onTrue();
+            }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          >
+            Driver Payment
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              viewPopover.onClose();
+              viewTransporterPayment.onTrue();
+            }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          >
+            Transporter Payment
           </MenuItem>
         </MenuList>
       </CustomPopover>
@@ -299,6 +323,68 @@ export default function SubtripToolbar({
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
               <IndentPdf subtrip={subtrip} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
+
+      {/* View EntryPass Dialog */}
+      <Dialog fullScreen open={viewEntryPass.value}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions
+            sx={{
+              p: 1.5,
+            }}
+          >
+            <Button color="primary" variant="outlined" onClick={viewEntryPass.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <EntryPassPdf subtrip={subtrip} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
+
+      {/* View Driver Payment Dialog */}
+      <Dialog fullScreen open={viewDriverPayment.value}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions
+            sx={{
+              p: 1.5,
+            }}
+          >
+            <Button color="primary" variant="outlined" onClick={viewDriverPayment.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <DriverPaymentPdf subtrip={subtrip} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
+      {/* View Transporter Payment Dialog */}
+      <Dialog fullScreen open={viewTransporterPayment.value}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions
+            sx={{
+              p: 1.5,
+            }}
+          >
+            <Button color="primary" variant="outlined" onClick={viewTransporterPayment.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <TransporterPayment subtrip={subtrip} />
             </PDFViewer>
           </Box>
         </Box>
