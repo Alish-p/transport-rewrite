@@ -43,7 +43,7 @@ export default function IndentPdf({ subtrip }) {
     <View style={[styles.gridContainer, styles.border]}>
       <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
         <View style={[styles.col4]}>
-          <Image source="/logo/Company-logo.png" style={{ width: 72, height: 72 }} />
+          <Image source="/logo/Company-logo.png" style={{ width: 48, height: 48 }} />
         </View>
 
         <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
@@ -177,7 +177,7 @@ export default function IndentPdf({ subtrip }) {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page} orientation="landscape">
+      <Page size="A5" style={styles.page} orientation="landscape">
         {renderDocumentTitle()}
         {renderCompanyHeader()}
         {renderPumpRow()}

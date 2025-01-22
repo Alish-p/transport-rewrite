@@ -14,27 +14,27 @@ export const pdfStyles = {
   col12: { width: '100%' },
 
   // Margin styles
-  mb4: { marginBottom: 4 },
-  mb8: { marginBottom: 8 },
-  mb16: { marginBottom: 16 },
-  mb40: { marginBottom: 40 },
-  mt4: { marginTop: 4 },
-  mt8: { marginTop: 8 },
-  mt16: { marginTop: 16 },
-  mx4: { marginHorizontal: 4 },
-  mx8: { marginHorizontal: 8 },
-  my4: { marginVertical: 4 },
-  my8: { marginVertical: 8 },
+  mb4: { marginBottom: 2 },
+  mb8: { marginBottom: 4 },
+  mb16: { marginBottom: 8 },
+  mb40: { marginBottom: 20 },
+  mt4: { marginTop: 2 },
+  mt8: { marginTop: 4 },
+  mt16: { marginTop: 8 },
+  mx4: { marginHorizontal: 2 },
+  mx8: { marginHorizontal: 4 },
+  my4: { marginVertical: 2 },
+  my8: { marginVertical: 4 },
 
   // Padding styles
-  p4: { padding: 4 },
-  p8: { padding: 8 },
-  p16: { padding: 16 },
-  p40: { padding: 40 },
-  px4: { paddingHorizontal: 4 },
-  px8: { paddingHorizontal: 8 },
-  py4: { paddingVertical: 4 },
-  py8: { paddingVertical: 8 },
+  p4: { padding: 2 },
+  p8: { padding: 4 },
+  p16: { padding: 8 },
+  p40: { padding: 20 },
+  px4: { paddingHorizontal: 2 },
+  px8: { paddingHorizontal: 4 },
+  py4: { paddingVertical: 2 },
+  py8: { paddingVertical: 4 },
 
   // Text alignment
   textCenter: { textAlign: 'center' },
@@ -42,14 +42,14 @@ export const pdfStyles = {
   textLeft: { textAlign: 'left' },
 
   // Fonts
-  h1: { fontSize: 20, fontWeight: 700 },
-  h2: { fontSize: 18, fontWeight: 700 },
-  h3: { fontSize: 16, fontWeight: 700 },
-  h4: { fontSize: 13, fontWeight: 700 },
-  body1: { fontSize: 10 },
-  body2: { fontSize: 9 },
-  subtitle1: { fontSize: 10, fontWeight: 700 },
-  subtitle2: { fontSize: 9, fontWeight: 700 },
+  h1: { fontSize: 16, fontWeight: 700 },
+  h2: { fontSize: 14, fontWeight: 700 },
+  h3: { fontSize: 12, fontWeight: 700 },
+  h4: { fontSize: 10, fontWeight: 700 },
+  body1: { fontSize: 8 },
+  body2: { fontSize: 7 },
+  subtitle1: { fontSize: 8, fontWeight: 700 },
+  subtitle2: { fontSize: 7, fontWeight: 700 },
 
   // Miscellaneous styles
   bold: { fontWeight: 700 },
@@ -58,17 +58,17 @@ export const pdfStyles = {
 
   // Page styles
   page: {
-    fontSize: 9,
-    lineHeight: 1.6,
+    fontSize: 7,
+    lineHeight: 1.4,
     fontFamily: 'Roboto',
     backgroundColor: '#FFFFFF',
-    padding: '20px 24px 80px 24px',
+    padding: '10px 12px 40px 12px',
   },
   footer: {
     left: 0,
     right: 0,
     bottom: 0,
-    padding: 24,
+    padding: 12,
     margin: 'auto',
     borderTopWidth: 1,
     borderStyle: 'solid',
@@ -83,7 +83,7 @@ export const pdfStyles = {
   },
   gridItem: {
     flex: 1,
-    margin: 4,
+    margin: 2,
   },
 
   // Table styles
@@ -92,7 +92,7 @@ export const pdfStyles = {
     width: 'auto',
   },
   tableRow: {
-    padding: '8px 0',
+    padding: '4px 0',
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderStyle: 'solid',
@@ -104,7 +104,7 @@ export const pdfStyles = {
   },
   tableCell_2: {
     width: '50%',
-    paddingRight: 16,
+    paddingRight: 8,
   },
   tableCell_3: {
     width: '15%',
@@ -177,35 +177,35 @@ export const pdfStyles = {
 
   // Horizontal cell styles
   horizontalCell: {
-    padding: 4,
+    padding: 2,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   horizontalCellTitle: {
-    fontSize: 9,
+    fontSize: 7,
     fontWeight: 700,
-    marginRight: 6,
+    marginRight: 3,
   },
   horizontalCellContent: {
-    fontSize: 9,
+    fontSize: 7,
   },
 
   // Vertical cell styles
   verticalCell: {
-    padding: 4,
+    padding: 2,
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
   verticalCellTitle: {
-    fontSize: 9,
+    fontSize: 7,
     fontWeight: 700,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   verticalCellContent: {
-    fontSize: 9,
+    fontSize: 7,
   },
 
   // Flex utilities
