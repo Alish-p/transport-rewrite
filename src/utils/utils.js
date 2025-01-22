@@ -25,6 +25,39 @@ export const calculateDriverSalary = (subtrip) => {
   return totalDriverSalary;
 };
 
+export const calculatePayslipSummary = (payslip) => {
+  if (!payslip || typeof payslip !== 'object') {
+    throw new Error('Invalid payslip data');
+  }
+
+  const { otherSalaryComponent = [], subtripComponents = [] } = payslip;
+
+  // Calculate total fixed income
+  const totalFixedIncome = otherSalaryComponent
+    .filter((item) => item.paymentType === 'Fixed Salary')
+    .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
+
+  // Calculate total trip-wise income
+  const totalTripWiseIncome = subtripComponents.reduce(
+    (accumulator, { subtripId }) => accumulator + (calculateDriverSalary(subtripId) || 0),
+    0
+  );
+
+  // Calculate total deductions
+  const totalDeductions = otherSalaryComponent
+    .filter((item) => item.paymentType === 'Penalty Deduction')
+    .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
+
+  const netSalary = totalFixedIncome + totalTripWiseIncome - totalDeductions;
+
+  return {
+    totalFixedIncome,
+    totalTripWiseIncome,
+    totalDeductions,
+    netSalary,
+  };
+};
+
 /**
  * Calculates the total Transporter Payment from a single subtrip's data.
  *

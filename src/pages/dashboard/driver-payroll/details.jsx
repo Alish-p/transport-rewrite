@@ -31,7 +31,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverPayrollDetailView payslip={payslipData} loading={isLoading} />
+      {!isLoading && <DriverPayrollDetailView payslip={payslipData} loading={isLoading} />}
     </>
   );
 }

@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
 
+import { useMemo } from 'react';
+
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -15,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { calculatePayslipSummary } from 'src/utils/utils';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -33,6 +36,7 @@ export default function DriverPayrollTableRow({
   onDeleteRow,
 }) {
   const { _id, driverId, createdDate, periodStartDate, periodEndDate } = row;
+  const { netSalary } = useMemo(() => calculatePayslipSummary(row), [row]);
 
   const confirm = useBoolean();
 
@@ -82,7 +86,7 @@ export default function DriverPayrollTableRow({
 
         <TableCell>
           <ListItemText
-            primary={2010}
+            primary={netSalary}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
