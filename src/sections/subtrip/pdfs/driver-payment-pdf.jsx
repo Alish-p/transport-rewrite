@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
+import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 
@@ -28,9 +29,22 @@ export default function DriverPaymentPdf({ subtrip }) {
     expenses,
     initialDiesel,
     tripId: { driverId, vehicleId },
+    loadingPoint,
+    unloadingPoint,
   } = subtrip;
 
   console.log(subtrip);
+
+  const expenseTypesToInclude = ['driver-salary', 'trip-advance', 'trip-extra-advance'];
+
+  const filteredExpenses = expenses.filter((expense) =>
+    expenseTypesToInclude.includes(expense.expenseType)
+  );
+
+  const totalExpense = useMemo(
+    () => filteredExpenses.reduce((total, expense) => total + expense.amount, 0),
+    [filteredExpenses]
+  );
 
   const styles = useStyles();
 
@@ -92,12 +106,26 @@ export default function DriverPaymentPdf({ subtrip }) {
     </View>
   );
 
+  const renderEmptyLine = () => (
+    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+      <View style={[styles.col12]}>
+        <Text style={{ textAlign: 'center', padding: 4 }}> </Text>
+      </View>
+    </View>
+  );
+
   const renderDriverRow = () => (
     <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-      <View style={[styles.gridContainer, styles.col8, styles.borderRight]}>
+      <View style={[styles.col8, styles.borderRight, { minHeight: 80 }]}>
         {/* Driver */}
-
-        <View style={[styles.col12, { display: 'flex', alignItems: 'flex-start' }, styles.p4]}>
+        <Text style={[styles.subtitle2, styles.p8]}>Driver Details:</Text>
+        <View
+          style={[
+            styles.col12,
+            { display: 'flex', alignItems: 'flex-start', justifyContent: 'center' },
+            styles.p8,
+          ]}
+        >
           <Text style={[styles.subtitle2]}>{driverId?.driverName}</Text>
           <Text style={styles.body2}>+91-{driverId?.driverCellNo}</Text>
           <Text style={styles.body2}>{driverId?.permanentAddress} </Text>
@@ -108,14 +136,41 @@ export default function DriverPaymentPdf({ subtrip }) {
       </View>
 
       {/* LR/Date */}
-      <View style={[styles.col4, styles.gridContainer]}>
-        <View style={[styles.col12, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>DI/DO No: </Text>
-          <Text style={[styles.horizontalCellContent]}>{diNumber || '-'}</Text>
+      <View style={[styles.col4, styles.gridContainer, { minHeight: 80 }]}>
+        <View style={[styles.col6, styles.borderRight]}>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellTitle]}>LR No: </Text>
+          </View>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellTitle]}>Customer</Text>
+          </View>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellTitle]}>Disp. Date </Text>
+          </View>
+
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellTitle]}>From: </Text>
+          </View>
+          <View style={[styles.horizontalCell]}>
+            <Text style={[styles.horizontalCellTitle]}>To: </Text>
+          </View>
         </View>
-        <View style={[styles.col12, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Date :</Text>
-          <Text style={styles.horizontalCellContent}>{fDate(startDate)}</Text>
+        <View style={[styles.col6]}>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellContent]}>{_id} </Text>
+          </View>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellContent]}>{customerId?.customerName} </Text>
+          </View>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellContent]}>{fDate(startDate)} </Text>
+          </View>
+          <View style={[styles.horizontalCell, styles.borderBottom]}>
+            <Text style={[styles.horizontalCellContent]}>{loadingPoint}</Text>
+          </View>
+          <View style={[styles.horizontalCell]}>
+            <Text style={[styles.horizontalCellContent]}>{unloadingPoint}</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -123,46 +178,47 @@ export default function DriverPaymentPdf({ subtrip }) {
 
   const renderTableDetails = () => (
     <>
-      {/* Vehicle Details Header */}
+      {/* Salary Details Header */}
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Driver Name</Text>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>#</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Driver Mobile No.</Text>
+        <View style={[styles.col5, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Payment Type</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Vehicle No.</Text>
+        <View style={[styles.col3, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Date</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Vehicle Type</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>LR NO</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Transporter</Text>
+        <View style={[styles.col3, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>Amount</Text>
         </View>
       </View>
       {/* Values */}
+
+      {filteredExpenses.map((expense, idx) => (
+        <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+            <Text style={[styles.horizontalCellContent]}>{idx}</Text>
+          </View>
+          <View style={[styles.col5, styles.horizontalCell, styles.borderRight]}>
+            <Text style={[styles.horizontalCellContent]}>{expense?.expenseType}</Text>
+          </View>
+          <View style={[styles.col3, styles.horizontalCell, styles.borderRight]}>
+            <Text style={[styles.horizontalCellContent]}>{fDate(expense?.date)}</Text>
+          </View>
+          <View style={[styles.col3, styles.horizontalCell, styles.borderRight]}>
+            <Text style={[styles.horizontalCellContent]}>{fCurrency(expense?.amount)}</Text>
+          </View>
+        </View>
+      ))}
+
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{driverId?.driverName}</Text>
+        <View style={[styles.col9, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{driverId?.driverCellNo}</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{vehicleId?.vehicleNo}</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{vehicleId?.noOfTyres} Tyre</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
-        </View>
-        <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellContent]}>{COMPANY.name}</Text>
+
+        <View style={[styles.col3, styles.horizontalCell]}>
+          <Text style={[styles.horizontalCellTitle]}>{fCurrency(totalExpense)}</Text>
         </View>
       </View>
     </>
@@ -175,8 +231,9 @@ export default function DriverPaymentPdf({ subtrip }) {
 
         {renderDocumentTitle()}
         {renderCompanyHeader()}
-        {renderDeclaration()}
         {renderDriverRow()}
+        {renderDeclaration()}
+        {renderEmptyLine()}
         {renderTableDetails()}
       </Page>
     </Document>

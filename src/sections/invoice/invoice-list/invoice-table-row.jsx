@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
 
+import { useMemo } from 'react';
+
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -17,6 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate, fTime } from 'src/utils/format-time';
+import { calculateSubtripTotalIncome } from 'src/utils/utils';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -25,7 +28,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleTableRow({
+export default function InvoiceTableRow({
   row,
   selected,
   onSelectRow,
@@ -33,7 +36,9 @@ export default function VehicleTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, customerId, invoiceStatus, createdDate, dueDate } = row;
+  const { _id, customerId, invoiceStatus, createdDate, dueDate, subtrips } = row;
+
+  const total = useMemo(() => calculateSubtripTotalIncome(subtrips), [subtrips]);
 
   const confirm = useBoolean();
 
@@ -98,7 +103,7 @@ export default function VehicleTableRow({
 
         <TableCell>
           <ListItemText
-            primary={2010}
+            primary={total}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

@@ -29,5 +29,9 @@ export const CONFIG = {
     email: 'shree.enterprises34064@gmail.com',
     website: 'www.shreeenterprises.biz',
     contacts: ['+91 9448134064', '+91 9448134064', '+91 9448134064'],
+
+    transporterCommissionRate: 100,
   },
+
+  customerInvoiceTax: 6,
 };

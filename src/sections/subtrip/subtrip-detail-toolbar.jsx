@@ -214,15 +214,17 @@ export default function SubtripToolbar({
           >
             Driver Payment
           </MenuItem>
-          <MenuItem
-            onClick={() => {
-              viewPopover.onClose();
-              viewTransporterPayment.onTrue();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            Transporter Payment
-          </MenuItem>
+          {!subtrip?.tripId?.vehicleId?.isOwn && (
+            <MenuItem
+              onClick={() => {
+                viewPopover.onClose();
+                viewTransporterPayment.onTrue();
+              }}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            >
+              Transporter Payment
+            </MenuItem>
+          )}
         </MenuList>
       </CustomPopover>
 

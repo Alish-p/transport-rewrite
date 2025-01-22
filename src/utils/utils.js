@@ -1,3 +1,5 @@
+import { CONFIG } from 'src/config-global';
+
 /**
  * Calculates the total driver salary from a single subtrip's expenses.
  *
@@ -35,7 +37,7 @@ export const calculateTransporterPayment = (subtrip) => {
   }
 
   // Total Income of subtrip
-  const rateAfterCommision = subtrip.rate - 100;
+  const rateAfterCommision = subtrip.rate - CONFIG.company.transporterCommissionRate;
   const totalFreightAmount = rateAfterCommision * subtrip.loadingWeight;
 
   // Total Expense of subtrip
@@ -44,6 +46,9 @@ export const calculateTransporterPayment = (subtrip) => {
   // transporter Payment
   return totalFreightAmount - totalExpense;
 };
+
+export const calculateSubtripTotalIncome = (subtrips) =>
+  subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0);
 
 /**
  * Get salary and route details based on vehicle type
