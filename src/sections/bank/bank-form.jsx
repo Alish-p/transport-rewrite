@@ -54,6 +54,7 @@ export default function BankForm({ currentBank }) {
   } = methods;
 
   const onSubmit = async (data) => {
+    console.log({ bankData: data });
     try {
       if (!currentBank) {
         await dispatch(addBank(data));

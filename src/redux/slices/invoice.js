@@ -68,11 +68,19 @@ const invoiceSlice = createSlice({
   },
 });
 
-export const { startLoading, hasError, addInvoiceSuccess, getInvoicesSuccess, getInvoiceSuccess } =
-  invoiceSlice.actions;
+export const {
+  startLoading,
+  hasError,
+  addInvoiceSuccess,
+  getInvoicesSuccess,
+  getInvoiceSuccess,
+  deleteInvoiceSuccess,
+  resetInvoice,
+  updateInvoiceSuccess,
+} = invoiceSlice.actions;
 
 export default invoiceSlice.reducer;
-
+// Async actions (Thunks)
 export const fetchInvoices = () => async (dispatch) => {
   dispatch(startLoading());
   try {
@@ -93,25 +101,25 @@ export const fetchInvoice = (id) => async (dispatch) => {
   }
 };
 
-export const deleteInvoice = (id) => async (dispatch) => {
-  dispatch(startLoading());
-  try {
-    const response = await axios.delete(`/api/invoices/${id}`);
-    dispatch(getInvoiceSuccess(response.data));
-  } catch (error) {
-    dispatch(hasError(error));
-  }
-};
-
 export const addInvoice = (data) => async (dispatch) => {
   dispatch(startLoading());
   try {
-    const response = await axios.post(`/api/invoices`, data);
+    const response = await axios.post('/api/invoices', data);
     dispatch(addInvoiceSuccess(response.data));
-    return response.data;
+    return response.data; // Returning the created invoice
   } catch (error) {
     dispatch(hasError(error));
-    throw error;
+    throw error; // Re-throwing the error so it can be caught in the component
+  }
+};
+
+export const updateInvoice = (id, payload) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    const response = await axios.put(`/api/invoices/${id}`, payload);
+    dispatch(updateInvoiceSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
   }
 };
 
@@ -119,7 +127,17 @@ export const updateInvoiceStatus = (id, status) => async (dispatch) => {
   dispatch(startLoading());
   try {
     const response = await axios.put(`/api/invoices/${id}`, { invoiceStatus: status });
-    dispatch(getInvoiceSuccess(response.data));
+    dispatch(updateInvoiceSuccess(response.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};
+
+export const deleteInvoice = (id) => async (dispatch) => {
+  dispatch(startLoading());
+  try {
+    await axios.delete(`/api/invoices/${id}`);
+    dispatch(deleteInvoiceSuccess(id)); // Dispatch the ID for filtering
   } catch (error) {
     dispatch(hasError(error));
   }

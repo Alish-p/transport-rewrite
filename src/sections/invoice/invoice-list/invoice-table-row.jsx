@@ -36,9 +36,9 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, customerId, invoiceStatus, createdDate, dueDate, subtrips } = row;
+  const { _id, customerId, invoiceStatus, createdDate, dueDate, invoicedSubTrips } = row;
 
-  const total = useMemo(() => calculateSubtripTotalIncome(subtrips), [subtrips]);
+  const total = useMemo(() => calculateSubtripTotalIncome(invoicedSubTrips), [invoicedSubTrips]);
 
   const confirm = useBoolean();
 
@@ -52,7 +52,7 @@ export default function InvoiceTableRow({
         </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={_id} sx={{ mr: 2 }}>
-            {customerId?.customerName.slice(0, 2).toUpperCase()}
+            {customerId?.customerName?.slice(0, 2).toUpperCase()}
           </Avatar>
 
           <ListItemText

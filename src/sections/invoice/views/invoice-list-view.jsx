@@ -28,7 +28,6 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
@@ -157,7 +156,7 @@ export function InvoiceListView({ invoices }) {
   );
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.invoice.edit(paramCase(id)));
+    navigate(paths.dashboard.invoice.edit(id));
   };
 
   const handleViewRow = useCallback(
@@ -468,7 +467,8 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   }
   if (subtrip) {
     inputData = inputData.filter(
-      (record) => record.subtrips && record.subtrips.some((st) => st._id === subtrip)
+      (record) =>
+        record.invoicedSubTrips && record.invoicedSubTrips.some((st) => st._id === subtrip)
     );
   }
 

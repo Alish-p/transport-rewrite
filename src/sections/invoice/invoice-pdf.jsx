@@ -22,12 +22,15 @@ const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 const COMPANY = CONFIG.company;
 
 export default function InvoicePdf({ invoice, currentStatus }) {
-  const { _id, subtrips, customerId, invoiceStatus, createdDate, dueDate } = invoice;
+  const { _id, invoicedSubTrips, customerId, invoiceStatus, createdDate, dueDate } = invoice;
 
-  const totalIncome = useMemo(() => calculateSubtripTotalIncome(subtrips), [subtrips]);
+  const totalIncome = useMemo(
+    () => calculateSubtripTotalIncome(invoicedSubTrips),
+    [invoicedSubTrips]
+  );
   const totalQuantity = useMemo(
-    () => subtrips.reduce((acc, subtrip) => acc + subtrip.loadingWeight, 0),
-    [subtrips]
+    () => invoicedSubTrips.reduce((acc, subtrip) => acc + subtrip.loadingWeight, 0),
+    [invoicedSubTrips]
   );
 
   const styles = useStyles();
@@ -192,7 +195,7 @@ export default function InvoicePdf({ invoice, currentStatus }) {
         </View>
       </View>
       {/* Values */}
-      {subtrips.map((subtrip, idx) => (
+      {invoicedSubTrips.map((subtrip, idx) => (
         <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
           <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
             <Text style={[styles.horizontalCellContent]}>{idx}</Text>

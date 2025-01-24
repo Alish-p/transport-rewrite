@@ -7,7 +7,7 @@ import { fetchInvoice, updateInvoiceStatus } from 'src/redux/slices/invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoiceDetails from '../invoice-details';
+import InvoiceDetails from '../invoice-preview';
 import InvoiceToolbar from '../invoice-toolbar';
 
 export const INVOICE_STATUS_OPTIONS = [

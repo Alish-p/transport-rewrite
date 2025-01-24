@@ -31,11 +31,18 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: 'bold',
 }));
 
-function calculateTotal(subtrips) {
-  return subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0) || 0;
+function calculateTotal(invoicedSubTrips) {
+  return (
+    invoicedSubTrips?.reduce((acc, trip) => {
+      const rate = Number(trip.rate) || 0;
+      const loadingWeight = Number(trip.loadingWeight) || 0;
+      return acc + rate * loadingWeight;
+    }, 0) || 0
+  );
 }
 
 function RenderHeader({ invoice }) {
+  const { _id, invoiceStatus } = invoice || {};
   return (
     <Box
       rowGap={3}
@@ -43,12 +50,12 @@ function RenderHeader({ invoice }) {
       alignItems="center"
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
     >
-      <Box component="img" alt="logo" src="/logo/logo_single.svg" sx={{ width: 48, height: 48 }} />
+      <Box component="img" alt="logo" src="/logo/companylogo1.png" sx={{ width: 48, height: 48 }} />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label variant="soft" color={invoice.invoiceStatus === 'paid' ? 'success' : 'default'}>
-          {invoice.invoiceStatus || 'Draft'}
+        <Label variant="soft" color={invoiceStatus === 'paid' ? 'success' : 'default'}>
+          {invoiceStatus || 'Draft'}
         </Label>
-        <Typography variant="h6">{invoice._id || 'INV - XXX'}</Typography>
+        <Typography variant="h6">{_id || 'INV - XXX'}</Typography>
       </Stack>
     </Box>
   );
@@ -75,7 +82,7 @@ function RenderDateInfo({ createdDate }) {
 }
 
 function RenderTable({ invoice }) {
-  const totalAmount = calculateTotal(invoice.subtrips);
+  const totalAmount = calculateTotal(invoice?.invoicedSubTrips);
   return (
     <TableContainer sx={{ overflow: 'unset', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
@@ -94,7 +101,7 @@ function RenderTable({ invoice }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {invoice.subtrips?.map((st, index) => (
+          {invoice?.invoicedSubTrips?.map((st, index) => (
             <TableRow key={st._id}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{st.consignee}</TableCell>
@@ -103,9 +110,9 @@ function RenderTable({ invoice }) {
               <TableCell>{st._id}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
               <TableCell>{fDate(st.startDate)}</TableCell>
-              <TableCell>{st.loadingWeight}</TableCell>
-              <TableCell>{fCurrency(st.rate)}</TableCell>
-              <TableCell>{fCurrency(st.rate * st.loadingWeight)}</TableCell>
+              <TableCell>{st.loadingWeight || 0}</TableCell>
+              <TableCell>{fCurrency(st.rate || 0)}</TableCell>
+              <TableCell>{fCurrency((st.rate || 0) * (st.loadingWeight || 0))}</TableCell>
             </TableRow>
           ))}
 
@@ -156,7 +163,8 @@ function RenderFooter() {
 }
 
 export default function InvoiceDetails({ invoice }) {
-  const { customerId: customer, createdDate } = invoice;
+  console.log({ draftInvoice: invoice });
+  const { customerId: customer, createdDate } = invoice || {};
   return (
     <Card sx={{ pt: 5, px: 5 }}>
       <RenderHeader invoice={invoice} />

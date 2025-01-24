@@ -10,13 +10,15 @@ import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/s
 import { Field } from 'src/components/hook-form';
 
 /** Custom hook to handle fetching logic */
+
 const useFetchFilteredSubtrips = (customerId, fromDate, toDate, dispatch) => {
   const { setValue } = useFormContext();
 
   const fetchCustomerSubtrips = () => {
     if (customerId && fromDate && toDate) {
       dispatch(fetchFilteredSubtrips('customer', customerId, fromDate, toDate));
-      setValue('selectedSubtrips', []); // Reset selected subtrips
+
+      setValue('invoicedSubTrips', []); // Reset selected subtrips
     }
   };
 
@@ -48,7 +50,7 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   filteredSubtrips.length > 0 && (
     <Field.MultiSelect
       checkbox
-      name="selectedSubtrips"
+      name="invoicedSubTrips"
       label="Subtrips"
       options={filteredSubtrips.map((subtrip) => ({
         label: subtrip._id,
@@ -59,9 +61,9 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   );
 
 /** Main Component */
-export default function SubtripsSelectors({ customersList }) {
-  const { watch, setValue } = useFormContext();
+export default function InvoiceForm({ customersList }) {
   const dispatch = useDispatch();
+  const { watch, setValue } = useFormContext();
   const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
   const { customerId, fromDate, toDate } = watch();
@@ -72,8 +74,9 @@ export default function SubtripsSelectors({ customersList }) {
     dispatch
   );
 
+  // Reset selected subtrips on changes of fields
   useEffect(() => {
-    setValue('selectedSubtrips', []); // Reset selected subtrips on changes of fields
+    setValue('invoicedSubTrips', []);
   }, [customerId, fromDate, toDate, setValue]);
 
   // Reset the filtered subtrips on unmount

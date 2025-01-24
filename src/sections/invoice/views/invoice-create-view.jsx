@@ -1,135 +1,25 @@
-import { z as zod } from 'zod';
-import { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-import { Stack, Button } from '@mui/material';
-
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
-
-import { useSelector } from 'src/redux/store';
-import { addInvoice } from 'src/redux/slices/invoice';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
-import { Form, schemaHelper } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoiceDetails from '../invoice-details';
-import SubtripsSelectors from '../SubtripsSelectors';
-
-export const InvoiceSchema = zod
-  .object({
-    _id: zod.string().optional(),
-    customerId: zod.string().min(1),
-    invoiceStatus: zod.string().optional(),
-    createdDate: schemaHelper
-      .date({ message: { required_error: 'Create date is required!' } })
-      .optional(),
-    dueDate: schemaHelper.date({ message: { required_error: 'Due date is required!' } }).optional(),
-    fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-    toDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
-    selectedSubtrips: zod.array(zod.string().min(1)).optional(),
-
-    totalAmount: zod
-      .number({ required_error: 'Total amount is required' })
-      .positive({ message: 'Total amount must be greater than zero' }),
-  })
-  .refine((data) => !fIsAfter(data.fromDate, data.toDate), {
-    message: 'To-date cannot be earlier than From date!',
-    path: ['toDate'],
-  });
+import InvoiceFormPreview from '../invoice-form-and-preview';
 
 export function InvoiceCreateView({ customerList }) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const defaultValues = useMemo(
-    () => ({
-      _id: '',
-      customerId: '',
-      invoiceStatus: '',
-      createdDate: new Date(),
-      fromDate: getFirstDayOfCurrentMonth(),
-      toDate: new Date(),
-      dueDate: null,
-      selectedSubtrips: [],
-      totalAmount: 0,
-    }),
-    []
-  );
-
-  const methods = useForm({
-    resolver: zodResolver(InvoiceSchema),
-    defaultValues,
-    mode: 'all',
-  });
-
-  const { handleSubmit, watch } = methods;
-
-  const { selectedSubtrips, customerId: selectedCustomerID, createdDate, dueDate } = watch();
-
-  const { filteredSubtrips } = useSelector((state) => state.subtrip);
-
-  // Construct the draftInvoice object
-  const draftInvoice = useMemo(() => {
-    const selectedCustomer = customerList.find((customer) => customer._id === selectedCustomerID);
-    return {
-      subtrips: filteredSubtrips.filter((st) => selectedSubtrips.includes(st._id)),
-      customerId: selectedCustomer,
-      invoiceStatus: 'Draft',
-      createdDate,
-      dueDate,
-    };
-  }, [selectedSubtrips, selectedCustomerID, filteredSubtrips, customerList, createdDate, dueDate]);
-
-  const handleCreateAndSend = async () => {
-    try {
-      const createdInvoice = await dispatch(
-        addInvoice({
-          customerId: selectedCustomerID,
-          subtrips: selectedSubtrips,
-          invoiceStatus: 'pending',
-        })
-      );
-
-      toast.success('Invoice generated successfully!');
-
-      // Navigate to the invoice details page using the created invoice's ID
-      navigate(paths.dashboard.invoice.details(createdInvoice._id));
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  console.log({ selectedSubtrips });
-
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="INV-XXX"
+        heading="Create Invoice"
         links={[
-          { name: 'Dashboard', href: '/dashboard' },
-          { name: 'Invoice', href: '/dashboard/invoice' },
-          { name: 'INV-XXX' },
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Invoice', href: paths.dashboard.invoice.root },
+          { name: 'Create' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <Form methods={methods} onSubmit={handleSubmit(handleCreateAndSend)}>
-        <SubtripsSelectors customersList={customerList} />
-        <InvoiceDetails invoice={draftInvoice} />
-
-        <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
-          <Button size="large" variant="contained" onClick={handleCreateAndSend}>
-            Create
-          </Button>
-        </Stack>
-      </Form>
+      <InvoiceFormPreview customerList={customerList} />
     </DashboardContent>
   );
 }
