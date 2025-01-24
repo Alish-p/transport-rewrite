@@ -50,9 +50,25 @@ function RenderHeader({ invoice }) {
       alignItems="center"
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
     >
-      <Box component="img" alt="logo" src="/logo/companylogo1.png" sx={{ width: 48, height: 48 }} />
+      <Box
+        component="img"
+        alt="logo"
+        src="/logo/company-logo-green.png"
+        sx={{ width: 60, height: 60, mb: 3 }}
+      />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label variant="soft" color={invoiceStatus === 'paid' ? 'success' : 'default'}>
+        <Label
+          variant="soft"
+          color={
+            invoiceStatus === 'paid'
+              ? 'success'
+              : invoiceStatus === 'pending'
+                ? 'warning'
+                : invoiceStatus === 'overdue'
+                  ? 'error'
+                  : 'default'
+          }
+        >
           {invoiceStatus || 'Draft'}
         </Label>
         <Typography variant="h6">{_id || 'INV - XXX'}</Typography>
@@ -163,7 +179,6 @@ function RenderFooter() {
 }
 
 export default function InvoiceDetails({ invoice }) {
-  console.log({ draftInvoice: invoice });
   const { customerId: customer, createdDate } = invoice || {};
   return (
     <Card sx={{ pt: 5, px: 5 }}>

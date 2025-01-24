@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
+import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect, useCallback } from 'react';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchInvoice, updateInvoiceStatus } from 'src/redux/slices/invoice';
@@ -25,34 +25,32 @@ export function InvoiceDetailView() {
     dispatch(fetchInvoice(id));
   }, [dispatch, id]);
 
+  const invoiceStatus = invoice?.invoiceStatus;
+
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-      setCurrentStatus(newStatus);
+
       dispatch(updateInvoiceStatus(id, newStatus));
     },
     [dispatch, id]
   );
 
-  const [currentStatus, setCurrentStatus] = useState(invoice?.invoiceStatus);
-
-  console.log({ invoice });
-
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="INV-123"
+        heading={id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Invoice', href: '/dashboard/invoice' },
-          { name: 'INV-123' },
+          { name: id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
       {invoice && (
         <InvoiceToolbar
           invoice={invoice}
-          currentStatus={currentStatus || ''}
+          currentStatus={invoiceStatus || ''}
           onChangeStatus={handleChangeStatus}
           statusOptions={INVOICE_STATUS_OPTIONS}
         />
