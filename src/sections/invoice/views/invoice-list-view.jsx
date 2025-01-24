@@ -15,6 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
+import { toast } from 'src/components/snackbar';
+
 // _mock
 
 import { useDispatch } from 'react-redux';
@@ -142,9 +144,17 @@ export function InvoiceListView({ invoices }) {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteInvoice(id));
-  };
+  const handleDeleteRow = useCallback(
+    async (id) => {
+      try {
+        await dispatch(deleteInvoice(id));
+        toast.success('Invoice deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting invoice:', error);
+      }
+    },
+    [dispatch]
+  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.invoice.edit(paramCase(id)));

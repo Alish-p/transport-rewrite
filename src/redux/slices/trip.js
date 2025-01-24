@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import { toast } from 'src/components/snackbar';
+
 import axios from '../../utils/axios';
 
 const initialState = {
@@ -19,6 +21,11 @@ const tripDetailsSlice = createSlice({
     hasError(state, action) {
       state.isLoading = false;
       state.error = action.payload;
+
+      if (action.payload) {
+        const errorMessage = action.payload.message || 'An error occurred';
+        toast.error(errorMessage);
+      }
     },
     getTripsSuccess(state, action) {
       state.isLoading = false;

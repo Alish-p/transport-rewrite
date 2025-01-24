@@ -34,8 +34,9 @@ export function InvoiceDetailView() {
     [dispatch, id]
   );
 
-  const { subtrips, customerId: customer, invoiceStatus, createdDate, _id } = invoice || {};
   const [currentStatus, setCurrentStatus] = useState(invoice?.invoiceStatus);
+
+  console.log({ invoice });
 
   return (
     <DashboardContent>
@@ -57,13 +58,7 @@ export function InvoiceDetailView() {
         />
       )}
 
-      <InvoiceDetails
-        invoiceNo={_id}
-        selectedSubtripsData={subtrips}
-        customer={customer}
-        status={currentStatus}
-        createdDate={createdDate}
-      />
+      {invoice && !isLoading && <InvoiceDetails invoice={invoice} />}
     </DashboardContent>
   );
 }

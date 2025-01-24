@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import { toast } from 'src/components/snackbar';
+
 import axios from '../../utils/axios';
 
 const initialState = {
@@ -16,21 +18,52 @@ const invoiceSlice = createSlice({
     startLoading(state) {
       state.isLoading = true;
     },
+
     hasError(state, action) {
       state.isLoading = false;
       state.error = action.payload;
+
+      if (action.payload) {
+        const errorMessage = action.payload.message || 'An error occurred';
+        toast.error(errorMessage);
+      }
     },
-    addInvoiceSuccess(state, action) {
-      state.isLoading = false;
-      state.invoices.push(action.payload);
-    },
+
     getInvoicesSuccess(state, action) {
       state.isLoading = false;
       state.invoices = action.payload;
+      state.error = null;
     },
+
     getInvoiceSuccess(state, action) {
       state.isLoading = false;
       state.invoice = action.payload;
+      state.error = null;
+    },
+
+    addInvoiceSuccess(state, action) {
+      state.isLoading = false;
+      state.invoices.push(action.payload);
+      state.error = null;
+    },
+
+    updateInvoiceSuccess(state, action) {
+      state.isLoading = false;
+      const updatedInvoice = action.payload;
+      const index = state.invoices.findIndex((invoice) => invoice._id === updatedInvoice._id);
+      if (index !== -1) {
+        state.invoices[index] = updatedInvoice;
+      }
+      state.error = null;
+    },
+
+    deleteInvoiceSuccess(state, action) {
+      state.isLoading = false;
+      state.invoices = state.invoices.filter((invoice) => invoice._id !== action.payload); // action.payload should be the ID
+      state.error = null;
+    },
+    resetInvoice(state) {
+      state.invoice = null;
     },
   },
 });

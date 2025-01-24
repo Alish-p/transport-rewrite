@@ -1,11 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import { toast } from 'src/components/snackbar';
+
 import axios from '../../utils/axios';
 
 const initialState = {
   isLoading: false,
   error: null,
   subtrips: [],
+  filteredSubtrips: [],
   subtrip: null,
 };
 
@@ -19,6 +22,11 @@ const subtripSlice = createSlice({
     hasError(state, action) {
       state.isLoading = false;
       state.error = action.payload;
+
+      if (action.payload) {
+        const errorMessage = action.payload.message || 'An error occurred';
+        toast.error(errorMessage);
+      }
     },
     getSubtripsSuccess(state, action) {
       state.isLoading = false;
@@ -61,6 +69,13 @@ const subtripSlice = createSlice({
         state.subtrip.expenses.push(action.payload.expense);
       }
     },
+    getFilteredSubtripsSuccess(state, action) {
+      state.isLoading = false;
+      state.filteredSubtrips = action.payload.data;
+    },
+    resetFilteredSubtrips(state) {
+      state.filteredSubtrips = [];
+    },
   },
 });
 
@@ -74,6 +89,8 @@ export const {
   addSubtripSuccess,
   deleteSubtripSuccess,
   addExpenseSuccess,
+  getFilteredSubtripsSuccess,
+  resetFilteredSubtrips,
 } = subtripSlice.actions;
 
 export default subtripSlice.reducer;
@@ -244,3 +261,47 @@ export const fetchClosedSubtripsByTransporterAndDate = async (
     throw error;
   }
 };
+
+export const fetchFilteredSubtrips =
+  (filterType, entityId, fromDate, toDate) => async (dispatch) => {
+    dispatch(startLoading());
+    dispatch(resetFilteredSubtrips());
+    try {
+      let response;
+      let filteredData = [];
+      switch (filterType) {
+        case 'customer':
+          response = await axios.post('/api/subtrips/fetchClosedTripsByCustomerAndDate', {
+            customerId: entityId,
+            fromDate,
+            toDate,
+          });
+          filteredData = response.data;
+          break;
+        case 'transporter':
+          response = await axios.post('/api/subtrips/fetchClosedSubtripsByTransporterAndDate', {
+            transporterId: entityId,
+            fromDate,
+            toDate,
+          });
+          filteredData = response.data;
+          break;
+        case 'driver':
+          response = await axios.post('/api/subtrips/fetchTripsCompletedByDriverAndDate', {
+            driverId: entityId,
+            fromDate,
+            toDate,
+          });
+          filteredData = response.data;
+          break;
+        default:
+          throw new Error('Invalid filter type');
+      }
+
+      dispatch(getFilteredSubtripsSuccess({ data: filteredData, filterType }));
+      return { data: filteredData, filterType };
+    } catch (error) {
+      dispatch(hasError(error));
+      throw error;
+    }
+  };

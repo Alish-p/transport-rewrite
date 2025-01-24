@@ -9,9 +9,9 @@ import { Stack, Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { paramCase } from 'src/utils/change-case';
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
+import { useSelector } from 'src/redux/store';
 import { addInvoice } from 'src/redux/slices/invoice';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -33,7 +33,6 @@ export const InvoiceSchema = zod
     dueDate: schemaHelper.date({ message: { required_error: 'Due date is required!' } }).optional(),
     fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
     toDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
-    closedSubtripData: zod.array(zod.string().min(1)).optional(), // all closed subtrips of a customer
     selectedSubtrips: zod.array(zod.string().min(1)).optional(),
 
     totalAmount: zod
@@ -60,7 +59,6 @@ export function InvoiceCreateView({ customerList }) {
       dueDate: null,
       selectedSubtrips: [],
       totalAmount: 0,
-      closedSubtripData: [],
     }),
     []
   );
@@ -73,7 +71,21 @@ export function InvoiceCreateView({ customerList }) {
 
   const { handleSubmit, watch } = methods;
 
-  const { selectedSubtrips, customerId: selectedCustomerID, closedSubtripData } = watch();
+  const { selectedSubtrips, customerId: selectedCustomerID, createdDate, dueDate } = watch();
+
+  const { filteredSubtrips } = useSelector((state) => state.subtrip);
+
+  // Construct the draftInvoice object
+  const draftInvoice = useMemo(() => {
+    const selectedCustomer = customerList.find((customer) => customer._id === selectedCustomerID);
+    return {
+      subtrips: filteredSubtrips.filter((st) => selectedSubtrips.includes(st._id)),
+      customerId: selectedCustomer,
+      invoiceStatus: 'Draft',
+      createdDate,
+      dueDate,
+    };
+  }, [selectedSubtrips, selectedCustomerID, filteredSubtrips, customerList, createdDate, dueDate]);
 
   const handleCreateAndSend = async () => {
     try {
@@ -88,12 +100,13 @@ export function InvoiceCreateView({ customerList }) {
       toast.success('Invoice generated successfully!');
 
       // Navigate to the invoice details page using the created invoice's ID
-      navigate(paths.dashboard.invoice.details(paramCase(createdInvoice._id)));
+      navigate(paths.dashboard.invoice.details(createdInvoice._id));
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to create invoice!');
     }
   };
+
+  console.log({ selectedSubtrips });
 
   return (
     <DashboardContent>
@@ -109,10 +122,8 @@ export function InvoiceCreateView({ customerList }) {
 
       <Form methods={methods} onSubmit={handleSubmit(handleCreateAndSend)}>
         <SubtripsSelectors customersList={customerList} />
-        <InvoiceDetails
-          selectedSubtripsData={closedSubtripData.filter((st) => selectedSubtrips.includes(st._id))}
-          customer={customerList.find((customer) => customer._id === selectedCustomerID)}
-        />
+        <InvoiceDetails invoice={draftInvoice} />
+
         <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
           <Button size="large" variant="contained" onClick={handleCreateAndSend}>
             Create

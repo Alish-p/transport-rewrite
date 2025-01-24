@@ -1,53 +1,107 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
-import { Divider } from '@mui/material';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
+import { Card, Grid, Button, Divider, MenuItem } from '@mui/material';
 
-import { fetchClosedTripsByCustomerAndDate } from 'src/redux/slices/subtrip';
+import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/subtrip';
 
 import { Field } from 'src/components/hook-form';
 
+/** Custom hook to handle fetching logic */
+const useFetchFilteredSubtrips = (customerId, fromDate, toDate, dispatch) => {
+  const { setValue } = useFormContext();
+
+  const fetchCustomerSubtrips = () => {
+    if (customerId && fromDate && toDate) {
+      dispatch(fetchFilteredSubtrips('customer', customerId, fromDate, toDate));
+      setValue('selectedSubtrips', []); // Reset selected subtrips
+    }
+  };
+
+  return { fetchCustomerSubtrips };
+};
+
+/** Reusable Field Wrapper */
+const FieldWrapper = ({ children, ...props }) => (
+  <Grid item xs={12} md={props.md || 3}>
+    {children}
+  </Grid>
+);
+
+/** Customer Dropdown */
+const CustomerDropdown = ({ customersList }) => (
+  <Field.Select name="customerId" label="Customer">
+    <MenuItem value="">None</MenuItem>
+    <Divider sx={{ borderStyle: 'dashed' }} />
+    {customersList.map((customer) => (
+      <MenuItem key={customer._id} value={customer._id}>
+        {customer.customerName}
+      </MenuItem>
+    ))}
+  </Field.Select>
+);
+
+/** Subtrips MultiSelect */
+const SubtripsMultiSelect = ({ filteredSubtrips }) =>
+  filteredSubtrips.length > 0 && (
+    <Field.MultiSelect
+      checkbox
+      name="selectedSubtrips"
+      label="Subtrips"
+      options={filteredSubtrips.map((subtrip) => ({
+        label: subtrip._id,
+        value: subtrip._id,
+      }))}
+      sx={{ width: '100%' }}
+    />
+  );
+
+/** Main Component */
 export default function SubtripsSelectors({ customersList }) {
-  const { setValue, watch } = useFormContext();
-  const [subtrips, setSubtrips] = useState([]);
+  const { watch, setValue } = useFormContext();
+  const dispatch = useDispatch();
+  const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
   const { customerId, fromDate, toDate } = watch();
+  const { fetchCustomerSubtrips } = useFetchFilteredSubtrips(
+    customerId,
+    fromDate,
+    toDate,
+    dispatch
+  );
 
-  const fetchCustomerSubtrips = async () => {
-    const closedSubtripData = await fetchClosedTripsByCustomerAndDate(customerId, fromDate, toDate);
-    setSubtrips(closedSubtripData);
-    setValue('closedSubtripData', closedSubtripData);
-    setValue('selectedSubtrips', []);
-  };
+  useEffect(() => {
+    setValue('selectedSubtrips', []); // Reset selected subtrips on changes of fields
+  }, [customerId, fromDate, toDate, setValue]);
+
+  // Reset the filtered subtrips on unmount
+  useEffect(
+    () => () => {
+      dispatch(resetFilteredSubtrips());
+    },
+    [dispatch]
+  );
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={3}>
-          <Field.Select name="customerId" label="Customer">
-            <MenuItem value="">None</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {customersList.map((customer) => (
-              <MenuItem key={customer._id} value={customer._id}>
-                {customer.customerName}
-              </MenuItem>
-            ))}
-          </Field.Select>
-        </Grid>
-        <Grid item xs={12} md={2}>
+        <FieldWrapper>
+          <CustomerDropdown customersList={customersList} />
+        </FieldWrapper>
+
+        <FieldWrapper md={2}>
           <Field.DatePicker name="fromDate" label="From Date" />
-        </Grid>
-        <Grid item xs={12} md={2}>
+        </FieldWrapper>
+
+        <FieldWrapper md={2}>
           <Field.DatePicker name="toDate" label="To Date" />
-        </Grid>
-        <Grid item xs={12} md={1}>
+        </FieldWrapper>
+
+        <FieldWrapper md={1}>
           <Button
-            type="submit"
+            type="button"
             variant="contained"
             fullWidth
             sx={{ height: '100%', width: '50%' }}
@@ -55,18 +109,11 @@ export default function SubtripsSelectors({ customersList }) {
           >
             {'>'}
           </Button>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          {subtrips.length > 0 && (
-            <Field.MultiSelect
-              checkbox
-              name="selectedSubtrips"
-              label="Subtrips"
-              options={subtrips.map((subtrip) => ({ label: subtrip._id, value: subtrip._id }))}
-              sx={{ width: '100%' }}
-            />
-          )}
-        </Grid>
+        </FieldWrapper>
+
+        <FieldWrapper md={4}>
+          <SubtripsMultiSelect filteredSubtrips={filteredSubtrips} />
+        </FieldWrapper>
       </Grid>
     </Card>
   );
