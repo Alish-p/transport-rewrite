@@ -7,7 +7,7 @@ import { fetchInvoice, updateInvoiceStatus } from 'src/redux/slices/invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoiceDetails from '../invoice-preview';
+import InvoicePreview from '../invoice-preview';
 import InvoiceToolbar from '../invoice-toolbar';
 
 export const INVOICE_STATUS_OPTIONS = [
@@ -47,7 +47,7 @@ export function InvoiceDetailView() {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {invoice && (
+      {invoice && !isLoading && (
         <InvoiceToolbar
           invoice={invoice}
           currentStatus={invoiceStatus || ''}
@@ -56,7 +56,7 @@ export function InvoiceDetailView() {
         />
       )}
 
-      {invoice && !isLoading && <InvoiceDetails invoice={invoice} />}
+      {invoice && !isLoading && <InvoicePreview invoice={invoice} />}
     </DashboardContent>
   );
 }

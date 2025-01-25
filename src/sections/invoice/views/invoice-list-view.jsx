@@ -85,6 +85,7 @@ export function InvoiceListView({ invoices }) {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
+  const [tableData, setTableData] = useState([]);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
@@ -93,8 +94,6 @@ export function InvoiceListView({ invoices }) {
       setTableData(invoices);
     }
   }, [invoices]);
-
-  const [tableData, setTableData] = useState([]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
