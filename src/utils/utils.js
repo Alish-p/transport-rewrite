@@ -7,12 +7,12 @@ import { CONFIG } from 'src/config-global';
  * @returns {number} - The total driver salary for the subtrip.
  */
 export const calculateDriverSalary = (subtrip) => {
-  if (!subtrip.expenses || !Array.isArray(subtrip.expenses)) {
+  if (!subtrip?.expenses || !Array.isArray(subtrip?.expenses)) {
     return 0;
   }
 
   // Filter expenses for driver-salary type
-  const driverSalaryExpenses = subtrip.expenses.filter(
+  const driverSalaryExpenses = subtrip?.expenses.filter(
     (expense) => expense.expenseType === 'driver-salary'
   );
 
@@ -39,7 +39,7 @@ export const calculatePayslipSummary = (payslip) => {
 
   // Calculate total trip-wise income
   const totalTripWiseIncome = subtripComponents.reduce(
-    (accumulator, { subtripId }) => accumulator + (calculateDriverSalary(subtripId) || 0),
+    (accumulator, st) => accumulator + (calculateDriverSalary(st) || 0),
     0
   );
 

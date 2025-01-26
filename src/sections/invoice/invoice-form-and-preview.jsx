@@ -21,7 +21,7 @@ import { Form, schemaHelper } from 'src/components/hook-form';
 import InvoiceForm from './invoice-form';
 import InvoicePreview from './invoice-preview';
 
-// Invoice Schema (Make sure this matches your database schema)
+// Invoice Schema (Make sure this matches database schema)
 export const InvoiceSchema = zod
   .object({
     _id: zod.string().optional(),
@@ -40,6 +40,9 @@ export const InvoiceSchema = zod
     path: ['toDate'],
   });
 
+// Form values and api to create will have ids only
+// draft invoice object and api call to fetch will have ids and values
+
 export default function InvoiceFormAndPreview({ customerList }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -54,7 +57,6 @@ export default function InvoiceFormAndPreview({ customerList }) {
       toDate: new Date(),
       dueDate: new Date(),
       invoicedSubTrips: [],
-      totalAmount: 0,
     }),
     []
   );

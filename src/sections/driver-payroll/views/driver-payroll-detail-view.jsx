@@ -1,39 +1,39 @@
-import { useState, useCallback } from 'react';
+import { useParams } from 'react-router';
+import { useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { dispatch } from '../../../redux/store';
-import PayslipDetail from '../driver-salary-details';
+import DriverSalaryPreview from '../driver-salary-preview';
 import DriverSalaryToolbar from '../driver-salary-toolbar';
-import { updatePayrollStatus } from '../../../redux/slices/driver-payroll';
+import { fetchPayrollReceipt, updatePayrollStatus } from '../../../redux/slices/driver-payroll';
 
-export const INVOICE_STATUS_OPTIONS = [
+export const PAYSLIP_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
 ];
 
-export function DriverPayrollDetailView({ payslip, loading }) {
-  const {
-    _id,
-    subtripComponents,
-    driverId: driver,
-    invoiceStatus,
-    createdDate,
-    otherSalaryComponent,
-  } = payslip || {};
+export function DriverPayrollDetailView() {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const { payrollReceipt, isLoading } = useSelector((state) => state.driverPayroll);
 
-  const [currentStatus, setCurrentStatus] = useState(payslip?.invoiceStatus);
+  useEffect(() => {
+    dispatch(fetchPayrollReceipt(id));
+  }, [dispatch, id]);
+
+  const payrollReceiptStatus = payrollReceipt?.payrollReceiptStatus;
 
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-      setCurrentStatus(newStatus);
-      dispatch(updatePayrollStatus(_id, newStatus));
+
+      dispatch(updatePayrollStatus(id, newStatus));
     },
-    [_id]
+    [dispatch, id]
   );
 
   return (
@@ -47,23 +47,16 @@ export function DriverPayrollDetailView({ payslip, loading }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {payslip && (
+      {payrollReceipt && (
         <DriverSalaryToolbar
-          payslip={payslip}
-          currentStatus={currentStatus || ''}
+          payslip={payrollReceipt}
+          currentStatus={payrollReceiptStatus || ''}
           onChangeStatus={handleChangeStatus}
-          statusOptions={INVOICE_STATUS_OPTIONS}
+          statusOptions={PAYSLIP_STATUS_OPTIONS}
         />
       )}
 
-      <PayslipDetail
-        invoiceNo={_id}
-        selectedSubtripsData={subtripComponents?.map((st) => st.subtripId)}
-        driver={driver}
-        status={currentStatus}
-        createdDate={createdDate}
-        otherSalaryComponent={otherSalaryComponent}
-      />
+      {payrollReceipt && !isLoading && <DriverSalaryPreview driverSalary={payrollReceipt} />}
     </DashboardContent>
   );
 }

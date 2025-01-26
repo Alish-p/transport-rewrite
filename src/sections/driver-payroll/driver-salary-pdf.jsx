@@ -21,7 +21,7 @@ const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
 const COMPANY = CONFIG.company;
 
-export default function TransporterPaymentPdf({ driverSalary, currentStatus }) {
+export default function DriverSalaryPdf({ driverSalary, currentStatus }) {
   const {
     _id,
     subtripComponents,
@@ -234,7 +234,7 @@ export default function TransporterPaymentPdf({ driverSalary, currentStatus }) {
       {subtripComponents.map(({ subtripId: st }, idx) => (
         <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
           <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{st._id}</Text>
+            <Text style={[styles.horizontalCellContent]}>{st?._id}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
             <Text style={[styles.horizontalCellContent]}>{st?.tripId?.vehicleId?.vehicleNo}</Text>
