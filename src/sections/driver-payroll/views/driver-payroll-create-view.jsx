@@ -8,11 +8,11 @@ export function DriverPayrollCreateView({ driverList }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="PAY-XXX"
+        heading="Create Drive Salary"
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Payroll', href: '/dashboard/driver-payroll' },
-          { name: 'PAY-XXX' },
+          { name: 'Driver Salary Creation' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

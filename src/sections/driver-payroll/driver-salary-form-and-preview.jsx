@@ -93,12 +93,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
       // Match database schema names:
       subtripComponents: allSubTripsByDriver.filter((st) => subtripComponents.includes(st._id)),
       otherSalaryComponent,
-      driverId: selectedDriver || {
-        _id: '',
-        driverName: '',
-        permanentAddress: '',
-        driverCellNo: '',
-      },
+      driverId: selectedDriver || {},
       status: 'draft',
       createdDate: createdDate || new Date(),
       periodStartDate,

@@ -13,7 +13,7 @@ import { fetchPayrollReceipt, updatePayrollStatus } from '../../../redux/slices/
 export const PAYSLIP_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
+  { value: 'processing', label: 'Processing' },
 ];
 
 export function DriverPayrollDetailView() {
@@ -25,7 +25,7 @@ export function DriverPayrollDetailView() {
     dispatch(fetchPayrollReceipt(id));
   }, [dispatch, id]);
 
-  const payrollReceiptStatus = payrollReceipt?.payrollReceiptStatus;
+  const payrollReceiptStatus = payrollReceipt?.status;
 
   const handleChangeStatus = useCallback(
     (event) => {
@@ -39,11 +39,11 @@ export function DriverPayrollDetailView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="INV-123"
+        heading={id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Payslip', href: '/dashboard/payslip' },
-          { name: 'PAY-123' },
+          { name: id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

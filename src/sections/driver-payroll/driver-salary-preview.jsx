@@ -53,16 +53,16 @@ function RenderHeader({ driverSalary }) {
           color={
             status === 'paid'
               ? 'success'
-              : status === 'pending'
+              : status === 'processing'
                 ? 'warning'
-                : status === 'overdue'
+                : status === 'pending'
                   ? 'error'
                   : 'default'
           }
         >
           {status || 'Draft'}
         </Label>
-        <Typography variant="h6">{_id || 'PAY - XXX'}</Typography>
+        <Typography variant="h6">{_id || 'DSR - XXX'}</Typography>
       </Stack>
     </Box>
   );
@@ -213,14 +213,23 @@ export default function DriverSalaryPreview({ driverSalary }) {
                   <br />
                   {driver.permanentAddress}
                   <br />
-                  Phone: {driver.driverCellNo}
-                  <br />
-                  Acc No: {driver?.bankDetails?.accNo}
-                  <br />
+                  {driver.driverCellNo && (
+                    <>
+                      Phone: {driver.driverCellNo}
+                      <br />
+                    </>
+                  )}
+                  {driver?.bankDetails?.accNo && (
+                    <>
+                      Acc No: {driver.bankDetails.accNo}
+                      <br />
+                    </>
+                  )}
                 </>
               )
             }
           />
+
           <RenderDateInfo createdDate={createdDate} />
         </Box>
         <RenderSalaryTable driverSalary={driverSalary} />

@@ -213,7 +213,7 @@ export default function InvoiceDetails({ invoice }) {
                 <br />
                 {customer?.address}
                 <br />
-                Phone: {customer?.cellNo}
+                {customer?.cellNo && <>Phone: {customer?.cellNo} </>}
               </>
             )
           }
