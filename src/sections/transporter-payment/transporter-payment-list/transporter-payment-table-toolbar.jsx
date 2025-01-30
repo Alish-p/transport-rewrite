@@ -19,12 +19,12 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function DriverPayrollTableToolbar({ filters, onFilters, tableData }) {
+export default function TransporterPaymentTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
 
-  const handleFilterDriverName = useCallback(
+  const handleFilterTransporterName = useCallback(
     (event) => {
-      onFilters('driver', event.target.value);
+      onFilters('transporter', event.target.value);
     },
     [onFilters]
   );
@@ -66,9 +66,9 @@ export default function DriverPayrollTableToolbar({ filters, onFilters, tableDat
       >
         <TextField
           fullWidth
-          value={filters.driver}
-          onChange={handleFilterDriverName}
-          placeholder="Search driver ..."
+          value={filters.transporter}
+          onChange={handleFilterTransporterName}
+          placeholder="Search Transporter ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -145,7 +145,7 @@ export default function DriverPayrollTableToolbar({ filters, onFilters, tableDat
           <MenuItem
             onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Driver-list');
+              exportToExcel(tableData, 'Transporter-list');
             }}
           >
             <Iconify icon="solar:export-bold" />

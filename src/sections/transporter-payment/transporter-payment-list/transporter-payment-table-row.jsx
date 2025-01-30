@@ -22,9 +22,11 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { calculateTransporterPayment } from '../../../utils/utils';
+
 // ----------------------------------------------------------------------
 
-export default function DriverPayrollTableRow({
+export default function TransporterPaymentTableRow({
   row,
   selected,
   onSelectRow,
@@ -32,7 +34,20 @@ export default function DriverPayrollTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, driverId, createdDate, periodStartDate, periodEndDate } = row;
+  const {
+    _id,
+    transporterId,
+    createdDate,
+    periodStartDate,
+    periodEndDate,
+    associatedSubtrips,
+    status,
+  } = row;
+
+  const total = associatedSubtrips.reduce((accumulator, subtrip) => {
+    const { totalTransporterPayment } = calculateTransporterPayment(subtrip);
+    return accumulator + (totalTransporterPayment || 0);
+  }, 0);
 
   const confirm = useBoolean();
 
@@ -52,7 +67,7 @@ export default function DriverPayrollTableRow({
             disableTypography
             primary={
               <Typography variant="body2" noWrap>
-                {driverId?.driverName}
+                {transporterId?.transportName}
               </Typography>
             }
             secondary={
@@ -62,10 +77,18 @@ export default function DriverPayrollTableRow({
                 onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
-                {driverId?.driverCellNo}
+                {transporterId?.cellNo}
               </Link>
             }
           />
+        </TableCell>
+        <TableCell>
+          <Label
+            variant="soft"
+            color={status === 'paid' ? 'success' : status === 'overdue' ? 'error' : 'warning'}
+          >
+            {status}
+          </Label>
         </TableCell>
         <TableCell>
           <ListItemText
@@ -82,7 +105,7 @@ export default function DriverPayrollTableRow({
 
         <TableCell>
           <ListItemText
-            primary={2010}
+            primary={total}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

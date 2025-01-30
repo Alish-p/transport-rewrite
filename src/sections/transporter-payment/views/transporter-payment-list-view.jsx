@@ -22,12 +22,11 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePayrollReceipt } from 'src/redux/slices/driver-payroll';
+import { deletePayment } from 'src/redux/slices/transporter-payment';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -44,15 +43,16 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import DriverPayrollTableRow from '../transporter-payment-list/transporter-payment-table-row';
-import DriverPayrollTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
-import DriverPayrollTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
+import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
+import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
+import TransporterPaymentTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: '_id', label: '#' },
-  { id: 'driver', label: 'Driver' },
+  { id: 'transporter', label: 'Transporter' },
+  { id: 'status', label: 'Status' },
   { id: 'createdDate', label: 'Created Date' },
   { id: 'amount', label: 'Amount' },
   { id: 'duration', label: 'Duration' },
@@ -60,7 +60,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  driver: '',
+  transporter: '',
   subtrip: '',
   fromDate: null,
   endDate: null,
@@ -68,7 +68,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function TransporterPaymentListView({ payrollReceipts }) {
+export function TransporterPaymentListView({ payments }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -82,10 +82,10 @@ export function TransporterPaymentListView({ payrollReceipts }) {
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
-    if (payrollReceipts.length) {
-      setTableData(payrollReceipts);
+    if (payments.length) {
+      setTableData(payments);
     }
-  }, [payrollReceipts]);
+  }, [payments]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -99,7 +99,7 @@ export function TransporterPaymentListView({ payrollReceipts }) {
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
-    !!filters.driver || !!filters.subtrip || (!!filters.fromDate && !!filters.endDate);
+    !!filters.transporter || !!filters.subtrip || (!!filters.fromDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -115,25 +115,18 @@ export function TransporterPaymentListView({ payrollReceipts }) {
   );
 
   const handleDeleteRow = (id) => {
-    dispatch(deletePayrollReceipt(id));
+    dispatch(deletePayment(id));
   };
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.driverPayroll.edit(paramCase(id)));
+    navigate(paths.dashboard.transporterPayment.edit(id));
   };
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.driverPayroll.details(id));
+      router.push(paths.dashboard.transporterPayment.details(id));
     },
     [router]
-  );
-
-  const handleFilterInvoiceStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('invoiceStatus', newValue);
-    },
-    [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {
@@ -144,15 +137,15 @@ export function TransporterPaymentListView({ payrollReceipts }) {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Payslip List"
+          heading="Transporter Payment List"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Driver Salary',
-              href: paths.dashboard.driverPayroll.root,
+              name: 'Transporter Payment',
+              href: paths.dashboard.transporterPayment.root,
             },
             {
               name: 'List',
@@ -161,11 +154,11 @@ export function TransporterPaymentListView({ payrollReceipts }) {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.driverPayroll.new}
+              href={paths.dashboard.transporterPayment.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Payslip
+              New Transport Payment
             </Button>
           }
           sx={{
@@ -175,14 +168,14 @@ export function TransporterPaymentListView({ payrollReceipts }) {
 
         {/* Table Section */}
         <Card>
-          <DriverPayrollTableToolbar
+          <TransporterPaymentTableToolbar
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
           />
 
           {canReset && (
-            <DriverPayrollTableFiltersResult
+            <TransporterPaymentTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -262,7 +255,7 @@ export function TransporterPaymentListView({ payrollReceipts }) {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <DriverPayrollTableRow
+                      <TransporterPaymentTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
@@ -328,7 +321,7 @@ export function TransporterPaymentListView({ payrollReceipts }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { driver, subtrip, invoiceStatus, fromDate, endDate } = filters;
+  const { transporter, subtrip, invoiceStatus, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -340,16 +333,17 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (driver) {
+  if (transporter) {
     inputData = inputData.filter(
       (record) =>
-        record.driverId &&
-        record.driverId.driverName.toLowerCase().indexOf(driver.toLowerCase()) !== -1
+        record.transporterId &&
+        record.transporterId.transportName.toLowerCase().indexOf(transporter.toLowerCase()) !== -1
     );
   }
   if (subtrip) {
     inputData = inputData.filter(
-      (record) => record.subtrips && record.subtrips.some((st) => st._id === subtrip)
+      (record) =>
+        record.associatedSubtrips && record.associatedSubtrips.some((st) => st._id === subtrip)
     );
   }
 

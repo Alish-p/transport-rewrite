@@ -2,6 +2,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { paths } from '../../../routes/paths';
 import TransporterPaymentFormAndPreview from '../transporter-payment-form-and-preview';
 
 export function TransporterPaymentCreateView({ transporterList }) {
@@ -11,7 +12,7 @@ export function TransporterPaymentCreateView({ transporterList }) {
         heading="TPR-XXX"
         links={[
           { name: 'Dashboard', href: '/dashboard' },
-          { name: 'Transporter Payment', href: '/dashboard/transporter-payment' },
+          { name: 'Transporter Payment', href: paths.dashboard.transporterPayment.list },
           { name: 'TPR-XXX' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

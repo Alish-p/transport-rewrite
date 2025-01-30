@@ -225,6 +225,7 @@ export const paths = {
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,
+      list: `${ROOTS.DASHBOARD}/invoice/list`,
       details: (id) => `${ROOTS.DASHBOARD}/invoice/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/invoice/${id}/edit`,
       demo: {
@@ -235,6 +236,7 @@ export const paths = {
     driverPayroll: {
       root: `${ROOTS.DASHBOARD}/driverPayroll`,
       new: `${ROOTS.DASHBOARD}/driverPayroll/new`,
+
       details: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}/edit`,
       demo: {
@@ -246,6 +248,7 @@ export const paths = {
     transporterPayment: {
       root: `${ROOTS.DASHBOARD}/transporterPayment`,
       new: `${ROOTS.DASHBOARD}/transporterPayment/new`,
+      list: `${ROOTS.DASHBOARD}/transporterPayment/list`,
       details: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}/edit`,
       demo: {

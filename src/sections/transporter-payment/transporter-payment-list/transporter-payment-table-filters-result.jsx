@@ -11,15 +11,15 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverPayrollTableFiltersResult({
+export default function TransporterPayrollTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
   ...other
 }) {
-  const handleRemoveDriver = () => {
-    onFilters('driver', '');
+  const handleRemoveTransporter = () => {
+    onFilters('transporter', '');
   };
 
   const handleRemoveSubtrip = () => {
@@ -43,9 +43,9 @@ export default function DriverPayrollTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.driver && (
-          <Block label="Driver">
-            <Chip size="small" label={filters.driver} onDelete={handleRemoveDriver} />
+        {filters.transporter && (
+          <Block label="Transporter">
+            <Chip size="small" label={filters.transporter} onDelete={handleRemoveTransporter} />
           </Block>
         )}
 
