@@ -26,7 +26,7 @@ export function RHFAutocomplete({ name, label, helperText, hiddenLabel, placehol
               helperText={error ? error?.message : helperText}
               inputProps={{
                 ...params.inputProps,
-                autoComplete: 'new-password',
+                autoComplete: 'off',
               }}
             />
           )}
