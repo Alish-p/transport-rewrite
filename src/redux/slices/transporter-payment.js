@@ -89,7 +89,7 @@ export const addPayment = (data) => async (dispatch) => {
   }
 };
 
-export const updateInvoiceStatus = (id, status) => async (dispatch) => {
+export const updatePaymentStatus = (id, status) => async (dispatch) => {
   dispatch(startLoading());
   try {
     const response = await axios.put(`/api/transporter-payments/${id}`, { status });

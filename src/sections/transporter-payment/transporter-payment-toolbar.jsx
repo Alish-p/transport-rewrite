@@ -22,12 +22,12 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 
-import DriverSalaryPDF from './transporter-payment-pdf';
+import TransporterPaymentPdf from './transporter-payment-pdf';
 
 // ----------------------------------------------------------------------
 
 export default function TransporterPaymentToolbar({
-  payslip,
+  transporterPayment,
   currentStatus,
   statusOptions,
   onChangeStatus,
@@ -37,8 +37,8 @@ export default function TransporterPaymentToolbar({
   const view = useBoolean();
 
   const handleEdit = useCallback(() => {
-    router.push(paths.dashboard.driverPayroll.edit(payslip?._id));
-  }, [payslip._id, router]);
+    router.push(paths.dashboard.transporterPayment.edit(transporterPayment?._id));
+  }, [transporterPayment._id, router]);
 
   return (
     <>
@@ -62,8 +62,13 @@ export default function TransporterPaymentToolbar({
           </Tooltip>
 
           <PDFDownloadLink
-            document={<DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />}
-            fileName={payslip._id}
+            document={
+              <TransporterPaymentPdf
+                transporterPayment={transporterPayment}
+                currentStatus={currentStatus}
+              />
+            }
+            fileName={transporterPayment._id}
             style={{ textDecoration: 'none' }}
           >
             {({ loading }) => (
@@ -130,7 +135,10 @@ export default function TransporterPaymentToolbar({
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />
+              <TransporterPaymentPdf
+                transporterPayment={transporterPayment}
+                currentStatus={currentStatus}
+              />
             </PDFViewer>
           </Box>
         </Box>

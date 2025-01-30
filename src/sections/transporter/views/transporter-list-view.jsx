@@ -51,7 +51,7 @@ import TransporterTableFiltersResult from '../transporter-table-filters-result';
 const TABLE_HEAD = [
   { id: 'transportName', name: 'transportName', label: 'Transport Name', type: 'text' },
   { id: 'place', name: 'place', label: 'Place', type: 'text' },
-  { id: 'pumpPhoneNo', name: 'pumpPhoneNo', label: 'Pump Phone Number', type: 'text' },
+  { id: 'cellNo', name: 'cellNo', label: 'Cell Number', type: 'text' },
   { id: 'ownerName', name: 'ownerName', label: 'Owner Name', type: 'text' },
   { id: 'emailId', name: 'emailId', label: 'Email ID', type: 'text' },
   { id: '' },

@@ -1,11 +1,6 @@
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from '../config-global';
 
-/**
- * Calculates the total driver salary from a single subtrip's expenses.
- *
- * @param {Object} subtrip - The subtrip object containing expenses.
- * @returns {number} - The total driver salary for the subtrip.
- */
+// Driver Payment Section
 export const calculateDriverSalary = (subtrip) => {
   if (!subtrip?.expenses || !Array.isArray(subtrip?.expenses)) {
     return 0;
@@ -58,17 +53,11 @@ export const calculatePayslipSummary = (payslip) => {
   };
 };
 
-/**
- * Calculates the total Transporter Payment from a single subtrip's data.
- *
- * @param {Object} subtrip - The subtrip object containing expenses.
- * @returns {number} - The total Transporter Payment for the subtrip.
- */
+// Transporter Payment
 export const calculateTransporterPayment = (subtrip) => {
   if (!subtrip.expenses || !Array.isArray(subtrip.expenses)) {
     return 0;
   }
-
   // Total Income of subtrip
   const rateAfterCommision = subtrip.rate - CONFIG.company.transporterCommissionRate;
   const totalFreightAmount = rateAfterCommision * subtrip.loadingWeight;
@@ -77,20 +66,20 @@ export const calculateTransporterPayment = (subtrip) => {
   const totalExpense = subtrip?.expenses.reduce((acc, expense) => acc + expense.amount, 0);
 
   // transporter Payment
-  return totalFreightAmount - totalExpense;
+  const totalTransporterPayment = totalFreightAmount - totalExpense;
+
+  return {
+    effectiveFreightRate: rateAfterCommision,
+    totalFreightAmount,
+    totalExpense,
+    totalTransporterPayment,
+  };
 };
 
 export const calculateSubtripTotalIncome = (subtrips) =>
   subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0);
 
-/**
- * Get salary and route details based on vehicle type
- *
- * @param {Array} routes - The routes array
- * @param {Object} currentRouteId - The route id
- * @param {String} vehicleType - The vehicle type to fetch details for
- * @returns {Object} - Object containing salary details and common route fields
- */
+// for providing insignts while adding salary expense
 export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleType) {
   if (!routes || !Array.isArray(routes)) {
     throw new Error('Routes must be a valid array.');

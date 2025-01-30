@@ -29,7 +29,7 @@ export default function TransporterTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { transportName, place, pumpPhoneNo, ownerName, emailId } = row;
+  const { transportName, place, cellNo, ownerName, emailId } = row;
 
   const confirm = useBoolean();
 
@@ -76,7 +76,7 @@ export default function TransporterTableRow({
 
         <TableCell>
           <ListItemText
-            primary={pumpPhoneNo}
+            primary={cellNo}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

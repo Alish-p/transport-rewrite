@@ -11,18 +11,18 @@ import { Field } from 'src/components/hook-form';
 
 /** Custom hook to handle fetching logic */
 
-const useFetchFilteredSubtrips = (customerId, fromDate, toDate, dispatch) => {
+const useFetchFilteredSubtrips = (transporterId, fromDate, toDate, dispatch) => {
   const { setValue } = useFormContext();
 
-  const fetchCustomerSubtrips = () => {
-    if (customerId && fromDate && toDate) {
-      dispatch(fetchFilteredSubtrips('customer', customerId, fromDate, toDate));
+  const fetchTransporterSubtrips = () => {
+    if (transporterId && fromDate && toDate) {
+      dispatch(fetchFilteredSubtrips('transporter', transporterId, fromDate, toDate));
 
-      setValue('invoicedSubTrips', []); // Reset selected subtrips
+      setValue('associatedSubtrips', []);
     }
   };
 
-  return { fetchCustomerSubtrips };
+  return { fetchTransporterSubtrips };
 };
 
 /** Reusable Field Wrapper */
@@ -32,14 +32,14 @@ const FieldWrapper = ({ children, ...props }) => (
   </Grid>
 );
 
-/** Customer Dropdown */
-const CustomerDropdown = ({ customersList }) => (
-  <Field.Select name="customerId" label="Customer">
+/** Transporter Dropdown */
+const TransporterDropdown = ({ transportersList }) => (
+  <Field.Select name="transporterId" label="Transporter">
     <MenuItem value="">None</MenuItem>
     <Divider sx={{ borderStyle: 'dashed' }} />
-    {customersList.map((customer) => (
-      <MenuItem key={customer._id} value={customer._id}>
-        {customer.customerName}
+    {transportersList.map((transporter) => (
+      <MenuItem key={transporter._id} value={transporter._id}>
+        {transporter.transportName}
       </MenuItem>
     ))}
   </Field.Select>
@@ -50,7 +50,7 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   filteredSubtrips.length > 0 && (
     <Field.MultiSelect
       checkbox
-      name="invoicedSubTrips"
+      name="associatedSubtrips"
       label="Subtrips"
       options={filteredSubtrips.map((subtrip) => ({
         label: subtrip._id,
@@ -61,14 +61,14 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   );
 
 /** Main Component */
-export default function InvoiceForm({ customersList }) {
+export default function TransporterPaymentForm({ transportersList }) {
   const dispatch = useDispatch();
   const { watch, setValue } = useFormContext();
   const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
-  const { customerId, fromDate, toDate } = watch();
-  const { fetchCustomerSubtrips } = useFetchFilteredSubtrips(
-    customerId,
+  const { transporterId, fromDate, toDate } = watch();
+  const { fetchTransporterSubtrips } = useFetchFilteredSubtrips(
+    transporterId,
     fromDate,
     toDate,
     dispatch
@@ -76,9 +76,9 @@ export default function InvoiceForm({ customersList }) {
 
   // Reset selected subtrips on changes of fields
   useEffect(() => {
-    setValue('invoicedSubTrips', []);
+    setValue('associatedSubtrips', []);
     dispatch(resetFilteredSubtrips());
-  }, [customerId, fromDate, toDate, setValue, dispatch]);
+  }, [transporterId, fromDate, toDate, setValue, dispatch]);
 
   // Reset the filtered subtrips on unmount
   useEffect(
@@ -92,7 +92,7 @@ export default function InvoiceForm({ customersList }) {
     <Card sx={{ p: 3, mb: 3 }}>
       <Grid container spacing={2}>
         <FieldWrapper>
-          <CustomerDropdown customersList={customersList} />
+          <TransporterDropdown transportersList={transportersList} />
         </FieldWrapper>
 
         <FieldWrapper md={2}>
@@ -109,7 +109,7 @@ export default function InvoiceForm({ customersList }) {
             variant="contained"
             fullWidth
             sx={{ height: '100%', width: '50%' }}
-            onClick={fetchCustomerSubtrips}
+            onClick={fetchTransporterSubtrips}
           >
             {'>'}
           </Button>

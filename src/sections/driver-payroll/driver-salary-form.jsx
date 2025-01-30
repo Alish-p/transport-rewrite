@@ -167,7 +167,8 @@ export default function DriverSalaryForm({ driversList }) {
   // Reset selected subtrips on changes of fields
   useEffect(() => {
     setValue('subtripComponents', []);
-  }, [driverId, periodStartDate, periodEndDate, setValue]);
+    dispatch(resetFilteredSubtrips());
+  }, [driverId, periodStartDate, periodEndDate, setValue, dispatch]);
 
   // Reset the filtered subtrips on unmount
   useEffect(

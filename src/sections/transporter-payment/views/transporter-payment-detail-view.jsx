@@ -1,61 +1,65 @@
-import { useState, useCallback } from 'react';
+import { useParams } from 'react-router';
+import { useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { fetchPayment, updatePaymentStatus } from 'src/redux/slices/transporter-payment';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import TransporterPaymentDetails from '../transporter-payment-details';
+import TransporterPaymentPreview from '../transport-payment-preview';
+import TransporterPaymentToolbar from '../transporter-payment-toolbar';
 
-export const INVOICE_STATUS_OPTIONS = [
+export const TRANSPORTER_PAYMENT_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
-  { value: 'draft', label: 'Draft' },
 ];
 
-export function TransporterPaymentDetailView({ transporterPayment, loading }) {
-  const handleChangeStatus = useCallback((event) => {
-    setCurrentStatus(event.target.value);
-  }, []);
+export function TransporterPaymentDetailView() {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const { payment: transporterPayment, isLoading } = useSelector(
+    (state) => state.transporterPayment
+  );
 
-  const {
-    _id,
-    subtrips,
-    transporterId: transporter,
-    status,
-    createdDate,
-  } = transporterPayment || {};
+  useEffect(() => {
+    dispatch(fetchPayment(id));
+  }, [dispatch, id]);
 
-  const [currentStatus, setCurrentStatus] = useState(transporterPayment?.status);
+  const status = transporterPayment?.status;
 
-  if (loading) return <>Loading</>;
+  const handleChangeStatus = useCallback(
+    (event) => {
+      const newStatus = event.target.value;
+
+      dispatch(updatePaymentStatus(id, newStatus));
+    },
+    [dispatch, id]
+  );
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="INV-123"
+        heading={id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Transporter Payment', href: '/dashboard/transporterPayment' },
-          { name: 'PAY-123' },
+          { name: id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {/* {transporterPayment && (
+      {transporterPayment && !isLoading && (
         <TransporterPaymentToolbar
           transporterPayment={transporterPayment}
-          currentStatus={currentStatus || ''}
+          currentStatus={status || ''}
           onChangeStatus={handleChangeStatus}
-          statusOptions={INVOICE_STATUS_OPTIONS}
+          statusOptions={TRANSPORTER_PAYMENT_OPTIONS}
         />
-      )} */}
+      )}
 
-      <TransporterPaymentDetails
-        paymentNo={_id}
-        selectedSubtripsData={subtrips?.map((st) => st.subtripId)}
-        transporter={transporter}
-        status={currentStatus}
-        createdDate={createdDate}
-      />
+      {transporterPayment && !isLoading && (
+        <TransporterPaymentPreview transporterPayment={transporterPayment} />
+      )}
     </DashboardContent>
   );
 }

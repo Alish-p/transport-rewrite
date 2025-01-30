@@ -46,7 +46,7 @@ export const NewTransporterSchema = zod.object({
     .min(6, { message: 'Pin No must be exactly 6 digits' })
     .max(6, { message: 'Pin No must be exactly 6 digits' })
     .regex(/^[0-9]{6}$/, { message: 'Pin No must be a number' }),
-  pumpPhoneNo: schemaHelper.phoneNumber({
+  cellNo: schemaHelper.phoneNumber({
     message: {
       required_error: 'Guarantor Mobile No is required',
       invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
@@ -104,7 +104,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
       address: currentTransporter?.address || '',
       place: currentTransporter?.place || '',
       pinNo: currentTransporter?.pinNo || '',
-      pumpPhoneNo: currentTransporter?.pumpPhoneNo || '',
+      cellNo: currentTransporter?.cellNo || '',
       ownerName: currentTransporter?.ownerName || '',
       ownerPhoneNo: currentTransporter?.ownerPhoneNo || '',
       emailId: currentTransporter?.emailId || '',
@@ -178,8 +178,8 @@ export default function TransporterForm({ currentTransporter, bankList }) {
           <Field.Text name="place" label="Place" />
           <Field.Text name="pinNo" label="Pin No" />
           <Field.Text
-            name="pumpPhoneNo"
-            label="Pump Phone Number"
+            name="cellNo"
+            label="Phone Number"
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
