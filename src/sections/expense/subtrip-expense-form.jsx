@@ -153,23 +153,15 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
   const onSubmit = (data) => {
     const transformedData = {
       ...data,
-      pumpCd: data.pumpCd?.value || null, // Transform pumpCd to save only the value
+      expenseCategory: 'subtrip',
+      pumpCd: data.pumpCd?.value || null,
+      subtripId: currentExpense ? currentExpense.subtripId : currentSubtrip?._id,
     };
 
     if (!currentExpense) {
-      const formData = {
-        ...transformedData,
-        expenseCategory: 'subtrip',
-        subtripId: currentSubtrip?._id,
-      };
-      dispatch(addExpense(formData));
+      dispatch(addExpense(transformedData));
     } else {
-      const formData = {
-        ...transformedData,
-        expenseCategory: 'subtrip',
-        subtripId: currentExpense?.subtripId,
-      };
-      dispatch(updateExpense(currentExpense._id, formData));
+      dispatch(updateExpense(currentExpense._id, transformedData));
     }
     toast.success(!currentExpense ? 'Expense added successfully!' : 'Expense edited successfully!');
     navigate(paths.dashboard.expense.list);

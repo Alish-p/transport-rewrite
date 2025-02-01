@@ -43,7 +43,12 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ExpenseEditView expense={currentExpense} pumps={pumps} />
+      <ExpenseEditView
+        expense={currentExpense}
+        pumps={pumps}
+        vehicles={vehicles}
+        subtrips={subtrips}
+      />
     </>
   );
 }

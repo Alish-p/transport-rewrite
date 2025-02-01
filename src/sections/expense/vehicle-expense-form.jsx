@@ -19,14 +19,13 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { vehicleExpenseTypes as expenseTypes } from './expense-config';
 
 export const ExpenseSchema = zod.object({
-  subtripId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Subtrip is required' }),
   vehicleId: zod
-    .any()
+    .object({
+      label: zod.string(),
+      value: zod.string(),
+    })
     .nullable()
-    .refine((val) => val !== null, { message: 'Vehicle ID is required' }),
+    .optional(),
   date: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
   expenseType: zod.string().min(1, { message: 'Expense Type is required' }),
 
@@ -34,9 +33,7 @@ export const ExpenseSchema = zod.object({
     .number({ required_error: 'Amount is required' })
     .min(0, { message: 'Amount must be at least 0' }),
   slipNo: zod.string().min(1, { message: 'Slip No is required' }),
-  pumpCd: zod.string().nullable().optional(),
   remarks: zod.string().optional(),
-  dieselLtr: zod.number().min(0).optional(),
   paidThrough: zod.string().min(1, { message: 'Paid Through is required' }),
   authorisedBy: zod.string().min(1, { message: 'Authorised By is required' }),
 });
@@ -47,14 +44,14 @@ export default function ExpenseForm({ currentExpense, vehicles = [] }) {
 
   const defaultValues = useMemo(
     () => ({
-      vehicleId: currentExpense?.vehicleId || '',
+      vehicleId: currentExpense?.vehicleId
+        ? { label: currentExpense?.vehicleId?.vehicleNo, value: currentExpense?.vehicleId?._id }
+        : null,
       date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
       expenseType: currentExpense?.expenseType || '',
       amount: currentExpense?.amount || 0,
       slipNo: currentExpense?.slipNo || '',
-      pumpCd: currentExpense?.pumpCd || null,
       remarks: currentExpense?.remarks || '',
-      dieselLtr: currentExpense?.dieselLtr || 0,
       paidThrough: currentExpense?.paidThrough || '',
       authorisedBy: currentExpense?.authorisedBy || '',
     }),
@@ -70,35 +67,36 @@ export default function ExpenseForm({ currentExpense, vehicles = [] }) {
   const {
     reset,
     watch,
-
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   const onSubmit = async (data) => {
     try {
-      const formData = {
+      const transformedData = {
         ...data,
         expenseCategory: 'vehicle',
-        subtripId: data?.subtripId?.value,
-        vehicleId: data.vehicleId?._id,
+        vehicleId: data.vehicleId?.value || null,
       };
+
       if (!currentExpense) {
-        await dispatch(addExpense(formData));
+        await dispatch(addExpense(transformedData));
       } else {
-        await dispatch(updateExpense(currentExpense._id, formData));
+        await dispatch(updateExpense(currentExpense._id, transformedData));
       }
       reset();
       toast.success(
-        !currentExpense ? 'Expense added successfully!' : 'Expense edited successfully!'
+        !currentExpense
+          ? 'Vehicle Expense added successfully!'
+          : 'Vehicle Expense edited successfully!'
       );
       navigate(paths.dashboard.expense.list);
     } catch (error) {
       console.error(error);
     }
   };
+  console.log({ data: watch() });
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3} sx={{ pt: 5 }}>
@@ -137,12 +135,6 @@ export default function ExpenseForm({ currentExpense, vehicles = [] }) {
 
               <Field.Text name="amount" label="Amount" type="number" />
               <Field.Text name="slipNo" label="Slip No" />
-              {values.expenseType === 'diesel' && (
-                <>
-                  <Field.Text name="pumpCd" label="Pump Code" />
-                  <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
-                </>
-              )}
               <Field.Text name="remarks" label="Remarks" />
               <Field.Text name="paidThrough" label="Paid Through" />
               <Field.Text name="authorisedBy" label="Authorised By" />

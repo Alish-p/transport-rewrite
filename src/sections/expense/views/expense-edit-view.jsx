@@ -1,18 +1,23 @@
+import { Card, CardHeader, CardContent } from '@mui/material';
+
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import ExpenseCoreForm from '../subtrip-expense-form';
+import SubtripExpenseForm from '../subtrip-expense-form';
+import VehicleExpenseForm from '../vehicle-expense-form';
 
 // ----------------------------------------------------------------------
 
-export function ExpenseEditView({ expense, subtrip, vehicles, pumps }) {
+export function ExpenseEditView({ expense, vehicles, pumps }) {
+  const isVehicleExpense = expense?.expenseCategory === 'vehicle';
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Edit Expense"
+        heading={`Edit ${isVehicleExpense ? 'Vehicle Expense' : 'Subtrip Expense'}`}
         links={[
           {
             name: 'Dashboard',
@@ -26,8 +31,22 @@ export function ExpenseEditView({ expense, subtrip, vehicles, pumps }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-
-      <ExpenseCoreForm currentExpense={expense} pumps={pumps} />
+      <Card sx={{}}>
+        <CardHeader
+          title={
+            isVehicleExpense
+              ? `Vehicle Detail - ${expense?.vehicleId?.vehicleNo}`
+              : `Subtrip Detail - ${expense?.subtripId}`
+          }
+        />
+        <CardContent sx={{ p: 3, mb: 5 }}>
+          {isVehicleExpense ? (
+            <VehicleExpenseForm currentExpense={expense} vehicles={vehicles} />
+          ) : (
+            <SubtripExpenseForm currentExpense={expense} pumps={pumps} />
+          )}
+        </CardContent>
+      </Card>
     </DashboardContent>
   );
 }
