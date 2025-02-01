@@ -1,57 +1,89 @@
-// ------------------------------------------------------------------------
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
+import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
 
+// Assuming you have a pump slice
 import { paths } from 'src/routes/paths';
 
-import { dispatch } from 'src/redux/store';
 import { addExpense, updateExpense } from 'src/redux/slices/expense';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { subtripExpenseTypes as expenseTypes } from './expense-config';
+import { EXPENSE_TYPES } from '../../constant'; // Or your config file path
+import ExpenseInsights from './expense-insights';
 
-export const ExpenseSchema = zod.object({
-  subtripId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Subtrip is required' }),
-  vehicleId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Vehicle ID is required' }),
-  date: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
-  expenseType: zod.string().min(1, { message: 'Expense Type is required' }),
+// Validation Schema (Combine and adapt schemas from both forms)
+const validationSchema = zod
+  .object({
+    date: schemaHelper.date({ message: { required_error: 'Date is required!' } }),
+    expenseType: zod.string({ required_error: 'Expense Type is required' }),
+    amount: zod.number({ required_error: 'Amount is required' }),
+    slipNo: zod.string().optional(),
+    pumpCd: zod
+      .object({
+        label: zod.string(),
+        value: zod.string(),
+      })
+      .nullable()
+      .optional(),
+    dieselLtr: zod.number().optional(),
+    dieselPrice: zod.number().optional(),
+    remarks: zod.string().optional(),
+    paidThrough: zod.string().optional(),
+    authorisedBy: zod.string().optional(),
+    fixedSalary: zod.number().optional(),
+    variableSalary: zod.number().optional(),
+    performanceSalary: zod.number().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.expenseType === 'diesel') {
+      if (!data.pumpCd) {
+        ctx.addIssue({ path: ['pumpCd'], message: 'Pump Code is required for Diesel expenses' });
+      }
+      if (!data.dieselLtr || data.dieselLtr <= 0) {
+        ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive Number' });
+      }
+      if (!data.dieselPrice || data.dieselPrice <= 0) {
+        ctx.addIssue({ path: ['dieselPrice'], message: 'Per Litre Diesel Price must be positive' });
+      }
+    }
 
-  amount: zod
-    .number({ required_error: 'Amount is required' })
-    .min(0, { message: 'Amount must be at least 0' }),
-  slipNo: zod.string().min(1, { message: 'Slip No is required' }),
-  pumpCd: zod.string().nullable().optional(),
-  remarks: zod.string().optional(),
-  dieselLtr: zod.number().min(0).optional(),
-  paidThrough: zod.string().min(1, { message: 'Paid Through is required' }),
-  authorisedBy: zod.string().min(1, { message: 'Authorised By is required' }),
-});
-// ------------------------------------------------------------------------
+    if (data.expenseType === 'driver-salary') {
+      if (data.fixedSalary == null || data.fixedSalary < 0) {
+        ctx.addIssue({
+          path: ['fixedSalary'],
+          message: 'Fixed Salary must be a non-negative number',
+        });
+      }
+      if (data.variableSalary == null || data.variableSalary < 0) {
+        ctx.addIssue({
+          path: ['variableSalary'],
+          message: 'Variable Salary must be a non-negative number',
+        });
+      }
+      if (data.performanceSalary == null || data.performanceSalary < 0) {
+        ctx.addIssue({
+          path: ['performanceSalary'],
+          message: 'Performance Salary must be a non-negative number',
+        });
+      }
+    }
+  });
 
-export default function ExpenseForm({ currentExpense, subtrips = [], pumps = [] }) {
+function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
-      subtripId: currentExpense?.subtripId
-        ? { label: currentExpense?.subtripId, value: currentExpense?.subtripId }
-        : null,
-      vehicleId: currentExpense?.vehicleId
-        ? { label: currentExpense?.vehicleId?.vehicleNo, value: currentExpense?.vehicleId?._id }
+      subtripId: currentSubtrip
+        ? { label: currentSubtrip?.subtripId, value: currentSubtrip?.subtripId }
         : null,
       date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
       expenseType: currentExpense?.expenseType || '',
@@ -62,121 +94,170 @@ export default function ExpenseForm({ currentExpense, subtrips = [], pumps = [] 
         : null,
       remarks: currentExpense?.remarks || '',
       dieselLtr: currentExpense?.dieselLtr || 0,
+      dieselPrice: currentExpense?.dieselPrice || 0,
       paidThrough: currentExpense?.paidThrough || '',
       authorisedBy: currentExpense?.authorisedBy || '',
+      fixedSalary: currentExpense?.fixedSalary || 0,
+      variableSalary: currentExpense?.variableSalary || 0,
+      performanceSalary: currentExpense?.performanceSalary || 0,
     }),
-    [currentExpense]
+    [currentExpense, currentSubtrip]
   );
 
   const methods = useForm({
-    mode: 'all',
-    resolver: zodResolver(ExpenseSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues,
   });
 
   const {
     reset,
     watch,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { errors },
   } = methods;
 
-  const values = watch();
+  const { expenseType, fixedSalary, variableSalary, performanceSalary, dieselLtr, dieselPrice } =
+    watch();
 
+  // Reset Form
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSubmit = async (data) => {
-    try {
-      const formData = {
-        ...data,
-        expenseCategory: 'subtrip',
-        subtripId: data?.subtripId?.value,
-        vehicleId: data.vehicleId?._id,
-      };
-      if (!currentExpense) {
-        await dispatch(addExpense(formData));
-      } else {
-        await dispatch(updateExpense(currentExpense._id, formData));
-      }
-      reset();
-      toast.success(
-        !currentExpense ? 'Expense added successfully!' : 'Expense edited successfully!'
-      );
-      navigate(paths.dashboard.expense.list);
-    } catch (error) {
-      console.error(error);
+  // Dynamic Calculations (as in AddExpenseDialog)
+  useEffect(() => {
+    if (expenseType === 'driver-salary') {
+      const totalSalary =
+        (Number(fixedSalary) || 0) +
+        (Number(variableSalary) || 0) +
+        (Number(performanceSalary) || 0);
+      setValue('amount', totalSalary, { shouldValidate: true });
     }
+
+    if (expenseType === 'diesel') {
+      const totalAmount = (Number(dieselLtr) || 0) * (Number(dieselPrice) || 0);
+      setValue('amount', totalAmount, { shouldValidate: true });
+    }
+  }, [
+    expenseType,
+    fixedSalary,
+    variableSalary,
+    performanceSalary,
+    dieselLtr,
+    dieselPrice,
+    setValue,
+  ]);
+
+  // Handlers for submit and cancel
+  const onSubmit = (data) => {
+    const transformedData = {
+      ...data,
+      pumpCd: data.pumpCd?.value || null, // Transform pumpCd to save only the value
+    };
+
+    if (!currentExpense) {
+      const formData = {
+        ...transformedData,
+        expenseCategory: 'subtrip',
+        subtripId: currentSubtrip?._id,
+      };
+      dispatch(addExpense(formData));
+    } else {
+      const formData = {
+        ...transformedData,
+        expenseCategory: 'subtrip',
+        subtripId: currentExpense?.subtripId,
+      };
+      dispatch(updateExpense(currentExpense._id, formData));
+    }
+    toast.success(!currentExpense ? 'Expense added successfully!' : 'Expense edited successfully!');
+    navigate(paths.dashboard.expense.list);
   };
+
+  console.log({ data: watch(), errors });
+
   return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3} sx={{ pt: 5 }}>
-        <Grid item xs={12} md={3}>
-          <Box sx={{ pt: 2, pb: 5, px: 3 }}>
-            <Typography variant="h6" sx={{ color: 'text.primary' }}>
-              Expense Details
-            </Typography>
-            <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 1 }}>
-              Please provide the details of the Expense.
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
-            <Box rowGap={3} columnGap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
+    <>
+      <ExpenseInsights subtrip={currentSubtrip} expenseType={expenseType} />
+
+      <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <Box
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+          rowGap={3}
+          columnGap={2}
+        >
+          <Field.DatePicker name="date" label="Date" />
+
+          <Field.Select name="expenseType" label="Expense Type">
+            <MenuItem value="">None</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            {EXPENSE_TYPES.map((type) => (
+              <MenuItem key={type} value={type}>
+                {type.replace(/-/g, ' ')}
+              </MenuItem>
+            ))}
+          </Field.Select>
+
+          {expenseType === 'diesel' && (
+            <>
               <Field.Autocomplete
-                name="subtripId"
-                label="Subtrip"
-                options={subtrips.map((c) => ({
-                  label: `${c._id} - ${c?.routeCd?.routeName} (${c?.loadingPoint} to ${c?.unloadingPoint})`,
-                  value: c._id,
+                name="pumpCd"
+                label="Pump"
+                options={pumps.map((p) => ({
+                  label: `${p.pumpName}`,
+                  value: p._id,
                 }))}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
+              <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
+              <Field.Text name="dieselPrice" label="Per Litre Diesel Price" type="number" />
+            </>
+          )}
 
-              <Field.DatePicker name="date" label="Date" />
-              <Field.Select name="expenseType" label="Expense Type">
-                <MenuItem value="">None</MenuItem>
-                <Divider sx={{ borderStyle: 'dashed' }} />
-                {expenseTypes.map(({ value, label }) => (
-                  <MenuItem key={value} value={value}>
-                    {label}
-                  </MenuItem>
-                ))}
-              </Field.Select>
+          {expenseType === 'driver-salary' && (
+            <>
+              <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
+              <Field.Text
+                name="variableSalary"
+                label="Variable Salary"
+                type="number"
+                placeholder="0"
+              />
+              <Field.Text
+                name="performanceSalary"
+                label="Performance Salary"
+                type="number"
+                placeholder="0"
+              />
+            </>
+          )}
 
-              <Field.Text name="amount" label="Amount" type="number" />
-              <Field.Text name="slipNo" label="Slip No" />
-              {values.expenseType === 'diesel' && (
-                <>
-                  <Field.Autocomplete
-                    name="pumpCd"
-                    label="Pump"
-                    options={pumps.map((p) => ({
-                      label: `${p.pumpName}`,
-                      value: p._id,
-                    }))}
-                    getOptionLabel={(option) => option.label}
-                    isOptionEqualToValue={(option, value) => option.value === value.value}
-                  />
-                  <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
-                </>
-              )}
-              <Field.Text name="remarks" label="Remarks" />
-              <Field.Text name="paidThrough" label="Paid Through" />
-              <Field.Text name="authorisedBy" label="Authorised By" />
-            </Box>
+          <Field.Text
+            name="amount"
+            label="Amount"
+            type="number"
+            disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
+          />
+          <Field.Text name="slipNo" label="Slip No" />
+          <Field.Text name="remarks" label="Remarks" />
+          <Field.Text name="paidThrough" label="Paid Through" />
+          <Field.Text name="authorisedBy" label="Authorised By" />
+        </Box>
+        <Stack sx={{ mt: 2 }} direction="row" spacing={2}>
+          <Button color="inherit" variant="outlined" onClick={reset}>
+            Reset
+          </Button>
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentExpense ? 'Create Expense' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
-        </Grid>
-      </Grid>
-    </Form>
+          <Button type="submit" variant="contained">
+            Add Expense
+          </Button>
+        </Stack>
+      </Form>
+    </>
   );
 }
+
+export default ExpenseCoreForm;

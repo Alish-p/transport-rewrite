@@ -46,10 +46,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import ExpenseTableRow from '../expense-table-row';
-import ExpenseAnalytic from '../widgets/expense-analytic';
-import ExpenseTableToolbar from '../expense-table-toolbar';
-import ExpenseTableFiltersResult from '../expense-table-filters-result';
+import ExpenseAnalytic from '../expense-list/expense-analytic';
+import ExpenseTableRow from '../expense-list/expense-table-row';
+import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
+import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
 
 // ----------------------------------------------------------------------
 

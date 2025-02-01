@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Dialog, Button, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 import { fetchPumps } from '../../redux/slices/pump';
-import ExpenseCoreForm from '../expense/expense-core-form';
+import ExpenseCoreForm from '../expense/subtrip-expense-form';
 
 export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
   const { pumps } = useSelector((state) => state.pump);

@@ -8,8 +8,8 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import ExpenseCoreForm from '../expense-core-form';
 import SubtripsSelector from '../subtrips-selector';
+import ExpenseCoreForm from '../subtrip-expense-form';
 
 export function SubtripExpenseCreateView({ subtrips, pumps }) {
   const [currentSubtrip, setCurrentSubtrip] = useState({
