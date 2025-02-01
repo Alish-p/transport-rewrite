@@ -221,8 +221,6 @@ export function SubtripDetailView({ subtrip, loading }) {
         showDialog={showExpenseDialog}
         setShowDialog={setShowExpenseDialog}
         subtripData={subtrip}
-        routeInfo={subtrip?.routeCd}
-        vehicleInfo={subtrip?.tripId?.vehicleId}
       />
     </>
   );

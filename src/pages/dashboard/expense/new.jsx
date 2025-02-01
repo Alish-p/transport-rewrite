@@ -8,6 +8,8 @@ import { fetchSubtrips } from 'src/redux/slices/subtrip';
 
 import { SubtripExpenseCreateView } from 'src/sections/expense/views';
 
+import { fetchPumps } from '../../../redux/slices/pump';
+
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Create a new Expense | Dashboard - ${CONFIG.site.name}` };
@@ -17,9 +19,11 @@ export default function Page() {
 
   useEffect(() => {
     dispatch(fetchSubtrips());
+    dispatch(fetchPumps());
   }, [dispatch]);
 
   const { subtrips } = useSelector((state) => state.subtrip);
+  const { pumps } = useSelector((state) => state.pump);
 
   return (
     <>
@@ -27,7 +31,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripExpenseCreateView subtrips={subtrips} />
+      <SubtripExpenseCreateView subtrips={subtrips} pumps={pumps} />
     </>
   );
 }

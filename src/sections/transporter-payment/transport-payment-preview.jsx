@@ -100,7 +100,7 @@ function RenderDateInfo({ createdDate }) {
 function RenderTable({ transporterPayment }) {
   const totalAmount = calculateTotal(transporterPayment?.associatedSubtrips);
   return (
-    <TableContainer sx={{ overflow: 'unset', mt: 4 }}>
+    <TableContainer sx={{ overflow: 'scroll', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
         <TableHead>
           <TableRow>

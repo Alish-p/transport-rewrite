@@ -4,11 +4,11 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import ExpenseForm from '../subtrip-expense-form';
+import ExpenseCoreForm from '../expense-core-form';
 
 // ----------------------------------------------------------------------
 
-export function ExpenseEditView({ expense, subtrips, vehicles, pumps }) {
+export function ExpenseEditView({ expense, subtrip, vehicles, pumps }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function ExpenseEditView({ expense, subtrips, vehicles, pumps }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseForm currentExpense={expense} subtrips={subtrips} vehicles={vehicles} pumps={pumps} />
+      <ExpenseCoreForm currentExpense={expense} pumps={pumps} />
     </DashboardContent>
   );
 }

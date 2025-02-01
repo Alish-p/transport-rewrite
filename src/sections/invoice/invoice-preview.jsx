@@ -100,7 +100,7 @@ function RenderDateInfo({ createdDate }) {
 function RenderTable({ invoice }) {
   const totalAmount = calculateTotal(invoice?.invoicedSubTrips);
   return (
-    <TableContainer sx={{ overflow: 'unset', mt: 4 }}>
+    <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
         <TableHead>
           <TableRow>

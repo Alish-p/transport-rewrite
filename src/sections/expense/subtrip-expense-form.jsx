@@ -42,7 +42,7 @@ export const ExpenseSchema = zod.object({
 });
 // ------------------------------------------------------------------------
 
-export default function ExpenseForm({ currentExpense, subtrips = [], vehicles = [], pumps = [] }) {
+export default function ExpenseForm({ currentExpense, subtrips = [], pumps = [] }) {
   const navigate = useNavigate();
 
   const defaultValues = useMemo(
