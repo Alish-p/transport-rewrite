@@ -5,6 +5,8 @@ import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+// @mui
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // components
@@ -18,27 +20,26 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function DieselPriceTableToolbar({ filters, onFilters, tableData, pumpsList }) {
+export default function DieselPriceTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
 
-  const handleFilterPump = useCallback(
+  const handleFilterPumpName = useCallback(
     (event) => {
-      console.log({ event });
       onFilters('pump', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterStartDate = useCallback(
-    (event) => {
-      onFilters('startDate', event.target.value);
+  const handleFilterFromDate = useCallback(
+    (newValue) => {
+      onFilters('fromDate', newValue);
     },
     [onFilters]
   );
 
   const handleFilterEndDate = useCallback(
-    (event) => {
-      onFilters('endDate', event.target.value);
+    (newValue) => {
+      onFilters('endDate', newValue);
     },
     [onFilters]
   );
@@ -58,24 +59,23 @@ export default function DieselPriceTableToolbar({ filters, onFilters, tableData,
         }}
       >
         <TextField
-          select
-          name="pump"
-          label="Pump"
-          value={filters.pump}
-          onChange={handleFilterPump}
           fullWidth
-        >
-          {pumpsList?.map((p) => (
-            <MenuItem key={p._id} value={p._id}>
-              {p.pumpName}
-            </MenuItem>
-          ))}
-        </TextField>
+          value={filters.pump}
+          onChange={handleFilterPumpName}
+          placeholder="Search pump ..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
 
         <DatePicker
           label="Start date"
-          value={filters.startDate}
-          onChange={handleFilterStartDate}
+          value={filters.fromDate}
+          onChange={handleFilterFromDate}
           slotProps={{ textField: { fullWidth: true } }}
           sx={{
             maxWidth: { md: 180 },
@@ -83,7 +83,7 @@ export default function DieselPriceTableToolbar({ filters, onFilters, tableData,
         />
 
         <DatePicker
-          label="End Date"
+          label="End date"
           value={filters.endDate}
           onChange={handleFilterEndDate}
           slotProps={{ textField: { fullWidth: true } }}
@@ -125,7 +125,7 @@ export default function DieselPriceTableToolbar({ filters, onFilters, tableData,
           <MenuItem
             onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Diesel-Prices-list');
+              exportToExcel(tableData, 'DieselPrice-list');
             }}
           >
             <Iconify icon="solar:export-bold" />

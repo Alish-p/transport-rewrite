@@ -25,7 +25,7 @@ export function DieselPriceEditView({ dieselPrice, pumpsList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DieselPriceForm isEdit currentDieselPrice={dieselPrice} pumpsList={pumpsList} />
+      <DieselPriceForm currentDieselPrice={dieselPrice} pumpsList={pumpsList} />
     </DashboardContent>
   );
 }

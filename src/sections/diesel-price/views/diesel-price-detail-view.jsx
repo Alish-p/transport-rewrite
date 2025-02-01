@@ -9,6 +9,8 @@ import { Button } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fDate } from 'src/utils/format-time';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -22,12 +24,13 @@ export function DieselPriceDetailView({ dieselPrice }) {
     setTabValue(newValue);
   };
 
-  const { price, date, pumpName, location } = dieselPrice || {};
+  const { price, startDate, endDate, pump } = dieselPrice || {};
 
   const detailsMarkdown = `
 [](/)
 **Price:** ${price}  
-**Date:** ${new Date(date).toLocaleDateString()}  
+**Valid From Date:** ${fDate(startDate)}  
+**Valid Till Date:** ${fDate(endDate)}  
 
 ---
 
@@ -35,8 +38,8 @@ export function DieselPriceDetailView({ dieselPrice }) {
 
 | Attribute            | Details                  |
 | :------------------- | :----------------------- |
-| **Pump Name**        | ${pumpName}              |
-| **Location**         | ${location}              |
+| **Pump Name**        | ${pump?.pumpName}              |
+| **Location**         | ${pump?.address}              |
 
 `;
 
@@ -47,7 +50,7 @@ export function DieselPriceDetailView({ dieselPrice }) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Diesel Prices List', href: paths.dashboard.dieselPrice.root },
-          { name: `${pumpName}` },
+          { name: `${pump?.pumpName}` },
         ]}
         sx={{ my: { xs: 3, md: 5 } }}
         action={

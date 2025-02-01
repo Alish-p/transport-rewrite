@@ -176,10 +176,10 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
   }, [expenseType, pumpCd, setValue, dieselPrices]);
 
   useEffect(() => {
-    if (expenseType === 'diesel') {
-      dispatch(fetchDieselPrices());
+    if (expenseType === 'diesel' && pumpCd) {
+      dispatch(fetchDieselPrices({ pump: pumpCd?.value }));
     }
-  }, [expenseType, dispatch]);
+  }, [expenseType, pumpCd, dispatch]);
 
   // Handlers for submit and cancel
   const onSubmit = (data) => {

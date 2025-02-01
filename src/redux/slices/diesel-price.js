@@ -69,10 +69,17 @@ export const {
 
 export default dieselPriceSlice.reducer;
 
-export const fetchDieselPrices = () => async (dispatch) => {
+export const fetchDieselPrices = (filters) => async (dispatch) => {
   dispatch(startLoading());
   try {
-    const response = await axios.get('/api/diesel-prices');
+    const { pump, startDate, endDate } = filters || {};
+    let query = '/api/diesel-prices?';
+
+    if (pump) query += `pump=${pump}&`;
+    if (startDate) query += `startDate=${startDate}&`;
+    if (endDate) query += `endDate=${endDate}&`;
+
+    const response = await axios.get(query);
     dispatch(getDieselPricesSuccess(response.data));
   } catch (error) {
     dispatch(hasError(error));

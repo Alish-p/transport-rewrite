@@ -59,12 +59,9 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
 
   const {
     reset,
-    watch,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
-
-  const values = watch();
 
   const onSubmit = async (data) => {
     const transformedData = {
@@ -110,7 +107,7 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
               <Field.Autocomplete
                 name="pump"
                 label="Pump"
-                options={pumpsList.map((p) => ({
+                options={pumpsList?.map((p) => ({
                   label: p.pumpName,
                   value: p._id,
                 }))}

@@ -4,13 +4,13 @@ import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { CONFIG } from 'src/config-global';
 import { useDispatch } from 'src/redux/store';
-import { fetchDieselPrices } from 'src/redux/slices/diesel-price';
+import { fetchDieselPrice } from 'src/redux/slices/diesel-price';
 
 import { DieselPriceEditView } from 'src/sections/diesel-price/views';
+
+import { fetchPumps } from '../../../redux/slices/pump';
 
 // ----------------------------------------------------------------------
 
@@ -19,15 +19,15 @@ const metadata = { title: `Diesel Price edit | Dashboard - ${CONFIG.site.name}` 
 export default function Page() {
   const { id = '' } = useParams();
 
-  const currentDieselPrice = useSelector((state) =>
-    state.dieselPrice.dieselPrices.find((price) => paramCase(price._id) === id)
-  );
+  const { dieselPrice } = useSelector((state) => state.dieselPrice);
+  const { pumps } = useSelector((state) => state.pump);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchDieselPrices());
-  }, [dispatch]);
+    dispatch(fetchDieselPrice(id));
+    dispatch(fetchPumps());
+  }, [dispatch, id]);
 
   return (
     <>
@@ -35,7 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DieselPriceEditView dieselPrice={currentDieselPrice} />
+      <DieselPriceEditView dieselPrice={dieselPrice} pumpsList={pumps} />
     </>
   );
 }

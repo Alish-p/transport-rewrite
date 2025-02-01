@@ -7,6 +7,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
+
+import { fDateRangeShortLabel } from '../../utils/format-time';
 // types
 
 // ----------------------------------------------------------------------
@@ -18,25 +20,16 @@ export default function PumpTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveTransporterName = () => {
-    onFilters('pumpName', '');
-  };
-
-  const handleRemovePlaceName = () => {
-    onFilters('placeName', '');
-  };
-
   const handleRemovePump = () => {
     onFilters('pump', null);
   };
 
-  const handleRemoveStartDate = () => {
-    onFilters('startDate', '');
+  const handleRemoveDate = () => {
+    onFilters('fromDate', null);
+    onFilters('endDate', null);
   };
 
-  const handleRemoveEndDate = () => {
-    onFilters('endDate', '');
-  };
+  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -48,33 +41,15 @@ export default function PumpTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.pumpName && (
-          <Block label="Pump Name :">
-            <Chip size="small" label={filters.pumpName} onDelete={handleRemoveTransporterName} />
-          </Block>
-        )}
-
-        {filters.placeName && (
-          <Block label="place :">
-            <Chip size="small" label={filters.placeName} onDelete={handleRemovePlaceName} />
-          </Block>
-        )}
-
         {filters.pump && (
           <Block label="Pump :">
-            <Chip size="small" label={filters.pump.label} onDelete={handleRemovePump} />
+            <Chip size="small" label={filters.pump} onDelete={handleRemovePump} />
           </Block>
         )}
 
-        {filters.startDate && (
-          <Block label="Start Date :">
-            <Chip size="small" label={filters.startDate} onDelete={handleRemoveStartDate} />
-          </Block>
-        )}
-
-        {filters.endDate && (
-          <Block label="End Date :">
-            <Chip size="small" label={filters.endDate} onDelete={handleRemoveEndDate} />
+        {filters.fromDate && filters.endDate && (
+          <Block label="Date:">
+            <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>
         )}
 

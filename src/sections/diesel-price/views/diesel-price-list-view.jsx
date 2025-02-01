@@ -94,7 +94,7 @@ export function DieselPriceListView({ pumpsList }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.pump || !!filters.startDate || !!filters.endDate;
+  const canReset = !!filters.pump || (!!filters.fromDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -319,9 +319,9 @@ export function DieselPriceListView({ pumpsList }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { pump, startDate, endDate } = filters;
+  const { pump, fromDate, endDate } = filters;
   console.log('filters', filters);
-  const dateError = fIsAfter(startDate, endDate);
+  const dateError = fIsAfter(fromDate, endDate);
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -334,15 +334,16 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (pump) {
     inputData = inputData.filter(
-      (record) => record.pump && record.pump._id.indexOf(pump?.toLowerCase()) !== -1
+      (record) =>
+        record.pump && record.pump.pumpName.toLowerCase().indexOf(pump.toLowerCase()) !== -1
     );
   }
 
   if (!dateError) {
-    if (startDate && endDate) {
+    if (fromDate && endDate) {
       inputData = inputData.filter(
         (record) =>
-          fTimestamp(record.startDate) >= fTimestamp(startDate) &&
+          fTimestamp(record.startDate) >= fTimestamp(fromDate) &&
           fTimestamp(record.startDate) <= fTimestamp(endDate)
       );
     }
