@@ -1,9 +1,9 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
 
@@ -17,6 +17,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { EXPENSE_TYPES } from '../../constant'; // Or your config file path
 import ExpenseInsights from './expense-insights';
+import { fetchDieselPrices } from '../../redux/slices/diesel-price';
 
 // Validation Schema (Combine and adapt schemas from both forms)
 const validationSchema = zod
@@ -80,6 +81,8 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const dieselPrices = useSelector((state) => state.dieselPrice.dieselPrices);
+
   const defaultValues = useMemo(
     () => ({
       subtripId: currentSubtrip
@@ -117,8 +120,15 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     formState: { errors },
   } = methods;
 
-  const { expenseType, fixedSalary, variableSalary, performanceSalary, dieselLtr, dieselPrice } =
-    watch();
+  const {
+    expenseType,
+    fixedSalary,
+    variableSalary,
+    performanceSalary,
+    dieselLtr,
+    dieselPrice,
+    pumpCd,
+  } = watch();
 
   // Reset Form
   useEffect(() => {
@@ -148,6 +158,28 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     dieselPrice,
     setValue,
   ]);
+
+  useEffect(() => {
+    if (expenseType === 'diesel' && pumpCd?.value) {
+      const latestDieselPrice = dieselPrices
+        .filter((price) => price.pump._id === pumpCd.value)
+        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0];
+      if (latestDieselPrice) {
+        setValue('dieselPrice', latestDieselPrice.price);
+      } else {
+        setValue('dieselPrice', 0); // Or some default value
+        toast.warning('No Diesel price found for the selected Pump');
+      }
+    } else {
+      setValue('dieselPrice', 0); // Reset if pump is not selected or expense type is not diesel
+    }
+  }, [expenseType, pumpCd, setValue, dieselPrices]);
+
+  useEffect(() => {
+    if (expenseType === 'diesel') {
+      dispatch(fetchDieselPrices());
+    }
+  }, [expenseType, dispatch]);
 
   // Handlers for submit and cancel
   const onSubmit = (data) => {

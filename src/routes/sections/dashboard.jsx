@@ -32,6 +32,12 @@ const PumpListPage = lazy(() => import('src/pages/dashboard/pump/list'));
 const PumpCreatePage = lazy(() => import('src/pages/dashboard/pump/new'));
 const PumpEditPage = lazy(() => import('src/pages/dashboard/pump/edit'));
 
+// DieselPrice
+const DieselPriceDetailsPage = lazy(() => import('src/pages/dashboard/diesel-prices/details'));
+const DieselPriceListPage = lazy(() => import('src/pages/dashboard/diesel-prices/list'));
+const DieselPriceCreatePage = lazy(() => import('src/pages/dashboard/diesel-prices/new'));
+const DieselPriceEditPage = lazy(() => import('src/pages/dashboard/diesel-prices/edit'));
+
 // Customer
 const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customer/details'));
 const CustomerListPage = lazy(() => import('src/pages/dashboard/customer/list'));
@@ -176,6 +182,16 @@ export const dashboardRoutes = [
           { path: ':id', element: <PumpDetailsPage /> },
           { path: 'new', element: <PumpCreatePage /> },
           { path: ':id/edit', element: <PumpEditPage /> },
+        ],
+      },
+      {
+        path: 'dieselPrice',
+        children: [
+          { element: <DieselPriceListPage />, index: true },
+          { path: 'list', element: <DieselPriceListPage /> },
+          { path: ':id', element: <DieselPriceDetailsPage /> },
+          { path: 'new', element: <DieselPriceCreatePage /> },
+          { path: ':id/edit', element: <DieselPriceEditPage /> },
         ],
       },
 

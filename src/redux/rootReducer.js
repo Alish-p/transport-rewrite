@@ -12,6 +12,7 @@ import expenseReducer from './slices/expense';
 import invoiceReducer from './slices/invoice';
 import customerReducer from './slices/customer';
 import transporterReducer from './slices/transporter';
+import dieselPriceReducer from './slices/diesel-price';
 import driverPayrollReducer from './slices/driver-payroll';
 import transporterPaymentReducer from './slices/transporter-payment';
 
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   customer: customerReducer,
   driver: driverReducer,
   pump: pumpReducer,
+  dieselPrice: dieselPriceReducer,
   bank: bankReducer,
   route: routeReducer,
   trip: tripReducer,

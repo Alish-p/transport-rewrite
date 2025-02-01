@@ -104,10 +104,6 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/product/new`,
       details: (id) => `${ROOTS.DASHBOARD}/product/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/product/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
-      },
     },
     vehicle: {
       root: `${ROOTS.DASHBOARD}/vehicle`,
@@ -115,10 +111,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/vehicle/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/vehicle/674aeb4e174badde33145f16`,
-        edit: `${ROOTS.DASHBOARD}/vehicle/674aeb4e174badde33145f16/edit`,
-      },
     },
     driver: {
       root: `${ROOTS.DASHBOARD}/driver`,
@@ -126,10 +118,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/driver/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/driver/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/driver/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/driver/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/driver/${MOCK_ID}/edit`,
-      },
     },
     pump: {
       root: `${ROOTS.DASHBOARD}/pump`,
@@ -137,10 +125,13 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/pump/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/pump/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/pump/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/pump/${MOCK_ID}/edit`,
-      },
+    },
+    dieselPrice: {
+      root: `${ROOTS.DASHBOARD}/dieselPrice`,
+      new: `${ROOTS.DASHBOARD}/dieselPrice/new`,
+      list: `${ROOTS.DASHBOARD}/dieselPrice/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/dieselPrice/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/dieselPrice/${id}`,
     },
     customer: {
       root: `${ROOTS.DASHBOARD}/customer`,
@@ -148,10 +139,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/customer/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/customer/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/customer/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/customer/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/customer/${MOCK_ID}/edit`,
-      },
     },
 
     bank: {
@@ -160,10 +147,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/bank/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/bank/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/bank/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/bank/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/bank/${MOCK_ID}/edit`,
-      },
     },
     transporter: {
       root: `${ROOTS.DASHBOARD}/transporter`,
@@ -171,10 +154,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/transporter/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/transporter/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/transporter/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/transporter/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/transporter/${MOCK_ID}/edit`,
-      },
     },
     route: {
       root: `${ROOTS.DASHBOARD}/route`,
@@ -182,10 +161,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/route/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/route/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/route/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/route/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/route/${MOCK_ID}/edit`,
-      },
     },
     expense: {
       root: `${ROOTS.DASHBOARD}/expense`,
@@ -194,10 +169,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/expense/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/expense/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/expense/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/expense/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/expense/${MOCK_ID}/edit`,
-      },
     },
     subtrip: {
       root: `${ROOTS.DASHBOARD}/subtrip`,
@@ -205,10 +176,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/subtrip/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/subtrip/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/subtrip/${MOCK_ID}/edit`,
-      },
     },
 
     trip: {
@@ -217,10 +184,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/trip/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/trip/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/trip/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/trip/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/trip/${MOCK_ID}/edit`,
-      },
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
@@ -228,21 +191,12 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/invoice/list`,
       details: (id) => `${ROOTS.DASHBOARD}/invoice/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/invoice/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/invoice/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/invoice/${MOCK_ID}/edit`,
-      },
     },
     driverPayroll: {
       root: `${ROOTS.DASHBOARD}/driverPayroll`,
       new: `${ROOTS.DASHBOARD}/driverPayroll/new`,
-
       details: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/driverPayroll/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/driverPayroll/${MOCK_ID}/edit`,
-      },
     },
 
     transporterPayment: {
@@ -251,10 +205,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/transporterPayment/list`,
       details: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/transporterPayment/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/transporterPayment/${MOCK_ID}/edit`,
-      },
     },
   },
 };

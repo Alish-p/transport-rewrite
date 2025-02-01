@@ -170,6 +170,16 @@ export const navData = [
       },
 
       {
+        title: 'Diesel Prices',
+        path: paths.dashboard.dieselPrice.root,
+        icon: ICONS.fuel,
+        children: [
+          { title: 'List', path: paths.dashboard.dieselPrice.list },
+          { title: 'Create', path: paths.dashboard.dieselPrice.new },
+        ],
+      },
+
+      {
         title: 'Route',
         path: paths.dashboard.route.root,
         icon: ICONS.route,
