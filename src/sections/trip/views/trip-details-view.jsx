@@ -18,7 +18,8 @@ import TripToolbar from '../widgets/TripToolbar';
 import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
-import ChartColumnMultiple from '../widgets/SubtripColumnChart';
+import { SUBTRIP_STATUS } from '../../subtrip/constants';
+import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
 
@@ -196,20 +197,55 @@ export function TripDetailView({ trip }) {
                   chart={{
                     series: [
                       {
-                        label: 'Completed',
-                        value: trip?.subtrips?.filter((st) => st.tripStatus === '1').length,
+                        label: 'Inqueue',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.IN_QUEUE
+                        ).length,
                       },
                       {
-                        label: 'In Progress',
-                        value: trip?.subtrips?.filter((st) => st.tripStatus !== '1').length,
+                        label: 'Loaded',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.LOADED
+                        ).length,
+                      },
+                      {
+                        label: 'Received',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.RECEIVED
+                        ).length,
+                      },
+                      {
+                        label: 'Error',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.ERROR
+                        ).length,
+                      },
+                      {
+                        label: 'Closed',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.CLOSED
+                        ).length,
+                      },
+                      {
+                        label: 'Billed',
+                        value: trip?.subtrips?.filter(
+                          (st) => st.subtripStatus === SUBTRIP_STATUS.BILLED
+                        ).length,
                       },
                     ],
-                    colors: [theme.palette.primary.main, theme.palette.info.main],
+                    colors: [
+                      theme.palette.primary.main,
+                      theme.palette.info.main,
+                      theme.palette.success.main,
+                      theme.palette.error.main,
+                      theme.palette.warning.main,
+                      theme.palette.secondary.main,
+                    ],
                   }}
                 />
               </Grid>
               <Grid item xs={5} md={6}>
-                <ChartColumnMultiple
+                <ProfitExpenseChart
                   subtrips={trip.subtrips}
                   title="Subtrip Profit/Expense"
                   subheader="Profit and expense Subtrip Wise"

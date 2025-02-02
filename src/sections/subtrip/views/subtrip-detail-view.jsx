@@ -21,6 +21,7 @@ import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
+import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { SimpleStepper } from '../widgets/subtrip-completion-stepper';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
@@ -41,7 +42,13 @@ export function SubtripDetailView({ subtrip, loading }) {
 
   const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
   const totalDieselLtr = subtrip?.expenses?.reduce(
-    (sum, expense) => sum + (expense.dieselLtr || 0),
+    (sum, expense) =>
+      sum + (expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? expense.dieselLtr : 0),
+    0
+  );
+  const totalAdblueLtr = subtrip?.expenses?.reduce(
+    (sum, expense) =>
+      sum + (expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? expense.dieselLtr : 0),
     0
   );
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
@@ -110,7 +117,7 @@ export function SubtripDetailView({ subtrip, loading }) {
                   type="income"
                   color="primary"
                   icon="eva:diagonal-arrow-right-up-fill"
-                  total={subtrip.rate * subtrip.loadingWeight}
+                  total={subtrip.rate * subtrip.loadingWeight || 0}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
@@ -120,7 +127,7 @@ export function SubtripDetailView({ subtrip, loading }) {
                   type="expense"
                   color="warning"
                   icon="eva:diagonal-arrow-right-up-fill"
-                  total={-totalExpenses}
+                  total={-totalExpenses || 0}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
@@ -135,15 +142,15 @@ export function SubtripDetailView({ subtrip, loading }) {
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />
                 <AnalyticsWidgetSummary
-                  title="Total Detention Time"
-                  total={subtrip.detentionTime}
+                  title="Total Adblue Liters"
+                  total={subtrip.detentionTime || 0}
                   color="info"
                   icon="ant-design:clock-circle-filled"
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />
                 <AnalyticsWidgetSummary
                   title={`${subtrip.subtripStatus.toUpperCase()}`}
-                  total={subtrip.subtripStatus}
+                  total={subtrip.subtripStatus || '0'}
                   color={subtrip.subtripStatus === 'completed' ? 'error' : 'error'}
                   icon="ant-design:check-circle-filled"
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
@@ -165,14 +172,14 @@ export function SubtripDetailView({ subtrip, loading }) {
                       New Expense
                     </Button>
                   </Box>
-                  <SimpleExpenseList expenses={subtrip?.expenses} />
+                  <SimpleExpenseList expenses={subtrip?.expenses || []} />
                 </Card>
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart
                   title="Expense Details"
                   chart={{
-                    series: expenseChartData,
+                    series: expenseChartData || [],
                   }}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />

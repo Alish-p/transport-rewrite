@@ -23,3 +23,29 @@ export const vehicleExpenseTypes = [
   { label: 'Over-Load Fees', value: 'over-load-fees' },
   { label: 'Other', value: 'other' },
 ];
+
+export const SUBTRIP_EXPENSE_TYPES = {
+  DIESEL: 'diesel',
+  ADBLUE: 'adblue',
+  DRIVER_SALARY: 'driver-salary',
+  DRIVER_ADVANCE: 'trip-advance',
+  EXTRA_ADVANCE: 'trip-extra-advance',
+  TYRE_PUNCHER: 'puncher',
+  TYRE_EXPENSE: 'tyre-expense',
+  POLICE: 'police',
+  RTO: 'rto',
+  TOLL: 'toll',
+  VEHICLE_REPAIR: 'vehicle-repair',
+  OTHER: 'other',
+};
+
+export const VEHICLE_EXPENSE_TYPES = {
+  INSURANCE: 'insurance',
+  PERMIT: 'permit',
+  PASSING: 'passing',
+  TYRE: 'tyre',
+  MAJOR_REPAIR: 'major-repair',
+  FITNESS_CERTIFICATE: 'fitness-certificate',
+  OVER_LOAD_FEES: 'over-load-fees',
+  OTHER: 'other',
+};

@@ -4,7 +4,7 @@ import { Chart, useChart } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export default function ChartColumnMultiple({ subtrips, title, subheader }) {
+export default function ProfitExpenseChart({ subtrips, title, subheader }) {
   // Calculate profit and expenses for each subtrip
   const series = [
     {
