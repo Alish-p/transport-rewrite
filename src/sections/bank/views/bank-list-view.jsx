@@ -106,9 +106,13 @@ export function BankListView({ banks }) {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteBank(id));
-    toast.success('Bank Deleted successfully!', {});
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteBank(id));
+      toast.success('Bank Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

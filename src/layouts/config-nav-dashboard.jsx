@@ -47,6 +47,7 @@ const ICONS = {
   expense: icon('ic_expense'),
   subtrip: icon('ic_subtrip'),
   trip: icon('ic_trip'),
+  diesel: icon('ic_diesel'),
   driverPayroll: <Iconify icon="healthicons:truck-driver" />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
 };
@@ -172,7 +173,7 @@ export const navData = [
       {
         title: 'Diesel Prices',
         path: paths.dashboard.dieselPrice.root,
-        icon: ICONS.fuel,
+        icon: ICONS.diesel,
         children: [
           { title: 'List', path: paths.dashboard.dieselPrice.list },
           { title: 'Create', path: paths.dashboard.dieselPrice.new },

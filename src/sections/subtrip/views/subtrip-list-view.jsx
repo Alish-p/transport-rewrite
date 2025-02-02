@@ -16,6 +16,7 @@ import { alpha, useTheme } from '@mui/material/styles';
 
 // _mock
 
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -156,8 +157,13 @@ export function SubtripListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteSubtrip(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteSubtrip(id));
+      toast.success('Subtrip deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

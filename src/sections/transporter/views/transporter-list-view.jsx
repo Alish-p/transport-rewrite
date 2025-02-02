@@ -12,6 +12,7 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -111,8 +112,13 @@ export function TransporterListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteTransporter(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteTransporter(id));
+      toast.success('Transporter Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -159,8 +160,13 @@ export function DriverListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteDriver(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteDriver(id));
+      toast.success('Driver Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

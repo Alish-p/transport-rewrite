@@ -110,9 +110,13 @@ export function RouteListView({ routes }) {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteRoute(id));
-    toast.success('Route Deleted successfully!', {});
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteRoute(id));
+      toast.success('Route Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

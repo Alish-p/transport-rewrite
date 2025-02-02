@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
@@ -109,8 +110,13 @@ export function CustomerListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteCustomer(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteCustomer(id));
+      toast.success('Customer Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

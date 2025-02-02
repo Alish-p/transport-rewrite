@@ -31,6 +31,7 @@ import { deleteTrip } from 'src/redux/slices/trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -142,8 +143,13 @@ export function TripListView({ trips }) {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteTrip(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      await dispatch(deleteTrip(id));
+      toast.success('Trip deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

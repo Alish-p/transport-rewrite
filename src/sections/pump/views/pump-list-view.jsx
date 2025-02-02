@@ -12,6 +12,7 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -114,8 +115,13 @@ export function PumpListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deletePump(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deletePump(id));
+      toast.success(`Pump Deleted successfully!`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

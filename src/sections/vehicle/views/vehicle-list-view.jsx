@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -156,8 +157,13 @@ export function VehicleListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteVehicle(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteVehicle(id));
+      toast.success('Vehicle Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

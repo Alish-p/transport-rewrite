@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -189,8 +190,13 @@ export function ExpenseListView() {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deleteExpense(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deleteExpense(id));
+      toast.success(`Expense ${id} Deleted successfully!`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

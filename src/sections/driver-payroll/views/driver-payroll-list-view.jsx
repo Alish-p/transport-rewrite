@@ -13,6 +13,7 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
+import { toast } from 'sonner';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
@@ -114,8 +115,13 @@ export function DriverPayrollListView({ payrollReceipts }) {
     [table]
   );
 
-  const handleDeleteRow = (id) => {
-    dispatch(deletePayrollReceipt(id));
+  const handleDeleteRow = async (id) => {
+    try {
+      dispatch(deletePayrollReceipt(id));
+      toast.success('Driver Pay-Slip Deleted successfully!');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditRow = (id) => {

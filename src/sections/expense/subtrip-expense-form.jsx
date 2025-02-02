@@ -167,11 +167,10 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
       if (latestDieselPrice) {
         setValue('dieselPrice', latestDieselPrice.price);
       } else {
-        setValue('dieselPrice', 0); // Or some default value
-        toast.warning('No Diesel price found for the selected Pump');
+        setValue('dieselPrice', 0);
       }
     } else {
-      setValue('dieselPrice', 0); // Reset if pump is not selected or expense type is not diesel
+      setValue('dieselPrice', 0);
     }
   }, [expenseType, pumpCd, setValue, dieselPrices]);
 
