@@ -48,7 +48,9 @@ const ICONS = {
   subtrip: icon('ic_subtrip'),
   trip: icon('ic_trip'),
   diesel: icon('ic_diesel'),
-  driverPayroll: <Iconify icon="healthicons:truck-driver" />,
+  driverDeductions: icon('ic_driver_deductions'),
+  driverPayroll: icon('ic_driver_salary'),
+  driverFinance: <Iconify icon="healthicons:truck-driver" />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
 };
 // ----------------------------------------------------------------------
@@ -215,14 +217,31 @@ export const navData = [
         ],
       },
       {
-        title: 'Driver Payroll',
+        title: 'Driver Finance',
+        icon: ICONS.driverFinance,
         path: paths.dashboard.driverPayroll.root,
-        icon: ICONS.driverPayroll,
         children: [
-          { title: 'List', path: paths.dashboard.driverPayroll.root },
-          { title: 'Create', path: paths.dashboard.driverPayroll.new },
+          {
+            title: 'Driver Payroll',
+            path: paths.dashboard.driverPayroll.root,
+            icon: ICONS.driverPayroll,
+            children: [
+              { title: 'List', path: paths.dashboard.driverPayroll.root },
+              { title: 'Create', path: paths.dashboard.driverPayroll.new },
+            ],
+          },
+          {
+            title: 'Driver Deductions',
+            path: paths.dashboard.driverDeductions.root,
+            icon: ICONS.driverDeductions,
+            children: [
+              { title: 'List', path: paths.dashboard.driverDeductions.root },
+              { title: 'Create', path: paths.dashboard.driverDeductions.new },
+            ],
+          },
         ],
       },
+
       {
         title: 'Transporter Payment',
         path: paths.dashboard.transporterPayment.root,

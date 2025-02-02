@@ -60,7 +60,7 @@ export default function VehicleTableToolbar({ filters, onFilters, tableData }) {
           fullWidth
           value={filters.VehicleNo}
           onChange={handleFilterVehicleNo}
-          placeholder="Search vehicle No..."
+          placeholder="Search Vehicle No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

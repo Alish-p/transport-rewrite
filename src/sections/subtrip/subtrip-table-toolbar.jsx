@@ -103,7 +103,7 @@ export default function SubtripTableToolbar({ filters, onFilters, tableData }) {
           fullWidth
           value={filters.vehicleNo}
           onChange={handleFilterVehicle}
-          placeholder="Search vehicle..."
+          placeholder="Search Vehicle..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

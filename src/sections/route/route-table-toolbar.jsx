@@ -75,7 +75,7 @@ export default function RouteTableToolbar({ filters, onFilters, tableData }) {
           fullWidth
           value={filters.fromPlace}
           onChange={handleFilterFromPlace}
-          placeholder="Search Starting place..."
+          placeholder="Search Starting point..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -89,7 +89,7 @@ export default function RouteTableToolbar({ filters, onFilters, tableData }) {
           fullWidth
           value={filters.toPlace}
           onChange={handleFilterToPlace}
-          placeholder="Search ending Point ..."
+          placeholder="Search Ending Point ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

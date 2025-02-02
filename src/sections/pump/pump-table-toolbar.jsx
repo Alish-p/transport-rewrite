@@ -53,7 +53,7 @@ export default function PumpTableToolbar({ filters, onFilters, tableData }) {
           fullWidth
           value={filters.pumpName}
           onChange={handleFilterPumpName}
-          placeholder="Search Transport Name..."
+          placeholder="Search Pump Name..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
