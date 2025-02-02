@@ -96,7 +96,7 @@ function RenderSalaryTable({ driverSalary }) {
   const { netSalary } = calculatePayslipSummary(driverSalary);
 
   return (
-    <TableContainer sx={{ overflow: 'scroll', mt: 5 }}>
+    <TableContainer sx={{ overflowX: 'scroll', mt: 5 }}>
       <Table sx={{ minWidth: 960 }}>
         <TableHead>
           <TableRow>

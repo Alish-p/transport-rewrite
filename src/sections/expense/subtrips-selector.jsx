@@ -35,7 +35,7 @@ function SubtripSelector({ subtrips, currentSubtrip, onChangeSubtrip }) {
           getOptionLabel={(option) =>
             option._id === ''
               ? 'None'
-              : `${option._id} - ${option?.routeCd?.routeName} (${option?.loadingPoint} to ${option?.unloadingPoint})`
+              : `${option._id} -${option?.tripId?.vehicleId?.vehicleNo} -${option?.routeCd?.routeName} (${option?.loadingPoint} to ${option?.unloadingPoint})`
           }
           isOptionEqualToValue={(option, value) => option._id === value._id}
           renderInput={(params) => <TextField {...params} label="Select Subtrip" />}
