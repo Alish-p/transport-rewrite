@@ -90,10 +90,32 @@ const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 
 // DriverPayroll
-const DriverPayrollListPage = lazy(() => import('src/pages/dashboard/driver-payroll/list'));
-const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-payroll/details'));
-const DriverPayrollCreatePage = lazy(() => import('src/pages/dashboard/driver-payroll/new'));
-const DriverPayrollEditPage = lazy(() => import('src/pages/dashboard/driver-payroll/edit'));
+const DriverPayrollListPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-payroll/list')
+);
+const DriverPayrollDetailsPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-payroll/details')
+);
+const DriverPayrollCreatePage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-payroll/new')
+);
+const DriverPayrollEditPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-payroll/edit')
+);
+
+// DriverDeductions
+const DriverDeductionsListPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-deductions/list')
+);
+const DriverDeductionsDetailsPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-deductions/details')
+);
+const DriverDeductionsCreatePage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-deductions/new')
+);
+const DriverDeductionsEditPage = lazy(
+  () => import('src/pages/dashboard/driver-finance/driver-deductions/edit')
+);
 
 // DriverPayroll
 const TransporterPaymentListPage = lazy(
@@ -287,6 +309,17 @@ export const dashboardRoutes = [
           { path: ':id', element: <DriverPayrollDetailsPage /> },
           { path: ':id/edit', element: <DriverPayrollEditPage /> },
           { path: 'new', element: <DriverPayrollCreatePage /> },
+        ],
+      },
+
+      {
+        path: 'driverDeductions',
+        children: [
+          { element: <DriverDeductionsListPage />, index: true },
+          { path: 'list', element: <DriverDeductionsListPage /> },
+          { path: ':id', element: <DriverDeductionsDetailsPage /> },
+          { path: ':id/edit', element: <DriverDeductionsEditPage /> },
+          { path: 'new', element: <DriverDeductionsCreatePage /> },
         ],
       },
 

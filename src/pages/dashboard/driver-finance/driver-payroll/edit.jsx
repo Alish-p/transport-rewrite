@@ -14,7 +14,7 @@ import { InvoiceEditView } from 'src/sections/invoice/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice edit | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Driver Payroll edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const dispatch = useDispatch();
