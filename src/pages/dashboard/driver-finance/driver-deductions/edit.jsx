@@ -24,8 +24,10 @@ export default function Page() {
     dispatch(fetchDrivers());
   }, [dispatch, id]);
 
-  const { driverDeduction } = useSelector((state) => state.driverDeduction);
-  const { drivers } = useSelector((state) => state.driver);
+  const { driverDeduction, isLoading: deductionsLoading } = useSelector(
+    (state) => state.driverDeduction
+  );
+  const { drivers, isLoading: driversLoading } = useSelector((state) => state.driver);
 
   return (
     <>
@@ -33,7 +35,11 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverDeductionsEditView driverDeduction={driverDeduction} driverList={drivers} />
+      {deductionsLoading || driversLoading ? (
+        'Loading...'
+      ) : (
+        <DriverDeductionsEditView driverDeduction={driverDeduction} driverList={drivers} />
+      )}
     </>
   );
 }
