@@ -27,6 +27,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
+import { deleteLoan } from 'src/redux/slices/loan';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -44,20 +45,19 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { deleteDriverDeduction } from '../../../redux/slices/driver-deductions';
-import DriverDeductionsTableRow from '../driver-deductions-list/driver-deductions-table-row';
-import DriverDeductionsTableToolbar from '../driver-deductions-list/driver-deductions-table-toolbar';
-import DriverDeductionsTableFiltersResult from '../driver-deductions-list/driver-deductions-table-filters-result';
+import LoanTableRow from '../loans-list/loans-table-row';
+import LoanTableToolbar from '../loans-list/loans-table-toolbar';
+import LoanTableFiltersResult from '../loans-list/loans-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'driver', label: 'Driver' },
-  { id: 'repaymentType', label: 'Repayment Type' },
+  { id: 'borrowerId', label: 'Borrower' },
+  { id: 'borrowerType', label: 'Borrower Type' },
+  { id: 'totalAmount', label: 'Total Amount' },
+  { id: 'remainingBalance', label: 'Remaining Balance' },
   { id: 'remarks', label: 'Remarks' },
   { id: 'status', label: 'Status' },
-  { id: 'amount', label: 'Amount' },
-  { id: 'remainingAmount', label: 'Remaining Amount' },
   { id: 'issuedDate', label: 'Issued Date' },
   { id: '', label: '' },
 ];
@@ -70,7 +70,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function DriverDeductionsListView({ driverDeductions }) {
+export function LoansListView({ loans }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -84,10 +84,10 @@ export function DriverDeductionsListView({ driverDeductions }) {
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
-    if (driverDeductions.length) {
-      setTableData(driverDeductions);
+    if (loans.length) {
+      setTableData(loans);
     }
-  }, [driverDeductions]);
+  }, [loans]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -117,20 +117,20 @@ export function DriverDeductionsListView({ driverDeductions }) {
 
   const handleDeleteRow = async (id) => {
     try {
-      dispatch(deleteDriverDeduction(id));
-      toast.success('Driver Deductions Deleted successfully!');
+      dispatch(deleteLoan(id));
+      toast.success('Loans Deleted successfully!');
     } catch (error) {
       console.error(error);
     }
   };
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.driverDeductions.edit(paramCase(id)));
+    navigate(paths.dashboard.loan.edit(paramCase(id)));
   };
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.driverDeductions.details(id));
+      router.push(paths.dashboard.loan.details(id));
     },
     [router]
   );
@@ -150,15 +150,15 @@ export function DriverDeductionsListView({ driverDeductions }) {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Driver Deductions List"
+          heading="Loans List"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Driver Deductions',
-              href: paths.dashboard.driverDeductions.root,
+              name: 'Loans',
+              href: paths.dashboard.loan.root,
             },
             {
               name: 'List',
@@ -167,11 +167,11 @@ export function DriverDeductionsListView({ driverDeductions }) {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.driverDeductions.new}
+              href={paths.dashboard.loan.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Driver Deductions
+              New Loans
             </Button>
           }
           sx={{
@@ -181,14 +181,10 @@ export function DriverDeductionsListView({ driverDeductions }) {
 
         {/* Table Section */}
         <Card>
-          <DriverDeductionsTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={dataFiltered}
-          />
+          <LoanTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
 
           {canReset && (
-            <DriverDeductionsTableFiltersResult
+            <LoanTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -268,7 +264,7 @@ export function DriverDeductionsListView({ driverDeductions }) {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <DriverDeductionsTableRow
+                      <LoanTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}

@@ -19,7 +19,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function DriverDeductionsTableToolbar({ filters, onFilters, tableData }) {
+export default function LoansTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
 
   const handleFilterDriverName = useCallback(

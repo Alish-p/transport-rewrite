@@ -138,7 +138,22 @@ const RenderOtherSalaryComponent = ({ fields, remove }) => {
   );
 };
 
-export default function DriverSalaryForm({ driversList }) {
+const RenderRepaymentComponent = ({ loans }) => (
+  <Grid container spacing={1} sx={{ m: 1, p: 1 }} key="index">
+    <Field.MultiCheckbox
+      column
+      name="selectedLoans"
+      label="Loans"
+      options={loans?.map(({ loan }, index) => ({
+        label: `(${loan.borrowerType}) Principal: ₹${loan.principalAmount} | Interest: ${loan.interestRate}% | Tenure: ${loan.tenure} months | EMI: ₹${loan.emiAmount} | Total Payable: ₹${loan.totalAmount} | Remaining: ₹${loan.remainingBalance}${loan.remarks ? ` | Remarks: ${loan.remarks}` : ''}`,
+        value: loan._id,
+      }))}
+      sx={{ gap: 4 }}
+    />
+  </Grid>
+);
+
+export default function DriverSalaryForm({ driversList, loans }) {
   const dispatch = useDispatch();
   const { watch, setValue, control } = useFormContext();
   const { filteredSubtrips } = useSelector((state) => state.subtrip);
@@ -226,6 +241,18 @@ export default function DriverSalaryForm({ driversList }) {
           + Add Salary Item
         </Button>
       </Card>
+
+      {loans && loans.length > 0 && (
+        <>
+          <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
+            These are some pending loans of the driver. Select the loans to repay.
+          </Typography>
+
+          <Card sx={{ p: 1, mb: 1 }}>
+            <RenderRepaymentComponent loans={loans} />
+          </Card>
+        </>
+      )}
     </>
   );
 }

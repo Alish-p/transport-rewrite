@@ -198,11 +198,11 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}/edit`,
     },
-    driverDeductions: {
-      root: `${ROOTS.DASHBOARD}/driverDeductions`,
-      new: `${ROOTS.DASHBOARD}/driverDeductions/new`,
-      details: (id) => `${ROOTS.DASHBOARD}/driverDeductions/${id}`,
-      edit: (id) => `${ROOTS.DASHBOARD}/driverDeductions/${id}/edit`,
+    loan: {
+      root: `${ROOTS.DASHBOARD}/loan`,
+      new: `${ROOTS.DASHBOARD}/loan/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/loan/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/loan/${id}/edit`,
     },
     transporterPayment: {
       root: `${ROOTS.DASHBOARD}/transporterPayment`,

@@ -91,7 +91,7 @@ function RenderDateInfo({ createdDate }) {
 }
 
 function RenderSalaryTable({ driverSalary }) {
-  const { subtripComponents, otherSalaryComponent } = driverSalary;
+  const { subtripComponents, otherSalaryComponent, selectedLoans } = driverSalary;
 
   const { netSalary } = calculatePayslipSummary(driverSalary);
 
@@ -113,7 +113,7 @@ function RenderSalaryTable({ driverSalary }) {
         <TableBody>
           {/* Subtrip related income */}
           {subtripComponents &&
-            subtripComponents.map((st, index) => {
+            subtripComponents?.map((st, index) => {
               const tripSalary = calculateDriverSalary(st);
               return (
                 <TableRow key={st._id}>
@@ -140,6 +140,28 @@ function RenderSalaryTable({ driverSalary }) {
                 <TableCell>{fCurrency(item.amount)}</TableCell>
               </TableRow>
             ))}
+
+          {selectedLoans &&
+            selectedLoans.length > 0 &&
+            selectedLoans.map(
+              ({ repaymentType, remarks, amount, installments, issuedDate }, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    {subtripComponents.length + otherSalaryComponent.length + index + 1}
+                  </TableCell>
+                  <TableCell>{`Repayment - ${repaymentType}`}</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>{remarks}</TableCell>
+                  <TableCell>{fDate(issuedDate)}</TableCell>
+                  <TableCell>
+                    {repaymentType === 'full'
+                      ? fCurrency(amount)
+                      : fCurrency(amount / installments)}
+                  </TableCell>
+                </TableRow>
+              )
+            )}
 
           <StyledTableRow>
             <TableCell colSpan={5} />

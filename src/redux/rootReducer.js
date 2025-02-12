@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 import pumpReducer from './slices/pump';
 import bankReducer from './slices/bank';
 import tripReducer from './slices/trip';
+import loanReducer from './slices/loan';
 import routeReducer from './slices/route';
 import driverReducer from './slices/driver';
 import vehicleReducer from './slices/vehicle';
@@ -14,7 +15,6 @@ import customerReducer from './slices/customer';
 import transporterReducer from './slices/transporter';
 import dieselPriceReducer from './slices/diesel-price';
 import driverPayrollReducer from './slices/driver-payroll';
-import driverDeductionReducer from './slices/driver-deductions';
 import transporterPaymentReducer from './slices/transporter-payment';
 
 // ----------------------------------------------------------------------
@@ -33,7 +33,7 @@ const rootReducer = combineReducers({
   expense: expenseReducer,
   invoice: invoiceReducer,
   driverPayroll: driverPayrollReducer,
-  driverDeduction: driverDeductionReducer,
+  loan: loanReducer,
   transporterPayment: transporterPaymentReducer,
 });
 

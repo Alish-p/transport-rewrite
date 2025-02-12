@@ -6,11 +6,11 @@ import { CONFIG } from 'src/config-global';
 import { useDispatch } from 'src/redux/store';
 import { fetchDrivers } from 'src/redux/slices/driver';
 
-import { DriverDeductionsCreateView } from 'src/sections/driver-deductions/views';
+import { LoansCreateView } from 'src/sections/loans/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Create a new Driver Deductions | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Create a new Loan | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverDeductionsCreateView driverList={drivers} />
+      <LoansCreateView driverList={drivers} />
     </>
   );
 }

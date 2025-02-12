@@ -1,9 +1,8 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -12,6 +11,8 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
+import { fetchPendingLoans } from 'src/redux/slices/loan';
+import { useDispatch, useSelector } from 'src/redux/store';
 import { addPayrollReceipt } from 'src/redux/slices/driver-payroll';
 
 import { toast } from 'src/components/snackbar';
@@ -32,6 +33,7 @@ export const DriverSalarySchema = zod
     periodStartDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
     periodEndDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
     subtripComponents: zod.array(zod.string().min(1)).optional(),
+    selectedLoans: zod.array(zod.string().min(1)).optional(),
     otherSalaryComponent: zod.array(
       zod.object({
         paymentType: zod.string().min(1, { message: 'Payment Type is required' }),
@@ -59,6 +61,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
       periodEndDate: new Date(),
       subtripComponents: [],
       otherSalaryComponent: [],
+      selectedLoans: [],
     }),
     []
   );
@@ -82,9 +85,18 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     otherSalaryComponent,
     periodStartDate,
     periodEndDate,
+    selectedLoans,
   } = watch();
 
   const { filteredSubtrips: allSubTripsByDriver } = useSelector((state) => state.subtrip);
+
+  const { loans } = useSelector((state) => state.loan);
+
+  useEffect(() => {
+    if (selectedDriverID) {
+      dispatch(fetchPendingLoans({ borrowerType: 'Driver', id: selectedDriverID }));
+    }
+  }, [dispatch, selectedDriverID]);
 
   // Construct the draftDriverSalary object for the preview
   const draftDriverSalary = useMemo(() => {
@@ -92,6 +104,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     return {
       // Match database schema names:
       subtripComponents: allSubTripsByDriver.filter((st) => subtripComponents.includes(st._id)),
+      selectedLoans: loans?.filter(({ loan }) => selectedLoans.includes(loan._id)),
       otherSalaryComponent,
       driverId: selectedDriver || {},
       status: 'draft',
@@ -106,11 +119,15 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     createdDate,
     periodStartDate,
     periodEndDate,
+    selectedLoans,
     selectedDriverID,
     subtripComponents,
+    loans,
   ]);
 
-  console.log({ errors, draftDriverSalary });
+  useEffect(() => {
+    console.log({ errors, draftDriverSalary });
+  }, [draftDriverSalary, errors]);
 
   // Handle form submission (create)
   const onSubmit = async (data) => {
@@ -131,7 +148,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <DriverSalaryForm driversList={driverList} />
+      <DriverSalaryForm driversList={driverList} loans={loans} />
       <DriverSalaryPreview driverSalary={draftDriverSalary} />
 
       <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>

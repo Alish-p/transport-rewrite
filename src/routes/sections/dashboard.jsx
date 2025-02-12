@@ -90,32 +90,16 @@ const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 
 // DriverPayroll
-const DriverPayrollListPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-payroll/list')
-);
-const DriverPayrollDetailsPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-payroll/details')
-);
-const DriverPayrollCreatePage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-payroll/new')
-);
-const DriverPayrollEditPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-payroll/edit')
-);
+const DriverPayrollListPage = lazy(() => import('src/pages/dashboard/driver-payroll/list'));
+const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-payroll/details'));
+const DriverPayrollCreatePage = lazy(() => import('src/pages/dashboard/driver-payroll/new'));
+const DriverPayrollEditPage = lazy(() => import('src/pages/dashboard/driver-payroll/edit'));
 
-// DriverDeductions
-const DriverDeductionsListPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-deductions/list')
-);
-const DriverDeductionsDetailsPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-deductions/details')
-);
-const DriverDeductionsCreatePage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-deductions/new')
-);
-const DriverDeductionsEditPage = lazy(
-  () => import('src/pages/dashboard/driver-finance/driver-deductions/edit')
-);
+// Loans
+const LoansListPage = lazy(() => import('src/pages/dashboard/loans/list'));
+const LoansDetailsPage = lazy(() => import('src/pages/dashboard/loans/details'));
+const LoansCreatePage = lazy(() => import('src/pages/dashboard/loans/new'));
+const LoansEditPage = lazy(() => import('src/pages/dashboard/loans/edit'));
 
 // DriverPayroll
 const TransporterPaymentListPage = lazy(
@@ -313,13 +297,13 @@ export const dashboardRoutes = [
       },
 
       {
-        path: 'driverDeductions',
+        path: 'loan',
         children: [
-          { element: <DriverDeductionsListPage />, index: true },
-          { path: 'list', element: <DriverDeductionsListPage /> },
-          { path: ':id', element: <DriverDeductionsDetailsPage /> },
-          { path: ':id/edit', element: <DriverDeductionsEditPage /> },
-          { path: 'new', element: <DriverDeductionsCreatePage /> },
+          { element: <LoansListPage />, index: true },
+          { path: 'list', element: <LoansListPage /> },
+          { path: ':id', element: <LoansDetailsPage /> },
+          { path: ':id/edit', element: <LoansEditPage /> },
+          { path: 'new', element: <LoansCreatePage /> },
         ],
       },
 

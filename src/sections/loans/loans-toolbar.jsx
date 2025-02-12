@@ -16,11 +16,11 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 
-import DriverDeductionsPDF from './driver-deductions-pdf';
+import LoansPDF from './loans-pdf';
 
 // ----------------------------------------------------------------------
 
-export default function DriverDeductionsToolbar({ driverDeduction }) {
+export default function LoansToolbar({ loan }) {
   const view = useBoolean();
 
   return (
@@ -45,8 +45,8 @@ export default function DriverDeductionsToolbar({ driverDeduction }) {
           </Tooltip>
 
           <PDFDownloadLink
-            document={<DriverDeductionsPDF driverDeduction={driverDeduction} />}
-            fileName={driverDeduction._id}
+            document={<LoansPDF loan={loan} />}
+            fileName={loan._id}
             style={{ textDecoration: 'none' }}
           >
             {({ loading }) => (
@@ -96,7 +96,7 @@ export default function DriverDeductionsToolbar({ driverDeduction }) {
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <DriverDeductionsPDF driverDeduction={driverDeduction} />
+              <LoansPDF loan={loan} />
             </PDFViewer>
           </Box>
         </Box>

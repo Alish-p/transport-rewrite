@@ -12,11 +12,11 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverDeductionsPreview({ driverDeduction }) {
+export default function LoansPreview({ loan }) {
   const renderHead = (
     <Stack direction="row" sx={{ mb: 3 }}>
       <Typography variant="h4" sx={{ flexGrow: 1 }}>
-        Deduction Details - {driverDeduction?._id}
+        Deduction Details - {loan?._id}
       </Typography>
     </Stack>
   );
@@ -30,25 +30,19 @@ export default function DriverDeductionsPreview({ driverDeduction }) {
       <Stack spacing={2}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="solar:user-rounded-bold" />
-          <Typography variant="subtitle2">Name: {driverDeduction?.driverId?.driverName}</Typography>
+          <Typography variant="subtitle2">Name: {loan?.driverId?.driverName}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="solar:phone-bold" />
-          <Typography variant="subtitle2">
-            Contact No: {driverDeduction?.driverId?.driverCellNo}
-          </Typography>
+          <Typography variant="subtitle2">Contact No: {loan?.driverId?.driverCellNo}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:license" />
-          <Typography variant="subtitle2">
-            License No: {driverDeduction?.driverId?.driverLicenceNo}
-          </Typography>
+          <Typography variant="subtitle2">License No: {loan?.driverId?.driverLicenceNo}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:bank" />
-          <Typography variant="subtitle2">
-            Bank: {driverDeduction?.driverId?.bankDetails?.name}
-          </Typography>
+          <Typography variant="subtitle2">Bank: {loan?.driverId?.bankDetails?.name}</Typography>
         </Stack>
       </Stack>
     </Box>
@@ -64,35 +58,31 @@ export default function DriverDeductionsPreview({ driverDeduction }) {
       <Stack spacing={2}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="material-symbols:money" />
-          <Typography variant="subtitle2">Amount: {fCurrency(driverDeduction?.amount)}</Typography>
+          <Typography variant="subtitle2">Amount: {fCurrency(loan?.amount)}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:type" />
-          <Typography variant="subtitle2">Type: {driverDeduction?.type}</Typography>
+          <Typography variant="subtitle2">Type: {loan?.type}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="solar:calendar-date-bold" />
-          <Typography variant="subtitle2">
-            Issued Date: {fDate(driverDeduction?.issuedDate)}
-          </Typography>
+          <Typography variant="subtitle2">Issued Date: {fDate(loan?.issuedDate)}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:remarks" />
-          <Typography variant="subtitle2">Remarks: {driverDeduction?.remarks}</Typography>
+          <Typography variant="subtitle2">Remarks: {loan?.remarks}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:install" />
-          <Typography variant="subtitle2">
-            Installments: {driverDeduction?.installments || 'N/A'}
-          </Typography>
+          <Typography variant="subtitle2">Installments: {loan?.installments || 'N/A'}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:status" />
           <Typography variant="subtitle2">
             Status:{' '}
             <Chip
-              label={driverDeduction?.status}
-              color={driverDeduction?.status === 'pending' ? 'warning' : 'success'}
+              label={loan?.status}
+              color={loan?.status === 'pending' ? 'warning' : 'success'}
               size="small"
             />
           </Typography>

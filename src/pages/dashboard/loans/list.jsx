@@ -2,23 +2,23 @@ import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+import { fetchLoans } from 'src/redux/slices/loan';
 import { useSelector, useDispatch } from 'src/redux/store';
-import { fetchDriverDeductions } from 'src/redux/slices/driver-deductions';
 
-import { DriverDeductionsListView } from 'src/sections/driver-deductions/views';
+import { LoansListView } from 'src/sections/loans/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Driver Deductions list | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Loans list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchDriverDeductions());
+    dispatch(fetchLoans());
   }, [dispatch]);
 
-  const { driverDeductions, isLoading } = useSelector((state) => state.driverDeduction);
+  const { loans, isLoading } = useSelector((state) => state.loan);
 
   return (
     <>
@@ -26,7 +26,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverDeductionsListView driverDeductions={driverDeductions} />
+      <LoansListView loans={loans} />
     </>
   );
 }

@@ -11,7 +11,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverDeductionsTableFiltersResult({
+export default function LoansTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,

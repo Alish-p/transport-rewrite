@@ -25,7 +25,7 @@ export const calculatePayslipSummary = (payslip) => {
     throw new Error('Invalid payslip data');
   }
 
-  const { otherSalaryComponent = [], subtripComponents = [] } = payslip;
+  const { otherSalaryComponent = [], subtripComponents = [], selectedLoans = [] } = payslip;
 
   // Calculate total fixed income
   const totalFixedIncome = otherSalaryComponent
@@ -43,13 +43,22 @@ export const calculatePayslipSummary = (payslip) => {
     .filter((item) => item.paymentType === 'Penalty Deduction')
     .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
 
-  const netSalary = totalFixedIncome + totalTripWiseIncome - totalDeductions;
+  // calculate total repayments
+  const totalRepayments = selectedLoans.reduce((accumulator, item) => {
+    if (item.repaymentType === 'full') {
+      return accumulator + item.amount;
+    }
+    return accumulator + item.amount / item.installments;
+  }, 0);
+
+  const netSalary = totalFixedIncome + totalTripWiseIncome - totalDeductions - totalRepayments;
 
   return {
     totalFixedIncome,
     totalTripWiseIncome,
     totalDeductions,
     netSalary,
+    totalRepayments,
   };
 };
 

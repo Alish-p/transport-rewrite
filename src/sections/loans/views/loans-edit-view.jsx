@@ -4,22 +4,22 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import DriverDeductionForm from '../driver-deductions-form';
+import LoanForm from '../loans-form';
 
-export function DriverDeductionsEditView({ driverList, driverDeduction }) {
+export function LoanEditView({ driverList, loan }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Edit Drive Deduction"
+        heading="Edit Loan"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Payroll', href: paths.dashboard.driverDeductions.root },
-          { name: 'Driver Deduction Edit' },
+          { name: 'loan', href: paths.dashboard.loan.root },
+          { name: 'Loan Edit' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DriverDeductionForm driverList={driverList} currentDriverDeduction={driverDeduction} />
+      <LoanForm currentLoan={loan} />
     </DashboardContent>
   );
 }

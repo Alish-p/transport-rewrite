@@ -17,15 +17,14 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate, fTime } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import { Label } from '../../../components/label';
-
 // ----------------------------------------------------------------------
 
-export default function DriverDeductionsTableRow({
+export default function LoansTableRow({
   row,
   selected,
   onSelectRow,
@@ -35,20 +34,34 @@ export default function DriverDeductionsTableRow({
 }) {
   const {
     _id,
-    driverId,
-    amount,
-    installments,
-    issuedDate,
+    borrowerId,
+    borrowerType,
+    totalAmount,
+    remainingBalance,
     remarks,
-    repaymentType,
     status,
-    type,
-    remainingAmount,
+    createdAt,
   } = row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
+
+  // eslint-disable-next-line no-shadow
+  const getBorrowerDetails = (borrowerType, borrowerId) => {
+    const details = {
+      name: '',
+      cellNo: '',
+    };
+    if (borrowerType === 'Driver') {
+      details.name = borrowerId.driverName;
+      details.cellNo = borrowerId.driverCellNo;
+    } else if (borrowerType === 'Transporter') {
+      details.name = borrowerId.transportName;
+      details.cellNo = borrowerId.cellNo;
+    }
+    return details;
+  };
 
   return (
     <>
@@ -61,7 +74,7 @@ export default function DriverDeductionsTableRow({
             disableTypography
             primary={
               <Typography variant="body2" noWrap>
-                {driverId?.driverName}
+                {getBorrowerDetails(borrowerType, borrowerId).name}
               </Typography>
             }
             secondary={
@@ -71,46 +84,46 @@ export default function DriverDeductionsTableRow({
                 onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
-                {driverId?.driverCellNo}
+                {getBorrowerDetails(borrowerType, borrowerId).cellNo}
               </Link>
             }
           />
         </TableCell>
         <TableCell>
           <Label variant="soft" color="info">
-            {repaymentType}
+            {borrowerType}
           </Label>
         </TableCell>
+        <TableCell>
+          <ListItemText
+            primary={totalAmount}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+        <TableCell>
+          <ListItemText
+            primary={remainingBalance || 0}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+
         <TableCell>
           <ListItemText
             primary={remarks}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
+
         <TableCell>
-          <Label
-            variant="soft"
-            color={status === 'pending' ? 'warning' : status === 'paid' ? 'success' : 'info'}
-          >
-            {status}
+          <Label variant="soft" color={remainingBalance > 0 ? 'warning' : 'success'}>
+            {remainingBalance > 0 ? 'Pending' : 'Paid'}
           </Label>
         </TableCell>
+
         <TableCell>
           <ListItemText
-            primary={amount}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={remainingAmount || 0}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={fDate(new Date(issuedDate))}
-            secondary={fTime(new Date(issuedDate))}
+            primary={fDate(new Date(createdAt))}
+            secondary={fTime(new Date(createdAt))}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
