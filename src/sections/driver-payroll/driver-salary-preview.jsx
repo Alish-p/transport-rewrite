@@ -144,21 +144,17 @@ function RenderSalaryTable({ driverSalary }) {
           {selectedLoans &&
             selectedLoans.length > 0 &&
             selectedLoans.map(
-              ({ repaymentType, remarks, amount, installments, issuedDate }, index) => (
+              ({ remarks, createdAt, currentInstallmentAmount, installmentAmount }, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     {subtripComponents.length + otherSalaryComponent.length + index + 1}
                   </TableCell>
-                  <TableCell>{`Repayment - ${repaymentType}`}</TableCell>
+                  <TableCell>Loan Repayment</TableCell>
                   <TableCell>-</TableCell>
                   <TableCell>-</TableCell>
                   <TableCell>{remarks}</TableCell>
-                  <TableCell>{fDate(issuedDate)}</TableCell>
-                  <TableCell>
-                    {repaymentType === 'full'
-                      ? fCurrency(amount)
-                      : fCurrency(amount / installments)}
-                  </TableCell>
+                  <TableCell>{fDate(createdAt)}</TableCell>
+                  <TableCell>{fCurrency(installmentAmount)}</TableCell>
                 </TableRow>
               )
             )}

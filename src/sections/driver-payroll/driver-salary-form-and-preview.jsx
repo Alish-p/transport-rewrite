@@ -104,10 +104,10 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     return {
       // Match database schema names:
       subtripComponents: allSubTripsByDriver.filter((st) => subtripComponents.includes(st._id)),
-      selectedLoans: loans?.filter(({ loan }) => selectedLoans.includes(loan._id)),
+      selectedLoans: loans?.filter((loan) => selectedLoans.includes(loan._id)),
       otherSalaryComponent,
       driverId: selectedDriver || {},
-      status: 'draft',
+      status: 'pending',
       createdDate: createdDate || new Date(),
       periodStartDate,
       periodEndDate,
@@ -132,13 +132,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
   // Handle form submission (create)
   const onSubmit = async (data) => {
     try {
-      const driverSalaryData = {
-        ...data,
-        driverId: selectedDriverID,
-        subtripComponents,
-        status: 'pending',
-      };
-      const createdDriverSalaryslip = await dispatch(addPayrollReceipt(driverSalaryData));
+      const createdDriverSalaryslip = await dispatch(addPayrollReceipt(draftDriverSalary));
       toast.success('Driver Salary created successfully!');
       navigate(paths.dashboard.driverPayroll.details(createdDriverSalaryslip._id));
     } catch (error) {

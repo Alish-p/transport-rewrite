@@ -144,8 +144,8 @@ const RenderRepaymentComponent = ({ loans }) => (
       column
       name="selectedLoans"
       label="Loans"
-      options={loans?.map(({ loan }, index) => ({
-        label: `(${loan.borrowerType}) Principal: ₹${loan.principalAmount} | Interest: ${loan.interestRate}% | Tenure: ${loan.tenure} months | EMI: ₹${loan.emiAmount} | Total Payable: ₹${loan.totalAmount} | Remaining: ₹${loan.remainingBalance}${loan.remarks ? ` | Remarks: ${loan.remarks}` : ''}`,
+      options={loans?.map((loan) => ({
+        label: `Total Amount: ₹${loan?.totalAmount} | Installment Amount: ${loan?.installmentAmount} | Remarks: ${loan?.remarks}`,
         value: loan._id,
       }))}
       sx={{ gap: 4 }}

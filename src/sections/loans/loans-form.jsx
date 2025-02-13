@@ -108,18 +108,18 @@ export default function LoanForm({ currentLoan }) {
       const loansData = {
         ...data,
       };
-      let newLoan = null;
-
       if (currentLoan) {
-        newLoan = await dispatch(updateLoan(currentLoan._id, loansData));
+        await dispatch(updateLoan(currentLoan._id, loansData));
         toast.success('Loan updated successfully!');
+        navigate(paths.dashboard.loan.details(currentLoan._id));
       } else {
-        await dispatch(addLoan(loansData));
-        newLoan = toast.success('Loan created successfully!');
+        const newLoan = await dispatch(addLoan(loansData));
+        toast.success('Loan created successfully!');
+        navigate(paths.dashboard.loan.details(newLoan._id));
       }
-      navigate(paths.dashboard.loan.details(newLoan._id));
     } catch (error) {
       console.error('Error:', error);
+      toast.error('An error occurred while processing the loan.');
     }
   };
 

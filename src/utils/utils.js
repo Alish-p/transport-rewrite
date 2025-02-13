@@ -44,12 +44,10 @@ export const calculatePayslipSummary = (payslip) => {
     .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
 
   // calculate total repayments
-  const totalRepayments = selectedLoans.reduce((accumulator, item) => {
-    if (item.repaymentType === 'full') {
-      return accumulator + item.amount;
-    }
-    return accumulator + item.amount / item.installments;
-  }, 0);
+  const totalRepayments = selectedLoans.reduce(
+    (accumulator, { installmentAmount }) => accumulator + installmentAmount,
+    0
+  );
 
   const netSalary = totalFixedIncome + totalTripWiseIncome - totalDeductions - totalRepayments;
 

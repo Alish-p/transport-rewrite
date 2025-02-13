@@ -87,6 +87,7 @@ export const fetchPendingLoans =
     dispatch(startLoading());
     try {
       const response = await axios.get(`/api/loans/pending/${borrowerType}/${id}`);
+
       dispatch(getLoansSuccess(response.data));
     } catch (error) {
       dispatch(hasError(error));
@@ -108,10 +109,10 @@ export const addLoan = (data) => async (dispatch) => {
   try {
     const response = await axios.post(`/api/loans`, data);
     dispatch(addLoanSuccess(response.data));
-    return response.data; // Return the created deduction
+    return response.data;
   } catch (error) {
     dispatch(hasError(error));
-    throw error; // Re-throw the error for handling in the component
+    throw error;
   }
 };
 
