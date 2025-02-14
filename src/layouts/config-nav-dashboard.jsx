@@ -216,29 +216,24 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.invoice.new },
         ],
       },
+
       {
-        title: 'Driver Finance',
-        icon: ICONS.driverFinance,
+        title: 'Driver Payroll',
         path: paths.dashboard.driverPayroll.root,
+        icon: ICONS.driverPayroll,
         children: [
-          {
-            title: 'Driver Payroll',
-            path: paths.dashboard.driverPayroll.root,
-            icon: ICONS.driverPayroll,
-            children: [
-              { title: 'List', path: paths.dashboard.driverPayroll.root },
-              { title: 'Create', path: paths.dashboard.driverPayroll.new },
-            ],
-          },
-          {
-            title: 'Loans',
-            path: paths.dashboard.loan.root,
-            icon: ICONS.loan,
-            children: [
-              { title: 'List', path: paths.dashboard.loan.root },
-              { title: 'Create', path: paths.dashboard.loan.new },
-            ],
-          },
+          { title: 'List', path: paths.dashboard.driverPayroll.root },
+          { title: 'Create', path: paths.dashboard.driverPayroll.new },
+        ],
+      },
+
+      {
+        title: 'Loans',
+        path: paths.dashboard.loan.root,
+        icon: ICONS.loan,
+        children: [
+          { title: 'List', path: paths.dashboard.loan.root },
+          { title: 'Create', path: paths.dashboard.loan.new },
         ],
       },
 
