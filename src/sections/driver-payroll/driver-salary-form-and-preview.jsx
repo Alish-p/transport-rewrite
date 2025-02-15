@@ -125,10 +125,6 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     loans,
   ]);
 
-  useEffect(() => {
-    console.log({ errors, draftDriverSalary });
-  }, [draftDriverSalary, errors]);
-
   // Handle form submission (create)
   const onSubmit = async (data) => {
     try {

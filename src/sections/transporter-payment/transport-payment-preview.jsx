@@ -14,11 +14,11 @@ import TableContainer from '@mui/material/TableContainer';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { calculateTransporterPayment, calculateTransporterPaymentSummary } from 'src/utils/utils';
+
+import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
-
-import { CONFIG } from '../../config-global';
-import { calculateTransporterPayment } from '../../utils/utils';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -31,15 +31,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: 'bold',
 }));
-
-function calculateTotal(associatedSubtrips) {
-  return (
-    associatedSubtrips?.reduce((acc, st) => {
-      const { totalTransporterPayment } = calculateTransporterPayment(st);
-      return acc + totalTransporterPayment;
-    }, 0) || 0
-  );
-}
 
 function RenderHeader({ transporterPayment }) {
   const { _id, status } = transporterPayment || {};
@@ -98,7 +89,8 @@ function RenderDateInfo({ createdDate }) {
 }
 
 function RenderTable({ transporterPayment }) {
-  const totalAmount = calculateTotal(transporterPayment?.associatedSubtrips);
+  const { associatedSubtrips, selectedLoans } = transporterPayment;
+  const { netIncome } = calculateTransporterPaymentSummary(transporterPayment);
   return (
     <TableContainer sx={{ overflow: 'scroll', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
@@ -117,7 +109,7 @@ function RenderTable({ transporterPayment }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {transporterPayment?.associatedSubtrips?.map((st, index) => {
+          {associatedSubtrips?.map((st, index) => {
             const {
               effectiveFreightRate,
               totalFreightAmount,
@@ -140,29 +132,49 @@ function RenderTable({ transporterPayment }) {
             );
           })}
 
+          {selectedLoans &&
+            selectedLoans.length > 0 &&
+            selectedLoans.map(
+              ({ remarks, createdAt, currentInstallmentAmount, installmentAmount }, index) => (
+                <TableRow key={index}>
+                  <TableCell>{associatedSubtrips.length + index + 1}</TableCell>
+                  <TableCell>Loan Repayment</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>{remarks}</TableCell>
+                  <TableCell>{fDate(createdAt)}</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+
+                  <TableCell>{fCurrency(installmentAmount)}</TableCell>
+                  <TableCell>{fCurrency(installmentAmount)}</TableCell>
+                </TableRow>
+              )
+            )}
+
           <StyledTableRow>
             <TableCell colSpan={8} />
             <StyledTableCell>Total</StyledTableCell>
-            <TableCell>{fCurrency(totalAmount)}</TableCell>
+            <TableCell>{fCurrency(netIncome)}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
             <TableCell colSpan={8} />
             <StyledTableCell>CGST({CONFIG.transporterPaymentTax}%)</StyledTableCell>
-            <TableCell>{fCurrency(totalAmount * (CONFIG.transporterPaymentTax / 100))}</TableCell>
+            <TableCell>{fCurrency(netIncome * (CONFIG.transporterPaymentTax / 100))}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
             <TableCell colSpan={8} />
             <StyledTableCell>SGST({CONFIG.transporterPaymentTax}%)</StyledTableCell>
-            <TableCell>{fCurrency(totalAmount * (CONFIG.transporterPaymentTax / 100))}</TableCell>
+            <TableCell>{fCurrency(netIncome * (CONFIG.transporterPaymentTax / 100))}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
             <TableCell colSpan={8} />
             <StyledTableCell>Net-Total</StyledTableCell>
             <TableCell sx={{ color: 'error.main' }}>
-              {fCurrency(totalAmount * (1 + (2 * CONFIG.transporterPaymentTax) / 100))}
+              {fCurrency(netIncome * (1 + (2 * CONFIG.transporterPaymentTax) / 100))}
             </TableCell>
           </StyledTableRow>
         </TableBody>

@@ -18,8 +18,8 @@ export default function LoansTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveDriver = () => {
-    onFilters('driver', '');
+  const handleRemoveBorrower = () => {
+    onFilters('borrower', '');
   };
 
   const handleRemoveDate = () => {
@@ -39,9 +39,9 @@ export default function LoansTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.driver && (
-          <Block label="Driver">
-            <Chip size="small" label={filters.driver} onDelete={handleRemoveDriver} />
+        {filters.borrower && (
+          <Block label="Borrower">
+            <Chip size="small" label={filters.borrower} onDelete={handleRemoveBorrower} />
           </Block>
         )}
 

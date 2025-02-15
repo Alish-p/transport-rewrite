@@ -22,9 +22,9 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 export default function LoansTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
 
-  const handleFilterDriverName = useCallback(
+  const handleFilterBorrowerName = useCallback(
     (event) => {
-      onFilters('driver', event.target.value);
+      onFilters('borrower', event.target.value);
     },
     [onFilters]
   );
@@ -59,9 +59,9 @@ export default function LoansTableToolbar({ filters, onFilters, tableData }) {
       >
         <TextField
           fullWidth
-          value={filters.driver}
-          onChange={handleFilterDriverName}
-          placeholder="Search driver ..."
+          value={filters.borrower}
+          onChange={handleFilterBorrowerName}
+          placeholder="Search Borrower ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -124,7 +124,7 @@ export default function LoansTableToolbar({ filters, onFilters, tableData }) {
           <MenuItem
             onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Driver-list');
+              exportToExcel(tableData, 'Borrower-list');
             }}
           >
             <Iconify icon="solar:export-bold" />

@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
 
+import { useMemo } from 'react';
+
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -15,14 +17,13 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { calculateTransporterPaymentSummary } from 'src/utils/utils';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { calculateTransporterPayment } from '../../../utils/utils';
 
 // ----------------------------------------------------------------------
 
@@ -34,20 +35,12 @@ export default function TransporterPaymentTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const {
-    _id,
-    transporterId,
-    createdDate,
-    periodStartDate,
-    periodEndDate,
-    associatedSubtrips,
-    status,
-  } = row;
+  const { _id, transporterId, createdDate, periodStartDate, periodEndDate, status } = row;
 
-  const total = associatedSubtrips.reduce((accumulator, subtrip) => {
-    const { totalTransporterPayment } = calculateTransporterPayment(subtrip);
-    return accumulator + (totalTransporterPayment || 0);
-  }, 0);
+  const total = useMemo(() => {
+    const { netIncome } = calculateTransporterPaymentSummary(row);
+    return netIncome;
+  }, [row]);
 
   const confirm = useBoolean();
 

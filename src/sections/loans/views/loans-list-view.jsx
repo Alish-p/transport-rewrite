@@ -63,7 +63,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  driver: '',
+  borrower: '',
   fromDate: null,
   endDate: null,
 };
@@ -100,7 +100,7 @@ export function LoansListView({ loans }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.driver || (!!filters.fromDate && !!filters.endDate);
+  const canReset = !!filters.borrower || (!!filters.fromDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -330,7 +330,7 @@ export function LoansListView({ loans }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { driver, fromDate, endDate } = filters;
+  const { borrower, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -342,12 +342,14 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (driver) {
-    inputData = inputData.filter(
-      (record) =>
-        record.driverId &&
-        record.driverId.driverName.toLowerCase().indexOf(driver.toLowerCase()) !== -1
-    );
+  if (borrower) {
+    inputData = inputData.filter((record) => {
+      const borrowerName = record?.borrowerType === 'Driver' ? 'driverName' : 'transportName';
+      return (
+        record.borrowerId &&
+        record.borrowerId[borrowerName].toLowerCase().indexOf(borrower.toLowerCase()) !== -1
+      );
+    });
   }
 
   if (!dateError) {

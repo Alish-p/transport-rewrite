@@ -83,6 +83,36 @@ export const calculateTransporterPayment = (subtrip) => {
   };
 };
 
+export const calculateTransporterPaymentSummary = (payment) => {
+  if (!payment || typeof payment !== 'object') {
+    throw new Error('Invalid payment data');
+  }
+
+  const { associatedSubtrips = [], selectedLoans = [] } = payment;
+
+  console.log({ associatedSubtrips });
+
+  // Calculate total trip-wise income
+  const totalTripWiseIncome = associatedSubtrips.reduce((accumulator, st) => {
+    const { totalTransporterPayment } = calculateTransporterPayment(st);
+    return accumulator + totalTransporterPayment;
+  }, 0);
+
+  // calculate total repayments
+  const totalRepayments = selectedLoans.reduce(
+    (accumulator, { installmentAmount }) => accumulator + installmentAmount,
+    0
+  );
+
+  const netIncome = totalTripWiseIncome - totalRepayments;
+
+  return {
+    totalTripWiseIncome,
+    netIncome,
+    totalRepayments,
+  };
+};
+
 export const calculateSubtripTotalIncome = (subtrips) =>
   subtrips?.reduce((acc, trip) => acc + trip.rate * trip.loadingWeight, 0);
 

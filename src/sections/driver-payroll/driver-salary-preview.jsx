@@ -196,7 +196,7 @@ export default function DriverSalaryPreview({ driverSalary }) {
   return (
     <>
       <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-        Payroll Reciept
+        Payroll Preview
       </Typography>
 
       <Card sx={{ pt: 5, px: 5 }}>

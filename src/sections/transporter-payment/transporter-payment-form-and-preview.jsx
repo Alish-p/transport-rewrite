@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -17,6 +17,7 @@ import { useSelector } from 'src/redux/store';
 import { toast } from 'src/components/snackbar';
 import { Form, schemaHelper } from 'src/components/hook-form';
 
+import { fetchPendingLoans } from '../../redux/slices/loan';
 import TransporterPaymentForm from './transporter-payment-form';
 import TransporterPaymentPreview from './transport-payment-preview';
 import { addPayment } from '../../redux/slices/transporter-payment';
@@ -34,6 +35,7 @@ export const TransporterPaymentSchema = zod
     fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
     toDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
     associatedSubtrips: zod.array(zod.string().min(1)).optional(),
+    selectedLoans: zod.array(zod.string().min(1)).optional(),
   })
   .refine((data) => !fIsAfter(data.fromDate, data.toDate), {
     message: 'To-date cannot be earlier than From date!',
@@ -57,6 +59,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
       toDate: new Date(),
       dueDate: new Date(),
       associatedSubtrips: [],
+      selectedLoans: [],
     }),
     []
   );
@@ -78,9 +81,18 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
     transporterId: selectedTransporterID,
     createdDate,
     dueDate,
+    selectedLoans,
   } = watch();
 
   const { filteredSubtrips: allSubTripsByTransporter } = useSelector((state) => state.subtrip);
+
+  const { loans } = useSelector((state) => state.loan);
+
+  useEffect(() => {
+    if (selectedTransporterID) {
+      dispatch(fetchPendingLoans({ borrowerType: 'Transporter', id: selectedTransporterID }));
+    }
+  }, [dispatch, selectedTransporterID]);
 
   // Construct the draftTransporterPayment object for the preview
   const draftTransporterPayment = useMemo(() => {
@@ -92,30 +104,27 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
       associatedSubtrips: allSubTripsByTransporter.filter((st) =>
         associatedSubtrips.includes(st._id)
       ),
+      selectedLoans: loans?.filter((loan) => selectedLoans.includes(loan._id)),
       transporterId: selectedTransporter || {},
       status: 'draft',
       createdDate: createdDate || new Date(),
       dueDate: dueDate || null,
     };
   }, [
-    selectedTransporterID,
-    allSubTripsByTransporter,
     transporterList,
+    allSubTripsByTransporter,
+    loans,
     createdDate,
     dueDate,
+    selectedTransporterID,
     associatedSubtrips,
+    selectedLoans,
   ]);
 
   // Handle form submission (create or update)
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     try {
-      const transporterPaymentData = {
-        ...data,
-        transporterId: selectedTransporterID,
-        associatedSubtrips,
-        status: 'pending',
-      };
-      const createdTransporterPayment = await dispatch(addPayment(transporterPaymentData));
+      const createdTransporterPayment = await dispatch(addPayment(draftTransporterPayment));
       toast.success('TransporterPayment created successfully!');
       navigate(paths.dashboard.transporterPayment.details(createdTransporterPayment._id));
     } catch (error) {
@@ -125,7 +134,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <TransporterPaymentForm transportersList={transporterList} />
+      <TransporterPaymentForm transportersList={transporterList} loans={loans} />
 
       <TransporterPaymentPreview transporterPayment={draftTransporterPayment} />
 

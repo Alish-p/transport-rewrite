@@ -148,7 +148,6 @@ const RenderRepaymentComponent = ({ loans }) => (
         label: `Total Amount: ₹${loan?.totalAmount} | Installment Amount: ${loan?.installmentAmount} | Remarks: ${loan?.remarks}`,
         value: loan._id,
       }))}
-      sx={{ gap: 4 }}
     />
   </Grid>
 );
@@ -196,10 +195,15 @@ export default function DriverSalaryForm({ driversList, loans }) {
   return (
     <>
       <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-        Please Select the Trips Completed By Driver.
+        Driver Payroll Form
       </Typography>
 
       <Card sx={{ p: 3, mb: 3 }}>
+        <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
+          Please Select the Trips Completed By Driver.
+        </Typography>
+
+        {/* Trip Selector */}
         <Grid container spacing={2}>
           <FieldWrapper>
             <DriverDropdown driversList={driversList} />
@@ -229,30 +233,41 @@ export default function DriverSalaryForm({ driversList, loans }) {
             <SubtripsMultiSelect filteredSubtrips={filteredSubtrips} />
           </FieldWrapper>
         </Grid>
-      </Card>
 
-      <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-        Please Select Extra Salary Component
-      </Typography>
+        {/* Loan Selector */}
+        {loans && loans.length > 0 && driverId && (
+          <Grid sx={{ my: 2 }}>
+            <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
+              These are some pending loans of the driver. Select the loans to repay.
+            </Typography>
 
-      <Card sx={{ p: 3, mb: 3 }}>
-        <RenderOtherSalaryComponent fields={fields} remove={remove} />
-        <Button size="medium" variant="outlined" color="success" onClick={handleAddSalaryComponent}>
-          + Add Salary Item
-        </Button>
-      </Card>
-
-      {loans && loans.length > 0 && (
-        <>
-          <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-            These are some pending loans of the driver. Select the loans to repay.
-          </Typography>
-
-          <Card sx={{ p: 1, mb: 1 }}>
             <RenderRepaymentComponent loans={loans} />
-          </Card>
-        </>
-      )}
+            <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
+          </Grid>
+        )}
+
+        {/* Other Salary Component  */}
+
+        {driverId && (
+          <Grid sx={{ my: 2 }}>
+            <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
+              Please Select Extra Salary Component
+            </Typography>
+
+            <RenderOtherSalaryComponent fields={fields} remove={remove} />
+            <Button
+              size="medium"
+              variant="outlined"
+              color="success"
+              onClick={handleAddSalaryComponent}
+            >
+              + Add Salary Item
+            </Button>
+
+            <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
+          </Grid>
+        )}
+      </Card>
     </>
   );
 }

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Card, Grid, Button, Divider, MenuItem } from '@mui/material';
+import { Card, Grid, Button, Divider, MenuItem, Typography } from '@mui/material';
 
 import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/subtrip';
 
@@ -60,8 +60,22 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
     />
   );
 
+const RenderRepaymentComponent = ({ loans }) => (
+  <Grid container spacing={1} sx={{ m: 1, p: 1 }} key="index">
+    <Field.MultiCheckbox
+      column
+      name="selectedLoans"
+      label="Loans"
+      options={loans?.map((loan) => ({
+        label: `Total Amount: ₹${loan?.totalAmount} | Installment Amount: ${loan?.installmentAmount} | Remarks: ${loan?.remarks}`,
+        value: loan._id,
+      }))}
+    />
+  </Grid>
+);
+
 /** Main Component */
-export default function TransporterPaymentForm({ transportersList }) {
+export default function TransporterPaymentForm({ transportersList, loans }) {
   const dispatch = useDispatch();
   const { watch, setValue } = useFormContext();
   const { filteredSubtrips } = useSelector((state) => state.subtrip);
@@ -119,6 +133,18 @@ export default function TransporterPaymentForm({ transportersList }) {
           <SubtripsMultiSelect filteredSubtrips={filteredSubtrips} />
         </FieldWrapper>
       </Grid>
+
+      {/* Loan Selector */}
+      {loans && loans.length > 0 && transporterId && (
+        <Grid sx={{ my: 2 }}>
+          <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
+            These are some pending loans of the transporter. Select the loans to repay.
+          </Typography>
+
+          <RenderRepaymentComponent loans={loans} />
+          <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
+        </Grid>
+      )}
     </Card>
   );
 }
