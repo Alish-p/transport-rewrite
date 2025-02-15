@@ -15,6 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -102,7 +103,7 @@ export default function LoansTableRow({
         </TableCell>
         <TableCell>
           <ListItemText
-            primary={remainingBalance || 0}
+            primary={fCurrency(remainingBalance) || 0}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
