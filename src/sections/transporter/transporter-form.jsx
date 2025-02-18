@@ -128,6 +128,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
   const methods = useForm({
     resolver: zodResolver(NewTransporterSchema),
     defaultValues,
+    mode: 'all',
   });
 
   const {

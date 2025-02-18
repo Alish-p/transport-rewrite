@@ -24,10 +24,12 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
-export function OverviewAppView() {
+export function OverviewAppView({ dashboardData }) {
   const { user } = useAuthContext();
 
   const theme = useTheme();
+
+  const { invoices, vehicles, transporters, customers, drivers } = dashboardData;
 
   return (
     <DashboardContent maxWidth="xl">
@@ -65,7 +67,7 @@ export function OverviewAppView() {
           <AppWidgetSummary
             title="Total Vehicles"
             percent={0.2}
-            total={4876}
+            total={vehicles?.total}
             chart={{
               colors: [theme.vars.palette.info.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
@@ -74,33 +76,35 @@ export function OverviewAppView() {
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Invoices Generated"
-            percent={-0.1}
-            total={678}
-            chart={{
-              colors: [theme.vars.palette.error.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [18, 19, 31, 8, 16, 37, 12, 33],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentDownload
-            title="Invoices"
-            subheader="Invoice generated through the dashboard"
-            chart={{
-              series: [
-                { label: 'Pending', value: 144 },
-                { label: 'Draft', value: 535 },
-                { label: 'Billed', value: 443 },
-                { label: 'Cpmpleted', value: 743 },
-              ],
-            }}
-          />
-        </Grid>
+        {invoices && (
+          <>
+            <Grid xs={12} md={4}>
+              <AppWidgetSummary
+                title="Total Invoices Generated"
+                percent={-0.1}
+                total={invoices.total}
+                chart={{
+                  colors: [theme.vars.palette.error.main],
+                  categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                  series: [18, 19, 31, 8, 16, 37, 12, 33],
+                }}
+              />
+            </Grid>
+            <Grid xs={12} md={6} lg={4}>
+              <AppCurrentDownload
+                title="Invoices"
+                subheader="Invoice generated through the dashboard"
+                chart={{
+                  series: [
+                    { label: 'Pending', value: invoices.pending },
+                    { label: 'Paid', value: invoices.paid },
+                    { label: 'OverDue', value: invoices.overdue },
+                  ],
+                }}
+              />
+            </Grid>
+          </>
+        )}
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled

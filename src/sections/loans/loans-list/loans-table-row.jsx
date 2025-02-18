@@ -97,7 +97,7 @@ export default function LoansTableRow({
         </TableCell>
         <TableCell>
           <ListItemText
-            primary={totalAmount}
+            primary={fCurrency(totalAmount)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

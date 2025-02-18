@@ -19,8 +19,8 @@ const metadata = { title: `Diesel Price edit | Dashboard - ${CONFIG.site.name}` 
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { dieselPrice } = useSelector((state) => state.dieselPrice);
-  const { pumps } = useSelector((state) => state.pump);
+  const { dieselPrice, isLoading: dieselLoading } = useSelector((state) => state.dieselPrice);
+  const { pumps, isLoading: pumpLoading } = useSelector((state) => state.pump);
 
   const dispatch = useDispatch();
 
@@ -28,6 +28,10 @@ export default function Page() {
     dispatch(fetchDieselPrice(id));
     dispatch(fetchPumps());
   }, [dispatch, id]);
+
+  if (dieselLoading || pumpLoading || !dieselPrice || !pumps) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
