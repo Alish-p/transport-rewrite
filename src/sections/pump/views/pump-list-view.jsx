@@ -13,8 +13,8 @@ import TableContainer from '@mui/material/TableContainer';
 // _mock
 
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -25,8 +25,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { deletePump } from 'src/redux/slices/pump';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePump, fetchPumps } from 'src/redux/slices/pump';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -68,7 +68,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function PumpListView() {
+export function PumpListView({ pumps }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -77,12 +77,6 @@ export function PumpListView() {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchPumps());
-  }, [dispatch]);
-
-  const { pumps, isLoading } = useSelector((state) => state.pump);
 
   useEffect(() => {
     if (pumps.length) {

@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchLoans } from 'src/redux/slices/loan';
-import { useSelector, useDispatch } from 'src/redux/store';
+import { useLoans } from 'src/query/use-loan';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { LoansListView } from 'src/sections/loans/views';
 
@@ -12,14 +13,15 @@ import { LoansListView } from 'src/sections/loans/views';
 const metadata = { title: `Loans list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: loans, isLoading: loansLoading, isError: loansError } = useLoans();
 
-  useEffect(() => {
-    dispatch(fetchLoans());
-  }, [dispatch]);
+  if (loansLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { loans, isLoading } = useSelector((state) => state.loan);
-
+  if (loansError) {
+    return <EmptyContent />;
+  }
   return (
     <>
       <Helmet>

@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -12,7 +12,7 @@ import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography } from '@
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch, useSelector } from 'src/redux/store';
+import { dispatch } from 'src/redux/store';
 import { addRoute, updateRoute } from 'src/redux/slices/route';
 
 // components
@@ -21,7 +21,6 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { vehicleTypes } from '../vehicle/vehicle-config';
-import { fetchCustomers } from '../../redux/slices/customer';
 
 // ----------------------------------------------------------------------
 
@@ -56,7 +55,7 @@ export const NewRouteSchema = zod
     path: ['customer'],
   });
 
-export default function RouteForm({ currentRoute }) {
+export default function RouteForm({ currentRoute, customers }) {
   const navigate = useNavigate();
 
   const defaultValues = useMemo(
@@ -100,12 +99,6 @@ export default function RouteForm({ currentRoute }) {
     resolver: zodResolver(NewRouteSchema),
     defaultValues,
   });
-
-  useEffect(() => {
-    dispatch(fetchCustomers());
-  }, []);
-
-  const { customers } = useSelector((state) => state.customer);
 
   const {
     reset,

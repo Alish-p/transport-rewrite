@@ -1,29 +1,35 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchSubtrips } from 'src/redux/slices/subtrip';
+import { usePumps } from 'src/query/use-pump';
+import { useSubtrips } from 'src/query/use-subtrip';
 
 import { SubtripExpenseCreateView } from 'src/sections/expense/views';
 
-import { fetchPumps } from '../../../redux/slices/pump';
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Create a new Expense | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: subtrips, isLoading: subtripsLoading, isError: subtripError } = useSubtrips();
+  const { data: pumps, isLoading: pumpsLoading, isError: pumpError } = usePumps();
 
-  useEffect(() => {
-    dispatch(fetchSubtrips());
-    dispatch(fetchPumps());
-  }, [dispatch]);
+  if (subtripsLoading || pumpsLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { subtrips } = useSelector((state) => state.subtrip);
-  const { pumps } = useSelector((state) => state.pump);
+  if (subtripError || pumpError) {
+    return (
+      <EmptyContent
+        filled
+        title="Error Fetching Data !"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>

@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { toast } from 'src/components/snackbar';
+import axios from 'src/utils/axios';
 
-import axios from '../../utils/axios';
+import { toast } from 'src/components/snackbar';
 
 const initialState = {
   isLoading: false,

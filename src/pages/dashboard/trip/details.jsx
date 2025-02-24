@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { dispatch } from 'src/redux/store';
-import { fetchTrip } from 'src/redux/slices/trip';
+import { useTrip } from 'src/query/use-trip';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TripDetailView } from 'src/sections/trip/views';
 
@@ -17,11 +17,21 @@ const metadata = { title: `Trip details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchTrip(id));
-  }, [id]);
+  const { data: trip, isLoading, isError } = useTrip(id);
 
-  const { trip: tripData, isLoading } = useSelector((state) => state.trip);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -29,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      {tripData && <TripDetailView trip={tripData} loading={isLoading} />}
+      <TripDetailView trip={trip} />
     </>
   );
 }

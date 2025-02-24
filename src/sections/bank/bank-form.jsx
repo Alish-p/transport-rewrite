@@ -12,11 +12,10 @@ import { Box, Card, Grid, Stack, Typography } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addBank, updateBank } from 'src/redux/slices/bank';
+
+import { useCreateBank, useUpdateBank } from 'src/query/use-bank';
 
 // components
-import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
@@ -29,7 +28,11 @@ export const NewBankSchema = zod.object({
 });
 
 export default function BankForm({ currentBank }) {
+  console.log({ currentBank });
   const navigate = useNavigate();
+
+  const createBank = useCreateBank();
+  const updateBank = useUpdateBank();
 
   const defaultValues = useMemo(
     () => ({
@@ -54,15 +57,14 @@ export default function BankForm({ currentBank }) {
   } = methods;
 
   const onSubmit = async (data) => {
-    console.log({ bankData: data });
     try {
       if (!currentBank) {
-        await dispatch(addBank(data));
+        await createBank(data);
       } else {
-        await dispatch(updateBank(currentBank._id, data));
+        await updateBank({ id: currentBank._id, data });
       }
       reset();
-      toast.success(!currentBank ? 'Bank added successfully!' : 'Bank edited successfully!');
+
       navigate(paths.dashboard.bank.list);
     } catch (error) {
       console.error(error);

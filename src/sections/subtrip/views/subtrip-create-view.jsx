@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import SubtripCreateForm from '../subtrip-create-form';
 
-export function SubtripCreateView({ tripList, currentTrip }) {
+export function SubtripCreateView({ trips, currentTrip, customers }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -23,7 +23,11 @@ export function SubtripCreateView({ tripList, currentTrip }) {
         }}
       />
 
-      <SubtripCreateForm currentTrip={currentTrip !== 'undefined' ? currentTrip : null} />
+      <SubtripCreateForm
+        currentTrip={currentTrip !== 'undefined' ? currentTrip : null}
+        trips={trips}
+        customers={customers}
+      />
     </DashboardContent>
   );
 }

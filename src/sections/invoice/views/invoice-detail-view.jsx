@@ -1,14 +1,14 @@
-import { useParams } from 'react-router';
-import { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { fetchInvoice, updateInvoiceStatus } from 'src/redux/slices/invoice';
+import { updateInvoiceStatus } from 'src/redux/slices/invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import InvoicePreview from '../invoice-preview';
 import InvoiceToolbar from '../invoice-toolbar';
+import { useUpdateInvoice } from '../../../query/use-invoice';
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -16,47 +16,42 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: 'overdue', label: 'Overdue' },
 ];
 
-export function InvoiceDetailView() {
+export function InvoiceDetailView({ invoice }) {
   const dispatch = useDispatch();
-  const { id } = useParams();
-  const { invoice, isLoading } = useSelector((state) => state.invoice);
 
-  useEffect(() => {
-    dispatch(fetchInvoice(id));
-  }, [dispatch, id]);
+  const updateInvoice = useUpdateInvoice();
 
-  const invoiceStatus = invoice?.invoiceStatus;
+  const { invoiceStatus, _id } = invoice;
 
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
 
-      dispatch(updateInvoiceStatus(id, newStatus));
+      dispatch(updateInvoiceStatus(_id, newStatus));
     },
-    [dispatch, id]
+    [dispatch, _id]
   );
 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={id}
+        heading={_id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Invoice', href: '/dashboard/invoice' },
-          { name: id },
+          { name: _id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {invoice && !isLoading && (
-        <InvoiceToolbar
-          invoice={invoice}
-          currentStatus={invoiceStatus || ''}
-          onChangeStatus={handleChangeStatus}
-          statusOptions={INVOICE_STATUS_OPTIONS}
-        />
-      )}
 
-      {invoice && !isLoading && <InvoicePreview invoice={invoice} />}
+      <InvoiceToolbar
+        invoice={invoice}
+        currentStatus={invoiceStatus || ''}
+        onChangeStatus={handleChangeStatus}
+        statusOptions={INVOICE_STATUS_OPTIONS}
+      />
+
+      <InvoicePreview invoice={invoice} />
     </DashboardContent>
   );
 }

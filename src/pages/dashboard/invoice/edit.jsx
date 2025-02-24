@@ -1,24 +1,27 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { CONFIG } from 'src/config-global';
-import { fetchCustomers } from 'src/redux/slices/customer';
 
 import { InvoiceEditView } from 'src/sections/invoice/views';
+
+import { useCustomers } from '../../../query/use-customer';
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Invoice edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: customers, isLoading, isError } = useCustomers();
 
-  useEffect(() => {
-    dispatch(fetchCustomers());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { customers } = useSelector((state) => state.customer);
+  if (isError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>

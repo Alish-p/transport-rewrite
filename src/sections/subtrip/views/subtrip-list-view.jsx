@@ -17,8 +17,8 @@ import { alpha, useTheme } from '@mui/material/styles';
 // _mock
 
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { TableContainer } from '@mui/material';
 
@@ -33,7 +33,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteSubtrip, fetchSubtrips } from 'src/redux/slices/subtrip';
+import { deleteSubtrip } from 'src/redux/slices/subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -79,7 +79,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function SubtripListView() {
+export function SubtripListView({ subtrips }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -91,12 +91,6 @@ export function SubtripListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
-
-  useEffect(() => {
-    dispatch(fetchSubtrips());
-  }, [dispatch]);
-
-  const { subtrips, isLoading } = useSelector((state) => state.subtrip);
 
   useEffect(() => {
     if (subtrips.length) {

@@ -1,41 +1,43 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { useParams } from 'src/routes/hooks';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { CONFIG } from 'src/config-global';
-import { fetchSubtrips } from 'src/redux/slices/subtrip';
-import { fetchVehicles } from 'src/redux/slices/vehicle';
 
 import { ExpenseEditView } from 'src/sections/expense/views';
 
-import { fetchPumps } from '../../../redux/slices/pump';
+import { usePumps } from '../../../query/use-pump';
+import { useExpense } from '../../../query/use-expense';
+import { useSubtrips } from '../../../query/use-subtrip';
+import { useVehicles } from '../../../query/use-vehicle';
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Expense edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
-
   const { id = '' } = useParams();
 
-  const currentExpense = useSelector((state) =>
-    state.expense.expenses.find((expense) => paramCase(expense._id) === id)
-  );
+  const { data: subtrips, isLoading: subtripsLoading, isError: subtripError } = useSubtrips();
+  const { data: pumps, isLoading: pumpsLoading, isError: pumpError } = usePumps();
+  const { data: vehicles, isLoading: vehiclesLoading, isError: vehicleError } = useVehicles();
+  const { data: currentExpense, isLoading: expenseLoading, isError: expenseError } = useExpense(id);
 
-  useEffect(() => {
-    dispatch(fetchSubtrips());
-    dispatch(fetchVehicles());
-    dispatch(fetchPumps());
-  }, [dispatch]);
+  if (subtripsLoading || pumpsLoading || vehiclesLoading || expenseLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { subtrips } = useSelector((state) => state.subtrip);
-  const { vehicles } = useSelector((state) => state.vehicle);
-  const { pumps } = useSelector((state) => state.pump);
+  if (subtripError || pumpError || vehicleError || expenseError) {
+    return (
+      <EmptyContent
+        filled
+        title="Error Fetching Data !"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>

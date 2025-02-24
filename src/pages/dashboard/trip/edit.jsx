@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { fetchTrip } from 'src/redux/slices/trip';
-import { fetchDrivers } from 'src/redux/slices/driver';
-import { fetchVehicles } from 'src/redux/slices/vehicle';
+import { useTrip } from 'src/query/use-trip';
+import { useDrivers } from 'src/query/use-driver';
+import { useVehicles } from 'src/query/use-vehicle';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TripEditView } from 'src/sections/trip/views';
 
@@ -16,19 +17,19 @@ import { TripEditView } from 'src/sections/trip/views';
 const metadata = { title: `Trip edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
-
   const { id = '' } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchTrip(id));
-    dispatch(fetchDrivers());
-    dispatch(fetchVehicles());
-  }, [dispatch, id]);
+  const { data: trip, isLoading: tripLoading, isError: tripError } = useTrip(id);
+  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDrivers();
+  const { data: vehicles, isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
 
-  const { trip: tripData, isLoading } = useSelector((state) => state.trip);
-  const { vehicles } = useSelector((state) => state.vehicle);
-  const { drivers } = useSelector((state) => state.driver);
+  if (tripLoading || driversLoading || vehiclesLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (tripError || driversError || vehiclesError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>
@@ -36,7 +37,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TripEditView trip={tripData} vehicles={vehicles} drivers={drivers} />
+      <TripEditView trip={trip} vehicles={vehicles} drivers={drivers} />
     </>
   );
 }

@@ -12,6 +12,7 @@ import { store } from 'src/redux/store';
 import { LocalizationProvider } from 'src/locales';
 import { I18nProvider } from 'src/locales/i18n-provider';
 import { ThemeProvider } from 'src/theme/theme-provider';
+import { ReactQueryProvider } from 'src/query/query-provider';
 
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
@@ -29,18 +30,20 @@ export default function App() {
     <I18nProvider>
       <LocalizationProvider>
         <AuthProvider>
-          <ReduxProvider store={store}>
-            <SettingsProvider settings={defaultSettings}>
-              <ThemeProvider>
-                <MotionLazy>
-                  <Snackbar />
-                  <ProgressBar />
-                  <SettingsDrawer />
-                  <Router />
-                </MotionLazy>
-              </ThemeProvider>
-            </SettingsProvider>
-          </ReduxProvider>
+          <ReactQueryProvider>
+            <ReduxProvider store={store}>
+              <SettingsProvider settings={defaultSettings}>
+                <ThemeProvider>
+                  <MotionLazy>
+                    <Snackbar />
+                    <ProgressBar />
+                    <SettingsDrawer />
+                    <Router />
+                  </MotionLazy>
+                </ThemeProvider>
+              </SettingsProvider>
+            </ReduxProvider>
+          </ReactQueryProvider>
         </AuthProvider>
       </LocalizationProvider>
     </I18nProvider>

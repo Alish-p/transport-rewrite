@@ -1,8 +1,7 @@
 import { z as zod } from 'zod';
+import { useMemo } from 'react';
 // form
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -26,16 +25,15 @@ import { paths } from 'src/routes/paths';
 import { fCurrency } from 'src/utils/format-number';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addLoan, updateLoan } from 'src/redux/slices/loan';
 
 // components
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { BORROWER_TYPES } from './loans-config';
-import { fetchDrivers } from '../../redux/slices/driver';
-import { fetchTransporters } from '../../redux/slices/transporter';
+import { useDrivers } from '../../query/use-driver';
+import { useTransporters } from '../../query/use-transporter';
+import { useCreateLoan, useUpdateLoan } from '../../query/use-loan';
 
 // ----------------------------------------------------------------------
 
@@ -58,6 +56,8 @@ export const LoansSchema = zod.object({
 
 export default function LoanForm({ currentLoan }) {
   const navigate = useNavigate();
+  const updateLoan = useUpdateLoan();
+  const createLoan = useCreateLoan();
 
   const defaultValues = useMemo(
     () => ({
@@ -88,19 +88,14 @@ export default function LoanForm({ currentLoan }) {
   } = methods;
 
   const { borrowerType, interestRate, principalAmount, tenure } = watch();
-  const { drivers } = useSelector((state) => state.driver);
-  const { transporters } = useSelector((state) => state.transporter);
 
-  useEffect(() => {
-    console.log({ borrowerType });
+  const { data: drivers, isLoading: driversLoading } = useDrivers({
+    enabled: borrowerType === 'Driver',
+  });
 
-    if (borrowerType === 'Driver' && drivers.length === 0) {
-      dispatch(fetchDrivers());
-    }
-    if (borrowerType === 'Transporter' && transporters.length === 0) {
-      dispatch(fetchTransporters());
-    }
-  }, [borrowerType, drivers.length, transporters.length]);
+  const { data: transporters, isLoading: transportersLoading } = useTransporters({
+    enabled: borrowerType === 'Transporter',
+  });
 
   // Handle form submission (create or update)
   const onSubmit = async (data) => {
@@ -109,12 +104,10 @@ export default function LoanForm({ currentLoan }) {
         ...data,
       };
       if (currentLoan) {
-        await dispatch(updateLoan(currentLoan._id, loansData));
-        toast.success('Loan updated successfully!');
+        await updateLoan({ id: currentLoan._id, data: loansData });
         navigate(paths.dashboard.loan.details(currentLoan._id));
       } else {
-        const newLoan = await dispatch(addLoan(loansData));
-        toast.success('Loan created successfully!');
+        const newLoan = await createLoan(loansData);
         navigate(paths.dashboard.loan.details(newLoan._id));
       }
     } catch (error) {
@@ -151,13 +144,13 @@ export default function LoanForm({ currentLoan }) {
             <MenuItem value="">None</MenuItem>
             <Divider sx={{ borderStyle: 'dashed' }} />
             {borrowerType === 'Driver' &&
-              drivers.map((driver) => (
+              drivers?.map((driver) => (
                 <MenuItem key={driver._id} value={driver._id}>
                   {driver.driverName}
                 </MenuItem>
               ))}
             {borrowerType === 'Transporter' &&
-              transporters.map((transporter) => (
+              transporters?.map((transporter) => (
                 <MenuItem key={transporter._id} value={transporter._id}>
                   {transporter.transportName}
                 </MenuItem>

@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { dispatch } from 'src/redux/store';
-import { fetchSubtrip } from 'src/redux/slices/subtrip';
+import { useSubtrip } from 'src/query/use-subtrip';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { SubtripDetailView } from 'src/sections/subtrip/views';
 
@@ -17,16 +17,21 @@ const metadata = { title: `Subtrip details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchSubtrip(id));
-  }, [id]);
+  const { data: subtrip, isLoading, isError } = useSubtrip(id);
 
-  const { subtrip: subtripData, isLoading } = useSelector((state) => state.subtrip);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  console.log(subtripData);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (!subtripData) return <div>Fetching...</div>;
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -34,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripDetailView subtrip={subtripData} loading={isLoading} />
+      <SubtripDetailView subtrip={subtrip} />
     </>
   );
 }

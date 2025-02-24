@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { LinearProgress } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
-import { fetchBanks } from 'src/redux/slices/bank';
+import { useBanks } from 'src/query/use-bank';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { BankListView } from 'src/sections/bank/views';
 
@@ -16,11 +16,20 @@ const metadata = { title: `Bank list | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
+  const { data: banks, isLoading, isError } = useBanks();
 
-  const { banks, isLoading } = useSelector((state) => state.bank);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="No Banks found!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -28,15 +37,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      {isLoading ? (
-        <LinearProgress color="primary" sx={{ mb: 2, width: 1 }} />
-      ) : banks?.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h3>No banks found</h3>
-        </div>
-      ) : (
-        <BankListView banks={banks} />
-      )}
+      <BankListView banks={banks} />
     </>
   );
 }

@@ -1,37 +1,41 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { useParams } from 'src/routes/hooks';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { CONFIG } from 'src/config-global';
-import { fetchSubtrips } from 'src/redux/slices/subtrip';
-import { fetchVehicles } from 'src/redux/slices/vehicle';
+import { useRoutes } from 'src/query/use-route';
+import { useSubtrip } from 'src/query/use-subtrip';
+import { useCustomers } from 'src/query/use-customer';
 
 import { SubtripEditView } from 'src/sections/subtrip/views';
+
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Subtrip edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
-
   const { id = '' } = useParams();
 
-  const currentSubtrip = useSelector((state) =>
-    state.subtrip.subtrips.find((subtrip) => paramCase(subtrip._id) === id)
-  );
+  const { data: subtrip, isLoading: subtripLoading, isError: subtripError } = useSubtrip(id);
+  const { data: routes, isLoading: routesLoading, isError: routesError } = useRoutes();
+  const { data: customers, isLoading: customersLoading, isError: customersError } = useCustomers();
 
-  useEffect(() => {
-    dispatch(fetchSubtrips());
-    dispatch(fetchVehicles());
-  }, [dispatch]);
+  if (subtripLoading || routesLoading || customersLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { subtrips } = useSelector((state) => state.subtrip);
-  const { vehicles } = useSelector((state) => state.vehicle);
+  if (subtripError || routesError || customersError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -39,7 +43,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripEditView subtrip={currentSubtrip} subtrips={subtrips} vehicles={vehicles} />
+      <SubtripEditView subtrip={subtrip} routesList={routes} customersList={customers} />
     </>
   );
 }

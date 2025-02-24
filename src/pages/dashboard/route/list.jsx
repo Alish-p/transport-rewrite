@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { LinearProgress } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
-import { fetchRoutes } from 'src/redux/slices/route';
+import { useRoutes } from 'src/query/use-route';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { RouteListView } from 'src/sections/route/views';
 
@@ -14,13 +13,21 @@ import { RouteListView } from 'src/sections/route/views';
 const metadata = { title: `Route list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: routes, isLoading, isError } = useRoutes();
 
-  useEffect(() => {
-    dispatch(fetchRoutes());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { routes, isLoading } = useSelector((state) => state.route);
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -28,15 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      {isLoading ? (
-        <LinearProgress color="primary" sx={{ mb: 2, width: 1 }} />
-      ) : routes?.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h3>No routes found</h3>
-        </div>
-      ) : (
-        <RouteListView routes={routes} />
-      )}
+      <RouteListView routes={routes} />
     </>
   );
 }

@@ -8,10 +8,9 @@ import { Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { updateTrip } from 'src/redux/slices/trip';
+import { useUpdateTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TripToolbar from '../widgets/TripToolbar';
@@ -74,6 +73,8 @@ export function TripDetailView({ trip }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const updateTrip = useUpdateTrip();
+
   const {
     allSubtripsBilled,
     totalTrips,
@@ -86,17 +87,13 @@ export function TripDetailView({ trip }) {
 
   const closeTrip = async () => {
     try {
-      await dispatch(
-        updateTrip(trip._id, {
-          id: trip._id,
-          tripStatus: 'closed',
-          toDate: new Date(),
-        })
-      );
-      toast.success('Trip closed successfully!');
+      await updateTrip(trip._id, {});
+      await updateTrip({
+        id: trip._id,
+        data: { id: trip._id, tripStatus: 'closed', toDate: new Date() },
+      });
     } catch (error) {
       console.error(error);
-      toast.error('Failed to close the trip. Please try again.');
     }
   };
 

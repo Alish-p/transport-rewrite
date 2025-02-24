@@ -1,17 +1,15 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { CONFIG } from 'src/config-global';
+import { useBanks } from 'src/query/use-bank';
+import { useTransporter } from 'src/query/use-transporter';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TransporterEditView } from 'src/sections/transporter/views';
-
-import { useDispatch } from '../../../redux/store';
-import { fetchBanks } from '../../../redux/slices/bank';
 
 // ----------------------------------------------------------------------
 
@@ -20,17 +18,20 @@ const metadata = { title: `Transporter edit | Dashboard - ${CONFIG.site.name}` }
 export default function Page() {
   const { id = '' } = useParams();
 
-  const currentTransporter = useSelector((state) =>
-    state.transporter.transporters.find((transporter) => paramCase(transporter._id) === id)
-  );
+  const { data: banks, isLoading: bankLoading, isError: bankError } = useBanks();
+  const {
+    data: transporter,
+    isLoading: transporterLoading,
+    isError: transporterError,
+  } = useTransporter(id);
 
-  const dispatch = useDispatch();
+  if (bankLoading || transporterLoading) {
+    return <LoadingScreen />;
+  }
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
-
-  const { banks } = useSelector((state) => state.bank);
+  if (bankError || transporterError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>
@@ -38,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TransporterEditView transporter={currentTransporter} bankList={banks || []} />
+      <TransporterEditView transporter={transporter} bankList={banks} />
     </>
   );
 }

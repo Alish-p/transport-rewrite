@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchBanks } from 'src/redux/slices/bank';
-import { useDispatch, useSelector } from 'src/redux/store';
+import { useBanks } from 'src/query/use-bank';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { PumpCreateView } from 'src/sections/pump/views';
 
@@ -12,13 +13,15 @@ import { PumpCreateView } from 'src/sections/pump/views';
 const metadata = { title: `Create a new Pump | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: banks, isLoading: bankLoading, isError: bankError } = useBanks();
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
+  if (bankLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { banks } = useSelector((state) => state.bank);
+  if (bankError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>
@@ -26,7 +29,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PumpCreateView bankList={banks || []} />
+      <PumpCreateView bankList={banks} />
     </>
   );
 }

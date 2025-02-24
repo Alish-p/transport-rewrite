@@ -1,25 +1,27 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchTransporters } from 'src/redux/slices/transporter';
 
 import { TransporterPaymentCreateView } from 'src/sections/transporter-payment/views';
+
+import { useTransporters } from '../../../query/use-transporter';
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Create a new Transporter Payment | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: transporters, isLoading, isError } = useTransporters();
 
-  useEffect(() => {
-    dispatch(fetchTransporters());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { transporters } = useSelector((state) => state.transporter);
+  if (isError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>

@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchBanks } from 'src/redux/slices/bank';
+import { useBanks } from 'src/query/use-bank';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DriverCreateView } from 'src/sections/driver/views';
 
@@ -13,13 +13,21 @@ import { DriverCreateView } from 'src/sections/driver/views';
 const metadata = { title: `Create a new Driver | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: banks, isLoading, isError } = useBanks();
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { banks } = useSelector((state) => state.bank);
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Error Fetching Banks !"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -27,7 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverCreateView bankList={banks || []} />
+      <DriverCreateView bankList={banks} />
     </>
   );
 }

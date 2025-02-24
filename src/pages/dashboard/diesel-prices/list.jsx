@@ -1,32 +1,41 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
 import { DieselPriceListView } from 'src/sections/diesel-price/views';
 
-import { useDispatch } from '../../../redux/store';
-import { fetchPumps } from '../../../redux/slices/pump';
+import { usePumps } from '../../../query/use-pump';
+import { EmptyContent } from '../../../components/empty-content';
+import { useDieselPrices } from '../../../query/use-diesel-prices';
+import { LoadingScreen } from '../../../components/loading-screen';
+
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Diesel Price List | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps();
+  const {
+    data: dieselPrices,
+    isLoading: dieselPricesLoading,
+    isError: dieselPriceError,
+  } = useDieselPrices();
 
-  useEffect(() => {
-    dispatch(fetchPumps());
-  }, [dispatch]);
+  if (pumpLoading || dieselPricesLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { pumps } = useSelector((state) => state.pump);
+  if (pumpError || dieselPriceError) {
+    return <EmptyContent />;
+  }
+
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DieselPriceListView pumpsList={pumps} />
+      <DieselPriceListView pumpsList={pumps} dieselPrices={dieselPrices} />
     </>
   );
 }

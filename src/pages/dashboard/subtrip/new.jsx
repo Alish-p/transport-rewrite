@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useSearchParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchTrips } from 'src/redux/slices/trip';
+import { useTrips } from 'src/query/use-trip';
+import { useCustomers } from 'src/query/use-customer';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { SubtripCreateView } from 'src/sections/subtrip/views';
 
@@ -15,19 +16,25 @@ import { SubtripCreateView } from 'src/sections/subtrip/views';
 const metadata = { title: `Create a new Subtrip | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
   const searchParams = useSearchParams();
-
   const currentTrip = searchParams.get('id');
 
-  useEffect(() => {
-    dispatch(fetchTrips());
-  }, [dispatch]);
+  const { data: trips, isLoading: tripLoading, isError: tripError } = useTrips();
+  const { data: customers, isLoading: customerLoading, isError: customerError } = useCustomers();
 
-  const { trips, loading } = useSelector((state) => state.trip);
+  if (tripLoading || customerLoading) {
+    return <LoadingScreen />;
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (!trips) return <div>No Trips Available...</div>;
+  if (tripError || customerError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -35,7 +42,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripCreateView tripList={trips} currentTrip={currentTrip} />
+      <SubtripCreateView trips={trips} customers={customers} currentTrip={currentTrip} />
     </>
   );
 }

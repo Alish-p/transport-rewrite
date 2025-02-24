@@ -21,7 +21,7 @@ export function BankListDialog({
   onClose,
   selected,
   onSelect,
-  title = 'Bank book',
+  title = 'Bank List',
 }) {
   const [searchBank, setSearchBank] = useState('');
 

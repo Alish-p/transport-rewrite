@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { dispatch } from 'src/redux/store';
-import { fetchPayments } from 'src/redux/slices/transporter-payment';
+import { useTransporterPayments } from 'src/query/use-transporter-payment';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TransporterPaymentListView } from 'src/sections/transporter-payment/views';
 
@@ -13,11 +13,21 @@ import { TransporterPaymentListView } from 'src/sections/transporter-payment/vie
 const metadata = { title: `Transporter Payment List | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  useEffect(() => {
-    dispatch(fetchPayments());
-  }, []);
+  const { data: transporterPayments, isLoading, isError } = useTransporterPayments();
 
-  const { payments, isLoading } = useSelector((state) => state.transporterPayment);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -25,7 +35,7 @@ export default function Page() {
         <title>{metadata.title}</title>
       </Helmet>
 
-      <TransporterPaymentListView payments={payments} loading={isLoading} />
+      <TransporterPaymentListView payments={transporterPayments} />
     </>
   );
 }

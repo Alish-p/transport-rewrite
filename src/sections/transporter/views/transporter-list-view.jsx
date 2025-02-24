@@ -13,8 +13,8 @@ import TableContainer from '@mui/material/TableContainer';
 // _mock
 
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -26,7 +26,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteTransporter, fetchTransporters } from 'src/redux/slices/transporter';
+import { deleteTransporter } from 'src/redux/slices/transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -65,7 +65,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function TransporterListView() {
+export function TransporterListView({ transporters }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -74,12 +74,6 @@ export function TransporterListView() {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchTransporters());
-  }, [dispatch]);
-
-  const { transporters, isLoading } = useSelector((state) => state.transporter);
 
   useEffect(() => {
     if (transporters.length) {

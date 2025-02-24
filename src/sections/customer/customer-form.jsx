@@ -1,4 +1,3 @@
-import { toast } from 'sonner';
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +11,6 @@ import { Box, Card, Grid, Stack, Button, Divider, Typography, IconButton } from 
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-import { dispatch } from 'src/redux/store';
-import { addCustomer, updateCustomer } from 'src/redux/slices/customer';
-
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -24,6 +19,7 @@ import { useRouter } from '../../routes/hooks';
 import { useBoolean } from '../../hooks/use-boolean';
 import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
+import { useCreateCustomer, useUpdateCustomer } from '../../query/use-customer';
 
 export const NewCustomerSchema = zod.object({
   customerName: zod.string().min(1, { message: 'Customer Name is required' }),
@@ -79,6 +75,9 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
   const router = useRouter();
   const bankDialogue = useBoolean();
 
+  const addCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
+
   const defaultValues = useMemo(
     () => ({
       customerName: currentCustomer?.customerName || '',
@@ -130,14 +129,12 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
   const onSubmit = async (data) => {
     try {
       if (!currentCustomer) {
-        await dispatch(addCustomer(data));
+        await addCustomer(data);
       } else {
-        await dispatch(updateCustomer(currentCustomer._id, data));
+        await updateCustomer({ id: currentCustomer._id, data });
       }
       reset();
-      toast.success(
-        !currentCustomer ? 'Customer added successfully!' : 'Customer edited successfully!'
-      );
+
       navigate(paths.dashboard.customer.list);
     } catch (error) {
       console.error(error);

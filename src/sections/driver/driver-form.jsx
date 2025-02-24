@@ -22,13 +22,8 @@ import {
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-import { dispatch } from 'src/redux/store';
-import { addDriver, updateDriver } from 'src/redux/slices/driver';
-
 // components
 import { Label } from 'src/components/label';
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useRouter } from '../../routes/hooks';
@@ -36,6 +31,7 @@ import { Iconify } from '../../components/iconify';
 import { useBoolean } from '../../hooks/use-boolean';
 import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
+import { useCreateDriver, useUpdateDriver } from '../../query/use-driver';
 
 // ----------------------------------------------------------------------
 
@@ -94,6 +90,9 @@ export const NewDriverSchema = zod.object({
 export default function DriverForm({ currentDriver, bankList }) {
   const navigate = useNavigate();
   const router = useRouter();
+  const createDriver = useCreateDriver();
+  const updateDriver = useUpdateDriver();
+
   const defaultValues = useMemo(
     () => ({
       driverName: currentDriver?.driverName || '',
@@ -146,12 +145,12 @@ export default function DriverForm({ currentDriver, bankList }) {
   const onSubmit = async (data) => {
     try {
       if (!currentDriver) {
-        await dispatch(addDriver(data));
+        await createDriver(data);
       } else {
-        await dispatch(updateDriver(currentDriver._id, data));
+        console.log({ dataInOnSubmit: data });
+        await updateDriver({ id: currentDriver._id, data });
       }
       reset();
-      toast.success(!currentDriver ? 'Driver added successfully!' : 'Driver edited successfully!');
       navigate(paths.dashboard.driver.list);
     } catch (error) {
       console.error(error);

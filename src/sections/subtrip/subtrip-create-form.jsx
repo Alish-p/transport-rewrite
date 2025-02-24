@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -13,13 +12,9 @@ import { paths } from 'src/routes/paths';
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
-import { useSelector } from 'src/redux/store';
-import { fetchTrips } from 'src/redux/slices/trip';
-import { addSubtrip } from 'src/redux/slices/subtrip';
-import { fetchCustomers } from 'src/redux/slices/customer';
-
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useCreateSubtrip } from '../../query/use-subtrip';
 
 const NewTripSchema = zod.object({
   tripId: zod
@@ -33,9 +28,10 @@ const NewTripSchema = zod.object({
   startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
 });
 
-export default function SubtripCreateForm({ currentTrip }) {
+export default function SubtripCreateForm({ currentTrip, trips, customers }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const addSubtrip = useCreateSubtrip();
 
   const defaultValues = useMemo(
     () => ({
@@ -47,14 +43,6 @@ export default function SubtripCreateForm({ currentTrip }) {
     }),
     [currentTrip]
   );
-
-  useEffect(() => {
-    dispatch(fetchCustomers());
-    dispatch(fetchTrips());
-  }, [dispatch]);
-
-  const { customers } = useSelector((state) => state.customer);
-  const { trips } = useSelector((state) => state.trip);
 
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
@@ -69,11 +57,9 @@ export default function SubtripCreateForm({ currentTrip }) {
 
   const onSubmit = async (data) => {
     try {
-      console.log('Submitting');
-      const createdSubtrip = await dispatch(addSubtrip(data.tripId.value, data));
+      const createdSubtrip = await addSubtrip({ id: data?.tripId?.value, data });
 
       reset();
-      toast.success('Subtrip created successfully!');
       navigate(paths.dashboard.subtrip.details(paramCase(createdSubtrip._id)));
     } catch (error) {
       console.error(error);

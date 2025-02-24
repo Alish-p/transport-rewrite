@@ -1,27 +1,14 @@
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
-import { useParams } from 'react-router-dom';
 
 import { Container } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { paramCase } from 'src/utils/change-case';
-
-import { useSettingsContext } from 'src/components/settings';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import SubtripForm from '../subtrip-edit-form';
+import SubtripEditForm from '../subtrip-edit-form';
 
-export function SubtripEditView() {
-  const { themeStretch } = useSettingsContext();
-
-  const { id } = useParams();
-
-  const currentSubtrip = useSelector((state) =>
-    state.subtrip.subtrips.find((subtrip) => paramCase(subtrip._id) === id)
-  );
-
+export function SubtripEditView({ subtrip, routesList, customersList }) {
   return (
     <>
       <Helmet>
@@ -47,7 +34,11 @@ export function SubtripEditView() {
           }}
         />
 
-        <SubtripForm isEdit currentSubtrip={currentSubtrip} />
+        <SubtripEditForm
+          currentSubtrip={subtrip}
+          routesList={routesList}
+          customersList={customersList}
+        />
       </Container>
     </>
   );

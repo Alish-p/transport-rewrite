@@ -1,6 +1,5 @@
-import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
 // @mui
@@ -23,7 +22,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteCustomer, fetchCustomers } from 'src/redux/slices/customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -42,6 +40,7 @@ import {
 
 import CustomerTableRow from '../customer-table-row';
 import CustomerTableToolbar from '../customer-table-toolbar';
+import { useDeleteCustomer } from '../../../query/use-customer';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -63,21 +62,16 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function CustomerListView() {
+export function CustomerListView({ customers }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const deleteCustomer = useDeleteCustomer();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchCustomers());
-  }, [dispatch]);
-
-  const { customers } = useSelector((state) => state.customer);
 
   useEffect(() => {
     if (customers.length) {
@@ -109,15 +103,6 @@ export function CustomerListView() {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteCustomer(id));
-      toast.success('Customer Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.customer.edit(paramCase(id)));
@@ -265,7 +250,7 @@ export function CustomerListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteCustomer(row._id)}
                       />
                     ))}
 

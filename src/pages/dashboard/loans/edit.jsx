@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { fetchLoan } from 'src/redux/slices/loan';
-import { fetchDrivers } from 'src/redux/slices/driver';
+import { useLoan } from 'src/query/use-loan';
+import { useDrivers } from 'src/query/use-driver';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { LoanEditView } from 'src/sections/loans/views';
 
@@ -15,17 +16,18 @@ import { LoanEditView } from 'src/sections/loans/views';
 const metadata = { title: `Loan edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
-
   const { id = '' } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchLoan(id));
-    dispatch(fetchDrivers());
-  }, [dispatch, id]);
+  const { data: loan, isLoading: loanLoading, isError: loanError } = useLoan(id);
+  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDrivers();
 
-  const { loan, isLoading: loanLoading } = useSelector((state) => state.loan);
-  const { drivers, isLoading: driversLoading } = useSelector((state) => state.driver);
+  if (loanLoading || driversLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (loanError || driversError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>
@@ -33,11 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      {loanLoading || driversLoading ? (
-        'Loading...'
-      ) : (
-        <LoanEditView loan={loan} driverList={drivers} />
-      )}
+      <LoanEditView loan={loan} driverList={drivers} />
     </>
   );
 }

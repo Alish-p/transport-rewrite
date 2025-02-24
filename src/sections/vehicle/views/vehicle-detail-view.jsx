@@ -7,16 +7,15 @@ import Card from '@mui/material/Card';
 import { Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { Iconify } from '../../../components/iconify';
-import { RouterLink } from '../../../routes/components';
 
 // Example component
 

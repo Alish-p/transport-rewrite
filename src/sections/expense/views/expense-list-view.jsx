@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -29,7 +29,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteExpense, fetchExpenses } from 'src/redux/slices/expense';
+import { deleteExpense } from 'src/redux/slices/expense';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -77,7 +77,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function ExpenseListView() {
+export function ExpenseListView({ expenses }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -89,12 +89,6 @@ export function ExpenseListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
-
-  useEffect(() => {
-    dispatch(fetchExpenses());
-  }, [dispatch]);
-
-  const { expenses, isLoading } = useSelector((state) => state.expense);
 
   useEffect(() => {
     if (expenses.length) {

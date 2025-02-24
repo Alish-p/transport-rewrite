@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchVehicles } from 'src/redux/slices/vehicle';
+import { useVehicles } from 'src/query/use-vehicle';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleExpenseCreateView } from 'src/sections/expense/views/vehicle-expense-create-view';
 
@@ -13,13 +13,21 @@ import { VehicleExpenseCreateView } from 'src/sections/expense/views/vehicle-exp
 const metadata = { title: `Create a new Expense | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: vehicles, isLoading, isError } = useVehicles();
 
-  useEffect(() => {
-    dispatch(fetchVehicles());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { vehicles } = useSelector((state) => state.vehicle);
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>

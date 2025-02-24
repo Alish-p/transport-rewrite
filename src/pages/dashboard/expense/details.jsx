@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { dispatch } from 'src/redux/store';
-import { fetchExpense } from 'src/redux/slices/expense';
 
 import { ExpenseDetailView } from 'src/sections/expense/views';
+
+import { useExpense } from '../../../query/use-expense';
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
@@ -17,14 +17,21 @@ const metadata = { title: `Expense details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchExpense(id));
-  }, [id]);
+  const { data: currentExpense, isLoading, isError } = useExpense(id);
 
-  const { expense: currentExpense, isLoading } = useSelector((state) => state.expense);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!currentExpense) return <div>No Expense Found...</div>;
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>

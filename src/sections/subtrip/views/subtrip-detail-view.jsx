@@ -30,7 +30,7 @@ import { SubtripMaterialInfoDialog } from '../subtrip-material-info-dialogue-for
 
 // ----------------------------------------------------------------------
 
-export function SubtripDetailView({ subtrip, loading }) {
+export function SubtripDetailView({ subtrip }) {
   const navigate = useNavigate();
 
   // State for dialog visibility

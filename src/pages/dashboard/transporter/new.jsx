@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchBanks } from 'src/redux/slices/bank';
-import { useDispatch, useSelector } from 'src/redux/store';
+import { useBanks } from 'src/query/use-bank';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TransporterCreateView } from 'src/sections/transporter/views';
 
@@ -12,20 +13,22 @@ import { TransporterCreateView } from 'src/sections/transporter/views';
 const metadata = { title: `Create a new Transporter | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: banks, isLoading, isError } = useBanks();
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { banks } = useSelector((state) => state.bank);
+  if (isError) {
+    return <EmptyContent />;
+  }
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TransporterCreateView bankList={banks || []} />
+      <TransporterCreateView bankList={banks} />
     </>
   );
 }

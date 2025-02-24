@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -24,10 +23,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import { deleteBank } from 'src/redux/slices/bank';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -45,6 +42,7 @@ import {
 
 import BankTableRow from '../bank-table-row';
 import BankTableToolbar from '../bank-table-toolbar';
+import { useDeleteBank } from '../../../query/use-bank';
 import BankTableFiltersResult from '../bank-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -67,11 +65,11 @@ const defaultFilters = {
 
 export function BankListView({ banks }) {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
-
+  const deleteBank = useDeleteBank();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const table = useTable({ defaultOrderBy: 'createDate' });
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -105,15 +103,6 @@ export function BankListView({ banks }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteBank(id));
-      toast.success('Bank Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
@@ -257,7 +246,10 @@ export function BankListView({ banks }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => {
+                          confirm.onFalse();
+                          deleteBank(row._id);
+                        }}
                       />
                     ))}
 

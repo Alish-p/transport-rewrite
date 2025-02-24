@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchPumps } from 'src/redux/slices/pump';
-import { useDispatch, useSelector } from 'src/redux/store';
+import { usePumps } from 'src/query/use-pump';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DieselPriceCreateView } from 'src/sections/diesel-price/views';
 
@@ -12,13 +13,15 @@ import { DieselPriceCreateView } from 'src/sections/diesel-price/views';
 const metadata = { title: `Create a new Diesel Price | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps();
 
-  useEffect(() => {
-    dispatch(fetchPumps());
-  }, [dispatch]);
+  if (pumpLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { pumps } = useSelector((state) => state.pump);
+  if (pumpError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>
@@ -26,7 +29,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DieselPriceCreateView pumpsList={pumps || []} />
+      <DieselPriceCreateView pumpsList={pumps} />
     </>
   );
 }

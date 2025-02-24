@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { fetchInvoices } from 'src/redux/slices/invoice';
-import { useSelector, useDispatch } from 'src/redux/store';
+import { useInvoices } from 'src/query/use-invoice';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { InvoiceListView } from 'src/sections/invoice/views';
 
@@ -12,13 +13,15 @@ import { InvoiceListView } from 'src/sections/invoice/views';
 const metadata = { title: `Invoice list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: invoices, isLoading, isError } = useInvoices();
 
-  useEffect(() => {
-    dispatch(fetchInvoices());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { invoices, isLoading } = useSelector((state) => state.invoice);
+  if (isError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>

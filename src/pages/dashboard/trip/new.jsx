@@ -1,28 +1,29 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchDrivers } from 'src/redux/slices/driver';
-import { fetchVehicles } from 'src/redux/slices/vehicle';
+import { useDrivers } from 'src/query/use-driver';
+import { useVehicles } from 'src/query/use-vehicle';
 
 import { TripCreateView } from 'src/sections/trip/views';
+
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Create a new Trip | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDrivers();
+  const { data: vehicles, isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
 
-  useEffect(() => {
-    dispatch(fetchDrivers());
-    dispatch(fetchVehicles());
-  }, [dispatch]);
+  if (driversLoading || vehiclesLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { drivers } = useSelector((state) => state.driver);
-  const { vehicles } = useSelector((state) => state.vehicle);
+  if (driversError || vehiclesError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>

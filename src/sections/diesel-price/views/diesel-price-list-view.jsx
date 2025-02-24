@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -23,7 +23,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteDieselPrice, fetchDieselPrices } from 'src/redux/slices/diesel-price';
+import { deleteDieselPrice } from 'src/redux/slices/diesel-price';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -63,7 +63,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function DieselPriceListView({ pumpsList }) {
+export function DieselPriceListView({ pumpsList, dieselPrices }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -72,12 +72,6 @@ export function DieselPriceListView({ pumpsList }) {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchDieselPrices());
-  }, [dispatch]);
-
-  const { dieselPrices, isLoading } = useSelector((state) => state.dieselPrice);
 
   useEffect(() => {
     if (dieselPrices.length) {

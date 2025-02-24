@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchDrivers } from 'src/redux/slices/driver';
+import { useDrivers } from 'src/query/use-driver';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DriverPayrollCreateView } from 'src/sections/driver-payroll/views';
 
@@ -13,13 +13,15 @@ import { DriverPayrollCreateView } from 'src/sections/driver-payroll/views';
 const metadata = { title: `Create a new Driver Payroll | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: drivers, isLoading, isError } = useDrivers();
 
-  useEffect(() => {
-    dispatch(fetchDrivers());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { drivers } = useSelector((state) => state.driver);
+  if (isError) {
+    return <EmptyContent />;
+  }
 
   return (
     <>

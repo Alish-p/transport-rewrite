@@ -1,9 +1,8 @@
-import { useParams } from 'react-router';
-import { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { fetchPayment, updatePaymentStatus } from 'src/redux/slices/transporter-payment';
+import { updatePaymentStatus } from 'src/redux/slices/transporter-payment';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -16,50 +15,37 @@ export const TRANSPORTER_PAYMENT_OPTIONS = [
   { value: 'overdue', label: 'Overdue' },
 ];
 
-export function TransporterPaymentDetailView() {
+export function TransporterPaymentDetailView({ transporterPayment }) {
   const dispatch = useDispatch();
-  const { id } = useParams();
-  const { payment: transporterPayment, isLoading } = useSelector(
-    (state) => state.transporterPayment
-  );
 
-  useEffect(() => {
-    dispatch(fetchPayment(id));
-  }, [dispatch, id]);
-
-  const status = transporterPayment?.status;
+  const { _id, status } = transporterPayment;
 
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-
-      dispatch(updatePaymentStatus(id, newStatus));
+      dispatch(updatePaymentStatus(_id, newStatus));
     },
-    [dispatch, id]
+    [dispatch, _id]
   );
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={id}
+        heading={_id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Transporter Payment', href: '/dashboard/transporterPayment' },
-          { name: id },
+          { name: _id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {transporterPayment && !isLoading && (
-        <TransporterPaymentToolbar
-          transporterPayment={transporterPayment}
-          currentStatus={status || ''}
-          onChangeStatus={handleChangeStatus}
-          statusOptions={TRANSPORTER_PAYMENT_OPTIONS}
-        />
-      )}
+      <TransporterPaymentToolbar
+        transporterPayment={transporterPayment}
+        currentStatus={status || ''}
+        onChangeStatus={handleChangeStatus}
+        statusOptions={TRANSPORTER_PAYMENT_OPTIONS}
+      />
 
-      {transporterPayment && !isLoading && (
-        <TransporterPaymentPreview transporterPayment={transporterPayment} />
-      )}
+      <TransporterPaymentPreview transporterPayment={transporterPayment} />
     </DashboardContent>
   );
 }

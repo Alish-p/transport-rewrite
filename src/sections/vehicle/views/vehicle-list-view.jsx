@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -28,7 +28,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteVehicle, fetchVehicles } from 'src/redux/slices/vehicle';
+import { deleteVehicle } from 'src/redux/slices/vehicle';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -81,7 +81,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function VehicleListView() {
+export function VehicleListView({ vehicles }) {
   const theme = useTheme();
 
   const router = useRouter();
@@ -92,12 +92,6 @@ export function VehicleListView() {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchVehicles());
-  }, [dispatch]);
-
-  const { vehicles, isLoading } = useSelector((state) => state.vehicle);
 
   useEffect(() => {
     if (vehicles.length) {

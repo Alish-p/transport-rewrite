@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { dispatch } from 'src/redux/store';
-import { fetchPayment } from 'src/redux/slices/transporter-payment';
+import { useTransporterPayment } from 'src/query/use-transporter-payment';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { TransporterPaymentDetailView } from 'src/sections/transporter-payment/views';
 
@@ -17,15 +17,21 @@ const metadata = { title: `Transporter Payment details | Dashboard - ${CONFIG.si
 export default function Page() {
   const { id } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchPayment(id));
-  }, [id]);
+  const { data: transporterPayment, isLoading, isError } = useTransporterPayment(id);
 
-  const { payment: transporterPaymentData, isLoading } = useSelector(
-    (state) => state.transporterPayment
-  );
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  console.log(transporterPaymentData);
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Something went wrong!"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -33,10 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TransporterPaymentDetailView
-        transporterPayment={transporterPaymentData}
-        loading={isLoading}
-      />
+      <TransporterPaymentDetailView transporterPayment={transporterPayment} />
     </>
   );
 }

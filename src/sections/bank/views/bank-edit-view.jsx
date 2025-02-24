@@ -20,7 +20,7 @@ export function BankEditView({ bank }) {
             name: 'Bank List',
             href: paths.dashboard.bank.list,
           },
-          { name: bank?.bankName },
+          { name: bank?.name },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

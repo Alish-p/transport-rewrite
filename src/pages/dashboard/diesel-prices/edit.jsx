@@ -1,16 +1,15 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useDispatch } from 'src/redux/store';
-import { fetchDieselPrice } from 'src/redux/slices/diesel-price';
+import { usePumps } from 'src/query/use-pump';
+import { useDieselPrice } from 'src/query/use-diesel-prices';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DieselPriceEditView } from 'src/sections/diesel-price/views';
-
-import { fetchPumps } from '../../../redux/slices/pump';
 
 // ----------------------------------------------------------------------
 
@@ -19,18 +18,19 @@ const metadata = { title: `Diesel Price edit | Dashboard - ${CONFIG.site.name}` 
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { dieselPrice, isLoading: dieselLoading } = useSelector((state) => state.dieselPrice);
-  const { pumps, isLoading: pumpLoading } = useSelector((state) => state.pump);
+  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps();
+  const {
+    data: dieselPrice,
+    isLoading: dieselPriceLoading,
+    isError: dieselPriceError,
+  } = useDieselPrice(id);
 
-  const dispatch = useDispatch();
+  if (pumpLoading || dieselPriceLoading) {
+    return <LoadingScreen />;
+  }
 
-  useEffect(() => {
-    dispatch(fetchDieselPrice(id));
-    dispatch(fetchPumps());
-  }, [dispatch, id]);
-
-  if (dieselLoading || pumpLoading || !dieselPrice || !pumps) {
-    return <div>Loading...</div>;
+  if (pumpError || dieselPriceError) {
+    return <EmptyContent />;
   }
 
   return (

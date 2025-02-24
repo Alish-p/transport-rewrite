@@ -1,24 +1,27 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { CONFIG } from 'src/config-global';
-import { fetchBanks } from 'src/redux/slices/bank';
+import { useBanks } from 'src/query/use-bank';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { CustomerCreateView } from 'src/sections/customer/views';
 
-// ----------------------------------------------------------------------
+// -------------------------------------------------------------
 
 const metadata = { title: `Create a new Customer | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: banks, isLoading, isError } = useBanks();
 
-  useEffect(() => {
-    dispatch(fetchBanks());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { banks } = useSelector((state) => state.bank);
+  if (isError) {
+    return <EmptyContent filled description="Error Fetching Customers" />;
+  }
 
   return (
     <>

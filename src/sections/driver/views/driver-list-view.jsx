@@ -1,7 +1,5 @@
-import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -28,7 +26,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteDriver, fetchDrivers } from 'src/redux/slices/driver';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -49,6 +46,7 @@ import {
 import DriverTableRow from '../driver-table-row';
 import DriverTableToolbar from '../driver-table-toolbar';
 import DriverAnalytics from '../widgets/driver-analytic';
+import { useDeleteDriver } from '../../../query/use-driver';
 import DriverTableFiltersResult from '../driver-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -79,22 +77,16 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function DriverListView() {
+export function DriverListView({ drivers }) {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteDriver = useDeleteDriver();
+
+  const table = useTable({ defaultOrderBy: 'createDate' });
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  useEffect(() => {
-    dispatch(fetchDrivers());
-  }, [dispatch]);
-
-  const { drivers, isLoading } = useSelector((state) => state.driver);
 
   const today = new Date();
 
@@ -159,15 +151,6 @@ export function DriverListView() {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteDriver(id));
-      toast.success('Driver Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.driver.edit(paramCase(id)));
@@ -394,7 +377,7 @@ export function DriverListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteDriver(row._id)}
                       />
                     ))}
 
