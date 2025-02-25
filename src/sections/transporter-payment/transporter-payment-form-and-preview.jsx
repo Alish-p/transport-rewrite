@@ -85,11 +85,18 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
     toDate,
   } = watch();
 
-  const { data: allSubTripsByTransporter } = useClosedSubtripsByTransporterAndDate(
+  const { data: allSubTripsByTransporter, refetch } = useClosedSubtripsByTransporterAndDate(
     selectedTransporterID,
     fromDate,
     toDate
   );
+
+  // This callback will be passed to the child button
+  const handleFetchSubtrips = () => {
+    if (selectedTransporterID && fromDate && toDate) {
+      refetch();
+    }
+  };
 
   const { data: pendingLoans } = usePendingLoans({
     borrowerType: 'Transporter',
@@ -139,6 +146,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
         transportersList={transporterList}
         loans={pendingLoans}
         filteredSubtrips={allSubTripsByTransporter}
+        onFetchSubtrips={handleFetchSubtrips}
       />
 
       <TransporterPaymentPreview transporterPayment={draftTransporterPayment} />

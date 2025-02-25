@@ -134,7 +134,12 @@ const RenderRepaymentComponent = ({ loans }) => (
   </Grid>
 );
 
-export default function DriverSalaryForm({ driversList, loans, filteredSubtrips }) {
+export default function DriverSalaryForm({
+  driversList,
+  loans,
+  filteredSubtrips,
+  onFetchSubtrips,
+}) {
   const { watch, setValue, control } = useFormContext();
 
   const { driverId, periodStartDate, periodEndDate } = watch();
@@ -183,6 +188,7 @@ export default function DriverSalaryForm({ driversList, loans, filteredSubtrips 
               variant="contained"
               fullWidth
               sx={{ height: '100%', width: '50%' }}
+              onClick={onFetchSubtrips}
             >
               {'>'}
             </Button>

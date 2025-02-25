@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useDispatch } from 'react-redux';
 import { useFormContext } from 'react-hook-form';
 
 import { Card, Grid, Button, Divider, MenuItem, Typography } from '@mui/material';
@@ -57,11 +56,15 @@ const RenderRepaymentComponent = ({ loans }) => (
 );
 
 /** Main Component */
-export default function TransporterPaymentForm({ transportersList, loans, filteredSubtrips }) {
-  const dispatch = useDispatch();
-  const { watch, setValue } = useFormContext();
+export default function TransporterPaymentForm({
+  transportersList,
+  loans,
+  filteredSubtrips,
+  onFetchSubtrips,
+}) {
+  const { watch } = useFormContext();
 
-  const { transporterId, fromDate, toDate } = watch();
+  const { transporterId } = watch();
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
@@ -79,7 +82,13 @@ export default function TransporterPaymentForm({ transportersList, loans, filter
         </FieldWrapper>
 
         <FieldWrapper md={1}>
-          <Button type="button" variant="contained" fullWidth sx={{ height: '100%', width: '50%' }}>
+          <Button
+            type="button"
+            variant="contained"
+            fullWidth
+            sx={{ height: '100%', width: '50%' }}
+            onClick={onFetchSubtrips}
+          >
             {'>'}
           </Button>
         </FieldWrapper>

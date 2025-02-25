@@ -42,10 +42,8 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   );
 
 /** Main Component */
-export default function InvoiceForm({ customersList, filteredSubtrips }) {
+export default function InvoiceForm({ customersList, filteredSubtrips, onFetchSubtrips }) {
   const { watch, setValue } = useFormContext();
-
-  const { customerId, fromDate, toDate } = watch();
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
@@ -68,7 +66,7 @@ export default function InvoiceForm({ customersList, filteredSubtrips }) {
             variant="contained"
             fullWidth
             sx={{ height: '100%', width: '50%' }}
-            // onClick={fetchCustomerSubtrips}
+            onClick={onFetchSubtrips}
           >
             {'>'}
           </Button>

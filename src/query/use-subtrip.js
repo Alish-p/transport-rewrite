@@ -97,7 +97,8 @@ export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
     queryKey: ['closed-trips', customerId, fromDate, toDate],
     queryFn: getClosedTripsByCustomerAndDate,
-    enabled: !!customerId && !!fromDate && !!toDate,
+    enabled: false,
+    retry: 0,
   });
 }
 
@@ -105,7 +106,8 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
   return useQuery({
     queryKey: ['closed-trips', driverId, periodStartDate, periodEndDate],
     queryFn: getTripsCompletedByDriverAndDate,
-    enabled: !!driverId && !!periodStartDate && !!periodEndDate,
+    enabled: false,
+    retry: 0,
   });
 }
 
@@ -117,7 +119,8 @@ export function useClosedSubtripsByTransporterAndDate(
   return useQuery({
     queryKey: ['closed-subtrips', transporterId, periodStartDate, periodEndDate],
     queryFn: getClosedSubtripsByTransporterAndDate,
-    enabled: !!transporterId && !!periodStartDate && !!periodEndDate,
+    enabled: false,
+    retry: 0,
   });
 }
 

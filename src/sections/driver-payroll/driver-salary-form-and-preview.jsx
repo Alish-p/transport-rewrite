@@ -86,11 +86,18 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     selectedLoans,
   } = watch();
 
-  const { data: allSubTripsByDriver } = useTripsCompletedByDriverAndDate(
+  const { data: allSubTripsByDriver, refetch } = useTripsCompletedByDriverAndDate(
     selectedDriverID,
     periodStartDate,
     periodEndDate
   );
+
+  // This callback will be passed to the child button
+  const handleFetchSubtrips = () => {
+    if (selectedDriverID && periodStartDate && periodEndDate) {
+      refetch();
+    }
+  };
 
   const { data: pendingLoans } = usePendingLoans({
     borrowerType: 'Driver',
@@ -140,6 +147,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
         driversList={driverList}
         loans={pendingLoans}
         filteredSubtrips={allSubTripsByDriver}
+        onFetchSubtrips={handleFetchSubtrips}
       />
       <DriverSalaryPreview driverSalary={draftDriverSalary} />
 

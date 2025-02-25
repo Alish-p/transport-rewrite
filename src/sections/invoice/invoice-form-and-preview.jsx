@@ -79,13 +79,18 @@ export default function InvoiceFormAndPreview({ customerList }) {
     toDate,
   } = watch();
 
-  console.log({ values: watch() });
-
-  const { data: allSubTripsByCustomer } = useClosedTripsByCustomerAndDate(
+  const { data: allSubTripsByCustomer, refetch } = useClosedTripsByCustomerAndDate(
     selectedCustomerID,
     fromDate,
     toDate
   );
+
+  // This callback will be passed to the child button
+  const handleFetchSubtrips = () => {
+    if (selectedCustomerID && fromDate && toDate) {
+      refetch();
+    }
+  };
 
   // Construct the draftInvoice object for the preview
   const draftInvoice = useMemo(() => {
@@ -135,7 +140,11 @@ export default function InvoiceFormAndPreview({ customerList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <InvoiceForm customersList={customerList} filteredSubtrips={allSubTripsByCustomer} />
+      <InvoiceForm
+        customersList={customerList}
+        filteredSubtrips={allSubTripsByCustomer}
+        onFetchSubtrips={handleFetchSubtrips}
+      />
 
       <InvoicePreview invoice={draftInvoice} />
 
