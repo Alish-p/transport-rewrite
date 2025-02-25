@@ -3,21 +3,18 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
 
 // Assuming you have a pump slice
 import { paths } from 'src/routes/paths';
 
-import { addExpense, updateExpense } from 'src/redux/slices/expense';
-
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { EXPENSE_TYPES } from '../../constant'; // Or your config file path
 import ExpenseInsights from './expense-insights';
-import { fetchDieselPrices } from '../../redux/slices/diesel-price';
+import { useDieselPriceOnDate } from '../../query/use-diesel-prices';
+import { useCreateExpense, useUpdateExpense } from '../../query/use-expense';
 
 // Validation Schema (Combine and adapt schemas from both forms)
 const validationSchema = zod
@@ -78,10 +75,10 @@ const validationSchema = zod
   });
 
 function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const dieselPrices = useSelector((state) => state.dieselPrice.dieselPrices);
+  const createExpense = useCreateExpense();
+  const updateExpense = useUpdateExpense();
 
   const defaultValues = useMemo(
     () => ({
@@ -128,12 +125,12 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     dieselLtr,
     dieselPrice,
     pumpCd,
+    date,
   } = watch();
 
-  // Reset Form
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
+  const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd?.value, date });
+
+  console.log({ dieselPriceOnDate });
 
   // Dynamic Calculations (as in AddExpenseDialog)
   useEffect(() => {
@@ -160,25 +157,12 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
   ]);
 
   useEffect(() => {
-    if (expenseType === 'diesel' && pumpCd?.value) {
-      const latestDieselPrice = dieselPrices
-        .filter((price) => price.pump._id === pumpCd.value)
-        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0];
-      if (latestDieselPrice) {
-        setValue('dieselPrice', latestDieselPrice.price);
-      } else {
-        setValue('dieselPrice', 0);
-      }
+    if (dieselPriceOnDate) {
+      setValue('dieselPrice', dieselPriceOnDate.price);
     } else {
       setValue('dieselPrice', 0);
     }
-  }, [expenseType, pumpCd, setValue, dieselPrices]);
-
-  useEffect(() => {
-    if (expenseType === 'diesel' && pumpCd) {
-      dispatch(fetchDieselPrices({ pump: pumpCd?.value }));
-    }
-  }, [expenseType, pumpCd, dispatch]);
+  }, [setValue, dieselPriceOnDate]);
 
   // Handlers for submit and cancel
   const onSubmit = (data) => {
@@ -190,11 +174,10 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     };
 
     if (!currentExpense) {
-      dispatch(addExpense(transformedData));
+      createExpense(transformedData);
     } else {
-      dispatch(updateExpense(currentExpense._id, transformedData));
+      updateExpense(currentExpense._id, transformedData);
     }
-    toast.success(!currentExpense ? 'Expense added successfully!' : 'Expense edited successfully!');
     navigate(paths.dashboard.expense.list);
   };
 

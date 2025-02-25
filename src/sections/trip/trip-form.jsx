@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,10 +13,10 @@ import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 import { fVehicleNo } from 'src/utils/format-number';
 
-import { addTrip, updateTrip } from 'src/redux/slices/trip';
-
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useCreateTrip, useUpdateTrip } from '../../query/use-trip';
 
 const NewTripSchema = zod.object({
   driverId: zod
@@ -34,7 +33,9 @@ const NewTripSchema = zod.object({
 
 export default function TripForm({ currentTrip, drivers, vehicles }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const createTrip = useCreateTrip();
+  const updateTrip = useUpdateTrip();
 
   const defaultValues = useMemo(
     () => ({
@@ -83,21 +84,19 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     try {
       if (currentTrip) {
         // Update Trip
-        await dispatch(
-          updateTrip(currentTrip._id, {
-            ...data,
-            driverId: data?.driverId?.value,
-            vehicleId: data?.vehicleId?.value,
-          })
-        );
-        toast.success('Trip updated successfully!');
+        await updateTrip(currentTrip._id, {
+          ...data,
+          driverId: data?.driverId?.value,
+          vehicleId: data?.vehicleId?.value,
+        });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
         // Add New Trip
-        const createdTrip = await dispatch(
-          addTrip({ ...data, driverId: data?.driverId?.value, vehicleId: data?.vehicleId?.value })
-        );
-        toast.success('Trip created successfully!');
+        const createdTrip = await createTrip({
+          ...data,
+          driverId: data?.driverId?.value,
+          vehicleId: data?.vehicleId?.value,
+        });
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();

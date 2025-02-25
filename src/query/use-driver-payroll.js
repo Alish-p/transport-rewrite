@@ -28,6 +28,11 @@ const updateDriverPayroll = async (id, driverPayrollData) => {
   return data;
 };
 
+const updateDriverPayrollStatus = async (id, status) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
+  return data;
+};
+
 const deleteDriverPayroll = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
@@ -48,7 +53,7 @@ export function useDriverPayroll(id) {
 
 export function useCreateDriverPayroll() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createDriverPayroll,
     onSuccess: (newDriverPayroll) => {
       console.log({ newDriverPayroll });
@@ -66,7 +71,7 @@ export function useCreateDriverPayroll() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateDriverPayroll() {
@@ -90,6 +95,29 @@ export function useUpdateDriverPayroll() {
   });
 
   return mutate;
+}
+
+export function useUpdateDriverPayrollStatus() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, status }) => updateDriverPayrollStatus(id, status),
+    onSuccess: (updatedDriverPayroll) => {
+      queryClient.setQueryData([QUERY_KEY], (prevDriverPayrolls = []) =>
+        prevDriverPayrolls.map((dp) =>
+          dp._id === updatedDriverPayroll._id ? updatedDriverPayroll : dp
+        )
+      );
+      queryClient.setQueryData([QUERY_KEY, updatedDriverPayroll._id], updatedDriverPayroll);
+
+      toast.success('DriverPayroll status changed successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
 }
 
 export function useDeleteDriverPayroll() {

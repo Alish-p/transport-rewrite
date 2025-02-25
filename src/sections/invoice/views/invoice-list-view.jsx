@@ -15,11 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
-import { toast } from 'src/components/snackbar';
-
 // _mock
 
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -30,8 +27,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
-
-import { deleteInvoice } from 'src/redux/slices/invoice';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -50,6 +45,7 @@ import {
 } from 'src/components/table';
 
 import { DashboardContent } from '../../../layouts/dashboard';
+import { useDeleteInvoice } from '../../../query/use-invoice';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
@@ -78,11 +74,11 @@ const defaultFilters = {
 export function InvoiceListView({ invoices }) {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const deleteInvoice = useDeleteInvoice();
+  const table = useTable({ defaultOrderBy: 'createDate' });
 
   const [filters, setFilters] = useState(defaultFilters);
   const [tableData, setTableData] = useState([]);
@@ -140,18 +136,6 @@ export function InvoiceListView({ invoices }) {
       }));
     },
     [table]
-  );
-
-  const handleDeleteRow = useCallback(
-    async (id) => {
-      try {
-        await dispatch(deleteInvoice(id));
-        toast.success('Invoice deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting invoice:', error);
-      }
-    },
-    [dispatch]
   );
 
   const handleEditRow = (id) => {
@@ -386,7 +370,7 @@ export function InvoiceListView({ invoices }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteInvoice(row._id)}
                       />
                     ))}
 

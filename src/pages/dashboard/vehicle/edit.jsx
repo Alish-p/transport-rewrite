@@ -10,6 +10,8 @@ import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleEditView } from 'src/sections/vehicle/views';
 
+import { useTransporters } from '../../../query/use-transporter';
+
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Vehicle edit | Dashboard - ${CONFIG.site.name}` };
@@ -17,20 +19,20 @@ const metadata = { title: `Vehicle edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: vehicle, isLoading, isError } = useVehicle(id);
+  const { data: vehicle, isLoading: vehicleLoading, isError: vehicleError } = useVehicle(id);
 
-  if (isLoading) {
+  const {
+    data: transporters,
+    isLoading: transporterLoading,
+    isError: transportersError,
+  } = useTransporters();
+
+  if (vehicleLoading || transporterLoading) {
     return <LoadingScreen />;
   }
 
-  if (isError) {
-    return (
-      <EmptyContent
-        filled
-        title="Something went wrong!"
-        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
-      />
-    );
+  if (vehicleError || transportersError) {
+    return <EmptyContent />;
   }
 
   return (
@@ -39,7 +41,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleEditView vehicle={vehicle} />
+      <VehicleEditView vehicle={vehicle} transporters={transporters} />
     </>
   );
 }

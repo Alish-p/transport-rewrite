@@ -39,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <LoanDetailView />
+      <LoanDetailView loan={loan} />
     </>
   );
 }

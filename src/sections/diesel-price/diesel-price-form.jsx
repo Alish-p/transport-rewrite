@@ -13,12 +13,11 @@ import { Box, Card, Grid, Stack, Divider, Typography } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addDieselPrice, updateDieselPrice } from 'src/redux/slices/diesel-price';
 
-import { toast } from 'src/components/snackbar';
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useCreateDieselPrice, useUpdateDieselPrice } from '../../query/use-diesel-prices';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +35,8 @@ export const DieselPriceSchema = zod.object({
 
 export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
   const navigate = useNavigate();
+  const createDieselPrice = useCreateDieselPrice();
+  const updateDieselPrice = useUpdateDieselPrice();
 
   const defaultValues = useMemo(
     () => ({
@@ -71,16 +72,12 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
 
     try {
       if (!currentDieselPrice) {
-        await dispatch(addDieselPrice(transformedData));
+        await createDieselPrice(transformedData);
       } else {
-        await dispatch(updateDieselPrice(currentDieselPrice._id, transformedData));
+        await updateDieselPrice({ id: currentDieselPrice._id, data: transformedData });
       }
       reset();
-      toast.success(
-        !currentDieselPrice
-          ? 'Diesel Price added successfully!'
-          : 'Diesel Price edited successfully!'
-      );
+
       navigate(paths.dashboard.dieselPrice.list);
     } catch (error) {
       console.error(error);

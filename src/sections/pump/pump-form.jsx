@@ -13,10 +13,7 @@ import { Box, Card, Grid, Stack, Button, Divider, Typography, IconButton } from 
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addPump, updatePump } from 'src/redux/slices/pump';
 
-import { toast } from 'src/components/snackbar';
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
@@ -25,6 +22,7 @@ import { Iconify } from '../../components/iconify';
 import { useBoolean } from '../../hooks/use-boolean';
 import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
+import { useCreatePump, useUpdatePump } from '../../query/use-pump';
 
 // ----------------------------------------------------------------------
 
@@ -66,6 +64,9 @@ export default function PumpForm({ currentPump, bankList }) {
   const navigate = useNavigate();
   const router = useRouter();
   const bankDialogue = useBoolean();
+
+  const createPump = useCreatePump();
+  const updatePump = useUpdatePump();
 
   const defaultValues = useMemo(
     () => ({
@@ -110,12 +111,11 @@ export default function PumpForm({ currentPump, bankList }) {
   const onSubmit = async (data) => {
     try {
       if (!currentPump) {
-        await dispatch(addPump(data));
+        await createPump(data);
       } else {
-        await dispatch(updatePump(currentPump._id, data));
+        await updatePump({ id: currentPump._id, data });
       }
       reset();
-      toast.success(!currentPump ? 'Pump added successfully!' : 'Pump edited successfully!');
       navigate(paths.dashboard.pump.list);
     } catch (error) {
       console.error(error);

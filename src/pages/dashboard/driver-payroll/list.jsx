@@ -1,24 +1,33 @@
-import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useSelector, useDispatch } from 'src/redux/store';
-import { fetchPayrollReceipts } from 'src/redux/slices/driver-payroll';
 
 import { DriverPayrollListView } from 'src/sections/driver-payroll/views';
+
+import { EmptyContent } from '../../../components/empty-content';
+import { LoadingScreen } from '../../../components/loading-screen';
+import { useDriverPayrolls } from '../../../query/use-driver-payroll';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `DriverPayroll list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const dispatch = useDispatch();
+  const { data: driversPayrolls, isLoading, isError } = useDriverPayrolls();
 
-  useEffect(() => {
-    dispatch(fetchPayrollReceipts());
-  }, [dispatch]);
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const { payrollReceipts, isLoading } = useSelector((state) => state.driverPayroll);
+  if (isError) {
+    return (
+      <EmptyContent
+        filled
+        title="Error Fetching Drivers !"
+        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+      />
+    );
+  }
 
   return (
     <>
@@ -26,7 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverPayrollListView payrollReceipts={payrollReceipts} />
+      <DriverPayrollListView driversPayrolls={driversPayrolls} />
     </>
   );
 }

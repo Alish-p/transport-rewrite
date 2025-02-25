@@ -12,15 +12,13 @@ import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography } from '@
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addRoute, updateRoute } from 'src/redux/slices/route';
 
 // components
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { vehicleTypes } from '../vehicle/vehicle-config';
+import { useCreateRoute, useUpdateRoute } from '../../query/use-route';
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +55,9 @@ export const NewRouteSchema = zod
 
 export default function RouteForm({ currentRoute, customers }) {
   const navigate = useNavigate();
+
+  const createRoute = useCreateRoute();
+  const updateRoute = useUpdateRoute();
 
   const defaultValues = useMemo(
     () => ({
@@ -119,12 +120,11 @@ export default function RouteForm({ currentRoute, customers }) {
   const onSubmit = async (data) => {
     try {
       if (!currentRoute) {
-        await dispatch(addRoute(data));
+        await createRoute(data);
       } else {
-        await dispatch(updateRoute(currentRoute._id, data));
+        await updateRoute({ id: currentRoute._id, data });
       }
       reset();
-      toast.success(!currentRoute ? 'Route added successfully!' : 'Route edited successfully!');
       navigate(paths.dashboard.route.list);
     } catch (error) {
       console.error(error);

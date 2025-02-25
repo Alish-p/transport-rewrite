@@ -1,6 +1,4 @@
-import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -29,7 +27,6 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteExpense } from 'src/redux/slices/expense';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -47,6 +44,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useDeleteExpense } from '../../../query/use-expense';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
@@ -84,7 +82,7 @@ export function ExpenseListView({ expenses }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteExpense = useDeleteExpense();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -183,15 +181,6 @@ export function ExpenseListView({ expenses }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteExpense(id));
-      toast.success(`Expense ${id} Deleted successfully!`);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.expense.edit(paramCase(id)));
@@ -498,7 +487,7 @@ export function ExpenseListView({ expenses }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteExpense(row._id)}
                       />
                     ))}
 

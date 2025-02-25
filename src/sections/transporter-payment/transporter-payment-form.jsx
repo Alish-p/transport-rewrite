@@ -1,29 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useFormContext } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Card, Grid, Button, Divider, MenuItem, Typography } from '@mui/material';
 
-import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/subtrip';
-
 import { Field } from 'src/components/hook-form';
-
-/** Custom hook to handle fetching logic */
-
-const useFetchFilteredSubtrips = (transporterId, fromDate, toDate, dispatch) => {
-  const { setValue } = useFormContext();
-
-  const fetchTransporterSubtrips = () => {
-    if (transporterId && fromDate && toDate) {
-      dispatch(fetchFilteredSubtrips('transporter', transporterId, fromDate, toDate));
-
-      setValue('associatedSubtrips', []);
-    }
-  };
-
-  return { fetchTransporterSubtrips };
-};
 
 /** Reusable Field Wrapper */
 const FieldWrapper = ({ children, ...props }) => (
@@ -47,6 +28,7 @@ const TransporterDropdown = ({ transportersList }) => (
 
 /** Subtrips MultiSelect */
 const SubtripsMultiSelect = ({ filteredSubtrips }) =>
+  filteredSubtrips &&
   filteredSubtrips.length > 0 && (
     <Field.MultiSelect
       checkbox
@@ -75,32 +57,11 @@ const RenderRepaymentComponent = ({ loans }) => (
 );
 
 /** Main Component */
-export default function TransporterPaymentForm({ transportersList, loans }) {
+export default function TransporterPaymentForm({ transportersList, loans, filteredSubtrips }) {
   const dispatch = useDispatch();
   const { watch, setValue } = useFormContext();
-  const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
   const { transporterId, fromDate, toDate } = watch();
-  const { fetchTransporterSubtrips } = useFetchFilteredSubtrips(
-    transporterId,
-    fromDate,
-    toDate,
-    dispatch
-  );
-
-  // Reset selected subtrips on changes of fields
-  useEffect(() => {
-    setValue('associatedSubtrips', []);
-    dispatch(resetFilteredSubtrips());
-  }, [transporterId, fromDate, toDate, setValue, dispatch]);
-
-  // Reset the filtered subtrips on unmount
-  useEffect(
-    () => () => {
-      dispatch(resetFilteredSubtrips());
-    },
-    [dispatch]
-  );
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
@@ -118,13 +79,7 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
         </FieldWrapper>
 
         <FieldWrapper md={1}>
-          <Button
-            type="button"
-            variant="contained"
-            fullWidth
-            sx={{ height: '100%', width: '50%' }}
-            onClick={fetchTransporterSubtrips}
-          >
+          <Button type="button" variant="contained" fullWidth sx={{ height: '100%', width: '50%' }}>
             {'>'}
           </Button>
         </FieldWrapper>

@@ -48,7 +48,7 @@ export function useTrip(id) {
 
 export function useCreateTrip() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createTrip,
     onSuccess: (newTrip) => {
       console.log({ newTrip });
@@ -63,12 +63,12 @@ export function useCreateTrip() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateTrip() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateTrip(id, data),
     onSuccess: (updatedTrip) => {
       queryClient.setQueryData([QUERY_KEY], (prevTrips) =>
@@ -84,7 +84,7 @@ export function useUpdateTrip() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteTrip() {

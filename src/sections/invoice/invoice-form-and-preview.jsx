@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,14 +11,12 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
-import { useSelector } from 'src/redux/store';
-import { addInvoice } from 'src/redux/slices/invoice';
-
-import { toast } from 'src/components/snackbar';
 import { Form, schemaHelper } from 'src/components/hook-form';
 
 import InvoiceForm from './invoice-form';
 import InvoicePreview from './invoice-preview';
+import { useCreateInvoice } from '../../query/use-invoice';
+import { useClosedTripsByCustomerAndDate } from '../../query/use-subtrip';
 
 // Invoice Schema (Make sure this matches database schema)
 export const InvoiceSchema = zod
@@ -44,8 +41,8 @@ export const InvoiceSchema = zod
 // draft invoice object and api call to fetch will have ids and values
 
 export default function InvoiceFormAndPreview({ customerList }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const addInvoice = useCreateInvoice();
 
   const defaultValues = useMemo(
     () => ({
@@ -73,16 +70,29 @@ export default function InvoiceFormAndPreview({ customerList }) {
     formState: { isSubmitting, errors },
   } = methods;
 
-  const { invoicedSubTrips, customerId: selectedCustomerID, createdDate, dueDate } = watch();
+  const {
+    invoicedSubTrips,
+    customerId: selectedCustomerID,
+    createdDate,
+    dueDate,
+    fromDate,
+    toDate,
+  } = watch();
 
-  const { filteredSubtrips: allSubTripsByCustomer } = useSelector((state) => state.subtrip);
+  console.log({ values: watch() });
+
+  const { data: allSubTripsByCustomer } = useClosedTripsByCustomerAndDate(
+    selectedCustomerID,
+    fromDate,
+    toDate
+  );
 
   // Construct the draftInvoice object for the preview
   const draftInvoice = useMemo(() => {
     const selectedCustomer = customerList.find((customer) => customer._id === selectedCustomerID);
     return {
       // Match your database schema names:
-      invoicedSubTrips: allSubTripsByCustomer.filter((st) => invoicedSubTrips.includes(st._id)),
+      invoicedSubTrips: allSubTripsByCustomer?.filter((st) => invoicedSubTrips.includes(st._id)),
 
       customerId: selectedCustomer
         ? {
@@ -116,8 +126,7 @@ export default function InvoiceFormAndPreview({ customerList }) {
         invoicedSubTrips,
         invoiceStatus: 'pending',
       };
-      const createdInvoice = await dispatch(addInvoice(invoiceData));
-      toast.success('Invoice created successfully!');
+      const createdInvoice = await addInvoice(invoiceData);
       navigate(paths.dashboard.invoice.details(createdInvoice._id));
     } catch (error) {
       console.error('Error:', error);
@@ -126,7 +135,7 @@ export default function InvoiceFormAndPreview({ customerList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <InvoiceForm customersList={customerList} />
+      <InvoiceForm customersList={customerList} filteredSubtrips={allSubTripsByCustomer} />
 
       <InvoicePreview invoice={draftInvoice} />
 

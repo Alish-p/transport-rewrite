@@ -1,5 +1,3 @@
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -23,7 +21,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteDieselPrice } from 'src/redux/slices/diesel-price';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -43,6 +40,7 @@ import {
 import DieselPriceTableRow from '../diesel-price-table-row';
 import { fIsAfter, fTimestamp } from '../../../utils/format-time';
 import DieselPriceTableToolbar from '../diesel-price-table-toolbar';
+import { useDeleteDieselPrice } from '../../../query/use-diesel-prices';
 import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -69,7 +67,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteDieselPrice = useDeleteDieselPrice();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -103,15 +101,6 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteDieselPrice(id));
-      toast.success('Diesel Price Removed successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.dieselPrice.edit(paramCase(id)));
@@ -260,7 +249,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteDieselPrice(row._id)}
                       />
                     ))}
 

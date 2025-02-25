@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
 import { useMemo, useEffect, useCallback } from 'react';
 
 import {
@@ -21,12 +20,11 @@ import {
 
 import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
-import { fetchPumps } from 'src/redux/slices/pump';
-import { addMaterialInfo } from 'src/redux/slices/subtrip';
-import { fetchCustomerSpecificRoutes } from 'src/redux/slices/route';
-
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { usePumps } from '../../query/use-pump';
+import { useRoutes } from '../../query/use-route';
+import { useUpdateSubtripMaterialInfo } from '../../query/use-subtrip';
 
 const validationSchema = zod.object({
   consignee: zod
@@ -79,11 +77,15 @@ const defaultValues = {
 
 export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }) {
   const { tripId, customerId, _id } = subtrip;
-  const dispatch = useDispatch();
+  const updateMaterialInfo = useUpdateSubtripMaterialInfo();
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
 
-  const { customerSpecificRoutes: routes } = useSelector((state) => state.route);
-  const { pumps } = useSelector((state) => state.pump);
+  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps();
+  const {
+    data: routes,
+    isLoading: routesLoading,
+    isError: routesError,
+  } = useRoutes(customerId._id);
 
   const {
     handleSubmit,
@@ -109,26 +111,16 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   const onSubmit = async (data) => {
     try {
-      await dispatch(
-        addMaterialInfo(_id, { ...data, vehicleId, consignee: data?.consignee?.value })
-      );
-      toast.success('Material details added successfully!');
+      await updateMaterialInfo({
+        id: _id,
+        data: { ...data, vehicleId, consignee: data?.consignee?.value },
+      });
       handleReset();
       setShowDialog(false);
     } catch (error) {
       console.error(error);
-      toast.error('Error adding material details.');
     }
   };
-
-  useEffect(() => {
-    if (showDialog) {
-      dispatch(fetchPumps());
-      dispatch(fetchCustomerSpecificRoutes(customerId?._id));
-    } else {
-      handleReset();
-    }
-  }, [dispatch, showDialog, handleReset, customerId]);
 
   // Update loading and unloading points when route changes
   useEffect(() => {
@@ -170,8 +162,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
             Customer Specific Routes
           </ListSubheader>
           {routes
-            .filter((route) => route.isCustomerSpecific)
-            .map(({ _id: routeId, routeName }) => (
+            ?.filter((route) => route.isCustomerSpecific)
+            ?.map(({ _id: routeId, routeName }) => (
               <MenuItem key={routeId} value={routeId}>
                 {routeName}
               </MenuItem>
@@ -191,8 +183,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
             Generic Routes
           </ListSubheader>
           {routes
-            .filter((route) => !route.isCustomerSpecific)
-            .map(({ _id: routeId, routeName }) => (
+            ?.filter((route) => !route.isCustomerSpecific)
+            ?.map(({ _id: routeId, routeName }) => (
               <MenuItem key={routeId} value={routeId}>
                 {routeName}
               </MenuItem>
@@ -254,7 +246,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         <Field.Select name="pumpCd" label="Pump">
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
-          {pumps.map(({ _id: pumpId, pumpName }) => (
+          {pumps?.map(({ _id: pumpId, pumpName }) => (
             <MenuItem key={pumpId} value={pumpId}>
               {pumpName}
             </MenuItem>

@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -14,11 +13,10 @@ import {
   DialogActions,
 } from '@mui/material';
 
-import { resolveLR } from 'src/redux/slices/subtrip';
-
-import { toast } from 'src/components/snackbar';
 // form components
 import { Form, Field } from 'src/components/hook-form';
+
+import { useUpdateSubtripResolveInfo } from '../../query/use-subtrip';
 
 const validationSchema = zod.object({
   remarks: zod.string().optional(),
@@ -29,7 +27,7 @@ const defaultValues = {
 };
 
 export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
-  const dispatch = useDispatch();
+  const resolveLR = useUpdateSubtripResolveInfo();
 
   const methods = useForm({
     resolver: zodResolver(validationSchema),
@@ -49,8 +47,7 @@ export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
   const onSubmit = async (data) => {
     try {
       // Dispatch action to update subtrip with closing details
-      await dispatch(resolveLR(subtripId, data));
-      toast.success('Subtrip Resolved successfully!');
+      await resolveLR({ id: subtripId, data });
       handleReset();
       setShowDialog(false);
     } catch (error) {

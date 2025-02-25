@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import Card from '@mui/material/Card';
@@ -8,27 +7,9 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Typography } from '@mui/material';
 
-import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/subtrip';
-
 import { Field } from 'src/components/hook-form';
 
 import { Iconify } from '../../components/iconify';
-import { useDispatch, useSelector } from '../../redux/store';
-
-/** Custom hook to handle fetching logic */
-const useFetchFilteredSubtrips = (driverId, periodStartDate, periodEndDate, dispatch) => {
-  const { setValue } = useFormContext();
-
-  const fetchDriverSubtrips = () => {
-    if (driverId && periodStartDate && periodEndDate) {
-      dispatch(fetchFilteredSubtrips('driver', driverId, periodStartDate, periodEndDate));
-
-      setValue('subtripComponents', []); // Reset selected subtrips
-    }
-  };
-
-  return { fetchDriverSubtrips };
-};
 
 /** Reusable Field Wrapper */
 const FieldWrapper = ({ children, ...props }) => (
@@ -52,6 +33,7 @@ const DriverDropdown = ({ driversList }) => (
 
 /** Subtrips MultiSelect */
 const SubtripsMultiSelect = ({ filteredSubtrips }) =>
+  filteredSubtrips &&
   filteredSubtrips.length > 0 && (
     <Field.MultiSelect
       checkbox
@@ -152,18 +134,10 @@ const RenderRepaymentComponent = ({ loans }) => (
   </Grid>
 );
 
-export default function DriverSalaryForm({ driversList, loans }) {
-  const dispatch = useDispatch();
+export default function DriverSalaryForm({ driversList, loans, filteredSubtrips }) {
   const { watch, setValue, control } = useFormContext();
-  const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
   const { driverId, periodStartDate, periodEndDate } = watch();
-  const { fetchDriverSubtrips } = useFetchFilteredSubtrips(
-    driverId,
-    periodStartDate,
-    periodEndDate,
-    dispatch
-  );
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -177,20 +151,6 @@ export default function DriverSalaryForm({ driversList, loans }) {
       remarks: '',
     });
   };
-
-  // Reset selected subtrips on changes of fields
-  useEffect(() => {
-    setValue('subtripComponents', []);
-    dispatch(resetFilteredSubtrips());
-  }, [driverId, periodStartDate, periodEndDate, setValue, dispatch]);
-
-  // Reset the filtered subtrips on unmount
-  useEffect(
-    () => () => {
-      dispatch(resetFilteredSubtrips());
-    },
-    [dispatch]
-  );
 
   return (
     <>
@@ -223,7 +183,6 @@ export default function DriverSalaryForm({ driversList, loans }) {
               variant="contained"
               fullWidth
               sx={{ height: '100%', width: '50%' }}
-              onClick={fetchDriverSubtrips}
             >
               {'>'}
             </Button>

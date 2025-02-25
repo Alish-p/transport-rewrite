@@ -16,8 +16,6 @@ import { alpha, useTheme } from '@mui/material/styles';
 
 // _mock
 
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { TableContainer } from '@mui/material';
@@ -33,7 +31,6 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteSubtrip } from 'src/redux/slices/subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -54,6 +51,7 @@ import {
 import SubtripTableRow from '../subtrip-table-row';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableToolbar from '../subtrip-table-toolbar';
+import { useDeleteSubtrip } from '../../../query/use-subtrip';
 import SubtripTableFiltersResult from '../subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -86,7 +84,7 @@ export function SubtripListView({ subtrips }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteSubtrip = useDeleteSubtrip();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -150,15 +148,6 @@ export function SubtripListView({ subtrips }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteSubtrip(id));
-      toast.success('Subtrip deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.subtrip.edit(paramCase(id)));
@@ -415,7 +404,7 @@ export function SubtripListView({ subtrips }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteSubtrip(row._id)}
                       />
                     ))}
 

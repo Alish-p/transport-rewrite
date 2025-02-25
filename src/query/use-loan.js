@@ -12,6 +12,11 @@ const getLoans = async () => {
   return data;
 };
 
+const getPendingLoans = async ({ borrowerType, borrowerId }) => {
+  const { data } = await axios.get(`${ENDPOINT}/pending/${borrowerType}/${borrowerId}`);
+  return data;
+};
+
 const getLoan = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -37,6 +42,13 @@ const deleteLoan = async (id) => {
 export function useLoans() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getLoans });
 }
+export function usePendingLoans({ borrowerType, borrowerId }) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'pending', borrowerType, borrowerId],
+    queryFn: () => getPendingLoans({ borrowerType, borrowerId }),
+    enabled: !!borrowerType && !!borrowerId,
+  });
+}
 
 export function useLoan(id) {
   return useQuery({
@@ -48,12 +60,12 @@ export function useLoan(id) {
 
 export function useCreateLoan() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createLoan,
     onSuccess: (newLoan) => {
       console.log({ newLoan });
       // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevLoans) => [...prevLoans, newLoan]);
+      queryClient.setQueryData([QUERY_KEY], (prevLoans = []) => [...prevLoans, newLoan]);
       // caching current loan
       queryClient.setQueryData([QUERY_KEY, newLoan._id], newLoan);
       toast.success('Loan added successfully!');
@@ -63,7 +75,7 @@ export function useCreateLoan() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateLoan() {

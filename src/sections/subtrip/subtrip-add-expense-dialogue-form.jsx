@@ -1,22 +1,10 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
 import { Dialog, Button, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
-import { fetchPumps } from '../../redux/slices/pump';
+import { usePumps } from '../../query/use-pump';
 import ExpenseCoreForm from '../expense/subtrip-expense-form';
 
 export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
-  const { pumps } = useSelector((state) => state.pump);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (showDialog) {
-      dispatch(fetchPumps());
-    }
-  }, [dispatch, showDialog]);
-
-  // Alert Content Mapping
+  const { data: pumps, isLoading: pumpLoading } = usePumps();
 
   return (
     <Dialog open={showDialog} onClose={() => setShowDialog(false)} fullWidth maxWidth="sm">

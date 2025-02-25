@@ -10,12 +10,9 @@ import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/mate
 
 import { paths } from 'src/routes/paths';
 
-import { dispatch } from 'src/redux/store';
-import { addExpense, updateExpense } from 'src/redux/slices/expense';
-
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { useCreateExpense } from '../../query/use-expense';
 import { vehicleExpenseTypes as expenseTypes } from './expense-config';
 
 export const ExpenseSchema = zod.object({
@@ -41,6 +38,9 @@ export const ExpenseSchema = zod.object({
 
 export default function ExpenseForm({ currentExpense, vehicles = [] }) {
   const navigate = useNavigate();
+
+  const createExpense = useCreateExpense();
+  const updateExpense = useCreateExpense();
 
   const defaultValues = useMemo(
     () => ({
@@ -80,16 +80,12 @@ export default function ExpenseForm({ currentExpense, vehicles = [] }) {
       };
 
       if (!currentExpense) {
-        await dispatch(addExpense(transformedData));
+        await createExpense(transformedData);
       } else {
-        await dispatch(updateExpense(currentExpense._id, transformedData));
+        await updateExpense({ id: currentExpense._id, data: transformedData });
       }
       reset();
-      toast.success(
-        !currentExpense
-          ? 'Vehicle Expense added successfully!'
-          : 'Vehicle Expense edited successfully!'
-      );
+
       navigate(paths.dashboard.expense.list);
     } catch (error) {
       console.error(error);

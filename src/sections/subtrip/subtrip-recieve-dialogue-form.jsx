@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -16,10 +15,9 @@ import {
 
 import { today } from 'src/utils/format-time';
 
-import { receiveLR } from 'src/redux/slices/subtrip';
-
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useUpdateSubtripReceiveInfo } from '../../query/use-subtrip';
 // form components
 
 const validationSchema = zod
@@ -68,7 +66,7 @@ const validationSchema = zod
 // ---------------------------------------------------------------
 
 export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
-  const dispatch = useDispatch();
+  const receiveSubtrip = useUpdateSubtripReceiveInfo();
   const { _id, loadingWeight, startKm } = subtrip;
 
   const defaultValues = {
@@ -115,8 +113,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
   const onSubmit = async (data) => {
     try {
-      await dispatch(receiveLR(_id, data));
-      toast.success('Subtrip received successfully!');
+      await receiveSubtrip({ id: _id, data });
       handleReset();
       setShowDialog(false);
     } catch (error) {

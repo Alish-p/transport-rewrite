@@ -13,7 +13,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { toast } from 'sonner';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
@@ -28,7 +27,6 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePayrollReceipt } from 'src/redux/slices/driver-payroll';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -45,6 +43,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useDeleteDriverPayroll } from '../../../query/use-driver-payroll';
 import DriverPayrollTableRow from '../driver-payroll-list/driver-payroll-table-row';
 import DriverPayrollTableToolbar from '../driver-payroll-list/driver-payroll-table-toolbar';
 import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payroll-table-filters-result';
@@ -69,7 +68,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function DriverPayrollListView({ payrollReceipts }) {
+export function DriverPayrollListView({ driversPayrolls }) {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -78,15 +77,17 @@ export function DriverPayrollListView({ payrollReceipts }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const deleteDriverPayroll = useDeleteDriverPayroll();
+
   const [filters, setFilters] = useState(defaultFilters);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
-    if (payrollReceipts.length) {
-      setTableData(payrollReceipts);
+    if (driversPayrolls.length) {
+      setTableData(driversPayrolls);
     }
-  }, [payrollReceipts]);
+  }, [driversPayrolls]);
 
   const [tableData, setTableData] = useState([]);
 
@@ -114,15 +115,6 @@ export function DriverPayrollListView({ payrollReceipts }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deletePayrollReceipt(id));
-      toast.success('Driver Pay-Slip Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.driverPayroll.edit(paramCase(id)));
@@ -275,7 +267,7 @@ export function DriverPayrollListView({ payrollReceipts }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteDriverPayroll(row._id)}
                       />
                     ))}
 

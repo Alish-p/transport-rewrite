@@ -13,8 +13,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -27,7 +25,6 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deletePayment } from 'src/redux/slices/transporter-payment';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -44,6 +41,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useDeleteTransporterPayment } from '../../../query/use-transporter-payment';
 import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
 import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
 import TransporterPaymentTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
@@ -76,7 +74,7 @@ export function TransporterPaymentListView({ payments }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteTransporterPayment = useDeleteTransporterPayment();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -114,15 +112,6 @@ export function TransporterPaymentListView({ payments }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deletePayment(id));
-      toast.success('Transporter Payment Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporterPayment.edit(id));
@@ -268,7 +257,7 @@ export function TransporterPaymentListView({ payments }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteTransporterPayment(row._id)}
                       />
                     ))}
 

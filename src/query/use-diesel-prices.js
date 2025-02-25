@@ -7,17 +7,20 @@ const ENDPOINT = '/api/diesel-prices';
 const QUERY_KEY = 'diesel-prices';
 
 const getDieselPrices = async ({ queryKey }) => {
-  const [, filters] = queryKey; // Extract filters from queryKey
-  const { pump, startDate, endDate } = filters || {};
-
-  let query = `${ENDPOINT}?`;
-
-  if (pump) query += `pump=${pump}&`;
-  if (startDate) query += `startDate=${startDate}&`;
-  if (endDate) query += `endDate=${endDate}&`;
-
-  const { data } = await axios.get(query);
+  const { data } = await axios.get(`${ENDPOINT}`);
   return data;
+};
+
+const getDieselPriceOnDate = async ({ date, pump }) => {
+  try {
+    const { data } = await axios.get(`${ENDPOINT}/${pump}/${date}`);
+    return data;
+  } catch (error) {
+    console.error('API Error:', error);
+    const errorMessage = error?.message || 'Failed to fetch diesel price.';
+    toast.error(errorMessage); // 🔥 Directly show toast error inside API function
+    throw new Error(errorMessage); // Ensure the error is thrown so React Query handles it
+  }
 };
 
 const getDieselPrice = async (id) => {
@@ -42,10 +45,24 @@ const deleteDieselPrice = async (id) => {
 };
 
 // Queries & Mutations
-export function useDieselPrices(filters = {}) {
+export function useDieselPrices() {
   return useQuery({
-    queryKey: [QUERY_KEY, filters],
+    queryKey: [QUERY_KEY],
     queryFn: getDieselPrices,
+  });
+}
+
+export function useDieselPriceOnDate({ date, pump }) {
+  return useQuery({
+    queryKey: [QUERY_KEY, pump, date],
+    queryFn: () => getDieselPriceOnDate({ date, pump }),
+    enabled: !!date && !!pump,
+    onSettled: (data, error) => {
+      if (error) {
+        const errorMessage = error?.message || 'Failed to fetch diesel price.';
+        toast.error(errorMessage);
+      }
+    },
   });
 }
 

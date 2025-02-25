@@ -57,7 +57,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
 
   const onSubmit = async (data) => {
     try {
-      const createdSubtrip = await addSubtrip({ id: data?.tripId?.value, data });
+      const createdSubtrip = await addSubtrip({ ...data, tripId: data?.tripId?.value });
 
       reset();
       navigate(paths.dashboard.subtrip.details(paramCase(createdSubtrip._id)));

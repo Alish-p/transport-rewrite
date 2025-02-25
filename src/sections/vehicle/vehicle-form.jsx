@@ -3,8 +3,8 @@ import { z as zod } from 'zod';
 import { useDispatch } from 'react-redux';
 // form
 import { useForm } from 'react-hook-form';
+import { useMemo, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useEffect, useCallback } from 'react';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
@@ -14,15 +14,11 @@ import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/mate
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useSelector } from 'src/redux/store';
-import { fetchTransporters } from 'src/redux/slices/transporter';
-import { addVehicle, updateVehicle } from 'src/redux/slices/vehicle';
-
 // components
-import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 import { Label } from '../../components/label';
+import { useCreateVehicle, useUpdateVehicle } from '../../query/use-vehicle';
 // assets
 import { modelType, engineType, vehicleTypes, vehicleCompany } from './vehicle-config';
 
@@ -67,10 +63,13 @@ export const NewVehicleSchema = zod
 
 // ----------------------------------------------------------------------
 
-export default function VehicleForm({ currentVehicle }) {
+export default function VehicleForm({ currentVehicle, transporters }) {
   const router = useRouter();
 
   const dispatch = useDispatch();
+
+  const createVehicle = useCreateVehicle();
+  const updateVehicle = useUpdateVehicle();
 
   const defaultValues = useMemo(
     () => ({
@@ -93,12 +92,6 @@ export default function VehicleForm({ currentVehicle }) {
     [currentVehicle]
   );
 
-  useEffect(() => {
-    dispatch(fetchTransporters());
-  }, [dispatch]);
-
-  const { transporters } = useSelector((state) => state.transporter);
-
   const methods = useForm({
     resolver: zodResolver(NewVehicleSchema),
     defaultValues,
@@ -119,14 +112,11 @@ export default function VehicleForm({ currentVehicle }) {
   const onSubmit = async (data) => {
     try {
       if (!currentVehicle) {
-        await dispatch(addVehicle(data));
+        await createVehicle(data);
       } else {
-        await dispatch(updateVehicle(currentVehicle._id, data));
+        await updateVehicle({ id: currentVehicle._id, data });
       }
       reset();
-      toast.success(
-        !currentVehicle ? 'Vehicle added successfully!' : 'Vehicle edited successfully!'
-      );
       router.push(paths.dashboard.vehicle.list);
     } catch (error) {
       console.error(error);

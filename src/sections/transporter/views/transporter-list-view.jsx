@@ -12,8 +12,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -26,7 +24,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteTransporter } from 'src/redux/slices/transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -45,6 +42,7 @@ import {
 
 import TransporterTableRow from '../transport-table-row';
 import TransporterTableToolbar from '../transport-table-toolbar';
+import { useDeleteTransporter } from '../../../query/use-transporter';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -71,7 +69,7 @@ export function TransporterListView({ transporters }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteTransporter = useDeleteTransporter();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -105,15 +103,6 @@ export function TransporterListView({ transporters }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteTransporter(id));
-      toast.success('Transporter Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
@@ -261,7 +250,7 @@ export function TransporterListView({ transporters }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteTransporter(row._id)}
                       />
                     ))}
 

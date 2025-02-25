@@ -1,29 +1,9 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Card, Grid, Button, Divider, MenuItem } from '@mui/material';
 
-import { fetchFilteredSubtrips, resetFilteredSubtrips } from 'src/redux/slices/subtrip';
-
 import { Field } from 'src/components/hook-form';
-
-/** Custom hook to handle fetching logic */
-
-const useFetchFilteredSubtrips = (customerId, fromDate, toDate, dispatch) => {
-  const { setValue } = useFormContext();
-
-  const fetchCustomerSubtrips = () => {
-    if (customerId && fromDate && toDate) {
-      dispatch(fetchFilteredSubtrips('customer', customerId, fromDate, toDate));
-
-      setValue('invoicedSubTrips', []); // Reset selected subtrips
-    }
-  };
-
-  return { fetchCustomerSubtrips };
-};
 
 /** Reusable Field Wrapper */
 const FieldWrapper = ({ children, ...props }) => (
@@ -47,6 +27,7 @@ const CustomerDropdown = ({ customersList }) => (
 
 /** Subtrips MultiSelect */
 const SubtripsMultiSelect = ({ filteredSubtrips }) =>
+  filteredSubtrips &&
   filteredSubtrips.length > 0 && (
     <Field.MultiSelect
       checkbox
@@ -61,32 +42,10 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
   );
 
 /** Main Component */
-export default function InvoiceForm({ customersList }) {
-  const dispatch = useDispatch();
+export default function InvoiceForm({ customersList, filteredSubtrips }) {
   const { watch, setValue } = useFormContext();
-  const { filteredSubtrips } = useSelector((state) => state.subtrip);
 
   const { customerId, fromDate, toDate } = watch();
-  const { fetchCustomerSubtrips } = useFetchFilteredSubtrips(
-    customerId,
-    fromDate,
-    toDate,
-    dispatch
-  );
-
-  // Reset selected subtrips on changes of fields
-  useEffect(() => {
-    setValue('invoicedSubTrips', []);
-    dispatch(resetFilteredSubtrips());
-  }, [customerId, fromDate, toDate, setValue, dispatch]);
-
-  // Reset the filtered subtrips on unmount
-  useEffect(
-    () => () => {
-      dispatch(resetFilteredSubtrips());
-    },
-    [dispatch]
-  );
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
@@ -109,7 +68,7 @@ export default function InvoiceForm({ customersList }) {
             variant="contained"
             fullWidth
             sx={{ height: '100%', width: '50%' }}
-            onClick={fetchCustomerSubtrips}
+            // onClick={fetchCustomerSubtrips}
           >
             {'>'}
           </Button>

@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -24,10 +23,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import { deleteRoute } from 'src/redux/slices/route';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -45,6 +42,7 @@ import {
 
 import RouteTableRow from '../route-table-row';
 import RouteTableToolbar from '../route-table-toolbar';
+import { useDeleteRoute } from '../../../query/use-route';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -75,7 +73,7 @@ export function RouteListView({ routes }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteRoute = useDeleteRoute();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -109,15 +107,6 @@ export function RouteListView({ routes }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteRoute(id));
-      toast.success('Route Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.route.edit(paramCase(id)));
@@ -261,7 +250,7 @@ export function RouteListView({ routes }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteRoute(row._id)}
                       />
                     ))}
 

@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
+import { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -12,15 +12,13 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
-import { useSelector } from 'src/redux/store';
-
-import { toast } from 'src/components/snackbar';
 import { Form, schemaHelper } from 'src/components/hook-form';
 
-import { fetchPendingLoans } from '../../redux/slices/loan';
+import { usePendingLoans } from '../../query/use-loan';
 import TransporterPaymentForm from './transporter-payment-form';
 import TransporterPaymentPreview from './transport-payment-preview';
-import { addPayment } from '../../redux/slices/transporter-payment';
+import { useClosedSubtripsByTransporterAndDate } from '../../query/use-subtrip';
+import { useCreateTransporterPayment } from '../../query/use-transporter-payment';
 
 // TransporterPayment Schema (Make sure this matches database schema)
 export const TransporterPaymentSchema = zod
@@ -48,6 +46,7 @@ export const TransporterPaymentSchema = zod
 export default function TransporterPaymentFormAndPreview({ transporterList }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const createTransporterPayment = useCreateTransporterPayment();
 
   const defaultValues = useMemo(
     () => ({
@@ -82,17 +81,20 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
     createdDate,
     dueDate,
     selectedLoans,
+    fromDate,
+    toDate,
   } = watch();
 
-  const { filteredSubtrips: allSubTripsByTransporter } = useSelector((state) => state.subtrip);
+  const { data: allSubTripsByTransporter } = useClosedSubtripsByTransporterAndDate(
+    selectedTransporterID,
+    fromDate,
+    toDate
+  );
 
-  const { loans } = useSelector((state) => state.loan);
-
-  useEffect(() => {
-    if (selectedTransporterID) {
-      dispatch(fetchPendingLoans({ borrowerType: 'Transporter', id: selectedTransporterID }));
-    }
-  }, [dispatch, selectedTransporterID]);
+  const { data: pendingLoans } = usePendingLoans({
+    borrowerType: 'Transporter',
+    borrowerId: selectedTransporterID,
+  });
 
   // Construct the draftTransporterPayment object for the preview
   const draftTransporterPayment = useMemo(() => {
@@ -101,10 +103,10 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
     );
     return {
       // Match your database schema names:
-      associatedSubtrips: allSubTripsByTransporter.filter((st) =>
+      associatedSubtrips: allSubTripsByTransporter?.filter((st) =>
         associatedSubtrips.includes(st._id)
       ),
-      selectedLoans: loans?.filter((loan) => selectedLoans.includes(loan._id)),
+      selectedLoans: pendingLoans?.filter((loan) => selectedLoans.includes(loan._id)),
       transporterId: selectedTransporter || {},
       status: 'draft',
       createdDate: createdDate || new Date(),
@@ -113,7 +115,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
   }, [
     transporterList,
     allSubTripsByTransporter,
-    loans,
+    pendingLoans,
     createdDate,
     dueDate,
     selectedTransporterID,
@@ -124,8 +126,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
   // Handle form submission (create or update)
   const onSubmit = async () => {
     try {
-      const createdTransporterPayment = await dispatch(addPayment(draftTransporterPayment));
-      toast.success('TransporterPayment created successfully!');
+      const createdTransporterPayment = await createTransporterPayment(draftTransporterPayment);
       navigate(paths.dashboard.transporterPayment.details(createdTransporterPayment._id));
     } catch (error) {
       console.error('Error:', error);
@@ -134,7 +135,11 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <TransporterPaymentForm transportersList={transporterList} loans={loans} />
+      <TransporterPaymentForm
+        transportersList={transporterList}
+        loans={pendingLoans}
+        filteredSubtrips={allSubTripsByTransporter}
+      />
 
       <TransporterPaymentPreview transporterPayment={draftTransporterPayment} />
 

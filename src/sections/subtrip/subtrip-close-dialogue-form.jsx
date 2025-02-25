@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -17,11 +16,10 @@ import {
   DialogActions,
 } from '@mui/material';
 
-import { closeTrip } from 'src/redux/slices/subtrip';
-
-import { toast } from 'src/components/snackbar';
 // form components
 import { Form, Field } from 'src/components/hook-form';
+
+import { useUpdateSubtripCloseInfo } from '../../query/use-subtrip';
 
 const validationSchema = zod.object({
   userConfirm: zod.boolean().refine((val) => val === true, {
@@ -34,7 +32,7 @@ const defaultValues = {
 };
 
 export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
-  const dispatch = useDispatch();
+  const closeSubtrip = useUpdateSubtripCloseInfo();
 
   const methods = useForm({
     resolver: zodResolver(validationSchema),
@@ -54,9 +52,7 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
 
   const onSubmit = async (data) => {
     try {
-      // Dispatch action to update subtrip with material details
-      await dispatch(closeTrip(subtripId));
-      toast.success('Subtrip Closed Successfully !');
+      await closeSubtrip(subtripId);
       handleReset();
       setShowDialog(false);
     } catch (error) {

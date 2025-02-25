@@ -1,6 +1,4 @@
-import { useParams } from 'react-router';
-import { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -8,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import DriverSalaryPreview from '../driver-salary-preview';
 import DriverSalaryToolbar from '../driver-salary-toolbar';
-import { fetchPayrollReceipt, updatePayrollStatus } from '../../../redux/slices/driver-payroll';
+import { useUpdateDriverPayrollStatus } from '../../../query/use-driver-payroll';
 
 export const PAYSLIP_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -16,47 +14,40 @@ export const PAYSLIP_STATUS_OPTIONS = [
   { value: 'processing', label: 'Processing' },
 ];
 
-export function DriverPayrollDetailView() {
-  const dispatch = useDispatch();
-  const { id } = useParams();
-  const { payrollReceipt, isLoading } = useSelector((state) => state.driverPayroll);
+export function DriverPayrollDetailView({ driverPayroll }) {
+  const driverPayrollStatus = useUpdateDriverPayrollStatus();
 
-  useEffect(() => {
-    dispatch(fetchPayrollReceipt(id));
-  }, [dispatch, id]);
-
-  const payrollReceiptStatus = payrollReceipt?.status;
+  const { status, _id } = driverPayroll;
 
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
 
-      dispatch(updatePayrollStatus(id, newStatus));
+      driverPayrollStatus({ id: _id, status: newStatus });
     },
-    [dispatch, id]
+    [_id, driverPayrollStatus]
   );
 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={id}
+        heading={_id}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Payslip', href: '/dashboard/payslip' },
-          { name: id },
+          { name: _id },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      {payrollReceipt && (
-        <DriverSalaryToolbar
-          payslip={payrollReceipt}
-          currentStatus={payrollReceiptStatus || ''}
-          onChangeStatus={handleChangeStatus}
-          statusOptions={PAYSLIP_STATUS_OPTIONS}
-        />
-      )}
 
-      {payrollReceipt && !isLoading && <DriverSalaryPreview driverSalary={payrollReceipt} />}
+      <DriverSalaryToolbar
+        payslip={driverPayroll}
+        currentStatus={status || ''}
+        onChangeStatus={handleChangeStatus}
+        statusOptions={PAYSLIP_STATUS_OPTIONS}
+      />
+
+      <DriverSalaryPreview driverSalary={driverPayroll} />
     </DashboardContent>
   );
 }

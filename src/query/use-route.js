@@ -7,8 +7,16 @@ const ENDPOINT = '/api/routes';
 const QUERY_KEY = 'routes';
 
 // Fetchers
-const getRoutes = async () => {
-  const { data } = await axios.get(ENDPOINT);
+const getRoutes = async ({ queryKey }) => {
+  const [, customerId] = queryKey;
+  let url = ENDPOINT;
+
+  // If we have a customerId, append it as a query parameter
+  if (customerId) {
+    url += `?customerId=${customerId}`;
+  }
+
+  const { data } = await axios.get(url);
   return data;
 };
 
@@ -34,8 +42,11 @@ const deleteRoute = async (id) => {
 };
 
 // Queries & Mutations
-export function useRoutes() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getRoutes });
+export function useRoutes(customerId) {
+  return useQuery({
+    queryKey: [QUERY_KEY, customerId],
+    queryFn: getRoutes,
+  });
 }
 
 export function useRoute(id) {

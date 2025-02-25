@@ -28,6 +28,11 @@ const updateTransporterPayment = async (id, transporterPaymentData) => {
   return data;
 };
 
+const updateTransporterPaymentStatus = async (id, status) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
+  return data;
+};
+
 const deleteTransporterPayment = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
@@ -48,7 +53,7 @@ export function useTransporterPayment(id) {
 
 export function useCreateTransporterPayment() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createTransporterPayment,
     onSuccess: (newTransporterPayment) => {
       console.log({ newTransporterPayment });
@@ -66,7 +71,7 @@ export function useCreateTransporterPayment() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateTransporterPayment() {
@@ -95,6 +100,32 @@ export function useUpdateTransporterPayment() {
   });
 
   return mutate;
+}
+
+export function useUpdateTransporterPaymentStatus() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, status }) => updateTransporterPaymentStatus(id, status),
+    onSuccess: (updatedTransporterPayment) => {
+      queryClient.setQueryData([QUERY_KEY], (prevTransporterPayments = []) =>
+        prevTransporterPayments.map((tp) =>
+          tp._id === updatedTransporterPayment._id ? updatedTransporterPayment : tp
+        )
+      );
+      queryClient.setQueryData(
+        [QUERY_KEY, updatedTransporterPayment._id],
+        updatedTransporterPayment
+      );
+
+      toast.success('TransporterPayment status changed successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
 }
 
 export function useDeleteTransporterPayment() {

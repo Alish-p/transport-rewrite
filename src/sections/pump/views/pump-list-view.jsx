@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { toast } from 'sonner';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
@@ -25,7 +24,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import { deletePump } from 'src/redux/slices/pump';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -45,6 +43,7 @@ import {
 
 import PumpTableRow from '../pump-table-row';
 import PumpTableToolbar from '../pump-table-toolbar';
+import { useDeletePump } from '../../../query/use-pump';
 import PumpTableFiltersResult from '../pump-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -72,6 +71,8 @@ export function PumpListView({ pumps }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+
+  const deletePump = useDeletePump();
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -108,15 +109,6 @@ export function PumpListView({ pumps }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deletePump(id));
-      toast.success(`Pump Deleted successfully!`);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
@@ -260,7 +252,7 @@ export function PumpListView({ pumps }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deletePump(row._id)}
                       />
                     ))}
 

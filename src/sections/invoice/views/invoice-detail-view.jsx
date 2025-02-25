@@ -1,14 +1,12 @@
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { updateInvoiceStatus } from 'src/redux/slices/invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import InvoicePreview from '../invoice-preview';
 import InvoiceToolbar from '../invoice-toolbar';
-import { useUpdateInvoice } from '../../../query/use-invoice';
+import { useUpdateInvoiceStatus } from '../../../query/use-invoice';
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -17,19 +15,16 @@ export const INVOICE_STATUS_OPTIONS = [
 ];
 
 export function InvoiceDetailView({ invoice }) {
-  const dispatch = useDispatch();
-
-  const updateInvoice = useUpdateInvoice();
+  const updateInvoice = useUpdateInvoiceStatus();
 
   const { invoiceStatus, _id } = invoice;
 
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-
-      dispatch(updateInvoiceStatus(_id, newStatus));
+      updateInvoice({ id: _id, status: newStatus });
     },
-    [dispatch, _id]
+    [updateInvoice, _id]
   );
 
   return (

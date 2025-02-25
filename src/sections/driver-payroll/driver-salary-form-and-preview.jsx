@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -11,15 +11,13 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
-import { fetchPendingLoans } from 'src/redux/slices/loan';
-import { useDispatch, useSelector } from 'src/redux/store';
-import { addPayrollReceipt } from 'src/redux/slices/driver-payroll';
-
-import { toast } from 'src/components/snackbar';
 import { Form, schemaHelper } from 'src/components/hook-form';
 
 import DriverSalaryForm from './driver-salary-form';
+import { usePendingLoans } from '../../query/use-loan';
 import DriverSalaryPreview from './driver-salary-preview';
+import { useCreateDriverPayroll } from '../../query/use-driver-payroll';
+import { useTripsCompletedByDriverAndDate } from '../../query/use-subtrip';
 
 // should match with db schema
 export const DriverSalarySchema = zod
@@ -48,8 +46,8 @@ export const DriverSalarySchema = zod
   });
 
 export default function DriverSalaryFormAndPreview({ driverList }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const addDriverPayroll = useCreateDriverPayroll();
 
   const defaultValues = useMemo(
     () => ({
@@ -88,23 +86,24 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     selectedLoans,
   } = watch();
 
-  const { filteredSubtrips: allSubTripsByDriver } = useSelector((state) => state.subtrip);
+  const { data: allSubTripsByDriver } = useTripsCompletedByDriverAndDate(
+    selectedDriverID,
+    periodStartDate,
+    periodEndDate
+  );
 
-  const { loans } = useSelector((state) => state.loan);
-
-  useEffect(() => {
-    if (selectedDriverID) {
-      dispatch(fetchPendingLoans({ borrowerType: 'Driver', id: selectedDriverID }));
-    }
-  }, [dispatch, selectedDriverID]);
+  const { data: pendingLoans } = usePendingLoans({
+    borrowerType: 'Driver',
+    borrowerId: selectedDriverID,
+  });
 
   // Construct the draftDriverSalary object for the preview
   const draftDriverSalary = useMemo(() => {
     const selectedDriver = driverList.find((driver) => driver._id === selectedDriverID);
     return {
       // Match database schema names:
-      subtripComponents: allSubTripsByDriver.filter((st) => subtripComponents.includes(st._id)),
-      selectedLoans: loans?.filter((loan) => selectedLoans.includes(loan._id)),
+      subtripComponents: allSubTripsByDriver?.filter((st) => subtripComponents.includes(st._id)),
+      selectedLoans: pendingLoans?.filter((loan) => selectedLoans.includes(loan._id)),
       otherSalaryComponent,
       driverId: selectedDriver || {},
       status: 'pending',
@@ -115,21 +114,20 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
   }, [
     driverList,
     allSubTripsByDriver,
+    pendingLoans,
     otherSalaryComponent,
     createdDate,
     periodStartDate,
     periodEndDate,
-    selectedLoans,
     selectedDriverID,
     subtripComponents,
-    loans,
+    selectedLoans,
   ]);
 
   // Handle form submission (create)
   const onSubmit = async (data) => {
     try {
-      const createdDriverSalaryslip = await dispatch(addPayrollReceipt(draftDriverSalary));
-      toast.success('Driver Salary created successfully!');
+      const createdDriverSalaryslip = await addDriverPayroll(draftDriverSalary);
       navigate(paths.dashboard.driverPayroll.details(createdDriverSalaryslip._id));
     } catch (error) {
       console.error('Error:', error);
@@ -138,7 +136,11 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <DriverSalaryForm driversList={driverList} loans={loans} />
+      <DriverSalaryForm
+        driversList={driverList}
+        loans={pendingLoans}
+        filteredSubtrips={allSubTripsByDriver}
+      />
       <DriverSalaryPreview driverSalary={draftDriverSalary} />
 
       <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>

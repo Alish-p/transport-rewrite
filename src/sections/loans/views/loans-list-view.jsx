@@ -13,8 +13,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -27,7 +25,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
-import { deleteLoan } from 'src/redux/slices/loan';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -45,6 +42,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useDeleteBank } from '../../../query/use-bank';
 import LoanTableRow from '../loans-list/loans-table-row';
 import LoanTableToolbar from '../loans-list/loans-table-toolbar';
 import LoanTableFiltersResult from '../loans-list/loans-table-filters-result';
@@ -75,9 +73,9 @@ export function LoansListView({ loans }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+  const deleteLoan = useDeleteBank();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -114,15 +112,6 @@ export function LoansListView({ loans }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteLoan(id));
-      toast.success('Loans Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.loan.edit(paramCase(id)));
@@ -271,7 +260,7 @@ export function LoansListView({ loans }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteLoan(row._id)}
                       />
                     ))}
 

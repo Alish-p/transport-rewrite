@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { updatePaymentStatus } from 'src/redux/slices/transporter-payment';
+import { useUpdateTransporterPaymentStatus } from 'src/query/use-transporter-payment';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -20,12 +20,14 @@ export function TransporterPaymentDetailView({ transporterPayment }) {
 
   const { _id, status } = transporterPayment;
 
+  const updateTransporterPaymentStatus = useUpdateTransporterPaymentStatus();
+
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-      dispatch(updatePaymentStatus(_id, newStatus));
+      updateTransporterPaymentStatus({ id: _id, status: newStatus });
     },
-    [dispatch, _id]
+    [_id, updateTransporterPaymentStatus]
   );
   return (
     <DashboardContent>

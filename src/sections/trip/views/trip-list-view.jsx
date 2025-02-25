@@ -1,5 +1,4 @@
 import sumBy from 'lodash/sumBy';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -27,11 +26,9 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
-import { deleteTrip } from 'src/redux/slices/trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -50,6 +47,7 @@ import {
 import TripTableRow from '../trip-table-row';
 import TripAnalytic from '../widgets/trip-analytic';
 import TripTableToolbar from '../trip-table-toolbar';
+import { useDeleteTrip } from '../../../query/use-trip';
 import TripTableFiltersResult from '../trip-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -80,9 +78,9 @@ export function TripListView({ trips }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+  const deleteTrip = useDeleteTrip();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -142,15 +140,6 @@ export function TripListView({ trips }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      await dispatch(deleteTrip(id));
-      toast.success('Trip deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.trip.edit(paramCase(id)));
@@ -372,7 +361,7 @@ export function TripListView({ trips }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteTrip(row._id)}
                       />
                     ))}
 

@@ -1,6 +1,4 @@
-import { toast } from 'sonner';
 import sumBy from 'lodash/sumBy';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -28,7 +26,6 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteVehicle } from 'src/redux/slices/vehicle';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -49,6 +46,7 @@ import {
 import VehicleTableRow from '../vehicle-table-row';
 import VehicleAnalytic from '../widgets/vehicle-analytic';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
+import { useDeleteVehicle } from '../../../query/use-vehicle';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -85,11 +83,11 @@ export function VehicleListView({ vehicles }) {
   const theme = useTheme();
 
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const deleteVehicle = useDeleteVehicle();
+  const table = useTable({ defaultOrderBy: 'createDate' });
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -150,15 +148,6 @@ export function VehicleListView({ vehicles }) {
     },
     [table]
   );
-
-  const handleDeleteRow = async (id) => {
-    try {
-      dispatch(deleteVehicle(id));
-      toast.success('Vehicle Deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.vehicle.edit(paramCase(id)));
@@ -425,7 +414,7 @@ export function VehicleListView({ vehicles }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => deleteVehicle(row._id)}
                       />
                     ))}
 

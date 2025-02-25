@@ -23,10 +23,7 @@ import {
 import { paths } from 'src/routes/paths';
 
 // redux
-import { dispatch } from 'src/redux/store';
-import { addTransporter, updateTransporter } from 'src/redux/slices/transporter';
 
-import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useRouter } from '../../routes/hooks';
@@ -34,6 +31,7 @@ import { Iconify } from '../../components/iconify';
 import { useBoolean } from '../../hooks/use-boolean';
 import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
+import { useCreateTransporter, useUpdateTransporter } from '../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
@@ -98,6 +96,9 @@ export default function TransporterForm({ currentTransporter, bankList }) {
   const router = useRouter();
   const bankDialogue = useBoolean();
 
+  const createTransporter = useCreateTransporter();
+  const updateTransporter = useUpdateTransporter();
+
   const defaultValues = useMemo(
     () => ({
       transportName: currentTransporter?.transportName || '',
@@ -146,14 +147,11 @@ export default function TransporterForm({ currentTransporter, bankList }) {
   const onSubmit = async (data) => {
     try {
       if (!currentTransporter) {
-        await dispatch(addTransporter(data));
+        await createTransporter(data);
       } else {
-        await dispatch(updateTransporter(currentTransporter._id, data));
+        await updateTransporter({ id: currentTransporter._id, data });
       }
       reset();
-      toast.success(
-        !currentTransporter ? 'Transporter added successfully!' : 'Transporter edited successfully!'
-      );
       navigate(paths.dashboard.transporter.list);
     } catch (error) {
       console.error(error);

@@ -23,8 +23,12 @@ const createInvoice = async (invoice) => {
 };
 
 const updateInvoice = async (id, invoiceData) => {
-  console.log({ invoiceDataInAPICAll: invoiceData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, invoiceData);
+  return data;
+};
+
+const updateInvoiceStatus = async (id, status) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, { invoiceStatus: status });
   return data;
 };
 
@@ -48,7 +52,7 @@ export function useInvoice(id) {
 
 export function useCreateInvoice() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createInvoice,
     onSuccess: (newInvoice) => {
       console.log({ newInvoice });
@@ -63,7 +67,7 @@ export function useCreateInvoice() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateInvoice() {
@@ -87,6 +91,29 @@ export function useUpdateInvoice() {
   });
 
   return mutate;
+}
+
+export function useUpdateInvoiceStatus() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, status }) => updateInvoiceStatus(id, status),
+    onSuccess: (updatedInvoice) => {
+      queryClient.setQueryData([QUERY_KEY], (prevInvoices = []) =>
+        prevInvoices.map((invoice) =>
+          invoice._id === updatedInvoice._id ? updatedInvoice : invoice
+        )
+      );
+      queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
+
+      toast.success('Invoice status changed successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
 }
 
 export function useDeleteInvoice() {

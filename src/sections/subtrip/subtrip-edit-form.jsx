@@ -1,7 +1,6 @@
 // ------------------------------------------------------------
 import { toast } from 'sonner';
 import { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,14 +22,15 @@ import { Form, Field } from 'src/components/hook-form';
 import { paths } from '../../routes/paths';
 import { today } from '../../utils/format-time';
 import { paramCase } from '../../utils/change-case';
-import { updateSubtrip } from '../../redux/slices/subtrip';
+import { useUpdateSubtrip } from '../../query/use-subtrip';
 import { loadedSchema, inQueueSchema, receivedSchema, SUBTRIP_STATUS } from './constants';
 
 // ------------------------------------------------------------
 
-export default function TripForm({ currentSubtrip, routesList, customersList }) {
+export default function SubtripEditForm({ currentSubtrip, routesList, customersList }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const updateSubtrip = useUpdateSubtrip();
 
   const defaultValues = useMemo(
     () => ({
@@ -104,7 +104,7 @@ export default function TripForm({ currentSubtrip, routesList, customersList }) 
   const onSubmit = async (data) => {
     try {
       console.log(data);
-      const updatedSubtrip = await dispatch(updateSubtrip(currentSubtrip?._id, data));
+      const updatedSubtrip = await updateSubtrip({ id: currentSubtrip?._id, data });
       console.log({ updatedSubtrip });
       reset();
       toast.success('Subtrip edited successfully!');

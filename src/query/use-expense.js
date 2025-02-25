@@ -23,7 +23,6 @@ const createExpense = async (expense) => {
 };
 
 const updateExpense = async (id, expenseData) => {
-  console.log({ expenseDataInAPICAll: expenseData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, expenseData);
   return data;
 };
