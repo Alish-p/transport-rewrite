@@ -1,4 +1,3 @@
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -68,7 +67,6 @@ export function CustomerListView({ customers }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const deleteCustomer = useDeleteCustomer();
 
   const [filters, setFilters] = useState(defaultFilters);

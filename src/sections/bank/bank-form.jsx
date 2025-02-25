@@ -11,8 +11,6 @@ import { Box, Card, Grid, Stack, Typography } from '@mui/material';
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-
 import { useCreateBank, useUpdateBank } from 'src/query/use-bank';
 
 // components

@@ -20,37 +20,52 @@ const getSubtrip = async (id) => {
 const getClosedTripsByCustomerAndDate = async ({ queryKey }) => {
   const [, customerId, fromDate, toDate] = queryKey;
   if (!customerId || !fromDate || !toDate) return [];
-
-  const { data } = await axios.post('/api/subtrips/fetchClosedTripsByCustomerAndDate', {
-    customerId,
-    fromDate,
-    toDate,
-  });
-  return data;
+  try {
+    const { data } = await axios.post('/api/subtrips/fetchClosedTripsByCustomerAndDate', {
+      customerId,
+      fromDate,
+      toDate,
+    });
+    return data;
+  } catch (error) {
+    const errorMessage = error?.message || 'An error occurred';
+    toast.error(errorMessage);
+    throw error;
+  }
 };
 
 const getTripsCompletedByDriverAndDate = async ({ queryKey }) => {
   const [, driverId, periodStartDate, periodEndDate] = queryKey;
   if (!driverId || !periodStartDate || !periodEndDate) return [];
-
-  const { data } = await axios.post('/api/subtrips/fetchTripsCompletedByDriverAndDate', {
-    driverId,
-    fromDate: periodStartDate,
-    toDate: periodEndDate,
-  });
-  return data;
+  try {
+    const { data } = await axios.post('/api/subtrips/fetchTripsCompletedByDriverAndDate', {
+      driverId,
+      fromDate: periodStartDate,
+      toDate: periodEndDate,
+    });
+    return data;
+  } catch (error) {
+    const errorMessage = error?.message || 'An error occurred';
+    toast.error(errorMessage);
+    throw error;
+  }
 };
 
 const getClosedSubtripsByTransporterAndDate = async ({ queryKey }) => {
   const [, transporterId, periodStartDate, periodEndDate] = queryKey;
   if (!transporterId || !periodStartDate || !periodEndDate) return [];
-
-  const { data } = await axios.post('/api/subtrips/fetchClosedSubtripsByTransporterAndDate', {
-    transporterId,
-    fromDate: periodStartDate,
-    toDate: periodEndDate,
-  });
-  return data;
+  try {
+    const { data } = await axios.post('/api/subtrips/fetchClosedSubtripsByTransporterAndDate', {
+      transporterId,
+      fromDate: periodStartDate,
+      toDate: periodEndDate,
+    });
+    return data;
+  } catch (error) {
+    const errorMessage = error?.message || 'An error occurred';
+    toast.error(errorMessage);
+    throw error;
+  }
 };
 
 const createSubtrip = async (subtrip) => {
@@ -145,7 +160,7 @@ export function useCreateSubtrip() {
       toast.success('Subtrip added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -167,7 +182,7 @@ export function useUpdateSubtrip() {
       toast.success('Subtrip edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -209,7 +224,7 @@ export function useUpdateSubtripMaterialInfo() {
       toast.success('Subtrip Material Info added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -232,7 +247,7 @@ export function useUpdateSubtripReceiveInfo() {
       toast.success('Subtrip Receive Info added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -255,7 +270,7 @@ export function useUpdateSubtripResolveInfo() {
       toast.success('Subtrip Resolve Info added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -278,7 +293,7 @@ export function useUpdateSubtripCloseInfo() {
       toast.success('Subtrip Close Info added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

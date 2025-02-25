@@ -22,8 +22,6 @@ import {
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useRouter } from '../../routes/hooks';

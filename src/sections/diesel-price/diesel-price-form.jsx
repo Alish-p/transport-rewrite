@@ -12,8 +12,6 @@ import { Box, Card, Grid, Stack, Divider, Typography } from '@mui/material';
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 

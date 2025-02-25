@@ -12,8 +12,6 @@ import { Box, Card, Grid, Stack, Button, Divider, Typography, IconButton } from 
 // routes
 import { paths } from 'src/routes/paths';
 
-// redux
-
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 

@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 // utils
-import { useDispatch } from 'react-redux';
 // form
 import { useForm } from 'react-hook-form';
 import { useMemo, useCallback } from 'react';
@@ -65,8 +64,6 @@ export const NewVehicleSchema = zod
 
 export default function VehicleForm({ currentVehicle, transporters }) {
   const router = useRouter();
-
-  const dispatch = useDispatch();
 
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();

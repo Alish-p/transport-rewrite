@@ -1,6 +1,5 @@
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,7 +43,6 @@ export const TransporterPaymentSchema = zod
 // draft transporterPayment object and api call to fetch will have ids and values
 
 export default function TransporterPaymentFormAndPreview({ transporterList }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const createTransporterPayment = useCreateTransporterPayment();
 

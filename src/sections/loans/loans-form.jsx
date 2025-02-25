@@ -24,8 +24,6 @@ import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
 
-// redux
-
 // components
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';

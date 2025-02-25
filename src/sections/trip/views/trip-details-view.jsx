@@ -1,6 +1,5 @@
 // @mui
 // components
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { useTheme } from '@mui/material/styles';
@@ -71,7 +70,6 @@ function getTripDashboardData(trip) {
 export function TripDetailView({ trip }) {
   const theme = useTheme();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const updateTrip = useUpdateTrip();
 

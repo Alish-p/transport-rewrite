@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useUpdateTransporterPaymentStatus } from 'src/query/use-transporter-payment';
@@ -16,8 +15,6 @@ export const TRANSPORTER_PAYMENT_OPTIONS = [
 ];
 
 export function TransporterPaymentDetailView({ transporterPayment }) {
-  const dispatch = useDispatch();
-
   const { _id, status } = transporterPayment;
 
   const updateTransporterPaymentStatus = useUpdateTransporterPaymentStatus();

@@ -46,7 +46,6 @@ export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
 
   const onSubmit = async (data) => {
     try {
-      // Dispatch action to update subtrip with closing details
       await resolveLR({ id: subtripId, data });
       handleReset();
       setShowDialog(false);

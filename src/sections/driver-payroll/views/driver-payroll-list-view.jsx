@@ -13,7 +13,6 @@ import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
@@ -75,7 +74,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
   const confirm = useBoolean();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const deleteDriverPayroll = useDeleteDriverPayroll();
 
