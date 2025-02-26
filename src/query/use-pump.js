@@ -59,7 +59,7 @@ export function useCreatePump() {
       toast.success('Pump added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -79,7 +79,7 @@ export function useUpdatePump() {
       toast.success('Pump edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

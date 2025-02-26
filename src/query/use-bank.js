@@ -58,7 +58,7 @@ export function useCreateBank() {
       toast.success('Bank added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -76,7 +76,7 @@ export function useUpdateBank() {
       toast.success('Bank edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

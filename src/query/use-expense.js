@@ -58,7 +58,7 @@ export function useCreateExpense() {
       toast.success('Expense added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -80,7 +80,7 @@ export function useUpdateExpense() {
       toast.success('Expense edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

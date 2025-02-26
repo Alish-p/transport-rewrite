@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
-const ENDPOINT = '/api/driverPayrolls';
+const ENDPOINT = '/api/driverPayroll';
 const QUERY_KEY = 'driverPayrolls';
 
 // Fetchers
@@ -67,7 +67,7 @@ export function useCreateDriverPayroll() {
       toast.success('DriverPayroll added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -89,7 +89,7 @@ export function useUpdateDriverPayroll() {
       toast.success('DriverPayroll edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -112,7 +112,7 @@ export function useUpdateDriverPayrollStatus() {
       toast.success('DriverPayroll status changed successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

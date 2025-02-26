@@ -69,14 +69,20 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
     };
 
     try {
+      let newDieselPrice;
       if (!currentDieselPrice) {
-        await createDieselPrice(transformedData);
+        newDieselPrice = await createDieselPrice(transformedData);
       } else {
-        await updateDieselPrice({ id: currentDieselPrice._id, data: transformedData });
+        newDieselPrice = await updateDieselPrice({
+          id: currentDieselPrice._id,
+          data: transformedData,
+        });
       }
-      reset();
 
-      navigate(paths.dashboard.dieselPrice.list);
+      if (newDieselPrice) {
+        navigate(paths.dashboard.dieselPrice.list);
+        reset();
+      }
     } catch (error) {
       console.error(error);
     }

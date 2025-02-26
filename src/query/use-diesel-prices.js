@@ -18,8 +18,8 @@ const getDieselPriceOnDate = async ({ date, pump }) => {
   } catch (error) {
     console.error('API Error:', error);
     const errorMessage = error?.message || 'Failed to fetch diesel price.';
-    toast.error(errorMessage); // 🔥 Directly show toast error inside API function
-    throw new Error(errorMessage); // Ensure the error is thrown so React Query handles it
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
@@ -76,7 +76,7 @@ export function useDieselPrice(id) {
 
 export function useCreateDieselPrice() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createDieselPrice,
     onSuccess: (newDieselPrice) => {
       console.log({ newDieselPrice });
@@ -90,16 +90,16 @@ export function useCreateDieselPrice() {
       toast.success('DieselPrice added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateDieselPrice() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateDieselPrice(id, data),
     onSuccess: (updatedDieselPrice) => {
       queryClient.setQueryData([QUERY_KEY], (prevDieselPrices) =>
@@ -112,12 +112,12 @@ export function useUpdateDieselPrice() {
       toast.success('DieselPrice edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteDieselPrice() {

@@ -84,10 +84,13 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     try {
       if (currentTrip) {
         // Update Trip
-        await updateTrip(currentTrip._id, {
-          ...data,
-          driverId: data?.driverId?.value,
-          vehicleId: data?.vehicleId?.value,
+        await updateTrip({
+          id: currentTrip._id,
+          data: {
+            ...data,
+            driverId: data?.driverId?.value,
+            vehicleId: data?.vehicleId?.value,
+          },
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {

@@ -67,7 +67,7 @@ export function useCreateTransporterPayment() {
       toast.success('TransporterPayment added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -94,7 +94,7 @@ export function useUpdateTransporterPayment() {
       toast.success('TransporterPayment edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -120,7 +120,7 @@ export function useUpdateTransporterPaymentStatus() {
       toast.success('TransporterPayment status changed successfully!');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'An error occurred';
+      const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
