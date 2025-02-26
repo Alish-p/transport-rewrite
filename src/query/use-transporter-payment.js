@@ -56,14 +56,7 @@ export function useCreateTransporterPayment() {
   const { mutateAsync } = useMutation({
     mutationFn: createTransporterPayment,
     onSuccess: (newTransporterPayment) => {
-      console.log({ newTransporterPayment });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevTransporterPayments) => [
-        ...prevTransporterPayments,
-        newTransporterPayment,
-      ]);
-      // caching current transporterPayment
-      queryClient.setQueryData([QUERY_KEY, newTransporterPayment._id], newTransporterPayment);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment added successfully!');
     },
     onError: (error) => {
@@ -79,13 +72,7 @@ export function useUpdateTransporterPayment() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateTransporterPayment(id, data),
     onSuccess: (updatedTransporterPayment) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTransporterPayments) =>
-        prevTransporterPayments.map((transporterPayment) =>
-          transporterPayment._id === updatedTransporterPayment._id
-            ? updatedTransporterPayment
-            : transporterPayment
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData(
         [QUERY_KEY, updatedTransporterPayment._id],
         updatedTransporterPayment
@@ -107,11 +94,7 @@ export function useUpdateTransporterPaymentStatus() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, status }) => updateTransporterPaymentStatus(id, status),
     onSuccess: (updatedTransporterPayment) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTransporterPayments = []) =>
-        prevTransporterPayments.map((tp) =>
-          tp._id === updatedTransporterPayment._id ? updatedTransporterPayment : tp
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData(
         [QUERY_KEY, updatedTransporterPayment._id],
         updatedTransporterPayment
@@ -133,9 +116,7 @@ export function useDeleteTransporterPayment() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporterPayment(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTransporterPayments) =>
-        prevTransporterPayments.filter((transporterPayment) => transporterPayment._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment deleted successfully!');
     },
     onError: (error) => {

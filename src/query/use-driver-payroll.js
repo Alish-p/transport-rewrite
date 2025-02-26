@@ -58,12 +58,7 @@ export function useCreateDriverPayroll() {
     onSuccess: (newDriverPayroll) => {
       console.log({ newDriverPayroll });
       // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevDriverPayrolls) => [
-        ...prevDriverPayrolls,
-        newDriverPayroll,
-      ]);
-      // caching current driverPayroll
-      queryClient.setQueryData([QUERY_KEY, newDriverPayroll._id], newDriverPayroll);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DriverPayroll added successfully!');
     },
     onError: (error) => {
@@ -79,11 +74,7 @@ export function useUpdateDriverPayroll() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateDriverPayroll(id, data),
     onSuccess: (updatedDriverPayroll) => {
-      queryClient.setQueryData([QUERY_KEY], (prevDriverPayrolls) =>
-        prevDriverPayrolls.map((driverPayroll) =>
-          driverPayroll._id === updatedDriverPayroll._id ? updatedDriverPayroll : driverPayroll
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedDriverPayroll._id], updatedDriverPayroll);
 
       toast.success('DriverPayroll edited successfully!');
@@ -102,11 +93,7 @@ export function useUpdateDriverPayrollStatus() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, status }) => updateDriverPayrollStatus(id, status),
     onSuccess: (updatedDriverPayroll) => {
-      queryClient.setQueryData([QUERY_KEY], (prevDriverPayrolls = []) =>
-        prevDriverPayrolls.map((dp) =>
-          dp._id === updatedDriverPayroll._id ? updatedDriverPayroll : dp
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedDriverPayroll._id], updatedDriverPayroll);
 
       toast.success('DriverPayroll status changed successfully!');
@@ -125,9 +112,7 @@ export function useDeleteDriverPayroll() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDriverPayroll(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevDriverPayrolls) =>
-        prevDriverPayrolls.filter((driverPayroll) => driverPayroll._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DriverPayroll deleted successfully!');
     },
     onError: (error) => {

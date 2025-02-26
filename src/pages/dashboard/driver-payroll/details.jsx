@@ -16,7 +16,7 @@ const metadata = { title: `Driver Payroll details | Dashboard - ${CONFIG.site.na
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: driverPayroll, isLoading, isError } = useDriverPayroll();
+  const { data: driverPayroll, isLoading, isError } = useDriverPayroll(id);
 
   if (isLoading) {
     return <LoadingScreen />;

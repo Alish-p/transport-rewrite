@@ -50,11 +50,7 @@ export function useCreateBank() {
   const { mutate } = useMutation({
     mutationFn: createBank,
     onSuccess: (newBank) => {
-      console.log({ newBank });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevBanks) => [...prevBanks, newBank]);
-      // caching current bank
-      queryClient.setQueryData([QUERY_KEY, newBank._id], newBank);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bank added successfully!');
     },
     onError: (error) => {
@@ -70,7 +66,7 @@ export function useUpdateBank() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateBank(id, data),
     onSuccess: (updatedBank) => {
-      queryClient.setQueryData([QUERY_KEY], (prevBanks) => [...prevBanks, updatedBank]);
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedBank._id], updatedBank);
 
       toast.success('Bank edited successfully!');
@@ -89,9 +85,7 @@ export function useDeleteBank() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteBank(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevBanks) =>
-        prevBanks.filter((bank) => bank._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bank deleted successfully!');
     },
     onError: (error) => {

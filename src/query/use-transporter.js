@@ -51,14 +51,7 @@ export function useCreateTransporter() {
   const { mutate } = useMutation({
     mutationFn: createTransporter,
     onSuccess: (newTransporter) => {
-      console.log({ newTransporter });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevTransporters) => [
-        ...prevTransporters,
-        newTransporter,
-      ]);
-      // caching current transporter
-      queryClient.setQueryData([QUERY_KEY, newTransporter._id], newTransporter);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Transporter added successfully!');
     },
     onError: (error) => {
@@ -74,13 +67,8 @@ export function useUpdateTransporter() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateTransporter(id, data),
     onSuccess: (updatedTransporter) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTransporters) =>
-        prevTransporters.map((transporter) =>
-          transporter._id === updatedTransporter._id ? updatedTransporter : transporter
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedTransporter._id], updatedTransporter);
-
       toast.success('Transporter edited successfully!');
     },
     onError: (error) => {
@@ -97,9 +85,7 @@ export function useDeleteTransporter() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporter(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTransporters) =>
-        prevTransporters.filter((transporter) => transporter._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Transporter deleted successfully!');
     },
     onError: (error) => {

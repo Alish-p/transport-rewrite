@@ -25,6 +25,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
+import { useDeleteLoan } from 'src/query/use-loan';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -42,7 +43,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { useDeleteBank } from '../../../query/use-bank';
 import LoanTableRow from '../loans-list/loans-table-row';
 import LoanTableToolbar from '../loans-list/loans-table-toolbar';
 import LoanTableFiltersResult from '../loans-list/loans-table-filters-result';
@@ -73,7 +73,7 @@ export function LoansListView({ loans }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
-  const deleteLoan = useDeleteBank();
+  const deleteLoan = useDeleteLoan();
 
   const navigate = useNavigate();
 

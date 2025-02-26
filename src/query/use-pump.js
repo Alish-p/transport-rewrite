@@ -51,11 +51,7 @@ export function useCreatePump() {
   const { mutate } = useMutation({
     mutationFn: createPump,
     onSuccess: (newPump) => {
-      console.log({ newPump });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevPumps) => [...prevPumps, newPump]);
-      // caching current pump
-      queryClient.setQueryData([QUERY_KEY, newPump._id], newPump);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Pump added successfully!');
     },
     onError: (error) => {
@@ -71,9 +67,7 @@ export function useUpdatePump() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updatePump(id, data),
     onSuccess: (updatedPump) => {
-      queryClient.setQueryData([QUERY_KEY], (prevPumps) =>
-        prevPumps.map((pump) => (pump._id === updatedPump._id ? updatedPump : pump))
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedPump._id], updatedPump);
 
       toast.success('Pump edited successfully!');
@@ -92,9 +86,7 @@ export function useDeletePump() {
   const { mutate } = useMutation({
     mutationFn: (id) => deletePump(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevPumps) =>
-        prevPumps.filter((pump) => pump._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Pump deleted successfully!');
     },
     onError: (error) => {

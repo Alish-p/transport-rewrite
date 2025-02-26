@@ -51,12 +51,8 @@ export function useCreateVehicle() {
   const { mutate } = useMutation({
     mutationFn: createVehicle,
     onSuccess: (newVehicle) => {
-      console.log({ newVehicle });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevVehicles) => [...prevVehicles, newVehicle]);
-      // caching current vehicle
-      queryClient.setQueryData([QUERY_KEY, newVehicle._id], newVehicle);
       toast.success('Vehicle added successfully!');
+      queryClient.invalidateQueries([QUERY_KEY]);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -71,13 +67,8 @@ export function useUpdateVehicle() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateVehicle(id, data),
     onSuccess: (updatedVehicle) => {
-      queryClient.setQueryData([QUERY_KEY], (prevVehicles) =>
-        prevVehicles.map((vehicle) =>
-          vehicle._id === updatedVehicle._id ? updatedVehicle : vehicle
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedVehicle._id], updatedVehicle);
-
       toast.success('Vehicle edited successfully!');
     },
     onError: (error) => {
@@ -94,9 +85,7 @@ export function useDeleteVehicle() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteVehicle(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevVehicles) =>
-        prevVehicles.filter((vehicle) => vehicle._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Vehicle deleted successfully!');
     },
     onError: (error) => {

@@ -51,11 +51,7 @@ export function useCreateCustomer() {
   const { mutate } = useMutation({
     mutationFn: createCustomer,
     onSuccess: (newCustomer) => {
-      console.log({ newCustomer });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevCustomers) => [...prevCustomers, newCustomer]);
-      // caching current customer
-      queryClient.setQueryData([QUERY_KEY, newCustomer._id], newCustomer);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Customer added successfully!');
     },
     onError: (error) => {
@@ -71,11 +67,7 @@ export function useUpdateCustomer() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateCustomer(id, data),
     onSuccess: (updatedCustomer) => {
-      queryClient.setQueryData([QUERY_KEY], (prevCustomers) =>
-        prevCustomers.map((customer) =>
-          customer._id === updatedCustomer._id ? updatedCustomer : customer
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedCustomer._id], updatedCustomer);
 
       toast.success('Customer edited successfully!');
@@ -94,13 +86,10 @@ export function useDeleteCustomer() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteCustomer(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevCustomers) =>
-        prevCustomers.filter((customer) => customer._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Customer deleted successfully!');
     },
     onError: (error) => {
-      console.log({ error });
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },

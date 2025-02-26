@@ -84,7 +84,7 @@ const updateSubtripMaterialInfo = async (id, subtripData) => {
 };
 
 const updateSubtripReceiveInfo = async (id, subtripData) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/recieve`, subtripData);
+  const { data } = await axios.put(`${ENDPOINT}/${id}/receive`, subtripData);
   return data;
 };
 
@@ -93,8 +93,8 @@ const updateSubtripResolveInfo = async (id, subtripData) => {
   return data;
 };
 
-const updateSubtripCloseInfo = async (id, subtripData) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/close`, subtripData);
+const updateSubtripCloseInfo = async (id) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/close`);
   return data;
 };
 
@@ -152,11 +152,7 @@ export function useCreateSubtrip() {
   const { mutateAsync } = useMutation({
     mutationFn: createSubtrip,
     onSuccess: (newSubtrip) => {
-      console.log({ newSubtrip });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips) => [...prevSubtrips, newSubtrip]);
-      // caching current subtrip
-      queryClient.setQueryData([QUERY_KEY, newSubtrip._id], newSubtrip);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Subtrip added successfully!');
     },
     onError: (error) => {
@@ -172,11 +168,7 @@ export function useUpdateSubtrip() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateSubtrip(id, data),
     onSuccess: (updatedSubtrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips) =>
-        prevSubtrips.map((subtrip) =>
-          subtrip._id === updatedSubtrip._id ? updatedSubtrip : subtrip
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Subtrip edited successfully!');
@@ -214,11 +206,7 @@ export function useUpdateSubtripMaterialInfo() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateSubtripMaterialInfo(id, data),
     onSuccess: (updatedSubtrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips = []) =>
-        prevSubtrips.map((subtrip) =>
-          subtrip._id === updatedSubtrip._id ? updatedSubtrip : subtrip
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Subtrip Material Info added successfully!');
@@ -237,11 +225,7 @@ export function useUpdateSubtripReceiveInfo() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateSubtripReceiveInfo(id, data),
     onSuccess: (updatedSubtrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips = []) =>
-        prevSubtrips.map((subtrip) =>
-          subtrip._id === updatedSubtrip._id ? updatedSubtrip : subtrip
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Subtrip Receive Info added successfully!');
@@ -260,11 +244,7 @@ export function useUpdateSubtripResolveInfo() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateSubtripResolveInfo(id, data),
     onSuccess: (updatedSubtrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips = []) =>
-        prevSubtrips.map((subtrip) =>
-          subtrip._id === updatedSubtrip._id ? updatedSubtrip : subtrip
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Subtrip Resolve Info added successfully!');
@@ -281,13 +261,9 @@ export function useUpdateSubtripResolveInfo() {
 export function useUpdateSubtripCloseInfo() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, data }) => updateSubtripCloseInfo(id, data),
+    mutationFn: (id) => updateSubtripCloseInfo(id),
     onSuccess: (updatedSubtrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips = []) =>
-        prevSubtrips.map((subtrip) =>
-          subtrip._id === updatedSubtrip._id ? updatedSubtrip : subtrip
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Subtrip Close Info added successfully!');

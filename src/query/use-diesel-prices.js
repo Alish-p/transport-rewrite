@@ -79,14 +79,7 @@ export function useCreateDieselPrice() {
   const { mutateAsync } = useMutation({
     mutationFn: createDieselPrice,
     onSuccess: (newDieselPrice) => {
-      console.log({ newDieselPrice });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevDieselPrices) => [
-        ...prevDieselPrices,
-        newDieselPrice,
-      ]);
-      // caching current dieselPrice
-      queryClient.setQueryData([QUERY_KEY, newDieselPrice._id], newDieselPrice);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DieselPrice added successfully!');
     },
     onError: (error) => {
@@ -102,11 +95,7 @@ export function useUpdateDieselPrice() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateDieselPrice(id, data),
     onSuccess: (updatedDieselPrice) => {
-      queryClient.setQueryData([QUERY_KEY], (prevDieselPrices) =>
-        prevDieselPrices.map((dieselPrice) =>
-          dieselPrice._id === updatedDieselPrice._id ? updatedDieselPrice : dieselPrice
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedDieselPrice._id], updatedDieselPrice);
 
       toast.success('DieselPrice edited successfully!');
@@ -125,9 +114,7 @@ export function useDeleteDieselPrice() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDieselPrice(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevDieselPrices) =>
-        prevDieselPrices.filter((dieselPrice) => dieselPrice._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DieselPrice deleted successfully!');
     },
     onError: (error) => {

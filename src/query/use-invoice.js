@@ -55,11 +55,7 @@ export function useCreateInvoice() {
   const { mutateAsync } = useMutation({
     mutationFn: createInvoice,
     onSuccess: (newInvoice) => {
-      console.log({ newInvoice });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevInvoices) => [...prevInvoices, newInvoice]);
-      // caching current invoice
-      queryClient.setQueryData([QUERY_KEY, newInvoice._id], newInvoice);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Invoice added successfully!');
     },
     onError: (error) => {
@@ -75,11 +71,7 @@ export function useUpdateInvoice() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateInvoice(id, data),
     onSuccess: (updatedInvoice) => {
-      queryClient.setQueryData([QUERY_KEY], (prevInvoices) =>
-        prevInvoices.map((invoice) =>
-          invoice._id === updatedInvoice._id ? updatedInvoice : invoice
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
 
       toast.success('Invoice edited successfully!');
@@ -98,11 +90,7 @@ export function useUpdateInvoiceStatus() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, status }) => updateInvoiceStatus(id, status),
     onSuccess: (updatedInvoice) => {
-      queryClient.setQueryData([QUERY_KEY], (prevInvoices = []) =>
-        prevInvoices.map((invoice) =>
-          invoice._id === updatedInvoice._id ? updatedInvoice : invoice
-        )
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
 
       toast.success('Invoice status changed successfully!');
@@ -121,9 +109,7 @@ export function useDeleteInvoice() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteInvoice(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevInvoices) =>
-        prevInvoices.filter((invoice) => invoice._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Invoice deleted successfully!');
     },
     onError: (error) => {

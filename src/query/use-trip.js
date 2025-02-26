@@ -51,12 +51,8 @@ export function useCreateTrip() {
   const { mutateAsync } = useMutation({
     mutationFn: createTrip,
     onSuccess: (newTrip) => {
-      console.log({ newTrip });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevTrips) => [...prevTrips, newTrip]);
-      // caching current trip
-      queryClient.setQueryData([QUERY_KEY, newTrip._id], newTrip);
       toast.success('Trip added successfully!');
+      queryClient.invalidateQueries([QUERY_KEY]);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -71,9 +67,7 @@ export function useUpdateTrip() {
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateTrip(id, data),
     onSuccess: (updatedTrip) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTrips) =>
-        prevTrips.map((trip) => (trip._id === updatedTrip._id ? updatedTrip : trip))
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedTrip._id], updatedTrip);
 
       toast.success('Trip edited successfully!');
@@ -92,13 +86,10 @@ export function useDeleteTrip() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTrip(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevTrips) =>
-        prevTrips.filter((trip) => trip._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Trip deleted successfully!');
     },
     onError: (error) => {
-      console.log({ error });
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },

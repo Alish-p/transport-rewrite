@@ -63,11 +63,7 @@ export function useCreateLoan() {
   const { mutateAsync } = useMutation({
     mutationFn: createLoan,
     onSuccess: (newLoan) => {
-      console.log({ newLoan });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevLoans = []) => [...prevLoans, newLoan]);
-      // caching current loan
-      queryClient.setQueryData([QUERY_KEY, newLoan._id], newLoan);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Loan added successfully!');
     },
     onError: (error) => {
@@ -83,9 +79,7 @@ export function useUpdateLoan() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateLoan(id, data),
     onSuccess: (updatedLoan) => {
-      queryClient.setQueryData([QUERY_KEY], (prevLoans) =>
-        prevLoans.map((loan) => (loan._id === updatedLoan._id ? updatedLoan : loan))
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedLoan._id], updatedLoan);
 
       toast.success('Loan edited successfully!');
@@ -104,9 +98,7 @@ export function useDeleteLoan() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteLoan(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevLoans) =>
-        prevLoans.filter((loan) => loan._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Loan deleted successfully!');
     },
     onError: (error) => {

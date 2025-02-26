@@ -91,7 +91,7 @@ function RenderDateInfo({ createdDate }) {
 }
 
 function RenderSalaryTable({ driverSalary }) {
-  const { subtripComponents, otherSalaryComponent, selectedLoans } = driverSalary;
+  const { subtripComponents = [], otherSalaryComponent = [], selectedLoans = [] } = driverSalary;
 
   const { netSalary } = calculatePayslipSummary(driverSalary);
 

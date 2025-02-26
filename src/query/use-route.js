@@ -62,11 +62,7 @@ export function useCreateRoute() {
   const { mutate } = useMutation({
     mutationFn: createRoute,
     onSuccess: (newRoute) => {
-      console.log({ newRoute });
-      // updating list
-      queryClient.setQueryData([QUERY_KEY], (prevRoutes) => [...prevRoutes, newRoute]);
-      // caching current route
-      queryClient.setQueryData([QUERY_KEY, newRoute._id], newRoute);
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route added successfully!');
     },
     onError: (error) => {
@@ -82,9 +78,7 @@ export function useUpdateRoute() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateRoute(id, data),
     onSuccess: (updatedRoute) => {
-      queryClient.setQueryData([QUERY_KEY], (prevRoutes) =>
-        prevRoutes.map((route) => (route._id === updatedRoute._id ? updatedRoute : route))
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedRoute._id], updatedRoute);
 
       toast.success('Route edited successfully!');
@@ -103,9 +97,7 @@ export function useDeleteRoute() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteRoute(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevRoutes) =>
-        prevRoutes.filter((route) => route._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route deleted successfully!');
     },
     onError: (error) => {
