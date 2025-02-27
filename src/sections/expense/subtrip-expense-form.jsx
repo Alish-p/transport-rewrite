@@ -176,7 +176,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     if (!currentExpense) {
       createExpense(transformedData);
     } else {
-      updateExpense(currentExpense._id, transformedData);
+      updateExpense({ id: currentExpense._id, data: transformedData });
     }
     navigate(paths.dashboard.expense.list);
   };

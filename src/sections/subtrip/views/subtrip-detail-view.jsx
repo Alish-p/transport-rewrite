@@ -12,7 +12,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { mapExpensesToChartData } from '../utils';
 import LRInfo from '../widgets/subtrip-info-widget';
 import { Iconify } from '../../../components/iconify';
 import SimpleExpenseList from '../basic-expense-table';
@@ -26,6 +25,7 @@ import { SimpleStepper } from '../widgets/subtrip-completion-stepper';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
+import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
 import { SubtripMaterialInfoDialog } from '../subtrip-material-info-dialogue-form';
 
 // ----------------------------------------------------------------------
@@ -64,6 +64,8 @@ export function SubtripDetailView({ subtrip }) {
 
   const currentStep = statusToStepIndex[subtrip?.subtripStatus] ?? 0;
 
+  const insights = generateInsightsForSubtrip(subtrip);
+  console.log({ insights });
   return (
     <>
       <DashboardContent>

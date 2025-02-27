@@ -3,15 +3,15 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { usePumps } from 'src/query/use-pump';
+import { useExpense } from 'src/query/use-expense';
+import { useSubtrips } from 'src/query/use-subtrip';
+import { useVehicles } from 'src/query/use-vehicle';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { ExpenseEditView } from 'src/sections/expense/views';
-
-import { usePumps } from '../../../query/use-pump';
-import { useExpense } from '../../../query/use-expense';
-import { useSubtrips } from '../../../query/use-subtrip';
-import { useVehicles } from '../../../query/use-vehicle';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
