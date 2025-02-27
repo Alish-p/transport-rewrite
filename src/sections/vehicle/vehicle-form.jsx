@@ -28,7 +28,7 @@ export const NewVehicleSchema = zod
     vehicleNo: zod
       .string()
       .regex(/^[A-Z]{2}[0-9]{2}[A-HJ-NP-Z]{1,2}[0-9]{4}$|^[0-9]{2}BH[0-9]{4}[A-HJ-NP-Z]{1,2}$/, {
-        message: 'Invalid Vehicle No format',
+        message: 'Invalid Vehicle No format, Example KA01AB0001',
       })
       .min(1, { message: 'Vehicle No is required' }),
     images: zod.any().nullable(),
@@ -53,7 +53,7 @@ export const NewVehicleSchema = zod
       .min(1, { message: 'Fuel Tank Capacity is required and must be at least 1' }),
     transporter: zod.string().optional(),
     isActive: zod.boolean().optional(),
-    isOwn: zod.boolean(),
+    isOwn: zod.boolean().optional(),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -108,13 +108,14 @@ export default function VehicleForm({ currentVehicle, transporters }) {
 
   const onSubmit = async (data) => {
     try {
+      let newVehicle;
       if (!currentVehicle) {
-        await createVehicle(data);
+        newVehicle = await createVehicle(data);
       } else {
-        await updateVehicle({ id: currentVehicle._id, data });
+        newVehicle = await updateVehicle({ id: currentVehicle._id, data });
       }
       reset();
-      router.push(paths.dashboard.vehicle.list);
+      router.push(paths.dashboard.vehicle.details(newVehicle._id));
     } catch (error) {
       console.error(error);
     }
