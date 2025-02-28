@@ -3,68 +3,56 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
-const ENDPOINT = '/api/routes';
-const QUERY_KEY = 'routes';
+const ENDPOINT = '/api/users';
+const QUERY_KEY = 'users';
 
 // Fetchers
-const getRoutes = async ({ queryKey }) => {
-  const [, customerId] = queryKey;
-  let url = ENDPOINT;
-
-  // If we have a customerId, append it as a query parameter
-  if (customerId) {
-    url += `?customerId=${customerId}`;
-  }
-
-  const { data } = await axios.get(url);
+const getUsers = async () => {
+  const { data } = await axios.get(ENDPOINT);
   return data;
 };
 
-const getRoute = async (id) => {
+const getUser = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
 };
 
-const createRoute = async (route) => {
-  const { data } = await axios.post(ENDPOINT, route);
+const createUser = async (user) => {
+  const { data } = await axios.post(ENDPOINT, user);
   return data;
 };
 
-const updateRoute = async (id, routeData) => {
-  console.log({ routeDataInAPICAll: routeData });
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, routeData);
+const updateUser = async (id, userData) => {
+  console.log({ userDataInAPICAll: userData });
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, userData);
   return data;
 };
 
-const deleteRoute = async (id) => {
+const deleteUser = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
 };
 
 // Queries & Mutations
-export function useRoutes(customerId) {
-  return useQuery({
-    queryKey: [QUERY_KEY, customerId],
-    queryFn: getRoutes,
-    enabled: !!customerId,
-  });
+export function useUsers() {
+  return useQuery({ queryKey: [QUERY_KEY], queryFn: getUsers });
 }
 
-export function useRoute(id) {
+export function useUser(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => getRoute(id),
+    queryFn: () => getUser(id),
     enabled: !!id,
   });
 }
 
-export function useCreateRoute() {
+export function useCreateUser() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: createRoute,
-    onSuccess: (newRoute) => {
+    mutationFn: createUser,
+    onSuccess: (newUser) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Route added successfully!');
+      toast.success('User added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -74,15 +62,15 @@ export function useCreateRoute() {
   return mutate;
 }
 
-export function useUpdateRoute() {
+export function useUpdateUser() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: ({ id, data }) => updateRoute(id, data),
-    onSuccess: (updatedRoute) => {
+    mutationFn: ({ id, data }) => updateUser(id, data),
+    onSuccess: (updatedUser) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedRoute._id], updatedRoute);
+      queryClient.setQueryData([QUERY_KEY, updatedUser._id], updatedUser);
 
-      toast.success('Route edited successfully!');
+      toast.success('User edited successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -93,13 +81,13 @@ export function useUpdateRoute() {
   return mutate;
 }
 
-export function useDeleteRoute() {
+export function useDeleteUser() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: (id) => deleteRoute(id),
+    mutationFn: (id) => deleteUser(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Route deleted successfully!');
+      toast.success('User deleted successfully!');
     },
     onError: (error) => {
       console.log({ error });

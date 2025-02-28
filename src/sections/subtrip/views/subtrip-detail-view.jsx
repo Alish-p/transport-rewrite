@@ -16,6 +16,7 @@ import LRInfo from '../widgets/subtrip-info-widget';
 import { Iconify } from '../../../components/iconify';
 import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
+import InsightsWidget from '../widgets/insights-widget';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
@@ -65,7 +66,7 @@ export function SubtripDetailView({ subtrip }) {
   const currentStep = statusToStepIndex[subtrip?.subtripStatus] ?? 0;
 
   const insights = generateInsightsForSubtrip(subtrip);
-  console.log({ insights });
+
   return (
     <>
       <DashboardContent>
@@ -113,6 +114,9 @@ export function SubtripDetailView({ subtrip }) {
                 ]}
                 currentStep={currentStep}
               />
+
+              <InsightsWidget insights={insights} />
+
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <IncomeWidgetSummary
                   title="Income"

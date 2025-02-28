@@ -201,6 +201,18 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.bank.new },
         ],
       },
+
+      {
+        title: 'User',
+        path: paths.dashboard.user.root,
+        icon: ICONS.user,
+        children: [
+          { title: 'Cards', path: paths.dashboard.user.cards },
+          { title: 'List', path: paths.dashboard.user.list },
+          { title: 'Create', path: paths.dashboard.user.new },
+          { title: 'Account', path: paths.dashboard.user.account },
+        ],
+      },
     ],
   },
   {

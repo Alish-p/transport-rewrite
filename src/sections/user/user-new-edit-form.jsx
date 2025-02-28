@@ -1,18 +1,15 @@
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
+import { InputAdornment } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -25,28 +22,74 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export const NewUserSchema = zod.object({
-  avatarUrl: schemaHelper.file({
-    message: { required_error: 'Avatar is required!' },
-  }),
+// User Schema Validation
+export const UserSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
   email: zod
     .string()
     .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-  country: schemaHelper.objectOrNull({
-    message: { required_error: 'Country is required!' },
+    .email({ message: 'Invalid email address!' }),
+  mobile: schemaHelper.phoneNumber({
+    message: {
+      required_error: 'Mobile No is required',
+      invalid_error: 'Mobile No must be exactly 10 digits',
+    },
   }),
   address: zod.string().min(1, { message: 'Address is required!' }),
-  company: zod.string().min(1, { message: 'Company is required!' }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  role: zod.string().min(1, { message: 'Role is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  // Not required
-  status: zod.string(),
-  isVerified: zod.boolean(),
+  password: zod.string().min(6, { message: 'Password must be at least 6 characters long!' }),
+
+  bankDetails: zod.object({
+    name: zod.string().min(1, { message: 'Bank name is required!' }),
+    branch: zod.string().min(1, { message: 'Branch is required!' }),
+    ifsc: zod.string().min(1, { message: 'IFSC is required!' }),
+    place: zod.string().min(1, { message: 'Place is required!' }),
+    accNo: zod.string().min(1, { message: 'Account number is required!' }),
+  }),
+
+  permissions: zod.object({
+    bank: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    customer: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    diesel: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    driver: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    trip: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    user: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+    vehicle: zod.object({
+      create: zod.boolean(),
+      view: zod.boolean(),
+      update: zod.boolean(),
+      delete: zod.boolean(),
+    }),
+  }),
 });
 
 // ----------------------------------------------------------------------
@@ -56,26 +99,71 @@ export function UserNewEditForm({ currentUser }) {
 
   const defaultValues = useMemo(
     () => ({
-      status: currentUser?.status || '',
-      avatarUrl: currentUser?.avatarUrl || null,
-      isVerified: currentUser?.isVerified || true,
       name: currentUser?.name || '',
       email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
+      mobile: currentUser?.mobile || '',
       address: currentUser?.address || '',
-      zipCode: currentUser?.zipCode || '',
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
+      password: '',
+
+      bankDetails: {
+        name: currentUser?.bankDetails?.name || '',
+        branch: currentUser?.bankDetails?.branch || '',
+        ifsc: currentUser?.bankDetails?.ifsc || '',
+        place: currentUser?.bankDetails?.place || '',
+        accNo: currentUser?.bankDetails?.accNo || '',
+      },
+
+      permissions: {
+        bank: currentUser?.permissions?.bank || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        customer: currentUser?.permissions?.customer || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        diesel: currentUser?.permissions?.diesel || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        driver: currentUser?.permissions?.driver || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        trip: currentUser?.permissions?.trip || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        user: currentUser?.permissions?.user || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+        vehicle: currentUser?.permissions?.vehicle || {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+        },
+      },
     }),
     [currentUser]
   );
 
   const methods = useForm({
     mode: 'onSubmit',
-    resolver: zodResolver(NewUserSchema),
+    resolver: zodResolver(UserSchema),
     defaultValues,
   });
 
@@ -107,15 +195,8 @@ export function UserNewEditForm({ currentUser }) {
         <Grid xs={12} md={4}>
           <Card sx={{ pt: 10, pb: 5, px: 3 }}>
             {currentUser && (
-              <Label
-                color={
-                  (values.status === 'active' && 'success') ||
-                  (values.status === 'banned' && 'error') ||
-                  'warning'
-                }
-                sx={{ position: 'absolute', top: 24, right: 24 }}
-              >
-                {values.status}
+              <Label color="warning" sx={{ position: 'absolute', top: 24, right: 24 }}>
+                active
               </Label>
             )}
 
@@ -140,67 +221,6 @@ export function UserNewEditForm({ currentUser }) {
                 }
               />
             </Box>
-
-            {currentUser && (
-              <FormControlLabel
-                labelPlacement="start"
-                control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'active'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'banned' : 'active')
-                        }
-                      />
-                    )}
-                  />
-                }
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
-                    </Typography>
-                  </>
-                }
-                sx={{
-                  mx: 0,
-                  mb: 3,
-                  width: 1,
-                  justifyContent: 'space-between',
-                }}
-              />
-            )}
-
-            <Field.Switch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email verified
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
-
-            {currentUser && (
-              <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
-                <Button variant="soft" color="error">
-                  Delete user
-                </Button>
-              </Stack>
-            )}
           </Card>
         </Grid>
 
@@ -217,21 +237,19 @@ export function UserNewEditForm({ currentUser }) {
             >
               <Field.Text name="name" label="Full name" />
               <Field.Text name="email" label="Email address" />
-              <Field.Phone name="phoneNumber" label="Phone number" />
-
-              <Field.CountrySelect
-                fullWidth
-                name="country"
-                label="Country"
-                placeholder="Choose a country"
+              <Field.Text
+                name="mobile"
+                label="Mobile number"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+                }}
               />
-
-              <Field.Text name="state" label="State/region" />
-              <Field.Text name="city" label="City" />
               <Field.Text name="address" label="Address" />
-              <Field.Text name="zipCode" label="Zip/code" />
-              <Field.Text name="company" label="Company" />
-              <Field.Text name="role" label="Role" />
+              <Field.Text
+                name="password"
+                label="Password"
+                helperText="This is a temporary password. The user must change it after logging in."
+              />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
