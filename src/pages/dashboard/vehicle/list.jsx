@@ -7,12 +7,16 @@ import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleListView } from 'src/sections/vehicle/views';
+
+import { useAuthContext } from 'src/auth/hooks';
+import { PermissionBasedGuard } from 'src/auth/guard';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice list | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Vehicle list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { data: vehicles, isLoading, isError } = useVehicles();
+  const { user } = useAuthContext();
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -28,7 +32,9 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleListView vehicles={vehicles} />
+      <PermissionBasedGuard resource="vehicle" action="view" currentUser={user} hasContent>
+        <VehicleListView vehicles={vehicles} />
+      </PermissionBasedGuard>
     </>
   );
 }

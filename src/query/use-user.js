@@ -23,7 +23,7 @@ const createUser = async (user) => {
 };
 
 const updateUser = async (id, userData) => {
-  console.log({ userDataInAPICAll: userData });
+  console.log({ id, userData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, userData);
   return data;
 };

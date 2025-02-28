@@ -6,10 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import { InputAdornment } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import ListItemText from '@mui/material/ListItemText';
+import { Table, TableRow, TableBody, TableCell, InputAdornment } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -17,8 +18,12 @@ import { useRouter } from 'src/routes/hooks';
 import { fData } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
-import { toast } from 'src/components/snackbar';
+import { Scrollbar } from 'src/components/scrollbar';
+import { TableHeadCustom } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { ACTIONS, PERMISSIONS } from './config';
+import { useCreateUser, useUpdateUser } from '../../query/use-user';
 
 // ----------------------------------------------------------------------
 
@@ -38,58 +43,22 @@ export const UserSchema = zod.object({
   address: zod.string().min(1, { message: 'Address is required!' }),
   password: zod.string().min(6, { message: 'Password must be at least 6 characters long!' }),
 
-  bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Bank name is required!' }),
-    branch: zod.string().min(1, { message: 'Branch is required!' }),
-    ifsc: zod.string().min(1, { message: 'IFSC is required!' }),
-    place: zod.string().min(1, { message: 'Place is required!' }),
-    accNo: zod.string().min(1, { message: 'Account number is required!' }),
-  }),
+  // bankDetails: zod.object({
+  //   name: zod.string().min(1, { message: 'Bank name is required!' }),
+  //   branch: zod.string().min(1, { message: 'Branch is required!' }),
+  //   ifsc: zod.string().min(1, { message: 'IFSC is required!' }),
+  //   place: zod.string().min(1, { message: 'Place is required!' }),
+  //   accNo: zod.string().min(1, { message: 'Account number is required!' }),
+  // }),
 
-  permissions: zod.object({
-    bank: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    customer: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    diesel: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    driver: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    trip: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    user: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-    vehicle: zod.object({
-      create: zod.boolean(),
-      view: zod.boolean(),
-      update: zod.boolean(),
-      delete: zod.boolean(),
-    }),
-  }),
+  permissions: zod.object(
+    Object.fromEntries(
+      PERMISSIONS.map(({ name }) => [
+        name,
+        zod.object(Object.fromEntries(ACTIONS.map((action) => [action, zod.boolean()]))),
+      ])
+    )
+  ),
 });
 
 // ----------------------------------------------------------------------
@@ -97,66 +66,33 @@ export const UserSchema = zod.object({
 export function UserNewEditForm({ currentUser }) {
   const router = useRouter();
 
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+
   const defaultValues = useMemo(
     () => ({
       name: currentUser?.name || '',
       email: currentUser?.email || '',
       mobile: currentUser?.mobile || '',
       address: currentUser?.address || '',
-      password: '',
+      password: currentUser?.password || '',
 
-      bankDetails: {
-        name: currentUser?.bankDetails?.name || '',
-        branch: currentUser?.bankDetails?.branch || '',
-        ifsc: currentUser?.bankDetails?.ifsc || '',
-        place: currentUser?.bankDetails?.place || '',
-        accNo: currentUser?.bankDetails?.accNo || '',
-      },
+      // bankDetails: {
+      //   name: currentUser?.bankDetails?.name || '',
+      //   branch: currentUser?.bankDetails?.branch || '',
+      //   ifsc: currentUser?.bankDetails?.ifsc || '',
+      //   place: currentUser?.bankDetails?.place || '',
+      //   accNo: currentUser?.bankDetails?.accNo || '',
+      // },
 
-      permissions: {
-        bank: currentUser?.permissions?.bank || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        customer: currentUser?.permissions?.customer || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        diesel: currentUser?.permissions?.diesel || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        driver: currentUser?.permissions?.driver || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        trip: currentUser?.permissions?.trip || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        user: currentUser?.permissions?.user || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-        vehicle: currentUser?.permissions?.vehicle || {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-        },
-      },
+      permissions: Object.fromEntries(
+        PERMISSIONS.map(({ name }) => [
+          name,
+          Object.fromEntries(
+            ACTIONS.map((action) => [action, currentUser?.permissions?.[name]?.[action] || false])
+          ),
+        ])
+      ),
     }),
     [currentUser]
   );
@@ -172,22 +108,33 @@ export function UserNewEditForm({ currentUser }) {
     watch,
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (currentUser) {
+        await updateUser({ id: currentUser._id, data });
+      } else {
+        await createUser(data);
+      }
       reset();
-      toast.success(currentUser ? 'Update success!' : 'Create success!');
-      console.info('DATA', data);
       router.push(paths.dashboard.user.list);
     } catch (error) {
       console.error(error);
     }
   });
+
+  // Update the Grid containing permissions section
+  const TABLE_HEAD = [
+    { id: 'module', label: 'Module' },
+    { id: 'create', label: 'Create', align: 'center' },
+    { id: 'view', label: 'View', align: 'center' },
+    { id: 'update', label: 'Update', align: 'center' },
+    { id: 'delete', label: 'Delete', align: 'center' },
+  ];
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
@@ -257,6 +204,45 @@ export function UserNewEditForm({ currentUser }) {
                 {!currentUser ? 'Create user' : 'Save changes'}
               </LoadingButton>
             </Stack>
+          </Card>
+        </Grid>
+        <Grid xs={12} md={12}>
+          <Card sx={{ p: 3, mt: 3 }}>
+            <Scrollbar>
+              <Table sx={{ minWidth: 800 }}>
+                <TableHeadCustom headLabel={TABLE_HEAD} />
+
+                <TableBody>
+                  {PERMISSIONS.map((permission) => (
+                    <TableRow key={permission.name}>
+                      <TableCell>
+                        <ListItemText
+                          primary={permission.subheader}
+                          secondary={permission.caption}
+                          primaryTypographyProps={{ typography: 'subtitle2', mb: 0.5 }}
+                          secondaryTypographyProps={{
+                            component: 'span',
+                            sx: {
+                              typography: 'caption',
+                              color: 'text.secondary',
+                            },
+                          }}
+                        />
+                      </TableCell>
+                      {ACTIONS.map((action) => (
+                        <TableCell key={action} align="center">
+                          <Field.Checkbox
+                            name={`permissions.${permission.name}.${action}`}
+                            label=""
+                            sx={{ m: 0 }}
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Scrollbar>
           </Card>
         </Grid>
       </Grid>

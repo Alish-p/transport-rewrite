@@ -6,7 +6,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { AuthGuard } from 'src/auth/guard';
+import { AuthGuard, PermissionBasedGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
@@ -172,7 +172,14 @@ export const dashboardRoutes = [
       {
         path: 'driver',
         children: [
-          { element: <DriverListPage />, index: true },
+          {
+            element: (
+              <PermissionBasedGuard resource="driver" action="view" hasContent>
+                <DriverListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
           { path: 'list', element: <DriverListPage /> },
           { path: ':id', element: <DriverDetailsPage /> },
           { path: 'new', element: <DriverCreatePage /> },

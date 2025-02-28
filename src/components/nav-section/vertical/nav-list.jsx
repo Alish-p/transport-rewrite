@@ -11,6 +11,21 @@ import { NavUl, NavLi, NavCollapse } from '../styles';
 
 // ----------------------------------------------------------------------
 
+// 1) Utility permission checks
+function canUserAccessAnyAction(user, resource) {
+  const resourcePermissions = user?.permissions?.[resource];
+  if (!resourcePermissions) return false;
+  return Object.values(resourcePermissions).some((val) => val === true);
+}
+
+function canUserAccessAction(user, resource, action) {
+  const resourcePermissions = user?.permissions?.[resource];
+  if (!resourcePermissions) return false;
+  return resourcePermissions[action] === true;
+}
+
+// ----------------------------------------------------------------------
+
 export function NavList({ data, render, depth, slotProps, enabledRootRedirect }) {
   const pathname = usePathname();
 
@@ -22,7 +37,7 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
 
   useEffect(() => {
     if (!active) {
-      handleCloseMenu();
+      setOpenMenu(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
@@ -33,20 +48,56 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
     }
   }, [data.children]);
 
-  const handleCloseMenu = useCallback(() => {
-    setOpenMenu(false);
-  }, []);
+  // ----------------------------------------------------------------------
+  // 2) Hide by role
+  if (data.roles && user?.role) {
+    if (!data.roles.includes(user.role)) {
+      return null;
+    }
+  }
 
+  // 3) Hide by permission at parent level
+  if (data.resource) {
+    // If user has no permission at all on that resource => hide
+    if (!canUserAccessAnyAction(user, data.resource)) {
+      return null;
+    }
+  }
+
+  // 4) For child items, check if user has permission for each child's action
+  let childItems = data.children || [];
+  childItems = childItems
+    .map((child) => {
+      const resource = child.resource || data.resource; // fallback to parent's resource
+      const { action } = child;
+
+      // If child explicitly requires an action, check it
+      if (action && resource) {
+        if (!canUserAccessAction(user, resource, action)) {
+          return null;
+        }
+      }
+
+      return child;
+    })
+    .filter(Boolean);
+
+  // Optionally, if `data.children` is just for sub-routes and the parent
+  // shouldn't appear if no children remain, you can hide the parent:
+  if (data.children && childItems.length === 0) {
+    return null;
+  }
+
+  // ----------------------------------------------------------------------
+  // 5) Render the main nav item
   const renderNavItem = (
     <NavItem
       render={render}
-      // slots
       path={data.path}
       icon={data.icon}
       info={data.info}
       title={data.title}
       caption={data.caption}
-      // state
       depth={depth}
       active={active}
       disabled={data.disabled}
@@ -54,22 +105,14 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
       open={data.children && openMenu}
       externalLink={isExternalLink(data.path)}
       enabledRootRedirect={enabledRootRedirect}
-      // styles
       slotProps={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
-      // actions
       onClick={handleToggleMenu}
     />
   );
 
-  // Hidden item by role
-  if (data.roles && user?.role) {
-    if (!data?.roles?.includes(user?.role)) {
-      return null;
-    }
-  }
-
-  // Has children
-  if (data.children) {
+  // ----------------------------------------------------------------------
+  // 6) If has children, render them in a NavCollapse
+  if (childItems.length > 0) {
     return (
       <NavLi
         disabled={data.disabled}
@@ -83,7 +126,7 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
 
         <NavCollapse data-group={data.title} in={openMenu} depth={depth} unmountOnExit mountOnEnter>
           <NavSubList
-            data={data.children}
+            data={childItems}
             render={render}
             depth={depth}
             slotProps={slotProps}
@@ -94,7 +137,8 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
     );
   }
 
-  // Default
+  // ----------------------------------------------------------------------
+  // 7) Otherwise, render a leaf NavItem
   return <NavLi disabled={data.disabled}>{renderNavItem}</NavLi>;
 }
 

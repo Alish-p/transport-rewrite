@@ -10,6 +10,8 @@ import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleEditView } from 'src/sections/vehicle/views';
 
+import { useAuthContext } from '../../../auth/hooks';
+import { PermissionBasedGuard } from '../../../auth/guard';
 import { useTransporters } from '../../../query/use-transporter';
 
 // ----------------------------------------------------------------------
@@ -20,6 +22,8 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: vehicle, isLoading: vehicleLoading, isError: vehicleError } = useVehicle(id);
+
+  const { user } = useAuthContext();
 
   const {
     data: transporters,
@@ -41,7 +45,9 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleEditView vehicle={vehicle} transporters={transporters} />
+      <PermissionBasedGuard resource="vehicle" action="edit" currentUser={user} hasContent>
+        <VehicleEditView vehicle={vehicle} transporters={transporters} />
+      </PermissionBasedGuard>
     </>
   );
 }

@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { _userCards } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -13,7 +12,7 @@ import { UserCardList } from '../user-card-list';
 
 // ----------------------------------------------------------------------
 
-export function UserCardsView() {
+export function UserCardsView({ users }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -36,7 +35,7 @@ export function UserCardsView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <UserCardList users={_userCards} />
+      <UserCardList users={users} />
     </DashboardContent>
   );
 }
