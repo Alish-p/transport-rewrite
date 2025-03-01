@@ -229,7 +229,6 @@ export const navData = [
           { title: 'Cards', path: paths.dashboard.user.cards },
           { title: 'List', path: paths.dashboard.user.list },
           { title: 'Create', path: paths.dashboard.user.new },
-          { title: 'Account', path: paths.dashboard.user.account },
         ],
       },
     ],

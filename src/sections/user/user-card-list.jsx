@@ -9,10 +9,15 @@ export function UserCardList({ users }) {
     <Box
       gap={3}
       display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }}
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(4, 1fr)',
+      }}
     >
-      {users.map((user) => (
-        <UserCard key={user.id} user={user} />
+      {users.map((user, idx) => (
+        <UserCard key={user.id} user={user} idx={idx} />
       ))}
     </Box>
   );

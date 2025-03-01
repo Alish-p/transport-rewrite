@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -17,11 +15,8 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
-import { varAlpha } from 'src/theme/styles';
-import { _roles, USER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -40,20 +35,18 @@ import {
 } from 'src/components/table';
 
 import { UserTableRow } from '../user-table-row';
+import { useDeleteUser } from '../../../query/use-user';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  { id: 'name', label: 'Details', width: 200 },
+  { id: 'mobile', label: 'Mobile', width: 100 },
+  { id: 'address', label: 'Address', width: 250 },
+  { id: 'designation', label: 'Designation', width: 150 },
+  { id: '', width: 20 },
 ];
 
 // ----------------------------------------------------------------------
@@ -65,9 +58,11 @@ export function UserListView({ users }) {
 
   const confirm = useBoolean();
 
+  const deleteUser = useDeleteUser();
+
   const [tableData, setTableData] = useState(users);
 
-  const filters = useSetState({ name: '', role: [], status: 'all' });
+  const filters = useSetState({ name: '', designation: '' });
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -77,23 +72,9 @@ export function UserListView({ users }) {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset =
-    !!filters.state.name || filters.state.role.length > 0 || filters.state.status !== 'all';
+  const canReset = !!filters.state.name || filters.state.designation;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
@@ -113,14 +94,6 @@ export function UserListView({ users }) {
       router.push(paths.dashboard.user.edit(id));
     },
     [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      table.onResetPage();
-      filters.setState({ status: newValue });
-    },
-    [filters, table]
   );
 
   return (
@@ -147,48 +120,7 @@ export function UserListView({ users }) {
         />
 
         <Card>
-          <Tabs
-            value={filters.state.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) =>
-                `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
-                      'soft'
-                    }
-                    color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['active', 'pending', 'banned', 'rejected'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <UserTableToolbar
-            filters={filters}
-            onResetPage={table.onResetPage}
-            options={{ roles: _roles }}
-          />
+          <UserTableToolbar filters={filters} onResetPage={table.onResetPage} />
 
           {canReset && (
             <UserTableFiltersResult
@@ -244,11 +176,11 @@ export function UserListView({ users }) {
                     )
                     .map((row) => (
                       <UserTableRow
-                        key={row.id}
+                        key={row._id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={() => deleteUser(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                       />
                     ))}
@@ -303,7 +235,7 @@ export function UserListView({ users }) {
 }
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { name, status, role } = filters;
+  const { name, designation } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -320,13 +252,10 @@ function applyFilter({ inputData, comparator, filters }) {
       (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
+  if (designation) {
+    inputData = inputData.filter(
+      (user) => user.designation.toLowerCase().indexOf(designation.toLowerCase()) !== -1
+    );
   }
 
   return inputData;

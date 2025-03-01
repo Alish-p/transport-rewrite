@@ -116,7 +116,7 @@ const TransporterPaymentEditPage = lazy(
 );
 
 // User
-const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
+const UserDetailPage = lazy(() => import('src/pages/dashboard/user/details'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
 const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
 const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
@@ -145,18 +145,6 @@ export const dashboardRoutes = [
     element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
     children: [
       { element: <IndexPage />, index: true },
-      {
-        path: 'user',
-        children: [
-          { element: <UserProfilePage />, index: true },
-          { path: 'profile', element: <UserProfilePage /> },
-          { path: 'cards', element: <UserCardsPage /> },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
-          { path: 'account', element: <UserAccountPage /> },
-        ],
-      },
 
       {
         path: 'vehicle',
@@ -311,6 +299,17 @@ export const dashboardRoutes = [
           { path: ':id', element: <LoansDetailsPage /> },
           { path: ':id/edit', element: <LoansEditPage /> },
           { path: 'new', element: <LoansCreatePage /> },
+        ],
+      },
+      {
+        path: 'user',
+        children: [
+          { element: <UserListPage />, index: true },
+          { path: ':id', element: <UserDetailPage /> },
+          { path: 'cards', element: <UserCardsPage /> },
+          { path: 'list', element: <UserListPage /> },
+          { path: 'new', element: <UserCreatePage /> },
+          { path: ':id/edit', element: <UserEditPage /> },
         ],
       },
 

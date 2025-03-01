@@ -5,12 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
 import ListItemText from '@mui/material/ListItemText';
-import { Table, TableRow, TableBody, TableCell, InputAdornment } from '@mui/material';
+import { Table, Stack, TableRow, TableBody, TableCell, InputAdornment } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -41,15 +40,8 @@ export const UserSchema = zod.object({
     },
   }),
   address: zod.string().min(1, { message: 'Address is required!' }),
+  designation: zod.string().min(1, { message: 'Designation is required!' }),
   password: zod.string().min(6, { message: 'Password must be at least 6 characters long!' }),
-
-  // bankDetails: zod.object({
-  //   name: zod.string().min(1, { message: 'Bank name is required!' }),
-  //   branch: zod.string().min(1, { message: 'Branch is required!' }),
-  //   ifsc: zod.string().min(1, { message: 'IFSC is required!' }),
-  //   place: zod.string().min(1, { message: 'Place is required!' }),
-  //   accNo: zod.string().min(1, { message: 'Account number is required!' }),
-  // }),
 
   permissions: zod.object(
     Object.fromEntries(
@@ -76,14 +68,7 @@ export function UserNewEditForm({ currentUser }) {
       mobile: currentUser?.mobile || '',
       address: currentUser?.address || '',
       password: currentUser?.password || '',
-
-      // bankDetails: {
-      //   name: currentUser?.bankDetails?.name || '',
-      //   branch: currentUser?.bankDetails?.branch || '',
-      //   ifsc: currentUser?.bankDetails?.ifsc || '',
-      //   place: currentUser?.bankDetails?.place || '',
-      //   accNo: currentUser?.bankDetails?.accNo || '',
-      // },
+      designation: currentUser?.designation || '',
 
       permissions: Object.fromEntries(
         PERMISSIONS.map(({ name }) => [
@@ -192,18 +177,13 @@ export function UserNewEditForm({ currentUser }) {
                 }}
               />
               <Field.Text name="address" label="Address" />
+              <Field.Text name="designation" label="Designation" />
               <Field.Text
                 name="password"
                 label="Password"
                 helperText="This is a temporary password. The user must change it after logging in."
               />
             </Box>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Create user' : 'Save changes'}
-              </LoadingButton>
-            </Stack>
           </Card>
         </Grid>
         <Grid xs={12} md={12}>
@@ -244,6 +224,14 @@ export function UserNewEditForm({ currentUser }) {
               </Table>
             </Scrollbar>
           </Card>
+        </Grid>
+
+        <Grid xs={12} md={12}>
+          <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              {!currentUser ? 'Create user' : 'Save changes'}
+            </LoadingButton>
+          </Stack>
         </Grid>
       </Grid>
     </Form>
