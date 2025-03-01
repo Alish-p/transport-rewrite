@@ -7,8 +7,12 @@ import { ForbiddenIllustration } from 'src/assets/illustrations';
 
 import { varBounce, MotionContainer } from 'src/components/animate';
 
-export function PermissionBasedGuard({ resource, action, currentUser, hasContent, children, sx }) {
-  const userPermissions = currentUser?.permissions;
+import { useAuthContext } from '../hooks';
+
+export function PermissionBasedGuard({ resource, action, hasContent, children, sx }) {
+  const { user } = useAuthContext();
+
+  const userPermissions = user?.permissions;
 
   let hasPermission = false;
 

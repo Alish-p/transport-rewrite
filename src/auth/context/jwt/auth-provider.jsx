@@ -43,6 +43,24 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ----------------------------------------------------------------------
+  // A helper function that checks whether the user can perform an action on a resource.
+  const hasPermission = useCallback(
+    (resource, action) => {
+      if (!state.user || !state.user.permissions) {
+        return false;
+      }
+
+      const resourcePermissions = state.user.permissions[resource];
+      if (!resourcePermissions) {
+        return false;
+      }
+
+      return Boolean(resourcePermissions[action]);
+    },
+    [state.user]
+  );
+
+  // ----------------------------------------------------------------------
 
   const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
@@ -56,12 +74,13 @@ export function AuthProvider({ children }) {
             role: state.user?.role ?? 'admin',
           }
         : null,
+      hasPermission,
       checkUserSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
     }),
-    [checkUserSession, state.user, status]
+    [checkUserSession, state.user, status, hasPermission]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

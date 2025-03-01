@@ -12,7 +12,6 @@ import { AuthGuard, PermissionBasedGuard } from 'src/auth/guard';
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard'));
-const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/analytics'));
 
 // Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
@@ -149,11 +148,46 @@ export const dashboardRoutes = [
       {
         path: 'vehicle',
         children: [
-          { element: <VehicleListPage />, index: true },
-          { path: 'list', element: <VehicleListPage /> },
-          { path: ':id', element: <VehicleDetailsPage /> },
-          { path: 'new', element: <VehicleCreatePage /> },
-          { path: ':id/edit', element: <VehicleEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="view" hasContent>
+                <VehicleListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="view" hasContent>
+                <VehicleListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="view" hasContent>
+                <VehicleDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="create" hasContent>
+                <VehicleCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="update" hasContent>
+                <VehicleEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
@@ -168,159 +202,691 @@ export const dashboardRoutes = [
             ),
             index: true,
           },
-          { path: 'list', element: <DriverListPage /> },
-          { path: ':id', element: <DriverDetailsPage /> },
-          { path: 'new', element: <DriverCreatePage /> },
-          { path: ':id/edit', element: <DriverEditPage /> },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="driver" action="view" hasContent>
+                <DriverListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="driver" action="view" hasContent>
+                <DriverDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="driver" action="create" hasContent>
+                <DriverCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="driver" action="update" hasContent>
+                <DriverEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'pump',
         children: [
-          { element: <PumpListPage />, index: true },
-          { path: 'list', element: <PumpListPage /> },
-          { path: ':id', element: <PumpDetailsPage /> },
-          { path: 'new', element: <PumpCreatePage /> },
-          { path: ':id/edit', element: <PumpEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="pump" action="view" hasContent>
+                <PumpListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="pump" action="view" hasContent>
+                <PumpListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="pump" action="view" hasContent>
+                <PumpDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="pump" action="create" hasContent>
+                <PumpCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="pump" action="update" hasContent>
+                <PumpEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'dieselPrice',
         children: [
-          { element: <DieselPriceListPage />, index: true },
-          { path: 'list', element: <DieselPriceListPage /> },
-          { path: ':id', element: <DieselPriceDetailsPage /> },
-          { path: 'new', element: <DieselPriceCreatePage /> },
-          { path: ':id/edit', element: <DieselPriceEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+                <DieselPriceListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+                <DieselPriceListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+                <DieselPriceDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="dieselPrice" action="create" hasContent>
+                <DieselPriceCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="dieselPrice" action="update" hasContent>
+                <DieselPriceEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'customer',
         children: [
-          { element: <CustomerListPage />, index: true },
-          { path: 'list', element: <CustomerListPage /> },
-          { path: ':id', element: <CustomerDetailsPage /> },
-          { path: 'new', element: <CustomerCreatePage /> },
-          { path: ':id/edit', element: <CustomerEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="customer" action="view" hasContent>
+                <CustomerListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="customer" action="view" hasContent>
+                <CustomerListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="customer" action="view" hasContent>
+                <CustomerDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="customer" action="create" hasContent>
+                <CustomerCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="customer" action="update" hasContent>
+                <CustomerEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'transporter',
         children: [
-          { element: <TransporterListPage />, index: true },
-          { path: 'list', element: <TransporterListPage /> },
-          { path: ':id', element: <TransporterDetailsPage /> },
-          { path: 'new', element: <TransporterCreatePage /> },
-          { path: ':id/edit', element: <TransporterEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="transporter" action="view" hasContent>
+                <TransporterListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="transporter" action="view" hasContent>
+                <TransporterListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="transporter" action="view" hasContent>
+                <TransporterDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="transporter" action="create" hasContent>
+                <TransporterCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="transporter" action="update" hasContent>
+                <TransporterEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'route',
         children: [
-          { element: <RouteListPage />, index: true },
-          { path: 'list', element: <RouteListPage /> },
-          { path: ':id', element: <RouteDetailsPage /> },
-          { path: 'new', element: <RouteCreatePage /> },
-          { path: ':id/edit', element: <RouteEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="route" action="view" hasContent>
+                <RouteListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="route" action="view" hasContent>
+                <RouteListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="route" action="view" hasContent>
+                <RouteDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="route" action="create" hasContent>
+                <RouteCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="route" action="update" hasContent>
+                <RouteEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'bank',
         children: [
-          { element: <BankListPage />, index: true },
-          { path: 'list', element: <BankListPage /> },
-          { path: ':id', element: <BankDetailsPage /> },
-          { path: 'new', element: <BankCreatePage /> },
-          { path: ':id/edit', element: <BankEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="bank" action="view" hasContent>
+                <BankListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="bank" action="view" hasContent>
+                <BankListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="bank" action="view" hasContent>
+                <BankDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="bank" action="create" hasContent>
+                <BankCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="bank" action="update" hasContent>
+                <BankEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'expense',
         children: [
-          { element: <ExpenseListPage />, index: true },
-          { path: 'list', element: <ExpenseListPage /> },
-          { path: ':id', element: <ExpenseDetailsPage /> },
-          { path: 'new-subtrip-expense', element: <ExpenseCreatePage /> },
-          { path: 'new-vehicle-expense', element: <VehicleExpenseCreatePage /> },
-          { path: ':id/edit', element: <ExpenseEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="expense" action="view" hasContent>
+                <ExpenseListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="expense" action="view" hasContent>
+                <ExpenseListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="expense" action="view" hasContent>
+                <ExpenseDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new-subtrip-expense',
+            element: (
+              <PermissionBasedGuard resource="expense" action="create" hasContent>
+                <ExpenseCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new-vehicle-expense',
+            element: (
+              <PermissionBasedGuard resource="expense" action="create" hasContent>
+                <VehicleExpenseCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="expense" action="update" hasContent>
+                <ExpenseEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'subtrip',
         children: [
-          { element: <SubtripListPage />, index: true },
-          { path: 'list', element: <SubtripListPage /> },
-          { path: ':id', element: <SubtripDetailsPage /> },
-          { path: 'new', element: <SubtripCreatePage /> },
-          { path: ':id/edit', element: <SubtripEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="view" hasContent>
+                <SubtripListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="view" hasContent>
+                <SubtripListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="view" hasContent>
+                <SubtripDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="create" hasContent>
+                <SubtripCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="update" hasContent>
+                <SubtripEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'trip',
         children: [
-          { element: <TripListPage />, index: true },
-          { path: 'list', element: <TripListPage /> },
-          { path: ':id', element: <TripDetailsPage /> },
-          { path: 'new', element: <TripCreatePage /> },
-          { path: ':id/edit', element: <TripEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="trip" action="view" hasContent>
+                <TripListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="trip" action="view" hasContent>
+                <TripListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="trip" action="view" hasContent>
+                <TripDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="trip" action="create" hasContent>
+                <TripCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="trip" action="update" hasContent>
+                <TripEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'invoice',
         children: [
-          { element: <InvoiceListPage />, index: true },
-          { path: 'list', element: <InvoiceListPage /> },
-          { path: ':id', element: <InvoiceDetailsPage /> },
-          { path: ':id/edit', element: <InvoiceEditPage /> },
-          { path: 'new', element: <InvoiceCreatePage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="invoice" action="view" hasContent>
+                <InvoiceListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="invoice" action="view" hasContent>
+                <InvoiceListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="invoice" action="view" hasContent>
+                <InvoiceDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="invoice" action="create" hasContent>
+                <InvoiceCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="invoice" action="update" hasContent>
+                <InvoiceEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'driverPayroll',
         children: [
-          { element: <DriverPayrollListPage />, index: true },
-          { path: 'list', element: <DriverPayrollListPage /> },
-          { path: ':id', element: <DriverPayrollDetailsPage /> },
-          { path: ':id/edit', element: <DriverPayrollEditPage /> },
-          { path: 'new', element: <DriverPayrollCreatePage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+                <DriverPayrollListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+                <DriverPayrollListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+                <DriverPayrollDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="driverPayroll" action="create" hasContent>
+                <DriverPayrollCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="driverPayroll" action="update" hasContent>
+                <DriverPayrollEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'loan',
         children: [
-          { element: <LoansListPage />, index: true },
-          { path: 'list', element: <LoansListPage /> },
-          { path: ':id', element: <LoansDetailsPage /> },
-          { path: ':id/edit', element: <LoansEditPage /> },
-          { path: 'new', element: <LoansCreatePage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="loan" action="view" hasContent>
+                <LoansListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="loan" action="view" hasContent>
+                <LoansListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="loan" action="view" hasContent>
+                <LoansDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="loan" action="create" hasContent>
+                <LoansCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="loan" action="update" hasContent>
+                <LoansEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
       {
         path: 'user',
         children: [
-          { element: <UserListPage />, index: true },
-          { path: ':id', element: <UserDetailPage /> },
-          { path: 'cards', element: <UserCardsPage /> },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="user" action="view" hasContent>
+                <UserListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="user" action="view" hasContent>
+                <UserDetailPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'cards',
+            element: (
+              <PermissionBasedGuard resource="user" action="view" hasContent>
+                <UserCardsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="user" action="view" hasContent>
+                <UserListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="user" action="create" hasContent>
+                <UserCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="user" action="update" hasContent>
+                <UserEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
       {
         path: 'transporterPayment',
         children: [
-          { element: <TransporterPaymentListPage />, index: true },
-          { path: 'list', element: <TransporterPaymentListPage /> },
-          { path: ':id', element: <TransporterPaymentDetailsPage /> },
-          { path: ':id/edit', element: <TransporterPaymentEditPage /> },
-          { path: 'new', element: <TransporterPaymentCreatePage /> },
+          {
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="view" hasContent>
+                <TransporterPaymentListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="view" hasContent>
+                <TransporterPaymentListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="view" hasContent>
+                <TransporterPaymentDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="create" hasContent>
+                <TransporterPaymentCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="update" hasContent>
+                <TransporterPaymentEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
         ],
       },
 
