@@ -127,11 +127,11 @@ export function UpgradeBlock({ sx, ...other }) {
             typography: 'subtitle2',
           }}
         >
-          Power up Productivity!
+          Optimize. Track. Deliver.
         </Box>
 
         <Button variant="contained" size="small" color="warning">
-          With Transport ++
+          Transport ++
         </Button>
       </Stack>
     </Stack>
