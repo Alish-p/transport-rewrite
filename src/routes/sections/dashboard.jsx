@@ -122,6 +122,9 @@ const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
 
+// Kanban
+const KanbanPage = lazy(() => import('src/pages/dashboard/issue-tracker'));
+
 // Test render page by role
 const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission'));
 // Blank page
@@ -889,6 +892,8 @@ export const dashboardRoutes = [
           },
         ],
       },
+
+      { path: 'kanban', element: <KanbanPage /> },
 
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'params', element: <ParamsPage /> },

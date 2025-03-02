@@ -231,8 +231,10 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.user.new },
         ],
       },
+      { title: 'Issue Tracker', path: paths.dashboard.kanban, icon: ICONS.kanban },
     ],
   },
+
   {
     subheader: 'Billing',
     items: [
