@@ -23,13 +23,29 @@ const ITEM_HEIGHT = 64;
 
 // ----------------------------------------------------------------------
 
-export function KanbanContactsDialog({ assignee = [], open, onClose }) {
+export function KanbanContactsDialog({ assignees = [], open, onClose, onAssigneeChange }) {
   const { data: users } = useUsers();
   const [searchContact, setSearchContact] = useState('');
 
   const handleSearchContacts = useCallback((event) => {
     setSearchContact(event.target.value);
   }, []);
+
+  const handleToggleAssignee = useCallback(
+    (contact) => {
+      const isAssigned = assignees.some((person) => person._id === contact._id);
+      let newAssignees;
+
+      if (isAssigned) {
+        newAssignees = assignees.filter((person) => person._id !== contact._id);
+      } else {
+        newAssignees = [...assignees, contact];
+      }
+
+      onAssigneeChange(newAssignees);
+    },
+    [assignees, onAssigneeChange]
+  );
 
   const dataFiltered = applyFilter({ inputData: users || [], query: searchContact });
 
@@ -64,12 +80,12 @@ export function KanbanContactsDialog({ assignee = [], open, onClose }) {
           <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
               {dataFiltered.map((contact) => {
-                const checked = assignee.map((person) => person.name).includes(contact.name);
+                const checked = assignees.some((person) => person._id === contact._id);
 
                 return (
                   <Box
                     component="li"
-                    key={contact.id}
+                    key={contact._id}
                     sx={{
                       gap: 2,
                       display: 'flex',
@@ -89,6 +105,7 @@ export function KanbanContactsDialog({ assignee = [], open, onClose }) {
                     <Button
                       size="small"
                       color={checked ? 'primary' : 'inherit'}
+                      onClick={() => handleToggleAssignee(contact)}
                       startIcon={
                         <Iconify
                           width={16}

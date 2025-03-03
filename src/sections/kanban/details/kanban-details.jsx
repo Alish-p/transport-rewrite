@@ -7,9 +7,11 @@ import Chip from '@mui/material/Chip';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import Typography from '@mui/material/Typography';
@@ -27,6 +29,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
 import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { DEPARTMENTS } from '../config';
 import { KanbanDetailsToolbar } from './kanban-details-toolbar';
 import { KanbanInputName } from '../components/kanban-input-name';
 import { KanbanDetailsPriority } from './kanban-details-priority';
@@ -73,8 +76,16 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
   const rangePicker = useDateRangePicker(dayjs(task.due[0]), dayjs(task.due[1]));
 
+  const [formChanged, setFormChanged] = useState(false);
+  const [selectedDepartments, setSelectedDepartments] = useState(task?.departments || []);
+
+  const [location, setLocation] = useState(task?.location || '');
+
+  const [selectedAssignees, setSelectedAssignees] = useState(task?.assignees || []);
+
   const handleChangeTaskName = useCallback((event) => {
     setTaskName(event.target.value);
+    setFormChanged(true);
   }, []);
 
   const handleUpdateTask = useCallback(
@@ -94,10 +105,12 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
   const handleChangeTaskDescription = useCallback((event) => {
     setTaskDescription(event.target.value);
+    setFormChanged(true);
   }, []);
 
   const handleChangePriority = useCallback((newValue) => {
     setPriority(newValue);
+    setFormChanged(true);
   }, []);
 
   const handleClickSubtaskComplete = (taskId) => {
@@ -106,6 +119,45 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       : [...subtaskCompleted, taskId];
 
     setSubtaskCompleted(selected);
+  };
+
+  const handleLabelChange = (event) => {
+    setSelectedDepartments(event.target.value);
+    setFormChanged(true);
+  };
+
+  const handleLocationChange = useCallback((event) => {
+    setLocation(event.target.value);
+    setFormChanged(true);
+  }, []);
+
+  const handleAssigneeChange = useCallback((newAssignees) => {
+    setSelectedAssignees(newAssignees);
+    setFormChanged(true);
+  }, []);
+
+  const handleSave = () => {
+    onUpdateTask({
+      ...task,
+      name: taskName,
+      description: taskDescription,
+      priority,
+      departments: selectedDepartments,
+      due: [rangePicker.startDate, rangePicker.endDate],
+      location,
+      assignees: selectedAssignees,
+    });
+    setFormChanged(false);
+  };
+
+  const handleCancel = () => {
+    setTaskName(task.name);
+    setTaskDescription(task.description);
+    setPriority(task.priority);
+    setSelectedDepartments(task?.departments || []);
+    setLocation(task?.location || '');
+    setSelectedAssignees(task?.assignees || []);
+    setFormChanged(false);
   };
 
   const renderToolbar = (
@@ -153,16 +205,18 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         </Tooltip>
       </Box>
 
-      {/* Assignee */}
+      {/* Modified Assignee section */}
       <Box sx={{ display: 'flex' }}>
         <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Assignee</StyledLabel>
 
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
-          {task?.assignee?.map((user) => (
-            <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+          {selectedAssignees.map((user) => (
+            <Tooltip title={user.name}>
+              <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+            </Tooltip>
           ))}
 
-          <Tooltip title="Add assignee">
+          <Tooltip title="Add assignees">
             <IconButton
               onClick={contacts.onTrue}
               sx={{
@@ -175,24 +229,50 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           </Tooltip>
 
           <KanbanContactsDialog
-            assignee={task?.assignee}
+            assignees={selectedAssignees}
             open={contacts.value}
             onClose={contacts.onFalse}
+            onAssigneeChange={handleAssigneeChange}
           />
         </Box>
       </Box>
 
-      {/* Label */}
+      {/* Modified Departments section */}
       <Box sx={{ display: 'flex' }}>
-        <StyledLabel sx={{ height: 24, lineHeight: '24px' }}>Labels</StyledLabel>
+        <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Departments</StyledLabel>
 
-        {!!task?.labels?.length && (
-          <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
-            {task.labels.map((label) => (
-              <Chip key={label} color="info" label={label} size="small" variant="soft" />
-            ))}
-          </Box>
-        )}
+        <Select
+          multiple
+          size="small"
+          value={selectedDepartments}
+          onChange={handleLabelChange}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((value) => (
+                <Chip key={value} label={value} size="small" />
+              ))}
+            </Box>
+          )}
+          sx={{ minWidth: 200 }}
+        >
+          {DEPARTMENTS.map(({ id, name }) => (
+            <MenuItem key={id} value={id}>
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
+
+      {/* After Departments section, add Location field */}
+      <Box sx={{ display: 'flex' }}>
+        <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Location</StyledLabel>
+        <TextField
+          size="small"
+          value={location}
+          onChange={handleLocationChange}
+          placeholder="Enter location"
+          sx={{ minWidth: 200 }}
+        />
       </Box>
 
       {/* Due date */}
@@ -255,6 +335,26 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex' }}>
         <StyledLabel>Attachments</StyledLabel>
         <KanbanDetailsAttachments attachments={task.attachments} />
+      </Box>
+
+      {/* Add Save/Cancel buttons at the bottom */}
+      <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleSave}
+          disabled={!formChanged}
+          startIcon={<Iconify icon="material-symbols:save" />}
+        >
+          Save
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleCancel}
+          disabled={!formChanged}
+          startIcon={<Iconify icon="material-symbols:cancel-outline" />}
+        >
+          Cancel
+        </Button>
       </Box>
     </Box>
   );

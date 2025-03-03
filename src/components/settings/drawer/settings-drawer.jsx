@@ -86,9 +86,9 @@ export function SettingsDrawer({
     <BaseOption
       label="Contrast"
       icon="contrast"
-      selected={settings.contrast === 'hight'}
+      selected={settings.contrast === 'high'}
       onClick={() =>
-        settings.onUpdateField('contrast', settings.contrast === 'default' ? 'hight' : 'default')
+        settings.onUpdateField('contrast', settings.contrast === 'default' ? 'high' : 'default')
       }
     />
   );

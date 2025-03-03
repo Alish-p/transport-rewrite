@@ -12,3 +12,22 @@ export const COLUMNS = [
     name: 'Done',
   },
 ];
+
+export const DEPARTMENTS = [
+  {
+    id: 'sales',
+    name: 'Sales',
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing',
+  },
+  {
+    id: 'dispatch',
+    name: 'Dispatch',
+  },
+  {
+    id: 'warehouse',
+    name: 'Warehouse',
+  },
+];
