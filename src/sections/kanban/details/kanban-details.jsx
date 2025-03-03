@@ -148,7 +148,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       {/* Reporter */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <StyledLabel>Reporter</StyledLabel>
-        <Avatar alt={task.reporter.name} src={task.reporter.avatarUrl} />
+        <Tooltip title={task.reporter.name}>
+          <Avatar alt={task.reporter.name} src={task.reporter.avatarUrl} />
+        </Tooltip>
       </Box>
 
       {/* Assignee */}
