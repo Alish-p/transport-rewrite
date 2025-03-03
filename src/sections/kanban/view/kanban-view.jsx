@@ -1,10 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   useSensor,
   DndContext,
@@ -24,13 +19,13 @@ import Typography from '@mui/material/Typography';
 
 import { hideScrollY } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { moveTask, moveColumn } from 'src/actions/kanban';
 
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
 import { KanbanColumn } from '../column/kanban-column';
 import { KanbanTaskItem } from '../item/kanban-task-item';
+import { useUpdateTaskStatus } from '../../../query/use-task';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 
 // ----------------------------------------------------------------------
@@ -41,7 +36,7 @@ const cssVars = {
   '--item-gap': '16px',
   '--item-radius': '12px',
   '--column-gap': '24px',
-  '--column-width': '336px',
+  '--column-width': '400px',
   '--column-radius': '16px',
   '--column-padding': '20px 16px 16px 16px',
 };
@@ -50,6 +45,7 @@ const cssVars = {
 
 export function KanbanView({ tasks }) {
   const [columnFixed, setColumnFixed] = useState(true);
+  const updateTaskStatus = useUpdateTaskStatus();
 
   const recentlyMovedToNewContainer = useRef(false);
 
@@ -88,7 +84,7 @@ export function KanbanView({ tasks }) {
 
       if (overId != null) {
         if (overId in tasks) {
-          const columnItems = tasks[overId].map((task) => task.id);
+          const columnItems = tasks[overId].map((task) => task._id);
 
           // If a column is matched and it contains items (columns 'A', 'B', 'C')
           if (columnItems.length > 0) {
@@ -122,11 +118,13 @@ export function KanbanView({ tasks }) {
   );
 
   const findColumn = (id) => {
+    // if the id is column id, return the id
     if (id in tasks) {
       return id;
     }
 
-    return Object.keys(tasks).find((key) => tasks[key].map((task) => task.id).includes(id));
+    // if the id is task id, return the column id
+    return Object.keys(tasks).find((key) => tasks[key].map((task) => task._id).includes(id));
   };
 
   useEffect(() => {
@@ -148,7 +146,7 @@ export function KanbanView({ tasks }) {
   const onDragOver = ({ active, over }) => {
     const overId = over?.id;
 
-    if (overId == null || active.id in tasks) {
+    if (overId == null) {
       return;
     }
 
@@ -156,13 +154,16 @@ export function KanbanView({ tasks }) {
 
     const activeColumn = findColumn(active.id);
 
+    // if the over and active column
     if (!overColumn || !activeColumn) {
       return;
     }
 
+    // if the active column is not the same as the over column, then move the task
+    // moving the tasks across columns
     if (activeColumn !== overColumn) {
-      const activeItems = tasks[activeColumn].map((task) => task.id);
-      const overItems = tasks[overColumn].map((task) => task.id);
+      const activeItems = tasks[activeColumn].map((task) => task._id);
+      const overItems = tasks[overColumn].map((task) => task._id);
       const overIndex = overItems.indexOf(overId);
       const activeIndex = activeItems.indexOf(active.id);
 
@@ -185,15 +186,15 @@ export function KanbanView({ tasks }) {
 
       const updateTasks = {
         ...tasks,
-        [activeColumn]: tasks[activeColumn].filter((task) => task.id !== active.id),
+        [activeColumn]: tasks[activeColumn].filter((task) => task._id !== active.id),
         [overColumn]: [
           ...tasks[overColumn].slice(0, newIndex),
           tasks[activeColumn][activeIndex],
           ...tasks[overColumn].slice(newIndex, tasks[overColumn].length),
         ],
       };
-
-      moveTask(updateTasks);
+      console.log({ updateTasks });
+      // moveTask(updateTasks);
     }
   };
 
@@ -201,15 +202,6 @@ export function KanbanView({ tasks }) {
    * onDragEnd
    */
   const onDragEnd = ({ active, over }) => {
-    if (active.id in tasks && over?.id) {
-      const activeIndex = columnIds.indexOf(active.id);
-      const overIndex = columnIds.indexOf(over.id);
-
-      const updateColumns = arrayMove(COLUMNS, activeIndex, overIndex);
-
-      moveColumn(updateColumns);
-    }
-
     const activeColumn = findColumn(active.id);
 
     if (!activeColumn) {
@@ -226,9 +218,9 @@ export function KanbanView({ tasks }) {
 
     const overColumn = findColumn(overId);
 
-    if (overColumn) {
-      const activeContainerTaskIds = tasks[activeColumn].map((task) => task.id);
-      const overContainerTaskIds = tasks[overColumn].map((task) => task.id);
+    if (activeColumn !== overColumn) {
+      const activeContainerTaskIds = tasks[activeColumn].map((task) => task._id);
+      const overContainerTaskIds = tasks[overColumn].map((task) => task._id);
 
       const activeIndex = activeContainerTaskIds.indexOf(active.id);
       const overIndex = overContainerTaskIds.indexOf(overId);
@@ -239,7 +231,7 @@ export function KanbanView({ tasks }) {
           [overColumn]: arrayMove(tasks[overColumn], activeIndex, overIndex),
         };
 
-        moveTask(updateTasks);
+        updateTaskStatus({ id: activeId, status: overColumn });
       }
     }
 
@@ -275,10 +267,7 @@ export function KanbanView({ tasks }) {
               }),
             }}
           >
-            <SortableContext
-              items={[...columnIds, PLACEHOLDER_ID]}
-              strategy={horizontalListSortingStrategy}
-            >
+            <Stack direction="row" sx={{ gap: 'var(--column-gap)' }}>
               {COLUMNS.map((column) => (
                 <KanbanColumn key={column.id} column={column} tasks={tasks[column.id]}>
                   <SortableContext items={tasks[column.id]} strategy={verticalListSortingStrategy}>
@@ -293,7 +282,7 @@ export function KanbanView({ tasks }) {
                   </SortableContext>
                 </KanbanColumn>
               ))}
-            </SortableContext>
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

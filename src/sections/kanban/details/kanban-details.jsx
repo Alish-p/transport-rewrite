@@ -298,8 +298,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     </Box>
   );
 
-  console.log({ length: task?.activities?.length });
-
   const renderTabComments = (
     <>{!!task?.activities?.length && <KanbanDetailsCommentList activities={task?.activities} />}</>
   );

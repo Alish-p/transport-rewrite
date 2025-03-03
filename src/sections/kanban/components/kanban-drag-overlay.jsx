@@ -19,7 +19,7 @@ export function KanbanDragOverlay({ columns, tasks, activeId, sx }) {
 
   const allTasks = Object.values(tasks).flat();
 
-  const activeTask = allTasks.find((task) => task.id === activeId);
+  const activeTask = allTasks.find((task) => task._id === activeId);
 
   return (
     <Portal>
@@ -45,7 +45,7 @@ export function ColumnOverlay({ column, tasks, sx }) {
     <ColumnBase
       slots={{
         header: <KanbanColumnToolBar columnName={column.name} totalTasks={tasks.length} />,
-        main: tasks.map((task) => <ItemBase key={task.id} task={task} />),
+        main: tasks.map((task) => <ItemBase key={task._id} task={task} />),
       }}
       stateProps={{ dragOverlay: true }}
       sx={sx}

@@ -18,7 +18,7 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
   const deleteTask = useDeleteTask();
 
   const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
-    id: task?.id,
+    id: task?._id,
   });
 
   const mounted = useMountStatus();

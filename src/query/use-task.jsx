@@ -29,7 +29,7 @@ const updateTask = async (column, task) => {
 };
 
 const updateTaskStatus = async (id, status) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, { taskStatus: status });
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
   return data;
 };
 
