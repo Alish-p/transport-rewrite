@@ -10,34 +10,35 @@ import IconButton from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useResponsive } from 'src/hooks/use-responsive';
 
+import { useUpdateTaskStatus } from 'src/query/use-task';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { COLUMNS } from '../config';
+
 // ----------------------------------------------------------------------
 
-export function KanbanDetailsToolbar({
-  liked,
-  onLike,
-  taskName,
-  onDelete,
-  taskStatus,
-  onCloseDetails,
-}) {
+export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
+  const updateTaskStatus = useUpdateTaskStatus();
   const smUp = useResponsive('up', 'sm');
 
   const confirm = useBoolean();
 
   const popover = usePopover();
 
-  const [status, setStatus] = useState(taskStatus);
+  const [status, setStatus] = useState(task?.status);
 
   const handleChangeStatus = useCallback(
     (newValue) => {
       popover.onClose();
       setStatus(newValue);
+      const updatedTask = { ...task, status: newValue };
+      console.log(updatedTask);
+      updateTaskStatus({ id: task._id, status: newValue });
     },
-    [popover]
+    [popover, task, updateTaskStatus]
   );
 
   return (
@@ -69,7 +70,7 @@ export function KanbanDetailsToolbar({
 
         <Stack direction="row" justifyContent="flex-end" flexGrow={1}>
           <Tooltip title="Like">
-            <IconButton color={liked ? 'default' : 'primary'} onClick={onLike}>
+            <IconButton color="primary" onClick={() => {}}>
               <Iconify icon="ic:round-thumb-up" />
             </IconButton>
           </Tooltip>
@@ -93,15 +94,15 @@ export function KanbanDetailsToolbar({
         slotProps={{ arrow: { placement: 'top-right' } }}
       >
         <MenuList>
-          {['To do', 'In progress', 'Ready to test', 'Done'].map((option) => (
+          {COLUMNS.map((option) => (
             <MenuItem
-              key={option}
-              selected={status === option}
+              key={option.id}
+              selected={status === option.id}
               onClick={() => {
-                handleChangeStatus(option);
+                handleChangeStatus(option.id);
               }}
             >
-              {option}
+              {option.name}
             </MenuItem>
           ))}
         </MenuList>
@@ -113,7 +114,7 @@ export function KanbanDetailsToolbar({
         title="Delete"
         content={
           <>
-            Are you sure want to delete <strong> {taskName} </strong>?
+            Are you sure want to delete <strong> {task.name} </strong>?
           </>
         }
         action={

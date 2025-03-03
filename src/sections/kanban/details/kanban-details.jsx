@@ -38,11 +38,14 @@ import { KanbanContactsDialog } from '../components/kanban-contacts-dialog';
 // ----------------------------------------------------------------------
 
 const SUBTASKS = [
-  'Complete project proposal',
-  'Conduct market research',
-  'Design user interface mockups',
-  'Develop backend api',
-  'Implement authentication system',
+  'Schedule vehicle maintenance check',
+  'Update driver documentation',
+  'Plan optimal delivery route',
+  'Verify fuel consumption reports',
+  'Complete trip expense documentation',
+  'Update vehicle tracking status',
+  'Confirm delivery schedule with customer',
+  'Review transport compliance requirements',
 ];
 
 const StyledLabel = styled('span')(({ theme }) => ({
@@ -63,8 +66,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const [taskName, setTaskName] = useState(task.name);
 
   const [subtaskCompleted, setSubtaskCompleted] = useState(SUBTASKS.slice(0, 2));
-
-  const like = useBoolean();
 
   const contacts = useBoolean();
 
@@ -109,11 +110,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
   const renderToolbar = (
     <KanbanDetailsToolbar
-      liked={like.value}
-      taskName={task.name}
-      onLike={like.onToggle}
+      task={task}
       onDelete={onDeleteTask}
-      taskStatus={task.status}
+      onUpdate={onUpdateTask}
       onCloseDetails={onCloseDetails}
     />
   );

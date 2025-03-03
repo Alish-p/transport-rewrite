@@ -194,7 +194,7 @@ export function KanbanView({ tasks }) {
         ],
       };
       console.log({ updateTasks });
-      // moveTask(updateTasks);
+      updateTaskStatus({ id: activeId, status: overColumn });
     }
   };
 
