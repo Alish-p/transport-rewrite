@@ -137,7 +137,7 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
       </Stack>
 
       <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
-        {task?.assignee?.map((user) => (
+        {task?.assignees?.map((user) => (
           <Avatar key={user._id} alt={user.name} src={user.avatarUrl} />
         ))}
       </AvatarGroup>

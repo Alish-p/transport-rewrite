@@ -34,7 +34,9 @@ import { KanbanDetailsToolbar } from './kanban-details-toolbar';
 import { KanbanInputName } from '../components/kanban-input-name';
 import { KanbanDetailsPriority } from './kanban-details-priority';
 import { KanbanDetailsAttachments } from './kanban-details-attachments';
+import { KanbanDriverDialog } from '../components/kanban-driver-dialog';
 import { KanbanDetailsCommentList } from './kanban-details-comment-list';
+import { KanbanVehicleDialog } from '../components/kanban-vehicle-dialog';
 import { KanbanDetailsCommentInput } from './kanban-details-comment-input';
 import { KanbanContactsDialog } from '../components/kanban-contacts-dialog';
 
@@ -82,6 +84,12 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const [location, setLocation] = useState(task?.location || '');
 
   const [selectedAssignees, setSelectedAssignees] = useState(task?.assignees || []);
+
+  const [selectedDriver, setSelectedDriver] = useState(task?.driver || null);
+  const driverDialog = useBoolean();
+
+  const [selectedVehicle, setSelectedVehicle] = useState(task?.vehicle || null);
+  const vehicleDialog = useBoolean();
 
   const handleChangeTaskName = useCallback((event) => {
     setTaskName(event.target.value);
@@ -136,6 +144,16 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setFormChanged(true);
   }, []);
 
+  const handleDriverChange = useCallback((driver) => {
+    setSelectedDriver(driver);
+    setFormChanged(true);
+  }, []);
+
+  const handleVehicleChange = useCallback((vehicle) => {
+    setSelectedVehicle(vehicle);
+    setFormChanged(true);
+  }, []);
+
   const handleSave = () => {
     onUpdateTask({
       ...task,
@@ -146,6 +164,8 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       due: [rangePicker.startDate, rangePicker.endDate],
       location,
       assignees: selectedAssignees,
+      driver: selectedDriver,
+      vehicle: selectedVehicle,
     });
     setFormChanged(false);
   };
@@ -157,6 +177,8 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setSelectedDepartments(task?.departments || []);
     setLocation(task?.location || '');
     setSelectedAssignees(task?.assignees || []);
+    setSelectedDriver(task?.driver || null);
+    setSelectedVehicle(task?.vehicle || null);
     setFormChanged(false);
   };
 
@@ -237,6 +259,38 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         </Box>
       </Box>
 
+      {/* Add Driver selection after Location field */}
+      <Box sx={{ display: 'flex' }}>
+        <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Driver</StyledLabel>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {selectedDriver && (
+            <Tooltip title={selectedDriver.driverName}>
+              <Avatar alt={selectedDriver.driverName} src={task.reporter.avatarUrl} />
+            </Tooltip>
+          )}
+
+          <Tooltip title={selectedDriver ? 'Change Driver' : 'Assign Driver'}>
+            <IconButton
+              onClick={driverDialog.onTrue}
+              sx={{
+                bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
+              }}
+            >
+              <Iconify icon={selectedDriver ? 'solar:pen-bold' : 'mingcute:add-line'} />
+            </IconButton>
+          </Tooltip>
+
+          <KanbanDriverDialog
+            selectedDriver={selectedDriver}
+            open={driverDialog.value}
+            onClose={driverDialog.onFalse}
+            onDriverChange={handleDriverChange}
+          />
+        </Box>
+      </Box>
+
       {/* Modified Departments section */}
       <Box sx={{ display: 'flex' }}>
         <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Departments</StyledLabel>
@@ -273,6 +327,36 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           placeholder="Enter location"
           sx={{ minWidth: 200 }}
         />
+      </Box>
+
+      {/* Add Vehicle selection after Driver field */}
+      <Box sx={{ display: 'flex' }}>
+        <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Vehicle</StyledLabel>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {selectedVehicle ? (
+            <Typography variant="body2">{selectedVehicle.vehicleNo}</Typography>
+          ) : (
+            <Typography variant="body2" sx={{ color: 'text.success' }}>
+              No vehicle assigned
+            </Typography>
+          )}
+
+          <Button
+            size="small"
+            startIcon={<Iconify icon={selectedVehicle ? 'eva:edit-fill' : 'mingcute:add-line'} />}
+            onClick={vehicleDialog.onTrue}
+          >
+            {selectedVehicle ? 'Change' : 'Assign'}
+          </Button>
+
+          <KanbanVehicleDialog
+            selectedVehicle={selectedVehicle}
+            open={vehicleDialog.value}
+            onClose={vehicleDialog.onFalse}
+            onVehicleChange={handleVehicleChange}
+          />
+        </Box>
       </Box>
 
       {/* Due date */}
