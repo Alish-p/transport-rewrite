@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography, IconButton } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -185,42 +185,37 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
         Bank Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={1} my={1}>
-          <Grid item xs={12} sm={6}>
-            <Stack sx={{ width: 1 }}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                sx={{
-                  mb: 1,
-                  border: '1px solid grey',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-
-                  borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-                }}
-                p={1}
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={8}>
+            <Stack spacing={2}>
+              <Button
+                fullWidth
+                variant="outlined"
+                color={errors.bankDetails?.branch?.message ? 'error' : 'primary'}
+                startIcon={<Iconify icon="mdi:bank-outline" />}
+                endIcon={<Iconify icon="solar:pen-bold" />}
                 onClick={bankDialogue.onTrue}
+                sx={{
+                  justifyContent: 'space-between',
+                  py: 1.5,
+                  borderWidth: errors.bankDetails?.branch?.message ? 2 : 1,
+                  '& .MuiButton-startIcon': { ml: 1 },
+                  '& .MuiButton-endIcon': { mr: 1 },
+                }}
               >
-                <Typography variant="subtitle2" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-                  Bank Details
+                <Typography variant="subtitle2" sx={{ flexGrow: 1, textAlign: 'left' }}>
+                  {validateBankSelection(bankDetails)
+                    ? `${bankDetails?.name} - ${bankDetails?.branch}`
+                    : 'Select Bank'}
                 </Typography>
-                <IconButton>
-                  <Iconify icon="solar:pen-bold" />
-                </IconButton>
-              </Stack>
+              </Button>
 
-              <Typography typography="caption" sx={{ color: 'error.main', px: 1 }}>
-                {errors.bankDetails?.branch?.message}
-              </Typography>
-
-              <Stack direction="row" alignItems="center" sx={{ my: 1 }}>
-                <Field.Text name="bankDetails.accNo" label="Account No" />
-              </Stack>
+              <Field.Text
+                name="bankDetails.accNo"
+                label="Account Number"
+                placeholder="Enter account number"
+              />
             </Stack>
-          </Grid>
-          <Grid item xs={12} sm={1}>
-            <Divider orientation="vertical" />
           </Grid>
 
           <Grid item xs={12} sm={4}>

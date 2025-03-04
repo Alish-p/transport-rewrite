@@ -1,7 +1,6 @@
 // @mui
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
@@ -44,7 +43,12 @@ export default function LRInfoCard({ subtrip }) {
   const renderCustomer = (
     <>
       <CardHeader
-        title="Subtrip Info"
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:information-outline" width={24} />
+            <Typography variant="h6">Subtrip Info</Typography>
+          </Stack>
+        }
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />
@@ -52,23 +56,37 @@ export default function LRInfoCard({ subtrip }) {
         }
       />
       <Stack direction="row" sx={{ p: 3 }}>
-        {/* <Avatar src={avatar} sx={{ width: 48, height: 48, mr: 2 }} /> */}
+        <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2', width: '100%' }}>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ width: '100%' }}>
+            <Iconify icon="mdi:account" width={20} />
+            <Typography variant="subtitle2">{customerName}</Typography>
+          </Stack>
 
-        <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2' }}>
-          <Typography variant="subtitle2">{customerName}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ width: '100%' }}>
+            <Iconify icon="mdi:flag" width={20} />
+            <Typography>
+              Status:{' '}
+              <Box
+                component="span"
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 'bold',
+                }}
+              >
+                {subtripStatus}
+              </Box>
+            </Typography>
+          </Stack>
 
-          <Box>
-            Status:{' '}
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {subtripStatus}
-            </Box>
-          </Box>
-          <Box>
-            Trip No :{' '}
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {_id}
-            </Box>
-          </Box>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:identifier" width={20} />
+            <Typography>
+              Trip No:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {_id}
+              </Box>
+            </Typography>
+          </Stack>
         </Stack>
       </Stack>
     </>
@@ -76,40 +94,53 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderRoute = (
     <>
-      <CardHeader title="Route" />
+      <CardHeader
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:routes" width={24} />
+            <Typography variant="h6">Route</Typography>
+          </Stack>
+        }
+      />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:road-variant" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Route
           </Box>
-          {routeName}
+          <Typography>{routeName}</Typography>
         </Stack>
 
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:map-marker" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Loading Point
           </Box>
-          {loadingPoint}
+          <Typography>{loadingPoint}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:map-marker-check" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Unloading Point
           </Box>
-          <Link underline="always" color="inherit">
-            {unloadingPoint}
-          </Link>
+          <Typography>{unloadingPoint}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:speedometer" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Start KM
           </Box>
-          {startKm}
+          <Typography>{startKm}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:speedometer-medium" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             End KM
           </Box>
-          {endKm}
+          <Typography>{endKm}</Typography>
         </Stack>
       </Stack>
     </>
@@ -117,63 +148,91 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderMaterial = (
     <>
-      <CardHeader title="Material" />
+      <CardHeader
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:package-variant" width={24} />
+            <Typography variant="h6">Material</Typography>
+          </Stack>
+        }
+      />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:cube" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Material
           </Box>
-          {materialType}
+          <Typography>{materialType}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:star" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Grade
           </Box>
-          {grade}
+          <Typography>{grade}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:scale" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Quantity
           </Box>
-          {quantity}
+          <Typography>{quantity}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:currency-inr" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Rate
           </Box>
-          {rate}
-          {rate && <span>&nbsp; ₹ </span>}
+          <Typography>
+            {rate}
+            {rate !== '-' && <span>&nbsp;₹</span>}
+          </Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:percent" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             TDS
           </Box>
-          {tds}
-          {tds && <span> &nbsp;% </span>}
+          <Typography>
+            {tds}
+            {tds !== '-' && <span>&nbsp;%</span>}
+          </Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:truck-delivery" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Shipment
           </Box>
-          {shipmentNo}
+          <Typography>{shipmentNo}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:file-document" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Invoice
           </Box>
-          {invoiceNo}
+          <Typography>{invoiceNo}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:barcode" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Eway-Bill
           </Box>
-          {ewayBill}
+          <Typography>{ewayBill}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:calendar" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Eway-Bill Expiry
           </Box>
-          {fDate(ewayExpiryDate)}
+          <Typography>{fDate(ewayExpiryDate)}</Typography>
         </Stack>
       </Stack>
     </>
@@ -181,26 +240,36 @@ export default function LRInfoCard({ subtrip }) {
 
   const renderWeight = (
     <>
-      <CardHeader title="Weight" />
+      <CardHeader
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:weight" width={24} />
+            <Typography variant="h6">Weight</Typography>
+          </Stack>
+        }
+      />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:weight-kilogram" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Loading Weight
           </Box>
-          {loadingWeight}
+          <Typography>{loadingWeight}</Typography>
         </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:weight-kilogram" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Unloading Weight
           </Box>
-          {unloadingWeight}
+          <Typography>{unloadingWeight}</Typography>
         </Stack>
       </Stack>
     </>
   );
 
   return (
-    <Card>
+    <Card sx={{ boxShadow: 2 }}>
       {renderCustomer}
 
       <Divider sx={{ borderStyle: 'dashed' }} />

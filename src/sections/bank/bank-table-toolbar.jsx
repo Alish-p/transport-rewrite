@@ -10,7 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 // components
 
-import { MenuList } from '@mui/material';
+import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
@@ -19,8 +19,15 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function BankTableToolbar({ filters, onFilters, tableData }) {
+export default function BankTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  onToggleColumn,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
 
   const handleFilterBankName = useCallback(
     (event) => {
@@ -99,10 +106,33 @@ export default function BankTableToolbar({ filters, onFilters, tableData }) {
           }}
         />
 
+        <Tooltip title="Column Settings">
+          <IconButton onClick={columnsPopover.onOpen}>
+            <Iconify icon="mdi:table-column-plus-after" />
+          </IconButton>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      {/* Column visibility popover */}
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList sx={{ width: 200 }}>
+          {Object.keys(visibleColumns).map((column) => (
+            <MenuItem key={column} onClick={() => onToggleColumn(column)}>
+              <Checkbox checked={visibleColumns[column]} />
+              <ListItemText primary={column.charAt(0).toUpperCase() + column.slice(1)} />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}

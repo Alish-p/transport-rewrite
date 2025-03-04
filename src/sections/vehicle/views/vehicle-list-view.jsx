@@ -74,7 +74,7 @@ const TABLE_HEAD = [
 const defaultFilters = {
   vehicleNo: '',
   transporter: '',
-  vehicleType: 'all',
+  vehicleTypes: [],
 };
 
 // ----------------------------------------------------------------------
@@ -107,7 +107,7 @@ export function VehicleListView({ vehicles }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.vehicleNo || !!filters.transporter || filters.vehicleType !== 'all';
+  const canReset = !!filters.vehicleNo || !!filters.transporter || filters.vehicleTypes.length > 0;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -124,6 +124,7 @@ export function VehicleListView({ vehicles }) {
     (getVehicleLength(vehicleType) / tableData.length) * 100;
 
   const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: tableData.length },
     { value: 'body', label: 'Body', color: 'default', count: getVehicleLength('body') },
     { value: 'trailer', label: 'Trailer', color: 'success', count: getVehicleLength('trailer') },
     { value: 'bulker', label: 'Bulker', color: 'warning', count: getVehicleLength('bulker') },
@@ -163,7 +164,11 @@ export function VehicleListView({ vehicles }) {
 
   const handleFiltervehicleType = useCallback(
     (event, newValue) => {
-      handleFilters('vehicleType', newValue);
+      if (newValue === 'all') {
+        handleFilters('vehicleTypes', []);
+      } else {
+        handleFilters('vehicleTypes', [newValue]);
+      }
     },
     [handleFilters]
   );
@@ -292,7 +297,7 @@ export function VehicleListView({ vehicles }) {
         <Card>
           {/* filtering Tabs */}
           <Tabs
-            value={filters.vehicleType}
+            value={filters.vehicleTypes.length === 1 ? filters.vehicleTypes[0] : 'all'}
             onChange={handleFiltervehicleType}
             sx={{
               px: 2.5,
@@ -308,8 +313,10 @@ export function VehicleListView({ vehicles }) {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.vehicleType) && 'filled') ||
-                      'soft'
+                      (tab.value === 'all' && filters.vehicleTypes.length === 0) ||
+                      (filters.vehicleTypes.length === 1 && filters.vehicleTypes[0] === tab.value)
+                        ? 'filled'
+                        : 'soft'
                     }
                     color={tab.color}
                   >
@@ -473,7 +480,7 @@ export function VehicleListView({ vehicles }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { vehicleNo, transporter, vehicleType } = filters;
+  const { vehicleNo, transporter, vehicleTypes } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -494,15 +501,12 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (transporter) {
     inputData = inputData.filter(
-      (record) =>
-        record.transporter &&
-        record.transporter.transportName &&
-        record.transporter.transportName.toLowerCase().indexOf(transporter.toLowerCase()) !== -1
+      (record) => record.transporter && record.transporter._id === transporter
     );
   }
 
-  if (vehicleType !== 'all') {
-    inputData = inputData.filter((record) => record.vehicleType === vehicleType);
+  if (vehicleTypes && vehicleTypes.length > 0) {
+    inputData = inputData.filter((record) => vehicleTypes.includes(record.vehicleType));
   }
 
   return inputData;

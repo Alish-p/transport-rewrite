@@ -13,7 +13,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import LRInfo from '../widgets/subtrip-info-widget';
-import { Iconify } from '../../../components/iconify';
 import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import InsightsWidget from '../widgets/insights-widget';
@@ -22,10 +21,11 @@ import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
-import { SimpleStepper } from '../widgets/subtrip-completion-stepper';
+import { SubtripTimeline } from '../widgets/subtrip-timeline-widget';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
+import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
 import { SubtripMaterialInfoDialog } from '../subtrip-material-info-dialogue-form';
 
@@ -53,17 +53,6 @@ export function SubtripDetailView({ subtrip }) {
     0
   );
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
-
-  const statusToStepIndex = {
-    'in-Queue': 0,
-    loaded: 1,
-    error: 2,
-    received: 3,
-    closed: 4,
-    billed: 5,
-  };
-
-  const currentStep = statusToStepIndex[subtrip?.subtripStatus] ?? 0;
 
   const insights = generateInsightsForSubtrip(subtrip);
 
@@ -102,18 +91,7 @@ export function SubtripDetailView({ subtrip }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
-              <SimpleStepper
-                steps={['In-Queue', 'Loaded', 'Error', 'Recieved', 'Closed', 'Billed']}
-                icons={[
-                  <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />,
-                  <Iconify icon="mdi:truck" width={24} />,
-                  <Iconify icon="material-symbols:error-outline" width={24} />,
-                  <Iconify icon="material-symbols:call-received" width={24} />,
-                  <Iconify icon="zondicons:lock-closed" width={24} />,
-                  <Iconify icon="mdi:progress-tick" width={24} />,
-                ]}
-                currentStep={currentStep}
-              />
+              <SubtripStatusStepper status={subtrip?.subtripStatus} />
 
               <InsightsWidget insights={insights} />
 
@@ -193,8 +171,9 @@ export function SubtripDetailView({ subtrip }) {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} gap={2}>
             <LRInfo subtrip={subtrip} />
+            <SubtripTimeline events={subtrip?.events || []} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} />

@@ -46,7 +46,7 @@ export function useRoutes(customerId) {
   return useQuery({
     queryKey: [QUERY_KEY, customerId],
     queryFn: getRoutes,
-    enabled: !!customerId,
+    // enabled: !!customerId,
   });
 }
 

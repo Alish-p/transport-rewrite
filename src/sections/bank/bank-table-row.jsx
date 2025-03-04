@@ -29,6 +29,7 @@ export default function BankTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = { name: true, place: true, branch: true, ifsc: true },
 }) {
   const { name, branch, place, ifsc } = row;
 
@@ -43,51 +44,60 @@ export default function BankTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={name} sx={{ mr: 2 }}>
-            {name.slice(0, 2).toUpperCase()}
-          </Avatar>
+        {visibleColumns.name && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={name} sx={{ mr: 2 }}>
+              {name.slice(0, 2).toUpperCase()}
+            </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {name}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {name}
-              </Link>
-            }
-          />
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {name}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={() => {}}
+                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                >
+                  {name}
+                </Link>
+              }
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={place}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {visibleColumns.place && (
+          <TableCell>
+            <ListItemText
+              primary={place}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={branch}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {visibleColumns.branch && (
+          <TableCell>
+            <ListItemText
+              primary={branch}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={ifsc}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {visibleColumns.ifsc && (
+          <TableCell>
+            <ListItemText
+              primary={ifsc}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />

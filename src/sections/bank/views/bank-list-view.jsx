@@ -73,6 +73,14 @@ export function BankListView({ banks }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    name: true,
+    place: true,
+    branch: true,
+    ifsc: true,
+  });
+
   useEffect(() => {
     if (banks.length) {
       setTableData(banks);
@@ -121,6 +129,19 @@ export function BankListView({ banks }) {
     setFilters(defaultFilters);
   }, []);
 
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback((columnName) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [columnName]: !prev[columnName],
+    }));
+  }, []);
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
+
   return (
     <>
       <DashboardContent>
@@ -156,7 +177,13 @@ export function BankListView({ banks }) {
 
         {/* Table Section */}
         <Card>
-          <BankTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <BankTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            onToggleColumn={handleToggleColumn}
+          />
 
           {canReset && (
             <BankTableFiltersResult
@@ -221,7 +248,7 @@ export function BankListView({ banks }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -250,6 +277,7 @@ export function BankListView({ banks }) {
                           confirm.onFalse();
                           deleteBank(row._id);
                         }}
+                        visibleColumns={visibleColumns}
                       />
                     ))}
 
