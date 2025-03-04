@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -77,6 +77,33 @@ export function PumpListView({ pumps }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Add state for column visibility with disabled columns
+  const [visibleColumns, setVisibleColumns] = useState({
+    pumpName: true,
+    placeName: false,
+    ownerName: true,
+    ownerCellNo: false,
+    pumpPhoneNo: false,
+    taluk: false,
+    district: true,
+    address: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      pumpName: true, // Pump name should always be visible
+      placeName: false,
+      ownerName: false,
+      ownerCellNo: false,
+      pumpPhoneNo: false,
+      taluk: false,
+      district: false,
+      address: false,
+    }),
+    []
+  );
+
   useEffect(() => {
     if (pumps.length) {
       setTableData(pumps);
@@ -125,6 +152,25 @@ export function PumpListView({ pumps }) {
     setFilters(defaultFilters);
   }, []);
 
+  // Update handler for toggling column visibility to respect disabled columns
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
+
   return (
     <>
       <DashboardContent>
@@ -160,7 +206,14 @@ export function PumpListView({ pumps }) {
 
         {/* Table Section */}
         <Card>
-          <PumpTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <PumpTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
+          />
 
           {canReset && (
             <PumpTableFiltersResult
@@ -225,7 +278,7 @@ export function PumpListView({ pumps }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -251,6 +304,8 @@ export function PumpListView({ pumps }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deletePump(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

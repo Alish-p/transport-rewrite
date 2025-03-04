@@ -1,6 +1,6 @@
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -91,6 +91,31 @@ export function VehicleListView({ vehicles }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    vehicleNo: true,
+    isOwn: true,
+    noOfTyres: true,
+    manufacturingYear: true,
+    loadingCapacity: true,
+    fuelTankCapacity: true,
+    transporter: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      vehicleNo: true, // Vehicle number should always be visible
+      isOwn: false,
+      noOfTyres: false,
+      manufacturingYear: false,
+      loadingCapacity: false,
+      fuelTankCapacity: false,
+      transporter: false,
+    }),
+    []
+  );
+
   useEffect(() => {
     if (vehicles.length) {
       setTableData(vehicles);
@@ -176,6 +201,25 @@ export function VehicleListView({ vehicles }) {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   return (
     <>
@@ -331,6 +375,9 @@ export function VehicleListView({ vehicles }) {
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -396,7 +443,7 @@ export function VehicleListView({ vehicles }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -422,6 +469,8 @@ export function VehicleListView({ vehicles }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteVehicle(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

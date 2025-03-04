@@ -12,22 +12,28 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
+import { Tooltip, MenuList, ListItemText } from '@mui/material';
 // components
-
-import { MenuList } from '@mui/material';
-
-import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { vehicleTypes } from './vehicle-config';
+import { exportToExcel } from '../../utils/export-to-excel';
 import { useTransporters } from '../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleTableToolbar({ filters, onFilters, tableData }) {
+export default function VehicleTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
   const { data: transporters = [] } = useTransporters();
 
   const handleFilterVehicleNo = useCallback(
@@ -130,10 +136,45 @@ export default function VehicleTableToolbar({ filters, onFilters, tableData }) {
           </Select>
         </FormControl>
 
+        <Tooltip title="Column Settings">
+          <IconButton onClick={columnsPopover.onOpen}>
+            <Iconify icon="mdi:table-column-plus-after" />
+          </IconButton>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList sx={{ width: 200 }}>
+          {Object.keys(visibleColumns).map((column) => (
+            <MenuItem
+              key={column}
+              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
+              disabled={disabledColumns[column]}
+              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
+            >
+              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
+              <ListItemText
+                primary={
+                  column
+                    .replace(/([A-Z])/g, ' $1')
+                    .charAt(0)
+                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
+                }
+                secondary={disabledColumns[column] ? '(Always visible)' : null}
+              />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}

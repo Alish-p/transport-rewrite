@@ -28,6 +28,24 @@ export default function VehicleTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    vehicleNo: true,
+    isOwn: true,
+    noOfTyres: true,
+    manufacturingYear: true,
+    loadingCapacity: true,
+    fuelTankCapacity: true,
+    transporter: true,
+  },
+  disabledColumns = {
+    vehicleNo: true, // Vehicle number should always be visible
+    isOwn: false,
+    noOfTyres: false,
+    manufacturingYear: false,
+    loadingCapacity: false,
+    fuelTankCapacity: false,
+    transporter: false,
+  },
 }) {
   const {
     vehicleNo,
@@ -36,86 +54,98 @@ export default function VehicleTableRow({
     noOfTyres,
     manufacturingYear,
     loadingCapacity,
-
     transporter,
     fuelTankCapacity,
   } = row;
 
   const confirm = useBoolean();
-
   const popover = usePopover();
 
   return (
     <>
-      <TableRow hover selected={selected} al>
+      <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={vehicleNo} sx={{ mr: 2 }}>
-            {vehicleNo.slice(0, 2).toUpperCase()}
-          </Avatar>
+        {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={vehicleNo} sx={{ mr: 2 }}>
+              {vehicleNo.slice(0, 2).toUpperCase()}
+            </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {vehicleNo}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {vehicleType}
-              </Link>
-            }
-          />
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {vehicleNo}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={() => {}}
+                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                >
+                  {vehicleType}
+                </Link>
+              }
+            />
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
-            {isOwn ? 'Own' : 'Market'}
-          </Label>
-        </TableCell>
+        {(visibleColumns.isOwn || disabledColumns.isOwn) && (
+          <TableCell align="center">
+            <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
+              {isOwn ? 'Own' : 'Market'}
+            </Label>
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <ListItemText
-            primary={noOfTyres}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.noOfTyres || disabledColumns.noOfTyres) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={noOfTyres}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <ListItemText
-            primary={manufacturingYear}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.manufacturingYear || disabledColumns.manufacturingYear) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={manufacturingYear}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <Label variant="soft" color={loadingCapacity >= 20 ? 'success' : 'error'}>
-            {loadingCapacity}
-          </Label>
-        </TableCell>
+        {(visibleColumns.loadingCapacity || disabledColumns.loadingCapacity) && (
+          <TableCell align="center">
+            <Label variant="soft" color={loadingCapacity >= 20 ? 'success' : 'error'}>
+              {loadingCapacity}
+            </Label>
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <ListItemText
-            primary={fuelTankCapacity}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.fuelTankCapacity || disabledColumns.fuelTankCapacity) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={fuelTankCapacity}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell align="center">
-          <ListItemText
-            primary={transporter?.transportName || '-'}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.transporter || disabledColumns.transporter) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={transporter?.transportName || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

@@ -30,6 +30,7 @@ export default function BankTableRow({
   onEditRow,
   onDeleteRow,
   visibleColumns = { name: true, place: true, branch: true, ifsc: true },
+  disabledColumns = { name: true, place: false, branch: false, ifsc: false },
 }) {
   const { name, branch, place, ifsc } = row;
 
@@ -44,7 +45,7 @@ export default function BankTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        {visibleColumns.name && (
+        {(visibleColumns.name || disabledColumns.name) && (
           <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar alt={name} sx={{ mr: 2 }}>
               {name.slice(0, 2).toUpperCase()}
@@ -71,7 +72,7 @@ export default function BankTableRow({
           </TableCell>
         )}
 
-        {visibleColumns.place && (
+        {(visibleColumns.place || disabledColumns.place) && (
           <TableCell>
             <ListItemText
               primary={place}
@@ -80,7 +81,7 @@ export default function BankTableRow({
           </TableCell>
         )}
 
-        {visibleColumns.branch && (
+        {(visibleColumns.branch || disabledColumns.branch) && (
           <TableCell>
             <ListItemText
               primary={branch}
@@ -89,7 +90,7 @@ export default function BankTableRow({
           </TableCell>
         )}
 
-        {visibleColumns.ifsc && (
+        {(visibleColumns.ifsc || disabledColumns.ifsc) && (
           <TableCell>
             <ListItemText
               primary={ifsc}

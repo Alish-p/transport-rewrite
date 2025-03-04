@@ -24,6 +24,7 @@ export default function BankTableToolbar({
   onFilters,
   tableData,
   visibleColumns,
+  disabledColumns = {},
   onToggleColumn,
 }) {
   const popover = usePopover();
@@ -126,8 +127,13 @@ export default function BankTableToolbar({
       >
         <MenuList sx={{ width: 200 }}>
           {Object.keys(visibleColumns).map((column) => (
-            <MenuItem key={column} onClick={() => onToggleColumn(column)}>
-              <Checkbox checked={visibleColumns[column]} />
+            <MenuItem
+              key={column}
+              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
+              disabled={disabledColumns[column]}
+              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
+            >
+              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
               <ListItemText primary={column.charAt(0).toUpperCase() + column.slice(1)} />
             </MenuItem>
           ))}

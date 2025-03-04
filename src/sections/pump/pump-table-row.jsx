@@ -27,6 +27,26 @@ export default function PumpTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    pumpName: true,
+    placeName: true,
+    ownerName: true,
+    ownerCellNo: true,
+    pumpPhoneNo: true,
+    taluk: true,
+    district: true,
+    address: true,
+  },
+  disabledColumns = {
+    pumpName: true,
+    placeName: false,
+    ownerName: false,
+    ownerCellNo: false,
+    pumpPhoneNo: false,
+    taluk: false,
+    district: false,
+    address: false,
+  },
 }) {
   const { pumpName, placeName, ownerName, ownerCellNo, pumpPhoneNo, taluk, district, address } =
     row;
@@ -42,79 +62,95 @@ export default function PumpTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={pumpName} sx={{ mr: 2 }}>
-            {pumpName.slice(0, 1).toUpperCase()}
-          </Avatar>
+        {(visibleColumns.pumpName || disabledColumns.pumpName) && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={pumpName} sx={{ mr: 2 }}>
+              {pumpName.slice(0, 1).toUpperCase()}
+            </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {pumpName}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {pumpName}
-              </Link>
-            }
-          />
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {pumpName}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={() => {}}
+                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                >
+                  {pumpName}
+                </Link>
+              }
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={placeName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.placeName || disabledColumns.placeName) && (
+          <TableCell>
+            <ListItemText
+              primary={placeName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={ownerName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.ownerName || disabledColumns.ownerName) && (
+          <TableCell>
+            <ListItemText
+              primary={ownerName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={ownerCellNo}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.ownerCellNo || disabledColumns.ownerCellNo) && (
+          <TableCell>
+            <ListItemText
+              primary={ownerCellNo}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={pumpPhoneNo}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.pumpPhoneNo || disabledColumns.pumpPhoneNo) && (
+          <TableCell>
+            <ListItemText
+              primary={pumpPhoneNo}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={taluk}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.taluk || disabledColumns.taluk) && (
+          <TableCell>
+            <ListItemText
+              primary={taluk}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={district}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.district || disabledColumns.district) && (
+          <TableCell>
+            <ListItemText
+              primary={district}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={address}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.address || disabledColumns.address) && (
+          <TableCell>
+            <ListItemText
+              primary={address}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -73,13 +73,24 @@ export function BankListView({ banks }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  // Add state for column visibility
+  // Add state for column visibility with disabled columns
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
     place: true,
     branch: true,
     ifsc: true,
   });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      name: true, // Bank name should always be visible
+      place: false,
+      branch: false,
+      ifsc: false,
+    }),
+    []
+  );
 
   useEffect(() => {
     if (banks.length) {
@@ -129,13 +140,19 @@ export function BankListView({ banks }) {
     setFilters(defaultFilters);
   }, []);
 
-  // Add handler for toggling column visibility
-  const handleToggleColumn = useCallback((columnName) => {
-    setVisibleColumns((prev) => ({
-      ...prev,
-      [columnName]: !prev[columnName],
-    }));
-  }, []);
+  // Update handler for toggling column visibility to respect disabled columns
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
 
   // Filter the table head based on visible columns
   const visibleTableHead = TABLE_HEAD.filter(
@@ -182,6 +199,7 @@ export function BankListView({ banks }) {
             onFilters={handleFilters}
             tableData={dataFiltered}
             visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
           />
 
