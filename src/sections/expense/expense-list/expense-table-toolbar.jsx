@@ -19,7 +19,13 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function ExpenseTableToolbar({ filters, onFilters, tableData }) {
+export default function ExpenseTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  subtripExpenseTypes,
+  vehicleExpenseTypes,
+}) {
   const popover = usePopover();
 
   const handleFilterPumpName = useCallback(
@@ -76,6 +82,9 @@ export default function ExpenseTableToolbar({ filters, onFilters, tableData }) {
               </InputAdornment>
             ),
           }}
+          sx={{
+            maxWidth: { md: 250 },
+          }}
         />
 
         <TextField
@@ -90,6 +99,9 @@ export default function ExpenseTableToolbar({ filters, onFilters, tableData }) {
               </InputAdornment>
             ),
           }}
+          sx={{
+            maxWidth: { md: 250 },
+          }}
         />
 
         <DatePicker
@@ -98,7 +110,7 @@ export default function ExpenseTableToolbar({ filters, onFilters, tableData }) {
           onChange={handleFilterFromDate}
           slotProps={{ textField: { fullWidth: true } }}
           sx={{
-            maxWidth: { md: 180 },
+            maxWidth: { md: 200 },
           }}
         />
 
@@ -108,9 +120,35 @@ export default function ExpenseTableToolbar({ filters, onFilters, tableData }) {
           onChange={handleFilterEndDate}
           slotProps={{ textField: { fullWidth: true } }}
           sx={{
-            maxWidth: { md: 180 },
+            maxWidth: { md: 200 },
           }}
         />
+
+        <TextField
+          select
+          label="Expense Type"
+          value={filters.expenseType}
+          onChange={(event) => onFilters('expenseType', event.target.value)}
+          sx={{
+            width: { md: 200 },
+          }}
+        >
+          <MenuItem value="">None</MenuItem>
+
+          {filters.expenseCategory === 'subtrip' &&
+            subtripExpenseTypes.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+
+          {filters.expenseCategory === 'vehicle' &&
+            vehicleExpenseTypes.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+        </TextField>
 
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />

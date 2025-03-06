@@ -1,6 +1,6 @@
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -84,6 +84,29 @@ export function TripListView({ trips }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    vehicleNo: true,
+    driverName: true,
+    tripStatus: true,
+    fromDate: true,
+    toDate: true,
+    remarks: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      vehicleNo: true, // Vehicle number should always be visible
+      driverName: false,
+      tripStatus: false,
+      fromDate: false,
+      toDate: false,
+      remarks: false,
+    }),
+    []
+  );
+
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
@@ -163,6 +186,25 @@ export function TripListView({ trips }) {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   return (
     <>
@@ -271,7 +313,14 @@ export function TripListView({ trips }) {
             ))}
           </Tabs>
 
-          <TripTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          <TripTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
+          />
 
           {canReset && (
             <TripTableFiltersResult
@@ -336,7 +385,7 @@ export function TripListView({ trips }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -362,6 +411,8 @@ export function TripListView({ trips }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteTrip(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

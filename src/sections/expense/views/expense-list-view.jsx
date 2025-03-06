@@ -48,6 +48,7 @@ import { useDeleteExpense } from '../../../query/use-expense';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
+import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense-config';
 import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -68,6 +69,7 @@ const TABLE_HEAD = [
 const defaultFilters = {
   vehicleNo: '',
   pump: '',
+  expenseCategory: 'all',
   expenseType: 'all',
   fromDate: null,
   endDate: null,
@@ -125,50 +127,26 @@ export function ExpenseListView({ expenses }) {
   const getPercentByExpenseType = (expenseType) =>
     (getExpenseLength(expenseType) / tableData.length) * 100;
 
+  const getExpensesByCategory = (category) =>
+    tableData.filter((item) => item.expenseCategory === category);
+
+  const getTotalAmountByCategory = (category) =>
+    sumBy(getExpensesByCategory(category), 'totalAmount');
+
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'diesel', label: 'Diesel', color: 'primary', count: getExpenseLength('diesel') },
-    { value: 'adblue', label: 'Adblue', color: 'secondary', count: getExpenseLength('adblue') },
     {
-      value: 'driver-salary',
-      label: 'Driver Salary',
-      color: 'success',
-      count: getExpenseLength('driver-salary'),
+      value: 'subtrip',
+      label: 'Subtrip Expenses',
+      color: 'primary',
+      count: tableData.filter((item) => item.expenseCategory === 'subtrip').length,
     },
     {
-      value: 'trip-advance',
-      label: 'Driver Advance',
-      color: 'error',
-      count: getExpenseLength('trip-advance'),
+      value: 'vehicle',
+      label: 'Vehicle Expenses',
+      color: 'secondary',
+      count: tableData.filter((item) => item.expenseCategory === 'vehicle').length,
     },
-    {
-      value: 'trip-extra-advance',
-      label: 'Extra Advance',
-      color: 'warning',
-      count: getExpenseLength('trip-extra-advance'),
-    },
-    {
-      value: 'puncher',
-      label: 'Tyre puncher',
-      color: 'success',
-      count: getExpenseLength('puncher'),
-    },
-    {
-      value: 'tyre-expense',
-      label: 'Tyre Expense',
-      color: 'error',
-      count: getExpenseLength('tyre-expense'),
-    },
-    { value: 'police', label: 'Police', color: 'default', count: getExpenseLength('police') },
-    { value: 'rto', label: 'Rto', color: 'success', count: getExpenseLength('rto') },
-    { value: 'toll', label: 'Toll', color: 'default', count: getExpenseLength('toll') },
-    {
-      value: 'vehicle-repair',
-      label: 'Vehicle Repair',
-      color: 'default',
-      count: getExpenseLength('vehicle-repair'),
-    },
-    { value: 'other', label: 'Other', color: 'default', count: getExpenseLength('other') },
   ];
 
   const handleFilters = useCallback(
@@ -194,9 +172,10 @@ export function ExpenseListView({ expenses }) {
     [router]
   );
 
-  const handleFilterExpenseType = useCallback(
+  const handleFilterExpenseCategory = useCallback(
     (event, newValue) => {
-      handleFilters('expenseType', newValue);
+      handleFilters('expenseCategory', newValue);
+      handleFilters('expenseType', 'all');
     },
     [handleFilters]
   );
@@ -251,7 +230,7 @@ export function ExpenseListView({ expenses }) {
               sx={{ py: 2 }}
             >
               <ExpenseAnalytic
-                title="All"
+                title="All Expenses"
                 total={tableData.length}
                 percent={100}
                 price={sumBy(tableData, 'totalAmount')}
@@ -260,102 +239,21 @@ export function ExpenseListView({ expenses }) {
               />
 
               <ExpenseAnalytic
-                title="Diesel"
-                total={getExpenseLength('diesel')}
-                percent={getPercentByExpenseType('diesel')}
-                price={getTotalAmount('diesel')}
-                icon="lucide:fuel"
-                color={theme.palette.success.main}
-              />
-
-              <ExpenseAnalytic
-                title="Adblue"
-                total={getExpenseLength('adblue')}
-                percent={getPercentByExpenseType('adblue')}
-                price={getTotalAmount('adblue')}
-                icon="mdi:fossil-fuel"
-                color={theme.palette.warning.main}
-              />
-
-              <ExpenseAnalytic
-                title="Driver Salary"
-                total={getExpenseLength('driver-salary')}
-                percent={getPercentByExpenseType('driver-salary')}
-                price={getTotalAmount('driver-salary')}
-                icon="mynaui:rupee-circle"
-                color={theme.palette.error.main}
-              />
-              <ExpenseAnalytic
-                title="Trip Advance"
-                total={getExpenseLength('trip-advance')}
-                percent={getPercentByExpenseType('trip-advance')}
-                price={getTotalAmount('trip-advance')}
-                icon="line-md:plus-square"
-                color={theme.palette.text.secondary}
-              />
-              <ExpenseAnalytic
-                title="Extra Advance"
-                total={getExpenseLength('trip-extra-advance')}
-                percent={getPercentByExpenseType('trip-extra-advance')}
-                price={getTotalAmount('trip-extra-advance')}
-                icon="line-md:plus-square"
+                title="Subtrip Expenses"
+                total={getExpensesByCategory('subtrip').length}
+                percent={(getExpensesByCategory('subtrip').length / tableData.length) * 100}
+                price={getTotalAmountByCategory('subtrip')}
+                icon="material-symbols:route"
                 color={theme.palette.primary.main}
               />
+
               <ExpenseAnalytic
-                title="Puncture"
-                total={getExpenseLength('puncher')}
-                percent={getPercentByExpenseType('puncher')}
-                price={getTotalAmount('puncher')}
-                icon="game-icons:flat-tire"
+                title="Vehicle Expenses"
+                total={getExpensesByCategory('vehicle').length}
+                percent={(getExpensesByCategory('vehicle').length / tableData.length) * 100}
+                price={getTotalAmountByCategory('vehicle')}
+                icon="mdi:truck"
                 color={theme.palette.secondary.main}
-              />
-              <ExpenseAnalytic
-                title="Tyre expense"
-                total={getExpenseLength('tyre-expense')}
-                percent={getPercentByExpenseType('tyre-expense')}
-                price={getTotalAmount('tyre-expense')}
-                icon="solar:wheel-bold"
-                color={theme.palette.secondary.main}
-              />
-              <ExpenseAnalytic
-                title="Police"
-                total={getExpenseLength('police')}
-                percent={getPercentByExpenseType('police')}
-                price={getTotalAmount('police')}
-                icon="ri:police-badge-line"
-                color={theme.palette.common.white}
-              />
-              <ExpenseAnalytic
-                title="Rto"
-                total={getExpenseLength('rto')}
-                percent={getPercentByExpenseType('rto')}
-                price={getTotalAmount('rto')}
-                icon="hugeicons:office"
-                color={theme.palette.common.white}
-              />
-              <ExpenseAnalytic
-                title="Toll Tax"
-                total={getExpenseLength('toll')}
-                percent={getPercentByExpenseType('toll')}
-                price={getTotalAmount('toll')}
-                icon="healthicons:paved-road"
-                color="orange"
-              />
-              <ExpenseAnalytic
-                title="Vehicle Repair"
-                total={getExpenseLength('vehicle-repair')}
-                percent={getPercentByExpenseType('vehicle-repair')}
-                price={getTotalAmount('vehicle-repair')}
-                icon="mdi:truck-alert-outline"
-                color={theme.palette.common.white}
-              />
-              <ExpenseAnalytic
-                title="other"
-                total={getExpenseLength('other')}
-                percent={getPercentByExpenseType('other')}
-                price={getTotalAmount('other')}
-                icon="basil:other-1-outline"
-                color={theme.palette.common.white}
               />
             </Stack>
           </Scrollbar>
@@ -365,8 +263,8 @@ export function ExpenseListView({ expenses }) {
         <Card>
           {/* filtering Tabs */}
           <Tabs
-            value={filters.expenseType}
-            onChange={handleFilterExpenseType}
+            value={filters.expenseCategory}
+            onChange={handleFilterExpenseCategory}
             sx={{
               px: 2.5,
               boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
@@ -381,7 +279,8 @@ export function ExpenseListView({ expenses }) {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.expenseType) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.expenseCategory) &&
+                        'filled') ||
                       'soft'
                     }
                     color={tab.color}
@@ -397,6 +296,8 @@ export function ExpenseListView({ expenses }) {
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
+            subtripExpenseTypes={subtripExpenseTypes}
+            vehicleExpenseTypes={vehicleExpenseTypes}
           />
 
           {canReset && (
@@ -546,7 +447,7 @@ export function ExpenseListView({ expenses }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, pump, expenseType, fromDate, endDate } = filters;
+  const { vehicleNo, pump, expenseCategory, expenseType, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -576,9 +477,14 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
     );
   }
 
+  if (expenseCategory !== 'all') {
+    inputData = inputData.filter((record) => record.expenseCategory === expenseCategory);
+  }
+
   if (expenseType !== 'all') {
     inputData = inputData.filter((record) => record.expenseType === expenseType);
   }
+
   if (!dateError) {
     if (fromDate && endDate) {
       inputData = inputData.filter((expense) => fIsBetween(expense.date, fromDate, endDate));

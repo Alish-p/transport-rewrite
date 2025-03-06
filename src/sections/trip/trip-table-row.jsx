@@ -36,6 +36,22 @@ export default function VehicleTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    vehicleNo: true,
+    driverName: true,
+    tripStatus: true,
+    fromDate: true,
+    toDate: true,
+    remarks: true,
+  },
+  disabledColumns = {
+    vehicleNo: true, // Vehicle number should always be visible
+    driverName: false,
+    tripStatus: false,
+    fromDate: false,
+    toDate: false,
+    remarks: false,
+  },
 }) {
   const {
     _id,
@@ -58,73 +74,94 @@ export default function VehicleTableRow({
       <TableCell padding="checkbox">
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
-      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={vehicleNo} sx={{ mr: 2 }}>
-          {vehicleNo.slice(0, 2).toUpperCase()}
-        </Avatar>
 
-        <ListItemText
-          disableTypography
-          primary={
-            <Typography variant="body2" noWrap>
-              {vehicleNo}
-            </Typography>
-          }
-          secondary={
-            <Link
-              noWrap
-              variant="body2"
-              onClick={() => {
-                onViewRow(_id);
-              }}
-              sx={{ color: 'primary', cursor: 'pointer' }}
-            >
-              {_id}
-            </Link>
-          }
-        />
-      </TableCell>
-      <TableCell>
-        <ListItemText
-          primary={driverId?.driverName}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </TableCell>
-      <TableCell>
-        <Label variant="soft" color={tripStatus.toLowerCase() === 'pending' ? 'error' : 'success'}>
-          {tripStatus}
-        </Label>
-      </TableCell>
-      <TableCell>
-        <ListItemText
-          primary={fDate(new Date(fromDate))}
-          secondary={fTime(new Date(fromDate))}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-          }}
-        />
-      </TableCell>
-      <TableCell>
-        <ListItemText
-          primary={toDate ? fDate(new Date(toDate)) : '--'}
-          secondary={toDate ? fTime(new Date(toDate)) : '--'}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-          }}
-        />
-      </TableCell>
-      <TableCell>
-        <ListItemText
-          primary={remarks}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </TableCell>
+      {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
+        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={vehicleNo} sx={{ mr: 2 }}>
+            {vehicleNo.slice(0, 2).toUpperCase()}
+          </Avatar>
+
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography variant="body2" noWrap>
+                {vehicleNo}
+              </Typography>
+            }
+            secondary={
+              <Link
+                noWrap
+                variant="body2"
+                onClick={() => {
+                  onViewRow(_id);
+                }}
+                sx={{ color: 'primary', cursor: 'pointer' }}
+              >
+                {_id}
+              </Link>
+            }
+          />
+        </TableCell>
+      )}
+
+      {(visibleColumns.driverName || disabledColumns.driverName) && (
+        <TableCell>
+          <ListItemText
+            primary={driverId?.driverName}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+      )}
+
+      {(visibleColumns.tripStatus || disabledColumns.tripStatus) && (
+        <TableCell>
+          <Label
+            variant="soft"
+            color={tripStatus.toLowerCase() === 'pending' ? 'error' : 'success'}
+          >
+            {tripStatus}
+          </Label>
+        </TableCell>
+      )}
+
+      {(visibleColumns.fromDate || disabledColumns.fromDate) && (
+        <TableCell>
+          <ListItemText
+            primary={fDate(new Date(fromDate))}
+            secondary={fTime(new Date(fromDate))}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
+      )}
+
+      {(visibleColumns.toDate || disabledColumns.toDate) && (
+        <TableCell>
+          <ListItemText
+            primary={toDate ? fDate(new Date(toDate)) : '--'}
+            secondary={toDate ? fTime(new Date(toDate)) : '--'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
+      )}
+
+      {(visibleColumns.remarks || disabledColumns.remarks) && (
+        <TableCell>
+          <ListItemText
+            primary={remarks}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+      )}
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton

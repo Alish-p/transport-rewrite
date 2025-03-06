@@ -33,6 +33,22 @@ export default function SubtripTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    vehicleNo: true,
+    customerName: true,
+    routeName: true,
+    invoiceNo: true,
+    startDate: true,
+    subtripStatus: true,
+  },
+  disabledColumns = {
+    vehicleNo: true, // Vehicle number should always be visible
+    customerName: false,
+    routeName: false,
+    invoiceNo: false,
+    startDate: false,
+    subtripStatus: false,
+  },
 }) {
   const {
     _id,
@@ -54,68 +70,85 @@ export default function SubtripTableRow({
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
-            {vehicleId?.vehicleNo.slice(0, 2).toUpperCase()}
-          </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {vehicleId?.vehicleNo}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {
-                  onViewRow(_id);
-                }}
-                sx={{ color: 'primary', cursor: 'pointer' }}
-              >
-                {_id}
-              </Link>
-            }
-          />
-        </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={customerId?.customerName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
+              {vehicleId?.vehicleNo.slice(0, 2).toUpperCase()}
+            </Avatar>
 
-        <TableCell>
-          <ListItemText
-            primary={routeName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={invoiceNo || '-'}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={fDate(new Date(startDate))}
-            secondary={fTime(new Date(startDate))}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
-          />
-        </TableCell>
-        <TableCell>
-          <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>
-            {subtripStatus}
-          </Label>
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {vehicleId?.vehicleNo}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={() => {
+                    onViewRow(_id);
+                  }}
+                  sx={{ color: 'primary', cursor: 'pointer' }}
+                >
+                  {_id}
+                </Link>
+              }
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.customerName || disabledColumns.customerName) && (
+          <TableCell>
+            <ListItemText
+              primary={customerId?.customerName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.routeName || disabledColumns.routeName) && (
+          <TableCell>
+            <ListItemText
+              primary={routeName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (
+          <TableCell>
+            <ListItemText
+              primary={invoiceNo || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.startDate || disabledColumns.startDate) && (
+          <TableCell>
+            <ListItemText
+              primary={fDate(new Date(startDate))}
+              secondary={fTime(new Date(startDate))}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              secondaryTypographyProps={{
+                mt: 0.5,
+                component: 'span',
+                typography: 'caption',
+              }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.subtripStatus || disabledColumns.subtripStatus) && (
+          <TableCell>
+            <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>
+              {subtripStatus}
+            </Label>
+          </TableCell>
+        )}
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

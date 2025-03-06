@@ -1,5 +1,5 @@
 import sumBy from 'lodash/sumBy';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -88,6 +88,29 @@ export function SubtripListView({ subtrips }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    vehicleNo: true,
+    customerName: true,
+    routeName: true,
+    invoiceNo: true,
+    startDate: true,
+    subtripStatus: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      vehicleNo: true, // Vehicle number should always be visible
+      customerName: false,
+      routeName: false,
+      invoiceNo: false,
+      startDate: false,
+      subtripStatus: false,
+    }),
+    []
+  );
+
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   useEffect(() => {
@@ -171,6 +194,25 @@ export function SubtripListView({ subtrips }) {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   return (
     <>
@@ -314,6 +356,9 @@ export function SubtripListView({ subtrips }) {
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -379,7 +424,7 @@ export function SubtripListView({ subtrips }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -405,6 +450,8 @@ export function SubtripListView({ subtrips }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteSubtrip(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 
