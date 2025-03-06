@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 // @mui
 import Card from '@mui/material/Card';
@@ -70,6 +70,48 @@ export function CustomerListView({ customers }) {
   const deleteCustomer = useDeleteCustomer();
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    customerName: true,
+    GSTNo: true,
+    PANNo: true,
+    cellNo: true,
+    address: true,
+    place: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      customerName: true, // Customer name should always be visible
+      GSTNo: false,
+      PANNo: false,
+      cellNo: false,
+      address: false,
+      place: false,
+    }),
+    []
+  );
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   useEffect(() => {
     if (customers.length) {
@@ -157,7 +199,10 @@ export function CustomerListView({ customers }) {
           <CustomerTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -223,7 +268,7 @@ export function CustomerListView({ customers }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -249,6 +294,8 @@ export function CustomerListView({ customers }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteCustomer(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

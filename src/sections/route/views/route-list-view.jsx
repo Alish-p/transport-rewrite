@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
+import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
 // @mui
 import IconButton from '@mui/material/IconButton';
+import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
 // _mock
@@ -25,6 +29,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -42,6 +47,7 @@ import {
 
 import RouteTableRow from '../route-table-row';
 import RouteTableToolbar from '../route-table-toolbar';
+import RouteAnalytics from '../widgets/route-analytic';
 import { useDeleteRoute } from '../../../query/use-route';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
@@ -63,6 +69,7 @@ const defaultFilters = {
   routeName: '',
   fromPlace: '',
   toPlace: '',
+  routeType: 'all',
 };
 
 // ----------------------------------------------------------------------
@@ -71,6 +78,7 @@ export function RouteListView({ routes }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+  const theme = useTheme();
 
   const navigate = useNavigate();
   const deleteRoute = useDeleteRoute();
@@ -125,6 +133,81 @@ export function RouteListView({ routes }) {
     setFilters(defaultFilters);
   }, []);
 
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    routeName: true,
+    fromPlace: true,
+    toPlace: true,
+    customer: true,
+    tollAmt: true,
+    noOfDays: true,
+    distance: true,
+    validFromDate: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      routeName: true, // Route name should always be visible
+      fromPlace: false,
+      toPlace: false,
+      customer: false,
+      tollAmt: false,
+      noOfDays: false,
+      distance: false,
+      validFromDate: false,
+    }),
+    []
+  );
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
+
+  const getRouteLength = (type) => {
+    if (type === 'all') return tableData.length;
+    if (type === 'customer') return tableData.filter((item) => item.isCustomerSpecific).length;
+    return tableData.filter((item) => !item.isCustomerSpecific).length;
+  };
+
+  const getPercentByType = (type) => {
+    const length = getRouteLength(type);
+    return (length / tableData.length) * 100;
+  };
+
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: getRouteLength('all') },
+    {
+      value: 'customer',
+      label: 'Customer Specific',
+      color: 'info',
+      count: getRouteLength('customer'),
+    },
+    { value: 'general', label: 'General', color: 'success', count: getRouteLength('general') },
+  ];
+
+  const handleFilterRouteType = useCallback(
+    (event, newValue) => {
+      handleFilters('routeType', newValue);
+    },
+    [handleFilters]
+  );
+
   return (
     <>
       <DashboardContent>
@@ -158,9 +241,81 @@ export function RouteListView({ routes }) {
           }}
         />
 
+        {/* Add Analytics Section */}
+        <Card sx={{ mb: { xs: 3, md: 5 } }}>
+          <Scrollbar>
+            <Stack
+              direction="row"
+              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+              sx={{ py: 2 }}
+            >
+              <RouteAnalytics
+                title="Total"
+                total={getRouteLength('all')}
+                percent={100}
+                icon="solar:route-bold-duotone"
+                color={theme.palette.info.main}
+              />
+
+              <RouteAnalytics
+                title="Customer Specific"
+                total={getRouteLength('customer')}
+                percent={getPercentByType('customer')}
+                icon="solar:users-group-rounded-bold-duotone"
+                color={theme.palette.warning.main}
+              />
+
+              <RouteAnalytics
+                title="General"
+                total={getRouteLength('general')}
+                percent={getPercentByType('general')}
+                icon="solar:road-bold-duotone"
+                color={theme.palette.success.main}
+              />
+            </Stack>
+          </Scrollbar>
+        </Card>
+
         {/* Table Section */}
         <Card>
-          <RouteTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          {/* Add Tabs */}
+          <Tabs
+            value={filters.routeType}
+            onChange={handleFilterRouteType}
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.routeType) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
+          <RouteTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
+          />
 
           {canReset && (
             <RouteTableFiltersResult
@@ -225,7 +380,7 @@ export function RouteListView({ routes }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -251,6 +406,8 @@ export function RouteListView({ routes }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteRoute(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 
@@ -309,7 +466,7 @@ export function RouteListView({ routes }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { routeName, fromPlace, toPlace } = filters;
+  const { routeName, fromPlace, toPlace, routeType } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -339,6 +496,12 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter(
       (record) =>
         record.toPlace && record.toPlace.toLowerCase().indexOf(toPlace.toLowerCase()) !== -1
+    );
+  }
+
+  if (routeType !== 'all') {
+    inputData = inputData.filter((record) =>
+      routeType === 'customer' ? record.isCustomerSpecific : !record.isCustomerSpecific
     );
   }
 

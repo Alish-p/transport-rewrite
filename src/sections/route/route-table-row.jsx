@@ -23,13 +23,33 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleTableRow({
+export default function RouteTableRow({
   row,
   selected,
   onSelectRow,
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    routeName: true,
+    fromPlace: true,
+    toPlace: true,
+    customer: true,
+    tollAmt: true,
+    noOfDays: true,
+    distance: true,
+    validFromDate: true,
+  },
+  disabledColumns = {
+    routeName: true,
+    fromPlace: false,
+    toPlace: false,
+    customer: false,
+    tollAmt: false,
+    noOfDays: false,
+    distance: false,
+    validFromDate: false,
+  },
 }) {
   const { routeName, tollAmt, fromPlace, toPlace, noOfDays, distance, validFromDate, customer } =
     row;
@@ -45,68 +65,84 @@ export default function VehicleTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={routeName} sx={{ mr: 2 }}>
-            {routeName.slice(0, 2).toUpperCase()}
-          </Avatar>
+        {(visibleColumns.routeName || disabledColumns.routeName) && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={routeName} sx={{ mr: 2 }}>
+              {routeName.slice(0, 2).toUpperCase()}
+            </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {routeName}
-              </Typography>
-            }
-          />
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {routeName}
+                </Typography>
+              }
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={fromPlace}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.fromPlace || disabledColumns.fromPlace) && (
+          <TableCell>
+            <ListItemText
+              primary={fromPlace}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={toPlace}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.toPlace || disabledColumns.toPlace) && (
+          <TableCell>
+            <ListItemText
+              primary={toPlace}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={customer?.customerName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.customer || disabledColumns.customer) && (
+          <TableCell>
+            <ListItemText
+              primary={customer?.customerName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={tollAmt}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.tollAmt || disabledColumns.tollAmt) && (
+          <TableCell>
+            <ListItemText
+              primary={tollAmt}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <Label variant="soft" color={noOfDays >= 5 ? 'success' : 'error'}>
-            {noOfDays}
-          </Label>
-        </TableCell>
+        {(visibleColumns.noOfDays || disabledColumns.noOfDays) && (
+          <TableCell>
+            <Label variant="soft" color={noOfDays >= 5 ? 'success' : 'error'}>
+              {noOfDays}
+            </Label>
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={distance}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.distance || disabledColumns.distance) && (
+          <TableCell>
+            <ListItemText
+              primary={distance}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={fDate(validFromDate)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.validFromDate || disabledColumns.validFromDate) && (
+          <TableCell>
+            <ListItemText
+              primary={fDate(validFromDate)}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

@@ -28,6 +28,20 @@ export default function TransporterTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    transportName: true,
+    place: true,
+    cellNo: true,
+    ownerName: true,
+    emailId: true,
+  },
+  disabledColumns = {
+    transportName: true,
+    place: false,
+    cellNo: false,
+    ownerName: false,
+    emailId: false,
+  },
 }) {
   const { transportName, place, cellNo, ownerName, emailId } = row;
 
@@ -42,58 +56,68 @@ export default function TransporterTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={transportName} sx={{ mr: 2 }}>
-            {transportName.slice(0, 2).toUpperCase()}
-          </Avatar>
+        {(visibleColumns.transportName || disabledColumns.transportName) && (
+          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={transportName} sx={{ mr: 2 }}>
+              {transportName.slice(0, 2).toUpperCase()}
+            </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {transportName}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {transportName}
-              </Link>
-            }
-          />
-        </TableCell>
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {transportName}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={() => {}}
+                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                >
+                  {transportName}
+                </Link>
+              }
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={place}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.place || disabledColumns.place) && (
+          <TableCell>
+            <ListItemText
+              primary={place}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={cellNo}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.cellNo || disabledColumns.cellNo) && (
+          <TableCell>
+            <ListItemText
+              primary={cellNo}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={ownerName}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.ownerName || disabledColumns.ownerName) && (
+          <TableCell>
+            <ListItemText
+              primary={ownerName}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={emailId}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.emailId || disabledColumns.emailId) && (
+          <TableCell>
+            <ListItemText
+              primary={emailId}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

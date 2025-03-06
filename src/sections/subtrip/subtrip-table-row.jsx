@@ -100,7 +100,7 @@ export default function SubtripTableRow({
           </TableCell>
         )}
 
-        {(visibleColumns.customerName || disabledColumns.customerName) && (
+        {(visibleColumns.customerId || disabledColumns.customerId) && (
           <TableCell>
             <ListItemText
               primary={customerId?.customerName}

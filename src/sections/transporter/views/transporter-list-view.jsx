@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -72,6 +72,46 @@ export function TransporterListView({ transporters }) {
   const deleteTransporter = useDeleteTransporter();
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    transportName: true,
+    place: true,
+    cellNo: true,
+    ownerName: true,
+    emailId: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      transportName: true, // Transport name should always be visible
+      place: false,
+      cellNo: false,
+      ownerName: false,
+      emailId: false,
+    }),
+    []
+  );
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   useEffect(() => {
     if (transporters.length) {
@@ -159,7 +199,10 @@ export function TransporterListView({ transporters }) {
           <TransporterTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -225,7 +268,7 @@ export function TransporterListView({ transporters }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -251,6 +294,8 @@ export function TransporterListView({ transporters }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteTransporter(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

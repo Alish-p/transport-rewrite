@@ -57,12 +57,12 @@ import SubtripTableFiltersResult from '../subtrip-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: '_id', label: 'Details', align: 'left' },
-  { id: 'customerId', label: 'Customer ID', align: 'left' },
-  { id: 'routeName', label: 'Route', align: 'left', type: 'string' },
-  { id: 'invoiceNo', label: 'Invoice No', align: 'left', type: 'string' },
-  { id: 'startDate', label: 'Start Date', align: 'left' },
-  { id: 'subtripStatus', label: 'Subtrip Status', align: 'left', type: 'string' },
+  { id: 'vehicleNo', label: 'Details', align: 'center' },
+  { id: 'customerId', label: 'Customer', align: 'center' },
+  { id: 'routeName', label: 'Route', align: 'center', type: 'string' },
+  { id: 'invoiceNo', label: 'Invoice No', align: 'center', type: 'string' },
+  { id: 'startDate', label: 'Start Date', align: 'center' },
+  { id: 'subtripStatus', label: 'Subtrip Status', align: 'cen', type: 'string' },
   { id: '' },
 ];
 
@@ -91,7 +91,7 @@ export function SubtripListView({ subtrips }) {
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
     vehicleNo: true,
-    customerName: true,
+    customerId: true,
     routeName: true,
     invoiceNo: true,
     startDate: true,
@@ -102,7 +102,7 @@ export function SubtripListView({ subtrips }) {
   const disabledColumns = useMemo(
     () => ({
       vehicleNo: true, // Vehicle number should always be visible
-      customerName: false,
+      customerId: false,
       routeName: false,
       invoiceNo: false,
       startDate: false,

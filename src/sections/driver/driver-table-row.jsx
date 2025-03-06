@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import Box from '@mui/material/Box';
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -31,6 +32,24 @@ export default function DriverTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  visibleColumns = {
+    driverName: true,
+    driverCellNo: true,
+    permanentAddress: true,
+    experience: true,
+    licenseTo: true,
+    aadharNo: true,
+    status: true,
+  },
+  disabledColumns = {
+    driverName: true,
+    driverCellNo: false,
+    permanentAddress: false,
+    experience: false,
+    licenseTo: false,
+    aadharNo: false,
+    status: false,
+  },
 }) {
   const {
     driverName,
@@ -50,77 +69,98 @@ export default function DriverTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
+        <TableCell padding="checkbox" align="center">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={driverName} sx={{ mr: 2 }}>
-            {driverName.charAt(0).toUpperCase()}
-          </Avatar>
+        {(visibleColumns.driverName || disabledColumns.driverName) && (
+          <TableCell>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar alt={driverName} sx={{ mr: 2 }}>
+                {driverName.charAt(0).toUpperCase()}
+              </Avatar>
 
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {driverName}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => {}}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {driverLicenceNo}
-              </Link>
-            }
-          />
-        </TableCell>
+              <ListItemText
+                disableTypography
+                primary={
+                  <Typography variant="body2" noWrap>
+                    {driverName}
+                  </Typography>
+                }
+                secondary={
+                  <Link
+                    noWrap
+                    variant="body2"
+                    onClick={() => {}}
+                    sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                  >
+                    {driverLicenceNo}
+                  </Link>
+                }
+              />
+            </Box>
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={driverCellNo}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.driverCellNo || disabledColumns.driverCellNo) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={driverCellNo}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              sx={{ textAlign: 'center' }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={permanentAddress}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.permanentAddress || disabledColumns.permanentAddress) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={permanentAddress}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              sx={{ textAlign: 'center' }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={experience}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.experience || disabledColumns.experience) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={experience}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              sx={{ textAlign: 'center' }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={fDate(licenseTo)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.licenseTo || disabledColumns.licenseTo) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={fDate(licenseTo)}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              sx={{ textAlign: 'center' }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <ListItemText
-            primary={aadharNo}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+        {(visibleColumns.aadharNo || disabledColumns.aadharNo) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={aadharNo}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              sx={{ textAlign: 'center' }}
+            />
+          </TableCell>
+        )}
 
-        <TableCell>
-          <Label variant="soft" color={status === 'expired' ? 'error' : 'success'}>
-            {status}
-          </Label>
-        </TableCell>
+        {(visibleColumns.status || disabledColumns.status) && (
+          <TableCell align="center">
+            <Label variant="soft" color={status === 'expired' ? 'error' : 'success'}>
+              {status}
+            </Label>
+          </TableCell>
+        )}
 
-        <TableCell align="right" sx={{ px: 1 }}>
+        <TableCell align="center" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>

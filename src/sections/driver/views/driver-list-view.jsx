@@ -1,6 +1,6 @@
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -52,19 +52,13 @@ import DriverTableFiltersResult from '../driver-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'driverName', name: 'driverName', label: 'Driver Name' },
-  { id: 'driverCellNo', name: 'driverCellNo', label: 'Phone No' },
-
-  {
-    id: 'permanentAddress',
-    name: 'permanentAddress',
-    label: 'Address',
-  },
-  { id: 'experience', name: 'experience', label: 'Experience' },
-
-  { id: 'licenseTo', name: 'licenseTo', label: 'Expiry Date' },
-  { id: 'aadharNo', name: 'aadharNo', label: 'Adhar Number' },
-  { id: 'status', name: 'status', label: 'Status' },
+  { id: 'driverName', label: 'Driver', align: 'center' },
+  { id: 'driverCellNo', label: 'Mobile', align: 'center' },
+  { id: 'permanentAddress', label: 'Address', align: 'center' },
+  { id: 'experience', label: 'Experience', align: 'center' },
+  { id: 'licenseTo', label: 'License Valid Till', align: 'center' },
+  { id: 'aadharNo', label: 'Aadhar No', align: 'center' },
+  { id: 'status', label: 'Status', align: 'center' },
   { id: '' },
 ];
 
@@ -174,6 +168,50 @@ export function DriverListView({ drivers }) {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    driverName: true,
+    driverCellNo: true,
+    permanentAddress: true,
+    experience: true,
+    licenseTo: true,
+    aadharNo: false,
+    status: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      driverName: true, // Driver name should always be visible
+      driverCellNo: false,
+      permanentAddress: false,
+      experience: false,
+      licenseTo: false,
+      aadharNo: false,
+      status: false,
+    }),
+    []
+  );
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   return (
     <>
@@ -285,6 +323,9 @@ export function DriverListView({ drivers }) {
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -352,7 +393,7 @@ export function DriverListView({ drivers }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -378,6 +419,8 @@ export function DriverListView({ drivers }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteDriver(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 
