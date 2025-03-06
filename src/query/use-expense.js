@@ -47,7 +47,7 @@ export function useExpense(id) {
 
 export function useCreateExpense() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createExpense,
     onSuccess: (newExpense) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -58,12 +58,12 @@ export function useCreateExpense() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateExpense() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateExpense(id, data),
     onSuccess: (updatedExpense) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -77,7 +77,7 @@ export function useUpdateExpense() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteExpense() {

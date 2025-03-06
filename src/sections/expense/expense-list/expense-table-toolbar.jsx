@@ -10,7 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // components
 
-import { MenuList } from '@mui/material';
+import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
@@ -25,8 +25,12 @@ export default function ExpenseTableToolbar({
   tableData,
   subtripExpenseTypes,
   vehicleExpenseTypes,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
 }) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
 
   const handleFilterPumpName = useCallback(
     (event) => {
@@ -150,10 +154,45 @@ export default function ExpenseTableToolbar({
             ))}
         </TextField>
 
+        <Tooltip title="Column Settings">
+          <IconButton onClick={columnsPopover.onOpen}>
+            <Iconify icon="mdi:table-column-plus-after" />
+          </IconButton>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList sx={{ width: 200 }}>
+          {Object.keys(visibleColumns).map((column) => (
+            <MenuItem
+              key={column}
+              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
+              disabled={disabledColumns[column]}
+              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
+            >
+              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
+              <ListItemText
+                primary={
+                  column
+                    .replace(/([A-Z])/g, ' $1')
+                    .charAt(0)
+                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
+                }
+                secondary={disabledColumns[column] ? '(Always visible)' : null}
+              />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}

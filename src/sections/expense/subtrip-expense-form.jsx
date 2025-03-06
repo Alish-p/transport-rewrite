@@ -130,8 +130,6 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
 
   const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd?.value, date });
 
-  console.log({ dieselPriceOnDate });
-
   // Dynamic Calculations (as in AddExpenseDialog)
   useEffect(() => {
     if (expenseType === 'driver-salary') {
@@ -165,23 +163,24 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
   }, [setValue, dieselPriceOnDate]);
 
   // Handlers for submit and cancel
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const transformedData = {
       ...data,
       expenseCategory: 'subtrip',
       pumpCd: data.pumpCd?.value || null,
       subtripId: currentExpense ? currentExpense.subtripId : currentSubtrip?._id,
+      vehicleId: currentExpense ? currentExpense.vehicleId : currentSubtrip?.tripId?.vehicleId?._id,
     };
 
-    if (!currentExpense) {
-      createExpense(transformedData);
-    } else {
-      updateExpense({ id: currentExpense._id, data: transformedData });
-    }
-    navigate(paths.dashboard.expense.list);
-  };
+    let newExpense;
 
-  console.log({ data: watch(), errors });
+    if (!currentExpense) {
+      newExpense = await createExpense(transformedData);
+    } else {
+      newExpense = await updateExpense({ id: currentExpense._id, data: transformedData });
+    }
+    navigate(paths.dashboard.expense.details(newExpense._id));
+  };
 
   return (
     <>

@@ -1,6 +1,6 @@
 import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -54,7 +54,8 @@ import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-res
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'vehicleId', label: 'Vehicle', type: 'string' },
+  { id: 'vehicleNo', label: 'Vehicle', type: 'string' },
+  { id: 'subtripId', label: 'Subtrip', type: 'string' },
   { id: 'date', label: 'Date', type: 'date' },
   { id: 'expenseType', label: 'Expense Type', type: 'string' },
   { id: 'amount', label: 'Amount', type: 'number' },
@@ -64,6 +65,7 @@ const TABLE_HEAD = [
   { id: 'dieselLtr', label: 'Diesel (Ltr)', type: 'number' },
   { id: 'paidThrough', label: 'Paid Through', type: 'string' },
   { id: 'authorisedBy', label: 'Authorised By', type: 'string' },
+  { id: '' },
 ];
 
 const defaultFilters = {
@@ -87,6 +89,39 @@ export function ExpenseListView({ expenses }) {
   const deleteExpense = useDeleteExpense();
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  // Add state for column visibility
+  const [visibleColumns, setVisibleColumns] = useState({
+    vehicleNo: true,
+    subtripId: true,
+    date: true,
+    expenseType: true,
+    amount: true,
+    slipNo: false,
+    pumpCd: false,
+    remarks: true,
+    dieselLtr: false,
+    paidThrough: true,
+    authorisedBy: true,
+  });
+
+  // Define which columns should be disabled (always visible)
+  const disabledColumns = useMemo(
+    () => ({
+      vehicleNo: true,
+      subtripId: false,
+      date: false,
+      expenseType: false,
+      amount: false,
+      slipNo: false,
+      pumpCd: false,
+      remarks: false,
+      dieselLtr: false,
+      paidThrough: false,
+      authorisedBy: false,
+    }),
+    []
+  );
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
@@ -183,6 +218,25 @@ export function ExpenseListView({ expenses }) {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  // Add handler for toggling column visibility
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      // Don't toggle if the column is disabled
+      if (disabledColumns[columnName]) return;
+
+      setVisibleColumns((prev) => ({
+        ...prev,
+        [columnName]: !prev[columnName],
+      }));
+    },
+    [disabledColumns]
+  );
+
+  // Filter the table head based on visible columns
+  const visibleTableHead = TABLE_HEAD.filter(
+    (column) => column.id === '' || visibleColumns[column.id]
+  );
 
   return (
     <>
@@ -298,6 +352,9 @@ export function ExpenseListView({ expenses }) {
             tableData={dataFiltered}
             subtripExpenseTypes={subtripExpenseTypes}
             vehicleExpenseTypes={vehicleExpenseTypes}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
           {canReset && (
@@ -363,7 +420,7 @@ export function ExpenseListView({ expenses }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleTableHead}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -389,6 +446,8 @@ export function ExpenseListView({ expenses }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteExpense(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 
