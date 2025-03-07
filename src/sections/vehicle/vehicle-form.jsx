@@ -53,7 +53,7 @@ export const NewVehicleSchema = zod
       .min(1, { message: 'Fuel Tank Capacity is required and must be at least 1' }),
     transporter: zod.string().optional(),
     isActive: zod.boolean().optional(),
-    isOwn: zod.boolean().optional(),
+    isOwn: zod.boolean(),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -82,8 +82,8 @@ export default function VehicleForm({ currentVehicle, transporters }) {
       loadingCapacity: currentVehicle?.loadingCapacity || 0,
       engineType: currentVehicle?.engineType || '',
       fuelTankCapacity: currentVehicle?.fuelTankCapacity || 0,
-      isActive: currentVehicle?.isActive,
-      isOwn: currentVehicle?.isOwn,
+      isActive: currentVehicle?.isActive ?? true,
+      isOwn: currentVehicle?.isOwn ?? false,
       transporter: currentVehicle?.transporter?._id || '',
     }),
     [currentVehicle]
