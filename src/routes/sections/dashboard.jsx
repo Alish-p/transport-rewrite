@@ -286,11 +286,11 @@ export const dashboardRoutes = [
         ],
       },
       {
-        path: 'dieselPrice',
+        path: 'diesel',
         children: [
           {
             element: (
-              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+              <PermissionBasedGuard resource="diesel" action="view" hasContent>
                 <DieselPriceListPage />
               </PermissionBasedGuard>
             ),
@@ -299,7 +299,7 @@ export const dashboardRoutes = [
           {
             path: 'list',
             element: (
-              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+              <PermissionBasedGuard resource="diesel" action="view" hasContent>
                 <DieselPriceListPage />
               </PermissionBasedGuard>
             ),
@@ -307,7 +307,7 @@ export const dashboardRoutes = [
           {
             path: ':id',
             element: (
-              <PermissionBasedGuard resource="dieselPrice" action="view" hasContent>
+              <PermissionBasedGuard resource="diesel" action="view" hasContent>
                 <DieselPriceDetailsPage />
               </PermissionBasedGuard>
             ),
@@ -315,7 +315,7 @@ export const dashboardRoutes = [
           {
             path: 'new',
             element: (
-              <PermissionBasedGuard resource="dieselPrice" action="create" hasContent>
+              <PermissionBasedGuard resource="diesel" action="create" hasContent>
                 <DieselPriceCreatePage />
               </PermissionBasedGuard>
             ),
@@ -323,7 +323,7 @@ export const dashboardRoutes = [
           {
             path: ':id/edit',
             element: (
-              <PermissionBasedGuard resource="dieselPrice" action="update" hasContent>
+              <PermissionBasedGuard resource="diesel" action="update" hasContent>
                 <DieselPriceEditPage />
               </PermissionBasedGuard>
             ),

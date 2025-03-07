@@ -123,12 +123,12 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/pump/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/pump/${id}`,
     },
-    dieselPrice: {
-      root: `${ROOTS.DASHBOARD}/dieselPrice`,
-      new: `${ROOTS.DASHBOARD}/dieselPrice/new`,
-      list: `${ROOTS.DASHBOARD}/dieselPrice/list`,
-      edit: (id) => `${ROOTS.DASHBOARD}/dieselPrice/${id}/edit`,
-      details: (id) => `${ROOTS.DASHBOARD}/dieselPrice/${id}`,
+    diesel: {
+      root: `${ROOTS.DASHBOARD}/diesel`,
+      new: `${ROOTS.DASHBOARD}/diesel/new`,
+      list: `${ROOTS.DASHBOARD}/diesel/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/diesel/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/diesel/${id}`,
     },
     customer: {
       root: `${ROOTS.DASHBOARD}/customer`,
@@ -189,11 +189,11 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/invoice/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/invoice/${id}/edit`,
     },
-    driverPayroll: {
-      root: `${ROOTS.DASHBOARD}/driverPayroll`,
-      new: `${ROOTS.DASHBOARD}/driverPayroll/new`,
-      details: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}`,
-      edit: (id) => `${ROOTS.DASHBOARD}/driverPayroll/${id}/edit`,
+    driverSalary: {
+      root: `${ROOTS.DASHBOARD}/driverSalary`,
+      new: `${ROOTS.DASHBOARD}/driverSalary/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/driverSalary/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/driverSalary/${id}/edit`,
     },
     loan: {
       root: `${ROOTS.DASHBOARD}/loan`,

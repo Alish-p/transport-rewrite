@@ -49,7 +49,7 @@ const ICONS = {
   trip: icon('ic_trip'),
   diesel: icon('ic_diesel'),
   loan: icon('ic_driver_deductions'),
-  driverPayroll: icon('ic_driver_salary'),
+  driverSalary: icon('ic_driver_salary'),
   driverFinance: <Iconify icon="healthicons:truck-driver" />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
 };
@@ -94,6 +94,7 @@ export const navData = [
   {
     subheader: 'Management',
     items: [
+      // Trip Management Group
       {
         title: 'Trip',
         path: paths.dashboard.trip.root,
@@ -114,7 +115,6 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.subtrip.new, action: 'create' },
         ],
       },
-
       {
         title: 'Expense',
         path: paths.dashboard.expense.root,
@@ -131,6 +131,7 @@ export const navData = [
         ],
       },
 
+      // Asset Management Group
       {
         title: 'Vehicle',
         path: paths.dashboard.vehicle.root,
@@ -141,19 +142,38 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.vehicle.new, action: 'create' },
         ],
       },
+      {
+        title: 'Pump',
+        path: paths.dashboard.pump.root,
+        icon: ICONS.pump,
+        resource: 'pump',
+        children: [
+          { title: 'List', path: paths.dashboard.pump.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.pump.new, action: 'create' },
+        ],
+      },
+      {
+        title: 'Diesel Prices',
+        path: paths.dashboard.diesel.root,
+        icon: ICONS.diesel,
+        resource: 'diesel',
+        children: [
+          { title: 'List', path: paths.dashboard.diesel.list, action: 'view' },
+          { title: 'Create', path: paths.dashboard.diesel.new, action: 'create' },
+        ],
+      },
 
+      // People Management Group
       {
         title: 'Driver',
         path: paths.dashboard.driver.root,
         icon: ICONS.driver,
         resource: 'driver',
-
         children: [
           { title: 'List', path: paths.dashboard.driver.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.driver.new, action: 'create' },
         ],
       },
-
       {
         title: 'Customer',
         path: paths.dashboard.customer.root,
@@ -164,7 +184,6 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.customer.new, action: 'create' },
         ],
       },
-
       {
         title: 'Transporter',
         path: paths.dashboard.transporter.root,
@@ -176,28 +195,7 @@ export const navData = [
         ],
       },
 
-      {
-        title: 'Pump',
-        path: paths.dashboard.pump.root,
-        icon: ICONS.pump,
-        resource: 'pump',
-        children: [
-          { title: 'List', path: paths.dashboard.pump.root, action: 'view' },
-          { title: 'Create', path: paths.dashboard.pump.new, action: 'create' },
-        ],
-      },
-
-      {
-        title: 'Diesel Prices',
-        path: paths.dashboard.dieselPrice.root,
-        icon: ICONS.diesel,
-        resource: 'dieselPrice',
-        children: [
-          { title: 'List', path: paths.dashboard.dieselPrice.list, action: 'view' },
-          { title: 'Create', path: paths.dashboard.dieselPrice.new, action: 'create' },
-        ],
-      },
-
+      // Other Management Items
       {
         title: 'Route',
         path: paths.dashboard.route.root,
@@ -208,7 +206,6 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.route.new, action: 'create' },
         ],
       },
-
       {
         title: 'Bank',
         path: paths.dashboard.bank.root,
@@ -219,7 +216,6 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.bank.new, action: 'create' },
         ],
       },
-
       {
         title: 'User',
         path: paths.dashboard.user.root,
@@ -251,14 +247,14 @@ export const navData = [
 
       {
         title: 'Driver Payroll',
-        path: paths.dashboard.driverPayroll.root,
-        icon: ICONS.driverPayroll,
-        resource: 'driverPayroll',
+        path: paths.dashboard.driverSalary.root,
+        icon: ICONS.driverSalary,
+        resource: 'driverSalary',
         children: [
-          { title: 'List', path: paths.dashboard.driverPayroll.root, action: 'view' },
+          { title: 'List', path: paths.dashboard.driverSalary.root, action: 'view' },
           {
             title: 'Create',
-            path: paths.dashboard.driverPayroll.new,
+            path: paths.dashboard.driverSalary.new,
             action: 'create',
           },
         ],
