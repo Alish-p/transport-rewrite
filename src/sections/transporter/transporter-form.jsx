@@ -78,8 +78,6 @@ export const NewTransporterSchema = zod.object({
       message: 'PAN No must be in the format: five letters followed by four digits and one letter',
     }),
   gstNo: zod.string().min(1, { message: 'GST No is required' }),
-  transportType: zod.string().min(1, { message: 'Transport Type is required' }),
-  agreementNo: zod.string().min(1, { message: 'Agreement No is required' }),
   tdsPercentage: zod
     .number()
     .min(0, { message: 'TDS Percentage must be at least 0' })
@@ -141,6 +139,8 @@ export default function TransporterForm({ currentTransporter, bankList }) {
   const values = watch();
 
   const { bankDetails } = values;
+
+  console.log({ errors });
 
   const onSubmit = async (data) => {
     try {

@@ -9,7 +9,6 @@ import { LoadingScreen } from 'src/components/loading-screen';
 import { VehicleListView } from 'src/sections/vehicle/views';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { PermissionBasedGuard } from 'src/auth/guard';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Vehicle list | Dashboard - ${CONFIG.site.name}` };
@@ -32,9 +31,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PermissionBasedGuard resource="vehicle" action="view" currentUser={user} hasContent>
-        <VehicleListView vehicles={vehicles} />
-      </PermissionBasedGuard>
+      <VehicleListView vehicles={vehicles} />
     </>
   );
 }
