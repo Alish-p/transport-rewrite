@@ -13,7 +13,7 @@ export function DieselPriceCreateView({ pumpsList }) {
         heading="Add New Diesel Price"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Diesel Price List', href: paths.dashboard.dieselPrice.list },
+          { name: 'Diesel Price List', href: paths.dashboard.diesel.list },
           { name: 'Add New Diesel Price' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

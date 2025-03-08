@@ -22,7 +22,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { SUBTRIP_STATUS_COLORS } from './constants';
-import { fDate, fTime } from '../../utils/format-time';
+import { fDate, fTime, getEwayBillStatus } from '../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +39,7 @@ export default function SubtripTableRow({
     routeName: true,
     invoiceNo: true,
     startDate: true,
+    ewayBillExpiry: true,
     subtripStatus: true,
   },
   disabledColumns = {
@@ -47,6 +48,7 @@ export default function SubtripTableRow({
     routeName: false,
     invoiceNo: false,
     startDate: false,
+    ewayBillExpiry: false,
     subtripStatus: false,
   },
 }) {
@@ -58,11 +60,16 @@ export default function SubtripTableRow({
     subtripStatus,
     startDate,
     tripId: { vehicleId },
+    ewayExpiryDate,
   } = row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
+
+  const ewayBillStatus = getEwayBillStatus(ewayExpiryDate);
+
+  console.log({ ewayBillStatus });
 
   return (
     <>
@@ -70,7 +77,6 @@ export default function SubtripTableRow({
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
-
         {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
           <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
@@ -99,7 +105,6 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
-
         {(visibleColumns.customerId || disabledColumns.customerId) && (
           <TableCell>
             <ListItemText
@@ -108,7 +113,6 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
-
         {(visibleColumns.routeName || disabledColumns.routeName) && (
           <TableCell>
             <ListItemText
@@ -117,7 +121,6 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
-
         {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (
           <TableCell>
             <ListItemText
@@ -126,7 +129,6 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
-
         {(visibleColumns.startDate || disabledColumns.startDate) && (
           <TableCell>
             <ListItemText
@@ -141,7 +143,27 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
-
+        <TableCell>
+          {ewayExpiryDate ? (
+            <>
+              <Label variant="soft" color={ewayBillStatus.color}>
+                {ewayBillStatus.days > 0 && `${ewayBillStatus.days}d `}
+                {ewayBillStatus.hours}h remaining
+              </Label>
+              <Typography
+                variant="caption"
+                display="block"
+                sx={{ mt: 0.5, color: 'text.secondary' }}
+              >
+                Expires: {fDate(ewayExpiryDate)}
+              </Typography>
+            </>
+          ) : (
+            <Label variant="soft" color="error">
+              No E-way Bill
+            </Label>
+          )}
+        </TableCell>
         {(visibleColumns.subtripStatus || disabledColumns.subtripStatus) && (
           <TableCell>
             <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>
@@ -149,7 +171,6 @@ export default function SubtripTableRow({
             </Label>
           </TableCell>
         )}
-
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />

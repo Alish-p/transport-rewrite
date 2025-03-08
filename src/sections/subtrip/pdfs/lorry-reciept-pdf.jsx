@@ -154,7 +154,7 @@ export default function LRPDF({ subtrip }) {
       {/* Order No Header */}
       <View style={[styles.gridContainer, styles.border]}>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Token No.:</Text>
+          <Text style={[styles.horizontalCellTitle]}>Transporter Code:</Text>
         </View>
 
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
@@ -176,7 +176,7 @@ export default function LRPDF({ subtrip }) {
       {/* Values */}
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{0}</Text>
+          <Text style={[styles.horizontalCellContent]}>{customerId?.transporterCode}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellContent]}>{orderNo}</Text>

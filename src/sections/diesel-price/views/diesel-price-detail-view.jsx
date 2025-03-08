@@ -49,14 +49,14 @@ export function DieselPriceDetailView({ dieselPrice }) {
         heading="Diesel Price Info"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Diesel Prices List', href: paths.dashboard.dieselPrice.root },
+          { name: 'Diesel Prices List', href: paths.dashboard.diesel.root },
           { name: `${pump?.pumpName}` },
         ]}
         sx={{ my: { xs: 3, md: 5 } }}
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.dieselPrice.edit(dieselPrice._id)}
+            href={paths.dashboard.diesel.edit(dieselPrice._id)}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >

@@ -103,14 +103,14 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
   );
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.dieselPrice.edit(paramCase(id)));
+    navigate(paths.dashboard.diesel.edit(paramCase(id)));
   };
 
   const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.dieselPrice.details(id));
+      router.push(paths.dashboard.diesel.details(id));
     },
     [router]
   );
@@ -131,7 +131,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
             },
             {
               name: 'Diesel Prices',
-              href: paths.dashboard.dieselPrice.root,
+              href: paths.dashboard.diesel.root,
             },
             {
               name: 'Diesel Prices List',
@@ -140,7 +140,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.dieselPrice.new}
+              href={paths.dashboard.diesel.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >

@@ -97,7 +97,9 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   const vehicleId = tripId?.vehicleId?._id;
   const consignees = customerId?.consignees || [];
-  const { routeCd } = watch();
+  const { routeCd, consignee } = watch();
+
+  console.log({ consignee });
 
   const { advanceAmt, toPlace, fromPlace } = useMemo(
     () =>
@@ -208,13 +210,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
         gap={3}
       >
-        <Field.Autocomplete
-          freeSolo
+        <Field.AutocompleteWithAdd
           name="consignee"
           label="Consignee"
           options={consignees.map(({ name }) => ({ label: name, value: name }))}
-          getOptionLabel={(option) => option.label}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
         />
         <Field.Text name="loadingWeight" label="Loading Weight" type="number" />
         <Field.Text name="startKm" label="Start Km" type="number" />

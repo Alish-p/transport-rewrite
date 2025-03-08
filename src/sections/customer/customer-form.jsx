@@ -66,6 +66,7 @@ export const NewCustomerSchema = zod.object({
       .min(1, { message: 'Account No is required' })
       .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
   }),
+  transporterCode: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -85,7 +86,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
       place: currentCustomer?.place || '',
       state: currentCustomer?.state || '',
       pinCode: currentCustomer?.pinCode || '',
-      cellNo: currentCustomer?.cellNo || 0,
+      cellNo: currentCustomer?.cellNo || '',
       GSTNo: currentCustomer?.GSTNo || '',
       PANNo: currentCustomer?.PANNo || '',
       consignees: currentCustomer?.consignees || [
@@ -98,6 +99,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
         branch: currentCustomer?.bankDetails?.branch || '',
         accNo: currentCustomer?.bankDetails?.accNo || '',
       },
+      transporterCode: currentCustomer?.transporterCode || '',
     }),
     [currentCustomer]
   );
@@ -174,6 +176,11 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
           <Field.Text name="cellNo" label="Cell No" />
           <Field.Text name="GSTNo" label="GST No" />
           <Field.Text name="PANNo" label="PAN No" />
+          <Field.Text
+            name="transporterCode"
+            label="Transporter Code"
+            helperText="Enter the unique identifier provided by the customer for their transportation services"
+          />
         </Box>
       </Card>
     </>

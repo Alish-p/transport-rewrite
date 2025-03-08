@@ -18,7 +18,7 @@ export function DieselPriceEditView({ dieselPrice, pumpsList }) {
           },
           {
             name: 'Diesel Price List',
-            href: paths.dashboard.dieselPrice.list,
+            href: paths.dashboard.diesel.list,
           },
           { name: dieselPrice?.pumpName },
         ]}

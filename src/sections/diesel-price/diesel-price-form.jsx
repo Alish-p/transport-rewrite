@@ -80,7 +80,7 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
       }
 
       if (newDieselPrice) {
-        navigate(paths.dashboard.dieselPrice.list);
+        navigate(paths.dashboard.diesel.list);
         reset();
       }
     } catch (error) {
