@@ -20,20 +20,20 @@ import {
 
 import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { usePumps } from 'src/query/use-pump';
+import { useRoutes } from 'src/query/use-route';
+import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
-import { usePumps } from '../../query/use-pump';
-import { useRoutes } from '../../query/use-route';
-import { useUpdateSubtripMaterialInfo } from '../../query/use-subtrip';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 const validationSchema = zod.object({
   consignee: zod
     .any()
     .nullable()
     .refine((val) => val !== null, { message: 'Consignee is required' }),
-  loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive().int(),
-  startKm: zod.number().positive().int(),
-  rate: zod.number().positive().int(),
+  loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
+  startKm: zod.number(),
+  rate: zod.number().positive(),
   invoiceNo: zod.string().optional(),
   shipmentNo: zod.string().optional(),
   orderNo: zod.string().optional(),
@@ -42,10 +42,10 @@ const validationSchema = zod.object({
     message: { required_error: 'Eway Expiry date is required!' },
   }),
   materialType: zod.string().optional(),
-  quantity: zod.number().positive().int(),
+  quantity: zod.number().positive(),
   grade: zod.string().optional(),
-  tds: zod.number().int().optional(),
-  driverAdvance: zod.number().int().optional(),
+  tds: zod.number().optional(),
+  driverAdvance: zod.number().optional(),
   dieselLtr: zod.any(),
   pumpCd: zod.string().optional(),
   routeCd: zod.string().min(1, { message: 'Route Code is required' }),
@@ -98,8 +98,6 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const vehicleId = tripId?.vehicleId?._id;
   const consignees = customerId?.consignees || [];
   const { routeCd, consignee } = watch();
-
-  console.log({ consignee });
 
   const { advanceAmt, toPlace, fromPlace } = useMemo(
     () =>
