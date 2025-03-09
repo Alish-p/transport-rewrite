@@ -50,6 +50,7 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }) {
         transition,
         transform: CSS.Translate.toString(transform),
         borderTop: `3px solid ${column.color}`,
+        borderBottom: `3px solid ${column.color}`,
         '& .MuiPaper-root': {
           borderRadius: 2,
           borderColor: (theme) =>

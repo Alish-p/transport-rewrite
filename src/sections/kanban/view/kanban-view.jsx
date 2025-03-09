@@ -33,10 +33,10 @@ import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 const PLACEHOLDER_ID = 'placeholder';
 
 const cssVars = {
-  '--item-gap': '16px',
+  '--item-gap': '24px',
   '--item-radius': '12px',
-  '--column-gap': '24px',
-  '--column-width': '400px',
+  '--column-gap': '72px',
+  '--column-width': '450px',
   '--column-radius': '16px',
   '--column-padding': '20px 16px 16px 16px',
 };
