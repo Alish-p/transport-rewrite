@@ -2,14 +2,17 @@ export const COLUMNS = [
   {
     id: 'todo',
     name: 'Todo',
+    color: '#FF4842', // Red color
   },
   {
     id: 'in-progress',
     name: 'In Progress',
+    color: '#FFC107', // Yellow/amber color
   },
   {
     id: 'done',
     name: 'Done',
+    color: '#54D62C', // Green color
   },
 ];
 

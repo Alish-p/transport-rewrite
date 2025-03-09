@@ -46,7 +46,17 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }) {
   return (
     <ColumnBase
       ref={disabled ? undefined : setNodeRef}
-      sx={{ transition, transform: CSS.Translate.toString(transform), ...sx }}
+      sx={{
+        transition,
+        transform: CSS.Translate.toString(transform),
+        borderTop: `3px solid ${column.color}`,
+        '& .MuiPaper-root': {
+          borderRadius: 2,
+          borderColor: (theme) =>
+            theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[800],
+        },
+        ...sx,
+      }}
       stateProps={{
         dragging: isDragging,
         hover: isOverContainer,
