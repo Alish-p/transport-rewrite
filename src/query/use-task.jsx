@@ -38,6 +38,21 @@ const deleteTask = async (id) => {
   return data;
 };
 
+const addSubtaskToTask = async (taskId, subtask) => {
+  const { data } = await axios.post(`${ENDPOINT}/${taskId}/subtasks`, subtask);
+  return data;
+};
+
+const toggleSubtaskStatus = async (taskId, subtaskId) => {
+  const { data } = await axios.patch(`${ENDPOINT}/${taskId}/subtasks/${subtaskId}`);
+  return data;
+};
+
+const removeSubtask = async (taskId, subtaskId) => {
+  const { data } = await axios.delete(`${ENDPOINT}/${taskId}/subtasks/${subtaskId}`);
+  return data;
+};
+
 // Queries & Mutations
 export function useTasks() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTasks });
@@ -120,4 +135,55 @@ export function useDeleteTask() {
     },
   });
   return mutate;
+}
+
+export function useAddSubtask() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ taskId, subtask }) => addSubtaskToTask(taskId, subtask),
+    onSuccess: (updatedTask) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
+      toast.success('Subtask added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useToggleSubtask() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ taskId, subtaskId }) => toggleSubtaskStatus(taskId, subtaskId),
+    onSuccess: (updatedTask) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
+      toast.success('Subtask status updated successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useDeleteSubtask() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ taskId, subtaskId }) => removeSubtask(taskId, subtaskId),
+    onSuccess: (updatedTask) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
+      toast.success('Subtask deleted successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
 }

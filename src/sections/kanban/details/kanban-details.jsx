@@ -23,6 +23,7 @@ import { useTabs } from 'src/hooks/use-tabs';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { varAlpha } from 'src/theme/styles';
+import { useAddSubtask, useToggleSubtask, useDeleteSubtask } from 'src/query/use-task';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -42,17 +43,6 @@ import { KanbanContactsDialog } from '../components/kanban-contacts-dialog';
 
 // ----------------------------------------------------------------------
 
-const SUBTASKS = [
-  'Schedule vehicle maintenance check',
-  'Update driver documentation',
-  'Plan optimal delivery route',
-  'Verify fuel consumption reports',
-  'Complete trip expense documentation',
-  'Update vehicle tracking status',
-  'Confirm delivery schedule with customer',
-  'Review transport compliance requirements',
-];
-
 const StyledLabel = styled('span')(({ theme }) => ({
   ...theme.typography.caption,
   width: 100,
@@ -69,8 +59,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const [priority, setPriority] = useState(task.priority);
 
   const [taskName, setTaskName] = useState(task.name);
-
-  const [subtaskCompleted, setSubtaskCompleted] = useState(SUBTASKS.slice(0, 2));
 
   const contacts = useBoolean();
 
@@ -90,6 +78,12 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
   const [selectedVehicle, setSelectedVehicle] = useState(task?.vehicle || null);
   const vehicleDialog = useBoolean();
+
+  const [newSubtask, setNewSubtask] = useState('');
+
+  const addSubtask = useAddSubtask();
+  const toggleSubtask = useToggleSubtask();
+  const deleteSubtask = useDeleteSubtask();
 
   const handleChangeTaskName = useCallback((event) => {
     setTaskName(event.target.value);
@@ -121,14 +115,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setFormChanged(true);
   }, []);
 
-  const handleClickSubtaskComplete = (taskId) => {
-    const selected = subtaskCompleted.includes(taskId)
-      ? subtaskCompleted.filter((value) => value !== taskId)
-      : [...subtaskCompleted, taskId];
-
-    setSubtaskCompleted(selected);
-  };
-
   const handleLabelChange = (event) => {
     setSelectedDepartments(event.target.value);
     setFormChanged(true);
@@ -153,6 +139,38 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setSelectedVehicle(vehicle);
     setFormChanged(true);
   }, []);
+
+  const handleAddSubtask = async () => {
+    if (!newSubtask.trim()) return;
+
+    await addSubtask({
+      taskId: task._id,
+      subtask: { text: newSubtask.trim() },
+    });
+    setNewSubtask('');
+  };
+
+  const handleToggleSubtask = async (subtaskId) => {
+    try {
+      await toggleSubtask({
+        taskId: task._id,
+        subtaskId,
+      });
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error);
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId) => {
+    try {
+      await deleteSubtask({
+        taskId: task._id,
+        subtaskId,
+      });
+    } catch (error) {
+      console.error('Failed to delete subtask:', error);
+    }
+  };
 
   const handleSave = () => {
     onUpdateTask({
@@ -447,39 +465,64 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <div>
         <Typography variant="body2" sx={{ mb: 1 }}>
-          {subtaskCompleted?.length} of {SUBTASKS.length}
+          {task.subtasks?.filter((subtask) => subtask.completed)?.length || 0} of{' '}
+          {task.subtasks?.length || 0}
         </Typography>
 
         <LinearProgress
           variant="determinate"
-          value={(subtaskCompleted.length / SUBTASKS.length) * 100}
+          value={
+            ((task.subtasks?.filter((subtask) => subtask.completed)?.length || 0) /
+              (task.subtasks?.length || 1)) *
+            100
+          }
         />
       </div>
 
       <FormGroup>
-        {SUBTASKS.map((taskItem) => (
-          <FormControlLabel
-            key={taskItem}
-            control={
-              <Checkbox
-                disableRipple
-                name={taskItem}
-                checked={subtaskCompleted.includes(taskItem)}
-              />
-            }
-            label={taskItem}
-            onChange={() => handleClickSubtaskComplete(taskItem)}
-          />
+        {task.subtasks?.map((subtask) => (
+          <Box
+            key={subtask._id}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disableRipple
+                  checked={subtask.completed}
+                  onChange={() => handleToggleSubtask(subtask._id)}
+                />
+              }
+              label={subtask.text}
+            />
+            <IconButton size="small" color="error" onClick={() => handleDeleteSubtask(subtask._id)}>
+              <Iconify icon="solar:trash-bin-trash-bold" />
+            </IconButton>
+          </Box>
         ))}
       </FormGroup>
 
-      <Button
-        variant="outlined"
-        startIcon={<Iconify icon="mingcute:add-line" />}
-        sx={{ alignSelf: 'flex-start' }}
-      >
-        Subtask
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <TextField
+          fullWidth
+          size="small"
+          value={newSubtask}
+          onChange={(e) => setNewSubtask(e.target.value)}
+          placeholder="Add a subtask..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleAddSubtask();
+            }
+          }}
+        />
+        <Button variant="contained" onClick={handleAddSubtask} disabled={!newSubtask.trim()}>
+          Add
+        </Button>
+      </Box>
     </Box>
   );
 
