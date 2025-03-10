@@ -28,6 +28,11 @@ const updateTrip = async (id, tripData) => {
   return data;
 };
 
+const closeTrip = async (id) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/billed`);
+  return data;
+};
+
 const deleteTrip = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
@@ -71,6 +76,25 @@ export function useUpdateTrip() {
       queryClient.setQueryData([QUERY_KEY, updatedTrip._id], updatedTrip);
 
       toast.success('Trip edited successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useCloseTrip() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: (id) => closeTrip(id),
+    onSuccess: (updatedTrip) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedTrip._id], updatedTrip);
+
+      toast.success('Trip Closed successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';

@@ -7,7 +7,7 @@ import { Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { useUpdateTrip } from 'src/query/use-trip';
+import { useCloseTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -71,7 +71,7 @@ export function TripDetailView({ trip }) {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const updateTrip = useUpdateTrip();
+  const closeTrip = useCloseTrip();
 
   const {
     allSubtripsBilled,
@@ -82,18 +82,6 @@ export function TripDetailView({ trip }) {
     totalDieselAmt,
     totalKm,
   } = getTripDashboardData(trip);
-
-  const closeTrip = async () => {
-    try {
-      await updateTrip(trip._id, {});
-      await updateTrip({
-        id: trip._id,
-        data: { id: trip._id, tripStatus: 'closed', toDate: new Date() },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
     <DashboardContent>
@@ -111,7 +99,7 @@ export function TripDetailView({ trip }) {
         backLink={paths.dashboard.trip.list}
         status={trip.tripStatus}
         tripData={trip}
-        onTripClose={closeTrip}
+        onTripClose={() => closeTrip(trip._id)}
         isCloseDisabled={!allSubtripsBilled}
         onEdit={() => {
           navigate(paths.dashboard.trip.edit(trip._id));
@@ -178,6 +166,7 @@ export function TripDetailView({ trip }) {
                         search: `?id=${trip._id}`,
                       });
                     }}
+                    disabled={trip.tripStatus === 'billed'}
                   >
                     New Subtrip
                   </Button>

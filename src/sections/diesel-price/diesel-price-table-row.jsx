@@ -28,16 +28,13 @@ export default function DieselPriceTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const {
-    pump: { pumpName },
-    price,
-    startDate,
-    endDate,
-  } = row;
+  const { pump, price, startDate, endDate } = row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
+
+  const pumpName = pump?.pumpName || '-';
 
   return (
     <>

@@ -82,25 +82,6 @@ export default function TripToolbar({
             Print
           </Button>
 
-          {/* <PDFDownloadLink
-            document={<LRPDF subtrip={tripData} />}
-            fileName={tripData._id}
-            style={{ textDecoration: 'none' }}
-            color="green"
-          >
-            {({ loading }) => (
-              <Tooltip title="Download">
-                <IconButton>
-                  {loading ? (
-                    <CircularProgress size={24} color="primary" />
-                  ) : (
-                    <Iconify icon="eva:download-fill" />
-                  )}
-                </IconButton>
-              </Tooltip>
-            )}
-          </PDFDownloadLink> */}
-
           <Button
             color="primary"
             variant="outlined"
@@ -136,18 +117,10 @@ export default function TripToolbar({
                 }}
                 disabled={isCloseDisabled}
               >
-                Close Trip
+                Close Trip..
               </MenuItem>
             </span>
           </Tooltip>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            Bill Trip
-          </MenuItem>
         </MenuList>
       </CustomPopover>
     </>
