@@ -535,7 +535,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (customer) {
     inputData = inputData.filter(
       (record) =>
-        record.customerId && record.customerId.toLowerCase().indexOf(customer.toLowerCase()) !== -1
+        record.customerId &&
+        record.customerId.customerName &&
+        record.customerId.customerName.toLowerCase().indexOf(customer.toLowerCase()) !== -1
     );
   }
   if (subtripId) {
