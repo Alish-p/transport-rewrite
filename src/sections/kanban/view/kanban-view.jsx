@@ -14,8 +14,13 @@ import {
   MeasuringStrategy,
 } from '@dnd-kit/core';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
 import { hideScrollY } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -23,6 +28,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
+import { useUsers } from '../../../query/use-user';
 import { KanbanColumn } from '../column/kanban-column';
 import { KanbanTaskItem } from '../item/kanban-task-item';
 import { useUpdateTaskStatus } from '../../../query/use-task';
@@ -45,7 +51,10 @@ const cssVars = {
 
 export function KanbanView({ tasks }) {
   const [columnFixed, setColumnFixed] = useState(true);
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [assigneeFilter, setAssigneeFilter] = useState('all');
   const updateTaskStatus = useUpdateTaskStatus();
+  const { data: users = [] } = useUsers();
 
   const recentlyMovedToNewContainer = useRef(false);
 
@@ -238,6 +247,22 @@ export function KanbanView({ tasks }) {
     setActiveId(null);
   };
 
+  const handlePriorityFilterChange = (event) => {
+    setPriorityFilter(event.target.value);
+  };
+
+  const handleAssigneeFilterChange = (event) => {
+    setAssigneeFilter(event.target.value);
+  };
+
+  const filterTasks = (taskList) =>
+    taskList.filter((task) => {
+      const priorityMatch = priorityFilter === 'all' || task.priority === priorityFilter;
+      const assigneeMatch =
+        assigneeFilter === 'all' || task.assignees.some(({ _id }) => _id === assigneeFilter);
+      return priorityMatch && assigneeMatch;
+    });
+
   const renderList = (
     <DndContext
       id="dnd-kanban"
@@ -269,9 +294,12 @@ export function KanbanView({ tasks }) {
           >
             <Stack direction="row" sx={{ gap: 'var(--column-gap)' }}>
               {COLUMNS.map((column) => (
-                <KanbanColumn key={column.id} column={column} tasks={tasks[column.id]}>
-                  <SortableContext items={tasks[column.id]} strategy={verticalListSortingStrategy}>
-                    {tasks[column.id].map((task) => (
+                <KanbanColumn key={column.id} column={column} tasks={filterTasks(tasks[column.id])}>
+                  <SortableContext
+                    items={filterTasks(tasks[column.id])}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {filterTasks(tasks[column.id]).map((task) => (
                       <KanbanTaskItem
                         task={task}
                         key={task._id}
@@ -289,6 +317,46 @@ export function KanbanView({ tasks }) {
 
       <KanbanDragOverlay columns={COLUMNS} tasks={tasks} activeId={activeId} sx={cssVars} />
     </DndContext>
+  );
+
+  const priorities = ['low', 'medium', 'high'];
+
+  const renderFilters = () => (
+    <Box sx={{ display: 'flex', gap: 2 }}>
+      <FormControl sx={{ minWidth: 120 }}>
+        <InputLabel>Priority</InputLabel>
+        <Select
+          value={priorityFilter}
+          label="Priority"
+          onChange={handlePriorityFilterChange}
+          size="small"
+        >
+          <MenuItem value="all">All</MenuItem>
+          {priorities.map((priority) => (
+            <MenuItem key={priority} value={priority}>
+              {priority.charAt(0).toUpperCase() + priority.slice(1)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl sx={{ minWidth: 120 }}>
+        <InputLabel>Assignee</InputLabel>
+        <Select
+          value={assigneeFilter}
+          label="Assignee"
+          onChange={handleAssigneeFilterChange}
+          size="small"
+        >
+          <MenuItem value="all">All</MenuItem>
+          {users.map((user) => (
+            <MenuItem key={user._id} value={user._id}>
+              {user.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 
   return (
@@ -312,6 +380,7 @@ export function KanbanView({ tasks }) {
         sx={{ pr: { sm: 3 }, mb: { xs: 3, md: 5 } }}
       >
         <Typography variant="h4">Issue Board</Typography>
+        {renderFilters()}
       </Stack>
 
       <>{renderList}</>

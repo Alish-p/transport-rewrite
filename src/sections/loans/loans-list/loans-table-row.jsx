@@ -55,11 +55,11 @@ export default function LoansTableRow({
       cellNo: '',
     };
     if (borrowerType === 'Driver') {
-      details.name = borrowerId.driverName;
-      details.cellNo = borrowerId.driverCellNo;
+      details.name = borrowerId?.driverName;
+      details.cellNo = borrowerId?.driverCellNo;
     } else if (borrowerType === 'Transporter') {
-      details.name = borrowerId.transportName;
-      details.cellNo = borrowerId.cellNo;
+      details.name = borrowerId?.transportName;
+      details.cellNo = borrowerId?.cellNo;
     }
     return details;
   };
