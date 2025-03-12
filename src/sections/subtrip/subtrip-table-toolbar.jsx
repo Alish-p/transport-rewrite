@@ -37,6 +37,13 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
+  const handleFilterTransporter = useCallback(
+    (event) => {
+      onFilters('transportName', event.target.value);
+    },
+    [onFilters]
+  );
+
   const handleFilterVehicle = useCallback(
     (event) => {
       onFilters('vehicleNo', event.target.value);
@@ -98,6 +105,20 @@ export default function SubtripTableToolbar({
           value={filters.customer}
           onChange={handleFilterCustomer}
           placeholder="Search Customer ..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.transportName}
+          onChange={handleFilterTransporter}
+          placeholder="Search Transporter ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

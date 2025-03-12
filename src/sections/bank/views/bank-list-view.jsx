@@ -239,7 +239,7 @@ export function BankListView({ banks }) {
                         const selectedRows = tableData.filter(({ _id }) =>
                           table.selected.includes(_id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        exportToExcel(selectedRows, 'Bank-list-filtered');
                       }}
                     >
                       <Iconify icon="eva:download-outline" />

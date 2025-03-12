@@ -27,6 +27,10 @@ export default function SubtripTableFiltersResult({
     onFilters('customer', '');
   };
 
+  const handleRemoveTransport = () => {
+    onFilters('transportName', '');
+  };
+
   const handleRemoveVehicleNo = () => {
     onFilters('vehicleNo', '');
   };
@@ -61,6 +65,12 @@ export default function SubtripTableFiltersResult({
         {filters.customer && (
           <Block label="Customer">
             <Chip size="small" label={filters.customer} onDelete={handleRemoveCustomer} />
+          </Block>
+        )}
+
+        {filters.transportName && (
+          <Block label="Transporter">
+            <Chip size="small" label={filters.transportName} onDelete={handleRemoveTransport} />
           </Block>
         )}
 

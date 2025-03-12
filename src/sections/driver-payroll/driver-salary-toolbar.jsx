@@ -37,7 +37,7 @@ export default function DriverSalaryToolbar({
   const view = useBoolean();
 
   const handleEdit = useCallback(() => {
-    router.push(paths.dashboard.driverPayroll.edit(payslip._id));
+    router.push(paths.dashboard.driverSalary.edit(payslip._id));
   }, [payslip._id, router]);
 
   return (

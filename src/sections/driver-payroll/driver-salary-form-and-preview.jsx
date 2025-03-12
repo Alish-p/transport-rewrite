@@ -135,7 +135,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
   const onSubmit = async (data) => {
     try {
       const createdDriverSalaryslip = await addDriverPayroll(draftDriverSalary);
-      navigate(paths.dashboard.driverPayroll.details(createdDriverSalaryslip._id));
+      navigate(paths.dashboard.driverSalary.details(createdDriverSalaryslip._id));
     } catch (error) {
       console.error('Error:', error);
     }

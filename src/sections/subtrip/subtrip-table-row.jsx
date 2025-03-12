@@ -140,6 +140,15 @@ export default function SubtripTableRow({
           </TableCell>
         )}
 
+        {(visibleColumns.transport || disabledColumns.transport) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={vehicleId?.transporter?.transportName || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
         {(visibleColumns.subtripStatus || disabledColumns.subtripStatus) && (
           <TableCell>
             <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>

@@ -703,11 +703,11 @@ export const dashboardRoutes = [
         ],
       },
       {
-        path: 'driverPayroll',
+        path: 'driverSalary',
         children: [
           {
             element: (
-              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+              <PermissionBasedGuard resource="driverSalary" action="view" hasContent>
                 <DriverPayrollListPage />
               </PermissionBasedGuard>
             ),
@@ -716,7 +716,7 @@ export const dashboardRoutes = [
           {
             path: 'list',
             element: (
-              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+              <PermissionBasedGuard resource="driverSalary" action="view" hasContent>
                 <DriverPayrollListPage />
               </PermissionBasedGuard>
             ),
@@ -724,7 +724,7 @@ export const dashboardRoutes = [
           {
             path: ':id',
             element: (
-              <PermissionBasedGuard resource="driverPayroll" action="view" hasContent>
+              <PermissionBasedGuard resource="driverSalary" action="view" hasContent>
                 <DriverPayrollDetailsPage />
               </PermissionBasedGuard>
             ),
@@ -732,7 +732,7 @@ export const dashboardRoutes = [
           {
             path: 'new',
             element: (
-              <PermissionBasedGuard resource="driverPayroll" action="create" hasContent>
+              <PermissionBasedGuard resource="driverSalary" action="create" hasContent>
                 <DriverPayrollCreatePage />
               </PermissionBasedGuard>
             ),
@@ -740,7 +740,7 @@ export const dashboardRoutes = [
           {
             path: ':id/edit',
             element: (
-              <PermissionBasedGuard resource="driverPayroll" action="update" hasContent>
+              <PermissionBasedGuard resource="driverSalary" action="update" hasContent>
                 <DriverPayrollEditPage />
               </PermissionBasedGuard>
             ),

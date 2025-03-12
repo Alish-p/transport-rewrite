@@ -62,6 +62,7 @@ const TABLE_HEAD = [
   { id: 'routeName', label: 'Route', align: 'center', type: 'string' },
   { id: 'invoiceNo', label: 'Invoice No', align: 'center', type: 'string' },
   { id: 'startDate', label: 'Start Date', align: 'center' },
+  { id: 'transport', label: 'Transporter', align: 'center', type: 'string' },
   { id: 'subtripStatus', label: 'Subtrip Status', align: 'cen', type: 'string' },
   { id: '' },
 ];
@@ -70,6 +71,7 @@ const defaultFilters = {
   customer: '',
   subtripId: '',
   vehicleNo: '',
+  transportName: '',
   subtripStatus: 'all',
   fromDate: null,
   endDate: null,
@@ -96,6 +98,7 @@ export function SubtripListView({ subtrips }) {
     invoiceNo: true,
     startDate: true,
     subtripStatus: true,
+    transport: true,
   });
 
   // Define which columns should be disabled (always visible)
@@ -107,6 +110,7 @@ export function SubtripListView({ subtrips }) {
       invoiceNo: false,
       startDate: false,
       subtripStatus: false,
+      transport: false,
     }),
     []
   );
@@ -510,7 +514,8 @@ export function SubtripListView({ subtrips }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, subtripId, customer, subtripStatus, fromDate, endDate } = filters;
+  const { vehicleNo, subtripId, customer, subtripStatus, fromDate, endDate, transportName } =
+    filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -529,6 +534,19 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
         record.tripId.vehicleId &&
         record.tripId.vehicleId.vehicleNo &&
         record.tripId.vehicleId.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
+    );
+  }
+
+  if (transportName) {
+    inputData = inputData.filter(
+      (record) =>
+        record.tripId &&
+        record.tripId.vehicleId &&
+        record.tripId.vehicleId.transporter &&
+        record.tripId.vehicleId.transporter.transportName &&
+        record.tripId.vehicleId.transporter.transportName
+          .toLowerCase()
+          .indexOf(transportName.toLowerCase()) !== -1
     );
   }
 

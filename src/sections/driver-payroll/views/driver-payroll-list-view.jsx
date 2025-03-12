@@ -115,12 +115,12 @@ export function DriverPayrollListView({ driversPayrolls }) {
   );
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.driverPayroll.edit(paramCase(id)));
+    navigate(paths.dashboard.driverSalary.edit(paramCase(id)));
   };
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.driverPayroll.details(id));
+      router.push(paths.dashboard.driverSalary.details(id));
     },
     [router]
   );
@@ -148,7 +148,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
             },
             {
               name: 'Driver Salary',
-              href: paths.dashboard.driverPayroll.root,
+              href: paths.dashboard.driverSalary.root,
             },
             {
               name: 'List',
@@ -157,7 +157,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.driverPayroll.new}
+              href={paths.dashboard.driverSalary.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
