@@ -171,6 +171,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/subtrip`,
       new: `${ROOTS.DASHBOARD}/subtrip/new`,
       list: `${ROOTS.DASHBOARD}/subtrip/list`,
+      billedPaid: `${ROOTS.DASHBOARD}/subtrip/billed-paid`,
       edit: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/subtrip/${id}`,
     },

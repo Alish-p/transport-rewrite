@@ -17,49 +17,11 @@ const getSubtrip = async (id) => {
   return data;
 };
 
-const getClosedTripsByCustomerAndDate = async ({ queryKey }) => {
-  const [, customerId, fromDate, toDate] = queryKey;
-  if (!customerId || !fromDate || !toDate) return [];
+const getFilteredSubtrips = async ({ queryKey }) => {
+  const [, params] = queryKey;
+  if (!params) return [];
   try {
-    const { data } = await axios.post('/api/subtrips/fetchClosedTripsByCustomerAndDate', {
-      customerId,
-      fromDate,
-      toDate,
-    });
-    return data;
-  } catch (error) {
-    const errorMessage = error?.message || 'An error occurred';
-    toast.error(errorMessage);
-    throw error;
-  }
-};
-
-const getTripsCompletedByDriverAndDate = async ({ queryKey }) => {
-  const [, driverId, periodStartDate, periodEndDate] = queryKey;
-  if (!driverId || !periodStartDate || !periodEndDate) return [];
-  try {
-    const { data } = await axios.post('/api/subtrips/fetchTripsCompletedByDriverAndDate', {
-      driverId,
-      fromDate: periodStartDate,
-      toDate: periodEndDate,
-    });
-    return data;
-  } catch (error) {
-    const errorMessage = error?.message || 'An error occurred';
-    toast.error(errorMessage);
-    throw error;
-  }
-};
-
-const getClosedSubtripsByTransporterAndDate = async ({ queryKey }) => {
-  const [, transporterId, periodStartDate, periodEndDate] = queryKey;
-  if (!transporterId || !periodStartDate || !periodEndDate) return [];
-  try {
-    const { data } = await axios.post('/api/subtrips/fetchClosedSubtripsByTransporterAndDate', {
-      transporterId,
-      fromDate: periodStartDate,
-      toDate: periodEndDate,
-    });
+    const { data } = await axios.get(ENDPOINT, { params });
     return data;
   } catch (error) {
     const errorMessage = error?.message || 'An error occurred';
@@ -110,8 +72,8 @@ export function useSubtrips() {
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
-    queryKey: ['closed-trips', customerId, fromDate, toDate],
-    queryFn: getClosedTripsByCustomerAndDate,
+    queryKey: [QUERY_KEY, { customerId, fromDate, toDate, status: 'closed' }],
+    queryFn: getFilteredSubtrips,
     enabled: false,
     retry: 0,
   });
@@ -119,8 +81,16 @@ export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
 
 export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, periodEndDate) {
   return useQuery({
-    queryKey: ['closed-trips', driverId, periodStartDate, periodEndDate],
-    queryFn: getTripsCompletedByDriverAndDate,
+    queryKey: [
+      QUERY_KEY,
+      {
+        driverId,
+        fromDate: periodStartDate,
+        toDate: periodEndDate,
+        status: 'closed',
+      },
+    ],
+    queryFn: getFilteredSubtrips,
     enabled: false,
     retry: 0,
   });
@@ -132,9 +102,26 @@ export function useClosedSubtripsByTransporterAndDate(
   periodEndDate
 ) {
   return useQuery({
-    queryKey: ['closed-subtrips', transporterId, periodStartDate, periodEndDate],
-    queryFn: getClosedSubtripsByTransporterAndDate,
+    queryKey: [
+      QUERY_KEY,
+      {
+        transporterId,
+        fromDate: periodStartDate,
+        toDate: periodEndDate,
+        status: 'closed',
+      },
+    ],
+    queryFn: getFilteredSubtrips,
     enabled: false,
+    retry: 0,
+  });
+}
+
+export function useFilteredSubtrips(params) {
+  return useQuery({
+    queryKey: [QUERY_KEY, params],
+    queryFn: getFilteredSubtrips,
+    enabled: !!params,
     retry: 0,
   });
 }

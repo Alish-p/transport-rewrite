@@ -112,6 +112,7 @@ export const navData = [
         resource: 'subtrip',
         children: [
           { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
+          { title: 'Paid Subtrip List ', path: paths.dashboard.subtrip.billedPaid, action: 'view' },
           { title: 'Create', path: paths.dashboard.subtrip.new, action: 'create' },
         ],
       },

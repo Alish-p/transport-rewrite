@@ -162,7 +162,18 @@ export function SubtripListView({ subtrips }) {
     { value: 'received', label: 'Recieved', color: 'success', count: getSubtripLength('received') },
     { value: 'error', label: 'Error', color: 'error', count: getSubtripLength('error') },
     { value: 'closed', label: 'Closed', color: 'success', count: getSubtripLength('closed') },
-    { value: 'billed', label: 'Billed', color: 'error', count: getSubtripLength('billed') },
+    {
+      value: 'billed-pending',
+      label: 'Billed Pending',
+      color: 'warning',
+      count: getSubtripLength('billed-pending'),
+    },
+    {
+      value: 'billed-overdue',
+      label: 'Billed Overdue',
+      color: 'error',
+      count: getSubtripLength('billed-overdue'),
+    },
   ];
 
   const handleFilters = useCallback(
@@ -233,14 +244,24 @@ export function SubtripListView({ subtrips }) {
             },
           ]}
           action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.subtrip.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Subtrip
-            </Button>
+            <Stack direction="row" spacing={2}>
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.subtrip.billedPaid}
+                variant="outlined"
+                startIcon={<Iconify icon="mdi:progress-tick" />}
+              >
+                View Billed Paid
+              </Button>
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.subtrip.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                New Subtrip
+              </Button>
+            </Stack>
           }
           sx={{
             mb: { xs: 3, md: 5 },
@@ -313,12 +334,20 @@ export function SubtripListView({ subtrips }) {
                 color={theme.palette.secondary.main}
               />
               <SubtripAnalytic
-                title="Billed"
-                total={getSubtripLength('billed')}
-                percent={getPercentBySubtripStatus('billed')}
-                price={getTotalAmount('billed')}
-                icon="mdi:progress-tick"
-                color={theme.palette.success.main}
+                title="Billed Pending"
+                total={getSubtripLength('billed-pending')}
+                percent={getPercentBySubtripStatus('billed-pending')}
+                price={getTotalAmount('billed-pending')}
+                icon="mdi:file-document-alert"
+                color={theme.palette.warning.main}
+              />
+              <SubtripAnalytic
+                title="Billed Overdue"
+                total={getSubtripLength('billed-overdue')}
+                percent={getPercentBySubtripStatus('billed-overdue')}
+                price={getTotalAmount('billed-overdue')}
+                icon="mdi:file-document-alert-outline"
+                color={theme.palette.error.main}
               />
             </Stack>
           </Scrollbar>

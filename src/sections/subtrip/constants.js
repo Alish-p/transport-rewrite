@@ -2,16 +2,16 @@ import { z as zod } from 'zod';
 
 import { schemaHelper } from 'src/components/hook-form';
 
-export const SUBTRIP_STATUS = {
-  IN_QUEUE: 'in-queue',
-  LOADED: 'loaded',
-  RECEIVED: 'received',
-  ERROR: 'error',
-  CLOSED: 'closed',
-  BILLED: 'billed',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
-};
+// export const SUBTRIP_STATUS = {
+//   IN_QUEUE: 'in-queue',
+//   LOADED: 'loaded',
+//   RECEIVED: 'received',
+//   ERROR: 'error',
+//   CLOSED: 'closed',
+//   BILLED: 'billed',
+//   COMPLETED: 'completed',
+//   CANCELLED: 'cancelled',
+// };
 
 export const SUBTRIP_STATUS_COLORS = {
   'in-queue': 'warning',
@@ -19,9 +19,22 @@ export const SUBTRIP_STATUS_COLORS = {
   received: 'info',
   error: 'error',
   closed: 'secondary',
-  billed: 'primary',
+  'billed-pending': 'warning',
+  'billed-overdue': 'error',
+  'billed-paid': 'success',
   completed: 'success',
   cancelled: 'error',
+};
+
+export const SUBTRIP_STATUS = {
+  IN_QUEUE: 'in-queue', // When the consignment is created and assigned a vehicle, waiting for loading
+  LOADED: 'loaded', // When the vehicle is fully loaded and has left for delivery
+  ERROR: 'error', // When there is a problem with documents or other issues
+  RECEIVED: 'received', // When the consignment is successfully received at the destination
+  CLOSED: 'closed', // When all details are verified and the subtrip is officially completed
+  BILLED_PENDING: 'billed-pending', // When the invoice is generated but pending payment
+  BILLED_OVERDUE: 'billed-overdue', // When the invoice is overdue and not yet paid
+  BILLED_PAID: 'billed-paid', // When the invoice is fully paid
 };
 
 // Schema for In-queue status (only in-queue fields are required)
