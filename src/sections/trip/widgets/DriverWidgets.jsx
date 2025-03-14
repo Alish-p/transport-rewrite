@@ -67,6 +67,7 @@ export default function DriverCard({ driver, onDriverEdit }) {
             color="success"
             startIcon={<Iconify icon="prime:whatsapp" />}
             sx={{ mt: 1 }}
+            onClick={() => window.open(`https://wa.me/${driverCellNo}`, '_blank')}
           >
             Whatsapp
           </Button>
