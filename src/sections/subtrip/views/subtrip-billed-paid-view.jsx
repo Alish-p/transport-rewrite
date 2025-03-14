@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
+import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -24,7 +26,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -33,6 +34,8 @@ import {
 
 import SubtripTableRow from '../subtrip-table-row';
 import SubtripTableToolbar from '../subtrip-table-toolbar';
+import { useFilteredSubtrips } from '../../../query/use-subtrip';
+import SubtripTableFiltersResult from '../subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -48,7 +51,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  customer: '',
+  customerId: '',
   subtripId: '',
   vehicleNo: '',
   transportName: '',
@@ -64,7 +67,7 @@ export function SubtripBilledPaidView() {
   const router = useRouter();
 
   const [filters, setFilters] = useState(defaultFilters);
-  const [tableData, setTableData] = useState([]);
+  const [searchParams, setSearchParams] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -91,11 +94,10 @@ export function SubtripBilledPaidView() {
   const dateError =
     filters.startDate && filters.endDate ? filters.startDate > filters.endDate : false;
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
+  // Use the filtered subtrips query
+  const { data: tableData = [], isLoading } = useFilteredSubtrips({
+    ...searchParams,
+    status: 'billed-paid', // Always filter for billed-paid status
   });
 
   const denseHeight = table.dense ? 56 : 76;
@@ -103,10 +105,10 @@ export function SubtripBilledPaidView() {
   const canReset =
     !!filters.vehicleNo ||
     !!filters.subtripId ||
-    !!filters.customer ||
+    !!filters.customerId ||
     (!!filters.fromDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = (name, value) => {
     table.onResetPage();
@@ -116,12 +118,30 @@ export function SubtripBilledPaidView() {
     }));
   };
 
+  const handleSearch = () => {
+    // Prepare search parameters
+    const params = {
+      vehicleNo: filters.vehicleNo || undefined,
+      subtripId: filters.subtripId || undefined,
+      customerId: filters.customerId || undefined,
+      fromDate: filters.fromDate || undefined,
+      endDate: filters.endDate || undefined,
+      transportName: filters.transportName || undefined,
+    };
+
+    // Remove undefined values
+    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+
+    setSearchParams(params);
+  };
+
   const handleViewRow = (id) => {
     router.push(paths.dashboard.subtrip.details(id));
   };
 
   const handleResetFilters = () => {
     setFilters(defaultFilters);
+    setSearchParams(null);
   };
 
   const handleToggleColumn = (columnName) => {
@@ -170,181 +190,144 @@ export function SubtripBilledPaidView() {
       />
 
       <Card>
-        <SubtripTableToolbar
-          filters={filters}
-          onFilters={handleFilters}
-          tableData={dataFiltered}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          onToggleColumn={handleToggleColumn}
-        />
-
-        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-          <TableSelectedAction
-            dense={table.dense}
-            numSelected={table.selected.length}
-            rowCount={dataFiltered.length}
-            onSelectAllRows={(checked) =>
-              table.onSelectAllRows(
-                checked,
-                dataFiltered.map((row) => row._id)
-              )
-            }
-            action={
-              <Stack direction="row" spacing={1}>
-                <Button
-                  color="error"
-                  variant="contained"
-                  onClick={confirm.onTrue}
-                  startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                >
-                  Delete
-                </Button>
-
-                <Button
-                  color="primary"
-                  variant="contained"
-                  onClick={() => {
-                    const selectedRows = tableData.filter(({ _id }) =>
-                      table.selected.includes(_id)
-                    );
-                    exportToExcel(selectedRows, 'billed-paid-subtrips');
-                  }}
-                  startIcon={<Iconify icon="eva:download-outline" />}
-                >
-                  Export
-                </Button>
-              </Stack>
-            }
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
+          <SubtripTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
           />
 
-          <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-              <TableHeadCustom
-                order={table.order}
-                orderBy={table.orderBy}
-                headLabel={visibleTableHead}
-                rowCount={dataFiltered.length}
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="material-symbols:search" />}
+            onClick={handleSearch}
+          >
+            Search
+          </Button>
+        </Stack>
+
+        {canReset && (
+          <SubtripTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            results={tableData.length}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        {!searchParams ? (
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+              Please select filters and click search to view billed paid subtrips
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+              <TableSelectedAction
+                dense={table.dense}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
+                rowCount={tableData.length}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    dataFiltered.map((row) => row._id)
+                    tableData.map((row) => row._id)
                   )
+                }
+                action={
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      color="error"
+                      variant="contained"
+                      onClick={confirm.onTrue}
+                      startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                    >
+                      Delete
+                    </Button>
+
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        exportToExcel(selectedRows, 'billed-paid-subtrips');
+                      }}
+                      startIcon={<Iconify icon="eva:download-outline" />}
+                    >
+                      Export
+                    </Button>
+                  </Stack>
                 }
               />
 
-              <TableBody>
-                {dataFiltered
-                  .slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                  .map((row) => (
-                    <SubtripTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => {}}
-                      onDeleteRow={() => {}}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
+              <Scrollbar>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={visibleTableHead}
+                    rowCount={tableData.length}
+                    numSelected={table.selected.length}
+                    onSort={table.onSort}
+                    onSelectAllRows={(checked) =>
+                      table.onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row._id)
+                      )
+                    }
+                  />
+
+                  <TableBody>
+                    {tableData
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <SubtripTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => {}}
+                          onDeleteRow={() => {}}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                        />
+                      ))}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
-                  ))}
 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                />
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </TableContainer>
 
-                <TableNoData notFound={notFound} />
-              </TableBody>
-            </Table>
-          </Scrollbar>
-        </TableContainer>
-
-        <TablePaginationCustom
-          count={dataFiltered.length}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-          dense={table.dense}
-          onChangeDense={table.onChangeDense}
-        />
+            <TablePaginationCustom
+              count={tableData.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              dense={table.dense}
+              onChangeDense={table.onChangeDense}
+            />
+          </>
+        )}
       </Card>
     </DashboardContent>
   );
 }
 
 // ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, subtripId, customer, fromDate, endDate, transportName } = filters;
-
-  // First filter to only show billed-paid subtrips
-  inputData = inputData.filter((record) => record.subtripStatus === 'billed-paid');
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (vehicleNo) {
-    inputData = inputData.filter(
-      (record) =>
-        record.tripId &&
-        record.tripId.vehicleId &&
-        record.tripId.vehicleId.vehicleNo &&
-        record.tripId.vehicleId.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
-    );
-  }
-
-  if (transportName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.tripId &&
-        record.tripId.vehicleId &&
-        record.tripId.vehicleId.transporter &&
-        record.tripId.vehicleId.transporter.transportName &&
-        record.tripId.vehicleId.transporter.transportName
-          .toLowerCase()
-          .indexOf(transportName.toLowerCase()) !== -1
-    );
-  }
-
-  if (customer) {
-    inputData = inputData.filter(
-      (record) =>
-        record.customerId &&
-        record.customerId.customerName &&
-        record.customerId.customerName.toLowerCase().indexOf(customer.toLowerCase()) !== -1
-    );
-  }
-
-  if (subtripId) {
-    inputData = inputData.filter(
-      (record) => record._id && record._id.toLowerCase().indexOf(subtripId.toLowerCase()) !== -1
-    );
-  }
-
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (subtrip) =>
-          new Date(subtrip.startDate) >= new Date(fromDate) &&
-          new Date(subtrip.startDate) <= new Date(endDate)
-      );
-    }
-  }
-
-  return inputData;
-}
