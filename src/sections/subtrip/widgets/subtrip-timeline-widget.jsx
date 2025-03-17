@@ -31,6 +31,8 @@ const getEventIcon = (eventType) => {
       return 'material-symbols:error-outline';
     case 'CLOSED':
       return 'zondicons:lock-closed';
+    case 'EXPENSE_ADDED':
+      return 'mdi:currency-usd';
     default:
       return 'solar:sort-by-time-bold-duotone';
   }
@@ -52,6 +54,8 @@ const getEventColor = (eventType) => {
       return 'error';
     case 'CLOSED':
       return 'secondary';
+    case 'EXPENSE_ADDED':
+      return 'success';
     default:
       return 'default';
   }
@@ -74,6 +78,8 @@ const getEventTitle = (event) => {
       return 'Error Occurred';
     case 'CLOSED':
       return 'Subtrip Closed';
+    case 'EXPENSE_ADDED':
+      return 'Expense Added';
     default:
       return eventType;
   }
@@ -111,6 +117,23 @@ export function SubtripTimeline({ events = [] }) {
 
             <TimelineContent>
               <Typography variant="subtitle2">{getEventTitle(event)}</Typography>
+
+              {event.details && (
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                  {event.eventType === 'MATERIAL_ADDED' && (
+                    <>
+                      {event.details.materialType} - {event.details.quantity} units
+                      {event.details.grade && ` (Grade: ${event.details.grade})`}
+                    </>
+                  )}
+                  {event.eventType === 'EXPENSE_ADDED' && (
+                    <>
+                      {event.details.expenseType}: ₹{event.details.amount}
+                    </>
+                  )}
+                  {event.details.note && <>{event.details.note}</>}
+                </Typography>
+              )}
 
               <Typography
                 variant="caption"

@@ -34,8 +34,12 @@ const deletePump = async (id) => {
 };
 
 // Queries & Mutations
-export function usePumps() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getPumps });
+export function usePumps(enabled = true) {
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: getPumps,
+    enabled,
+  });
 }
 
 export function usePump(id) {

@@ -80,7 +80,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const updateMaterialInfo = useUpdateSubtripMaterialInfo();
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
 
-  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps();
+  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps(showDialog);
   const {
     data: routes,
     isLoading: routesLoading,
