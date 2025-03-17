@@ -86,7 +86,7 @@ export function RouteListView({ routes }) {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    if (routes.length) {
+    if (routes?.length) {
       setTableData(routes);
     }
   }, [routes]);
