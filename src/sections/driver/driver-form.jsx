@@ -224,9 +224,10 @@ export default function DriverForm({ currentDriver, bankList }) {
             InputProps={{
               endAdornment: <InputAdornment position="end">years</InputAdornment>,
             }}
+            required
           />
-          <Field.DatePicker name="dob" label="Date of Birth" />
-          <Field.Text name="permanentAddress" label="Permanent Address" />
+          <Field.DatePicker name="dob" label="Date of Birth" required />
+          <Field.Text name="permanentAddress" label="Permanent Address" required />
         </Box>
       </Card>
     </>
