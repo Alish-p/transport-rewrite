@@ -18,6 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -32,10 +33,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import SubtripTableRow from '../subtrip-table-row';
-import SubtripTableToolbar from '../subtrip-table-toolbar';
-import { useFilteredSubtrips } from '../../../query/use-subtrip';
-import SubtripTableFiltersResult from '../subtrip-table-filters-result';
+import SubtripTableRow from '../past-list/subtrip-table-row';
+import SubtripTableToolbar from '../past-list/subtrip-table-toolbar';
+import SubtripTableFiltersResult from '../past-list/subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
 

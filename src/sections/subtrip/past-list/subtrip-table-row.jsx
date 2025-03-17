@@ -3,9 +3,7 @@
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -14,15 +12,12 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import { SUBTRIP_STATUS_COLORS } from './constants';
-import { fDate, fTime } from '../../utils/format-time';
+import { SUBTRIP_STATUS_COLORS } from '../constants';
+import { fDate, fTime } from '../../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -31,25 +26,23 @@ export default function SubtripTableRow({
   selected,
   onSelectRow,
   onViewRow,
-  onEditRow,
-  onDeleteRow,
   visibleColumns = {
     vehicleNo: true,
-    customerName: true,
+    customerId: true,
     routeName: true,
     invoiceNo: true,
     startDate: true,
-    ewayBillExpiry: true,
     subtripStatus: true,
+    transport: true,
   },
   disabledColumns = {
-    vehicleNo: true, // Vehicle number should always be visible
-    customerName: false,
+    vehicleNo: true,
+    customerId: false,
     routeName: false,
     invoiceNo: false,
     startDate: false,
-    ewayBillExpiry: false,
     subtripStatus: false,
+    transport: false,
   },
 }) {
   const {
@@ -60,10 +53,7 @@ export default function SubtripTableRow({
     subtripStatus,
     startDate,
     tripId: { vehicleId },
-    ewayExpiryDate,
   } = row;
-
-  const confirm = useBoolean();
 
   const popover = usePopover();
 
@@ -73,6 +63,7 @@ export default function SubtripTableRow({
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
+
         {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
           <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
@@ -101,6 +92,7 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
+
         {(visibleColumns.customerId || disabledColumns.customerId) && (
           <TableCell>
             <ListItemText
@@ -109,6 +101,7 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
+
         {(visibleColumns.routeName || disabledColumns.routeName) && (
           <TableCell>
             <ListItemText
@@ -117,6 +110,7 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
+
         {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (
           <TableCell>
             <ListItemText
@@ -125,6 +119,7 @@ export default function SubtripTableRow({
             />
           </TableCell>
         )}
+
         {(visibleColumns.startDate || disabledColumns.startDate) && (
           <TableCell>
             <ListItemText
@@ -156,6 +151,7 @@ export default function SubtripTableRow({
             </Label>
           </TableCell>
         )}
+
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -179,43 +175,8 @@ export default function SubtripTableRow({
             <Iconify icon="solar:eye-bold" />
             View
           </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
         </MenuList>
       </CustomPopover>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }

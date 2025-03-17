@@ -48,11 +48,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import SubtripTableRow from '../subtrip-table-row';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
-import SubtripTableToolbar from '../subtrip-table-toolbar';
 import { useDeleteSubtrip } from '../../../query/use-subtrip';
-import SubtripTableFiltersResult from '../subtrip-table-filters-result';
+import SubtripTableRow from '../active-list/subtrip-table-row';
+import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
+import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
 
