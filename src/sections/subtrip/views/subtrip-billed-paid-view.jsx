@@ -18,7 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useFilteredSubtrips } from 'src/query/use-subtrip';
+import { usePastFilteredSubtrips } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -95,9 +95,8 @@ export function SubtripBilledPaidView() {
     filters.startDate && filters.endDate ? filters.startDate > filters.endDate : false;
 
   // Use the filtered subtrips query
-  const { data: tableData = [], isLoading } = useFilteredSubtrips({
+  const { data: tableData = [], isLoading } = usePastFilteredSubtrips({
     ...searchParams,
-    status: 'billed-paid', // Always filter for billed-paid status
   });
 
   const denseHeight = table.dense ? 56 : 76;
@@ -105,6 +104,7 @@ export function SubtripBilledPaidView() {
   const canReset =
     !!filters.vehicleNo ||
     !!filters.subtripId ||
+    !!filters.transportName ||
     !!filters.customerId ||
     (!!filters.fromDate && !!filters.endDate);
 
@@ -121,12 +121,12 @@ export function SubtripBilledPaidView() {
   const handleSearch = () => {
     // Prepare search parameters
     const params = {
-      vehicleNo: filters.vehicleNo || undefined,
+      vehicleId: filters.vehicleNo || undefined,
       subtripId: filters.subtripId || undefined,
       customerId: filters.customerId || undefined,
       fromDate: filters.fromDate || undefined,
-      endDate: filters.endDate || undefined,
-      transportName: filters.transportName || undefined,
+      toDate: filters.endDate || undefined,
+      transporterId: filters.transportName || undefined,
     };
 
     // Remove undefined values
@@ -195,18 +195,11 @@ export function SubtripBilledPaidView() {
             filters={filters}
             onFilters={handleFilters}
             tableData={tableData}
+            onSearch={handleSearch}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
           />
-
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="material-symbols:search" />}
-            onClick={handleSearch}
-          >
-            Search
-          </Button>
         </Stack>
 
         {canReset && (

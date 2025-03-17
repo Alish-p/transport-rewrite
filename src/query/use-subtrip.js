@@ -117,11 +117,12 @@ export function useClosedSubtripsByTransporterAndDate(
   });
 }
 
-export function useFilteredSubtrips(params) {
+export function usePastFilteredSubtrips(params) {
+  console.log(params);
   return useQuery({
-    queryKey: [QUERY_KEY, params],
+    queryKey: [QUERY_KEY, { status: 'billed-paid', ...params }],
     queryFn: getFilteredSubtrips,
-    enabled: !!params,
+    enabled: Object.keys(params).length > 0,
     retry: 0,
   });
 }

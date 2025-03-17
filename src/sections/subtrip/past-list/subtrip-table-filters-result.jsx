@@ -8,6 +8,10 @@ import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { useVehicles } from 'src/query/use-vehicle';
+import { useCustomers } from 'src/query/use-customer';
+import { useTransporters } from 'src/query/use-transporter';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -19,6 +23,10 @@ export default function SubtripTableFiltersResult({
   results,
   ...other
 }) {
+  const { data: customers = [] } = useCustomers();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: transporters = [] } = useTransporters();
+
   const handleRemoveCustomer = () => {
     onFilters('customerId', '');
   };
@@ -40,6 +48,21 @@ export default function SubtripTableFiltersResult({
     onFilters('endDate', null);
   };
 
+  const getCustomerName = (id) => {
+    const customer = customers.find((c) => c._id === id);
+    return customer?.customerName || id;
+  };
+
+  const getTransporterName = (id) => {
+    const transporter = transporters.find((t) => t._id === id);
+    return transporter?.transportName || id;
+  };
+
+  const getVehicleNumber = (id) => {
+    const vehicle = vehicles.find((v) => v._id === id);
+    return vehicle?.vehicleNo || id;
+  };
+
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
 
   return (
@@ -54,19 +77,31 @@ export default function SubtripTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.customerId && (
           <Block label="Customer">
-            <Chip size="small" label={filters.customerId} onDelete={handleRemoveCustomer} />
+            <Chip
+              size="small"
+              label={getCustomerName(filters.customerId)}
+              onDelete={handleRemoveCustomer}
+            />
           </Block>
         )}
 
         {filters.transportName && (
           <Block label="Transporter">
-            <Chip size="small" label={filters.transportName} onDelete={handleRemoveTransport} />
+            <Chip
+              size="small"
+              label={getTransporterName(filters.transportName)}
+              onDelete={handleRemoveTransport}
+            />
           </Block>
         )}
 
         {filters.vehicleNo && (
           <Block label="Vehicle No:">
-            <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+            <Chip
+              size="small"
+              label={getVehicleNumber(filters.vehicleNo)}
+              onDelete={handleRemoveVehicleNo}
+            />
           </Block>
         )}
 

@@ -2,14 +2,23 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
+
+import { useVehicles } from 'src/query/use-vehicle';
+import { useCustomers } from 'src/query/use-customer';
+import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -19,6 +28,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 export default function SubtripTableToolbar({
   filters,
   onFilters,
+  onSearch,
   tableData,
   visibleColumns,
   disabledColumns = {},
@@ -26,6 +36,10 @@ export default function SubtripTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+
+  const { data: customers = [] } = useCustomers();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: transporters = [] } = useTransporters();
 
   const handleFilterCustomer = useCallback(
     (event) => {
@@ -69,6 +83,15 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
+  const canSearch = !!(
+    filters.customerId ||
+    filters.transportName ||
+    filters.vehicleNo ||
+    filters.subtripId ||
+    filters.fromDate ||
+    filters.endDate
+  );
+
   return (
     <>
       <Stack
@@ -97,61 +120,56 @@ export default function SubtripTableToolbar({
           }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.customerId}
-          onChange={handleFilterCustomer}
-          placeholder="Search Customer..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel>Customer</InputLabel>
+          <Select
+            value={filters.customerId}
+            onChange={handleFilterCustomer}
+            input={<OutlinedInput label="Customer" />}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {customers.map((customer) => (
+              <MenuItem key={customer._id} value={customer._id}>
+                {customer.customerName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-        <TextField
-          fullWidth
-          value={filters.transportName}
-          onChange={handleFilterTransporter}
-          placeholder="Search Transporter..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel>Transporter</InputLabel>
+          <Select
+            value={filters.transportName}
+            onChange={handleFilterTransporter}
+            input={<OutlinedInput label="Transporter" />}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {transporters.map((transporter) => (
+              <MenuItem key={transporter._id} value={transporter._id}>
+                {transporter.transportName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-        <TextField
-          fullWidth
-          value={filters.transportName}
-          onChange={handleFilterTransporter}
-          placeholder="Search Driver..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.vehicleNo}
-          onChange={handleFilterVehicle}
-          placeholder="Search Vehicle..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel>Vehicle</InputLabel>
+          <Select
+            value={filters.vehicleNo}
+            onChange={handleFilterVehicle}
+            input={<OutlinedInput label="Vehicle" />}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {vehicles.map((vehicle) => (
+              <MenuItem key={vehicle._id} value={vehicle._id}>
+                {vehicle.vehicleNo}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <DatePicker
           label="Start date"
@@ -182,8 +200,18 @@ export default function SubtripTableToolbar({
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
+
+        <Button
+          variant="contained"
+          startIcon={<Iconify icon="material-symbols:search" />}
+          onClick={onSearch}
+          disabled={!canSearch}
+        >
+          Search
+        </Button>
       </Stack>
 
+      {/* Column Settings */}
       <CustomPopover
         open={columnsPopover.open}
         onClose={columnsPopover.onClose}
