@@ -1,27 +1,37 @@
 /* eslint-disable react/prop-types */
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
-import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
+import {
+  Box,
+  Tooltip,
+  MenuList,
+  Checkbox,
+  useTheme,
+  ListItemText,
+  useMediaQuery,
+} from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { useDrivers } from 'src/query/use-driver';
 import { useVehicles } from 'src/query/use-vehicle';
 import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
+import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -34,23 +44,32 @@ export default function SubtripTableToolbar({
   disabledColumns = {},
   onToggleColumn,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const popover = usePopover();
   const columnsPopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
+  const { data: drivers = [] } = useDrivers();
+
+  const [openVehicleDialog, setOpenVehicleDialog] = useState(false);
+  const [openDriverDialog, setOpenDriverDialog] = useState(false);
+  const [openCustomerDialog, setOpenCustomerDialog] = useState(false);
+  const [openTransporterDialog, setOpenTransporterDialog] = useState(false);
 
   const handleFilterCustomer = useCallback(
-    (event) => {
-      onFilters('customerId', event.target.value);
+    (customer) => {
+      onFilters('customerId', customer._id);
     },
     [onFilters]
   );
 
   const handleFilterTransporter = useCallback(
-    (event) => {
-      onFilters('transportName', event.target.value);
+    (transporter) => {
+      onFilters('transportName', transporter._id);
     },
     [onFilters]
   );
@@ -83,6 +102,51 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
+  const handleOpenVehicleDialog = () => {
+    setOpenVehicleDialog(true);
+  };
+
+  const handleCloseVehicleDialog = () => {
+    setOpenVehicleDialog(false);
+  };
+
+  const handleVehicleChange = (vehicle) => {
+    onFilters('vehicleNo', vehicle._id);
+  };
+
+  const handleOpenCustomerDialog = () => {
+    setOpenCustomerDialog(true);
+  };
+
+  const handleCloseCustomerDialog = () => {
+    setOpenCustomerDialog(false);
+  };
+
+  const handleOpenTransporterDialog = () => {
+    setOpenTransporterDialog(true);
+  };
+
+  const handleCloseTransporterDialog = () => {
+    setOpenTransporterDialog(false);
+  };
+
+  const handleOpenDriverDialog = () => {
+    setOpenDriverDialog(true);
+  };
+
+  const handleCloseDriverDialog = () => {
+    setOpenDriverDialog(false);
+  };
+
+  const handleDriverChange = (driver) => {
+    onFilters('driverId', driver._id);
+  };
+
+  const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleNo);
+  const selectedDriver = drivers.find((d) => d._id === filters.driverId);
+  const selectedCustomer = customers.find((c) => c._id === filters.customerId);
+  const selectedTransporter = transporters.find((t) => t._id === filters.transportName);
+
   const canSearch = !!(
     filters.customerId ||
     filters.transportName ||
@@ -94,122 +158,182 @@ export default function SubtripTableToolbar({
 
   return (
     <>
-      <Stack
-        spacing={2}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
+      <Box
         sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
+          overflowX: 'auto',
+          width: '100%',
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.subtripId}
-          onChange={handleFilterSubtripId}
-          placeholder="Search Id..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel>Customer</InputLabel>
-          <Select
-            value={filters.customerId}
-            onChange={handleFilterCustomer}
-            input={<OutlinedInput label="Customer" />}
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+        <Stack spacing={2.5}>
+          <Stack
+            spacing={2}
+            alignItems={{ xs: 'flex-end', md: 'center' }}
+            direction={{
+              xs: 'column',
+              md: 'row',
+            }}
+            sx={{
+              pt: 2.5,
+              px: 2.5,
+              minWidth: { md: '1200px' },
+            }}
           >
-            <MenuItem value="">All</MenuItem>
-            {customers.map((customer) => (
-              <MenuItem key={customer._id} value={customer._id}>
-                {customer.customerName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <TextField
+              fullWidth
+              value={filters.subtripId}
+              onChange={handleFilterSubtripId}
+              placeholder="Id"
+              sx={{ width: { xs: 1, md: 200 } }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel>Transporter</InputLabel>
-          <Select
-            value={filters.transportName}
-            onChange={handleFilterTransporter}
-            input={<OutlinedInput label="Transporter" />}
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            <Button
+              onClick={handleOpenCustomerDialog}
+              variant="outlined"
+              sx={{
+                width: { xs: 1, md: 200 },
+                height: 56,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+              <Iconify
+                icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
+                sx={{ color: selectedCustomer ? 'success.main' : 'inherit' }}
+              />
+            </Button>
+
+            <Button
+              onClick={handleOpenTransporterDialog}
+              variant="outlined"
+              sx={{
+                width: { xs: 1, md: 200 },
+                height: 56,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              {selectedTransporter ? selectedTransporter.transportName : 'Select Transporter'}
+              <Iconify
+                icon={selectedTransporter ? 'mdi:truck-delivery' : 'mdi:truck-delivery-outline'}
+                sx={{ color: selectedTransporter ? 'success.main' : 'inherit' }}
+              />
+            </Button>
+
+            <Button
+              onClick={handleOpenVehicleDialog}
+              variant="outlined"
+              sx={{
+                width: { xs: 1, md: 200 },
+                height: 56,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
+              <Iconify
+                icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
+                sx={{ color: selectedVehicle ? 'success.main' : 'inherit' }}
+              />
+            </Button>
+
+            <Button
+              onClick={handleOpenDriverDialog}
+              variant="outlined"
+              sx={{
+                width: { xs: 1, md: 200 },
+                height: 56,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
+              <Iconify
+                icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
+                sx={{ color: selectedDriver ? 'success.main' : 'inherit' }}
+              />
+            </Button>
+          </Stack>
+
+          <Stack
+            spacing={2}
+            alignItems={{ xs: 'flex-end', md: 'center' }}
+            direction={{
+              xs: 'column',
+              md: 'row',
+            }}
+            sx={{
+              pb: 2.5,
+              px: 2.5,
+              minWidth: { md: '1200px' },
+            }}
           >
-            <MenuItem value="">All</MenuItem>
-            {transporters.map((transporter) => (
-              <MenuItem key={transporter._id} value={transporter._id}>
-                {transporter.transportName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <DatePicker
+              label="Start date"
+              value={filters.fromDate}
+              onChange={handleFilterFromDate}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  sx: { width: { xs: 1, md: 200 } },
+                },
+              }}
+            />
 
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel>Vehicle</InputLabel>
-          <Select
-            value={filters.vehicleNo}
-            onChange={handleFilterVehicle}
-            input={<OutlinedInput label="Vehicle" />}
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="">All</MenuItem>
-            {vehicles.map((vehicle) => (
-              <MenuItem key={vehicle._id} value={vehicle._id}>
-                {vehicle.vehicleNo}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <DatePicker
+              label="End date"
+              value={filters.endDate}
+              onChange={handleFilterEndDate}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  sx: { width: { xs: 1, md: 200 } },
+                },
+              }}
+            />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
-        />
+            <Box sx={{ width: { xs: 1, md: 200 }, display: 'flex', justifyContent: 'center' }}>
+              <Stack direction="row" spacing={1}>
+                <Tooltip title="Column Settings">
+                  <IconButton onClick={columnsPopover.onOpen}>
+                    <Iconify icon="mdi:table-column-plus-after" />
+                  </IconButton>
+                </Tooltip>
 
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
-        />
+                <IconButton onClick={popover.onOpen}>
+                  <Iconify icon="eva:more-vertical-fill" />
+                </IconButton>
+              </Stack>
+            </Box>
 
-        <Tooltip title="Column Settings">
-          <IconButton onClick={columnsPopover.onOpen}>
-            <Iconify icon="mdi:table-column-plus-after" />
-          </IconButton>
-        </Tooltip>
-
-        <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
-
-        <Button
-          variant="contained"
-          startIcon={<Iconify icon="material-symbols:search" />}
-          onClick={onSearch}
-          disabled={!canSearch}
-        >
-          Search
-        </Button>
-      </Stack>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Iconify icon="material-symbols:search" />}
+              onClick={onSearch}
+              disabled={!canSearch}
+              sx={{
+                width: { xs: 1, md: 200 },
+                height: 40,
+                boxShadow: theme.customShadows.primary,
+              }}
+            >
+              Search
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
 
       {/* Column Settings */}
       <CustomPopover
@@ -259,6 +383,34 @@ export default function SubtripTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanVehicleDialog
+        open={openVehicleDialog}
+        onClose={handleCloseVehicleDialog}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleVehicleChange}
+      />
+
+      <KanbanDriverDialog
+        open={openDriverDialog}
+        onClose={handleCloseDriverDialog}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleDriverChange}
+      />
+
+      <KanbanCustomerDialog
+        open={openCustomerDialog}
+        onClose={handleCloseCustomerDialog}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleFilterCustomer}
+      />
+
+      <KanbanTransporterDialog
+        open={openTransporterDialog}
+        onClose={handleCloseTransporterDialog}
+        selectedTransporter={selectedTransporter}
+        onTransporterChange={handleFilterTransporter}
+      />
     </>
   );
 }
