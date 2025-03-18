@@ -48,6 +48,7 @@ export default function VehicleTableRow({
   },
 }) {
   const {
+    _id,
     vehicleNo,
     vehicleType,
     isOwn,
@@ -77,19 +78,21 @@ export default function VehicleTableRow({
             <ListItemText
               disableTypography
               primary={
-                <Typography variant="body2" noWrap>
-                  {vehicleNo}
-                </Typography>
-              }
-              secondary={
                 <Link
                   noWrap
                   variant="body2"
-                  onClick={() => {}}
-                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                  onClick={() => {
+                    onViewRow(_id);
+                  }}
+                  sx={{ color: 'primary', cursor: 'pointer' }}
                 >
-                  {vehicleType}
+                  {vehicleNo}
                 </Link>
+              }
+              secondary={
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {vehicleType}
+                </Typography>
               }
             />
           </TableCell>

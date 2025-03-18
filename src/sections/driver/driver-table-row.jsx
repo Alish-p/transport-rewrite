@@ -91,8 +91,10 @@ export default function DriverTableRow({
                   <Link
                     noWrap
                     variant="body2"
-                    onClick={() => {}}
-                    sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                    onClick={() => {
+                      onViewRow();
+                    }}
+                    sx={{ color: 'primary', cursor: 'pointer' }}
                   >
                     {driverLicenceNo}
                   </Link>
