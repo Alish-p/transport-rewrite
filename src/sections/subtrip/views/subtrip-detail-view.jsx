@@ -182,6 +182,7 @@ export function SubtripDetailView({ subtrip }) {
                     series: expenseChartData || [],
                   }}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                  noDataMessage="No expenses recorded yet"
                 />
               </Stack>
             </Stack>
