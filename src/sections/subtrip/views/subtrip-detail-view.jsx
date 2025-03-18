@@ -21,7 +21,6 @@ import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
-import { SubtripTimeline } from '../widgets/subtrip-timeline-widget';
 import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
@@ -173,7 +172,7 @@ export function SubtripDetailView({ subtrip }) {
 
           <Grid item xs={12} md={4} gap={2}>
             <LRInfo subtrip={subtrip} />
-            <SubtripTimeline events={subtrip?.events || []} />
+            {/* <SubtripTimeline events={subtrip?.events || []} /> */}
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} />
