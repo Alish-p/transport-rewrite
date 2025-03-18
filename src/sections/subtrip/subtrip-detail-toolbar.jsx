@@ -32,6 +32,7 @@ export default function SubtripToolbar({
   onSubtripClose,
   onEdit,
   onResolve,
+  isEditDisabled,
 }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
@@ -119,6 +120,7 @@ export default function SubtripToolbar({
             variant="outlined"
             startIcon={<Iconify icon="solar:pen-bold" />}
             onClick={onEdit}
+            disabled={isEditDisabled}
           >
             Edit
           </Button>

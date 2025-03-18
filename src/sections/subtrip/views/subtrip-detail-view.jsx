@@ -12,6 +12,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { SUBTRIP_STATUS } from '../constants';
 import LRInfo from '../widgets/subtrip-info-widget';
 import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
@@ -39,6 +40,17 @@ export function SubtripDetailView({ subtrip }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showExpenseDialog, setShowExpenseDialog] = useState(false);
+
+  // Function to check if editing is allowed based on status
+  const isEditingAllowed = () => {
+    const restrictedStatuses = [
+      SUBTRIP_STATUS.CLOSED,
+      SUBTRIP_STATUS.BILLED_PENDING,
+      SUBTRIP_STATUS.BILLED_OVERDUE,
+      SUBTRIP_STATUS.BILLED_PAID,
+    ];
+    return !restrictedStatuses.includes(subtrip.subtripStatus);
+  };
 
   const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
   const totalDieselLtr = subtrip?.expenses?.reduce(
@@ -85,6 +97,7 @@ export function SubtripDetailView({ subtrip }) {
           }}
           onResolve={() => setShowResolveDialog(true)}
           onSubtripClose={() => setShowCloseDialog(true)}
+          isEditDisabled={!isEditingAllowed()}
         />
 
         <Grid container spacing={3}>
@@ -151,7 +164,11 @@ export function SubtripDetailView({ subtrip }) {
                     }}
                   >
                     <CardHeader title="Expense List" subheader="Detail of Expenses" />
-                    <Button variant="contained" onClick={() => setShowExpenseDialog(true)}>
+                    <Button
+                      variant="contained"
+                      onClick={() => setShowExpenseDialog(true)}
+                      disabled={!isEditingAllowed()}
+                    >
                       New Expense
                     </Button>
                   </Box>
