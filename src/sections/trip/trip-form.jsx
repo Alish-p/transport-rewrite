@@ -5,18 +5,21 @@ import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Alert, Stack, Typography } from '@mui/material';
+import { Box, Card, Grid, Alert, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
-import { fVehicleNo } from 'src/utils/format-number';
 
 import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { useBoolean } from '../../hooks/use-boolean';
 import { useCreateTrip, useUpdateTrip } from '../../query/use-trip';
+import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
+import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
 const NewTripSchema = zod.object({
   driverId: zod
@@ -37,6 +40,9 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   const createTrip = useCreateTrip();
   const updateTrip = useUpdateTrip();
 
+  const vehicleDialog = useBoolean(false);
+  const driverDialog = useBoolean(false);
+
   const defaultValues = useMemo(
     () => ({
       driverId: currentTrip?.driverId
@@ -51,7 +57,12 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     [currentTrip]
   );
 
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(
+    currentTrip?.vehicleId ? vehicles.find((v) => v._id === currentTrip.vehicleId._id) : null
+  );
+  const [selectedDriver, setSelectedDriver] = useState(
+    currentTrip?.driverId ? drivers.find((d) => d._id === currentTrip.driverId._id) : null
+  );
 
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
@@ -60,25 +71,24 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
 
   const {
     reset,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
-    watch,
   } = methods;
-
-  const watchedVehicle = watch('vehicleId');
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  useEffect(() => {
-    if (watchedVehicle) {
-      const vehicle = vehicles.find((v) => v._id === watchedVehicle.value);
-      setSelectedVehicle(vehicle || null);
-    } else {
-      setSelectedVehicle(null);
-    }
-  }, [watchedVehicle, vehicles]);
+  const handleVehicleChange = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setValue('vehicleId', { label: vehicle.vehicleNo, value: vehicle._id });
+  };
+
+  const handleDriverChange = (driver) => {
+    setSelectedDriver(driver);
+    setValue('driverId', { label: driver.driverName, value: driver._id });
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -126,24 +136,55 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-              <Field.Autocomplete
-                name="vehicleId"
-                label="Vehicle"
-                options={vehicles.map((v) => ({
-                  label: `${fVehicleNo(v.vehicleNo)}`,
-                  value: v._id,
-                }))}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-              <Field.Autocomplete
-                freeSolo
-                name="driverId"
-                label="Driver"
-                options={drivers.map((d) => ({ label: d.driverName, value: d._id }))}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
+              {/* Vehicle Selection */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Vehicle
+                </Typography>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={vehicleDialog.onTrue}
+                  sx={{
+                    height: 56,
+                    justifyContent: 'flex-start',
+                    typography: 'body2',
+                  }}
+                  startIcon={
+                    <Iconify
+                      icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
+                      sx={{ color: selectedVehicle ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
+                </Button>
+              </Box>
+
+              {/* Driver Selection */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Driver
+                </Typography>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={driverDialog.onTrue}
+                  sx={{
+                    height: 56,
+                    justifyContent: 'flex-start',
+                    typography: 'body2',
+                  }}
+                  startIcon={
+                    <Iconify
+                      icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
+                      sx={{ color: selectedDriver ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
+                </Button>
+              </Box>
 
               <Field.DatePicker name="fromDate" label="From Date" />
               <Field.Text name="remarks" label="Remarks" />
@@ -188,6 +229,21 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
           {!currentTrip ? 'Create Trip' : 'Save Changes'}
         </LoadingButton>
       </Stack>
+
+      {/* Dialogs */}
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleVehicleChange}
+      />
+
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleDriverChange}
+      />
     </Form>
   );
 }
