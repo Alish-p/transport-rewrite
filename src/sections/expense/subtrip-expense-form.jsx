@@ -74,7 +74,7 @@ const validationSchema = zod
     }
   });
 
-function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
+function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = false, onSuccess }) {
   const navigate = useNavigate();
 
   const createExpense = useCreateExpense();
@@ -179,7 +179,14 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps }) {
     } else {
       newExpense = await updateExpense({ id: currentExpense._id, data: transformedData });
     }
-    navigate(paths.dashboard.expense.details(newExpense._id));
+
+    if (fromDialog) {
+      navigate(paths.dashboard.subtrip.details(currentSubtrip._id));
+      onSuccess?.(); // Call onSuccess callback if provided
+    } else {
+      // Reset form values when not using dialog
+      reset(defaultValues);
+    }
   };
 
   return (

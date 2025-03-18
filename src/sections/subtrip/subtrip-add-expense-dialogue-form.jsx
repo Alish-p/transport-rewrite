@@ -10,7 +10,12 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
     <Dialog open={showDialog} onClose={() => setShowDialog(false)} fullWidth maxWidth="sm">
       <DialogTitle>Add Expense</DialogTitle>
       <DialogContent>
-        <ExpenseCoreForm currentSubtrip={subtripData} pumps={pumps} />
+        <ExpenseCoreForm
+          currentSubtrip={subtripData}
+          pumps={pumps}
+          fromDialog
+          onSuccess={() => setShowDialog(false)}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setShowDialog(false)}>Cancel</Button>
