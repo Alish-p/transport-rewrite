@@ -17,6 +17,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useBoolean } from '../../hooks/use-boolean';
 import { useCreateSubtrip } from '../../query/use-subtrip';
+import { KanbanTripDialog } from '../kanban/components/kanban-trip-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 const NewTripSchema = zod.object({
@@ -39,6 +40,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
 
   const addSubtrip = useCreateSubtrip();
   const customerDialog = useBoolean(false);
+  const tripDialog = useBoolean(false);
 
   const defaultValues = useMemo(
     () => ({
@@ -67,6 +69,13 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
     setValue('customerId', { label: customer.customerName, value: customer._id });
   };
 
+  const handleTripChange = (trip) => {
+    setValue('tripId', {
+      label: `${trip.vehicleId?.vehicleNo} - ${trip.driverId?.driverName}`,
+      value: trip._id,
+    });
+  };
+
   const onSubmit = async (data) => {
     try {
       const createdSubtrip = await addSubtrip({
@@ -83,6 +92,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
   };
 
   const selectedCustomer = customers.find((c) => c._id === methods.watch('customerId')?.value);
+  const selectedTrip = trips.find((t) => t._id === methods.watch('tripId')?.value);
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -102,17 +112,37 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-              <Field.Autocomplete
-                sx={{ mb: 2 }}
-                name="tripId"
-                label="Trip"
-                options={trips.map((c) => ({ label: c._id, value: c._id }))}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-                disabled={currentTrip}
-              />
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Trip
+                </Typography>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={tripDialog.onTrue}
+                  disabled={currentTrip}
+                  sx={{
+                    height: 56,
+                    justifyContent: 'flex-start',
+                    typography: 'body2',
+                  }}
+                  startIcon={
+                    <Iconify
+                      icon={selectedTrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
+                      sx={{ color: selectedTrip ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {selectedTrip
+                    ? `${selectedTrip.vehicleId?.vehicleNo} - ${selectedTrip.driverId?.driverName}`
+                    : 'Select Trip'}
+                </Button>
+              </Box>
 
               <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Customer
+                </Typography>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -152,6 +182,14 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
         onClose={customerDialog.onFalse}
         selectedCustomer={selectedCustomer}
         onCustomerChange={handleCustomerChange}
+      />
+
+      <KanbanTripDialog
+        open={tripDialog.value}
+        onClose={tripDialog.onFalse}
+        selectedTrip={selectedTrip}
+        onTripChange={handleTripChange}
+        trips={trips}
       />
     </Form>
   );

@@ -40,7 +40,10 @@ const validationSchema = zod
       .min(0, { message: 'Total Km must be zero or a positive number' })
       .optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
-
+    commissionRate: zod
+      .number()
+      .min(0, { message: 'Commission rate cannot be negative' })
+      .optional(),
     hasError: zod.boolean(),
   })
   .superRefine((values, ctx) => {
@@ -67,7 +70,7 @@ const validationSchema = zod
 
 export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
-  const { _id, loadingWeight, startKm } = subtrip;
+  const { _id, loadingWeight, startKm, tripId } = subtrip;
 
   const defaultValues = {
     remarks: '',
@@ -79,6 +82,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     endKm: 0,
     totalKm: 0,
     endDate: today(),
+    commissionRate: 0,
     hasError: false,
   };
 
@@ -98,6 +102,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
   const unloadingWeight = useWatch({ control, name: 'unloadingWeight' });
   const endKm = useWatch({ control, name: 'endKm' });
+  const commissionRate = useWatch({ control, name: 'commissionRate' });
 
   useEffect(() => {
     const deductedWeight = loadingWeight - unloadingWeight;
@@ -105,7 +110,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
     const totalKm = endKm - startKm;
     setValue('totalKm', totalKm);
-  }, [unloadingWeight, loadingWeight, setValue, endKm, startKm]);
+  }, [unloadingWeight, loadingWeight, setValue, endKm, startKm, commissionRate]);
 
   const handleReset = () => {
     reset(defaultValues);
@@ -172,6 +177,15 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
               <Field.DatePicker name="endDate" label="End Date" />
 
               <Field.Text name="remarks" label="Remarks" type="text" />
+
+              {!tripId?.vehicleId?.isOwn && (
+                <Field.Text
+                  name="commissionRate"
+                  label="Transporter Commission Rate"
+                  type="number"
+                  placeholder="0"
+                />
+              )}
             </Box>
 
             <Box sx={{ marginTop: '20px' }}>

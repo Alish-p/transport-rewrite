@@ -58,7 +58,6 @@ export default function SubtripToolbar({
               <Typography variant="h4">Subtrip #{subtrip._id} </Typography>
               <Label
                 variant="soft"
-                s
                 color={
                   (status === SUBTRIP_STATUS.IN_QUEUE && 'warning') ||
                   (status === SUBTRIP_STATUS.LOADED && 'info') ||
@@ -69,6 +68,9 @@ export default function SubtripToolbar({
                 }
               >
                 {status}
+              </Label>
+              <Label variant="soft" color="info">
+                {subtrip.tripId?.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
               </Label>
             </Stack>
           </Stack>

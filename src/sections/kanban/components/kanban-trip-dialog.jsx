@@ -14,45 +14,42 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
 
-import { useVehicles } from '../../../query/use-vehicle';
-
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 64;
 
 // ----------------------------------------------------------------------
 
-export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onVehicleChange }) {
-  const { data: vehicles } = useVehicles();
-  const [searchVehicle, setSearchVehicle] = useState('');
+export function KanbanTripDialog({ selectedTrip = null, open, onClose, onTripChange, trips = [] }) {
+  const [searchTrip, setSearchTrip] = useState('');
 
-  const handleSearchVehicles = useCallback((event) => {
-    setSearchVehicle(event.target.value);
+  const handleSearchTrips = useCallback((event) => {
+    setSearchTrip(event.target.value);
   }, []);
 
-  const handleSelectVehicle = useCallback(
-    (vehicle) => {
-      onVehicleChange(vehicle);
+  const handleSelectTrip = useCallback(
+    (trip) => {
+      onTripChange(trip);
       onClose();
     },
-    [onVehicleChange, onClose]
+    [onTripChange, onClose]
   );
 
-  const dataFiltered = applyFilter({ inputData: vehicles || [], query: searchVehicle });
+  const dataFiltered = applyFilter({ inputData: trips || [], query: searchTrip });
 
-  const notFound = !dataFiltered.length && !!searchVehicle;
+  const notFound = !dataFiltered.length && !!searchTrip;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Vehicles <Typography component="span">({vehicles?.length})</Typography>
+        Trips <Typography component="span">({trips?.length})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
         <TextField
           fullWidth
-          value={searchVehicle}
-          onChange={handleSearchVehicles}
+          value={searchTrip}
+          onChange={handleSearchTrips}
           placeholder="Search..."
           InputProps={{
             startAdornment: (
@@ -66,17 +63,17 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
 
       <DialogContent sx={{ p: 0 }}>
         {notFound ? (
-          <SearchNotFound query={searchVehicle} sx={{ mt: 3, mb: 10 }} />
+          <SearchNotFound query={searchTrip} sx={{ mt: 3, mb: 10 }} />
         ) : (
           <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
-              {dataFiltered.map((vehicle) => {
-                const isSelected = selectedVehicle?._id === vehicle._id;
+              {dataFiltered.map((trip) => {
+                const isSelected = selectedTrip?._id === trip._id;
 
                 return (
                   <Box
                     component="li"
-                    key={vehicle._id}
+                    key={trip._id}
                     sx={{
                       gap: 2,
                       display: 'flex',
@@ -87,29 +84,18 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
                     <ListItemText
                       primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                       secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={vehicle.vehicleNo}
+                      primary={`Trip ${trip._id}`}
                       secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="caption">
-                            {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: vehicle.isOwn ? 'primary.main' : 'warning.main',
-                              fontWeight: 'medium',
-                            }}
-                          >
-                            {vehicle.isOwn ? 'Company Owned' : 'Market Vehicle'}
-                          </Typography>
-                        </Box>
+                        <>
+                          Vehicle: {trip.vehicleId?.vehicleNo} • Driver: {trip.driverId?.driverName}
+                        </>
                       }
                     />
 
                     <Button
                       size="small"
                       color={isSelected ? 'primary' : 'inherit'}
-                      onClick={() => handleSelectVehicle(vehicle)}
+                      onClick={() => handleSelectTrip(trip)}
                       startIcon={
                         <Iconify
                           width={16}
@@ -134,11 +120,10 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
 function applyFilter({ inputData, query }) {
   if (query) {
     inputData = inputData.filter(
-      (vehicle) =>
-        vehicle.vehicleNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.vehicleType.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.modelType.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.vehicleCompany.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (trip) =>
+        trip._id.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        trip.vehicleId?.vehicleNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        trip.driverId?.driverName.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
 

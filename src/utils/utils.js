@@ -1,5 +1,3 @@
-import { CONFIG } from '../config-global';
-
 // Driver Payment Section
 export const calculateDriverSalary = (subtrip) => {
   if (!subtrip?.expenses || !Array.isArray(subtrip?.expenses)) {
@@ -66,7 +64,10 @@ export const calculateTransporterPayment = (subtrip) => {
     return 0;
   }
   // Total Income of subtrip
-  const rateAfterCommision = subtrip.rate - CONFIG.company.transporterCommissionRate;
+
+  const transporterCommissionRate = subtrip.commissionRate || 0;
+
+  const rateAfterCommision = subtrip.rate - transporterCommissionRate;
   const totalFreightAmount = rateAfterCommision * subtrip.loadingWeight;
 
   // Total Expense of subtrip
