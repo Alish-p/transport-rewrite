@@ -165,7 +165,11 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                 </Button>
               </Box>
 
-              <Field.Text name="diNumber" label="DI/DO No" />
+              <Field.Text
+                name="diNumber"
+                label="DI/DO No"
+                helperText="Please Enter DI/DO Number to Generate Entry Pass"
+              />
               <Field.DatePicker name="startDate" label="Subtrip Start Date" />
             </Box>
           </Card>
