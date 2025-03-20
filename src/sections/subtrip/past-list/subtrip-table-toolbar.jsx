@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback } from 'react';
 
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
   Box,
   Tooltip,
@@ -19,6 +20,7 @@ import {
 } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useDrivers } from 'src/query/use-driver';
 import { useVehicles } from 'src/query/use-vehicle';
@@ -27,7 +29,9 @@ import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
@@ -49,6 +53,7 @@ export default function SubtripTableToolbar({
 
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const dateRangePopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
@@ -88,16 +93,17 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
-  const handleFilterFromDate = useCallback(
-    (newValue) => {
-      onFilters('fromDate', newValue);
+  const handleFilterDateRange = useCallback(
+    (startDate, endDate) => {
+      onFilters('fromDate', startDate);
+      onFilters('endDate', endDate);
     },
     [onFilters]
   );
 
-  const handleFilterEndDate = useCallback(
-    (newValue) => {
-      onFilters('endDate', newValue);
+  const handleFilterStatus = useCallback(
+    (event, newValue) => {
+      onFilters('status', newValue);
     },
     [onFilters]
   );
@@ -147,13 +153,18 @@ export default function SubtripTableToolbar({
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
   const selectedTransporter = transporters.find((t) => t._id === filters.transportName);
 
+  const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
+  const dateRangeShortLabel = dateRangeSelected
+    ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
+    : '';
+
   const canSearch = !!(
     filters.customerId ||
     filters.transportName ||
     filters.vehicleNo ||
     filters.subtripId ||
-    filters.fromDate ||
-    filters.endDate
+    dateRangeSelected ||
+    filters.status
   );
 
   return (
@@ -165,146 +176,190 @@ export default function SubtripTableToolbar({
         }}
       >
         <Stack spacing={2.5}>
-          <Stack
-            spacing={2}
-            alignItems={{ xs: 'flex-end', md: 'center' }}
-            direction={{
-              xs: 'column',
-              md: 'row',
-            }}
+          {/* Main Filters Grid */}
+          <Box
             sx={{
               pt: 2.5,
               px: 2.5,
               minWidth: { md: '1200px' },
             }}
           >
-            <TextField
-              fullWidth
-              value={filters.subtripId}
-              onChange={handleFilterSubtripId}
-              placeholder="Id"
-              sx={{ width: { xs: 1, md: 200 } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <Button
-              onClick={handleOpenCustomerDialog}
-              variant="outlined"
-              sx={{
-                width: { xs: 1, md: 200 },
-                height: 56,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
-              <Iconify
-                icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
-                sx={{ color: selectedCustomer ? 'success.main' : 'inherit' }}
+            <Stack spacing={2} direction="row" flexWrap="wrap" alignItems="center" sx={{ gap: 2 }}>
+              {/* ID Search */}
+              <TextField
+                value={filters.subtripId}
+                onChange={handleFilterSubtripId}
+                placeholder="Search by ID"
+                sx={{ width: { xs: 1, md: 200 } }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </Button>
 
-            <Button
-              onClick={handleOpenTransporterDialog}
-              variant="outlined"
-              sx={{
-                width: { xs: 1, md: 200 },
-                height: 56,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              {selectedTransporter ? selectedTransporter.transportName : 'Select Transporter'}
-              <Iconify
-                icon={selectedTransporter ? 'mdi:truck-delivery' : 'mdi:truck-delivery-outline'}
-                sx={{ color: selectedTransporter ? 'success.main' : 'inherit' }}
+              {/* Status Filter */}
+              <Autocomplete
+                multiple
+                disableCloseOnSelect
+                options={Object.values(SUBTRIP_STATUS)}
+                value={filters.status || []}
+                onChange={handleFilterStatus}
+                getOptionLabel={(option) => option}
+                renderOption={(props, option) => (
+                  <li {...props} key={option}>
+                    {option}
+                  </li>
+                )}
+                renderTags={(selected, getTagProps) =>
+                  selected.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                      size="small"
+                      color="info"
+                      variant="soft"
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Select Status"
+                    sx={{ width: { xs: 1, md: 200 } }}
+                  />
+                )}
+                sx={{ width: { xs: 1, md: 200 } }}
               />
-            </Button>
 
-            <Button
-              onClick={handleOpenVehicleDialog}
-              variant="outlined"
-              sx={{
-                width: { xs: 1, md: 200 },
-                height: 56,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
-              <Iconify
-                icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
-                sx={{ color: selectedVehicle ? 'success.main' : 'inherit' }}
-              />
-            </Button>
+              {/* Date Range Filter */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {dateRangeSelected ? (
+                  <Button
+                    size="small"
+                    onClick={dateRangePopover.onOpen}
+                    variant="outlined"
+                    sx={{ width: { xs: 1, md: 200 }, height: 56 }}
+                  >
+                    {dateRangeShortLabel}{' '}
+                    <Iconify
+                      icon="mdi:calendar"
+                      sx={{ color: dateRangeSelected ? 'success.main' : 'inherit' }}
+                    />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={dateRangePopover.onOpen}
+                    variant="outlined"
+                    sx={{
+                      width: { xs: 1, md: 200 },
+                      height: 56,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      borderStyle: 'dashed',
+                    }}
+                  >
+                    Select Date Range
+                    <Iconify icon="mdi:calendar" />
+                  </Button>
+                )}
 
-            <Button
-              onClick={handleOpenDriverDialog}
-              variant="outlined"
-              sx={{
-                width: { xs: 1, md: 200 },
-                height: 56,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
-              <Iconify
-                icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
-                sx={{ color: selectedDriver ? 'success.main' : 'inherit' }}
-              />
-            </Button>
-          </Stack>
+                <CustomDateRangePicker
+                  variant="calendar"
+                  title="Select date range"
+                  startDate={filters.fromDate}
+                  endDate={filters.endDate}
+                  onChangeStartDate={(date) => handleFilterDateRange(date, filters.endDate)}
+                  onChangeEndDate={(date) => handleFilterDateRange(filters.fromDate, date)}
+                  open={dateRangePopover.open}
+                  onClose={dateRangePopover.onClose}
+                  selected={dateRangeSelected}
+                  error={false}
+                />
+              </Box>
 
-          <Stack
-            spacing={2}
-            alignItems={{ xs: 'flex-end', md: 'center' }}
-            direction={{
-              xs: 'column',
-              md: 'row',
-            }}
-            sx={{
-              pb: 2.5,
-              px: 2.5,
-              minWidth: { md: '1200px' },
-            }}
-          >
-            <DatePicker
-              label="Start date"
-              value={filters.fromDate}
-              onChange={handleFilterFromDate}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  sx: { width: { xs: 1, md: 200 } },
-                },
-              }}
-            />
+              {/* Customer Filter */}
+              <Button
+                onClick={handleOpenCustomerDialog}
+                variant="outlined"
+                sx={{
+                  width: { xs: 1, md: 200 },
+                  height: 56,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+                <Iconify
+                  icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
+                  sx={{ color: selectedCustomer ? 'success.main' : 'inherit' }}
+                />
+              </Button>
 
-            <DatePicker
-              label="End date"
-              value={filters.endDate}
-              onChange={handleFilterEndDate}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  sx: { width: { xs: 1, md: 200 } },
-                },
-              }}
-            />
+              {/* Transporter Filter */}
+              <Button
+                onClick={handleOpenTransporterDialog}
+                variant="outlined"
+                sx={{
+                  width: { xs: 1, md: 200 },
+                  height: 56,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                {selectedTransporter ? selectedTransporter.transportName : 'Select Transporter'}
+                <Iconify
+                  icon={selectedTransporter ? 'mdi:truck-delivery' : 'mdi:truck-delivery-outline'}
+                  sx={{ color: selectedTransporter ? 'success.main' : 'inherit' }}
+                />
+              </Button>
 
-            <Box sx={{ width: { xs: 1, md: 200 }, display: 'flex', justifyContent: 'center' }}>
-              <Stack direction="row" spacing={1}>
+              {/* Vehicle Filter */}
+              <Button
+                onClick={handleOpenVehicleDialog}
+                variant="outlined"
+                sx={{
+                  width: { xs: 1, md: 200 },
+                  height: 56,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
+                <Iconify
+                  icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
+                  sx={{ color: selectedVehicle ? 'success.main' : 'inherit' }}
+                />
+              </Button>
+
+              {/* Driver Filter */}
+              <Button
+                onClick={handleOpenDriverDialog}
+                variant="outlined"
+                sx={{
+                  width: { xs: 1, md: 200 },
+                  height: 56,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
+                <Iconify
+                  icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
+                  sx={{ color: selectedDriver ? 'success.main' : 'inherit' }}
+                />
+              </Button>
+
+              {/* Action Buttons */}
+              <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
                 <Tooltip title="Column Settings">
                   <IconButton onClick={columnsPopover.onOpen}>
                     <Iconify icon="mdi:table-column-plus-after" />
@@ -314,24 +369,23 @@ export default function SubtripTableToolbar({
                 <IconButton onClick={popover.onOpen}>
                   <Iconify icon="eva:more-vertical-fill" />
                 </IconButton>
-              </Stack>
-            </Box>
 
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<Iconify icon="material-symbols:search" />}
-              onClick={onSearch}
-              disabled={!canSearch}
-              sx={{
-                width: { xs: 1, md: 200 },
-                height: 40,
-                boxShadow: theme.customShadows.primary,
-              }}
-            >
-              Search
-            </Button>
-          </Stack>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Iconify icon="material-symbols:search" />}
+                  onClick={onSearch}
+                  disabled={!canSearch}
+                  sx={{
+                    height: 40,
+                    boxShadow: theme.customShadows.primary,
+                  }}
+                >
+                  Search
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
         </Stack>
       </Box>
 

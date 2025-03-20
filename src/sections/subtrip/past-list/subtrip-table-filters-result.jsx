@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { useDrivers } from 'src/query/use-driver';
 import { useVehicles } from 'src/query/use-vehicle';
 import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
@@ -26,6 +27,7 @@ export default function SubtripTableFiltersResult({
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
+  const { data: drivers = [] } = useDrivers();
 
   const handleRemoveCustomer = () => {
     onFilters('customerId', '');
@@ -39,6 +41,10 @@ export default function SubtripTableFiltersResult({
     onFilters('vehicleNo', '');
   };
 
+  const handleRemoveDriver = () => {
+    onFilters('driverId', '');
+  };
+
   const handleRemoveSubtripId = () => {
     onFilters('subtripId', '');
   };
@@ -46,6 +52,10 @@ export default function SubtripTableFiltersResult({
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('endDate', null);
+  };
+
+  const handleRemoveStatus = () => {
+    onFilters('status', []);
   };
 
   const getCustomerName = (id) => {
@@ -61,6 +71,11 @@ export default function SubtripTableFiltersResult({
   const getVehicleNumber = (id) => {
     const vehicle = vehicles.find((v) => v._id === id);
     return vehicle?.vehicleNo || id;
+  };
+
+  const getDriverName = (id) => {
+    const driver = drivers.find((d) => d._id === id);
+    return driver?.driverName || id;
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
@@ -98,6 +113,16 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
+        {filters.driverId && (
+          <Block label="Driver:">
+            <Chip
+              size="small"
+              label={getDriverName(filters.driverId)}
+              onDelete={handleRemoveDriver}
+            />
+          </Block>
+        )}
+
         {filters.subtripId && (
           <Block label="Subtrip Id:">
             <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtripId} />
@@ -107,6 +132,22 @@ export default function SubtripTableFiltersResult({
         {filters.fromDate && filters.endDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+          </Block>
+        )}
+
+        {filters.status && filters.status.length > 0 && (
+          <Block label="Status:">
+            {filters.status.map((status) => (
+              <Chip
+                key={status}
+                size="small"
+                label={status}
+                onDelete={() => {
+                  const newStatus = filters.status.filter((s) => s !== status);
+                  onFilters('status', newStatus);
+                }}
+              />
+            ))}
           </Block>
         )}
 

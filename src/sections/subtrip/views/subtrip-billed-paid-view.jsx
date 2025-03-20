@@ -18,7 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePastFilteredSubtrips } from 'src/query/use-subtrip';
+import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -57,6 +57,8 @@ const defaultFilters = {
   transportName: '',
   fromDate: null,
   endDate: null,
+  status: [],
+  driverId: '',
 };
 
 // ----------------------------------------------------------------------
@@ -95,7 +97,7 @@ export function SubtripBilledPaidView() {
     filters.startDate && filters.endDate ? filters.startDate > filters.endDate : false;
 
   // Use the filtered subtrips query
-  const { data: tableData = [], isLoading } = usePastFilteredSubtrips({
+  const { data: tableData = [], isLoading } = useFilteredSubtrips({
     ...searchParams,
   });
 
@@ -106,7 +108,9 @@ export function SubtripBilledPaidView() {
     !!filters.subtripId ||
     !!filters.transportName ||
     !!filters.customerId ||
-    (!!filters.fromDate && !!filters.endDate);
+    !!filters.driverId ||
+    (!!filters.fromDate && !!filters.endDate) ||
+    (filters.status && filters.status.length > 0);
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -116,6 +120,8 @@ export function SubtripBilledPaidView() {
       ...prevState,
       [name]: value,
     }));
+    // Reset search params when any filter changes
+    setSearchParams(null);
   };
 
   const handleSearch = () => {
@@ -127,6 +133,8 @@ export function SubtripBilledPaidView() {
       fromDate: filters.fromDate || undefined,
       toDate: filters.endDate || undefined,
       transporterId: filters.transportName || undefined,
+      subtripStatus: filters.status?.length > 0 ? filters.status : undefined,
+      driverId: filters.driverId || undefined,
     };
 
     // Remove undefined values

@@ -251,7 +251,7 @@ export function SubtripListView({ subtrips }) {
                 variant="outlined"
                 startIcon={<Iconify icon="mdi:progress-tick" />}
               >
-                View Billed Paid
+                Reports
               </Button>
               <Button
                 component={RouterLink}
