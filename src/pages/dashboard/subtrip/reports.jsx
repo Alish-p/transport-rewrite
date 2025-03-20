@@ -4,11 +4,11 @@ import { SubtripReportsView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripBilledPaidPage() {
+export default function SubtripReportsPage() {
   return (
     <>
       <Helmet>
-        <title> Subtrip: Billed Paid List</title>
+        <title> Subtrip: Reports</title>
       </Helmet>
 
       <SubtripReportsView />
