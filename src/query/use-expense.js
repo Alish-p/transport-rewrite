@@ -12,6 +12,11 @@ const getExpenses = async () => {
   return data;
 };
 
+const getPastFilteredExpenses = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 const getExpense = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -35,6 +40,14 @@ const deleteExpense = async (id) => {
 // Queries & Mutations
 export function useExpenses() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getExpenses });
+}
+
+export function useFilteredExpenses(params) {
+  return useQuery({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => getPastFilteredExpenses(params),
+    enabled: !!params,
+  });
 }
 
 export function useExpense(id) {

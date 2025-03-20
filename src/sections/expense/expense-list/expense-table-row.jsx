@@ -110,7 +110,7 @@ export default function ExpenseTableRow({
               onClick={() => navigate(paths.dashboard.subtrip.details(subtripId))}
               sx={{ color: 'text.success', cursor: 'pointer' }}
             >
-              {subtripId || '-'}
+              {subtripId._id || '-'}
             </Link>
           </TableCell>
         )}
