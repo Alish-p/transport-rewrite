@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { SubtripBilledPaidView } from 'src/sections/subtrip/views/subtrip-billed-paid-view';
+import { SubtripReportsView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ export default function SubtripBilledPaidPage() {
         <title> Subtrip: Billed Paid List</title>
       </Helmet>
 
-      <SubtripBilledPaidView />
+      <SubtripReportsView />
     </>
   );
 }

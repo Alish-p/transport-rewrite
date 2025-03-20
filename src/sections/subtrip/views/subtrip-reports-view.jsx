@@ -63,7 +63,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function SubtripBilledPaidView() {
+export function SubtripReportsView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
   const router = useRouter();
