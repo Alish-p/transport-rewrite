@@ -4,11 +4,11 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { calculateSubtripTotalIncome } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
 
 import { pdfStyles } from '../subtrip/pdfs/pdf-styles';
-import { calculateSubtripTotalIncome } from '../../utils/utils';
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ export default function InvoicePdf({ invoice, currentStatus }) {
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Customer Invoice</Text>
+      <Text style={[styles.h3, styles.mb4]}>Tax Invoice</Text>
     </View>
   );
 
@@ -228,7 +228,9 @@ export default function InvoicePdf({ invoice, currentStatus }) {
           </View>
           <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
             <Text style={[styles.horizontalCellContent]}>
-              {subtrip.rate * subtrip.loadingWeight}
+              {fCurrency(subtrip.rate * subtrip.loadingWeight, {
+                style: 'decimal',
+              })}
             </Text>
           </View>
         </View>

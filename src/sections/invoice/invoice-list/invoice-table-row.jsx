@@ -18,6 +18,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 import { calculateSubtripTotalIncome } from 'src/utils/utils';
 
@@ -103,7 +104,7 @@ export default function InvoiceTableRow({
 
         <TableCell>
           <ListItemText
-            primary={total}
+            primary={fCurrency(total)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
