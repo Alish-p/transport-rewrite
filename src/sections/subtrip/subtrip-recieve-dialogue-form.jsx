@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -72,19 +72,22 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
   const { _id, loadingWeight, startKm, tripId } = subtrip;
 
-  const defaultValues = {
-    remarks: '',
-    loadingWeight,
-    unloadingWeight: 0,
-    deductedWeight: 0,
-    deductedAmount: 0,
-    startKm,
-    endKm: 0,
-    totalKm: 0,
-    endDate: today(),
-    commissionRate: 0,
-    hasError: false,
-  };
+  const defaultValues = useMemo(
+    () => ({
+      remarks: '',
+      loadingWeight: loadingWeight || 0,
+      unloadingWeight: 0,
+      deductedWeight: 0,
+      deductedAmount: 0,
+      startKm: startKm || 0,
+      endKm: 0,
+      totalKm: 0,
+      endDate: today(),
+      commissionRate: 0,
+      hasError: false,
+    }),
+    [loadingWeight, startKm]
+  );
 
   const methods = useForm({
     resolver: zodResolver(validationSchema),
@@ -99,6 +102,17 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     formState: { isSubmitting },
     control,
   } = methods;
+
+  // Add effect to update form values when subtrip changes
+  useEffect(() => {
+    if (subtrip) {
+      reset({
+        ...defaultValues,
+        loadingWeight: subtrip.loadingWeight || 0,
+        startKm: subtrip.startKm || 0,
+      });
+    }
+  }, [subtrip, reset, defaultValues]);
 
   const unloadingWeight = useWatch({ control, name: 'unloadingWeight' });
   const endKm = useWatch({ control, name: 'endKm' });
