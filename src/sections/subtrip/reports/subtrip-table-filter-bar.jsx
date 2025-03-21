@@ -1,11 +1,20 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
-import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import { Box, Chip, Stack, Select, Checkbox, ListItemText } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Stack,
+  Paper,
+  Select,
+  Divider,
+  Tooltip,
+  Popover,
+  Checkbox,
+  Typography,
+  ListItemText,
+} from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -30,6 +39,7 @@ import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-t
 
 export default function SubtripTableFilters({ filters, onFilters }) {
   const dateRangePopover = usePopover();
+  const statusPopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
@@ -77,6 +87,18 @@ export default function SubtripTableFilters({ filters, onFilters }) {
     [onFilters]
   );
 
+  const handleToggleStatus = useCallback(
+    (status) => {
+      const currentStatuses = Array.isArray(filters.status) ? [...filters.status] : [];
+      const newStatuses = currentStatuses.includes(status)
+        ? currentStatuses.filter((s) => s !== status)
+        : [...currentStatuses, status];
+
+      onFilters('status', newStatuses);
+    },
+    [filters.status, onFilters]
+  );
+
   const handleFilterVehicle = useCallback(
     (vehicle) => {
       onFilters('vehicleNo', vehicle._id);
@@ -102,55 +124,130 @@ export default function SubtripTableFilters({ filters, onFilters }) {
     : '';
 
   return (
-    <Stack spacing={2}>
-      {/* Filter Section */}
-      <Box
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(2, 1fr)',
-          sm: 'repeat(3, 1fr)',
-          md: 'repeat(5, 1fr)',
-          lg: 'repeat(7, 1fr)',
+    <Box sx={{ p: 2, pb: 1 }}>
+      {/* Search Field */}
+      {/* <TextField
+        fullWidth
+        value={filters.subtripId}
+        onChange={handleFilterSubtripId}
+        placeholder="Search by ID"
+        sx={{ mb: 2 }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+            </InputAdornment>
+          ),
         }}
-        gap={1}
-      >
-        <TextField
-          value={filters.subtripId}
-          onChange={handleFilterSubtripId}
-          placeholder="Search by ID"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+      /> */}
 
-        <Select
-          multiple
-          displayEmpty
-          value={Array.isArray(filters.status) ? filters.status : []}
-          onChange={handleFilterStatus}
-          sx={{
-            maxHeight: 70,
-            overflow: 'hidden',
-          }}
-          renderValue={(selected) => {
-            if (selected.length === 0) {
-              return <Box sx={{ color: 'text.disabled' }}>Select Status</Box>;
+      {/* Filter Chips Section */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        sx={{
+          mb: 1,
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
+        <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+          Additional Filters:
+        </Typography>
+
+        <Divider orientation="vertical" flexItem />
+
+        {/* Status Filter */}
+        <Tooltip title="Filter by status" arrow>
+          <Chip
+            label="Status"
+            onClick={statusPopover.onOpen}
+            color={
+              Array.isArray(filters.status) && filters.status.length > 0 ? 'primary' : 'default'
             }
-            return (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} size="small" color="info" variant="soft" />
-                ))}
-              </Box>
-            );
-          }}
-        >
+            variant={
+              Array.isArray(filters.status) && filters.status.length > 0 ? 'filled' : 'outlined'
+            }
+            icon={<Iconify icon="mdi:filter-variant" />}
+          />
+        </Tooltip>
+
+        {/* Date Range Filter */}
+        <Tooltip title="Filter by date range" arrow>
+          <Chip
+            label={dateRangeSelected ? dateRangeShortLabel : 'Date Range'}
+            onClick={dateRangePopover.onOpen}
+            color={dateRangeSelected ? 'primary' : 'default'}
+            variant={dateRangeSelected ? 'filled' : 'outlined'}
+            icon={<Iconify icon="mdi:calendar" />}
+          />
+        </Tooltip>
+
+        {/* Customer Filter */}
+        <Tooltip title="Filter by customer" arrow>
+          <Chip
+            label={selectedCustomer ? selectedCustomer.customerName : 'Customer'}
+            onClick={customerDialog.onTrue}
+            color={selectedCustomer ? 'primary' : 'default'}
+            variant={selectedCustomer ? 'filled' : 'outlined'}
+            icon={<Iconify icon="mdi:office-building" />}
+          />
+        </Tooltip>
+
+        {/* Transporter Filter */}
+        <Tooltip title="Filter by transporter" arrow>
+          <Chip
+            label={selectedTransporter ? selectedTransporter.transportName : 'Transporter'}
+            onClick={transporterDialog.onTrue}
+            color={selectedTransporter ? 'primary' : 'default'}
+            variant={selectedTransporter ? 'filled' : 'outlined'}
+            icon={<Iconify icon="mdi:truck-delivery" />}
+          />
+        </Tooltip>
+
+        {/* Vehicle Filter */}
+        <Tooltip title="Filter by vehicle" arrow>
+          <Chip
+            label={selectedVehicle ? selectedVehicle.vehicleNo : 'Vehicle'}
+            onClick={vehicleDialog.onTrue}
+            color={selectedVehicle ? 'primary' : 'default'}
+            variant={selectedVehicle ? 'filled' : 'outlined'}
+            icon={<Iconify icon="mdi:truck" />}
+          />
+        </Tooltip>
+
+        {/* Driver Filter */}
+        <Tooltip title="Filter by driver" arrow>
+          <Chip
+            label={selectedDriver ? selectedDriver.driverName : 'Driver'}
+            onClick={driverDialog.onTrue}
+            color={selectedDriver ? 'primary' : 'default'}
+            variant={selectedDriver ? 'filled' : 'outlined'}
+            icon={<Iconify icon="mdi:account" />}
+          />
+        </Tooltip>
+      </Stack>
+
+      {/* Status Filter Popover */}
+      <Popover
+        open={statusPopover.open}
+        onClose={statusPopover.onClose}
+        anchorEl={statusPopover.anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        slotProps={{
+          paper: {
+            sx: { width: 220, p: 1 },
+          },
+        }}
+      >
+        <Typography variant="subtitle2" sx={{ px: 1, pb: 1 }}>
+          Select Status
+        </Typography>
+        <Paper sx={{ maxHeight: 240, overflow: 'auto' }}>
           {Object.values(SUBTRIP_STATUS).map((status) => (
-            <MenuItem key={status} value={status}>
+            <MenuItem key={status} onClick={() => handleToggleStatus(status)}>
               <Checkbox
                 size="small"
                 checked={Array.isArray(filters.status) && filters.status.includes(status)}
@@ -158,68 +255,8 @@ export default function SubtripTableFilters({ filters, onFilters }) {
               <ListItemText primary={status} />
             </MenuItem>
           ))}
-        </Select>
-
-        <Button
-          onClick={dateRangePopover.onOpen}
-          variant="outlined"
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {dateRangeSelected ? dateRangeShortLabel : 'Select Date Range'}
-          <Iconify
-            icon="mdi:calendar"
-            sx={{ color: dateRangeSelected ? 'success.main' : 'inherit' }}
-          />
-        </Button>
-
-        <Button
-          onClick={customerDialog.onTrue}
-          variant="outlined"
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
-          <Iconify
-            icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
-            sx={{ color: selectedCustomer ? 'success.main' : 'inherit' }}
-          />
-        </Button>
-
-        <Button
-          onClick={transporterDialog.onTrue}
-          variant="outlined"
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {selectedTransporter ? selectedTransporter.transportName : 'Select Transporter'}
-          <Iconify
-            icon={selectedTransporter ? 'mdi:truck-delivery' : 'mdi:truck-delivery-outline'}
-            sx={{ color: selectedTransporter ? 'success.main' : 'inherit' }}
-          />
-        </Button>
-
-        <Button
-          onClick={vehicleDialog.onTrue}
-          variant="outlined"
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
-          <Iconify
-            icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
-            sx={{ color: selectedVehicle ? 'success.main' : 'inherit' }}
-          />
-        </Button>
-
-        <Button
-          onClick={driverDialog.onTrue}
-          variant="outlined"
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
-          <Iconify
-            icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
-            sx={{ color: selectedDriver ? 'success.main' : 'inherit' }}
-          />
-        </Button>
-      </Box>
+        </Paper>
+      </Popover>
 
       <CustomDateRangePicker
         variant="calendar"
@@ -261,6 +298,25 @@ export default function SubtripTableFilters({ filters, onFilters }) {
         selectedTransporter={selectedTransporter}
         onTransporterChange={handleFilterTransporter}
       />
-    </Stack>
+
+      {/* Status Filter Select - hidden but still functional */}
+      <Select
+        multiple
+        displayEmpty
+        value={Array.isArray(filters.status) ? filters.status : []}
+        onChange={handleFilterStatus}
+        sx={{ display: 'none' }}
+      >
+        {Object.values(SUBTRIP_STATUS).map((status) => (
+          <MenuItem key={status} value={status}>
+            <Checkbox
+              size="small"
+              checked={Array.isArray(filters.status) && filters.status.includes(status)}
+            />
+            <ListItemText primary={status} />
+          </MenuItem>
+        ))}
+      </Select>
+    </Box>
   );
 }

@@ -7,8 +7,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
-import { Tooltip, IconButton } from '@mui/material';
 import TableContainer from '@mui/material/TableContainer';
+import { Tooltip, Divider, IconButton } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -36,6 +36,7 @@ import {
 
 import SubtripTableRow from '../reports/subtrip-table-row';
 import SubtripTableActions from '../reports/subtrip-table-actions';
+import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
 import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
 
@@ -115,6 +116,13 @@ export function SubtripReportsView() {
 
   const handleFilters = (name, value) => {
     table.onResetPage();
+
+    // If reset action, reset all filters
+    if (name === 'reset') {
+      setFilters(defaultFilters);
+      return;
+    }
+
     setFilters((prevState) => ({
       ...prevState,
       [name]: value,
@@ -197,17 +205,18 @@ export function SubtripReportsView() {
       />
 
       <Card>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-          <SubtripTableFilters
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            onSearch={handleSearch}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
-        </Stack>
+        {/* Quick Filter Chips */}
+        <SubtripQuickFilters onApplyFilter={handleFilters} onSearch={handleSearch} />
+
+        <SubtripTableFilters
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          onSearch={handleSearch}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+        />
 
         {isFilterApplied && (
           <SubtripTableFiltersResult
@@ -215,9 +224,11 @@ export function SubtripReportsView() {
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
             results={tableData.length}
-            sx={{ p: 2.5, pt: 0 }}
+            sx={{ p: 2, pt: 0 }}
           />
         )}
+
+        <Divider orientation="horizontal" flexItem />
 
         {/* Action Items Section */}
         <SubtripTableActions
