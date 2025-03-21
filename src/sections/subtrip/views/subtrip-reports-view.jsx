@@ -33,9 +33,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import SubtripTableRow from '../past-list/subtrip-table-row';
-import SubtripTableToolbar from '../past-list/subtrip-table-toolbar';
-import SubtripTableFiltersResult from '../past-list/subtrip-table-filters-result';
+import SubtripTableRow from '../reports/subtrip-table-row';
+import SubtripTableToolbar from '../reports/subtrip-table-toolbar';
+import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
 
