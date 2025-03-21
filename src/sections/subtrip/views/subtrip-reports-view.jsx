@@ -231,8 +231,8 @@ export function SubtripReportsView() {
 
         {!searchParams ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              Please select filters and click search to view billed paid subtrips
+            <Typography variant="body1" sx={{ color: 'success.dark' }}>
+              Please select filters and click search to view subtrip reports
             </Typography>
           </Box>
         ) : (
