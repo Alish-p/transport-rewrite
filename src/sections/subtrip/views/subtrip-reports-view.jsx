@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
+import { Tooltip, IconButton } from '@mui/material';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -34,7 +35,8 @@ import {
 } from 'src/components/table';
 
 import SubtripTableRow from '../reports/subtrip-table-row';
-import SubtripTableToolbar from '../reports/subtrip-table-toolbar';
+import SubtripTableActions from '../reports/subtrip-table-actions';
+import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
 import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -93,9 +95,6 @@ export function SubtripReportsView() {
     transport: false,
   };
 
-  const dateError =
-    filters.startDate && filters.endDate ? filters.startDate > filters.endDate : false;
-
   // Use the filtered subtrips query
   const { data: tableData = [], isLoading } = useFilteredSubtrips({
     ...searchParams,
@@ -103,7 +102,7 @@ export function SubtripReportsView() {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset =
+  const isFilterApplied =
     !!filters.vehicleNo ||
     !!filters.subtripId ||
     !!filters.transportName ||
@@ -112,7 +111,7 @@ export function SubtripReportsView() {
     (!!filters.fromDate && !!filters.endDate) ||
     (filters.status && filters.status.length > 0);
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = (!tableData.length && isFilterApplied) || !tableData.length;
 
   const handleFilters = (name, value) => {
     table.onResetPage();
@@ -199,7 +198,7 @@ export function SubtripReportsView() {
 
       <Card>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-          <SubtripTableToolbar
+          <SubtripTableFilters
             filters={filters}
             onFilters={handleFilters}
             tableData={tableData}
@@ -210,7 +209,7 @@ export function SubtripReportsView() {
           />
         </Stack>
 
-        {canReset && (
+        {isFilterApplied && (
           <SubtripTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
@@ -219,6 +218,16 @@ export function SubtripReportsView() {
             sx={{ p: 2.5, pt: 0 }}
           />
         )}
+
+        {/* Action Items Section */}
+        <SubtripTableActions
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onSearch={handleSearch}
+          canSearch={isFilterApplied}
+        />
 
         {!searchParams ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
@@ -240,29 +249,38 @@ export function SubtripReportsView() {
                   )
                 }
                 action={
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      color="error"
-                      variant="contained"
-                      onClick={confirm.onTrue}
-                      startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                    >
-                      Delete
-                    </Button>
+                  <Stack direction="row">
+                    <Tooltip title="Sent">
+                      <IconButton color="primary">
+                        <Iconify icon="iconamoon:send-fill" />
+                      </IconButton>
+                    </Tooltip>
 
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'billed-paid-subtrips');
-                      }}
-                      startIcon={<Iconify icon="eva:download-outline" />}
-                    >
-                      Export
-                    </Button>
+                    <Tooltip title="Download">
+                      <IconButton
+                        color="primary"
+                        onClick={() => {
+                          const selectedRows = tableData.filter(({ _id }) =>
+                            table.selected.includes(_id)
+                          );
+                          exportToExcel(selectedRows, 'filtered');
+                        }}
+                      >
+                        <Iconify icon="eva:download-outline" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Print">
+                      <IconButton color="primary">
+                        <Iconify icon="solar:printer-minimalistic-bold" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Delete">
+                      <IconButton color="primary" onClick={confirm.onTrue}>
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 }
               />

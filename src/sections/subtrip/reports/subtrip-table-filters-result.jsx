@@ -24,6 +24,15 @@ export default function SubtripTableFiltersResult({
   results,
   ...other
 }) {
+  const canReset =
+    !!filters.vehicleNo ||
+    !!filters.subtripId ||
+    !!filters.transportName ||
+    !!filters.customerId ||
+    !!filters.driverId ||
+    (!!filters.fromDate && !!filters.endDate) ||
+    (filters.status && filters.status.length > 0);
+
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
