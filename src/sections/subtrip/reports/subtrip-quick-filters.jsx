@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fSub, fAdd } from 'src/utils/format-time';
 
@@ -16,8 +18,30 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 /**
  * A component that provides quick access to commonly used filter combinations
  */
-export default function SubtripQuickFilters({ onApplyFilter, onSearch }) {
-  const [selected, setSelected] = useState(null);
+export default function SubtripQuickFilters({
+  onApplyFilter,
+  onSearch,
+  selectedFilter,
+  onSetSelectedFilter,
+}) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // If selectedFilter prop is provided, use it, otherwise use internal state
+  const [internalSelected, setInternalSelected] = useState(null);
+
+  // Determine which selected state to use
+  const selected = selectedFilter !== undefined ? selectedFilter : internalSelected;
+  const setSelected = useCallback(
+    (newValue) => {
+      if (onSetSelectedFilter) {
+        onSetSelectedFilter(newValue);
+      } else {
+        setInternalSelected(newValue);
+      }
+    },
+    [onSetSelectedFilter]
+  );
 
   const quickFilters = useMemo(
     () => [
@@ -106,38 +130,88 @@ export default function SubtripQuickFilters({ onApplyFilter, onSearch }) {
   return (
     <Box sx={{ p: 2, pb: 1 }}>
       <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
+        direction={isMobile ? 'column' : 'row'}
+        alignItems={isMobile ? 'flex-start' : 'center'}
         sx={{
           mb: 1,
-          flexWrap: 'wrap',
-          gap: 1,
         }}
       >
-        <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-          Quick Filters:
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            mb: isMobile ? 1 : 0,
+            mr: isMobile ? 0 : 1,
+            width: isMobile ? '100%' : 'auto',
+          }}
+        >
+          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+            Quick Filters:
+          </Typography>
 
-        <Divider orientation="vertical" flexItem />
+          {!isMobile && <Divider orientation="vertical" flexItem />}
+        </Stack>
 
-        {quickFilters.map((filter) => (
-          <Tooltip key={filter.id} title={filter.tooltip} arrow>
-            <Chip
-              label={filter.label}
-              onClick={() => handleFilterClick(filter)}
-              color={selected === filter.id ? 'primary' : 'default'}
-              variant={selected === filter.id ? 'filled' : 'outlined'}
-            />
-          </Tooltip>
-        ))}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{
+            flexWrap: 'wrap',
+            gap: 1,
+            width: isMobile ? '100%' : 'auto',
+          }}
+        >
+          {quickFilters.map((filter) => (
+            <Tooltip key={filter.id} title={filter.tooltip} arrow>
+              <Chip
+                label={filter.label}
+                onClick={() => handleFilterClick(filter)}
+                color={selected === filter.id ? 'primary' : 'default'}
+                variant={selected === filter.id ? 'filled' : 'outlined'}
+                sx={{
+                  mb: 0.5,
+                  maxWidth: isMobile ? '100%' : '200px',
+                  height: 'auto',
+                  '& .MuiChip-label': {
+                    whiteSpace: 'normal',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    padding: isMobile ? '4px 8px' : undefined,
+                  },
+                }}
+              />
+            </Tooltip>
+          ))}
+        </Stack>
       </Stack>
 
       {selected && (
-        <Typography variant="caption" color="primary.main" sx={{ display: 'block', mt: 0.5 }}>
+        <Typography
+          variant="caption"
+          color="primary.main"
+          sx={{
+            display: 'block',
+            mt: 0.5,
+            mb: 1,
+            maxWidth: '100%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
           {quickFilters.find((f) => f.id === selected)?.tooltip}
         </Typography>
       )}
     </Box>
   );
 }
+
+// Export the quick filter IDs for use in other components
+export const QUICK_FILTER_IDS = {
+  THIS_MONTH_BILLED: 'this-month-billed',
+  LAST_MONTH_BILLED: 'last-month-billed',
+  PENDING_INVOICES: 'pending-invoices',
+  OVERDUE_INVOICES: 'overdue-invoices',
+  EXPIRING_EWAY: 'expiring-eway',
+  RECENT_CLOSED: 'recent-closed',
+};

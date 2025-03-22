@@ -73,6 +73,7 @@ export function SubtripReportsView() {
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
+  const [selectedQuickFilter, setSelectedQuickFilter] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -159,6 +160,10 @@ export function SubtripReportsView() {
     setSearchParams(null);
   };
 
+  const handleClearQuickFilter = () => {
+    setSelectedQuickFilter(null);
+  };
+
   const handleToggleColumn = (columnName) => {
     if (disabledColumns[columnName]) return;
     setVisibleColumns((prev) => ({
@@ -206,7 +211,12 @@ export function SubtripReportsView() {
 
       <Card>
         {/* Quick Filter Chips */}
-        <SubtripQuickFilters onApplyFilter={handleFilters} onSearch={handleSearch} />
+        <SubtripQuickFilters
+          onApplyFilter={handleFilters}
+          onSearch={handleSearch}
+          selectedFilter={selectedQuickFilter}
+          onSetSelectedFilter={setSelectedQuickFilter}
+        />
 
         <SubtripTableFilters
           filters={filters}
@@ -223,6 +233,7 @@ export function SubtripReportsView() {
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
+            onClearQuickFilter={handleClearQuickFilter}
             results={tableData.length}
             sx={{ p: 2, pt: 0 }}
           />

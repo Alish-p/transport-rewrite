@@ -21,6 +21,7 @@ export default function SubtripTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
+  onClearQuickFilter,
   results,
   ...other
 }) {
@@ -65,6 +66,14 @@ export default function SubtripTableFiltersResult({
 
   const handleRemoveStatus = () => {
     onFilters('status', []);
+  };
+
+  const handleClearAll = () => {
+    onResetFilters();
+    // Also clear any selected quick filter
+    if (onClearQuickFilter) {
+      onClearQuickFilter();
+    }
   };
 
   const getCustomerName = (id) => {
@@ -162,7 +171,7 @@ export default function SubtripTableFiltersResult({
 
         <Button
           color="error"
-          onClick={onResetFilters}
+          onClick={handleClearAll}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
           Clear

@@ -2,18 +2,19 @@
 import { useCallback } from 'react';
 
 import MenuItem from '@mui/material/MenuItem';
+import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Chip,
   Stack,
   Paper,
-  Select,
   Divider,
   Tooltip,
   Popover,
   Checkbox,
   Typography,
   ListItemText,
+  useMediaQuery,
 } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -37,7 +38,10 @@ import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-t
 
 // ----------------------------------------------------------------------
 
-export default function SubtripTableFilters({ filters, onFilters }) {
+export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const dateRangePopover = usePopover();
   const statusPopover = usePopover();
 
@@ -123,6 +127,64 @@ export default function SubtripTableFilters({ filters, onFilters }) {
     ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
     : '';
 
+  // Define all filter chips for better organization
+  const filterChips = [
+    {
+      id: 'status',
+      label: 'Status',
+      tooltip: 'Filter by status',
+      onClick: statusPopover.onOpen,
+      isSelected: Array.isArray(filters.status) && filters.status.length > 0,
+      icon: <Iconify icon="mdi:filter-variant" />,
+    },
+    {
+      id: 'dateRange',
+      label: dateRangeSelected ? dateRangeShortLabel : 'Date Range',
+      tooltip: 'Filter by date range',
+      onClick: dateRangePopover.onOpen,
+      isSelected: dateRangeSelected,
+      icon: <Iconify icon="mdi:calendar" />,
+    },
+    {
+      id: 'customer',
+      label: selectedCustomer ? selectedCustomer.customerName : 'Customer',
+      tooltip: 'Filter by customer',
+      onClick: customerDialog.onTrue,
+      isSelected: !!selectedCustomer,
+      icon: <Iconify icon="mdi:office-building" />,
+    },
+    {
+      id: 'transporter',
+      label: selectedTransporter ? selectedTransporter.transportName : 'Transporter',
+      tooltip: 'Filter by transporter',
+      onClick: transporterDialog.onTrue,
+      isSelected: !!selectedTransporter,
+      icon: <Iconify icon="mdi:truck-delivery" />,
+    },
+    {
+      id: 'vehicle',
+      label: selectedVehicle ? selectedVehicle.vehicleNo : 'Vehicle',
+      tooltip: 'Filter by vehicle',
+      onClick: vehicleDialog.onTrue,
+      isSelected: !!selectedVehicle,
+      icon: <Iconify icon="mdi:truck" />,
+    },
+    {
+      id: 'driver',
+      label: selectedDriver ? selectedDriver.driverName : 'Driver',
+      tooltip: 'Filter by driver',
+      onClick: driverDialog.onTrue,
+      isSelected: !!selectedDriver,
+      icon: <Iconify icon="mdi:account" />,
+    },
+  ];
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch();
+    }
+  };
+
   return (
     <Box sx={{ p: 2, pb: 1 }}>
       {/* Search Field */}
@@ -138,96 +200,74 @@ export default function SubtripTableFilters({ filters, onFilters }) {
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
             </InputAdornment>
           ),
+          endAdornment: filters.subtripId && (
+            <InputAdornment position="end">
+              <Tooltip title="Search">
+                <Box component="span" sx={{ cursor: 'pointer' }} onClick={handleSearch}>
+                  <Iconify icon="material-symbols:search" color="primary.main" />
+                </Box>
+              </Tooltip>
+            </InputAdornment>
+          ),
         }}
       /> */}
 
       {/* Filter Chips Section */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        sx={{
-          mb: 1,
-          flexWrap: 'wrap',
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-          Additional Filters:
-        </Typography>
+      <Box>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            mb: 1,
+            flexWrap: 'nowrap',
+            overflowX: isMobile ? 'auto' : 'visible',
+            pb: isMobile ? 1 : 0,
+            gap: 1,
+            '&::-webkit-scrollbar': {
+              height: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderRadius: '6px',
+            },
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mr: 1,
+              whiteSpace: 'nowrap',
+              display: 'inline-block',
+            }}
+          >
+            Additional Filters:
+          </Typography>
 
-        <Divider orientation="vertical" flexItem />
+          <Divider orientation="vertical" flexItem sx={{ minHeight: '24px' }} />
 
-        {/* Status Filter */}
-        <Tooltip title="Filter by status" arrow>
-          <Chip
-            label="Status"
-            onClick={statusPopover.onOpen}
-            color={
-              Array.isArray(filters.status) && filters.status.length > 0 ? 'primary' : 'default'
-            }
-            variant={
-              Array.isArray(filters.status) && filters.status.length > 0 ? 'filled' : 'outlined'
-            }
-            icon={<Iconify icon="mdi:filter-variant" />}
-          />
-        </Tooltip>
-
-        {/* Date Range Filter */}
-        <Tooltip title="Filter by date range" arrow>
-          <Chip
-            label={dateRangeSelected ? dateRangeShortLabel : 'Date Range'}
-            onClick={dateRangePopover.onOpen}
-            color={dateRangeSelected ? 'primary' : 'default'}
-            variant={dateRangeSelected ? 'filled' : 'outlined'}
-            icon={<Iconify icon="mdi:calendar" />}
-          />
-        </Tooltip>
-
-        {/* Customer Filter */}
-        <Tooltip title="Filter by customer" arrow>
-          <Chip
-            label={selectedCustomer ? selectedCustomer.customerName : 'Customer'}
-            onClick={customerDialog.onTrue}
-            color={selectedCustomer ? 'primary' : 'default'}
-            variant={selectedCustomer ? 'filled' : 'outlined'}
-            icon={<Iconify icon="mdi:office-building" />}
-          />
-        </Tooltip>
-
-        {/* Transporter Filter */}
-        <Tooltip title="Filter by transporter" arrow>
-          <Chip
-            label={selectedTransporter ? selectedTransporter.transportName : 'Transporter'}
-            onClick={transporterDialog.onTrue}
-            color={selectedTransporter ? 'primary' : 'default'}
-            variant={selectedTransporter ? 'filled' : 'outlined'}
-            icon={<Iconify icon="mdi:truck-delivery" />}
-          />
-        </Tooltip>
-
-        {/* Vehicle Filter */}
-        <Tooltip title="Filter by vehicle" arrow>
-          <Chip
-            label={selectedVehicle ? selectedVehicle.vehicleNo : 'Vehicle'}
-            onClick={vehicleDialog.onTrue}
-            color={selectedVehicle ? 'primary' : 'default'}
-            variant={selectedVehicle ? 'filled' : 'outlined'}
-            icon={<Iconify icon="mdi:truck" />}
-          />
-        </Tooltip>
-
-        {/* Driver Filter */}
-        <Tooltip title="Filter by driver" arrow>
-          <Chip
-            label={selectedDriver ? selectedDriver.driverName : 'Driver'}
-            onClick={driverDialog.onTrue}
-            color={selectedDriver ? 'primary' : 'default'}
-            variant={selectedDriver ? 'filled' : 'outlined'}
-            icon={<Iconify icon="mdi:account" />}
-          />
-        </Tooltip>
-      </Stack>
+          {filterChips.map((chip) => (
+            <Tooltip key={chip.id} title={chip.tooltip} arrow>
+              <Chip
+                label={chip.label}
+                onClick={chip.onClick}
+                color={chip.isSelected ? 'primary' : 'default'}
+                variant={chip.isSelected ? 'filled' : 'outlined'}
+                icon={chip.icon}
+                sx={{
+                  minWidth: isMobile ? 'auto' : undefined,
+                  '& .MuiChip-label': {
+                    maxWidth: isMobile ? '120px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  },
+                }}
+              />
+            </Tooltip>
+          ))}
+        </Stack>
+      </Box>
 
       {/* Status Filter Popover */}
       <Popover
@@ -298,25 +338,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
         selectedTransporter={selectedTransporter}
         onTransporterChange={handleFilterTransporter}
       />
-
-      {/* Status Filter Select - hidden but still functional */}
-      <Select
-        multiple
-        displayEmpty
-        value={Array.isArray(filters.status) ? filters.status : []}
-        onChange={handleFilterStatus}
-        sx={{ display: 'none' }}
-      >
-        {Object.values(SUBTRIP_STATUS).map((status) => (
-          <MenuItem key={status} value={status}>
-            <Checkbox
-              size="small"
-              checked={Array.isArray(filters.status) && filters.status.includes(status)}
-            />
-            <ListItemText primary={status} />
-          </MenuItem>
-        ))}
-      </Select>
     </Box>
   );
 }
