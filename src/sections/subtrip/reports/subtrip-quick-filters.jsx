@@ -11,6 +11,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fSub, fAdd } from 'src/utils/format-time';
 
+import { Scrollbar } from 'src/components/scrollbar';
+
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 
 // ----------------------------------------------------------------------
@@ -131,59 +133,53 @@ export default function SubtripQuickFilters({
     <Box sx={{ p: 2, pb: 1 }}>
       <Stack
         direction={isMobile ? 'column' : 'row'}
-        alignItems={isMobile ? 'flex-start' : 'center'}
         sx={{
           mb: 1,
         }}
       >
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{
-            mb: isMobile ? 1 : 0,
-            mr: isMobile ? 0 : 1,
-            width: isMobile ? '100%' : 'auto',
-          }}
-        >
-          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="body2" color="text.secondary" noWrap sx={{ mr: 1 }}>
             Quick Filters:
           </Typography>
 
-          {!isMobile && <Divider orientation="vertical" flexItem />}
+          {!isMobile && <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />}
         </Stack>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{
-            flexWrap: 'wrap',
-            gap: 1,
-            width: isMobile ? '100%' : 'auto',
-          }}
-        >
-          {quickFilters.map((filter) => (
-            <Tooltip key={filter.id} title={filter.tooltip} arrow>
-              <Chip
-                label={filter.label}
-                onClick={() => handleFilterClick(filter)}
-                color={selected === filter.id ? 'primary' : 'default'}
-                variant={selected === filter.id ? 'filled' : 'outlined'}
-                sx={{
-                  mb: 0.5,
-                  maxWidth: isMobile ? '100%' : '200px',
-                  height: 'auto',
-                  '& .MuiChip-label': {
-                    whiteSpace: 'normal',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    padding: isMobile ? '4px 8px' : undefined,
-                  },
-                }}
-              />
-            </Tooltip>
-          ))}
-        </Stack>
+        <Box sx={{ width: '100%' }}>
+          <Scrollbar>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              sx={{
+                py: 1,
+                px: 0.5,
+                gap: 1,
+                minWidth: 'min-content',
+              }}
+            >
+              {quickFilters.map((filter) => (
+                <Tooltip key={filter.id} title={filter.tooltip} arrow>
+                  <Chip
+                    label={filter.label}
+                    onClick={() => handleFilterClick(filter)}
+                    color={selected === filter.id ? 'primary' : 'default'}
+                    variant={selected === filter.id ? 'filled' : 'outlined'}
+                    sx={{
+                      height: 'auto',
+                      '& .MuiChip-label': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        padding: '4px 8px',
+                      },
+                    }}
+                  />
+                </Tooltip>
+              ))}
+            </Stack>
+          </Scrollbar>
+        </Box>
       </Stack>
 
       {selected && (

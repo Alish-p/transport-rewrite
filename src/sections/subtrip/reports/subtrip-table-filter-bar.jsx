@@ -27,6 +27,7 @@ import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { usePopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
@@ -187,87 +188,54 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
 
   return (
     <Box sx={{ p: 2, pb: 1 }}>
-      {/* Search Field */}
-      {/* <TextField
-        fullWidth
-        value={filters.subtripId}
-        onChange={handleFilterSubtripId}
-        placeholder="Search by ID"
-        sx={{ mb: 2 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-            </InputAdornment>
-          ),
-          endAdornment: filters.subtripId && (
-            <InputAdornment position="end">
-              <Tooltip title="Search">
-                <Box component="span" sx={{ cursor: 'pointer' }} onClick={handleSearch}>
-                  <Iconify icon="material-symbols:search" color="primary.main" />
-                </Box>
-              </Tooltip>
-            </InputAdornment>
-          ),
-        }}
-      /> */}
-
       {/* Filter Chips Section */}
-      <Box>
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{
-            mb: 1,
-            flexWrap: 'nowrap',
-            overflowX: isMobile ? 'auto' : 'visible',
-            pb: isMobile ? 1 : 0,
-            gap: 1,
-            '&::-webkit-scrollbar': {
-              height: '6px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              borderRadius: '6px',
-            },
-          }}
-        >
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              mr: 1,
-              whiteSpace: 'nowrap',
-              display: 'inline-block',
-            }}
-          >
+
+      <Stack sx={{ mb: 1 }} direction={isMobile ? 'column' : 'row'}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="body2" color="text.secondary" noWrap sx={{ mr: 1 }}>
             Additional Filters:
           </Typography>
 
-          <Divider orientation="vertical" flexItem sx={{ minHeight: '24px' }} />
-
-          {filterChips.map((chip) => (
-            <Tooltip key={chip.id} title={chip.tooltip} arrow>
-              <Chip
-                label={chip.label}
-                onClick={chip.onClick}
-                color={chip.isSelected ? 'primary' : 'default'}
-                variant={chip.isSelected ? 'filled' : 'outlined'}
-                icon={chip.icon}
-                sx={{
-                  minWidth: isMobile ? 'auto' : undefined,
-                  '& .MuiChip-label': {
-                    maxWidth: isMobile ? '120px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  },
-                }}
-              />
-            </Tooltip>
-          ))}
+          {!isMobile && <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />}
         </Stack>
-      </Box>
+
+        <Box sx={{ width: '100%' }}>
+          <Scrollbar>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              sx={{
+                py: 1,
+                px: 0.5,
+                gap: 1,
+                minWidth: 'min-content',
+              }}
+            >
+              {filterChips.map((chip) => (
+                <Tooltip key={chip.id} title={chip.tooltip} arrow>
+                  <Chip
+                    label={chip.label}
+                    onClick={chip.onClick}
+                    color={chip.isSelected ? 'primary' : 'default'}
+                    variant={chip.isSelected ? 'filled' : 'outlined'}
+                    icon={chip.icon}
+                    sx={{
+                      height: 'auto',
+                      '& .MuiChip-label': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        padding: '4px 8px',
+                      },
+                    }}
+                  />
+                </Tooltip>
+              ))}
+            </Stack>
+          </Scrollbar>
+        </Box>
+      </Stack>
 
       {/* Status Filter Popover */}
       <Popover
