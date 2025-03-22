@@ -5,6 +5,8 @@ import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
@@ -14,6 +16,7 @@ import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +28,9 @@ export default function SubtripTableFiltersResult({
   results,
   ...other
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const canReset =
     !!filters.vehicleNo ||
     !!filters.subtripId ||
@@ -100,83 +106,97 @@ export default function SubtripTableFiltersResult({
 
   return (
     <Stack spacing={1.5} {...other}>
-      <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.customerId && (
-          <Block label="Customer">
-            <Chip
-              size="small"
-              label={getCustomerName(filters.customerId)}
-              onDelete={handleRemoveCustomer}
-            />
-          </Block>
-        )}
+      <Box sx={{ width: '100%' }}>
+        <Scrollbar>
+          <Stack
+            flexGrow={1}
+            spacing={1}
+            direction="row"
+            alignItems="center"
+            sx={{
+              py: 1,
+              px: 0.5,
+              minWidth: 'min-content',
+            }}
+          >
+            {filters.customerId && (
+              <Block label="Customer">
+                <Chip
+                  size="small"
+                  label={getCustomerName(filters.customerId)}
+                  onDelete={handleRemoveCustomer}
+                />
+              </Block>
+            )}
 
-        {filters.transportName && (
-          <Block label="Transporter">
-            <Chip
-              size="small"
-              label={getTransporterName(filters.transportName)}
-              onDelete={handleRemoveTransport}
-            />
-          </Block>
-        )}
+            {filters.transportName && (
+              <Block label="Transporter">
+                <Chip
+                  size="small"
+                  label={getTransporterName(filters.transportName)}
+                  onDelete={handleRemoveTransport}
+                />
+              </Block>
+            )}
 
-        {filters.vehicleNo && (
-          <Block label="Vehicle No:">
-            <Chip
-              size="small"
-              label={getVehicleNumber(filters.vehicleNo)}
-              onDelete={handleRemoveVehicleNo}
-            />
-          </Block>
-        )}
+            {filters.vehicleNo && (
+              <Block label="Vehicle No:">
+                <Chip
+                  size="small"
+                  label={getVehicleNumber(filters.vehicleNo)}
+                  onDelete={handleRemoveVehicleNo}
+                />
+              </Block>
+            )}
 
-        {filters.driverId && (
-          <Block label="Driver:">
-            <Chip
-              size="small"
-              label={getDriverName(filters.driverId)}
-              onDelete={handleRemoveDriver}
-            />
-          </Block>
-        )}
+            {filters.driverId && (
+              <Block label="Driver:">
+                <Chip
+                  size="small"
+                  label={getDriverName(filters.driverId)}
+                  onDelete={handleRemoveDriver}
+                />
+              </Block>
+            )}
 
-        {filters.subtripId && (
-          <Block label="Subtrip Id:">
-            <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtripId} />
-          </Block>
-        )}
+            {filters.subtripId && (
+              <Block label="Subtrip Id:">
+                <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtripId} />
+              </Block>
+            )}
 
-        {filters.fromDate && filters.endDate && (
-          <Block label="Date:">
-            <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
-          </Block>
-        )}
+            {filters.fromDate && filters.endDate && (
+              <Block label="Date:">
+                <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+              </Block>
+            )}
 
-        {filters.status && filters.status.length > 0 && (
-          <Block label="Status:">
-            {filters.status.map((status) => (
-              <Chip
-                key={status}
-                size="small"
-                label={status}
-                onDelete={() => {
-                  const newStatus = filters.status.filter((s) => s !== status);
-                  onFilters('status', newStatus);
-                }}
-              />
-            ))}
-          </Block>
-        )}
+            {filters.status && filters.status.length > 0 && (
+              <Block label="Status:">
+                {filters.status.map((status) => (
+                  <Chip
+                    key={status}
+                    size="small"
+                    label={status}
+                    onDelete={() => {
+                      const newStatus = filters.status.filter((s) => s !== status);
+                      onFilters('status', newStatus);
+                    }}
+                  />
+                ))}
+              </Block>
+            )}
 
-        <Button
-          color="error"
-          onClick={handleClearAll}
-          startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-        >
-          Clear
-        </Button>
-      </Stack>
+            <Button
+              color="error"
+              onClick={handleClearAll}
+              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+            >
+              Clear
+            </Button>
+          </Stack>
+        </Scrollbar>
+      </Box>
     </Stack>
   );
 }
