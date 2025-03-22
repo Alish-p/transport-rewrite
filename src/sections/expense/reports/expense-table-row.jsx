@@ -1,6 +1,3 @@
-/* eslint-disable react/prop-types */
-
-// @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -12,12 +9,25 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
+import { fCurrency } from 'src/utils/format-number';
+import { fDate, fTime } from 'src/utils/format-time';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import { EXPENSE_STATUS_COLORS } from '../constants';
-import { fDate, fTime } from '../../../utils/format-time';
+// ----------------------------------------------------------------------
+
+const getStatusColor = (status) => {
+  if (!status) return 'default';
+  const statusColors = {
+    paid: 'success',
+    pending: 'warning',
+    overdue: 'error',
+    processing: 'info',
+  };
+  return statusColors[status.toLowerCase()] || 'default';
+};
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +57,18 @@ export default function ExpenseTableRow({
     amount: false,
   },
 }) {
-  const { _id, customerId, expenseType, invoiceNo, expenseStatus, date, amount, vehicleId } = row;
+  const {
+    _id,
+    customerId,
+    subtripId,
+    tripId,
+    invoiceNo,
+    expenseStatus,
+    date,
+    vehicleId,
+    amount,
+    expenseType,
+  } = row;
 
   const popover = usePopover();
 
@@ -141,7 +162,7 @@ export default function ExpenseTableRow({
         {(visibleColumns.amount || disabledColumns.amount) && (
           <TableCell align="right">
             <ListItemText
-              primary={`₹${amount.toLocaleString()}`}
+              primary={fCurrency(amount) || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
@@ -149,7 +170,7 @@ export default function ExpenseTableRow({
 
         {(visibleColumns.expenseStatus || disabledColumns.expenseStatus) && (
           <TableCell>
-            <Label variant="soft" color={EXPENSE_STATUS_COLORS[expenseStatus] || 'default'}>
+            <Label variant="soft" color={getStatusColor(expenseStatus)}>
               {expenseStatus}
             </Label>
           </TableCell>

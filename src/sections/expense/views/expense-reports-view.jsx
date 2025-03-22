@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
+import { Tooltip, Divider, IconButton } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -33,9 +34,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import ExpenseTableRow from '../past-list/expense-table-row';
-import ExpenseTableToolbar from '../past-list/expense-table-toolbar';
-import ExpenseTableFiltersResult from '../past-list/expense-table-filters-result';
+import ExpenseTableRow from '../reports/expense-table-row';
+import ExpenseTableActions from '../reports/expense-table-actions';
+import ExpenseQuickFilters from '../reports/expense-quick-filters';
+import ExpenseTableFilterBar from '../reports/expense-table-filter-bar';
+import ExpenseTableFiltersResult from '../reports/expense-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -56,19 +59,25 @@ const defaultFilters = {
   expenseId: '',
   vehicleNo: '',
   transportName: '',
+  subtripId: '',
+  tripId: '',
+  pumpName: '',
+  expenseCategory: '',
+  expenseType: [],
   fromDate: null,
   endDate: null,
 };
 
 // ----------------------------------------------------------------------
 
-export function ExpenseReportView() {
+export function ExpenseReportsView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
   const router = useRouter();
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
+  const [selectedQuickFilter, setSelectedQuickFilter] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -94,9 +103,6 @@ export function ExpenseReportView() {
     amount: false,
   };
 
-  const dateError =
-    filters.fromDate && filters.endDate ? filters.fromDate > filters.endDate : false;
-
   // Use the filtered expenses query
   const { data: tableData = [], isLoading } = useFilteredExpenses({
     ...searchParams,
@@ -104,21 +110,35 @@ export function ExpenseReportView() {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset =
+  const isFilterApplied =
     !!filters.vehicleNo ||
     !!filters.expenseId ||
     !!filters.transportName ||
     !!filters.customerId ||
+    !!filters.subtripId ||
+    !!filters.tripId ||
+    !!filters.pumpName ||
+    !!filters.expenseCategory ||
+    (Array.isArray(filters.expenseType) && filters.expenseType.length > 0) ||
     (!!filters.fromDate && !!filters.endDate);
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = (!tableData.length && isFilterApplied) || !tableData.length;
 
   const handleFilters = (name, value) => {
     table.onResetPage();
+
+    // If reset action, reset all filters
+    if (name === 'reset') {
+      setFilters(defaultFilters);
+      return;
+    }
+
     setFilters((prevState) => ({
       ...prevState,
       [name]: value,
     }));
+    // Reset search params when any filter changes
+    setSearchParams(null);
   };
 
   const handleSearch = () => {
@@ -130,6 +150,11 @@ export function ExpenseReportView() {
       fromDate: filters.fromDate || undefined,
       toDate: filters.endDate || undefined,
       transporterId: filters.transportName || undefined,
+      subtripId: filters.subtripId || undefined,
+      tripId: filters.tripId || undefined,
+      pumpName: filters.pumpName || undefined,
+      expenseCategory: filters.expenseCategory || undefined,
+      expenseType: filters.expenseType?.length > 0 ? filters.expenseType : undefined,
     };
 
     // Remove undefined values
@@ -145,6 +170,10 @@ export function ExpenseReportView() {
   const handleResetFilters = () => {
     setFilters(defaultFilters);
     setSearchParams(null);
+  };
+
+  const handleClearQuickFilter = () => {
+    setSelectedQuickFilter(null);
   };
 
   const handleToggleColumn = (columnName) => {
@@ -193,32 +222,51 @@ export function ExpenseReportView() {
       />
 
       <Card>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-          <ExpenseTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            onSearch={handleSearch}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
-        </Stack>
+        {/* Quick Filter Chips */}
+        <ExpenseQuickFilters
+          onApplyFilter={handleFilters}
+          onSearch={handleSearch}
+          selectedFilter={selectedQuickFilter}
+          onSetSelectedFilter={setSelectedQuickFilter}
+        />
 
-        {canReset && (
+        <ExpenseTableFilterBar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          onSearch={handleSearch}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+        />
+
+        {isFilterApplied && (
           <ExpenseTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
+            onClearQuickFilter={handleClearQuickFilter}
             results={tableData.length}
-            sx={{ p: 2.5, pt: 0 }}
+            sx={{ p: 2, pt: 0 }}
           />
         )}
+
+        <Divider orientation="horizontal" flexItem />
+
+        {/* Action Items Section */}
+        <ExpenseTableActions
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onSearch={handleSearch}
+          canSearch={isFilterApplied}
+        />
 
         {!searchParams ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              Please select filters and click search to view expenses
+              Please select filters and click search to view expense reportsdada
             </Typography>
           </Box>
         ) : (
@@ -235,29 +283,38 @@ export function ExpenseReportView() {
                   )
                 }
                 action={
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      color="error"
-                      variant="contained"
-                      onClick={confirm.onTrue}
-                      startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                    >
-                      Delete
-                    </Button>
+                  <Stack direction="row">
+                    <Tooltip title="Sent">
+                      <IconButton color="primary">
+                        <Iconify icon="iconamoon:send-fill" />
+                      </IconButton>
+                    </Tooltip>
 
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'expenses');
-                      }}
-                      startIcon={<Iconify icon="eva:download-outline" />}
-                    >
-                      Export
-                    </Button>
+                    <Tooltip title="Download">
+                      <IconButton
+                        color="primary"
+                        onClick={() => {
+                          const selectedRows = tableData.filter(({ _id }) =>
+                            table.selected.includes(_id)
+                          );
+                          exportToExcel(selectedRows, 'filtered-expenses');
+                        }}
+                      >
+                        <Iconify icon="eva:download-outline" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Print">
+                      <IconButton color="primary">
+                        <Iconify icon="solar:printer-minimalistic-bold" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Delete">
+                      <IconButton color="primary" onClick={confirm.onTrue}>
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 }
               />
