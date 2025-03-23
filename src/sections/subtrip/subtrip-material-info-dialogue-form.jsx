@@ -1,17 +1,17 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import {
   Box,
-  Stack,
+  Tab,
+  Tabs,
   Alert,
   Dialog,
   Button,
   Divider,
   MenuItem,
-  Typography,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -25,6 +25,24 @@ import { useRoutes } from 'src/query/use-route';
 import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { Iconify } from '../../components/iconify';
+
+// ----------------------------------------------------------------------
+
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 2 }}>{children}</Box>}
+    </div>
+  );
+}
 
 const validationSchema = zod.object({
   consignee: zod
@@ -76,6 +94,7 @@ const defaultValues = {
 };
 
 export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }) {
+  const [tabValue, setTabValue] = useState(0);
   const { tripId, customerId, _id } = subtrip;
   const updateMaterialInfo = useUpdateSubtripMaterialInfo();
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
@@ -95,6 +114,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     formState: { isSubmitting },
   } = methods;
 
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
   const vehicleId = tripId?.vehicleId?._id;
   const consignees = customerId?.consignees || [];
   const { routeCd, consignee } = watch();
@@ -107,7 +130,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     [routeCd, routes, tripId?.vehicleId?.vehicleType]
   );
 
-  const handleReset = useCallback(() => reset(defaultValues), [reset]);
+  const handleReset = useCallback(() => {
+    reset(defaultValues);
+    setTabValue(0);
+  }, [reset]);
 
   const onSubmit = async (data) => {
     try {
@@ -133,108 +159,95 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     }
   }, [routeCd, routes, setValue]);
 
+  useEffect(() => {
+    if (!showDialog) {
+      handleReset();
+    }
+  }, [showDialog, handleReset]);
+
   const renderRouteDetails = () => (
-    <Stack spacing={1}>
-      <Typography variant="body1">Route Details</Typography>
-      <Typography sx={{ mb: 2, color: 'text.disabled' }} variant="caption">
-        Please Enter Route Related Details
-      </Typography>
+    <Box
+      columnGap={2}
+      rowGap={3}
+      display="grid"
+      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+    >
+      <Field.Select name="routeCd" label="Route">
+        <MenuItem value="">None</MenuItem>
+        <Divider sx={{ borderStyle: 'dashed' }} />
+        <ListSubheader
+          sx={{
+            fontSize: '0.7rem',
+            lineHeight: 1,
+            color: 'primary.main',
+            textAlign: 'start',
+            padding: '3px',
+            my: 1,
+          }}
+        >
+          Customer Specific Routes
+        </ListSubheader>
+        {routes
+          ?.filter((route) => route.isCustomerSpecific)
+          ?.map(({ _id: routeId, routeName }) => (
+            <MenuItem key={routeId} value={routeId}>
+              {routeName}
+            </MenuItem>
+          ))}
+        <Divider sx={{ borderStyle: 'dashed' }} />
 
-      <Box
-        columnGap={2}
-        rowGap={3}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
-      >
-        <Field.Select name="routeCd" label="Route">
-          <MenuItem value="">None</MenuItem>
-          <Divider sx={{ borderStyle: 'dashed' }} />
-          <ListSubheader
-            sx={{
-              fontSize: '0.7rem',
-              lineHeight: 1,
-              color: 'primary.main',
-              textAlign: 'start',
-              padding: '3px',
-              my: 1,
-            }}
-          >
-            Customer Specific Routes
-          </ListSubheader>
-          {routes
-            ?.filter((route) => route.isCustomerSpecific)
-            ?.map(({ _id: routeId, routeName }) => (
-              <MenuItem key={routeId} value={routeId}>
-                {routeName}
-              </MenuItem>
-            ))}
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <ListSubheader
-            sx={{
-              fontSize: '0.7rem',
-              lineHeight: 1,
-              color: 'primary.main',
-              textAlign: 'start',
-              padding: '3px',
-              my: 1,
-            }}
-          >
-            Generic Routes
-          </ListSubheader>
-          {routes
-            ?.filter((route) => !route.isCustomerSpecific)
-            ?.map(({ _id: routeId, routeName }) => (
-              <MenuItem key={routeId} value={routeId}>
-                {routeName}
-              </MenuItem>
-            ))}
-        </Field.Select>
-        <Field.Text name="loadingPoint" label="Loading Point" disabled />
-        <Field.Text name="unloadingPoint" label="Unloading Point" disabled />
-      </Box>
-    </Stack>
+        <ListSubheader
+          sx={{
+            fontSize: '0.7rem',
+            lineHeight: 1,
+            color: 'primary.main',
+            textAlign: 'start',
+            padding: '3px',
+            my: 1,
+          }}
+        >
+          Generic Routes
+        </ListSubheader>
+        {routes
+          ?.filter((route) => !route.isCustomerSpecific)
+          ?.map(({ _id: routeId, routeName }) => (
+            <MenuItem key={routeId} value={routeId}>
+              {routeName}
+            </MenuItem>
+          ))}
+      </Field.Select>
+      <Field.Text name="loadingPoint" label="Loading Point" disabled />
+      <Field.Text name="unloadingPoint" label="Unloading Point" disabled />
+    </Box>
   );
 
   const renderMaterialDetails = () => (
-    <Stack spacing={1}>
-      <Typography variant="body1">Consignment Details</Typography>
-      <Typography sx={{ mb: 2, color: 'text.disabled' }} variant="caption">
-        Please Enter Consignment Related Details.
-      </Typography>
-
-      <Box
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
-        gap={3}
-      >
-        <Field.AutocompleteWithAdd
-          name="consignee"
-          label="Consignee"
-          options={consignees.map(({ name }) => ({ label: name, value: name }))}
-        />
-        <Field.Text name="loadingWeight" label="Loading Weight" type="number" />
-        <Field.Text name="startKm" label="Start Km" type="number" />
-        <Field.Text name="rate" label="Rate" type="number" />
-        <Field.Text name="invoiceNo" label="Invoice No" />
-        <Field.Text name="shipmentNo" label="Shipment No" />
-        <Field.Text name="orderNo" label="Order No" />
-        <Field.Text name="ewayBill" label="Eway Bill" />
-        <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" />
-        <Field.Text name="materialType" label="Material Type" />
-        <Field.Text name="quantity" label="Quantity" type="number" />
-        <Field.Text name="grade" label="Grade" />
-      </Box>
-    </Stack>
+    <Box
+      display="grid"
+      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
+      gap={3}
+    >
+      <Field.AutocompleteWithAdd
+        name="consignee"
+        label="Consignee"
+        options={consignees.map(({ name }) => ({ label: name, value: name }))}
+      />
+      <Field.Text name="loadingWeight" label="Loading Weight" type="number" />
+      <Field.Text name="startKm" label="Start Km" type="number" />
+      <Field.Text name="rate" label="Rate" type="number" />
+      <Field.Text name="invoiceNo" label="Invoice No" />
+      <Field.Text name="shipmentNo" label="Shipment No" />
+      <Field.Text name="orderNo" label="Order No" />
+      <Field.Text name="ewayBill" label="Eway Bill" />
+      <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" />
+      <Field.Text name="materialType" label="Material Type" />
+      <Field.Text name="quantity" label="Quantity" type="number" />
+      <Field.Text name="grade" label="Grade" />
+    </Box>
   );
 
   const renderAdvanceDetails = () => (
-    <Stack spacing={1}>
-      <Typography variant="body1">Driver Advanced Details</Typography>
-      <Typography sx={{ mb: 2, color: 'text.disabled' }} variant="caption">
-        Please Enter Advance amount and Petrol Amount
-      </Typography>
-
+    <>
       <Box
         display="grid"
         gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
@@ -252,31 +265,16 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         <Field.Text name="driverAdvance" label="Driver Advance" type="number" />
         <Field.Text name="dieselLtr" label="Diesel" />
       </Box>
-    </Stack>
-  );
 
-  const renderAlerts = () => (
-    <>
       {advanceAmt && (
-        <Alert severity="info" variant="outlined" sx={{ my: 2 }}>
+        <Alert severity="info" variant="outlined" sx={{ mt: 3 }}>
           {`For this route, the usual driver advance is "${advanceAmt} ₹".`}
         </Alert>
       )}
-      <Alert severity="success" variant="outlined" sx={{ my: 2 }}>
+      <Alert severity="success" variant="outlined" sx={{ mt: 2 }}>
         {`Please select "Full Diesel" for a full tank or specify the quantity in liters.`}
       </Alert>
     </>
-  );
-
-  const renderActions = () => (
-    <Stack direction="row" spacing={2}>
-      <Button onClick={handleReset} variant="outlined" disabled={isSubmitting}>
-        Reset
-      </Button>
-      <Button onClick={handleSubmit(onSubmit)} variant="contained" disabled={isSubmitting}>
-        Save Changes
-      </Button>
-    </Stack>
   );
 
   return (
@@ -284,28 +282,41 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       open={showDialog}
       onClose={() => setShowDialog(false)}
       fullWidth
-      maxWidth={false}
-      PaperProps={{ sx: { maxWidth: 720 } }}
+      maxWidth="md"
+      PaperProps={{ sx: { maxWidth: 900 } }}
     >
-      <DialogTitle>Material / Route </DialogTitle>
-      <Divider />
+      <DialogTitle>Material / Route Information</DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Form methods={methods} onSubmit={onSubmit}>
-            {renderRouteDetails()}
+            <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
+              <Tab label="Route" icon={<Iconify icon="mdi:map-marker-path" />} />
+              <Tab label="Consignment" icon={<Iconify icon="mdi:package-variant-closed" />} />
+              <Tab label="Driver Advance" icon={<Iconify icon="mdi:cash-multiple" />} />
+            </Tabs>
 
-            <Divider sx={{ my: 3 }} />
+            <TabPanel value={tabValue} index={0}>
+              {renderRouteDetails()}
+            </TabPanel>
 
-            {renderMaterialDetails()}
+            <TabPanel value={tabValue} index={1}>
+              {renderMaterialDetails()}
+            </TabPanel>
 
-            <Divider sx={{ my: 3 }} />
-
-            {renderAdvanceDetails()}
-            {renderAlerts()}
+            <TabPanel value={tabValue} index={2}>
+              {renderAdvanceDetails()}
+            </TabPanel>
           </Form>
         </Box>
       </DialogContent>
-      <DialogActions>{renderActions()}</DialogActions>
+      <DialogActions>
+        <Button onClick={handleReset} variant="outlined" disabled={isSubmitting}>
+          Reset
+        </Button>
+        <Button onClick={handleSubmit(onSubmit)} variant="contained" disabled={isSubmitting}>
+          Save Changes
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

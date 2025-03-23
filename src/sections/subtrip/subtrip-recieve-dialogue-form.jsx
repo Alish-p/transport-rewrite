@@ -1,50 +1,58 @@
 import { z as zod } from 'zod';
-import { useMemo, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
   Box,
+  Tab,
+  Tabs,
   Dialog,
   Button,
-  Typography,
   DialogTitle,
   DialogContent,
   DialogActions,
+  InputAdornment,
 } from '@mui/material';
 
 import { today } from 'src/utils/format-time';
 
+import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
+
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useUpdateSubtripReceiveInfo } from '../../query/use-subtrip';
-// form components
+// ----------------------------------------------------------------------
+
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 2 }}>{children}</Box>}
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------
 
 const validationSchema = zod
   .object({
-    remarks: zod.string().optional(),
-    loadingWeight: zod
-      .number({ required_error: 'Loading weight is required' })
-      .positive({ message: 'Loading weight must be a positive number' }),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
-    deductedWeight: zod
-      .number({ required_error: 'Deducted weight is required' })
-      .min(0, { message: 'Deducted weight cannot be negative' }),
-    deductedAmount: zod.number().min(0, { message: 'Deducted weight cannot be negative' }),
-    startKm: zod
-      .number({ required_error: 'Start Km is required' })
-      .positive({ message: 'Start Km must be a positive number' }),
     endKm: zod.number({ required_error: 'End Km is required' }),
-    totalKm: zod
-      .number()
-      .min(0, { message: 'Total Km must be zero or a positive number' })
-      .optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionRate: zod
       .number()
       .min(0, { message: 'Commission rate cannot be negative' })
       .optional(),
     hasError: zod.boolean(),
+    errorRemarks: zod.string().optional(),
+    shortageWeight: zod.number().optional(),
+    shortageAmount: zod.number().optional(),
   })
   .superRefine((values, ctx) => {
     // Validate unloadingWeight <= loadingWeight
@@ -69,24 +77,26 @@ const validationSchema = zod
 // ---------------------------------------------------------------
 
 export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
+  const [tabValue, setTabValue] = useState(0);
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
   const { _id, loadingWeight, startKm, tripId } = subtrip;
 
+  const handleTabChange = (_, newValue) => {
+    setTabValue(newValue);
+  };
+
   const defaultValues = useMemo(
     () => ({
-      remarks: '',
-      loadingWeight: loadingWeight || 0,
-      unloadingWeight: 0,
-      deductedWeight: 0,
-      deductedAmount: 0,
-      startKm: startKm || 0,
-      endKm: 0,
-      totalKm: 0,
+      unloadingWeight: subtrip?.loadingWeight || 0,
+      endKm: subtrip?.startKm || 0,
       endDate: today(),
       commissionRate: 0,
       hasError: false,
+      errorRemarks: '',
+      shortageWeight: 0,
+      shortageAmount: 0,
     }),
-    [loadingWeight, startKm]
+    [subtrip]
   );
 
   const methods = useForm({
@@ -98,42 +108,16 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const {
     handleSubmit,
     reset,
+    watch,
     setValue,
     formState: { isSubmitting },
     control,
   } = methods;
 
-  // Add effect to update form values when subtrip changes
-  useEffect(() => {
-    if (subtrip) {
-      reset({
-        ...defaultValues,
-        loadingWeight: subtrip.loadingWeight || 0,
-        startKm: subtrip.startKm || 0,
-      });
-    }
-  }, [subtrip, reset, defaultValues]);
-
-  const unloadingWeight = useWatch({ control, name: 'unloadingWeight' });
-  const endKm = useWatch({ control, name: 'endKm' });
-  const commissionRate = useWatch({ control, name: 'commissionRate' });
-
-  useEffect(() => {
-    const deductedWeight = loadingWeight - unloadingWeight;
-    setValue('deductedWeight', deductedWeight);
-
-    const totalKm = endKm - startKm;
-    setValue('totalKm', totalKm);
-  }, [unloadingWeight, loadingWeight, setValue, endKm, startKm, commissionRate]);
-
-  const handleReset = () => {
-    reset(defaultValues);
-  };
-
   const onSubmit = async (data) => {
     try {
       await receiveSubtrip({ id: _id, data });
-      handleReset();
+      reset(defaultValues);
       setShowDialog(false);
     } catch (error) {
       console.error(error);
@@ -142,78 +126,145 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
   useEffect(() => {
     if (!showDialog) {
-      handleReset();
+      reset(defaultValues);
+      setTabValue(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showDialog]);
+  }, [showDialog, reset, defaultValues]);
+
+  const values = watch();
+
+  console.log({ values });
 
   return (
     <Dialog
       open={showDialog}
       onClose={() => setShowDialog(false)}
       fullWidth
-      maxWidth={false}
-      PaperProps={{ sx: { maxWidth: 720 } }}
+      maxWidth="sm"
+      sx={{ minHeight: '30vh', overflow: 'auto' }}
     >
       <DialogTitle>Receive Subtrip</DialogTitle>
       <DialogContent>
         <Box sx={{ marginTop: '6px' }}>
           <Form methods={methods} onSubmit={onSubmit}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(3, 1fr)',
-              }}
-            >
-              <Field.Text name="loadingWeight" label="Loading Wt." type="number" disabled />
-              <Field.Text name="unloadingWeight" label="Unloading Wt." type="number" autoFocus />
-              <Field.Text
-                name="deductedWeight"
-                label="Deducted Weight"
-                type="number"
-                disabled
-                placeholder="0"
-              />
+            <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
+              <Tab label="Basic Info" icon={<Iconify icon="mdi:truck-outline" />} />
+              <Tab label="Shortage / Damage" icon={<Iconify icon="mdi:alert-circle-outline" />} />
+              <Tab label="Error Info" icon={<Iconify icon="mdi:alert-octagon-outline" />} />
+            </Tabs>
 
-              <Field.Text name="startKm" label="Start Km" type="number" disabled />
-              <Field.Text name="endKm" label="End Km" type="number" />
-              <Field.Text name="totalKm" label="Total Trip Km" type="number" disabled />
-              <Field.Text
-                name="deductedAmount"
-                label="Deducted Amount"
-                type="number"
-                disabled={loadingWeight === unloadingWeight}
-              />
-
-              <Field.DatePicker name="endDate" label="End Date" />
-
-              <Field.Text name="remarks" label="Remarks" type="text" />
-
-              {!tripId?.vehicleId?.isOwn && (
+            <TabPanel value={tabValue} index={0}>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(2, 1fr)',
+                }}
+              >
                 <Field.Text
-                  name="commissionRate"
-                  label="Transporter Commission Rate"
+                  name="unloadingWeight"
+                  label="Unloading Wt."
                   type="number"
-                  placeholder="0"
+                  required
+                  autoFocus
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end"> ≤ {loadingWeight} Ton</InputAdornment>
+                    ),
+                  }}
                 />
-              )}
-            </Box>
 
-            <Box sx={{ marginTop: '20px' }}>
-              <Field.Switch
-                name="hasError"
-                label={<Typography variant="subtitle2">Recieved With Error?</Typography>}
-              />
-            </Box>
+                <Field.Text
+                  name="endKm"
+                  label="End Km"
+                  type="number"
+                  required
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">≥ {startKm} Km</InputAdornment>,
+                  }}
+                />
+
+                <Field.DatePicker name="endDate" label="End Date" required />
+
+                {!tripId?.vehicleId?.isOwn && (
+                  <Field.Text
+                    name="commissionRate"
+                    label="Transporter Commission Rate"
+                    type="number"
+                    placeholder="0"
+                    required
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                    }}
+                  />
+                )}
+              </Box>
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={1}>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                }}
+              >
+                <>
+                  <Field.Text
+                    name="shortageWeight"
+                    label="Shortage Weight"
+                    type="number"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">Ton</InputAdornment>,
+                    }}
+                  />
+
+                  <Field.Text
+                    name="shortageAmount"
+                    label="Shortage Amount"
+                    type="number"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                    }}
+                  />
+                </>
+              </Box>
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={2}>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                }}
+              >
+                <Field.Switch name="hasError" label="Has error ?" />
+
+                <Field.Text
+                  name="errorRemarks"
+                  label="Error Remarks"
+                  type="text"
+                  multiline
+                  rows={2}
+                  disabled={!values.hasError}
+                />
+              </Box>
+            </TabPanel>
           </Form>
         </Box>
       </DialogContent>
 
       <DialogActions>
-        <Button type="reset" onClick={handleReset} variant="outlined" loading={isSubmitting}>
+        <Button
+          type="reset"
+          onClick={() => reset(defaultValues)}
+          variant="outlined"
+          loading={isSubmitting}
+        >
           Reset
         </Button>
         <Button
