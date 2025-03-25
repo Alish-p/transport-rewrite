@@ -8,7 +8,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { CONFIG } from 'src/config-global';
 
 import { pdfStyles } from '../subtrip/pdfs/pdf-styles';
-import { calculateDriverSalary, calculatePayslipSummary } from '../../utils/utils';
+import { calculatePayslipSummary, calculateDriverSalaryPerSubtrip } from '../../utils/utils';
 
 // ----------------------------------------------------------------------
 
@@ -249,7 +249,9 @@ export default function DriverSalaryPdf({ driverSalary, currentStatus }) {
             <Text style={[styles.horizontalCellContent]}>{fDate(st?.startDate)}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{calculateDriverSalary(st)}</Text>
+            <Text style={[styles.horizontalCellContent]}>
+              {calculateDriverSalaryPerSubtrip(st)}
+            </Text>
           </View>
         </View>
       ))}

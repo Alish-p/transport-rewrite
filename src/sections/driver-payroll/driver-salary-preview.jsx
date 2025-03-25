@@ -14,7 +14,7 @@ import TableContainer from '@mui/material/TableContainer';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { calculateDriverSalary, calculatePayslipSummary } from 'src/utils/utils';
+import { calculatePayslipSummary, calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
 
@@ -114,7 +114,7 @@ function RenderSalaryTable({ driverSalary }) {
           {/* Subtrip related income */}
           {subtripComponents &&
             subtripComponents?.map((st, index) => {
-              const tripSalary = calculateDriverSalary(st);
+              const tripSalary = calculateDriverSalaryPerSubtrip(st);
               return (
                 <TableRow key={st._id}>
                   <TableCell>{index + 1}</TableCell>

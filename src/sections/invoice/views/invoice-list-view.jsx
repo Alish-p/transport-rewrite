@@ -28,6 +28,9 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
+import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteInvoice } from 'src/query/use-invoice';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -44,8 +47,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { DashboardContent } from '../../../layouts/dashboard';
-import { useDeleteInvoice } from '../../../query/use-invoice';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';

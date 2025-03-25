@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useFormContext } from 'react-hook-form';
 
 import { Card, Grid, Button, Divider, MenuItem } from '@mui/material';
 
@@ -43,8 +42,6 @@ const SubtripsMultiSelect = ({ filteredSubtrips }) =>
 
 /** Main Component */
 export default function InvoiceForm({ customersList, filteredSubtrips, onFetchSubtrips }) {
-  const { watch, setValue } = useFormContext();
-
   return (
     <Card sx={{ p: 3, mb: 3 }}>
       <Grid container spacing={2}>

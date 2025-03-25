@@ -4,7 +4,7 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { calculateSubtripTotalIncome } from 'src/utils/utils';
+import { calculateInvoiceSummary, calculateInvoicePerSubtrip } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
 
@@ -24,14 +24,14 @@ const COMPANY = CONFIG.company;
 export default function InvoicePdf({ invoice, currentStatus }) {
   const { _id, invoicedSubTrips, customerId, invoiceStatus, createdDate, dueDate } = invoice;
 
-  const totalIncome = useMemo(
-    () => calculateSubtripTotalIncome(invoicedSubTrips),
-    [invoicedSubTrips]
-  );
-  const totalQuantity = useMemo(
-    () => invoicedSubTrips.reduce((acc, subtrip) => acc + subtrip.loadingWeight, 0),
-    [invoicedSubTrips]
-  );
+  const {
+    totalFreightWt,
+    totalShortageWt,
+    totalShortageAmount,
+    totalAfterTax,
+    totalAmountBeforeTax,
+    totalFreightAmount,
+  } = useMemo(() => calculateInvoiceSummary(invoice), [invoice]);
 
   const styles = useStyles();
 
@@ -151,7 +151,7 @@ export default function InvoicePdf({ invoice, currentStatus }) {
             <Text style={[styles.horizontalCellContent]}>{fDate(dueDate)} </Text>
           </View>
           <View style={[styles.horizontalCell, styles.borderBottom]}>
-            <Text style={[styles.horizontalCellContent]}>{currentStatus} </Text>
+            <Text style={[styles.horizontalCellContent]}>{currentStatus.toUpperCase()} </Text>
           </View>
         </View>
       </View>
@@ -165,10 +165,10 @@ export default function InvoicePdf({ invoice, currentStatus }) {
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>#</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Consignee</Text>
         </View>
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Destination</Text>
         </View>
 
@@ -185,77 +185,120 @@ export default function InvoicePdf({ invoice, currentStatus }) {
           <Text style={[styles.horizontalCellTitle]}>Disp Date</Text>
         </View>
         <View style={[styles.horizontalCell, styles.col1, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>QTY(MT) </Text>
+          <Text style={[styles.horizontalCellTitle]}>Freight Rate/MT </Text>
         </View>
         <View style={[styles.horizontalCell, styles.col1, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}> Rate/MT </Text>
+          <Text style={[styles.horizontalCellTitle]}>Freight Wt(MT) </Text>
         </View>
         <View style={[styles.horizontalCell, styles.col1, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}> Freight Amount </Text>
+          <Text style={[styles.horizontalCellTitle]}>Freight Amt(₹) </Text>
+        </View>
+        <View style={[styles.horizontalCell, styles.col1, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Shortage Wt(MT) </Text>
+        </View>
+        <View style={[styles.horizontalCell, styles.col1, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Shortage Amt(₹) </Text>
+        </View>
+        <View style={[styles.horizontalCell, styles.col1]}>
+          <Text style={[styles.horizontalCellTitle]}> Total Amount(₹) </Text>
         </View>
       </View>
       {/* Values */}
-      {invoicedSubTrips.map((subtrip, idx) => (
-        <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{idx}</Text>
+      {invoicedSubTrips.map((subtrip, idx) => {
+        const { freightAmount, shortageAmount, totalAmount } = calculateInvoicePerSubtrip(subtrip);
+        return (
+          <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{idx + 1}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.consignee}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.unloadingPoint}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>
+                {subtrip?.tripId?.vehicleId?.vehicleNo}
+              </Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?._id}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.invoiceNo || 'N/A'}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{fDate(subtrip?.startDate)}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.rate}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.loadingWeight}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>
+                {fCurrency(freightAmount, {
+                  style: 'decimal',
+                })}
+              </Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.shortageWeight || 0}</Text>
+            </View>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip?.shortageAmount || 0}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell]}>
+              <Text style={[styles.horizontalCellContent]}>{totalAmount}</Text>
+            </View>
           </View>
-          <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?.consignee}</Text>
-          </View>
-          <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?.unloadingPoint}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>
-              {subtrip?.tripId?.vehicleId?.vehicleNo}
-            </Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?._id}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?.invoiceNo}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{fDate(subtrip?.startDate)}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?.loadingWeight}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip?.rate}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>
-              {fCurrency(subtrip.rate * subtrip.loadingWeight, {
-                style: 'decimal',
-              })}
-            </Text>
-          </View>
-        </View>
-      ))}
+        );
+      })}
 
       {/* Weight and total row */}
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-        <View style={[styles.col9, styles.horizontalCell, styles.borderRight]}>
+        <View style={[styles.col8, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.subtitle2]}>{totalQuantity}</Text>
+          <Text style={[styles.subtitle2]}>{totalFreightWt}</Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>{}</Text>
+          <Text style={[styles.horizontalCellTitle]}>
+            {fCurrency(totalFreightAmount, {
+              style: 'decimal',
+            })}
+          </Text>
+        </View>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.subtitle2]}>{totalShortageWt}</Text>
+        </View>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>
+            {fCurrency(totalShortageAmount, {
+              style: 'decimal',
+            })}
+          </Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell]}>
-          <Text style={[styles.subtitle2]}>{fCurrency(totalIncome)}</Text>
+          <Text style={[styles.subtitle2]}>{fCurrency(totalAmountBeforeTax)}</Text>
         </View>
       </View>
 
       {/* CGST */}
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col9, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
+        </View>
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
@@ -265,7 +308,7 @@ export default function InvoicePdf({ invoice, currentStatus }) {
 
         <View style={[styles.col1, styles.horizontalCell]}>
           <Text style={[styles.subtitle2]}>
-            {fCurrency((totalIncome * CONFIG.customerInvoiceTax) / 100)}
+            {fCurrency((totalAmountBeforeTax * CONFIG.customerInvoiceTax) / 100)}
           </Text>
         </View>
       </View>
@@ -276,13 +319,17 @@ export default function InvoicePdf({ invoice, currentStatus }) {
           <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
+        </View>
+
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.subtitle2]}>{`SGST-${CONFIG.customerInvoiceTax}%`}</Text>
         </View>
 
         <View style={[styles.col1, styles.horizontalCell]}>
           <Text style={[styles.subtitle2]}>
-            {fCurrency((totalIncome * CONFIG.customerInvoiceTax) / 100)}
+            {fCurrency((totalAmountBeforeTax * CONFIG.customerInvoiceTax) / 100)}
           </Text>
         </View>
       </View>
@@ -293,13 +340,17 @@ export default function InvoicePdf({ invoice, currentStatus }) {
           <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
+        </View>
+
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.subtitle2]}>Net Total</Text>
         </View>
 
         <View style={[styles.col1, styles.horizontalCell]}>
           <Text style={[styles.subtitle2]}>
-            {fCurrency(totalIncome * (1 + (2 * CONFIG.customerInvoiceTax) / 100))}
+            {fCurrency(totalAmountBeforeTax * (1 + (2 * CONFIG.customerInvoiceTax) / 100))}
           </Text>
         </View>
       </View>

@@ -20,7 +20,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
-import { calculateSubtripTotalIncome } from 'src/utils/utils';
+import { calculateInvoiceSummary } from 'src/utils/utils';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -39,7 +39,7 @@ export default function InvoiceTableRow({
 }) {
   const { _id, customerId, invoiceStatus, createdDate, dueDate, invoicedSubTrips } = row;
 
-  const total = useMemo(() => calculateSubtripTotalIncome(invoicedSubTrips), [invoicedSubTrips]);
+  const { totalAfterTax } = useMemo(() => calculateInvoiceSummary(row), [row]);
 
   const confirm = useBoolean();
 
@@ -104,7 +104,7 @@ export default function InvoiceTableRow({
 
         <TableCell>
           <ListItemText
-            primary={fCurrency(total)}
+            primary={fCurrency(totalAfterTax)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>

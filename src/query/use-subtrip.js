@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
+import { SUBTRIP_STATUS } from '../sections/subtrip/constants';
+
 const ENDPOINT = '/api/subtrips';
 const QUERY_KEY = 'subtrips';
 
@@ -72,7 +74,7 @@ export function useSubtrips() {
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
-    queryKey: [QUERY_KEY, { customerId, fromDate, toDate, status: 'closed' }],
+    queryKey: [QUERY_KEY, { customerId, fromDate, toDate, subtripStatus: SUBTRIP_STATUS.CLOSED }],
     queryFn: getFilteredSubtrips,
     enabled: false,
     retry: 0,
@@ -87,7 +89,7 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
         driverId,
         fromDate: periodStartDate,
         toDate: periodEndDate,
-        status: 'closed',
+        subtripStatus: 'closed',
       },
     ],
     queryFn: getFilteredSubtrips,
@@ -108,7 +110,7 @@ export function useClosedSubtripsByTransporterAndDate(
         transporterId,
         fromDate: periodStartDate,
         toDate: periodEndDate,
-        status: 'closed',
+        subtripStatus: 'closed',
       },
     ],
     queryFn: getFilteredSubtrips,
