@@ -89,7 +89,7 @@ function RenderDateInfo({ createdDate }) {
 }
 
 function RenderTable({ transporterPayment }) {
-  const { associatedSubtrips, selectedLoans } = transporterPayment;
+  const { associatedSubtrips, selectedLoans, transporterId } = transporterPayment;
   const { netIncome } = calculateTransporterPaymentSummary(transporterPayment);
   return (
     <TableContainer sx={{ overflow: 'scroll', mt: 4 }}>
@@ -104,6 +104,7 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>Loading QTY(MT)</StyledTableCell>
             <StyledTableCell>Freight Rate</StyledTableCell>
             <StyledTableCell>Total Freight Amount</StyledTableCell>
+            <StyledTableCell>Shortage Amount</StyledTableCell>
             <StyledTableCell>Total Expense</StyledTableCell>
             <StyledTableCell>Total</StyledTableCell>
           </TableRow>
@@ -115,6 +116,7 @@ function RenderTable({ transporterPayment }) {
               totalFreightAmount,
               totalExpense,
               totalTransporterPayment,
+              totalShortageAmount,
             } = calculateTransporterPayment(st);
             return (
               <TableRow key={st._id}>
@@ -126,6 +128,7 @@ function RenderTable({ transporterPayment }) {
                 <TableCell>{st.loadingWeight}</TableCell>
                 <TableCell>{fCurrency(effectiveFreightRate)}</TableCell>
                 <TableCell>{fCurrency(totalFreightAmount)}</TableCell>
+                <TableCell>{fCurrency(totalShortageAmount)}</TableCell>
                 <TableCell>{fCurrency(totalExpense)}</TableCell>
                 <TableCell>{fCurrency(totalTransporterPayment)}</TableCell>
               </TableRow>
@@ -153,28 +156,24 @@ function RenderTable({ transporterPayment }) {
             )}
 
           <StyledTableRow>
-            <TableCell colSpan={8} />
+            <TableCell colSpan={9} />
             <StyledTableCell>Total</StyledTableCell>
             <TableCell>{fCurrency(netIncome)}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={8} />
-            <StyledTableCell>CGST({CONFIG.transporterPaymentTax}%)</StyledTableCell>
-            <TableCell>{fCurrency(netIncome * (CONFIG.transporterPaymentTax / 100))}</TableCell>
+            <TableCell colSpan={9} />
+            <StyledTableCell>TDS({transporterId?.tdsPercentage || 0}%)</StyledTableCell>
+            <TableCell>
+              {fCurrency(netIncome * ((transporterId?.tdsPercentage || 0) / 100))}
+            </TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={8} />
-            <StyledTableCell>SGST({CONFIG.transporterPaymentTax}%)</StyledTableCell>
-            <TableCell>{fCurrency(netIncome * (CONFIG.transporterPaymentTax / 100))}</TableCell>
-          </StyledTableRow>
-
-          <StyledTableRow>
-            <TableCell colSpan={8} />
+            <TableCell colSpan={9} />
             <StyledTableCell>Net-Total</StyledTableCell>
             <TableCell sx={{ color: 'error.main' }}>
-              {fCurrency(netIncome * (1 + (2 * CONFIG.transporterPaymentTax) / 100))}
+              {fCurrency(netIncome * (1 - (transporterId?.tdsPercentage || 0) / 100))}
             </TableCell>
           </StyledTableRow>
         </TableBody>

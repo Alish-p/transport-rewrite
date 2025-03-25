@@ -72,17 +72,21 @@ export const calculateTransporterPayment = (subtrip) => {
   const rateAfterCommision = subtrip.rate - transporterCommissionRate;
   const totalFreightAmount = rateAfterCommision * subtrip.loadingWeight;
 
+  // Total Shortage Amount
+  const totalShortageAmount = subtrip.shortageAmount || 0;
+
   // Total Expense of subtrip
   const totalExpense = subtrip?.expenses.reduce((acc, expense) => acc + expense.amount, 0);
 
   // transporter Payment
-  const totalTransporterPayment = totalFreightAmount - totalExpense;
+  const totalTransporterPayment = totalFreightAmount - totalExpense - totalShortageAmount;
 
   return {
     effectiveFreightRate: rateAfterCommision,
     totalFreightAmount,
     totalExpense,
     totalTransporterPayment,
+    totalShortageAmount,
   };
 };
 
@@ -101,21 +105,28 @@ export const calculateTransporterPaymentSummary = (payment) => {
     return accumulator + totalTransporterPayment;
   }, 0);
 
+  const totalShortageAmount = associatedSubtrips.reduce((accumulator, st) => {
+    const { totalShortageAmount: shortageAmount } = calculateTransporterPayment(st);
+    return accumulator + shortageAmount;
+  }, 0);
+
   // calculate total repayments
   const totalRepayments = selectedLoans.reduce(
     (accumulator, { installmentAmount }) => accumulator + installmentAmount,
     0
   );
 
-  const netIncome = totalTripWiseIncome - totalRepayments;
+  const netIncome = totalTripWiseIncome - totalRepayments - totalShortageAmount;
 
   return {
     totalTripWiseIncome,
     netIncome,
     totalRepayments,
+    totalShortageAmount,
   };
 };
 
+// Invoice Section
 export const calculateInvoicePerSubtrip = (subtrip) => {
   const freightAmount = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
   const shortageAmount = subtrip.shortageAmount || 0;
@@ -125,6 +136,48 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
     freightAmount,
     shortageAmount,
     totalAmount,
+  };
+};
+
+export const calculateInvoiceSummary = (invoice) => {
+  if (!invoice?.invoicedSubTrips || !Array.isArray(invoice.invoicedSubTrips)) {
+    throw new Error('Invalid invoice data');
+  }
+
+  const { customerInvoiceTax = 0 } = CONFIG;
+
+  // Calculate totals for each subtrip
+  const subtripTotals = invoice.invoicedSubTrips.map((subtrip) => {
+    const { freightAmount, shortageAmount, totalAmount } = calculateInvoicePerSubtrip(subtrip);
+    const shortageWeight = subtrip.shortageWeight || 0;
+
+    return {
+      freightAmount,
+      shortageAmount,
+      totalAmount,
+      freightWeight: subtrip.loadingWeight || 0,
+      shortageWeight,
+    };
+  });
+
+  // Sum up all totals
+  const totalAmountBeforeTax = subtripTotals.reduce((sum, st) => sum + st.totalAmount, 0);
+  const totalFreightAmount = subtripTotals.reduce((sum, st) => sum + st.freightAmount, 0);
+  const totalShortageAmount = subtripTotals.reduce((sum, st) => sum + st.shortageAmount, 0);
+  const totalFreightWt = subtripTotals.reduce((sum, st) => sum + st.freightWeight, 0);
+  const totalShortageWt = subtripTotals.reduce((sum, st) => sum + st.shortageWeight, 0);
+
+  // Calculate tax and final amount
+  const taxAmount = (totalAmountBeforeTax * customerInvoiceTax) / 100;
+  const totalAfterTax = totalAmountBeforeTax + taxAmount;
+
+  return {
+    totalAmountBeforeTax,
+    totalFreightAmount,
+    totalShortageAmount,
+    totalFreightWt,
+    totalShortageWt,
+    totalAfterTax,
   };
 };
 
@@ -174,45 +227,3 @@ export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleTyp
     noOfDays: selectedRoute.noOfDays,
   };
 }
-
-export const calculateInvoiceSummary = (invoice) => {
-  if (!invoice?.invoicedSubTrips || !Array.isArray(invoice.invoicedSubTrips)) {
-    throw new Error('Invalid invoice data');
-  }
-
-  const { customerInvoiceTax = 0 } = CONFIG;
-
-  // Calculate totals for each subtrip
-  const subtripTotals = invoice.invoicedSubTrips.map((subtrip) => {
-    const { freightAmount, shortageAmount, totalAmount } = calculateInvoicePerSubtrip(subtrip);
-    const shortageWeight = subtrip.shortageWeight || 0;
-
-    return {
-      freightAmount,
-      shortageAmount,
-      totalAmount,
-      freightWeight: subtrip.loadingWeight || 0,
-      shortageWeight,
-    };
-  });
-
-  // Sum up all totals
-  const totalAmountBeforeTax = subtripTotals.reduce((sum, st) => sum + st.totalAmount, 0);
-  const totalFreightAmount = subtripTotals.reduce((sum, st) => sum + st.freightAmount, 0);
-  const totalShortageAmount = subtripTotals.reduce((sum, st) => sum + st.shortageAmount, 0);
-  const totalFreightWt = subtripTotals.reduce((sum, st) => sum + st.freightWeight, 0);
-  const totalShortageWt = subtripTotals.reduce((sum, st) => sum + st.shortageWeight, 0);
-
-  // Calculate tax and final amount
-  const taxAmount = (totalAmountBeforeTax * customerInvoiceTax) / 100;
-  const totalAfterTax = totalAmountBeforeTax + taxAmount;
-
-  return {
-    totalAmountBeforeTax,
-    totalFreightAmount,
-    totalShortageAmount,
-    totalFreightWt,
-    totalShortageWt,
-    totalAfterTax,
-  };
-};
