@@ -24,11 +24,11 @@ const COMPANY = CONFIG.company;
 export default function IndentPdf({ subtrip }) {
   const {
     _id,
-    customerId,
     startDate,
     expenses,
-    initialDiesel,
+    initialAdvanceDiesel,
     tripId: { driverId, vehicleId },
+    intentFuelPump,
   } = subtrip;
 
   const styles = useStyles();
@@ -87,7 +87,7 @@ export default function IndentPdf({ subtrip }) {
         {/* Petrol Pump */}
         <View style={[styles.col12, styles.horizontalCell, { justifyContent: 'flex-start' }]}>
           <Text style={[styles.horizontalCellTitle]}>To:</Text>
-          <Text style={[styles.horizontalCellContent]}>{expenses[0]?.pumpCd?.pumpName}</Text>
+          <Text style={[styles.horizontalCellContent]}>{intentFuelPump.pumpName}</Text>
         </View>
       </View>
 
@@ -166,7 +166,7 @@ export default function IndentPdf({ subtrip }) {
           <Text style={[styles.horizontalCellContent]}>{vehicleId?.noOfTyres} Tyre</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{initialDiesel}</Text>
+          <Text style={[styles.horizontalCellContent]}>{initialAdvanceDiesel}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
           <Text style={[styles.horizontalCellContent]}>{expenses[0]?.amount}</Text>

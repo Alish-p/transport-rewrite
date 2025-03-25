@@ -105,7 +105,7 @@ export default function SubtripTableRow({
         {(visibleColumns.routeName || disabledColumns.routeName) && (
           <TableCell>
             <ListItemText
-              primary={routeName}
+              primary={routeName || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>

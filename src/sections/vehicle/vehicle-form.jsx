@@ -7,17 +7,27 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Divider, MenuItem, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Divider,
+  MenuItem,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { useCreateVehicle, useUpdateVehicle } from 'src/query/use-vehicle';
+
+import { Label } from 'src/components/label';
 // components
 import { Form, Field } from 'src/components/hook-form';
 
-import { Label } from '../../components/label';
-import { useCreateVehicle, useUpdateVehicle } from '../../query/use-vehicle';
 // assets
 import { modelType, engineType, vehicleTypes, vehicleCompany } from './vehicle-config';
 
@@ -36,8 +46,8 @@ export const NewVehicleSchema = zod
     modelType: zod.string().min(1, { message: 'Model Type is required' }),
     vehicleCompany: zod.string().min(1, { message: 'Vehicle Company is required' }),
     noOfTyres: zod.number().min(1, { message: 'No Of Tyres is required and must be at least 1' }),
-    chasisNo: zod.string().min(1, { message: 'Chasis No is required' }),
-    engineNo: zod.string().min(1, { message: 'Engine No is required' }),
+    chasisNo: zod.string().optional(),
+    engineNo: zod.string().optional(),
     manufacturingYear: zod
       .number()
       .min(1900, { message: 'Manufacturing Year must be at least 1900' })
@@ -263,9 +273,18 @@ export default function VehicleForm({ currentVehicle, transporters }) {
               <Field.Text name="chasisNo" label="Chasis No" />
               <Field.Text name="engineNo" label="Engine No" />
               <Field.Text name="manufacturingYear" label="Manufacturing Year" type="number" />
-              <Field.Text name="loadingCapacity" label="Loading Capacity" type="number" />
-              <Field.Text name="fuelTankCapacity" label="Fuel Tank Capacity" type="number" />
-
+              <Field.Text
+                name="loadingCapacity"
+                label="Loading Capacity"
+                type="number"
+                InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
+              />
+              <Field.Text
+                name="fuelTankCapacity"
+                label="Fuel Tank Capacity"
+                type="number"
+                InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
+              />
               <Field.Select name="engineType" label="Engine Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />

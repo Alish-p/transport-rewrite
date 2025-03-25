@@ -16,13 +16,14 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDate, fTime } from 'src/utils/format-time';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { SUBTRIP_STATUS_COLORS } from '../constants';
-import { fDate, fTime } from '../../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -112,7 +113,7 @@ export default function SubtripTableRow({
         {(visibleColumns.routeName || disabledColumns.routeName) && (
           <TableCell>
             <ListItemText
-              primary={routeName}
+              primary={routeName || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>

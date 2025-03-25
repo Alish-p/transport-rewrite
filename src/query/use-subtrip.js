@@ -195,7 +195,7 @@ export function useUpdateSubtripMaterialInfo() {
     mutationFn: ({ id, data }) => updateSubtripMaterialInfo(id, data),
     onSuccess: (updatedSubtrip) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
+      queryClient.invalidateQueries([QUERY_KEY, updatedSubtrip._id]);
 
       toast.success('Subtrip Material Info added successfully!');
     },

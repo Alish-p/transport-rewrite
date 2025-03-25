@@ -55,7 +55,7 @@ export default function SubtripEditForm({ currentSubtrip, routesList, customersL
       tds: currentSubtrip?.tripId?.vehicleId?.transporter?.tdsPercentage || 0,
       driverAdvance:
         currentSubtrip?.expenses?.find((exp) => exp.expenseType === 'trip-advance')?.amount || 0,
-      dieselLtr: currentSubtrip?.initialDiesel || 'Full',
+      dieselLtr: currentSubtrip?.initialAdvanceDiesel || '',
       pumpCd: currentSubtrip?.expenses?.find((exp) => exp.pumpCd)?.pumpCd?._id || '',
       routeCd: currentSubtrip?.routeCd?._id || '',
       loadingPoint: currentSubtrip?.loadingPoint || '',

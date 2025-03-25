@@ -28,7 +28,7 @@ export default function TransporterPaymentPdf({ subtrip }) {
     startDate,
     expenses,
     invoiceNo,
-    initialDiesel,
+    initialAdvanceDiesel,
     rate,
     loadingWeight,
     unloadingWeight,
