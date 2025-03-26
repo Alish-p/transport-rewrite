@@ -1,18 +1,25 @@
 /* eslint-disable react/prop-types */
 
+import { PDFViewer } from '@react-pdf/renderer';
+
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { Box, Dialog, Tooltip, MenuList, DialogActions } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components/router-link';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import TripSummaryPdf from '../pdfs/trip-summary-pdf';
+
 // ----------------------------------------------------------------------
 
 export default function TripToolbar({
@@ -23,7 +30,9 @@ export default function TripToolbar({
   onEdit,
   isCloseDisabled,
 }) {
-  const popover = usePopover();
+  const actionPopover = usePopover();
+  const viewPopover = usePopover();
+  const viewTripSummary = useBoolean();
 
   return (
     <>
@@ -68,10 +77,21 @@ export default function TripToolbar({
             color="primary"
             variant="outlined"
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={popover.onOpen}
+            onClick={actionPopover.onOpen}
             sx={{ textTransform: 'capitalize' }}
           >
             Actions
+          </Button>
+
+          <Button
+            color="primary"
+            variant="outlined"
+            startIcon={<Iconify icon="solar:eye-bold" />}
+            endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+            onClick={viewPopover.onOpen}
+            sx={{ textTransform: 'capitalize' }}
+          >
+            View
           </Button>
 
           <Button
@@ -94,9 +114,9 @@ export default function TripToolbar({
       </Stack>
 
       <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
+        open={actionPopover.open}
+        onClose={actionPopover.onClose}
+        anchorEl={actionPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
@@ -113,7 +133,7 @@ export default function TripToolbar({
               <MenuItem
                 onClick={() => {
                   onTripClose();
-                  popover.onClose();
+                  actionPopover.onClose();
                 }}
                 disabled={isCloseDisabled}
               >
@@ -123,6 +143,45 @@ export default function TripToolbar({
           </Tooltip>
         </MenuList>
       </CustomPopover>
+
+      <CustomPopover
+        open={viewPopover.open}
+        onClose={viewPopover.onClose}
+        anchorEl={viewPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList>
+          <MenuItem
+            onClick={() => {
+              viewPopover.onClose();
+              viewTripSummary.onTrue();
+            }}
+          >
+            Trip Summary
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
+
+      {/* View Trip Summary Dialog */}
+      <Dialog fullScreen open={viewTripSummary.value}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions
+            sx={{
+              p: 1.5,
+            }}
+          >
+            <Button color="primary" variant="outlined" onClick={viewTripSummary.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <TripSummaryPdf trip={tripData} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
     </>
   );
 }
