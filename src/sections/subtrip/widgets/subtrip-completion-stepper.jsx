@@ -7,6 +7,8 @@ import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector
 
 import { bgGradient, stylesMode } from 'src/theme/styles';
 
+import { Scrollbar } from 'src/components/scrollbar/scrollbar';
+
 // ----------------------------------------------------------------------
 
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
@@ -73,18 +75,20 @@ function CustomStepIcon(props) {
 
 export function SimpleStepper({ steps, icons, currentStep }) {
   return (
-    <Box>
-      <Stepper alternativeLabel activeStep={currentStep} connector={<CustomConnector />}>
-        {steps.map((label, index) => (
-          <Step key={index}>
-            <StepLabel
-              StepIconComponent={(props) => <CustomStepIcon {...props} icon={icons[index]} />}
-            >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-    </Box>
+    <Scrollbar sx={{ maxHeight: 150 }}>
+      <Box>
+        <Stepper alternativeLabel activeStep={currentStep} connector={<CustomConnector />}>
+          {steps.map((label, index) => (
+            <Step key={index}>
+              <StepLabel
+                StepIconComponent={(props) => <CustomStepIcon {...props} icon={icons[index]} />}
+              >
+                {label}
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+    </Scrollbar>
   );
 }

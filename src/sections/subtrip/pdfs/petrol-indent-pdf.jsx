@@ -87,7 +87,7 @@ export default function IndentPdf({ subtrip }) {
         {/* Petrol Pump */}
         <View style={[styles.col12, styles.horizontalCell, { justifyContent: 'flex-start' }]}>
           <Text style={[styles.horizontalCellTitle]}>To:</Text>
-          <Text style={[styles.horizontalCellContent]}>{intentFuelPump.pumpName}</Text>
+          <Text style={[styles.horizontalCellContent]}>{intentFuelPump?.pumpName}</Text>
         </View>
       </View>
 
