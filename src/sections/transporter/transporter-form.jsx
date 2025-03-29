@@ -7,29 +7,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Button,
-  Divider,
-  Typography,
-  IconButton,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Divider, Typography, InputAdornment } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { useCreateTransporter, useUpdateTransporter } from 'src/query/use-transporter';
+
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useRouter } from '../../routes/hooks';
-import { Iconify } from '../../components/iconify';
-import { useBoolean } from '../../hooks/use-boolean';
-import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
-import { useCreateTransporter, useUpdateTransporter } from '../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
@@ -201,59 +192,36 @@ export default function TransporterForm({ currentTransporter, bankList }) {
         Bank Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={1} my={1}>
-          <Grid item xs={12} sm={6}>
-            <Stack sx={{ width: 1 }}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                sx={{
-                  mb: 1,
-                  border: '1px solid grey',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
+        <Box
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+          gap={3}
+        >
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={bankDialogue.onTrue}
+            sx={{
+              height: 56,
+              justifyContent: 'flex-start',
+              typography: 'body2',
+              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+            }}
+            startIcon={
+              <Iconify
+                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
+              />
+            }
+          >
+            {bankDetails?.name || 'Select Bank'}
+          </Button>
 
-                  borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-                }}
-                p={1}
-                onClick={bankDialogue.onTrue}
-              >
-                <Typography variant="subtitle2" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-                  Bank Details
-                </Typography>
-                <IconButton>
-                  <Iconify icon="solar:pen-bold" />
-                </IconButton>
-              </Stack>
-
-              <Typography typography="caption" sx={{ color: 'error.main', px: 1 }}>
-                {errors.bankDetails?.branch?.message}
-              </Typography>
-
-              <Stack direction="row" alignItems="center" sx={{ my: 1 }}>
-                <Field.Text name="bankDetails.accNo" label="Account No" />
-              </Stack>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={1}>
-            <Divider orientation="vertical" />
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            {validateBankSelection(bankDetails) && (
-              <Stack spacing={1} alignItems="center" mb={1}>
-                <Typography variant="subtitle2" color="primary.main">
-                  {bankDetails?.name}
-                </Typography>
-                <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
-                <Typography variant="body2">{bankDetails?.ifsc}</Typography>
-                <Typography variant="body2" color="GrayText">
-                  {bankDetails?.accNo}
-                </Typography>
-              </Stack>
-            )}
-          </Grid>
-        </Grid>
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+        </Box>
       </Card>
     </>
   );

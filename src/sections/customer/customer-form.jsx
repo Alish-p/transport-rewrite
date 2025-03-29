@@ -10,16 +10,17 @@ import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { useCreateCustomer, useUpdateCustomer } from 'src/query/use-customer';
 
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useRouter } from '../../routes/hooks';
-import { useBoolean } from '../../hooks/use-boolean';
-import { validateBankSelection } from '../bank/BankConfig';
 import { BankListDialog } from '../bank/bank-list-dialogue';
-import { useCreateCustomer, useUpdateCustomer } from '../../query/use-customer';
 
 export const NewCustomerSchema = zod.object({
   customerName: zod.string().min(1, { message: 'Customer Name is required' }),
@@ -192,54 +193,36 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
         Bank Details
       </Typography>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={8}>
-            <Stack spacing={2}>
-              <Button
-                fullWidth
-                variant="outlined"
-                color={errors.bankDetails?.branch?.message ? 'error' : 'primary'}
-                startIcon={<Iconify icon="mdi:bank-outline" />}
-                endIcon={<Iconify icon="solar:pen-bold" />}
-                onClick={bankDialogue.onTrue}
-                sx={{
-                  justifyContent: 'space-between',
-                  py: 1.5,
-                  borderWidth: errors.bankDetails?.branch?.message ? 2 : 1,
-                  '& .MuiButton-startIcon': { ml: 1 },
-                  '& .MuiButton-endIcon': { mr: 1 },
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ flexGrow: 1, textAlign: 'left' }}>
-                  {validateBankSelection(bankDetails)
-                    ? `${bankDetails?.name} - ${bankDetails?.branch}`
-                    : 'Select Bank'}
-                </Typography>
-              </Button>
-
-              <Field.Text
-                name="bankDetails.accNo"
-                label="Account Number"
-                placeholder="Enter account number"
+        <Box
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+          gap={3}
+        >
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={bankDialogue.onTrue}
+            sx={{
+              height: 56,
+              justifyContent: 'flex-start',
+              typography: 'body2',
+              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+            }}
+            startIcon={
+              <Iconify
+                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
               />
-            </Stack>
-          </Grid>
+            }
+          >
+            {bankDetails?.name || 'Select Bank'}
+          </Button>
 
-          <Grid item xs={12} sm={4}>
-            {validateBankSelection(bankDetails) && (
-              <Stack spacing={1} alignItems="center" mb={1}>
-                <Typography variant="subtitle2" color="primary.main">
-                  {bankDetails?.name}
-                </Typography>
-                <Typography variant="body2">{`${bankDetails?.branch} , ${bankDetails?.place} `}</Typography>
-                <Typography variant="body2">{bankDetails?.ifsc}</Typography>
-                <Typography variant="body2" color="GrayText">
-                  {bankDetails?.accNo}
-                </Typography>
-              </Stack>
-            )}
-          </Grid>
-        </Grid>
+          <Field.Text name="bankDetails.accNo" label="Account No" />
+        </Box>
       </Card>
     </>
   );
