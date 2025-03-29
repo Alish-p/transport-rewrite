@@ -34,7 +34,7 @@ const deleteBank = async (id) => {
 
 // Queries & Mutations
 export function useBanks() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getBanks });
+  return useQuery({ queryKey: [QUERY_KEY], queryFn: getBanks, staleTime: 1000 * 60 * 50 });
 }
 
 export function useBank(id) {

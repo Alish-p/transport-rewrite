@@ -23,7 +23,7 @@ export default function Page() {
     return (
       <EmptyContent
         filled
-        title="Error Fetching Drivers !"
+        title="Error Fetching Driver's Payroll !"
         sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
       />
     );
