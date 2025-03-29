@@ -155,12 +155,15 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
   ]);
 
   useEffect(() => {
-    if (dieselPriceOnDate) {
-      setValue('dieselPrice', dieselPriceOnDate.price);
-    } else {
-      setValue('dieselPrice', 0);
+    // If the expense is not present, then set the diesel price to the diesel price on date
+    if (!currentExpense) {
+      if (dieselPriceOnDate) {
+        setValue('dieselPrice', dieselPriceOnDate.price);
+      } else {
+        setValue('dieselPrice', 0);
+      }
     }
-  }, [setValue, dieselPriceOnDate]);
+  }, [setValue, dieselPriceOnDate, currentExpense]);
 
   // Handlers for submit and cancel
   const onSubmit = async (data) => {

@@ -34,8 +34,8 @@ export const NewCustomerSchema = zod.object({
     .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
   cellNo: schemaHelper.phoneNumber({
     message: {
-      required_error: 'Guarantor Mobile No is required',
-      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
+      required_error: 'Mobile No is required',
+      invalid_error: 'Mobile No must be exactly 10 digits',
     },
   }),
   GSTNo: zod.string().min(1, { message: 'GST No is required' }),

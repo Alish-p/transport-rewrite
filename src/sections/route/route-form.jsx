@@ -6,7 +6,17 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  MenuItem,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -172,13 +182,34 @@ export default function RouteForm({ currentRoute, customers }) {
           }}
         >
           <Field.Text name="routeName" label="Route Name" />
-          <Field.Text name="tollAmt" label="Toll Amount" type="number" />
+          <Field.Text
+            name="tollAmt"
+            label="Toll Amount"
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+            }}
+          />
 
           <Field.Text name="fromPlace" label="From Place" />
           <Field.Text name="toPlace" label="To Place" />
-          <Field.Text name="noOfDays" label="Number of Days" type="number" />
+          <Field.Text
+            name="noOfDays"
+            label="Number of Days"
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+            }}
+          />
 
-          <Field.Text name="distance" label="Distance" type="number" />
+          <Field.Text
+            name="distance"
+            label="Distance"
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+            }}
+          />
           <Field.DatePicker name="validFromDate" label="Valid From Date" />
 
           <Field.DatePicker name="validTillDate" label="Valid Till Date" />
@@ -291,6 +322,9 @@ export default function RouteForm({ currentRoute, customers }) {
                   name={`salary[${index}].fixedSalary`}
                   label="Fixed Salary"
                   type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
                 />
               </Box>
               <Box gridColumn="span 3">
@@ -298,17 +332,30 @@ export default function RouteForm({ currentRoute, customers }) {
                   name={`salary[${index}].percentageSalary`}
                   label="Percentage Salary"
                   type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  }}
                 />
               </Box>
 
               <Box gridColumn="span 2">
-                <Field.Text name={`salary[${index}].fixMilage`} label="Fix Milage" type="number" />
+                <Field.Text
+                  name={`salary[${index}].fixMilage`}
+                  label="Fix Milage"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">KM/Ltr</InputAdornment>,
+                  }}
+                />
               </Box>
               <Box gridColumn="span 3">
                 <Field.Text
                   name={`salary[${index}].performanceMilage`}
                   label="Performance Milage"
                   type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">KM/Ltr</InputAdornment>,
+                  }}
                 />
               </Box>
               <Box gridColumn="span 3">
@@ -316,13 +363,30 @@ export default function RouteForm({ currentRoute, customers }) {
                   name={`salary[${index}].advanceAmt`}
                   label="Advance Amount"
                   type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
                 />
               </Box>
               <Box gridColumn="span 3">
-                <Field.Text name={`salary[${index}].diesel`} label="diesel" type="number" />
+                <Field.Text
+                  name={`salary[${index}].diesel`}
+                  label="Diesel"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
+                  }}
+                />
               </Box>
               <Box gridColumn="span 2">
-                <Field.Text name={`salary[${index}].adBlue`} label="Adblue" type="number" />
+                <Field.Text
+                  name={`salary[${index}].adBlue`}
+                  label="Adblue"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
+                  }}
+                />
               </Box>
 
               <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">

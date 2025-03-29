@@ -14,6 +14,8 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
+import { paths } from 'src/routes/paths';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate, fTime } from 'src/utils/format-time';
@@ -22,8 +24,6 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { paths } from '../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ export default function ExpenseTableRow({
             <Link
               noWrap
               variant="body2"
-              onClick={() => navigate(paths.dashboard.subtrip.details(subtripId))}
+              onClick={() => navigate(paths.dashboard.subtrip.details(subtripId?._id))}
               sx={{ color: 'text.success', cursor: 'pointer' }}
             >
               {subtripId?._id || '-'}
