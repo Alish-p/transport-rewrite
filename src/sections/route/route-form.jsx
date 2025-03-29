@@ -15,8 +15,10 @@ import { paths } from 'src/routes/paths';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { useBoolean } from '../../hooks/use-boolean';
 import { vehicleTypes } from '../vehicle/vehicle-config';
 import { useCreateRoute, useUpdateRoute } from '../../query/use-route';
+import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -53,6 +55,7 @@ export const NewRouteSchema = zod
 
 export default function RouteForm({ currentRoute, customers }) {
   const navigate = useNavigate();
+  const customerDialog = useBoolean(false);
 
   const createRoute = useCreateRoute();
   const updateRoute = useUpdateRoute();
@@ -75,7 +78,7 @@ export default function RouteForm({ currentRoute, customers }) {
         currentRoute?.validTillDate || new Date().setFullYear(new Date().getFullYear() + 1)
       ),
 
-      isCustomerSpecific: currentRoute?.isCustomerSpecific || false,
+      isCustomerSpecific: currentRoute?.isCustomerSpecific || true,
       customer: currentRoute?.customer?._id || '',
 
       salary: currentRoute?.salary || [
@@ -105,6 +108,7 @@ export default function RouteForm({ currentRoute, customers }) {
     control,
     formState: { isSubmitting, errors },
     watch,
+    setValue,
   } = methods;
 
   const values = watch();
@@ -114,6 +118,8 @@ export default function RouteForm({ currentRoute, customers }) {
   });
 
   console.log({ errors });
+
+  const selectedCustomer = customers.find((c) => c._id === values.customer);
 
   const onSubmit = async (data) => {
     try {
@@ -146,6 +152,10 @@ export default function RouteForm({ currentRoute, customers }) {
     remove(index);
   };
 
+  const handleCustomerChange = (customer) => {
+    setValue('customer', customer._id);
+  };
+
   const renderRouteDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
@@ -176,6 +186,7 @@ export default function RouteForm({ currentRoute, customers }) {
       </Card>
     </>
   );
+
   const renderCustomerField = () => (
     <>
       <Typography variant="h6" gutterBottom>
@@ -200,30 +211,47 @@ export default function RouteForm({ currentRoute, customers }) {
                   Customer-Specific Route?
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Enable this option if the route is specific to a customer. Leave it disabled for
-                  general or shared routes.
+                  Please disable this option if the route is general or shared. Enable it only for
+                  customer-specific routes.
                 </Typography>
               </>
             }
             sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between' }}
           />
           {values.isCustomerSpecific && (
-            <Field.Select
-              name="customer"
-              label="Customer"
-              sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between' }}
-            >
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {customers.map((customer) => (
-                <MenuItem key={customer._id} value={customer._id}>
-                  {customer.customerName}
-                </MenuItem>
-              ))}
-            </Field.Select>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Customer
+              </Typography>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={customerDialog.onTrue}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                }}
+                startIcon={
+                  <Iconify
+                    icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
+                    sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
+                  />
+                }
+              >
+                {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+              </Button>
+            </Box>
           )}
         </Box>
       </Card>
+
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleCustomerChange}
+      />
     </>
   );
 
