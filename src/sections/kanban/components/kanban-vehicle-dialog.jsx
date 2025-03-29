@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -10,15 +11,16 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useVehicles } from 'src/query/use-vehicle';
+
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
 
-import { useVehicles } from '../../../query/use-vehicle';
-
 // ----------------------------------------------------------------------
 
-const ITEM_HEIGHT = 64;
+const ITEM_HEIGHT = 74;
 
 // ----------------------------------------------------------------------
 
@@ -85,22 +87,25 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
                     }}
                   >
                     <ListItemText
-                      primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                       secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={vehicle.vehicleNo}
+                      primary={
+                        <Stack direction="row" alignItems="center" gap={1} mb={1}>
+                          <Typography variant="subtitle2" sx={{ mb: 0.25 }}>
+                            {vehicle.vehicleNo}
+                          </Typography>
+                          <Label
+                            color={vehicle.isOwn ? 'success' : 'warning'}
+                            size="small"
+                            variant="soft"
+                          >
+                            {vehicle.isOwn ? 'Own' : 'Market'}
+                          </Label>
+                        </Stack>
+                      }
                       secondary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="caption">
                             {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: vehicle.isOwn ? 'primary.main' : 'warning.main',
-                              fontWeight: 'medium',
-                            }}
-                          >
-                            {vehicle.isOwn ? 'Company Owned' : 'Market Vehicle'}
                           </Typography>
                         </Box>
                       }
