@@ -12,7 +12,6 @@ import ListItemText from '@mui/material/ListItemText';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
@@ -31,44 +30,9 @@ const getStatusColor = (status) => {
 
 // ----------------------------------------------------------------------
 
-export default function ExpenseTableRow({
-  row,
-  selected,
-  onSelectRow,
-  onViewRow,
-  visibleColumns = {
-    vehicleNo: true,
-    customerId: true,
-    expenseType: true,
-    invoiceNo: true,
-    date: true,
-    expenseStatus: true,
-    transport: true,
-    amount: true,
-  },
-  disabledColumns = {
-    vehicleNo: true,
-    customerId: false,
-    expenseType: false,
-    invoiceNo: false,
-    date: false,
-    expenseStatus: false,
-    transport: false,
-    amount: false,
-  },
-}) {
-  const {
-    _id,
-    customerId,
-    subtripId,
-    tripId,
-    invoiceNo,
-    expenseStatus,
-    date,
-    vehicleId,
-    amount,
-    expenseType,
-  } = row;
+export default function ExpenseTableRow({ row, selected, onSelectRow, onViewRow }) {
+  const { _id, customerId, subtripId, tripId, invoiceNo, date, vehicleId, amount, expenseType } =
+    row;
 
   const popover = usePopover();
 
@@ -79,102 +43,80 @@ export default function ExpenseTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        {(visibleColumns.vehicleNo || disabledColumns.vehicleNo) && (
-          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
-              {vehicleId?.vehicleNo.slice(0, 2).toUpperCase()}
-            </Avatar>
+        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={vehicleId?.vehicleNo} sx={{ mr: 2 }}>
+            {vehicleId?.vehicleNo.slice(0, 2).toUpperCase()}
+          </Avatar>
 
-            <ListItemText
-              disableTypography
-              primary={
-                <Typography variant="body2" noWrap>
-                  {vehicleId?.vehicleNo}
-                </Typography>
-              }
-              secondary={
-                <Link
-                  noWrap
-                  variant="body2"
-                  onClick={() => {
-                    onViewRow(_id);
-                  }}
-                  sx={{ color: 'primary', cursor: 'pointer' }}
-                >
-                  {_id}
-                </Link>
-              }
-            />
-          </TableCell>
-        )}
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography variant="body2" noWrap>
+                {vehicleId?.vehicleNo}
+              </Typography>
+            }
+            secondary={
+              <Link
+                noWrap
+                variant="body2"
+                onClick={() => {
+                  onViewRow(_id);
+                }}
+                sx={{ color: 'primary', cursor: 'pointer' }}
+              >
+                {_id}
+              </Link>
+            }
+          />
+        </TableCell>
 
-        {(visibleColumns.customerId || disabledColumns.customerId) && (
-          <TableCell>
-            <ListItemText
-              primary={customerId?.customerName}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
+        <TableCell>
+          <ListItemText
+            primary={customerId?.customerName}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
 
-        {(visibleColumns.expenseType || disabledColumns.expenseType) && (
-          <TableCell>
-            <ListItemText
-              primary={expenseType}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
+        <TableCell>
+          <ListItemText
+            primary={expenseType}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
 
-        {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (
-          <TableCell>
-            <ListItemText
-              primary={invoiceNo || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
+        <TableCell>
+          <ListItemText
+            primary={invoiceNo || '-'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
 
-        {(visibleColumns.date || disabledColumns.date) && (
-          <TableCell>
-            <ListItemText
-              primary={fDate(new Date(date))}
-              secondary={fTime(new Date(date))}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-              secondaryTypographyProps={{
-                mt: 0.5,
-                component: 'span',
-                typography: 'caption',
-              }}
-            />
-          </TableCell>
-        )}
+        <TableCell>
+          <ListItemText
+            primary={fDate(new Date(date))}
+            secondary={fTime(new Date(date))}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
 
-        {(visibleColumns.transport || disabledColumns.transport) && (
-          <TableCell align="center">
-            <ListItemText
-              primary={vehicleId?.transporter?.transportName || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
+        <TableCell align="center">
+          <ListItemText
+            primary={vehicleId?.transporter?.transportName || '-'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
 
-        {(visibleColumns.amount || disabledColumns.amount) && (
-          <TableCell align="right">
-            <ListItemText
-              primary={fCurrency(amount) || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
-
-        {(visibleColumns.expenseStatus || disabledColumns.expenseStatus) && (
-          <TableCell>
-            <Label variant="soft" color={getStatusColor(expenseStatus)}>
-              {expenseStatus}
-            </Label>
-          </TableCell>
-        )}
+        <TableCell align="right">
+          <ListItemText
+            primary={fCurrency(amount) || '-'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
 
         <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

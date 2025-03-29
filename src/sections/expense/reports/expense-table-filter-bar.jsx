@@ -46,14 +46,7 @@ const EXPENSE_CATEGORIES = [
   { value: 'subtrip', label: 'Subtrip Expense' },
 ];
 
-export default function ExpenseTableFilterBar({
-  filters,
-  onFilters,
-  onSearch,
-  visibleColumns,
-  disabledColumns,
-  onToggleColumn,
-}) {
+export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -400,8 +393,8 @@ export default function ExpenseTableFilterBar({
         <KanbanPumpDialog
           open={pumpDialog.value}
           onClose={pumpDialog.onFalse}
-          onSelect={handleFilterPump}
-          selected={selectedPump?._id || ''}
+          onPumpChange={handleFilterPump}
+          selectedPump={selectedPump?._id || ''}
         />
       )}
 
@@ -409,8 +402,8 @@ export default function ExpenseTableFilterBar({
         <KanbanVehicleDialog
           open={vehicleDialog.value}
           onClose={vehicleDialog.onFalse}
-          onSelect={handleFilterVehicle}
-          selected={selectedVehicle?._id || ''}
+          onVehicleChange={handleFilterVehicle}
+          selectedVehicle={selectedVehicle?._id || ''}
         />
       )}
 
@@ -418,8 +411,8 @@ export default function ExpenseTableFilterBar({
         <KanbanCustomerDialog
           open={customerDialog.value}
           onClose={customerDialog.onFalse}
-          onSelect={handleFilterCustomer}
-          selected={selectedCustomer?._id || ''}
+          onCustomerChange={handleFilterCustomer}
+          selectedCustomer={selectedCustomer?._id || ''}
         />
       )}
 
@@ -427,8 +420,8 @@ export default function ExpenseTableFilterBar({
         <KanbanTransporterDialog
           open={transporterDialog.value}
           onClose={transporterDialog.onFalse}
-          onSelect={handleFilterTransporter}
-          selected={selectedTransporter?._id || ''}
+          onTransporterChange={handleFilterTransporter}
+          selectedTransporter={selectedTransporter?._id || ''}
         />
       )}
 
@@ -445,8 +438,8 @@ export default function ExpenseTableFilterBar({
         <KanbanTripDialog
           open={tripDialog.value}
           onClose={tripDialog.onFalse}
-          onSelect={handleFilterTrip}
-          selected={selectedTrip?._id || ''}
+          onTripChange={handleFilterTrip}
+          selectedTrip={selectedTrip?._id || ''}
           trips={trips}
         />
       )}

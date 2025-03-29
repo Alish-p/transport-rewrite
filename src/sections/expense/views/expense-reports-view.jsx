@@ -50,7 +50,6 @@ const TABLE_HEAD = [
   { id: 'date', label: 'Date', align: 'center' },
   { id: 'transport', label: 'Transporter', align: 'center', type: 'string' },
   { id: 'amount', label: 'Amount', align: 'right' },
-  { id: 'expenseStatus', label: 'Status', align: 'center', type: 'string' },
   { id: '' },
 ];
 
@@ -78,30 +77,6 @@ export function ExpenseReportsView() {
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
   const [selectedQuickFilter, setSelectedQuickFilter] = useState(null);
-
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    customerId: true,
-    expenseType: true,
-    invoiceNo: true,
-    date: true,
-    expenseStatus: true,
-    transport: true,
-    amount: true,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = {
-    vehicleNo: true,
-    customerId: false,
-    expenseType: false,
-    invoiceNo: false,
-    date: false,
-    expenseStatus: false,
-    transport: false,
-    amount: false,
-  };
 
   // Use the filtered expenses query
   const { data: tableData = [], isLoading } = useFilteredExpenses({
@@ -176,19 +151,6 @@ export function ExpenseReportsView() {
     setSelectedQuickFilter(null);
   };
 
-  const handleToggleColumn = (columnName) => {
-    if (disabledColumns[columnName]) return;
-    setVisibleColumns((prev) => ({
-      ...prev,
-      [columnName]: !prev[columnName],
-    }));
-  };
-
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
-
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -235,9 +197,6 @@ export function ExpenseReportsView() {
           onFilters={handleFilters}
           tableData={tableData}
           onSearch={handleSearch}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          onToggleColumn={handleToggleColumn}
         />
 
         {isFilterApplied && (
@@ -256,9 +215,6 @@ export function ExpenseReportsView() {
         {/* Action Items Section */}
         <ExpenseTableActions
           tableData={tableData}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          onToggleColumn={handleToggleColumn}
           onSearch={handleSearch}
           canSearch={isFilterApplied}
         />
@@ -324,7 +280,7 @@ export function ExpenseReportsView() {
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
-                    headLabel={visibleTableHead}
+                    headLabel={TABLE_HEAD}
                     rowCount={tableData.length}
                     numSelected={table.selected.length}
                     onSort={table.onSort}
@@ -349,8 +305,6 @@ export function ExpenseReportsView() {
                           selected={table.selected.includes(row._id)}
                           onSelectRow={() => table.onSelectRow(row._id)}
                           onViewRow={() => handleViewRow(row._id)}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
                         />
                       ))}
 

@@ -1,7 +1,5 @@
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import Checkbox from '@mui/material/Checkbox';
-import ListItemText from '@mui/material/ListItemText';
 import { Box, Stack, Button, Tooltip, IconButton } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
@@ -9,14 +7,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-export default function ExpenseTableActions({
-  tableData,
-  visibleColumns,
-  disabledColumns = {},
-  onToggleColumn,
-  onSearch,
-  canSearch,
-}) {
+export default function ExpenseTableActions({ tableData, onSearch, canSearch }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
 
@@ -55,36 +46,6 @@ export default function ExpenseTableActions({
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
-
-      {/* Column Settings */}
-      <CustomPopover
-        open={columnsPopover.open}
-        onClose={columnsPopover.onClose}
-        anchorEl={columnsPopover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
-      </CustomPopover>
 
       <CustomPopover
         open={popover.open}
