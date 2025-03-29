@@ -8,9 +8,14 @@ import TextField from '@mui/material/TextField';
 import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import { DialogTitle, DialogContent } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 import { SearchNotFound } from 'src/components/search-not-found';
+
+// ----------------------------------------------------------------------
+
+const ITEM_HEIGHT = 90;
 
 // ----------------------------------------------------------------------
 
@@ -103,11 +108,11 @@ export function BankListDialog({
   );
 
   const renderList = (
-    <Box sx={{ height: 480, width: '100%' }}>
+    <Box sx={{ height: ITEM_HEIGHT * 5, px: 2.5 }}>
       <List
-        height={480}
+        height={ITEM_HEIGHT * 5}
         itemCount={dataFiltered.length}
-        itemSize={80}
+        itemSize={ITEM_HEIGHT}
         width="100%"
         itemData={{ banks: dataFiltered, selected, onSelect: handleSelectBank }}
       >
@@ -118,20 +123,19 @@ export function BankListDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ p: 3, pr: 1.5 }}
-      >
-        <Typography variant="h6"> {title} </Typography>
+      <DialogTitle sx={{ pb: 0 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="h6">
+            {title} ({list?.length}){' '}
+          </Typography>
+          {action && action}
+        </Stack>
+      </DialogTitle>
 
-        {action && action}
-      </Stack>
-
-      <Stack sx={{ p: 2, pt: 0 }}>
+      <Box sx={{ px: 3, py: 2.5 }}>
         <TextField
           value={searchBank}
+          fullWidth
           onChange={handleSearchBank}
           placeholder="Search..."
           InputProps={{
@@ -142,13 +146,15 @@ export function BankListDialog({
             ),
           }}
         />
-      </Stack>
+      </Box>
 
-      {notFound ? (
-        <SearchNotFound query={debouncedSearch} sx={{ px: 3, pt: 5, pb: 10 }} />
-      ) : (
-        renderList
-      )}
+      <DialogContent sx={{ p: 0 }}>
+        {notFound ? (
+          <SearchNotFound query={debouncedSearch} sx={{ px: 3, pt: 5, pb: 10 }} />
+        ) : (
+          renderList
+        )}
+      </DialogContent>
     </Dialog>
   );
 }
