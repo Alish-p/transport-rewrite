@@ -4,7 +4,7 @@ import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
+import { Box, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
 
 // Assuming you have a pump slice
 import { paths } from 'src/routes/paths';
@@ -202,6 +202,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
           gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
           rowGap={3}
           columnGap={2}
+          sx={{ mt: 1 }}
         >
           <Field.DatePicker name="date" label="Date" />
 
@@ -227,8 +228,22 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
-              <Field.Text name="dieselLtr" label="Diesel Liters" type="number" />
-              <Field.Text name="dieselPrice" label="Per Litre Diesel Price" type="number" />
+              <Field.Text
+                name="dieselLtr"
+                label="Diesel Liters"
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
+                }}
+              />
+              <Field.Text
+                name="dieselPrice"
+                label="Per Litre Diesel Price"
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
             </>
           )}
 
@@ -240,12 +255,18 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
                 label="Variable Salary"
                 type="number"
                 placeholder="0"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
               />
               <Field.Text
                 name="performanceSalary"
                 label="Performance Salary"
                 type="number"
                 placeholder="0"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
               />
             </>
           )}
@@ -255,13 +276,16 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
             label="Amount"
             type="number"
             disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+            }}
           />
           <Field.Text name="slipNo" label="Slip No" />
           <Field.Text name="remarks" label="Remarks" />
           <Field.Text name="paidThrough" label="Paid Through" />
           <Field.Text name="authorisedBy" label="Authorised By" />
         </Box>
-        <Stack sx={{ mt: 2 }} direction="row" spacing={2}>
+        <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
           <Button color="inherit" variant="outlined" onClick={reset}>
             Reset
           </Button>

@@ -1,13 +1,20 @@
-import { Dialog, Button, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 
-import { usePumps } from '../../query/use-pump';
+import { usePumps } from 'src/query/use-pump';
+
 import ExpenseCoreForm from '../expense/subtrip-expense-form';
 
 export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
   const { data: pumps, isLoading: pumpLoading } = usePumps(showDialog);
 
   return (
-    <Dialog open={showDialog} onClose={() => setShowDialog(false)} fullWidth maxWidth="sm">
+    <Dialog
+      open={showDialog}
+      onClose={() => setShowDialog(false)}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{ sx: { p: 1 } }}
+    >
       <DialogTitle>Add Expense</DialogTitle>
       <DialogContent>
         <ExpenseCoreForm
@@ -17,9 +24,6 @@ export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
           onSuccess={() => setShowDialog(false)}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setShowDialog(false)}>Cancel</Button>
-      </DialogActions>
     </Dialog>
   );
 }
