@@ -37,7 +37,9 @@ export default function SubtripTableFiltersResult({
     !!filters.transportName ||
     !!filters.customerId ||
     !!filters.driverId ||
-    (!!filters.fromDate && !!filters.endDate) ||
+    (!!filters.startFromDate && !!filters.startEndDate) ||
+    (!!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate) ||
+    (!!filters.subtripEndFromDate && !!filters.subtripEndEndDate) ||
     (filters.status && filters.status.length > 0);
 
   const { data: customers = [] } = useCustomers();
@@ -65,9 +67,19 @@ export default function SubtripTableFiltersResult({
     onFilters('subtripId', '');
   };
 
-  const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+  const handleRemoveStartDate = () => {
+    onFilters('startFromDate', null);
+    onFilters('startEndDate', null);
+  };
+
+  const handleRemoveEwayDate = () => {
+    onFilters('ewayExpiryFromDate', null);
+    onFilters('ewayExpiryEndDate', null);
+  };
+
+  const handleRemoveEndDate = () => {
+    onFilters('subtripEndFromDate', null);
+    onFilters('subtripEndEndDate', null);
   };
 
   const handleRemoveStatus = () => {
@@ -102,7 +114,15 @@ export default function SubtripTableFiltersResult({
     return driver?.driverName || id;
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const startDateShortLabel = fDateRangeShortLabel(filters.startFromDate, filters.startEndDate);
+  const ewayDateShortLabel = fDateRangeShortLabel(
+    filters.ewayExpiryFromDate,
+    filters.ewayExpiryEndDate
+  );
+  const endDateShortLabel = fDateRangeShortLabel(
+    filters.subtripEndFromDate,
+    filters.subtripEndEndDate
+  );
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -165,9 +185,21 @@ export default function SubtripTableFiltersResult({
               </Block>
             )}
 
-            {filters.fromDate && filters.endDate && (
-              <Block label="Date:">
-                <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+            {filters.startFromDate && filters.startEndDate && (
+              <Block label="Start Date:">
+                <Chip size="small" label={startDateShortLabel} onDelete={handleRemoveStartDate} />
+              </Block>
+            )}
+
+            {filters.ewayExpiryFromDate && filters.ewayExpiryEndDate && (
+              <Block label="E-way Expiry:">
+                <Chip size="small" label={ewayDateShortLabel} onDelete={handleRemoveEwayDate} />
+              </Block>
+            )}
+
+            {filters.subtripEndFromDate && filters.subtripEndEndDate && (
+              <Block label="End Date:">
+                <Chip size="small" label={endDateShortLabel} onDelete={handleRemoveEndDate} />
               </Block>
             )}
 

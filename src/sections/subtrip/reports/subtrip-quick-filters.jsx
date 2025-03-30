@@ -52,8 +52,8 @@ export default function SubtripQuickFilters({
         label: 'This Month Billed',
         tooltip: 'Billed-paid subtrips from this month',
         filters: {
-          fromDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          endDate: new Date(),
+          startFromDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          startEndDate: new Date(),
           status: [SUBTRIP_STATUS.BILLED_PAID],
         },
       },
@@ -62,8 +62,8 @@ export default function SubtripQuickFilters({
         label: 'Last Month Billed',
         tooltip: 'Billed-paid subtrips from last month',
         filters: {
-          fromDate: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-          endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 0),
+          startFromDate: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+          startEndDate: new Date(new Date().getFullYear(), new Date().getMonth(), 0),
           status: [SUBTRIP_STATUS.BILLED_PAID],
         },
       },
@@ -89,10 +89,8 @@ export default function SubtripQuickFilters({
         tooltip: 'Loaded subtrips with e-way bill expiring in 24 hours',
         filters: {
           status: [SUBTRIP_STATUS.LOADED],
-          // The actual filter for expiring e-way bills would need to be handled
-          // in the backend API, as it's a complex date comparison
-          // This is just a placeholder for the UI
-          ewayExpiryDate: fAdd({ days: 1 }), // Setting ewayExpiryDate to tomorrow
+          ewayExpiryFromDate: new Date(),
+          ewayExpiryEndDate: fAdd({ days: 1 }), // Expiring in next 24 hours
         },
       },
       {
@@ -100,9 +98,29 @@ export default function SubtripQuickFilters({
         label: 'Recently Closed',
         tooltip: 'Subtrips closed in the last 7 days',
         filters: {
-          fromDate: new Date(fSub({ days: 7 })),
-          endDate: new Date(),
+          subtripEndFromDate: new Date(fSub({ days: 7 })),
+          subtripEndEndDate: new Date(),
           status: [SUBTRIP_STATUS.CLOSED],
+        },
+      },
+      {
+        id: 'expired-eway',
+        label: 'Expired E-way',
+        tooltip: 'Subtrips with expired e-way bills',
+        filters: {
+          status: [SUBTRIP_STATUS.LOADED],
+          ewayExpiryFromDate: new Date(fSub({ days: 30 })), // Last 30 days
+          ewayExpiryEndDate: new Date(),
+        },
+      },
+      {
+        id: 'long-running',
+        label: 'Long Running',
+        tooltip: 'Subtrips running for more than 7 days',
+        filters: {
+          status: [SUBTRIP_STATUS.LOADED],
+          startFromDate: new Date(fSub({ days: 7 })),
+          startEndDate: new Date(),
         },
       },
     ],

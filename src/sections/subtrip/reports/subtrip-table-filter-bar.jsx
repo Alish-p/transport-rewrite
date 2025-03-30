@@ -43,7 +43,10 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const dateRangePopover = usePopover();
+  const startDateRangePopover = usePopover();
+  const ewayDateRangePopover = usePopover();
+  const endDateRangePopover = usePopover();
+
   const statusPopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
@@ -78,9 +81,23 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
   );
 
   const handleFilterDateRange = useCallback(
-    (startDate, endDate) => {
-      onFilters('fromDate', startDate);
-      onFilters('endDate', endDate);
+    (startDate, endDate, type = 'start') => {
+      switch (type) {
+        case 'start':
+          onFilters('startFromDate', startDate);
+          onFilters('startEndDate', endDate);
+          break;
+        case 'eway':
+          onFilters('ewayExpiryFromDate', startDate);
+          onFilters('ewayExpiryEndDate', endDate);
+          break;
+        case 'end':
+          onFilters('subtripEndFromDate', startDate);
+          onFilters('subtripEndEndDate', endDate);
+          break;
+        default:
+          break;
+      }
     },
     [onFilters]
   );
@@ -123,9 +140,18 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
   const selectedTransporter = transporters.find((t) => t._id === filters.transportName);
 
-  const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
-  const dateRangeShortLabel = dateRangeSelected
-    ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
+  const startDateRangeSelected = !!filters.startFromDate && !!filters.startEndDate;
+  const ewayDateRangeSelected = !!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate;
+  const endDateRangeSelected = !!filters.subtripEndFromDate && !!filters.subtripEndEndDate;
+
+  const startDateRangeShortLabel = startDateRangeSelected
+    ? fDateRangeShortLabel(filters.startFromDate, filters.startEndDate)
+    : '';
+  const ewayDateRangeShortLabel = ewayDateRangeSelected
+    ? fDateRangeShortLabel(filters.ewayExpiryFromDate, filters.ewayExpiryEndDate)
+    : '';
+  const endDateRangeShortLabel = endDateRangeSelected
+    ? fDateRangeShortLabel(filters.subtripEndFromDate, filters.subtripEndEndDate)
     : '';
 
   // Define all filter chips for better organization
@@ -139,11 +165,27 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
       icon: <Iconify icon="mdi:filter-variant" />,
     },
     {
-      id: 'dateRange',
-      label: dateRangeSelected ? dateRangeShortLabel : 'Date Range',
-      tooltip: 'Filter by date range',
-      onClick: dateRangePopover.onOpen,
-      isSelected: dateRangeSelected,
+      id: 'startDateRange',
+      label: startDateRangeSelected ? `Start: ${startDateRangeShortLabel}` : 'Start Date Range',
+      tooltip: 'Filter by start date range',
+      onClick: startDateRangePopover.onOpen,
+      isSelected: startDateRangeSelected,
+      icon: <Iconify icon="mdi:calendar" />,
+    },
+    {
+      id: 'ewayDateRange',
+      label: ewayDateRangeSelected ? `E-way: ${ewayDateRangeShortLabel}` : 'E-way Expiry Range',
+      tooltip: 'Filter by e-way expiry date range',
+      onClick: ewayDateRangePopover.onOpen,
+      isSelected: ewayDateRangeSelected,
+      icon: <Iconify icon="mdi:calendar" />,
+    },
+    {
+      id: 'endDateRange',
+      label: endDateRangeSelected ? `End: ${endDateRangeShortLabel}` : 'End Date Range',
+      tooltip: 'Filter by end date range',
+      onClick: endDateRangePopover.onOpen,
+      isSelected: endDateRangeSelected,
       icon: <Iconify icon="mdi:calendar" />,
     },
     {
@@ -269,13 +311,39 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
       <CustomDateRangePicker
         variant="calendar"
         title="Select date range"
-        startDate={filters.fromDate}
-        endDate={filters.endDate}
-        onChangeStartDate={(date) => handleFilterDateRange(date, filters.endDate)}
-        onChangeEndDate={(date) => handleFilterDateRange(filters.fromDate, date)}
-        open={dateRangePopover.open}
-        onClose={dateRangePopover.onClose}
-        selected={dateRangeSelected}
+        startDate={filters.startFromDate}
+        endDate={filters.startEndDate}
+        onChangeStartDate={(date) => handleFilterDateRange(date, filters.startEndDate, 'start')}
+        onChangeEndDate={(date) => handleFilterDateRange(filters.startFromDate, date, 'start')}
+        open={startDateRangePopover.open}
+        onClose={startDateRangePopover.onClose}
+        selected={startDateRangeSelected}
+        error={false}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        title="Select e-way expiry date range"
+        startDate={filters.ewayExpiryFromDate}
+        endDate={filters.ewayExpiryEndDate}
+        onChangeStartDate={(date) => handleFilterDateRange(date, filters.ewayExpiryEndDate, 'eway')}
+        onChangeEndDate={(date) => handleFilterDateRange(filters.ewayExpiryFromDate, date, 'eway')}
+        open={ewayDateRangePopover.open}
+        onClose={ewayDateRangePopover.onClose}
+        selected={ewayDateRangeSelected}
+        error={false}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        title="Select end date range"
+        startDate={filters.subtripEndFromDate}
+        endDate={filters.subtripEndEndDate}
+        onChangeStartDate={(date) => handleFilterDateRange(date, filters.subtripEndEndDate, 'end')}
+        onChangeEndDate={(date) => handleFilterDateRange(filters.subtripEndFromDate, date, 'end')}
+        open={endDateRangePopover.open}
+        onClose={endDateRangePopover.onClose}
+        selected={endDateRangeSelected}
         error={false}
       />
 

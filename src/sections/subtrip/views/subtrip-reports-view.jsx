@@ -58,8 +58,12 @@ const defaultFilters = {
   subtripId: '',
   vehicleNo: '',
   transportName: '',
-  fromDate: null,
-  endDate: null,
+  startFromDate: null,
+  startEndDate: null,
+  ewayExpiryFromDate: null,
+  ewayExpiryEndDate: null,
+  subtripEndFromDate: null,
+  subtripEndEndDate: null,
   status: [],
   driverId: '',
 };
@@ -110,7 +114,9 @@ export function SubtripReportsView() {
     !!filters.transportName ||
     !!filters.customerId ||
     !!filters.driverId ||
-    (!!filters.fromDate && !!filters.endDate) ||
+    (!!filters.startFromDate && !!filters.startEndDate) ||
+    (!!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate) ||
+    (!!filters.subtripEndFromDate && !!filters.subtripEndEndDate) ||
     (filters.status && filters.status.length > 0);
 
   const notFound = (!tableData.length && isFilterApplied) || !tableData.length;
@@ -138,8 +144,12 @@ export function SubtripReportsView() {
       vehicleId: filters.vehicleNo || undefined,
       subtripId: filters.subtripId || undefined,
       customerId: filters.customerId || undefined,
-      fromDate: filters.fromDate || undefined,
-      toDate: filters.endDate || undefined,
+      fromDate: filters.startFromDate || undefined,
+      toDate: filters.startEndDate || undefined,
+      ewayExpiryFromDate: filters.ewayExpiryFromDate || undefined,
+      ewayExpiryToDate: filters.ewayExpiryEndDate || undefined,
+      subtripEndFromDate: filters.subtripEndFromDate || undefined,
+      subtripEndToDate: filters.subtripEndEndDate || undefined,
       transporterId: filters.transportName || undefined,
       subtripStatus: filters.status?.length > 0 ? filters.status : undefined,
       driverId: filters.driverId || undefined,
