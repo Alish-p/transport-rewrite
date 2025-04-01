@@ -58,10 +58,8 @@ const TABLE_HEAD = [
   { id: 'fromPlace', label: 'From Place', type: 'string' },
   { id: 'toPlace', label: 'To Place', type: 'string' },
   { id: 'customer', label: 'Customer', type: 'string' },
-  { id: 'tollAmt', label: 'Toll Amount', type: 'number' },
   { id: 'noOfDays', label: 'Number of Days', type: 'number' },
   { id: 'distance', label: 'Distance', type: 'number' },
-  { id: 'validFromDate', label: 'Valid From Date', type: 'date' },
   { id: '' },
 ];
 

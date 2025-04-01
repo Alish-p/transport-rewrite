@@ -14,8 +14,6 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate } from 'src/utils/format-time';
-
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -109,15 +107,6 @@ export default function RouteTableRow({
           </TableCell>
         )}
 
-        {(visibleColumns.tollAmt || disabledColumns.tollAmt) && (
-          <TableCell>
-            <ListItemText
-              primary={tollAmt}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
-
         {(visibleColumns.noOfDays || disabledColumns.noOfDays) && (
           <TableCell>
             <Label variant="soft" color={noOfDays >= 5 ? 'success' : 'error'}>
@@ -130,15 +119,6 @@ export default function RouteTableRow({
           <TableCell>
             <ListItemText
               primary={distance}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
-          </TableCell>
-        )}
-
-        {(visibleColumns.validFromDate || disabledColumns.validFromDate) && (
-          <TableCell>
-            <ListItemText
-              primary={fDate(validFromDate)}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
