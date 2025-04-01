@@ -1,8 +1,8 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
@@ -11,23 +11,32 @@ import {
   Card,
   Grid,
   Stack,
+  Table,
+  Paper,
   Button,
-  Divider,
-  MenuItem,
+  Tooltip,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHead,
   Typography,
+  IconButton,
   InputAdornment,
+  TableContainer,
 } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { useCreateRoute, useUpdateRoute } from 'src/query/use-route';
+
 // components
 import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 
-import { useBoolean } from '../../hooks/use-boolean';
-import { vehicleTypes } from '../vehicle/vehicle-config';
-import { useCreateRoute, useUpdateRoute } from '../../query/use-route';
+import RouteConfigDialogue from './components/route-config-dialogue';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 // ----------------------------------------------------------------------
@@ -35,28 +44,12 @@ import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialo
 export const NewRouteSchema = zod
   .object({
     routeName: zod.string().min(1, { message: 'Route Name is required' }),
-    tollAmt: zod.number({ required_error: 'Toll Amount is required' }),
     fromPlace: zod.string().min(1, { message: 'From Place is required' }),
     toPlace: zod.string().min(1, { message: 'To Place is required' }),
     noOfDays: zod.number({ required_error: 'Number of Days is required' }),
-    ratePerTon: zod.number({ required_error: 'Rate per Ton is required' }),
     distance: zod.number({ required_error: 'Distance is required' }),
-    validFromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-    validTillDate: schemaHelper.date({ message: { required_error: 'Till date is required!' } }),
     isCustomerSpecific: zod.boolean(),
     customer: zod.string().optional(),
-    salary: zod.array(
-      zod.object({
-        vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
-        fixedSalary: zod.number().min(0, { message: 'Fixed Salary is required' }),
-        percentageSalary: zod.number().min(0, { message: 'Percentage Salary is required' }),
-        fixMilage: zod.number({ required_error: 'Fixed Milage is required' }),
-        performanceMilage: zod.number({ required_error: 'Performance Milage is required' }),
-        advanceAmt: zod.number({ required_error: 'Advance Amount is required' }),
-        diesel: zod.number({ required_error: 'Diesel is required' }),
-        adBlue: zod.number({ required_error: 'Ad Blue is required' }),
-      })
-    ),
   })
   .refine((data) => !data.isCustomerSpecific || data.customer, {
     message: 'Customer is required when the Route is not Generic',
@@ -66,6 +59,8 @@ export const NewRouteSchema = zod
 export default function RouteForm({ currentRoute, customers }) {
   const navigate = useNavigate();
   const customerDialog = useBoolean(false);
+  const [vehicleConfigs, setVehicleConfigs] = useState(currentRoute?.vehicleConfiguration || []);
+  const [editingConfig, setEditingConfig] = useState(null);
 
   const createRoute = useCreateRoute();
   const updateRoute = useUpdateRoute();
@@ -73,36 +68,12 @@ export default function RouteForm({ currentRoute, customers }) {
   const defaultValues = useMemo(
     () => ({
       routeName: currentRoute?.routeName || '',
-      tollAmt: currentRoute?.tollAmt || 0,
       fromPlace: currentRoute?.fromPlace || '',
       toPlace: currentRoute?.toPlace || '',
       noOfDays: currentRoute?.noOfDays || 0,
-
-      ratePerTon: currentRoute?.ratePerTon || 0,
       distance: currentRoute?.distance || 0,
-      validFromDate: currentRoute?.validFromDate
-        ? new Date(currentRoute?.validFromDate)
-        : new Date(),
-
-      validTillDate: new Date(
-        currentRoute?.validTillDate || new Date().setFullYear(new Date().getFullYear() + 1)
-      ),
-
       isCustomerSpecific: currentRoute?.isCustomerSpecific || true,
       customer: currentRoute?.customer?._id || '',
-
-      salary: currentRoute?.salary || [
-        {
-          vehicleType: '',
-          fixedSalary: 0,
-          percentageSalary: 0,
-          fixMilage: 0,
-          performanceMilage: 0,
-          advanceAmt: 0,
-          diesel: 0,
-          adBlue: 0,
-        },
-      ],
     }),
     [currentRoute]
   );
@@ -115,28 +86,25 @@ export default function RouteForm({ currentRoute, customers }) {
   const {
     reset,
     handleSubmit,
-    control,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
     watch,
     setValue,
   } = methods;
 
   const values = watch();
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'salary',
-  });
-
-  console.log({ errors });
-
   const selectedCustomer = customers.find((c) => c._id === values.customer);
 
   const onSubmit = async (data) => {
     try {
+      const submitData = {
+        ...data,
+        vehicleConfiguration: vehicleConfigs,
+      };
+
       if (!currentRoute) {
-        await createRoute(data);
+        await createRoute(submitData);
       } else {
-        await updateRoute({ id: currentRoute._id, data });
+        await updateRoute({ id: currentRoute._id, data: submitData });
       }
       reset();
       navigate(paths.dashboard.route.list);
@@ -145,25 +113,27 @@ export default function RouteForm({ currentRoute, customers }) {
     }
   };
 
-  const handleAddSalary = () => {
-    append({
-      vehicleType: '',
-      fixedSalary: 0,
-      percentageSalary: 0,
-      fixMilage: 0,
-      performanceMilage: 0,
-      advanceAmt: 0,
-      diesel: 0,
-      adBlue: 0,
-    });
-  };
-
-  const handleRemoveSalary = (index) => {
-    remove(index);
-  };
-
   const handleCustomerChange = (customer) => {
     setValue('customer', customer._id);
+  };
+
+  const handleAddConfig = (config) => {
+    setVehicleConfigs((prev) => [...prev, config]);
+  };
+
+  const handleEditConfig = (config) => {
+    setEditingConfig(config);
+  };
+
+  const handleUpdateConfig = (config) => {
+    setVehicleConfigs((prev) =>
+      prev.map((item, index) => (index === editingConfig.index ? config : item))
+    );
+    setEditingConfig(null);
+  };
+
+  const handleDeleteConfig = (index) => {
+    setVehicleConfigs((prev) => prev.filter((_, i) => i !== index));
   };
 
   const renderRouteDetails = () => (
@@ -182,14 +152,6 @@ export default function RouteForm({ currentRoute, customers }) {
           }}
         >
           <Field.Text name="routeName" label="Route Name" />
-          <Field.Text
-            name="tollAmt"
-            label="Toll Amount"
-            type="number"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-            }}
-          />
 
           <Field.Text name="fromPlace" label="From Place" />
           <Field.Text name="toPlace" label="To Place" />
@@ -210,9 +172,6 @@ export default function RouteForm({ currentRoute, customers }) {
               endAdornment: <InputAdornment position="end">KM</InputAdornment>,
             }}
           />
-          <Field.DatePicker name="validFromDate" label="Valid From Date" />
-
-          <Field.DatePicker name="validTillDate" label="Valid Till Date" />
         </Box>
       </Card>
     </>
@@ -286,132 +245,69 @@ export default function RouteForm({ currentRoute, customers }) {
     </>
   );
 
-  const renderSalaryFields = () => (
+  const renderVehicleConfigs = () => (
     <>
-      <Typography variant="h6" gutterBottom>
-        Salaries:
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">Vehicle Configurations</Typography>
+        <RouteConfigDialogue
+          onApply={handleAddConfig}
+          editingConfig={editingConfig}
+          onUpdate={handleUpdateConfig}
+        />
+      </Box>
 
       <Card sx={{ p: 3, mb: 3 }}>
-        {fields.map((field, index) => (
-          <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(2, 1fr)',
-                sm: 'repeat(12, 1fr)',
-              }}
-              sx={{ p: 3, border: '1px solid grey', borderRadius: '15px', m: 1 }}
-            >
-              <Box gridColumn="span 3">
-                <Field.Select name={`salary[${index}].vehicleType`} label="Vehicle Type">
-                  <MenuItem value="">None</MenuItem>
-                  <Divider sx={{ borderStyle: 'dashed' }} />
-                  {vehicleTypes.map(({ value, key }) => (
-                    <MenuItem key={key} value={value}>
-                      {value}
-                    </MenuItem>
-                  ))}
-                </Field.Select>
-              </Box>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Vehicle Type & Tyres</TableCell>
+                <TableCell>Toll Amount</TableCell>
+                <TableCell>Driver Advance</TableCell>
 
-              <Box gridColumn="span 3">
-                <Field.Text
-                  name={`salary[${index}].fixedSalary`}
-                  label="Fixed Salary"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                  }}
-                />
-              </Box>
-              <Box gridColumn="span 3">
-                <Field.Text
-                  name={`salary[${index}].percentageSalary`}
-                  label="Percentage Salary"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                  }}
-                />
-              </Box>
-
-              <Box gridColumn="span 2">
-                <Field.Text
-                  name={`salary[${index}].fixMilage`}
-                  label="Fix Milage"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">KM/Ltr</InputAdornment>,
-                  }}
-                />
-              </Box>
-              <Box gridColumn="span 3">
-                <Field.Text
-                  name={`salary[${index}].performanceMilage`}
-                  label="Performance Milage"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">KM/Ltr</InputAdornment>,
-                  }}
-                />
-              </Box>
-              <Box gridColumn="span 3">
-                <Field.Text
-                  name={`salary[${index}].advanceAmt`}
-                  label="Advance Amount"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                  }}
-                />
-              </Box>
-              <Box gridColumn="span 3">
-                <Field.Text
-                  name={`salary[${index}].diesel`}
-                  label="Diesel"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
-                  }}
-                />
-              </Box>
-              <Box gridColumn="span 2">
-                <Field.Text
-                  name={`salary[${index}].adBlue`}
-                  label="Adblue"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
-                  }}
-                />
-              </Box>
-
-              <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
-                <Button
-                  size="small"
-                  color="error"
-                  startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                  onClick={() => handleRemoveSalary(index)}
-                >
-                  Remove
-                </Button>
-              </Box>
-            </Box>
-          </Stack>
-        ))}
-
-        <Button
-          size="small"
-          color="primary"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          onClick={handleAddSalary}
-          sx={{ mt: 3 }}
-        >
-          Add Vehicle Type
-        </Button>
+                <TableCell>Fixed Salary</TableCell>
+                <TableCell>Percentage</TableCell>
+                <TableCell>Diesel</TableCell>
+                <TableCell>AdBlue</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {vehicleConfigs.map((config, index) => (
+                <TableRow key={index}>
+                  <TableCell>{`${config.vehicleType} [${config.noOfTyres}]`}</TableCell>
+                  <TableCell>{config.tollAmt}</TableCell>
+                  <TableCell>₹{config.advanceAmt}</TableCell>
+                  <TableCell>₹{config.fixedSalary}</TableCell>
+                  <TableCell>{config.percentageSalary}%</TableCell>
+                  <TableCell>{config.diesel}L</TableCell>
+                  <TableCell>{config.adBlue}L</TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={1}>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditConfig({ ...config, index })}
+                        >
+                          <Iconify icon="material-symbols:edit" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDeleteConfig(index)}
+                        >
+                          <Iconify icon="material-symbols:delete" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Card>
     </>
   );
@@ -430,7 +326,7 @@ export default function RouteForm({ currentRoute, customers }) {
         <Grid item xs={12}>
           {renderCustomerField()}
           {renderRouteDetails()}
-          {renderSalaryFields()}
+          {renderVehicleConfigs()}
           {renderActions()}
         </Grid>
       </Grid>

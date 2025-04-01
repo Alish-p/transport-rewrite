@@ -11,9 +11,11 @@ function useExpenseInsights(subtrip) {
   } = subtrip || {};
 
   const extractedData = useMemo(() => {
-    if (vehicleInfo && routeInfo?.salary) {
-      return routeInfo.salary.find(
-        (s) => s.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase()
+    if (vehicleInfo && routeInfo?.vehicleConfiguration) {
+      return routeInfo.vehicleConfiguration.find(
+        (s) =>
+          s.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase() &&
+          s.noOfTyres === vehicleInfo.noOfTyres
       );
     }
     return null;
@@ -21,7 +23,7 @@ function useExpenseInsights(subtrip) {
 
   const extractedResult = useMemo(
     () => ({
-      tollAmt: routeInfo?.tollAmt || 0,
+      tollAmt: extractedData?.tollAmt || 0,
       routeName: routeInfo?.routeName || '',
       fixedSalary: extractedData?.fixedSalary || 0,
       percentageSalary: extractedData?.percentageSalary || 0,
