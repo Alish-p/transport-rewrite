@@ -7,16 +7,15 @@ import Card from '@mui/material/Card';
 import { Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { Iconify } from '../../../components/iconify';
-import { RouterLink } from '../../../routes/components';
 
 export function RouteDetailView({ route }) {
   const [tabValue, setTabValue] = useState('details');
@@ -32,7 +31,7 @@ export function RouteDetailView({ route }) {
     fromPlace,
     toPlace,
     noOfDays,
-    salary,
+    vehicleConfiguration,
     tripType,
     ratePerTon,
     distance,
@@ -68,7 +67,7 @@ export function RouteDetailView({ route }) {
 
 | Vehicle Type      | Fixed Salary | Percentage Salary | Fixed Mileage | Performance Mileage | Diesel | AdBlue | Advance Amount |
 | :---------------- | :----------- | :---------------- | :------------ | :------------------ | :----- | :----- | :------------- |
-${salary
+${vehicleConfiguration
   .map(
     (item) =>
       `| ${item.vehicleType} | ${item.fixedSalary} | ${item.percentageSalary}% | ${item.fixMilage} | ${item.performanceMilage} | ${item.diesel} | ${item.adBlue} | ${item.advanceAmt} |`

@@ -182,12 +182,12 @@ export const calculateInvoiceSummary = (invoice) => {
 };
 
 // for providing insignts while adding salary expense
-export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleType) {
+export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleInfo) {
   if (!routes || !Array.isArray(routes)) {
     throw new Error('Routes must be a valid array.');
   }
-  if (!currentRouteId || !vehicleType) {
-    throw new Error('Both currentRouteId and vehicleType parameters are required.');
+  if (!currentRouteId || !vehicleInfo || !vehicleInfo.vehicleType || !vehicleInfo.noOfTyres) {
+    throw new Error('Both currentRouteId and vehicleInfo parameters are required.');
   }
 
   // Find the selected route by its ID
@@ -198,12 +198,16 @@ export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleTyp
   }
 
   // Find the salary details for the given vehicle type
-  const salaryDetails = selectedRoute.salary.find(
-    (item) => item.vehicleType.toLowerCase() === vehicleType.toLowerCase()
+  const salaryDetails = selectedRoute.vehicleConfiguration.find(
+    (item) =>
+      item.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase() &&
+      item.noOfTyres === vehicleInfo.noOfTyres
   );
 
   if (!salaryDetails) {
-    console.log(`No salary details found for vehicleType: ${vehicleType} in the selected route.`);
+    console.log(
+      `No salary details found for vehicleType: ${vehicleInfo.vehicleType} and noOfTyres: ${vehicleInfo.noOfTyres} in the selected route.`
+    );
     return {};
   }
 

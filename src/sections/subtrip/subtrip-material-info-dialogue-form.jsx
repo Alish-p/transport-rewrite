@@ -133,9 +133,12 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const { advanceAmt } = useMemo(
     () =>
       routeCd
-        ? getSalaryDetailsByVehicleType(routes, routeCd, tripId?.vehicleId?.vehicleType) || {}
+        ? getSalaryDetailsByVehicleType(routes, routeCd, {
+            vehicleType: tripId?.vehicleId?.vehicleType,
+            noOfTyres: tripId?.vehicleId?.noOfTyres,
+          }) || {}
         : {},
-    [routeCd, routes, tripId?.vehicleId?.vehicleType]
+    [routeCd, routes, tripId?.vehicleId?.vehicleType, tripId?.vehicleId?.noOfTyres]
   );
 
   // Update initialAdvanceDiesel when dieselType changes
