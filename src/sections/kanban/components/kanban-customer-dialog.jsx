@@ -10,11 +10,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useCustomers } from 'src/query/use-customer';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { useCustomers } from '../../../query/use-customer';
 
 // ----------------------------------------------------------------------
 
@@ -122,14 +122,20 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (customer) =>
-        customer.customerName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        customer.place.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        customer.state.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        customer.cellNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        customer.GSTNo.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((customer) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(customer.customerName) ||
+        matchesField(customer.place) ||
+        matchesField(customer.state) ||
+        matchesField(customer.cellNo) ||
+        matchesField(customer.GSTNo)
+      );
+    });
   }
 
   return inputData;

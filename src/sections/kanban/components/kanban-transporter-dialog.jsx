@@ -10,11 +10,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useTransporters } from 'src/query/use-transporter';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { useTransporters } from '../../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
@@ -127,14 +127,20 @@ export function KanbanTransporterDialog({
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (transporter) =>
-        transporter.transportName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        transporter.ownerName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        transporter.place.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        transporter.cellNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        transporter.gstNo.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((transporter) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(transporter.transportName) ||
+        matchesField(transporter.ownerName) ||
+        matchesField(transporter.place) ||
+        matchesField(transporter.cellNo) ||
+        matchesField(transporter.gstNo)
+      );
+    });
   }
 
   return inputData;

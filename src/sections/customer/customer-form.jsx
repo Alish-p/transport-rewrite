@@ -25,48 +25,26 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 export const NewCustomerSchema = zod.object({
   customerName: zod.string().min(1, { message: 'Customer Name is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
-  place: zod.string().min(1, { message: 'Place is required' }),
-  state: zod.string().min(1, { message: 'State is required' }),
-  pinCode: zod
-    .string()
-    .min(6, { message: 'Pin Code must be exactly 6 digits' })
-    .max(6, { message: 'Pin Code must be exactly 6 digits' })
-    .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
+  place: zod.string(),
+  state: zod.string(),
+  pinCode: zod.string(),
   cellNo: schemaHelper.phoneNumber({
     message: {
       required_error: 'Mobile No is required',
       invalid_error: 'Mobile No must be exactly 10 digits',
     },
   }),
-  GSTNo: zod.string().min(1, { message: 'GST No is required' }),
-  PANNo: zod
-    .string()
-    .min(1, { message: 'PAN No is required' })
-    .regex(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, {
-      message: 'PAN No must be in the format: five letters followed by four digits and one letter',
-    }),
+  GSTNo: zod.string(),
+  PANNo: zod.string(),
   consignees: zod.array(
     zod.object({
       name: zod.string().min(1, { message: 'Name is required' }),
       address: zod.string().min(1, { message: 'Address is required' }),
-      state: zod.string().min(1, { message: 'State is required' }),
-      pinCode: zod
-        .string()
-        .min(6, { message: 'Pin Code must be exactly 6 digits' })
-        .max(6, { message: 'Pin Code must be exactly 6 digits' })
-        .regex(/^[0-9]{6}$/, { message: 'Pin Code must be a number' }),
+      state: zod.string(),
+      pinCode: zod.string().optional(),
     })
   ),
-  bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Name is required' }),
-    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: zod
-      .string()
-      .min(1, { message: 'Account No is required' })
-      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
-  }),
+  bankDetails: zod.object({}),
   transporterCode: zod.string().optional(),
 });
 

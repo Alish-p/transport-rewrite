@@ -26,23 +26,17 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 
 export const NewTransporterSchema = zod.object({
   transportName: zod.string().min(1, { message: 'Transport Name is required' }),
-  address: zod.string().min(1, { message: 'Address is required' }),
-  place: zod.string().min(1, { message: 'Place is required' }),
-  pinNo: zod
-    .string()
-    .min(6, { message: 'Pin No must be exactly 6 digits' })
-    .max(6, { message: 'Pin No must be exactly 6 digits' })
-    .regex(/^[0-9]{6}$/, { message: 'Pin No must be a number' }),
+  address: zod.string(),
+  place: zod.string(),
+  pinNo: zod.string(),
   cellNo: schemaHelper.phoneNumber({
     message: {
-      required_error: 'Guarantor Mobile No is required',
-      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
+      invalid_error: 'Mobile No must be exactly 10 digits',
     },
   }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
   ownerPhoneNo: schemaHelper.phoneNumber({
     message: {
-      required_error: 'Owner Mobile No is required',
       invalid_error: 'Owner Mobile No must be exactly 10 digits',
     },
   }),
@@ -61,19 +55,10 @@ export const NewTransporterSchema = zod.object({
       .min(1, { message: 'Account No is required' })
       .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
   }),
-  paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
-  panNo: zod
-    .string()
-    .min(1, { message: 'PAN No is required' })
-    .regex(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, {
-      message: 'PAN No must be in the format: five letters followed by four digits and one letter',
-    }),
-  gstNo: zod.string().min(1, { message: 'GST No is required' }),
-  tdsPercentage: zod
-    .number()
-    .min(0, { message: 'TDS Percentage must be at least 0' })
-    .max(100, { message: 'TDS Percentage must be at most 100' })
-    .refine((value) => value !== null, { message: 'TDS Percentage is required' }),
+  paymentMode: zod.string(),
+  panNo: zod.string(),
+  gstNo: zod.string(),
+  tdsPercentage: zod.number(),
 });
 
 // ----------------------------------------------------------------------
