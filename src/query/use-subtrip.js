@@ -67,6 +67,16 @@ const deleteSubtrip = async (id) => {
   return data;
 };
 
+const createEmptySubtrip = async (subtrip) => {
+  const { data } = await axios.post(`${ENDPOINT}/empty`, subtrip);
+  return data;
+};
+
+const closeEmptySubtrip = async (id, subtripData) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/close-empty`, subtripData);
+  return data;
+};
+
 // Queries & Mutations
 export function useSubtrips() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getSubtrips });
@@ -264,5 +274,38 @@ export function useUpdateSubtripCloseInfo() {
     },
   });
 
+  return mutateAsync;
+}
+
+export function useCreateEmptySubtrip() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: createEmptySubtrip,
+    onSuccess: (newSubtrip) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success('Empty subtrip added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useCloseEmptySubtrip() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, data }) => closeEmptySubtrip(id, data),
+    onSuccess: (updatedSubtrip) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
+      toast.success('Empty subtrip closed successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
   return mutateAsync;
 }

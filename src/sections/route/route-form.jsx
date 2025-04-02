@@ -72,7 +72,7 @@ export default function RouteForm({ currentRoute, customers }) {
       toPlace: currentRoute?.toPlace || '',
       noOfDays: currentRoute?.noOfDays || 0,
       distance: currentRoute?.distance || 0,
-      isCustomerSpecific: currentRoute?.isCustomerSpecific || true,
+      isCustomerSpecific: currentRoute?.isCustomerSpecific ?? true,
       customer: currentRoute?.customer?._id || '',
     }),
     [currentRoute]

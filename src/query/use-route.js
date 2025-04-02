@@ -8,12 +8,23 @@ const QUERY_KEY = 'routes';
 
 // Fetchers
 const getRoutes = async ({ queryKey }) => {
-  const [, customerId] = queryKey;
+  const [, customerId, genericRoutes] = queryKey;
   let url = ENDPOINT;
+  const params = new URLSearchParams();
 
   // If we have a customerId, append it as a query parameter
   if (customerId) {
-    url += `?customerId=${customerId}`;
+    params.append('customerId', customerId);
+  }
+
+  // If genericRoutes is true, append it as a query parameter
+  if (genericRoutes) {
+    params.append('genericRoutes', 'true');
+  }
+
+  // Append params to URL if they exist
+  if (params.toString()) {
+    url += `?${params.toString()}`;
   }
 
   const { data } = await axios.get(url);
@@ -42,11 +53,10 @@ const deleteRoute = async (id) => {
 };
 
 // Queries & Mutations
-export function useRoutes(customerId) {
+export function useRoutes(customerId, genericRoutes) {
   return useQuery({
-    queryKey: [QUERY_KEY, customerId],
+    queryKey: [QUERY_KEY, customerId, genericRoutes],
     queryFn: getRoutes,
-    // enabled: !!customerId,
   });
 }
 

@@ -111,7 +111,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     data: routes,
     isLoading: routesLoading,
     isError: routesError,
-  } = useRoutes(customerId._id);
+  } = useRoutes(customerId?._id, true);
 
   const {
     handleSubmit,

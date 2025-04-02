@@ -1,0 +1,45 @@
+import { Tooltip } from '@mui/material';
+
+import { Iconify } from '../../../components/iconify';
+import { SimpleStepper } from './subtrip-completion-stepper';
+
+export function EmptySubtripStatusStepper({ status }) {
+  const statusToStepIndex = {
+    'in-queue': 0,
+    'billed-paid': 1,
+  };
+
+  const statusDescriptions = {
+    'in-queue': 'Initial state: Empty trip is created and assigned to a vehicle',
+    'billed-paid': 'Trip completed and payment received',
+  };
+
+  const currentStep = statusToStepIndex[status] ?? 0;
+
+  const steps = ['In-Queue', 'Billed Paid'];
+
+  const icons = [
+    <Tooltip title={statusDescriptions['in-queue']} arrow>
+      <span>
+        <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />
+      </span>
+    </Tooltip>,
+    <Tooltip title={statusDescriptions['billed-paid']} arrow>
+      <span>
+        <Iconify icon="mdi:file-document-check" width={24} />
+      </span>
+    </Tooltip>,
+  ];
+
+  return (
+    <SimpleStepper
+      steps={steps.map((step, index) => (
+        <Tooltip key={step} title={statusDescriptions[Object.keys(statusToStepIndex)[index]]} arrow>
+          <span>{step}</span>
+        </Tooltip>
+      ))}
+      icons={icons}
+      currentStep={currentStep}
+    />
+  );
+}

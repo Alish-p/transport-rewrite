@@ -28,9 +28,9 @@ export function KanbanRouteDialog({
   open,
   onClose,
   onRouteChange,
-  customerId,
+  customerId = null,
 }) {
-  const { data: routes } = useRoutes(customerId);
+  const { data: routes } = useRoutes(customerId, true);
   const [searchRoute, setSearchRoute] = useState('');
 
   const handleSearchRoutes = useCallback((event) => {

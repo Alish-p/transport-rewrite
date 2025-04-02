@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
@@ -24,16 +25,75 @@ import TransporterPayment from './pdfs/transporter-payment-pdf';
 // ----------------------------------------------------------------------
 
 export default function SubtripToolbar({
-  status,
   backLink,
+  tripId,
+  status,
   subtrip,
   onAddMaterialInfo,
   onRecieve,
-  onSubtripClose,
   onEdit,
   onResolve,
+  onSubtripClose,
+  onCloseEmpty,
   isEditDisabled,
+  isEmpty,
 }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleAction = (action) => {
+    handleClose();
+    action();
+  };
+
+  const getActions = () => {
+    if (isEmpty) {
+      return [
+        {
+          label: 'Close Empty Trip',
+          icon: 'mdi:close-circle',
+          action: onCloseEmpty,
+          disabled: isEditDisabled,
+        },
+      ];
+    }
+
+    return [
+      {
+        label: 'Add Material Info',
+        icon: 'mdi:package-variant',
+        action: onAddMaterialInfo,
+        disabled: status !== SUBTRIP_STATUS.IN_QUEUE,
+      },
+      {
+        label: 'Receive',
+        icon: 'mdi:call-received',
+        action: onRecieve,
+        disabled: status !== SUBTRIP_STATUS.LOADED,
+      },
+
+      {
+        label: 'Resolve',
+        icon: 'mdi:check-circle',
+        action: onResolve,
+        disabled: status !== SUBTRIP_STATUS.ERROR,
+      },
+      {
+        label: 'Close',
+        icon: 'mdi:close-circle',
+        action: onSubtripClose,
+        disabled: status !== SUBTRIP_STATUS.RECEIVED,
+      },
+    ];
+  };
+
   const actionPopover = usePopover();
   const viewPopover = usePopover();
   const downloadPopover = usePopover();
@@ -135,42 +195,16 @@ export default function SubtripToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              actionPopover.onClose();
-              onAddMaterialInfo();
-            }}
-            disabled={!(subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE)}
-          >
-            Add Material
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              actionPopover.onClose();
-              onRecieve();
-            }}
-            disabled={!(subtrip.subtripStatus === 'loaded')}
-          >
-            Recieve Trip
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              actionPopover.onClose();
-              onResolve();
-            }}
-            disabled={!(subtrip.subtripStatus === 'error')}
-          >
-            Resolve
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              actionPopover.onClose();
-              onSubtripClose();
-            }}
-            disabled={!(subtrip.subtripStatus === 'received')}
-          >
-            Close Trip
-          </MenuItem>
+          {getActions().map((action) => (
+            <MenuItem
+              key={action.label}
+              onClick={() => handleAction(action.action)}
+              disabled={action.disabled}
+            >
+              <Iconify icon={action.icon} sx={{ mr: 2 }} />
+              {action.label}
+            </MenuItem>
+          ))}
         </MenuList>
       </CustomPopover>
 
@@ -293,7 +327,7 @@ export default function SubtripToolbar({
       </CustomPopover>
 
       {/* View LR Dialog */}
-      <Dialog fullScreen open={viewLR.value}>
+      <Dialog full Screen open={viewLR.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -314,7 +348,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View Intent Dialog */}
-      <Dialog fullScreen open={viewIntent.value}>
+      <Dialog full Screen open={viewIntent.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -335,7 +369,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View EntryPass Dialog */}
-      <Dialog fullScreen open={viewEntryPass.value}>
+      <Dialog full Screen open={viewEntryPass.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -356,7 +390,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View Driver Payment Dialog */}
-      <Dialog fullScreen open={viewDriverPayment.value}>
+      <Dialog full Screen open={viewDriverPayment.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -376,7 +410,7 @@ export default function SubtripToolbar({
         </Box>
       </Dialog>
       {/* View Transporter Payment Dialog */}
-      <Dialog fullScreen open={viewTransporterPayment.value}>
+      <Dialog full Screen open={viewTransporterPayment.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{

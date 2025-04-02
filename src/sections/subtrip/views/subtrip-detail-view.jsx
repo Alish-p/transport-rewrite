@@ -27,7 +27,9 @@ import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
+import { SubtripCloseEmptyDialog } from '../subtrip-close-empty-dialogue-form';
 import { SubtripMaterialInfoDialog } from '../subtrip-material-info-dialogue-form';
+import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +41,7 @@ export function SubtripDetailView({ subtrip }) {
   const [showRecieveDialog, setShowRecieveDialog] = useState(false);
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
+  const [showCloseEmptyDialog, setShowCloseEmptyDialog] = useState(false);
   const [showExpenseDialog, setShowExpenseDialog] = useState(false);
 
   // Function to check if editing is allowed based on status
@@ -97,13 +100,19 @@ export function SubtripDetailView({ subtrip }) {
           }}
           onResolve={() => setShowResolveDialog(true)}
           onSubtripClose={() => setShowCloseDialog(true)}
+          onCloseEmpty={() => setShowCloseEmptyDialog(true)}
           isEditDisabled={!isEditingAllowed()}
+          isEmpty={subtrip.isEmpty}
         />
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
-              <SubtripStatusStepper status={subtrip?.subtripStatus} />
+              {subtrip.isEmpty ? (
+                <EmptySubtripStatusStepper status={subtrip?.subtripStatus} />
+              ) : (
+                <SubtripStatusStepper status={subtrip?.subtripStatus} />
+              )}
 
               <InsightsWidget insights={insights} />
 
@@ -218,10 +227,17 @@ export function SubtripDetailView({ subtrip }) {
         subtripId={subtrip._id}
       />
 
-      {/* Resolve Subtrip Dialogue */}
+      {/* Close Subtrip Dialogue */}
       <SubtripCloseDialog
         showDialog={showCloseDialog}
         setShowDialog={setShowCloseDialog}
+        subtripId={subtrip._id}
+      />
+
+      {/* Close Empty Subtrip Dialogue */}
+      <SubtripCloseEmptyDialog
+        showDialog={showCloseEmptyDialog}
+        setShowDialog={setShowCloseEmptyDialog}
         subtripId={subtrip._id}
       />
 

@@ -7,10 +7,10 @@ import { useRoutes } from 'src/query/use-route';
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useCustomers } from 'src/query/use-customer';
 
-import { SubtripEditView } from 'src/sections/subtrip/views';
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
+import { SubtripEditView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: subtrip, isLoading: subtripLoading, isError: subtripError } = useSubtrip(id);
-  const { data: routes, isLoading: routesLoading, isError: routesError } = useRoutes();
+  const { data: routes, isLoading: routesLoading, isError: routesError } = useRoutes(null, null);
   const { data: customers, isLoading: customersLoading, isError: customersError } = useCustomers();
 
   if (subtripLoading || routesLoading || customersLoading) {

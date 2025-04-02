@@ -13,7 +13,7 @@ import { RouteListView } from 'src/sections/route/views';
 const metadata = { title: `Route list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const { data: routes, isLoading, isError } = useRoutes();
+  const { data: routes, isLoading, isError } = useRoutes(null, null);
 
   if (isLoading) {
     return <LoadingScreen />;

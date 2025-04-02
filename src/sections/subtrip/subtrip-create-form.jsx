@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,60 +7,104 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
+  Tab,
   Card,
   Grid,
+  Tabs,
   Stack,
   Button,
   Accordion,
   Typography,
+  InputAdornment,
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
+import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
+
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { Label } from '../../components/label';
 import { SUBTRIP_STATUS_COLORS } from './constants';
-import { useBoolean } from '../../hooks/use-boolean';
-import { useCreateSubtrip } from '../../query/use-subtrip';
 import { KanbanTripDialog } from '../kanban/components/kanban-trip-dialog';
+import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
-const NewTripSchema = zod.object({
-  tripId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, {
-      message: 'Trip is required',
-    }),
-  customerId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Customer is required' }),
-  diNumber: zod.string(),
-  startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
-});
+const NewTripSchema = zod
+  .object({
+    tripId: zod
+      .any()
+      .nullable()
+      .refine((val) => val !== null, {
+        message: 'Trip is required',
+      }),
+    customerId: zod.any().nullable(),
+    diNumber: zod.string(),
+    startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
+    isEmpty: zod.boolean().default(false),
+    routeCd: zod.string().optional(),
+    loadingPoint: zod.string().optional(),
+    unloadingPoint: zod.string().optional(),
+    startKm: zod.number().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isEmpty) {
+        // For empty trips, routeCd is required
+        return !!data.routeCd;
+      }
+      // For loaded trips, customerId is required
+      return !!data.customerId;
+    },
+    {
+      message: 'Route is required for empty trips',
+      path: ['routeCd'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (!data.isEmpty) {
+        // For loaded trips, customerId is required
+        return !!data.customerId;
+      }
+      return true;
+    },
+    {
+      message: 'Customer is required for loaded trips',
+      path: ['customerId'],
+    }
+  );
 
 export default function SubtripCreateForm({ currentTrip, trips, customers }) {
   const navigate = useNavigate();
+  const [currentTab, setCurrentTab] = useState('loaded');
+  const [selectedRoute, setSelectedRoute] = useState(null);
 
   const addSubtrip = useCreateSubtrip();
+  const addEmptySubtrip = useCreateEmptySubtrip();
   const customerDialog = useBoolean(false);
   const tripDialog = useBoolean(false);
+  const routeDialog = useBoolean(false);
 
   const defaultValues = useMemo(
     () => ({
-      // Subtrip
       tripId: currentTrip ? { label: currentTrip, value: currentTrip } : null,
       customerId: null,
       startDate: today(),
       diNumber: '',
+      isEmpty: false,
+      routeCd: '',
+      loadingPoint: '',
+      unloadingPoint: '',
+      startKm: 0,
     }),
     [currentTrip]
   );
@@ -74,8 +118,13 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
     reset,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+    setValue('isEmpty', newValue === 'empty');
+  };
 
   const handleCustomerChange = (customer) => {
     setValue('customerId', { label: customer.customerName, value: customer._id });
@@ -88,13 +137,23 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
     });
   };
 
+  const handleRouteChange = (route) => {
+    setSelectedRoute(route);
+    setValue('routeCd', route._id);
+    setValue('loadingPoint', route.fromPlace);
+    setValue('unloadingPoint', route.toPlace);
+  };
+
   const onSubmit = async (data) => {
     try {
-      const createdSubtrip = await addSubtrip({
+      const submitData = {
         ...data,
         tripId: data?.tripId?.value,
         customerId: data?.customerId?.value,
-      });
+      };
+
+      const createdSubtrip =
+        currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);
 
       reset();
       navigate(paths.dashboard.subtrip.details(paramCase(createdSubtrip._id)));
@@ -105,6 +164,8 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
 
   const selectedCustomer = customers.find((c) => c._id === methods.watch('customerId')?.value);
   const selectedTrip = trips.find((t) => t._id === methods.watch('tripId')?.value);
+
+  console.log({ errors, values: methods.watch() });
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -123,11 +184,23 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
 
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+            <Tabs value={currentTab} onChange={handleTabChange} sx={{ mb: 3 }}>
+              <Tab
+                value="loaded"
+                label="Loaded Trip"
+                icon={<Iconify icon="mdi:truck-fast" />}
+                iconPosition="start"
+              />
+              <Tab
+                value="empty"
+                label="Empty Trip"
+                icon={<Iconify icon="mdi:truck-fast-outline" />}
+                iconPosition="start"
+              />
+            </Tabs>
+
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Trip
-                </Typography>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -151,38 +224,78 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                 </Button>
               </Box>
 
-              <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Customer
-                </Typography>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={customerDialog.onTrue}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                  }}
-                  startIcon={
-                    <Iconify
-                      icon={
-                        selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'
-                      }
-                      sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
-                </Button>
-              </Box>
+              {currentTab === 'loaded' && (
+                <Box>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={customerDialog.onTrue}
+                    sx={{
+                      height: 56,
+                      justifyContent: 'flex-start',
+                      typography: 'body2',
+                    }}
+                    startIcon={
+                      <Iconify
+                        icon={
+                          selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'
+                        }
+                        sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
+                      />
+                    }
+                  >
+                    {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+                  </Button>
+                </Box>
+              )}
 
-              <Field.Text
-                name="diNumber"
-                label="DI/DO No"
-                helperText="Please Enter DI/DO Number to Generate Entry Pass"
-              />
-              <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+              {currentTab === 'empty' ? (
+                <>
+                  <Box>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={routeDialog.onTrue}
+                      sx={{
+                        height: 56,
+                        justifyContent: 'flex-start',
+                        typography: 'body2',
+                      }}
+                      startIcon={
+                        <Iconify
+                          icon={
+                            selectedRoute ? 'mdi:map-marker-path' : 'mdi:map-marker-path-outline'
+                          }
+                          sx={{ color: selectedRoute ? 'primary.main' : 'text.disabled' }}
+                        />
+                      }
+                    >
+                      {selectedRoute
+                        ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
+                        : 'Select Route'}
+                    </Button>
+                  </Box>
+
+                  <Field.Text
+                    name="startKm"
+                    label="Start Kilometer"
+                    type="number"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                    }}
+                  />
+                  <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+                </>
+              ) : (
+                <>
+                  <Field.Text
+                    name="diNumber"
+                    label="DI/DO No"
+                    helperText="Please Enter DI/DO Number to Generate Entry Pass"
+                  />
+                  <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+                </>
+              )}
             </Box>
           </Card>
 
@@ -286,6 +399,13 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
         selectedTrip={selectedTrip}
         onTripChange={handleTripChange}
         trips={trips}
+      />
+
+      <KanbanRouteDialog
+        open={routeDialog.value}
+        onClose={routeDialog.onFalse}
+        onRouteChange={handleRouteChange}
+        customerId={selectedCustomer?._id}
       />
     </Form>
   );
