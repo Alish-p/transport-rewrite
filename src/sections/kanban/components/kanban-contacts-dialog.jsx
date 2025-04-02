@@ -11,11 +11,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useUsers } from 'src/query/use-user';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { useUsers } from '../../../query/use-user';
 
 // ----------------------------------------------------------------------
 
@@ -129,11 +129,14 @@ export function KanbanContactsDialog({ assignees = [], open, onClose, onAssignee
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (contact) =>
-        contact.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        contact.email.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((contact) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return matchesField(contact.name) || matchesField(contact.email);
+    });
   }
 
   return inputData;

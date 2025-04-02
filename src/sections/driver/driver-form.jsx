@@ -51,7 +51,7 @@ export const NewDriverSchema = zod.object({
       /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/,
       { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
-  guarantorName: zod.string().min(1, { message: 'Guarantor Name is required' }),
+  guarantorName: zod.string(),
   guarantorCellNo: schemaHelper.phoneNumber({
     message: {
       required_error: 'Guarantor Mobile No is required',
@@ -65,14 +65,11 @@ export const NewDriverSchema = zod.object({
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
   isActive: zod.boolean().optional(),
   bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Name is required' }),
-    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: zod
-      .string()
-      .min(1, { message: 'Account No is required' })
-      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
+    name: zod.string(),
+    branch: zod.string(),
+    ifsc: zod.string(),
+    place: zod.string(),
+    accNo: zod.string(),
   }),
 });
 

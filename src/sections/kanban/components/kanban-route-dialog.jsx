@@ -11,11 +11,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useRoutes } from 'src/query/use-route';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { useRoutes } from '../../../query/use-route';
 
 // ----------------------------------------------------------------------
 
@@ -183,12 +183,18 @@ function renderRouteItem(route, selectedRoute, handleSelectRoute) {
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (route) =>
-        route.routeName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        route.fromPlace.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        route.toPlace.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((route) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(route.routeName) ||
+        matchesField(route.fromPlace) ||
+        matchesField(route.toPlace)
+      );
+    });
   }
 
   return inputData;

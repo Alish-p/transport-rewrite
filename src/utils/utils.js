@@ -141,7 +141,13 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
 
 export const calculateInvoiceSummary = (invoice) => {
   if (!invoice?.invoicedSubTrips || !Array.isArray(invoice.invoicedSubTrips)) {
-    throw new Error('Invalid invoice data');
+    return {
+      freightAmount: 0,
+      shortageAmount: 0,
+      totalAmount: 0,
+      freightWeight: 0,
+      shortageWeight: 0,
+    };
   }
 
   const { customerInvoiceTax = 0 } = CONFIG;

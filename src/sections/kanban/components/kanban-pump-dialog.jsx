@@ -124,12 +124,16 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (pump) =>
-        pump.pumpName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        pump.pumpPhoneNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        pump.address.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((pump) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(pump.pumpName) || matchesField(pump.pumpPhoneNo) || matchesField(pump.address)
+      );
+    });
   }
 
   return inputData;

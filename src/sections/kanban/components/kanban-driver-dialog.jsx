@@ -10,11 +10,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useDrivers } from 'src/query/use-driver';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { useDrivers } from '../../../query/use-driver';
 
 // ----------------------------------------------------------------------
 
@@ -118,11 +118,14 @@ export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDri
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (driver) =>
-        driver.driverName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        driver.driverCellNo.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((driver) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return matchesField(driver.driverName) || matchesField(driver.driverCellNo);
+    });
   }
 
   return inputData;

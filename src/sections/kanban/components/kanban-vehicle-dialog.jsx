@@ -138,13 +138,19 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (vehicle) =>
-        vehicle.vehicleNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.vehicleType.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.modelType.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        vehicle.vehicleCompany.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((vehicle) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(vehicle.vehicleNo) ||
+        matchesField(vehicle.vehicleType) ||
+        matchesField(vehicle.modelType) ||
+        matchesField(vehicle.vehicleCompany)
+      );
+    });
   }
 
   return inputData;

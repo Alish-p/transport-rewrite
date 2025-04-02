@@ -119,12 +119,18 @@ export function KanbanTripDialog({ selectedTrip = null, open, onClose, onTripCha
 
 function applyFilter({ inputData, query }) {
   if (query) {
-    inputData = inputData.filter(
-      (trip) =>
-        trip._id.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        trip.vehicleId?.vehicleNo.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        trip.driverId?.driverName.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((trip) => {
+      const searchQuery = query.toLowerCase();
+
+      // Helper function to safely check if a field exists and contains the query
+      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
+
+      return (
+        matchesField(trip._id) ||
+        matchesField(trip.vehicleId?.vehicleNo) ||
+        matchesField(trip.driverId?.driverName)
+      );
+    });
   }
 
   return inputData;
