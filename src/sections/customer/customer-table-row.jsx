@@ -19,6 +19,8 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { wrapText } from '../../utils/change-case';
+
 // ----------------------------------------------------------------------
 
 export default function CustomerTableRow({
@@ -115,7 +117,7 @@ export default function CustomerTableRow({
         {(visibleColumns.address || disabledColumns.address) && (
           <TableCell>
             <ListItemText
-              primary={address}
+              primary={wrapText(address, 20)}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>

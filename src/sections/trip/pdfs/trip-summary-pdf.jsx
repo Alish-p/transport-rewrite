@@ -2,12 +2,13 @@
 import { useMemo } from 'react';
 import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/renderer';
 
-import { fDate } from 'src/utils/format-time';
+import { titleCase } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
+import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 
-import { pdfStyles } from '../../subtrip/pdfs/pdf-styles';
+import { pdfStyles } from 'src/sections/subtrip/pdfs/pdf-styles';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +24,9 @@ const COMPANY = CONFIG.company;
 // ----------------------------------------------------------------------
 
 export default function TripSummaryPdf({ trip }) {
-  const { _id, tripStatus, startDate, endDate, subtrips, vehicleId, driverId } = trip;
+  const { _id, tripStatus, fromDate, toDate, subtrips, vehicleId, driverId, transporter } = trip;
+
+  console.log({ trip });
 
   const styles = useStyles();
 
@@ -73,7 +76,8 @@ export default function TripSummaryPdf({ trip }) {
 
   const renderTripDetails = () => (
     <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-      <View style={[styles.col8, styles.borderRight, { minHeight: 80 }]}>
+      {/* Trip Details */}
+      <View style={[styles.col4, styles.borderRight, { minHeight: 80 }]}>
         <Text style={[styles.subtitle2, styles.p8]}>Trip Details:</Text>
         <View
           style={[
@@ -82,15 +86,16 @@ export default function TripSummaryPdf({ trip }) {
             styles.p8,
           ]}
         >
-          <Text style={[styles.subtitle2]}>Trip ID: {_id}</Text>
-          <Text style={styles.body2}>Status: {tripStatus}</Text>
-          <Text style={styles.body2}>Start Date: {fDate(startDate)}</Text>
-          <Text style={styles.body2}>End Date: {fDate(endDate)}</Text>
+          <Text style={styles.body2}>Trip ID: {_id}</Text>
+          <Text style={styles.body2}>Status: {titleCase(tripStatus)}</Text>
+          <Text style={styles.body2}>Start Date: {fDate(fromDate)}</Text>
+          <Text style={styles.body2}>End Date: {toDate ? fDate(toDate) : 'N/A'}</Text>
         </View>
       </View>
 
-      <View style={[styles.col4, { minHeight: 80 }]}>
-        <Text style={[styles.subtitle2, styles.p8]}>Vehicle & Driver:</Text>
+      {/* Vehicle Details */}
+      <View style={[styles.col4, { minHeight: 80 }, styles.borderRight]}>
+        <Text style={[styles.subtitle2, styles.p8]}>Vehicle Details:</Text>
         <View
           style={[
             styles.col12,
@@ -98,8 +103,53 @@ export default function TripSummaryPdf({ trip }) {
             styles.p8,
           ]}
         >
-          <Text style={[styles.subtitle2]}>Vehicle: {vehicleId?.vehicleNo}</Text>
-          <Text style={styles.body2}>Driver: {driverId?.driverName}</Text>
+          <Text style={[styles.body2]}>Vehicle: {vehicleId?.vehicleNo}</Text>
+          <Text style={[styles.body2]}>
+            Ownership: {vehicleId?.isOwn ? COMPANY.name : transporter?.transportName}
+          </Text>
+
+          <Text style={[styles.body2]}>Type: {vehicleId?.vehicleType}</Text>
+          <Text style={[styles.body2]}>Loading Capacity: {vehicleId?.loadingCapacity}</Text>
+          <Text style={[styles.body2]}>No Of Tyres: {vehicleId?.noOfTyres}</Text>
+          <Text style={[styles.body2]}>Loading Capacity: {vehicleId?.loadingCapacity}</Text>
+        </View>
+      </View>
+
+      {/* 
+      {
+    "_id": "67ec3377b5efeb90a84328c7",
+    "driverCellNo": "7039103702",
+    "driverLicenceNo": "Mh45 20120001814",
+    "driverName": "Abaso Kokare",
+    "driverPresentAddress": "Pare",
+    "permanentAddress": "Pare",
+    "guarantorName": "",
+    "guarantorCellNo": "9999999999",
+    "experience": 5,
+    "isActive": true,
+    "dob": "1993-04-01T18:30:00.000Z",
+    "licenseTo": "2026-02-13T18:30:00.000Z"
+}
+      
+      
+      */}
+
+      {/* Driver Details */}
+      <View style={[styles.col4, { minHeight: 80 }]}>
+        <Text style={[styles.subtitle2, styles.p8]}>Driver Details:</Text>
+        <View
+          style={[
+            styles.col12,
+            { display: 'flex', alignItems: 'flex-start', justifyContent: 'center' },
+            styles.p8,
+          ]}
+        >
+          <Text style={[styles.body2]}>Name: {driverId?.driverName}</Text>
+          <Text style={[styles.body2]}>Cell No: {driverId?.driverCellNo}</Text>
+          <Text style={[styles.body2]}>Licence No: {driverId?.driverLicenceNo}</Text>
+          <Text style={[styles.body2]}>Present Address: {driverId?.driverPresentAddress}</Text>
+          <Text style={[styles.body2]}>Permanent Address: {driverId?.permanentAddress}</Text>
+          <Text style={[styles.body2]}>Experience: {driverId?.experience}</Text>
         </View>
       </View>
     </View>
@@ -202,46 +252,90 @@ export default function TripSummaryPdf({ trip }) {
           <Text style={[styles.horizontalCellTitle]}>Sr. No</Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Subtrip ID</Text>
+          <Text style={[styles.horizontalCellTitle]}>LR No</Text>
         </View>
+
+        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Customer</Text>
+        </View>
+
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Status</Text>
+          <Text style={[styles.horizontalCellTitle]}>Route</Text>
         </View>
+
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Loading Point</Text>
+          <Text style={[styles.horizontalCellTitle]}>Dispatch/closed Date</Text>
         </View>
+
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Unloading Point</Text>
+          <Text style={[styles.horizontalCellTitle]}>Distance</Text>
         </View>
+
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Income</Text>
+        </View>
+
+        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+          <Text style={[styles.horizontalCellTitle]}>Expenses</Text>
+        </View>
+
         <View style={[styles.col1, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Amount</Text>
+          <Text style={[styles.horizontalCellTitle]}>Net Amount</Text>
         </View>
       </View>
 
-      {subtrips?.map((subtrip, idx) => (
-        <View key={subtrip._id} style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{idx + 1}</Text>
+      {subtrips?.map((subtrip, idx) => {
+        const kmCovered = (subtrip.endKm || 0) - (subtrip.startKm || 0);
+        const expenses = subtrip.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
+        const income = subtrip.rate * subtrip.loadingWeight;
+        const netAmount = income - expenses;
+
+        return (
+          <View key={subtrip._id} style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{idx + 1}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{subtrip._id}</Text>
+            </View>
+
+            <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>
+                {subtrip?.customerId?.customerName || 'NA'}
+              </Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>
+                {subtrip.loadingPoint} to {subtrip.unloadingPoint}
+              </Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>
+                {fDateRangeShortLabel(subtrip.startDate, subtrip.endDate)}
+              </Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{kmCovered}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{fCurrency(income)}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
+              <Text style={[styles.horizontalCellContent]}>{fCurrency(expenses)}</Text>
+            </View>
+
+            <View style={[styles.col1, styles.horizontalCell]}>
+              <Text style={[styles.horizontalCellContent]}>{fCurrency(netAmount)}</Text>
+            </View>
           </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip._id}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip.subtripStatus}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip.loadingPoint}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{subtrip.unloadingPoint}</Text>
-          </View>
-          <View style={[styles.col1, styles.horizontalCell]}>
-            <Text style={[styles.horizontalCellContent]}>
-              {fCurrency(subtrip.rate * subtrip.loadingWeight)}
-            </Text>
-          </View>
-        </View>
-      ))}
+        );
+      })}
     </>
   );
 
