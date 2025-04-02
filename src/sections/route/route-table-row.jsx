@@ -81,7 +81,7 @@ export default function RouteTableRow({
         )}
 
         {(visibleColumns.fromPlace || disabledColumns.fromPlace) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
               primary={fromPlace}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
@@ -90,7 +90,7 @@ export default function RouteTableRow({
         )}
 
         {(visibleColumns.toPlace || disabledColumns.toPlace) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
               primary={toPlace}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
@@ -99,16 +99,16 @@ export default function RouteTableRow({
         )}
 
         {(visibleColumns.customer || disabledColumns.customer) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
-              primary={customer?.customerName}
+              primary={customer?.customerName || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
         )}
 
         {(visibleColumns.noOfDays || disabledColumns.noOfDays) && (
-          <TableCell>
+          <TableCell align="center">
             <Label variant="soft" color={noOfDays >= 5 ? 'success' : 'error'}>
               {noOfDays}
             </Label>
@@ -116,7 +116,7 @@ export default function RouteTableRow({
         )}
 
         {(visibleColumns.distance || disabledColumns.distance) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
               primary={distance}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}

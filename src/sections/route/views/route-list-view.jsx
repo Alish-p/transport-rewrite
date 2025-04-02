@@ -54,12 +54,12 @@ import RouteTableFiltersResult from '../route-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'routeName', label: 'Route Name', type: 'string' },
-  { id: 'fromPlace', label: 'From Place', type: 'string' },
-  { id: 'toPlace', label: 'To Place', type: 'string' },
-  { id: 'customer', label: 'Customer', type: 'string' },
-  { id: 'noOfDays', label: 'Number of Days', type: 'number' },
-  { id: 'distance', label: 'Distance', type: 'number' },
+  { id: 'routeName', label: 'Route Name', align: 'left' },
+  { id: 'fromPlace', label: 'From Place', align: 'center' },
+  { id: 'toPlace', label: 'To Place', align: 'center' },
+  { id: 'customer', label: 'Customer', align: 'center' },
+  { id: 'noOfDays', label: 'Number of Days', align: 'center' },
+  { id: 'distance', label: 'Distance', align: 'center' },
   { id: '' },
 ];
 
