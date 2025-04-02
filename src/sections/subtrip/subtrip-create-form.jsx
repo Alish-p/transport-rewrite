@@ -146,11 +146,25 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
 
   const onSubmit = async (data) => {
     try {
-      const submitData = {
-        ...data,
-        tripId: data?.tripId?.value,
-        customerId: data?.customerId?.value,
-      };
+      // based on current tab submit data should be different
+      const submitData =
+        currentTab === 'loaded'
+          ? {
+              tripId: data?.tripId?.value,
+              customerId: data?.customerId?.value,
+              startDate: data?.startDate,
+              diNumber: data?.diNumber,
+              isEmpty: false,
+            }
+          : {
+              tripId: data?.tripId?.value,
+              routeCd: data?.routeCd,
+              loadingPoint: data?.loadingPoint,
+              unloadingPoint: data?.unloadingPoint,
+              startKm: data?.startKm,
+              startDate: data?.startDate,
+              isEmpty: true,
+            };
 
       const createdSubtrip =
         currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);
