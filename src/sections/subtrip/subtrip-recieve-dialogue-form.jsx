@@ -133,8 +133,6 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
 
   const values = watch();
 
-  console.log({ values });
-
   return (
     <Dialog
       open={showDialog}

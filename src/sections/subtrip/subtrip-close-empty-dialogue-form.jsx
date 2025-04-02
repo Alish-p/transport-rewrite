@@ -42,7 +42,7 @@ export function SubtripCloseEmptyDialog({ showDialog, setShowDialog, subtripId }
     try {
       await closeEmptySubtrip({
         id: subtripId,
-        ...data,
+        data,
       });
       setShowDialog(false);
       reset();

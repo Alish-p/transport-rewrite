@@ -263,9 +263,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                       }}
                       startIcon={
                         <Iconify
-                          icon={
-                            selectedRoute ? 'mdi:map-marker-path' : 'mdi:map-marker-path-outline'
-                          }
+                          icon="mdi:map-marker-path"
                           sx={{ color: selectedRoute ? 'primary.main' : 'text.disabled' }}
                         />
                       }
@@ -283,6 +281,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                     InputProps={{
                       endAdornment: <InputAdornment position="end">km</InputAdornment>,
                     }}
+                    helperText="Please Enter the reading of the odometer at the start of the trip"
                   />
                   <Field.DatePicker name="startDate" label="Subtrip Start Date" />
                 </>
@@ -383,13 +382,13 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
               </Stack>
             </Box>
           )}
+          <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Create Subtrip
+            </LoadingButton>
+          </Stack>
         </Grid>
       </Grid>
-      <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
-        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-          Create Subtrip
-        </LoadingButton>
-      </Stack>
 
       <KanbanCustomerDialog
         open={customerDialog.value}
