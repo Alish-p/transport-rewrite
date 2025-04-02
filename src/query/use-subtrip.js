@@ -84,7 +84,10 @@ export function useSubtrips() {
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
-    queryKey: [QUERY_KEY, { customerId, fromDate, toDate, subtripStatus: SUBTRIP_STATUS.CLOSED }],
+    queryKey: [
+      QUERY_KEY,
+      { customerId, fromDate, toDate, subtripStatus: SUBTRIP_STATUS.CLOSED, isEmpty: false },
+    ],
     queryFn: getFilteredSubtrips,
     enabled: false,
     retry: 0,
@@ -100,6 +103,7 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
         fromDate: periodStartDate,
         toDate: periodEndDate,
         subtripStatus: 'closed',
+        isEmpty: false,
       },
     ],
     queryFn: getFilteredSubtrips,
@@ -121,6 +125,7 @@ export function useClosedSubtripsByTransporterAndDate(
         fromDate: periodStartDate,
         toDate: periodEndDate,
         subtripStatus: 'closed',
+        isEmpty: false,
       },
     ],
     queryFn: getFilteredSubtrips,

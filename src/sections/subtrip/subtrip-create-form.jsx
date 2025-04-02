@@ -324,13 +324,18 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                             <Iconify icon="mdi:truck-fast" sx={{ color: 'primary.main' }} />
                             <Typography variant="subtitle1">Subtrip #{subtrip._id} </Typography>
                           </Stack>
-                          <Label
-                            variant="soft"
-                            color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus]}
-                            size="small"
-                          >
-                            {subtrip.subtripStatus.replace('-', ' ')}
-                          </Label>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Label variant="soft" color="info" size="small">
+                              {subtrip.isEmpty ? 'Empty' : 'Loaded'}
+                            </Label>
+                            <Label
+                              variant="soft"
+                              color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus]}
+                              size="small"
+                            >
+                              {subtrip.subtripStatus.replace('-', ' ')}
+                            </Label>
+                          </Stack>
                         </Stack>
                       </AccordionSummary>
                       <AccordionDetails>
@@ -382,7 +387,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
       </Grid>
       <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-          Create Trip
+          Create Subtrip
         </LoadingButton>
       </Stack>
 
