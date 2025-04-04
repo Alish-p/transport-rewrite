@@ -11,13 +11,14 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
+import { usePendingLoans } from 'src/query/use-loan';
+import { useClosedSubtripsByTransporterAndDate } from 'src/query/use-subtrip';
+import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
+
 import { Form, schemaHelper } from 'src/components/hook-form';
 
-import { usePendingLoans } from '../../query/use-loan';
 import TransporterPaymentForm from './transporter-payment-form';
 import TransporterPaymentPreview from './transport-payment-preview';
-import { useClosedSubtripsByTransporterAndDate } from '../../query/use-subtrip';
-import { useCreateTransporterPayment } from '../../query/use-transporter-payment';
 
 // TransporterPayment Schema (Make sure this matches database schema)
 export const TransporterPaymentSchema = zod
