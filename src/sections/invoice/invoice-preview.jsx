@@ -20,6 +20,8 @@ import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
 
+import { useInvoice } from './context/InvoiceContext';
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
     borderBottom: 'none',
@@ -79,11 +81,11 @@ function RenderAddress({ title, details }) {
   );
 }
 
-function RenderDateInfo({ createdDate }) {
+function RenderDateInfo({ createdDate, dueDate }) {
   return (
     <>
       <RenderAddress title="Created" details={createdDate && fDate(createdDate)} />
-      <RenderAddress title="Due Date" details={createdDate && fDate(createdDate)} />
+      <RenderAddress title="Due Date" details={dueDate && fDate(dueDate)} />
     </>
   );
 }
@@ -201,11 +203,13 @@ function RenderFooter() {
   );
 }
 
-export default function InvoiceDetails({ invoice }) {
-  const { customerId: customer, createdDate } = invoice || {};
+export default function InvoicePreview() {
+  const { draftInvoice } = useInvoice();
+  const { customerId: customer, createdDate, dueDate } = draftInvoice || {};
+
   return (
     <Card sx={{ pt: 5, px: 5 }}>
-      <RenderHeader invoice={invoice} />
+      <RenderHeader invoice={draftInvoice} />
       <Box
         rowGap={5}
         display="grid"
@@ -241,9 +245,9 @@ export default function InvoiceDetails({ invoice }) {
             )
           }
         />
-        <RenderDateInfo createdDate={createdDate} />
+        <RenderDateInfo createdDate={createdDate} dueDate={dueDate} />
       </Box>
-      <RenderTable invoice={invoice} />
+      <RenderTable invoice={draftInvoice} />
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
       <RenderFooter />
     </Card>
