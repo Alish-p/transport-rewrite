@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-
 import { Card, Grid, Button, Divider, MenuItem } from '@mui/material';
 
 import { Field } from 'src/components/hook-form';

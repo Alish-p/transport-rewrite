@@ -115,25 +115,6 @@ export default function TripSummaryPdf({ trip }) {
         </View>
       </View>
 
-      {/* 
-      {
-    "_id": "67ec3377b5efeb90a84328c7",
-    "driverCellNo": "7039103702",
-    "driverLicenceNo": "Mh45 20120001814",
-    "driverName": "Abaso Kokare",
-    "driverPresentAddress": "Pare",
-    "permanentAddress": "Pare",
-    "guarantorName": "",
-    "guarantorCellNo": "9999999999",
-    "experience": 5,
-    "isActive": true,
-    "dob": "1993-04-01T18:30:00.000Z",
-    "licenseTo": "2026-02-13T18:30:00.000Z"
-}
-      
-      
-      */}
-
       {/* Driver Details */}
       <View style={[styles.col4, { minHeight: 80 }]}>
         <Text style={[styles.subtitle2, styles.p8]}>Driver Details:</Text>

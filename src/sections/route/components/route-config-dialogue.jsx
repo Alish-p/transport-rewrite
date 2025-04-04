@@ -19,9 +19,9 @@ import {
 import { Iconify } from 'src/components/iconify';
 
 const vehicleTypeSuggestions = [
-  { type: 'Body', tyres: [12, 16, 12, 14, 16] },
+  { type: 'Body', tyres: [12, 14, 16, 20] },
   { type: 'Trailer', tyres: [12, 16, 20] },
-  { type: 'Bulker', tyres: [16, 20] },
+  { type: 'Bulker', tyres: [14, 16, 20] },
   { type: 'Local Bulker', tyres: [12, 16] },
   { type: 'Tanker', tyres: [16, 20] },
   { type: 'Pickup', tyres: [4, 6] },

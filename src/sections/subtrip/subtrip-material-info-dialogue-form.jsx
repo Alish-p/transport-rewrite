@@ -18,10 +18,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  ListSubheader,
   InputAdornment,
   FormControlLabel,
 } from '@mui/material';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
@@ -31,6 +32,8 @@ import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -100,6 +103,8 @@ const defaultValues = {
 export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }) {
   const [tabValue, setTabValue] = useState(0);
   const [dieselEntryType, setDieselEntryType] = useState('custom');
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const routeDialog = useBoolean(false);
 
   const { tripId, customerId, _id } = subtrip;
 
@@ -153,6 +158,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const handleReset = useCallback(() => {
     reset(defaultValues);
     setTabValue(0);
+    setSelectedRoute(null);
   }, [reset]);
 
   const onSubmit = async (data) => {
@@ -177,10 +183,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   // Update loading and unloading points when route changes
   useEffect(() => {
     if (routeCd) {
-      const selectedRoute = routes.find((route) => route._id === routeCd);
-      if (selectedRoute) {
-        setValue('loadingPoint', selectedRoute.fromPlace || '');
-        setValue('unloadingPoint', selectedRoute.toPlace || '');
+      const foundRoute = routes.find((route) => route._id === routeCd);
+      if (foundRoute) {
+        setValue('loadingPoint', foundRoute.fromPlace || '');
+        setValue('unloadingPoint', foundRoute.toPlace || '');
       }
     }
   }, [routeCd, routes, setValue]);
@@ -191,6 +197,13 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     }
   }, [showDialog, handleReset]);
 
+  const handleRouteChange = (route) => {
+    setSelectedRoute(route);
+    setValue('routeCd', route._id);
+    setValue('loadingPoint', route.fromPlace);
+    setValue('unloadingPoint', route.toPlace);
+  };
+
   const renderRouteDetails = () => (
     <Box
       columnGap={2}
@@ -198,50 +211,26 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       display="grid"
       gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
     >
-      <Field.Select name="routeCd" label="Route">
-        <MenuItem value="">None</MenuItem>
-        <Divider sx={{ borderStyle: 'dashed' }} />
-        <ListSubheader
+      <Box>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={routeDialog.onTrue}
           sx={{
-            fontSize: '0.7rem',
-            lineHeight: 1,
-            color: 'primary.main',
-            textAlign: 'start',
-            padding: '3px',
-            my: 1,
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
           }}
+          startIcon={
+            <Iconify
+              icon="mdi:map-marker-path"
+              sx={{ color: selectedRoute ? 'primary.main' : 'text.disabled' }}
+            />
+          }
         >
-          Customer Specific Routes
-        </ListSubheader>
-        {routes
-          ?.filter((route) => route.isCustomerSpecific)
-          ?.map(({ _id: routeId, routeName }) => (
-            <MenuItem key={routeId} value={routeId}>
-              {routeName}
-            </MenuItem>
-          ))}
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <ListSubheader
-          sx={{
-            fontSize: '0.7rem',
-            lineHeight: 1,
-            color: 'primary.main',
-            textAlign: 'start',
-            padding: '3px',
-            my: 1,
-          }}
-        >
-          Generic Routes
-        </ListSubheader>
-        {routes
-          ?.filter((route) => !route.isCustomerSpecific)
-          ?.map(({ _id: routeId, routeName }) => (
-            <MenuItem key={routeId} value={routeId}>
-              {routeName}
-            </MenuItem>
-          ))}
-      </Field.Select>
+          {selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : 'Select Route'}
+        </Button>
+      </Box>
       <Field.Text name="loadingPoint" label="Loading Point" disabled />
       <Field.Text name="unloadingPoint" label="Unloading Point" disabled />
     </Box>
@@ -409,6 +398,14 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           Save Changes
         </Button>
       </DialogActions>
+
+      <KanbanRouteDialog
+        open={routeDialog.value}
+        onClose={routeDialog.onFalse}
+        selectedRoute={selectedRoute}
+        onRouteChange={handleRouteChange}
+        customerId={customerId?._id}
+      />
     </Dialog>
   );
 }

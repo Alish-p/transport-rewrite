@@ -2,8 +2,8 @@ import { z as zod } from 'zod';
 // utils
 // form
 import { useForm } from 'react-hook-form';
-import { useMemo, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useCallback } from 'react';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
@@ -12,6 +12,7 @@ import {
   Card,
   Grid,
   Stack,
+  Button,
   Divider,
   MenuItem,
   Typography,
@@ -22,14 +23,18 @@ import {
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { useCreateVehicle, useUpdateVehicle } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field } from 'src/components/hook-form';
 
 // assets
 import { modelType, engineType, vehicleTypes, vehicleCompany } from './vehicle-config';
+import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -74,6 +79,10 @@ export const NewVehicleSchema = zod
 
 export default function VehicleForm({ currentVehicle, transporters }) {
   const router = useRouter();
+  const [selectedTransporter, setSelectedTransporter] = useState(
+    currentVehicle?.transporter || null
+  );
+  const transporterDialog = useBoolean(false);
 
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
@@ -152,6 +161,11 @@ export default function VehicleForm({ currentVehicle, transporters }) {
 
   const handleRemoveAllFiles = () => {
     setValue('images', []);
+  };
+
+  const handleTransporterChange = (transporter) => {
+    setSelectedTransporter(transporter);
+    setValue('transporter', transporter._id);
   };
 
   return (
@@ -295,15 +309,28 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                 ))}
               </Field.Select>
               {!values.isOwn && (
-                <Field.Select name="transporter" label="Transport Company">
-                  <MenuItem value="">None</MenuItem>
-                  <Divider sx={{ borderStyle: 'dashed' }} />
-                  {transporters.map((transporter) => (
-                    <MenuItem key={transporter._id} value={transporter._id}>
-                      {transporter.transportName}
-                    </MenuItem>
-                  ))}
-                </Field.Select>
+                <Box>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={transporterDialog.onTrue}
+                    sx={{
+                      height: 56,
+                      justifyContent: 'flex-start',
+                      typography: 'body2',
+                    }}
+                    startIcon={
+                      <Iconify
+                        icon={selectedTransporter ? 'mdi:truck' : 'mdi:truck-outline'}
+                        sx={{ color: selectedTransporter ? 'primary.main' : 'text.disabled' }}
+                      />
+                    }
+                  >
+                    {selectedTransporter
+                      ? selectedTransporter.transportName
+                      : 'Select Transport Company'}
+                  </Button>
+                </Box>
               )}
             </Box>
 
@@ -315,6 +342,13 @@ export default function VehicleForm({ currentVehicle, transporters }) {
           </Card>
         </Grid>
       </Grid>
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        selectedTransporter={selectedTransporter}
+        onTransporterChange={handleTransporterChange}
+      />
     </Form>
   );
 }
