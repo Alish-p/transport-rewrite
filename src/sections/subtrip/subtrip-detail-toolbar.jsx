@@ -327,7 +327,7 @@ export default function SubtripToolbar({
       </CustomPopover>
 
       {/* View LR Dialog */}
-      <Dialog full Screen open={viewLR.value}>
+      <Dialog fullScreen open={viewLR.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -348,7 +348,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View Intent Dialog */}
-      <Dialog full Screen open={viewIntent.value}>
+      <Dialog fullScreen open={viewIntent.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -369,7 +369,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View EntryPass Dialog */}
-      <Dialog full Screen open={viewEntryPass.value}>
+      <Dialog fullScreen open={viewEntryPass.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -390,7 +390,7 @@ export default function SubtripToolbar({
       </Dialog>
 
       {/* View Driver Payment Dialog */}
-      <Dialog full Screen open={viewDriverPayment.value}>
+      <Dialog fullScreen open={viewDriverPayment.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
@@ -410,7 +410,7 @@ export default function SubtripToolbar({
         </Box>
       </Dialog>
       {/* View Transporter Payment Dialog */}
-      <Dialog full Screen open={viewTransporterPayment.value}>
+      <Dialog fullScreen open={viewTransporterPayment.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
