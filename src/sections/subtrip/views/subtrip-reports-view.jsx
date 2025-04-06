@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -74,6 +75,8 @@ export function SubtripReportsView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
   const router = useRouter();
+  const navigate = useNavigate();
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
@@ -121,19 +124,118 @@ export function SubtripReportsView() {
 
   const notFound = (!tableData.length && isFilterApplied) || !tableData.length;
 
+  // Load filters from URL on initial load
+  useEffect(() => {
+    const urlFilters = {};
+    let hasUrlFilters = false;
+
+    // Extract filter values from URL
+    if (urlSearchParams.get('vehicleNo')) {
+      urlFilters.vehicleNo = urlSearchParams.get('vehicleNo');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('subtripId')) {
+      urlFilters.subtripId = urlSearchParams.get('subtripId');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('customerId')) {
+      urlFilters.customerId = urlSearchParams.get('customerId');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('transportName')) {
+      urlFilters.transportName = urlSearchParams.get('transportName');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('driverId')) {
+      urlFilters.driverId = urlSearchParams.get('driverId');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('startFromDate')) {
+      urlFilters.startFromDate = urlSearchParams.get('startFromDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('startEndDate')) {
+      urlFilters.startEndDate = urlSearchParams.get('startEndDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('ewayExpiryFromDate')) {
+      urlFilters.ewayExpiryFromDate = urlSearchParams.get('ewayExpiryFromDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('ewayExpiryEndDate')) {
+      urlFilters.ewayExpiryEndDate = urlSearchParams.get('ewayExpiryEndDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('subtripEndFromDate')) {
+      urlFilters.subtripEndFromDate = urlSearchParams.get('subtripEndFromDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('subtripEndEndDate')) {
+      urlFilters.subtripEndEndDate = urlSearchParams.get('subtripEndEndDate');
+      hasUrlFilters = true;
+    }
+    if (urlSearchParams.get('status')) {
+      urlFilters.status = urlSearchParams.get('status').split(',');
+      hasUrlFilters = true;
+    }
+
+    // If we have URL filters, apply them to the UI only
+    if (hasUrlFilters) {
+      setFilters((prev) => ({
+        ...prev,
+        ...urlFilters,
+      }));
+
+      // Don't automatically trigger the query
+      // The user will need to click the search button to apply the filters
+    }
+  }, [urlSearchParams]);
+
+  // Update URL when filters change
+  const updateUrlWithFilters = (newFilters) => {
+    const params = new URLSearchParams();
+
+    // Only add non-empty values to the URL
+    if (newFilters.vehicleNo) params.set('vehicleNo', newFilters.vehicleNo);
+    if (newFilters.subtripId) params.set('subtripId', newFilters.subtripId);
+    if (newFilters.customerId) params.set('customerId', newFilters.customerId);
+    if (newFilters.transportName) params.set('transportName', newFilters.transportName);
+    if (newFilters.driverId) params.set('driverId', newFilters.driverId);
+    if (newFilters.startFromDate) params.set('startFromDate', newFilters.startFromDate);
+    if (newFilters.startEndDate) params.set('startEndDate', newFilters.startEndDate);
+    if (newFilters.ewayExpiryFromDate)
+      params.set('ewayExpiryFromDate', newFilters.ewayExpiryFromDate);
+    if (newFilters.ewayExpiryEndDate) params.set('ewayExpiryEndDate', newFilters.ewayExpiryEndDate);
+    if (newFilters.subtripEndFromDate)
+      params.set('subtripEndFromDate', newFilters.subtripEndFromDate);
+    if (newFilters.subtripEndEndDate) params.set('subtripEndEndDate', newFilters.subtripEndEndDate);
+    if (newFilters.status && newFilters.status.length > 0)
+      params.set('status', newFilters.status.join(','));
+
+    // Update the URL without triggering a page reload
+    setUrlSearchParams(params);
+  };
+
   const handleFilters = (name, value) => {
     table.onResetPage();
 
     // If reset action, reset all filters
     if (name === 'reset') {
       setFilters(defaultFilters);
+      // Clear URL params
+      setUrlSearchParams({});
       return;
     }
 
-    setFilters((prevState) => ({
-      ...prevState,
+    const newFilters = {
+      ...filters,
       [name]: value,
-    }));
+    };
+
+    setFilters(newFilters);
+    // Update URL with new filters
+    updateUrlWithFilters(newFilters);
+
     // Reset search params when any filter changes
     setSearchParams(null);
   };
@@ -168,6 +270,8 @@ export function SubtripReportsView() {
   const handleResetFilters = () => {
     setFilters(defaultFilters);
     setSearchParams(null);
+    // Clear URL params
+    setUrlSearchParams({});
   };
 
   const handleClearQuickFilter = () => {
@@ -380,5 +484,3 @@ export function SubtripReportsView() {
     </DashboardContent>
   );
 }
-
-// ----------------------------------------------------------------------
