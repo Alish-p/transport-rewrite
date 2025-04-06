@@ -122,6 +122,13 @@ const DateRangeSelector = ({ fromDate, toDate, onChange, error }) => {
 const SubtripSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
   const subtripsDialog = useBoolean();
 
+  const handleSubtripsChange = useCallback(
+    (newSelectedSubtrips) => {
+      onChange({ invoicedSubTrips: newSelectedSubtrips });
+    },
+    [onChange]
+  );
+
   return (
     <>
       <Button
@@ -148,7 +155,8 @@ const SubtripSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
         onClose={subtripsDialog.onFalse}
         subtrips={subtrips}
         selectedSubtrips={selectedSubtrips}
-        onChange={onChange}
+        onChange={handleSubtripsChange}
+        title="Select Subtrips for Invoice"
       />
     </>
   );

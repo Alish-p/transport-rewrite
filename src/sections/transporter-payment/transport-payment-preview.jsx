@@ -140,11 +140,12 @@ function RenderTable({ transporterPayment }) {
             selectedLoans.map(
               ({ remarks, createdAt, currentInstallmentAmount, installmentAmount }, index) => (
                 <TableRow key={index}>
-                  <TableCell>{associatedSubtrips.length + index + 1}</TableCell>
+                  <TableCell>{associatedSubtrips?.length || 0 + index + 1}</TableCell>
                   <TableCell>Loan Repayment</TableCell>
                   <TableCell>-</TableCell>
                   <TableCell>{remarks}</TableCell>
                   <TableCell>{fDate(createdAt)}</TableCell>
+                  <TableCell>-</TableCell>
                   <TableCell>-</TableCell>
                   <TableCell>-</TableCell>
                   <TableCell>-</TableCell>

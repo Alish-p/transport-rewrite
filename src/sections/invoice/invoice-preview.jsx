@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
@@ -20,6 +22,7 @@ import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
 
+import { paths } from '../../routes/paths';
 import { useInvoice } from './context/InvoiceContext';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -100,6 +103,8 @@ function RenderTable({ invoice }) {
     totalShortageWt,
   } = calculateInvoiceSummary(invoice);
 
+  const navigate = useNavigate();
+
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
@@ -135,8 +140,12 @@ function RenderTable({ invoice }) {
                 <TableCell>{st.consignee}</TableCell>
                 <TableCell>{st.unloadingPoint}</TableCell>
                 <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
-                <TableCell>{st._id}</TableCell>
-                <TableCell>{st.invoiceNo || 'N/A'}</TableCell>
+                <TableCell
+                  sx={{ color: 'success.main', cursor: 'pointer' }}
+                  onClick={() => navigate(paths.dashboard.subtrip.details(st._id))}
+                >
+                  {st._id}
+                </TableCell>
                 <TableCell>{fDate(st.startDate)}</TableCell>
                 <TableCell>{fCurrency(st.rate || 0)}</TableCell>
                 <TableCell>{st.loadingWeight || 0}</TableCell>

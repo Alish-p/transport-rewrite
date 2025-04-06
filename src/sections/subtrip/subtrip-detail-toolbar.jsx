@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { Box, Dialog, Tooltip, MenuList, DialogActions } from '@mui/material';
+import { Box, Dialog, MenuList, DialogActions } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -274,55 +274,152 @@ export default function SubtripToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <PDFDownloadLink
-            document={<LRPDF subtrip={subtrip} />}
-            fileName={subtrip._id}
-            style={{ textDecoration: 'none', color: 'green' }}
+          <MenuItem
             onClick={() => {
               downloadPopover.onClose();
             }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
-            {({ loading }) => (
-              <Tooltip title="Download">
-                <Button
-                  startIcon={
-                    loading ? (
-                      <Iconify icon="line-md:loading-loop" />
-                    ) : (
-                      <Iconify icon="eva:download-fill" />
-                    )
-                  }
-                >
-                  LR
-                </Button>
-              </Tooltip>
-            )}
-          </PDFDownloadLink>
+            <PDFDownloadLink
+              document={<LRPDF subtrip={subtrip} />}
+              fileName={`${subtrip._id}_lr`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  Lorry Receipt (LR)
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
 
-          <PDFDownloadLink
-            document={<IndentPdf subtrip={subtrip} />}
-            fileName={`${subtrip._id}_indent`}
-            style={{ textDecoration: 'none', color: 'green' }}
+          <MenuItem
             onClick={() => {
               downloadPopover.onClose();
             }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
-            {({ loading }) => (
-              <Tooltip title="Download">
-                <Button
-                  startIcon={
-                    loading ? (
-                      <Iconify icon="line-md:loading-loop" />
-                    ) : (
-                      <Iconify icon="eva:download-fill" />
-                    )
-                  }
-                >
+            <PDFDownloadLink
+              document={<IndentPdf subtrip={subtrip} />}
+              fileName={`${subtrip._id}_indent`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
                   Petrol Pump Indent
-                </Button>
-              </Tooltip>
-            )}
-          </PDFDownloadLink>
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              downloadPopover.onClose();
+            }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          >
+            <PDFDownloadLink
+              document={<EntryPassPdf subtrip={subtrip} />}
+              fileName={`${subtrip._id}_entry_pass`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  Entry Pass
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              downloadPopover.onClose();
+            }}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          >
+            <PDFDownloadLink
+              document={<DriverPaymentPdf subtrip={subtrip} />}
+              fileName={`${subtrip._id}_driver_payment`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  Driver Payment
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
+
+          {!subtrip?.tripId?.vehicleId?.isOwn && (
+            <MenuItem
+              onClick={() => {
+                downloadPopover.onClose();
+              }}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            >
+              <PDFDownloadLink
+                document={<TransporterPayment subtrip={subtrip} />}
+                fileName={`${subtrip._id}_transporter_payment`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                }}
+              >
+                {({ loading }) => (
+                  <>
+                    <Iconify
+                      icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                      sx={{ mr: 2 }}
+                    />
+                    Transporter Payment
+                  </>
+                )}
+              </PDFDownloadLink>
+            </MenuItem>
+          )}
         </MenuList>
       </CustomPopover>
 
