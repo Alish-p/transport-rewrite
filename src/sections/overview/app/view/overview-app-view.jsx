@@ -36,7 +36,7 @@ export function OverviewAppView({ dashboardData }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={7}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${'Alis' || user?.displayName} `}
+            title={`Welcome back 👋 \n ${user?.name || 'User'} `}
             description="Begin leveraging the Transport Plus portal to streamline and manage your logistics operations seamlessly."
             img={<SeoIllustration hideBackground />}
             action={
@@ -109,7 +109,7 @@ export function OverviewAppView({ dashboardData }) {
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
             title="Trips Completed"
-            subheader="(+43%) than last year"
+            subheader="(+23%) than last year"
             chart={{
               categories: [
                 'Jan',
@@ -144,7 +144,7 @@ export function OverviewAppView({ dashboardData }) {
                   name: '2024',
                   data: [
                     { name: 'Own', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Market', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
+                    { name: 'Market', data: [6, 0, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
                   ],
                 },
               ],
