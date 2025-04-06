@@ -7,11 +7,11 @@ import {
   Box,
   Chip,
   Stack,
-  Paper,
   Divider,
   Tooltip,
   Popover,
   Checkbox,
+  MenuList,
   Typography,
   ListItemText,
   useMediaQuery,
@@ -39,7 +39,7 @@ import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-t
 
 // ----------------------------------------------------------------------
 
-export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
+export default function SubtripTableFilters({ filters, onFilters }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -73,31 +73,46 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
     [onFilters]
   );
 
-  const handleFilterSubtripId = useCallback(
-    (event) => {
-      onFilters('subtripId', event.target.value);
+  const handleFilterDispatchStartDate = useCallback(
+    (newValue) => {
+      console.log({ newValue });
+      onFilters('startFromDate', newValue);
     },
     [onFilters]
   );
 
-  const handleFilterDateRange = useCallback(
-    (startDate, endDate, type = 'start') => {
-      switch (type) {
-        case 'start':
-          onFilters('startFromDate', startDate);
-          onFilters('startEndDate', endDate);
-          break;
-        case 'eway':
-          onFilters('ewayExpiryFromDate', startDate);
-          onFilters('ewayExpiryEndDate', endDate);
-          break;
-        case 'end':
-          onFilters('subtripEndFromDate', startDate);
-          onFilters('subtripEndEndDate', endDate);
-          break;
-        default:
-          break;
-      }
+  const handleFilterDispatchEndDate = useCallback(
+    (newValue) => {
+      console.log({ newValue });
+      onFilters('startEndDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterEwayStartDate = useCallback(
+    (newValue) => {
+      onFilters('ewayExpiryFromDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterEwayEndDate = useCallback(
+    (newValue) => {
+      onFilters('ewayExpiryEndDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterSubtripEndDate = useCallback(
+    (newValue) => {
+      onFilters('subtripEndEndDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterSubtripStartDate = useCallback(
+    (newValue) => {
+      onFilters('subtripEndFromDate', newValue);
     },
     [onFilters]
   );
@@ -222,12 +237,6 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
     },
   ];
 
-  const handleSearch = () => {
-    if (onSearch) {
-      onSearch();
-    }
-  };
-
   return (
     <Box sx={{ p: 2, pb: 1 }}>
       {/* Filter Chips Section */}
@@ -262,15 +271,6 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
                     color={chip.isSelected ? 'primary' : 'default'}
                     variant={chip.isSelected ? 'filled' : 'outlined'}
                     icon={chip.icon}
-                    sx={{
-                      height: 'auto',
-                      '& .MuiChip-label': {
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        padding: '4px 8px',
-                      },
-                    }}
                   />
                 </Tooltip>
               ))}
@@ -286,35 +286,25 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
         anchorEl={statusPopover.anchorEl}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        slotProps={{
-          paper: {
-            sx: { width: 220, p: 1 },
-          },
-        }}
       >
-        <Typography variant="subtitle2" sx={{ px: 1, pb: 1 }}>
-          Select Status
-        </Typography>
-        <Paper sx={{ maxHeight: 240, overflow: 'auto' }}>
+        <MenuList sx={{ width: 200 }}>
           {Object.values(SUBTRIP_STATUS).map((status) => (
             <MenuItem key={status} onClick={() => handleToggleStatus(status)}>
               <Checkbox
-                size="small"
                 checked={Array.isArray(filters.status) && filters.status.includes(status)}
               />
               <ListItemText primary={status} />
             </MenuItem>
           ))}
-        </Paper>
+        </MenuList>
       </Popover>
 
       <CustomDateRangePicker
-        variant="calendar"
-        title="Select date range"
+        title="Select dispatch date range"
         startDate={filters.startFromDate}
         endDate={filters.startEndDate}
-        onChangeStartDate={(date) => handleFilterDateRange(date, filters.startEndDate, 'start')}
-        onChangeEndDate={(date) => handleFilterDateRange(filters.startFromDate, date, 'start')}
+        onChangeStartDate={handleFilterDispatchStartDate}
+        onChangeEndDate={handleFilterDispatchEndDate}
         open={startDateRangePopover.open}
         onClose={startDateRangePopover.onClose}
         selected={startDateRangeSelected}
@@ -322,12 +312,11 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
       />
 
       <CustomDateRangePicker
-        variant="calendar"
         title="Select e-way expiry date range"
         startDate={filters.ewayExpiryFromDate}
         endDate={filters.ewayExpiryEndDate}
-        onChangeStartDate={(date) => handleFilterDateRange(date, filters.ewayExpiryEndDate, 'eway')}
-        onChangeEndDate={(date) => handleFilterDateRange(filters.ewayExpiryFromDate, date, 'eway')}
+        onChangeStartDate={handleFilterEwayStartDate}
+        onChangeEndDate={handleFilterEwayEndDate}
         open={ewayDateRangePopover.open}
         onClose={ewayDateRangePopover.onClose}
         selected={ewayDateRangeSelected}
@@ -339,8 +328,8 @@ export default function SubtripTableFilters({ filters, onFilters, onSearch }) {
         title="Select end date range"
         startDate={filters.subtripEndFromDate}
         endDate={filters.subtripEndEndDate}
-        onChangeStartDate={(date) => handleFilterDateRange(date, filters.subtripEndEndDate, 'end')}
-        onChangeEndDate={(date) => handleFilterDateRange(filters.subtripEndFromDate, date, 'end')}
+        onChangeStartDate={handleFilterSubtripStartDate}
+        onChangeEndDate={handleFilterSubtripEndDate}
         open={endDateRangePopover.open}
         onClose={endDateRangePopover.onClose}
         selected={endDateRangeSelected}

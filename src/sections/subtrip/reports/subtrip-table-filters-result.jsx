@@ -5,8 +5,6 @@ import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
@@ -28,20 +26,6 @@ export default function SubtripTableFiltersResult({
   results,
   ...other
 }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const canReset =
-    !!filters.vehicleNo ||
-    !!filters.subtripId ||
-    !!filters.transportName ||
-    !!filters.customerId ||
-    !!filters.driverId ||
-    (!!filters.startFromDate && !!filters.startEndDate) ||
-    (!!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate) ||
-    (!!filters.subtripEndFromDate && !!filters.subtripEndEndDate) ||
-    (filters.status && filters.status.length > 0);
-
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
