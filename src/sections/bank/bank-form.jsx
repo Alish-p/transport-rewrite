@@ -26,7 +26,6 @@ export const NewBankSchema = zod.object({
 });
 
 export default function BankForm({ currentBank }) {
-  console.log({ currentBank });
   const navigate = useNavigate();
 
   const createBank = useCreateBank();
@@ -84,10 +83,10 @@ export default function BankForm({ currentBank }) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="name" label="Bank Name" />
-          <Field.Text name="branch" label="Branch" />
-          <Field.Text name="place" label="Place" />
-          <Field.Text name="ifsc" label="IFSC" />
+          <Field.Text name="name" label="Bank Name" required />
+          <Field.Text name="branch" label="Branch" required />
+          <Field.Text name="place" label="Place" required />
+          <Field.Text name="ifsc" label="IFSC" required />
         </Box>
       </Card>
     </>

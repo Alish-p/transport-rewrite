@@ -46,14 +46,16 @@ export const NewPumpSchema = zod.object({
   contactPerson: zod.string().min(1, { message: 'Contact Person is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
   bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Name is required' }),
-    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
+    name: zod.string().min(1, { message: 'Bank Name is required' }),
+    branch: zod.string().min(1, { message: 'Branch is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
     place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: zod
-      .string()
-      .min(1, { message: 'Account No is required' })
-      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
+    accNo: schemaHelper.accountNumber({
+      message: {
+        required_error: 'Account number is required',
+        invalid_error: 'Account number must be between 9 and 18 digits',
+      },
+    }),
   }),
 });
 
@@ -136,15 +138,15 @@ export default function PumpForm({ currentPump, bankList }) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="pumpName" label="Pump Name" />
-          <Field.Text name="placeName" label="Place Name" />
-          <Field.Text name="ownerName" label="Owner Name" />
-          <Field.Text name="ownerCellNo" label="Owner Cell No" />
-          <Field.Text name="pumpPhoneNo" label="Pump Phone No" />
-          <Field.Text name="taluk" label="Taluk" />
-          <Field.Text name="district" label="District" />
-          <Field.Text name="contactPerson" label="Contact Person" />
-          <Field.Text name="address" label="Address" />
+          <Field.Text name="pumpName" label="Pump Name" required />
+          <Field.Text name="placeName" label="Place Name" required />
+          <Field.Text name="ownerName" label="Owner Name" required />
+          <Field.Text name="ownerCellNo" label="Owner Cell No" required />
+          <Field.Text name="pumpPhoneNo" label="Pump Phone No" required />
+          <Field.Text name="taluk" label="Taluk" required />
+          <Field.Text name="district" label="District" required />
+          <Field.Text name="contactPerson" label="Contact Person" required />
+          <Field.Text name="address" label="Address" required />
         </Box>
       </Card>
     </>
@@ -181,10 +183,10 @@ export default function PumpForm({ currentPump, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank'}
+            {bankDetails?.name || 'Select Bank *'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Field.Text name="bankDetails.accNo" label="Account No" required />
         </Box>
       </Card>
     </>

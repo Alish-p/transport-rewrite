@@ -328,7 +328,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                   >
                     {selectedTransporter
                       ? selectedTransporter.transportName
-                      : 'Select Transport Company'}
+                      : 'Select Transport Company *'}
                   </Button>
                 </Box>
               )}

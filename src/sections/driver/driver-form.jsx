@@ -51,25 +51,25 @@ export const NewDriverSchema = zod.object({
       /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/,
       { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
-  guarantorName: zod.string(),
-  guarantorCellNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Guarantor Mobile No is required',
-      invalid_error: 'Guarantor Mobile No must be exactly 10 digits',
-    },
-  }),
+  guarantorName: zod.string().optional(),
+  guarantorCellNo: zod.string().optional(),
   experience: zod
     .number({ required_error: 'Experience is required' })
     .min(0, { message: 'Experience must be at least 0 years' }),
-  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }),
+  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }).optional(),
   permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
   isActive: zod.boolean().optional(),
   bankDetails: zod.object({
-    name: zod.string(),
-    branch: zod.string(),
-    ifsc: zod.string(),
-    place: zod.string(),
-    accNo: zod.string(),
+    name: zod.string().min(1, { message: 'Bank Name is required' }),
+    branch: zod.string().min(1, { message: 'Branch is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: schemaHelper.accountNumber({
+      message: {
+        required_error: 'Account number is required',
+        invalid_error: 'Account number must be between 9 and 18 digits',
+      },
+    }),
   }),
 });
 
@@ -96,9 +96,9 @@ export default function DriverForm({ currentDriver, bankList }) {
       guarantorName: currentDriver?.guarantorName || '',
       guarantorCellNo: currentDriver?.guarantorCellNo || '',
       experience: currentDriver?.experience || 0,
-      dob: currentDriver?.dob ? new Date(currentDriver.dob) : new Date(),
+      dob: currentDriver?.dob ? new Date(currentDriver.dob) : undefined,
       permanentAddress: currentDriver?.permanentAddress || '',
-      isActive: currentDriver?.isActive,
+      isActive: currentDriver?.isActive ?? true,
       bankDetails: {
         name: currentDriver?.bankDetails?.name || '',
         ifsc: currentDriver?.bankDetails?.ifsc || '',
@@ -184,27 +184,20 @@ export default function DriverForm({ currentDriver, bankList }) {
           }}
           gap={3}
         >
-          <Field.Text name="driverName" label="Driver Name" />
-          <Field.Text name="driverLicenceNo" label="Driver Licence No" />
-          <Field.Text name="driverPresentAddress" label="Driver Present Address" />
+          <Field.Text name="driverName" label="Driver Name" required />
+          <Field.Text name="driverLicenceNo" label="Driver Licence No" required />
           <Field.Text
             name="driverCellNo"
             label="Driver Cell No"
+            required
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.DatePicker name="licenseFrom" label="License From" />
-          <Field.DatePicker name="licenseTo" label="License To" />
-          <Field.Text name="aadharNo" label="Aadhar No" />
-          <Field.Text name="guarantorName" label="Guarantor Name" />
-          <Field.Text
-            name="guarantorCellNo"
-            label="Guarantor Cell No"
-            InputProps={{
-              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-            }}
-          />
+          <Field.Text name="driverPresentAddress" label="Driver Present Address" required />
+          <Field.Text name="permanentAddress" label="Permanent Address" required />
+
+          <Field.Text name="aadharNo" label="Aadhar No" required />
           <Field.Text
             name="experience"
             label="Experience"
@@ -214,8 +207,20 @@ export default function DriverForm({ currentDriver, bankList }) {
             }}
             required
           />
-          <Field.DatePicker name="dob" label="Date of Birth" required />
-          <Field.Text name="permanentAddress" label="Permanent Address" required />
+
+          <Field.Text name="guarantorName" label="Guarantor Name" />
+          <Field.Text
+            name="guarantorCellNo"
+            label="Guarantor Cell No"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+            }}
+          />
+
+          <Field.DatePicker name="dob" label="Date of Birth" />
+
+          <Field.DatePicker name="licenseFrom" label="License From *" required />
+          <Field.DatePicker name="licenseTo" label="License To *" required />
         </Box>
       </Card>
     </>
@@ -252,10 +257,10 @@ export default function DriverForm({ currentDriver, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank'}
+            {bankDetails?.name || 'Select Bank *'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Field.Text name="bankDetails.accNo" label="Account No" required />
         </Box>
       </Card>
     </>
