@@ -24,27 +24,48 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 
 export const NewCustomerSchema = zod.object({
   customerName: zod.string().min(1, { message: 'Customer Name is required' }),
+  GSTNo: zod.string().min(1, { message: 'GST No is required' }),
+  PANNo: zod.string().min(1, { message: 'PAN No is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
   place: zod.string(),
-  state: zod.string(),
-  pinCode: zod.string(),
+  state: zod.string().min(1, { message: 'State is required' }),
+  pinCode: schemaHelper.pinCode({
+    message: {
+      required_error: 'Pin Code is required',
+      invalid_error: 'Pin Code must be exactly 6 digits',
+    },
+  }),
   cellNo: schemaHelper.phoneNumber({
     message: {
       required_error: 'Mobile No is required',
       invalid_error: 'Mobile No must be exactly 10 digits',
     },
   }),
-  GSTNo: zod.string(),
-  PANNo: zod.string(),
   consignees: zod.array(
     zod.object({
       name: zod.string().min(1, { message: 'Name is required' }),
       address: zod.string().min(1, { message: 'Address is required' }),
-      state: zod.string(),
-      pinCode: zod.string().optional(),
+      state: zod.string().min(1, { message: 'State is required' }),
+      pinCode: schemaHelper.pinCode({
+        message: {
+          required_error: 'Consignee Pin Code is required',
+          invalid_error: 'Consignee Pin Code must be exactly 6 digits',
+        },
+      }),
     })
   ),
-  bankDetails: zod.object({}),
+  bankDetails: zod.object({
+    name: zod.string().min(1, { message: 'Bank name is required' }),
+    branch: zod.string().min(1, { message: 'Branch is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: schemaHelper.accountNumber({
+      message: {
+        required_error: 'Account number is required',
+        invalid_error: 'Account number must be between 9 and 18 digits',
+      },
+    }),
+  }),
   transporterCode: zod.string().optional(),
 });
 
@@ -86,7 +107,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
   const methods = useForm({
     resolver: zodResolver(NewCustomerSchema),
     defaultValues,
-    mode: 'onBlur',
+    mode: 'all',
   });
 
   const {
@@ -147,14 +168,14 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="customerName" label="Customer Name" />
-          <Field.Text name="address" label="Address" />
+          <Field.Text name="customerName" label="Customer Name" required />
+          <Field.Text name="address" label="Address" required />
           <Field.Text name="place" label="Place" />
-          <Field.Text name="state" label="State" />
-          <Field.Text name="pinCode" label="Pin Code" />
-          <Field.Text name="cellNo" label="Cell No" />
-          <Field.Text name="GSTNo" label="GST No" />
-          <Field.Text name="PANNo" label="PAN No" />
+          <Field.Text name="state" label="State" required />
+          <Field.Text name="pinCode" label="Pin Code" required />
+          <Field.Text name="cellNo" label="Cell No" required />
+          <Field.Text name="GSTNo" label="GST No" required />
+          <Field.Text name="PANNo" label="PAN No" required />
           <Field.Text
             name="transporterCode"
             label="Transporter Code"
@@ -196,10 +217,10 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank'}
+            {bankDetails?.name || 'Select Bank *'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Field.Text name="bankDetails.accNo" label="Account No" required />
         </Box>
       </Card>
     </>
@@ -223,16 +244,24 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
               }}
             >
               <Box gridColumn="span 2">
-                <Field.Text name={`consignees[${index}].name`} label="Consignee Name" />
+                <Field.Text name={`consignees[${index}].name`} label="Consignee Name" required />
               </Box>
               <Box gridColumn="span 2">
-                <Field.Text name={`consignees[${index}].address`} label="Consignee Address" />
+                <Field.Text
+                  name={`consignees[${index}].address`}
+                  label="Consignee Address"
+                  required
+                />
               </Box>
               <Box gridColumn="span 2">
-                <Field.Text name={`consignees[${index}].state`} label="Consignee State" />
+                <Field.Text name={`consignees[${index}].state`} label="Consignee State" required />
               </Box>
               <Box gridColumn="span 2">
-                <Field.Text name={`consignees[${index}].pinCode`} label="Consignee Pin Code" />
+                <Field.Text
+                  name={`consignees[${index}].pinCode`}
+                  label="Consignee Pin Code"
+                  required
+                />
               </Box>
               <Box gridColumn="span 1" display="flex" justifyContent="center" alignItems="center">
                 <Button

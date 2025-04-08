@@ -119,4 +119,26 @@ export const schemaHelper = {
 
       return data;
     }),
+  /**
+   * pinCode
+   * Validates pin codes based on a regex pattern for 6 digits
+   */
+  pinCode: (props) =>
+    zod
+      .string()
+      .min(1, { message: props?.message?.required_error ?? 'Pin Code is required' })
+      .regex(/^[0-9]{6}$/, {
+        message: props?.message?.invalid_error ?? 'Pin Code must be exactly 6 digits',
+      }),
+  /**
+   * accountNumber
+   * Validates bank account numbers based on a regex pattern for 9-18 digits
+   */
+  accountNumber: (props) =>
+    zod
+      .string()
+      .min(1, { message: props?.message?.required_error ?? 'Account number is required' })
+      .regex(/^[0-9]{9,18}$/, {
+        message: props?.message?.invalid_error ?? 'Account number must be between 9 and 18 digits',
+      }),
 };

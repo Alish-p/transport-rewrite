@@ -26,17 +26,19 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 
 export const NewTransporterSchema = zod.object({
   transportName: zod.string().min(1, { message: 'Transport Name is required' }),
-  address: zod.string(),
+  address: zod.string().min(1, { message: 'Address is required' }),
   place: zod.string(),
-  pinNo: zod.string(),
+  pinNo: zod.string().min(1, { message: 'Pin No is required' }),
   cellNo: schemaHelper.phoneNumber({
     message: {
+      required_error: 'Mobile No is required',
       invalid_error: 'Mobile No must be exactly 10 digits',
     },
   }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
   ownerPhoneNo: schemaHelper.phoneNumber({
     message: {
+      required_error: 'Owner Mobile No is required',
       invalid_error: 'Owner Mobile No must be exactly 10 digits',
     },
   }),
@@ -44,21 +46,23 @@ export const NewTransporterSchema = zod.object({
     .string()
     .min(1, { message: 'Email ID is required' })
     .email({ message: 'Email ID must be a valid email' }),
-
-  bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Name is required' }),
-    branch: zod.string().min(1, { message: 'Bank Detail is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC Code is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: zod
-      .string()
-      .min(1, { message: 'Account No is required' })
-      .regex(/^[0-9]{9,18}$/, { message: 'Account No must be between 9 and 18 digits' }),
-  }),
-  paymentMode: zod.string(),
+  paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
   panNo: zod.string(),
   gstNo: zod.string(),
-  tdsPercentage: zod.number(),
+  tdsPercentage: zod.number().min(0, { message: 'TDS Percentage is required' }),
+
+  bankDetails: zod.object({
+    name: zod.string().min(1, { message: 'Bank name is required' }),
+    branch: zod.string().min(1, { message: 'Branch is required' }),
+    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+    place: zod.string().min(1, { message: 'Place is required' }),
+    accNo: schemaHelper.accountNumber({
+      message: {
+        required_error: 'Account number is required',
+        invalid_error: 'Account number must be between 9 and 18 digits',
+      },
+    }),
+  }),
 });
 
 // ----------------------------------------------------------------------
@@ -146,26 +150,28 @@ export default function TransporterForm({ currentTransporter, bankList }) {
           display="grid"
           gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
         >
-          <Field.Text name="transportName" label="Transport Name" />
-          <Field.Text name="address" label="Address" />
+          <Field.Text name="transportName" label="Transport Name" required />
+          <Field.Text name="address" label="Address" required />
           <Field.Text name="place" label="Place" />
-          <Field.Text name="pinNo" label="Pin No" />
+          <Field.Text name="pinNo" label="Pin No" required />
           <Field.Text
             name="cellNo"
             label="Phone Number"
+            required
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.Text name="ownerName" label="Owner Name" />
+          <Field.Text name="ownerName" label="Owner Name" required />
           <Field.Text
             name="ownerPhoneNo"
-            label="Owner Phone Numver"
+            label="Owner Phone Number"
+            required
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.Text name="emailId" label="Email ID" />
+          <Field.Text name="emailId" label="Email ID" required />
         </Box>
       </Card>
     </>
@@ -202,10 +208,10 @@ export default function TransporterForm({ currentTransporter, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank'}
+            {bankDetails?.name || 'Select Bank *'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
+          <Field.Text name="bankDetails.accNo" label="Account No" required />
         </Box>
       </Card>
     </>
@@ -223,12 +229,13 @@ export default function TransporterForm({ currentTransporter, bankList }) {
           display="grid"
           gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
         >
-          <Field.Text name="paymentMode" label="Payment Mode" />
+          <Field.Text name="paymentMode" label="Payment Mode" required />
           <Field.Text name="panNo" label="PAN No" />
           <Field.Text name="gstNo" label="GST No" />
           <Field.Text
             name="tdsPercentage"
             label="TDS Percentage"
+            required
             type="number"
             InputProps={{
               endAdornment: <InputAdornment position="end">%</InputAdornment>,

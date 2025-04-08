@@ -67,8 +67,16 @@ export function useUpdateCustomer() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateCustomer(id, data),
     onSuccess: (updatedCustomer) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      // Update the specific customer in the cache
       queryClient.setQueryData([QUERY_KEY, updatedCustomer._id], updatedCustomer);
+
+      // Update the customer in the customers list cache
+      queryClient.setQueryData([QUERY_KEY], (oldData) => {
+        if (!oldData) return [updatedCustomer];
+        return oldData.map((customer) =>
+          customer._id === updatedCustomer._id ? updatedCustomer : customer
+        );
+      });
 
       toast.success('Customer edited successfully!');
     },
