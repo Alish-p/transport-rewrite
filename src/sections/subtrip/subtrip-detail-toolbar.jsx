@@ -16,11 +16,70 @@ import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import LRPDF from './pdfs/lorry-reciept-pdf';
-import { SUBTRIP_STATUS } from './constants';
 import IndentPdf from './pdfs/petrol-indent-pdf';
 import EntryPassPdf from './pdfs/entry-pass-pdf';
 import DriverPaymentPdf from './pdfs/driver-payment-pdf';
 import TransporterPayment from './pdfs/transporter-payment-pdf';
+import { SUBTRIP_STATUS, SUBTRIP_STATUS_COLORS } from './constants';
+
+// ----------------------------------------------------------------------
+
+// PDF Viewer Component
+const PDFViewerDialog = ({ open, onClose, children }) => (
+  <Dialog fullScreen open={open}>
+    <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+      <DialogActions sx={{ p: 1.5 }}>
+        <Button color="primary" variant="outlined" onClick={onClose}>
+          Close
+        </Button>
+      </DialogActions>
+      <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+        <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+          {children}
+        </PDFViewer>
+      </Box>
+    </Box>
+  </Dialog>
+);
+
+// PDF Download Menu Item Component
+const PDFDownloadMenuItem = ({ document, fileName, label, onClose, disabled }) => (
+  <MenuItem onClick={onClose} disabled={disabled}>
+    <PDFDownloadLink
+      document={document}
+      fileName={fileName}
+      style={{
+        textDecoration: 'none',
+        color: 'inherit',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
+      {({ loading }) => (
+        <>
+          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+          {label}
+        </>
+      )}
+    </PDFDownloadLink>
+  </MenuItem>
+);
+
+// Action Button Component
+const ActionButton = ({ label, icon, onClick, disabled, startIcon, endIcon }) => (
+  <Button
+    color="primary"
+    variant="outlined"
+    onClick={onClick}
+    disabled={disabled}
+    startIcon={startIcon}
+    endIcon={endIcon}
+    sx={{ textTransform: 'capitalize' }}
+  >
+    {label}
+  </Button>
+);
 
 // ----------------------------------------------------------------------
 
@@ -39,10 +98,6 @@ export default function SubtripToolbar({
   isEmpty,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -94,6 +149,10 @@ export default function SubtripToolbar({
     ];
   };
 
+  const hasDieselIntent = subtrip?.intentFuelPump;
+  const hasEntryPass = subtrip?.diNumber;
+  const hasTransporterPayment = !subtrip?.tripId?.vehicleId?.isOwn;
+
   const actionPopover = usePopover();
   const viewPopover = usePopover();
   const downloadPopover = usePopover();
@@ -117,20 +176,13 @@ export default function SubtripToolbar({
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center">
               <Typography variant="h4">Subtrip #{subtrip._id} </Typography>
-              <Label
-                variant="soft"
-                color={
-                  (status === SUBTRIP_STATUS.IN_QUEUE && 'warning') ||
-                  (status === SUBTRIP_STATUS.LOADED && 'info') ||
-                  (status === SUBTRIP_STATUS.RECEIVED && 'secondary') ||
-                  (status === SUBTRIP_STATUS.CLOSED && 'success') ||
-                  (status === SUBTRIP_STATUS.ERROR && 'error') ||
-                  'default'
-                }
-              >
+              <Label variant="soft" color={SUBTRIP_STATUS_COLORS[status] || 'default'}>
                 {status}
               </Label>
-              <Label variant="soft" color="info">
+              <Label
+                variant="soft"
+                color={subtrip.tripId?.vehicleId?.isOwn ? 'success' : 'warning'}
+              >
                 {subtrip.tripId?.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
               </Label>
             </Stack>
@@ -144,46 +196,32 @@ export default function SubtripToolbar({
           alignItems="center"
           justifyContent="flex-end"
         >
-          <Button
-            color="primary"
-            variant="outlined"
+          <ActionButton
+            label="Actions"
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
             onClick={actionPopover.onOpen}
-            sx={{ textTransform: 'capitalize' }}
-          >
-            Actions
-          </Button>
+          />
 
-          <Button
-            color="primary"
-            variant="outlined"
+          <ActionButton
+            label="View"
             startIcon={<Iconify icon="solar:eye-bold" />}
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
             onClick={viewPopover.onOpen}
-            sx={{ textTransform: 'capitalize' }}
-          >
-            View
-          </Button>
-          <Button
-            color="primary"
-            variant="outlined"
+          />
+
+          <ActionButton
+            label="Download"
             startIcon={<Iconify icon="material-symbols:download" />}
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
             onClick={downloadPopover.onOpen}
-            sx={{ textTransform: 'capitalize' }}
-          >
-            Download
-          </Button>
+          />
 
-          <Button
-            color="primary"
-            variant="outlined"
+          <ActionButton
+            label="Edit"
             startIcon={<Iconify icon="solar:pen-bold" />}
             onClick={onEdit}
             disabled={isEditDisabled}
-          >
-            Edit
-          </Button>
+          />
         </Stack>
       </Stack>
 
@@ -201,7 +239,7 @@ export default function SubtripToolbar({
               onClick={() => handleAction(action.action)}
               disabled={action.disabled}
             >
-              <Iconify icon={action.icon} sx={{ mr: 2 }} />
+              <Iconify icon={action.icon} />
               {action.label}
             </MenuItem>
           ))}
@@ -223,26 +261,33 @@ export default function SubtripToolbar({
             }}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
+            <Iconify icon="mdi:file-document-outline" />
             Lorry Receipt (LR)
           </MenuItem>
-          <MenuItem
-            onClick={() => {
-              viewPopover.onClose();
-              viewIntent.onTrue();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            Petrol Pump Intent
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              viewPopover.onClose();
-              viewEntryPass.onTrue();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            Entry Pass
-          </MenuItem>
+          {hasDieselIntent && (
+            <MenuItem
+              onClick={() => {
+                viewPopover.onClose();
+                viewIntent.onTrue();
+              }}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            >
+              <Iconify icon="mdi:file-document-outline" />
+              Petrol Pump Intent
+            </MenuItem>
+          )}
+          {hasEntryPass && (
+            <MenuItem
+              onClick={() => {
+                viewPopover.onClose();
+                viewEntryPass.onTrue();
+              }}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            >
+              <Iconify icon="mdi:file-document-outline" />
+              Entry Pass
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               viewPopover.onClose();
@@ -250,9 +295,10 @@ export default function SubtripToolbar({
             }}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
           >
+            <Iconify icon="mdi:file-document-outline" />
             Driver Payment
           </MenuItem>
-          {!subtrip?.tripId?.vehicleId?.isOwn && (
+          {hasTransporterPayment && (
             <MenuItem
               onClick={() => {
                 viewPopover.onClose();
@@ -260,6 +306,7 @@ export default function SubtripToolbar({
               }}
               disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
             >
+              <Iconify icon="mdi:file-document-outline" />
               Transporter Payment
             </MenuItem>
           )}
@@ -274,258 +321,74 @@ export default function SubtripToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              downloadPopover.onClose();
-            }}
+          <PDFDownloadMenuItem
+            document={<LRPDF subtrip={subtrip} />}
+            fileName={`${subtrip._id}_lr`}
+            label="Lorry Receipt (LR)"
+            onClose={downloadPopover.onClose}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            <PDFDownloadLink
-              document={<LRPDF subtrip={subtrip} />}
-              fileName={`${subtrip._id}_lr`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  Lorry Receipt (LR)
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
+          />
 
-          <MenuItem
-            onClick={() => {
-              downloadPopover.onClose();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            <PDFDownloadLink
+          {hasDieselIntent && (
+            <PDFDownloadMenuItem
               document={<IndentPdf subtrip={subtrip} />}
               fileName={`${subtrip._id}_indent`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  Petrol Pump Indent
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
+              label="Petrol Pump Indent"
+              onClose={downloadPopover.onClose}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            />
+          )}
 
-          <MenuItem
-            onClick={() => {
-              downloadPopover.onClose();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            <PDFDownloadLink
+          {hasEntryPass && (
+            <PDFDownloadMenuItem
               document={<EntryPassPdf subtrip={subtrip} />}
               fileName={`${subtrip._id}_entry_pass`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  Entry Pass
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              downloadPopover.onClose();
-            }}
-            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-          >
-            <PDFDownloadLink
-              document={<DriverPaymentPdf subtrip={subtrip} />}
-              fileName={`${subtrip._id}_driver_payment`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  Driver Payment
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          {!subtrip?.tripId?.vehicleId?.isOwn && (
-            <MenuItem
-              onClick={() => {
-                downloadPopover.onClose();
-              }}
+              label="Entry Pass"
+              onClose={downloadPopover.onClose}
               disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
-            >
-              <PDFDownloadLink
-                document={<TransporterPayment subtrip={subtrip} />}
-                fileName={`${subtrip._id}_transporter_payment`}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                {({ loading }) => (
-                  <>
-                    <Iconify
-                      icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                      sx={{ mr: 2 }}
-                    />
-                    Transporter Payment
-                  </>
-                )}
-              </PDFDownloadLink>
-            </MenuItem>
+            />
+          )}
+
+          <PDFDownloadMenuItem
+            document={<DriverPaymentPdf subtrip={subtrip} />}
+            fileName={`${subtrip._id}_driver_payment`}
+            label="Driver Payment"
+            onClose={downloadPopover.onClose}
+            disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+          />
+
+          {hasTransporterPayment && (
+            <PDFDownloadMenuItem
+              document={<TransporterPayment subtrip={subtrip} />}
+              fileName={`${subtrip._id}_transporter_payment`}
+              label="Transporter Payment"
+              onClose={downloadPopover.onClose}
+              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
+            />
           )}
         </MenuList>
       </CustomPopover>
 
-      {/* View LR Dialog */}
-      <Dialog fullScreen open={viewLR.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions
-            sx={{
-              p: 1.5,
-            }}
-          >
-            <Button color="primary" variant="outlined" onClick={viewLR.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
+      {/* PDF Viewers */}
+      <PDFViewerDialog open={viewLR.value} onClose={viewLR.onFalse}>
+        <LRPDF subtrip={subtrip} />
+      </PDFViewerDialog>
 
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <LRPDF subtrip={subtrip} />
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
+      <PDFViewerDialog open={viewIntent.value} onClose={viewIntent.onFalse}>
+        <IndentPdf subtrip={subtrip} />
+      </PDFViewerDialog>
 
-      {/* View Intent Dialog */}
-      <Dialog fullScreen open={viewIntent.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions
-            sx={{
-              p: 1.5,
-            }}
-          >
-            <Button color="primary" variant="outlined" onClick={viewIntent.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
+      <PDFViewerDialog open={viewEntryPass.value} onClose={viewEntryPass.onFalse}>
+        <EntryPassPdf subtrip={subtrip} />
+      </PDFViewerDialog>
 
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <IndentPdf subtrip={subtrip} />
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
+      <PDFViewerDialog open={viewDriverPayment.value} onClose={viewDriverPayment.onFalse}>
+        <DriverPaymentPdf subtrip={subtrip} />
+      </PDFViewerDialog>
 
-      {/* View EntryPass Dialog */}
-      <Dialog fullScreen open={viewEntryPass.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions
-            sx={{
-              p: 1.5,
-            }}
-          >
-            <Button color="primary" variant="outlined" onClick={viewEntryPass.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
-
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <EntryPassPdf subtrip={subtrip} />
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
-
-      {/* View Driver Payment Dialog */}
-      <Dialog fullScreen open={viewDriverPayment.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions
-            sx={{
-              p: 1.5,
-            }}
-          >
-            <Button color="primary" variant="outlined" onClick={viewDriverPayment.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
-
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <DriverPaymentPdf subtrip={subtrip} />
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
-      {/* View Transporter Payment Dialog */}
-      <Dialog fullScreen open={viewTransporterPayment.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions
-            sx={{
-              p: 1.5,
-            }}
-          >
-            <Button color="primary" variant="outlined" onClick={viewTransporterPayment.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
-
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <TransporterPayment subtrip={subtrip} />
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
+      <PDFViewerDialog open={viewTransporterPayment.value} onClose={viewTransporterPayment.onFalse}>
+        <TransporterPayment subtrip={subtrip} />
+      </PDFViewerDialog>
     </>
   );
 }

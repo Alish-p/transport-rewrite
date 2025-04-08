@@ -136,7 +136,52 @@ For further details, please refer to the expense logs.
           </Button>
         }
       />
+
+      <Box
+        sx={{
+          mb: 5,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 3,
+        }}
+      >
+        {VEHICLE_SUMMARY.map((item) => (
+          <Card key={item.title} sx={{ p: 3, height: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main', mr: 2 }} />
+              <Box sx={{ typography: 'h6' }}>{item.title}</Box>
+            </Box>
+            <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{item.description}</Box>
+          </Card>
+        ))}
+      </Box>
+
       <Card>
+        <Box
+          sx={{
+            p: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Box>
+            <Box sx={{ typography: 'h4', mb: 1 }}>{vehicleNo}</Box>
+            <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
+              {vehicleCompany} {modelType}
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              startIcon={<Iconify icon="eva:file-text-fill" />}
+              sx={{ mr: 1 }}
+            >
+              Download Report
+            </Button>
+          </Box>
+        </Box>
+
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
@@ -146,24 +191,34 @@ For further details, please refer to the expense logs.
           }}
         >
           {[
-            { value: 'description', label: 'Description' },
-            { value: 'expenses', label: 'Expense Details' },
+            { value: 'description', label: 'Vehicle Details', icon: 'mdi:truck-info' },
+            { value: 'expenses', label: 'Expense Details', icon: 'mdi:currency-usd' },
+            { value: 'maintenance', label: 'Maintenance', icon: 'mdi:tools' },
+            { value: 'documents', label: 'Documents', icon: 'mdi:file-document' },
           ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              icon={<Iconify icon={tab.icon} />}
+              iconPosition="start"
+            />
           ))}
         </Tabs>
 
-        {tabValue === 'description' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={description} />
-          </Box>
-        )}
+        <Box sx={{ p: 3, minHeight: 400 }}>
+          {tabValue === 'description' && (
+            <Box>
+              <Markdown children={description} />
+            </Box>
+          )}
 
-        {tabValue === 'expenses' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={expensesMarkdown} />
-          </Box>
-        )}
+          {tabValue === 'expenses' && (
+            <Box>
+              <Markdown children={expensesMarkdown} />
+            </Box>
+          )}
+        </Box>
       </Card>
     </DashboardContent>
   );

@@ -7,6 +7,7 @@ import { fDate } from 'src/utils/format-time';
 import { CONFIG } from 'src/config-global';
 
 import { pdfStyles } from './pdf-styles';
+import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from '../constants';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +30,7 @@ export default function IndentPdf({ subtrip }) {
     initialAdvanceDiesel,
     tripId: { driverId, vehicleId },
     intentFuelPump,
+    driverAdvanceGivenBy,
   } = subtrip;
 
   const styles = useStyles();
@@ -169,7 +171,11 @@ export default function IndentPdf({ subtrip }) {
           <Text style={[styles.horizontalCellContent]}>{initialAdvanceDiesel}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellContent]}>{expenses[0]?.amount}</Text>
+          <Text style={[styles.horizontalCellContent]}>
+            {driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
+              ? expenses[0]?.amount
+              : 0}
+          </Text>
         </View>
       </View>
     </>

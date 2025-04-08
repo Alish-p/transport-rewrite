@@ -8,18 +8,16 @@ import {
   Tab,
   Tabs,
   Alert,
-  Radio,
   Dialog,
   Button,
   Divider,
   MenuItem,
   FormLabel,
-  RadioGroup,
+  Typography,
   DialogTitle,
   DialogContent,
   DialogActions,
   InputAdornment,
-  FormControlLabel,
 } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -33,8 +31,11 @@ import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 
+// ----------------------------------------------------------------------
+// TabPanel Component
 // ----------------------------------------------------------------------
 
 function TabPanel({ children, value, index, ...other }) {
@@ -51,32 +52,53 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const validationSchema = zod.object({
-  consignee: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Consignee is required' }),
-  loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
-  startKm: zod.number(),
-  rate: zod.number().positive(),
-  invoiceNo: zod.string().optional(),
-  shipmentNo: zod.string().optional(),
-  orderNo: zod.string().optional(),
-  ewayBill: zod.string().optional(),
-  ewayExpiryDate: schemaHelper.date({
-    message: { required_error: 'Eway Expiry date is required!' },
-  }),
-  materialType: zod.string().optional(),
-  quantity: zod.number().optional(),
-  grade: zod.string().optional(),
-  tds: zod.number().optional(),
-  driverAdvance: zod.number().optional(),
-  initialAdvanceDiesel: zod.number().optional(),
-  pumpCd: zod.string().optional(),
-  routeCd: zod.string().min(1, { message: 'Route Code is required' }),
-  loadingPoint: zod.string().min(1, { message: 'Loading Point is required' }),
-  unloadingPoint: zod.string().min(1, { message: 'Unloading Point is required' }),
-});
+// ----------------------------------------------------------------------
+// Form Validation Schema and Default Values
+// ----------------------------------------------------------------------
+
+const validationSchema = zod
+  .object({
+    consignee: zod
+      .any()
+      .nullable()
+      .refine((val) => val !== null, { message: 'Consignee is required' }),
+    loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
+    startKm: zod.number(),
+    rate: zod.number().positive(),
+    invoiceNo: zod.string().optional(),
+    shipmentNo: zod.string().optional(),
+    orderNo: zod.string().optional(),
+    ewayBill: zod.string().optional(),
+    ewayExpiryDate: schemaHelper.date({
+      message: { required_error: 'Eway Expiry date is required!' },
+    }),
+    materialType: zod.string().optional(),
+    quantity: zod.number().optional(),
+    grade: zod.string().optional(),
+    tds: zod.number().optional(),
+    driverAdvance: zod.number().optional(),
+    driverAdvanceGivenBy: zod.string().optional(),
+    initialAdvanceDiesel: zod.number().optional(),
+    pumpCd: zod.string().optional(),
+    routeCd: zod.string().min(1, { message: 'Route Code is required' }),
+    loadingPoint: zod.string().min(1, { message: 'Loading Point is required' }),
+    unloadingPoint: zod.string().min(1, { message: 'Unloading Point is required' }),
+  })
+  .superRefine((data, ctx) => {
+    // Make pumpCd required if driverAdvanceGivenBy is "Fuel Pump" or initialAdvanceDiesel > 0
+    if (
+      (data.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
+        data.initialAdvanceDiesel > 0) &&
+      !data.pumpCd
+    ) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message:
+          'Pump selection is required when driver advance is given by pump or diesel advance is provided',
+        path: ['pumpCd'],
+      });
+    }
+  });
 
 const defaultValues = {
   consignee: null,
@@ -93,6 +115,7 @@ const defaultValues = {
   grade: '',
   tds: 0,
   driverAdvance: 0,
+  driverAdvanceGivenBy: DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF,
   initialAdvanceDiesel: 0,
   pumpCd: '',
   routeCd: '',
@@ -100,24 +123,30 @@ const defaultValues = {
   unloadingPoint: '',
 };
 
+// ----------------------------------------------------------------------
+// Main Component
+// ----------------------------------------------------------------------
+
 export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }) {
+  // State management
   const [tabValue, setTabValue] = useState(0);
   const [dieselEntryType, setDieselEntryType] = useState('custom');
   const [selectedRoute, setSelectedRoute] = useState(null);
   const routeDialog = useBoolean(false);
 
+  // Extract data from props
   const { tripId, customerId, _id } = subtrip;
+  const vehicleId = tripId?.vehicleId?._id;
+  const consignees = customerId?.consignees || [];
+  const fuelTankCapacity = tripId?.vehicleId?.fuelTankCapacity || 0;
 
+  // API hooks
   const updateMaterialInfo = useUpdateSubtripMaterialInfo();
+  const { data: pumps } = usePumps(showDialog);
+  const { data: routes } = useRoutes(customerId?._id, true);
+
+  // Form setup
   const methods = useForm({ resolver: zodResolver(validationSchema), defaultValues });
-
-  const { data: pumps, isLoading: pumpLoading, isError: pumpError } = usePumps(showDialog);
-  const {
-    data: routes,
-    isLoading: routesLoading,
-    isError: routesError,
-  } = useRoutes(customerId?._id, true);
-
   const {
     handleSubmit,
     reset,
@@ -126,15 +155,10 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     formState: { isSubmitting },
   } = methods;
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  // Watch form values
+  const { routeCd } = watch();
 
-  const vehicleId = tripId?.vehicleId?._id;
-  const consignees = customerId?.consignees || [];
-  const { routeCd, consignee } = watch();
-  const fuelTankCapacity = tripId?.vehicleId?.fuelTankCapacity || 0;
-
+  // Calculate advance amount based on route
   const { advanceAmt } = useMemo(
     () =>
       routeCd
@@ -146,20 +170,26 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     [routeCd, routes, tripId?.vehicleId?.vehicleType, tripId?.vehicleId?.noOfTyres]
   );
 
-  // Update initialAdvanceDiesel when dieselType changes
-  useEffect(() => {
-    if (dieselEntryType === 'full') {
-      setValue('initialAdvanceDiesel', fuelTankCapacity || 500); // Default value if fuelTankCapacity is not available
-    } else {
-      setValue('initialAdvanceDiesel', 0);
-    }
-  }, [dieselEntryType, fuelTankCapacity, setValue]);
+  // ----------------------------------------------------------------------
+  // Event Handlers
+  // ----------------------------------------------------------------------
+
+  const handleTabChange = (_, newValue) => {
+    setTabValue(newValue);
+  };
 
   const handleReset = useCallback(() => {
     reset(defaultValues);
     setTabValue(0);
     setSelectedRoute(null);
   }, [reset]);
+
+  const handleRouteChange = (route) => {
+    setSelectedRoute(route);
+    setValue('routeCd', route._id);
+    setValue('loadingPoint', route.fromPlace);
+    setValue('unloadingPoint', route.toPlace);
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -180,37 +210,37 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     }
   };
 
-  // Update loading and unloading points when route changes
-  useEffect(() => {
-    if (routeCd) {
-      const foundRoute = routes.find((route) => route._id === routeCd);
-      if (foundRoute) {
-        setValue('loadingPoint', foundRoute.fromPlace || '');
-        setValue('unloadingPoint', foundRoute.toPlace || '');
-      }
-    }
-  }, [routeCd, routes, setValue]);
+  // ----------------------------------------------------------------------
+  // Effects
+  // ----------------------------------------------------------------------
 
+  // Update initialAdvanceDiesel when dieselType changes
   useEffect(() => {
-    if (!showDialog) {
-      handleReset();
+    if (dieselEntryType === 'full') {
+      setValue('initialAdvanceDiesel', fuelTankCapacity || 500);
+    } else {
+      setValue('initialAdvanceDiesel', 0);
     }
-  }, [showDialog, handleReset]);
+  }, [dieselEntryType, fuelTankCapacity, setValue]);
 
-  const handleRouteChange = (route) => {
-    setSelectedRoute(route);
-    setValue('routeCd', route._id);
-    setValue('loadingPoint', route.fromPlace);
-    setValue('unloadingPoint', route.toPlace);
-  };
+  // ----------------------------------------------------------------------
+  // UI Rendering Functions
+  // ----------------------------------------------------------------------
 
   const renderRouteDetails = () => (
     <Box
       columnGap={2}
       rowGap={3}
       display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(4, 1fr)' }}
     >
+      <Field.AutocompleteFreeSolo
+        name="consignee"
+        label="Consignee"
+        options={consignees.map(({ name }) => ({ label: name, value: name }))}
+        required
+      />
+
       <Box>
         <Button
           fullWidth
@@ -231,8 +261,8 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           {selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : 'Select Route'}
         </Button>
       </Box>
-      <Field.Text name="loadingPoint" label="Loading Point" disabled />
-      <Field.Text name="unloadingPoint" label="Unloading Point" disabled />
+      <Field.Text name="loadingPoint" label="Loading Point" />
+      <Field.Text name="unloadingPoint" label="Unloading Point" helperText="Consignee's Address" />
     </Box>
   );
 
@@ -242,12 +272,6 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
       gap={3}
     >
-      <Field.AutocompleteWithAdd
-        name="consignee"
-        label="Consignee"
-        options={consignees.map(({ name }) => ({ label: name, value: name }))}
-        required
-      />
       <Field.Text
         name="loadingWeight"
         label="Loading Weight"
@@ -285,6 +309,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
       {/* Material Details */}
       <Field.Text name="materialType" label="Material Type" />
+      <Field.Text name="grade" label="Grade" />
       <Field.Text
         name="quantity"
         label="Quantity"
@@ -293,70 +318,119 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
         }}
       />
-      <Field.Text name="grade" label="Grade" />
     </Box>
   );
 
   const renderAdvanceDetails = () => (
     <>
-      <Box
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)' }}
-        gap={3}
-      >
-        <Field.Select name="pumpCd" label="Pump">
-          <MenuItem value="">None</MenuItem>
-          <Divider sx={{ borderStyle: 'dashed' }} />
-          {pumps?.map(({ _id: pumpId, pumpName }) => (
-            <MenuItem key={pumpId} value={pumpId}>
-              {pumpName}
-            </MenuItem>
-          ))}
-        </Field.Select>
-        <Field.Text
-          name="driverAdvance"
-          label="Driver Advance"
-          type="number"
-          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
-        />
-        <RadioGroup
-          row
-          value={dieselEntryType}
-          onChange={(e) => setDieselEntryType(e.target.value)}
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {/* Driver Advance Card */}
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            p: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+          }}
         >
-          <FormLabel component="legend">Please select the Diesel Entry type:</FormLabel>
-          <FormControlLabel value="custom" control={<Radio />} label="Manual Entry" />
-          <FormControlLabel value="full" control={<Radio />} label="Full Tank" />
-        </RadioGroup>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Iconify icon="mdi:cash-multiple" sx={{ mr: 1 }} />
+            <Typography variant="subtitle1" fontWeight="bold">
+              DRIVER ADVANCE
+            </Typography>
+          </Box>
 
-        <Field.Text
-          name="initialAdvanceDiesel"
-          label="Advance Diesel Quantity"
-          type="number"
-          InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
-          helperText={
-            dieselEntryType === 'full'
-              ? fuelTankCapacity
-                ? `Vehicle has ${fuelTankCapacity} Ltr fuel tank capacity.`
-                : `Vehicle has no tank capacity assigned so default value is ${500} Ltr.`
-              : 'Manual Entry'
-          }
-        />
+          <Box
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+            gap={3}
+          >
+            <Field.Text
+              name="driverAdvance"
+              label="Amount (INR)"
+              type="number"
+              InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+            />
+
+            <Box>
+              <FormLabel component="legend">Given By:</FormLabel>
+              <Field.RadioGroup
+                row
+                name="driverAdvanceGivenBy"
+                options={Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((option) => ({
+                  label: option,
+                  value: option,
+                }))}
+              />
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Diesel Intent Card */}
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            p: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Iconify icon="mdi:gas-station" sx={{ mr: 1 }} />
+            <Typography variant="subtitle1" fontWeight="bold">
+              DIESEL INTENT
+            </Typography>
+          </Box>
+
+          <Box
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+            gap={3}
+          >
+            <Field.Text
+              name="initialAdvanceDiesel"
+              label="Diesel (in Liters)"
+              type="number"
+              InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
+            />
+
+            <Field.Select
+              name="pumpCd"
+              label={`Station Selection ${watch('driverAdvanceGivenBy') === 'Fuel Pump' || watch('initialAdvanceDiesel') > 0 ? '(Required)' : '(Optional)'}`}
+              required={
+                watch('driverAdvanceGivenBy') === 'Fuel Pump' || watch('initialAdvanceDiesel') > 0
+              }
+            >
+              <MenuItem value="">Select Station</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              {pumps?.map(({ _id: pumpId, pumpName }) => (
+                <MenuItem key={pumpId} value={pumpId}>
+                  {pumpName}
+                </MenuItem>
+              ))}
+            </Field.Select>
+          </Box>
+        </Box>
       </Box>
+
       {advanceAmt && (
         <Alert severity="info" variant="outlined" sx={{ mt: 3 }}>
           {`For this route, the usual driver advance is "${advanceAmt} ₹".`}
         </Alert>
       )}
 
-      <Alert severity="warning" variant="outlined" sx={{ mt: 3 }}>
-        This Diesel Quantity will be used to generate the Diesel Intent Only.
-        <br />
-        Please Add the Diesel Expense after the vehicle is refueled.
-      </Alert>
+      {/* <Alert severity="info" variant="outlined" sx={{ mt: 3 }}>
+        This Diesel Quantity will be used to generate the Diesel Intent Only. Please Add the Diesel
+        Expense after the vehicle is refueled.
+      </Alert> */}
     </>
   );
+
+  // ----------------------------------------------------------------------
+  // Main Render
+  // ----------------------------------------------------------------------
 
   return (
     <Dialog
@@ -367,6 +441,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       PaperProps={{ sx: { maxWidth: 900 } }}
     >
       <DialogTitle>Material / Route Information</DialogTitle>
+
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Form methods={methods} onSubmit={onSubmit}>
@@ -390,6 +465,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           </Form>
         </Box>
       </DialogContent>
+
       <DialogActions>
         <Button onClick={handleReset} variant="outlined" disabled={isSubmitting}>
           Reset

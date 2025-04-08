@@ -2,17 +2,6 @@ import { z as zod } from 'zod';
 
 import { schemaHelper } from 'src/components/hook-form';
 
-// export const SUBTRIP_STATUS = {
-//   IN_QUEUE: 'in-queue',
-//   LOADED: 'loaded',
-//   RECEIVED: 'received',
-//   ERROR: 'error',
-//   CLOSED: 'closed',
-//   BILLED: 'billed',
-//   COMPLETED: 'completed',
-//   CANCELLED: 'cancelled',
-// };
-
 export const SUBTRIP_STATUS_COLORS = {
   'in-queue': 'warning',
   loaded: 'info',
@@ -35,6 +24,11 @@ export const SUBTRIP_STATUS = {
   BILLED_PENDING: 'billed-pending', // When the invoice is generated but pending payment
   BILLED_OVERDUE: 'billed-overdue', // When the invoice is overdue and not yet paid
   BILLED_PAID: 'billed-paid', // When the invoice is fully paid
+};
+
+export const DRIVER_ADVANCE_GIVEN_BY_OPTIONS = {
+  SELF: 'Self',
+  FUEL_PUMP: 'Fuel Pump',
 };
 
 // Schema for In-queue status (only in-queue fields are required)
