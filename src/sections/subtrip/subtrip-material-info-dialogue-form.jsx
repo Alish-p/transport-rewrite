@@ -10,8 +10,6 @@ import {
   Alert,
   Dialog,
   Button,
-  Divider,
-  MenuItem,
   FormLabel,
   Typography,
   DialogTitle,
@@ -32,6 +30,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
+import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 
 // ----------------------------------------------------------------------
@@ -131,8 +130,12 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   // State management
   const [tabValue, setTabValue] = useState(0);
   const [dieselEntryType, setDieselEntryType] = useState('custom');
+
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(null);
+
   const routeDialog = useBoolean(false);
+  const pumpDialog = useBoolean(false);
 
   // Extract data from props
   const { tripId, customerId, _id } = subtrip;
@@ -182,6 +185,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     reset(defaultValues);
     setTabValue(0);
     setSelectedRoute(null);
+    setSelectedPump(null);
   }, [reset]);
 
   const handleRouteChange = (route) => {
@@ -189,6 +193,11 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     setValue('routeCd', route._id);
     setValue('loadingPoint', route.fromPlace);
     setValue('unloadingPoint', route.toPlace);
+  };
+
+  const handlePumpChange = (pump) => {
+    setSelectedPump(pump);
+    setValue('pumpCd', pump._id);
   };
 
   const onSubmit = async (data) => {
@@ -396,21 +405,26 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
               InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
             />
 
-            <Field.Select
-              name="pumpCd"
-              label={`Station Selection ${watch('driverAdvanceGivenBy') === 'Fuel Pump' || watch('initialAdvanceDiesel') > 0 ? '(Required)' : '(Optional)'}`}
-              required={
-                watch('driverAdvanceGivenBy') === 'Fuel Pump' || watch('initialAdvanceDiesel') > 0
-              }
-            >
-              <MenuItem value="">Select Station</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {pumps?.map(({ _id: pumpId, pumpName }) => (
-                <MenuItem key={pumpId} value={pumpId}>
-                  {pumpName}
-                </MenuItem>
-              ))}
-            </Field.Select>
+            <Box>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={pumpDialog.onTrue}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                }}
+                startIcon={
+                  <Iconify
+                    icon={selectedPump ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
+                    sx={{ color: selectedPump ? 'primary.main' : 'text.disabled' }}
+                  />
+                }
+              >
+                {selectedPump ? selectedPump.pumpName : 'Select Pump *'}
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -481,6 +495,13 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         selectedRoute={selectedRoute}
         onRouteChange={handleRouteChange}
         customerId={customerId?._id}
+      />
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={selectedPump}
+        onPumpChange={handlePumpChange}
       />
     </Dialog>
   );

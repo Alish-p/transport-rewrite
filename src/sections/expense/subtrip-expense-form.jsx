@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Box, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
@@ -9,12 +9,17 @@ import { Box, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/mate
 // Assuming you have a pump slice
 import { paths } from 'src/routes/paths';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { EXPENSE_TYPES } from 'src/constant';
+import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
+import { useCreateExpense, useUpdateExpense } from 'src/query/use-expense';
+
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { EXPENSE_TYPES } from '../../constant'; // Or your config file path
 import ExpenseInsights from './expense-insights';
-import { useDieselPriceOnDate } from '../../query/use-diesel-prices';
-import { useCreateExpense, useUpdateExpense } from '../../query/use-expense';
+import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 
 // Validation Schema (Combine and adapt schemas from both forms)
 const validationSchema = zod
@@ -76,6 +81,8 @@ const validationSchema = zod
 
 function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = false, onSuccess }) {
   const navigate = useNavigate();
+  const [selectedPump, setSelectedPump] = useState(currentExpense?.pumpCd || null);
+  const pumpDialog = useBoolean(false);
 
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
@@ -165,6 +172,11 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
     }
   }, [setValue, dieselPriceOnDate, currentExpense]);
 
+  const handlePumpChange = (pump) => {
+    setSelectedPump(pump);
+    setValue('pumpCd', { label: pump.pumpName, value: pump._id });
+  };
+
   // Handlers for submit and cancel
   const onSubmit = async (data) => {
     const transformedData = {
@@ -218,16 +230,26 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
 
           {expenseType === 'diesel' && (
             <>
-              <Field.Autocomplete
-                name="pumpCd"
-                label="Pump"
-                options={pumps.map((p) => ({
-                  label: `${p.pumpName}`,
-                  value: p._id,
-                }))}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
+              <Box>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={pumpDialog.onTrue}
+                  sx={{
+                    height: 56,
+                    justifyContent: 'flex-start',
+                    typography: 'body2',
+                  }}
+                  startIcon={
+                    <Iconify
+                      icon={selectedPump ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
+                      sx={{ color: selectedPump ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {selectedPump ? selectedPump.pumpName : 'Select Pump *'}
+                </Button>
+              </Box>
               <Field.Text
                 name="dieselLtr"
                 label="Diesel Liters"
@@ -295,6 +317,13 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
           </Button>
         </Stack>
       </Form>
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={selectedPump}
+        onPumpChange={handlePumpChange}
+      />
     </>
   );
 }
