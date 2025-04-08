@@ -155,7 +155,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
     reset,
     watch,
     setValue,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   // Watch form values
@@ -414,6 +414,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
                   height: 56,
                   justifyContent: 'flex-start',
                   typography: 'body2',
+                  borderColor: errors.pumpCd?.message ? 'error.main' : 'text.disabled',
                 }}
                 startIcon={
                   <Iconify

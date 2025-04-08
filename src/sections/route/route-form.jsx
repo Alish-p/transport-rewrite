@@ -86,7 +86,7 @@ export default function RouteForm({ currentRoute, customers }) {
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
     watch,
     setValue,
   } = methods;
@@ -151,14 +151,15 @@ export default function RouteForm({ currentRoute, customers }) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="routeName" label="Route Name" />
+          <Field.Text name="routeName" label="Route Name" required />
 
-          <Field.Text name="fromPlace" label="From Place" />
-          <Field.Text name="toPlace" label="To Place" />
+          <Field.Text name="fromPlace" label="From Place" required />
+          <Field.Text name="toPlace" label="To Place" required />
           <Field.Text
             name="noOfDays"
             label="Number of Days"
             type="number"
+            required
             InputProps={{
               endAdornment: <InputAdornment position="end">Days</InputAdornment>,
             }}
@@ -168,6 +169,7 @@ export default function RouteForm({ currentRoute, customers }) {
             name="distance"
             label="Distance"
             type="number"
+            required
             InputProps={{
               endAdornment: <InputAdornment position="end">KM</InputAdornment>,
             }}
@@ -221,6 +223,7 @@ export default function RouteForm({ currentRoute, customers }) {
                   height: 56,
                   justifyContent: 'flex-start',
                   typography: 'body2',
+                  borderColor: errors.customer?.message ? 'error.main' : 'text.disabled',
                 }}
                 startIcon={
                   <Iconify
@@ -229,7 +232,7 @@ export default function RouteForm({ currentRoute, customers }) {
                   />
                 }
               >
-                {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+                {selectedCustomer ? selectedCustomer.customerName : 'Select Customer *'}
               </Button>
             </Box>
           )}

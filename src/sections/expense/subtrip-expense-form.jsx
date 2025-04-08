@@ -239,6 +239,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
                     height: 56,
                     justifyContent: 'flex-start',
                     typography: 'body2',
+                    borderColor: errors.pumpCd?.message ? 'error.main' : 'text.disabled',
                   }}
                   startIcon={
                     <Iconify

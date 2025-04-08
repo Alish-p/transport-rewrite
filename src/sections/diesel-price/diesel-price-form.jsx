@@ -66,7 +66,7 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
     watch,
     handleSubmit,
     setValue,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const handlePumpChange = (pump) => {
@@ -127,6 +127,7 @@ export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
                     height: 56,
                     justifyContent: 'flex-start',
                     typography: 'body2',
+                    borderColor: errors.pump?.message ? 'error.main' : 'text.disabled',
                   }}
                   startIcon={
                     <Iconify
