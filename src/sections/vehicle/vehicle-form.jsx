@@ -42,33 +42,26 @@ export const NewVehicleSchema = zod
   .object({
     vehicleNo: zod
       .string()
-      .regex(/^[A-Z]{2}[0-9]{2}[A-HJ-NP-Z]{1,2}[0-9]{4}$|^[0-9]{2}BH[0-9]{4}[A-HJ-NP-Z]{1,2}$/, {
-        message: 'Invalid Vehicle No format, Example KA01AB0001',
-      })
-      .min(1, { message: 'Vehicle No is required' }),
-    images: zod.any().nullable(),
+      .min(1, { message: 'Vehicle No is required' })
+      .regex(/^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4}$/, {
+        message: 'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
+      }),
     vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
     modelType: zod.string().min(1, { message: 'Model Type is required' }),
     vehicleCompany: zod.string().min(1, { message: 'Vehicle Company is required' }),
-    noOfTyres: zod.number().min(1, { message: 'No Of Tyres is required and must be at least 1' }),
+    noOfTyres: zod
+      .number()
+      .min(3, { message: 'No Of Tyres must be at least 3' })
+      .max(30, { message: 'No Of Tyres cannot exceed 30' }),
     chasisNo: zod.string().optional(),
     engineNo: zod.string().optional(),
-    manufacturingYear: zod
-      .number()
-      .min(1900, { message: 'Manufacturing Year must be at least 1900' })
-      .refine((val) => val <= new Date().getFullYear(), {
-        message: 'Manufacturing Year cannot be in the future',
-      }),
-    loadingCapacity: zod
-      .number()
-      .min(1, { message: 'Loading Capacity is required and must be at least 1' }),
+    manufacturingYear: zod.number().min(1900, { message: 'Manufacturing Year is required' }),
+    loadingCapacity: zod.number().min(1, { message: 'Loading Capacity is required' }),
     engineType: zod.string().min(1, { message: 'Engine Type is required' }),
-    fuelTankCapacity: zod
-      .number()
-      .min(1, { message: 'Fuel Tank Capacity is required and must be at least 1' }),
+    fuelTankCapacity: zod.number().min(1, { message: 'Fuel Tank Capacity is required' }),
+    isActive: zod.boolean().default(true),
+    isOwn: zod.boolean().default(true),
     transporter: zod.string().optional(),
-    isActive: zod.boolean().optional(),
-    isOwn: zod.boolean(),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -254,8 +247,8 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <Field.Text name="vehicleNo" label="Vehicle No" />
-              <Field.Select name="vehicleType" label="Vehicle Type">
+              <Field.Text name="vehicleNo" label="Vehicle No" required />
+              <Field.Select name="vehicleType" label="Vehicle Type" required>
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleTypes.map(({ key, value }) => (
@@ -265,7 +258,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                 ))}
               </Field.Select>
 
-              <Field.Select name="modelType" label="Model Type">
+              <Field.Select name="modelType" label="Model Type" required>
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {modelType.map(({ key, value }) => (
@@ -274,7 +267,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Select name="vehicleCompany" label="Vehicle Company">
+              <Field.Select name="vehicleCompany" label="Vehicle Company" required>
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleCompany.map(({ key, value }) => (
@@ -283,23 +276,30 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Text name="noOfTyres" label="No Of Tyres" type="number" />
+              <Field.Text name="noOfTyres" label="No Of Tyres" type="number" required />
               <Field.Text name="chasisNo" label="Chasis No" />
               <Field.Text name="engineNo" label="Engine No" />
-              <Field.Text name="manufacturingYear" label="Manufacturing Year" type="number" />
+              <Field.Text
+                name="manufacturingYear"
+                label="Manufacturing Year"
+                type="number"
+                required
+              />
               <Field.Text
                 name="loadingCapacity"
                 label="Loading Capacity"
                 type="number"
+                required
                 InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
               />
               <Field.Text
                 name="fuelTankCapacity"
                 label="Fuel Tank Capacity"
                 type="number"
+                required
                 InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
               />
-              <Field.Select name="engineType" label="Engine Type">
+              <Field.Select name="engineType" label="Engine Type" required>
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {engineType.map(({ key, value }) => (
