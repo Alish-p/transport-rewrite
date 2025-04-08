@@ -73,7 +73,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     reset,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   useEffect(() => {
@@ -138,9 +138,6 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
               {/* Vehicle Selection */}
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Vehicle
-                </Typography>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -149,6 +146,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                     height: 56,
                     justifyContent: 'flex-start',
                     typography: 'body2',
+                    borderColor: errors.vehicleId?.message ? 'error.main' : 'text.disabled',
                   }}
                   startIcon={
                     <Iconify
@@ -157,15 +155,12 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                     />
                   }
                 >
-                  {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle'}
+                  {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle *'}
                 </Button>
               </Box>
 
               {/* Driver Selection */}
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Driver
-                </Typography>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -174,6 +169,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                     height: 56,
                     justifyContent: 'flex-start',
                     typography: 'body2',
+                    borderColor: errors.driverId?.message ? 'error.main' : 'text.disabled',
                   }}
                   startIcon={
                     <Iconify
@@ -182,11 +178,11 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                     />
                   }
                 >
-                  {selectedDriver ? selectedDriver.driverName : 'Select Driver'}
+                  {selectedDriver ? selectedDriver.driverName : 'Select Driver *'}
                 </Button>
               </Box>
 
-              <Field.DatePicker name="fromDate" label="From Date" />
+              <Field.DatePicker name="fromDate" label="From Date *" />
               <Field.Text name="remarks" label="Remarks" />
             </Box>
           </Card>

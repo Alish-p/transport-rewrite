@@ -224,6 +224,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                     height: 56,
                     justifyContent: 'flex-start',
                     typography: 'body2',
+                    borderColor: errors.tripId?.message ? 'error.main' : 'text.disabled',
                   }}
                   startIcon={
                     <Iconify
@@ -234,7 +235,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                 >
                   {selectedTrip
                     ? `${selectedTrip.vehicleId?.vehicleNo} - ${selectedTrip.driverId?.driverName}`
-                    : 'Select Trip'}
+                    : 'Select Trip *'}
                 </Button>
               </Box>
 
@@ -248,6 +249,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                       height: 56,
                       justifyContent: 'flex-start',
                       typography: 'body2',
+                      borderColor: errors.customerId?.message ? 'error.main' : 'text.disabled',
                     }}
                     startIcon={
                       <Iconify
@@ -258,7 +260,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                       />
                     }
                   >
-                    {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
+                    {selectedCustomer ? selectedCustomer.customerName : 'Select Customer *'}
                   </Button>
                 </Box>
               )}
@@ -274,6 +276,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                         height: 56,
                         justifyContent: 'flex-start',
                         typography: 'body2',
+                        borderColor: errors.routeCd?.message ? 'error.main' : 'text.disabled',
                       }}
                       startIcon={
                         <Iconify
@@ -284,7 +287,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                     >
                       {selectedRoute
                         ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
-                        : 'Select Route'}
+                        : 'Select Route *'}
                     </Button>
                   </Box>
 
@@ -296,8 +299,9 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                       endAdornment: <InputAdornment position="end">km</InputAdornment>,
                     }}
                     helperText="Please Enter the reading of the odometer at the start of the trip"
+                    required
                   />
-                  <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+                  <Field.DatePicker name="startDate" label="Subtrip Start Date *" />
                 </>
               ) : (
                 <>
@@ -306,7 +310,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
                     label="DI/DO No"
                     helperText="Please Enter DI/DO Number to Generate Entry Pass"
                   />
-                  <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+                  <Field.DatePicker name="startDate" label="Subtrip Start Date *" />
                 </>
               )}
             </Box>
