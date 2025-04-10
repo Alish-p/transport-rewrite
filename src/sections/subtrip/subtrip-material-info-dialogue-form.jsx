@@ -10,8 +10,10 @@ import {
   Alert,
   Dialog,
   Button,
+  Tooltip,
   FormLabel,
   Typography,
+  IconButton,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -27,6 +29,7 @@ import { useRoutes } from 'src/query/use-route';
 import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
+import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
@@ -136,6 +139,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   const routeDialog = useBoolean(false);
   const pumpDialog = useBoolean(false);
+  const scannerDialog = useBoolean(false);
 
   // Extract data from props
   const { tripId, customerId, _id } = subtrip;
@@ -198,6 +202,24 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
   const handlePumpChange = (pump) => {
     setSelectedPump(pump);
     setValue('pumpCd', pump._id);
+  };
+
+  const handleScanComplete = (invoiceData) => {
+    // Populate form fields with scanned data
+    if (invoiceData.invoiceNo) setValue('invoiceNo', invoiceData.invoiceNo);
+    if (invoiceData.orderNo) setValue('orderNo', invoiceData.orderNo);
+    if (invoiceData.shipmentNo) setValue('shipmentNo', invoiceData.shipmentNo);
+    if (invoiceData.consignee) {
+      // Find matching consignee from the list
+      const matchingConsignee = consignees.find((c) =>
+        c.name.toLowerCase().includes(invoiceData.consignee.toLowerCase())
+      );
+      if (matchingConsignee) {
+        setValue('consignee', { label: matchingConsignee.name, value: matchingConsignee.name });
+      }
+    }
+    if (invoiceData.loadingWeight) setValue('loadingWeight', invoiceData.loadingWeight);
+    if (invoiceData.rate) setValue('rate', invoiceData.rate);
   };
 
   const onSubmit = async (data) => {
@@ -312,7 +334,23 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" required />
 
       {/* Consignment No details */}
-      <Field.Text name="invoiceNo" label="Invoice No" />
+      <Box sx={{ position: 'relative' }}>
+        <Field.Text name="invoiceNo" label="Invoice No" />
+        <Tooltip title="Scan Invoice">
+          <IconButton
+            size="small"
+            onClick={scannerDialog.onTrue}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: 'primary.main',
+            }}
+          >
+            <Iconify icon="mdi:camera" />
+          </IconButton>
+        </Tooltip>
+      </Box>
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
 
@@ -503,6 +541,12 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         onClose={pumpDialog.onFalse}
         selectedPump={selectedPump}
         onPumpChange={handlePumpChange}
+      />
+
+      <InvoiceScanner
+        open={scannerDialog.value}
+        onClose={scannerDialog.onFalse}
+        onScanComplete={handleScanComplete}
       />
     </Dialog>
   );

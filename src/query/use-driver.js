@@ -55,7 +55,14 @@ export function useCreateDriver() {
   const { mutate } = useMutation({
     mutationFn: createDriver,
     onSuccess: (newDriver) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY], (oldData) => {
+        if (!oldData) return [newDriver];
+
+        return [...oldData, newDriver];
+      });
+
+      queryClient.setQueryData([QUERY_KEY, newDriver._id], newDriver);
+
       toast.success('Driver added successfully!');
     },
     onError: (error) => {
@@ -71,8 +78,14 @@ export function useUpdateDriver() {
   const { mutate } = useMutation({
     mutationFn: ({ id, data }) => updateDriver(id, data),
     onSuccess: (updatedDriver) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY], (oldData) => {
+        if (!oldData) return [updatedDriver];
+
+        return oldData.map((driver) => (driver._id === updatedDriver._id ? updatedDriver : driver));
+      });
+
       queryClient.setQueryData([QUERY_KEY, updatedDriver._id], updatedDriver);
+
       toast.success('Driver edited successfully!');
     },
     onError: (error) => {
@@ -89,7 +102,14 @@ export function useDeleteDriver() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDriver(id),
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY], (oldData) => {
+        if (!oldData) return [];
+
+        return oldData.filter((driver) => driver._id !== id);
+      });
+
+      queryClient.removeQueries([QUERY_KEY, id]);
+
       toast.success('Driver deleted successfully!');
     },
     onError: (error) => {

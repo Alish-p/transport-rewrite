@@ -83,7 +83,7 @@ const NewTripSchema = zod
     }
   );
 
-export default function SubtripCreateForm({ currentTrip, trips, customers }) {
+export default function SubtripCreateForm({ currentTrip, trips, customers, onSuccess }) {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('loaded');
   const [selectedRoute, setSelectedRoute] = useState(null);
@@ -170,7 +170,13 @@ export default function SubtripCreateForm({ currentTrip, trips, customers }) {
         currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);
 
       reset();
-      navigate(paths.dashboard.subtrip.details(paramCase(createdSubtrip._id)));
+
+      // If onSuccess callback is provided, call it instead of navigating
+      if (onSuccess) {
+        onSuccess(createdSubtrip);
+      } else {
+        navigate(paths.dashboard.subtrip.details(paramCase(createdSubtrip._id)));
+      }
     } catch (error) {
       console.error(error);
     }

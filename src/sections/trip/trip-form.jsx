@@ -5,7 +5,19 @@ import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Alert, Stack, Button, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Alert,
+  Stack,
+  Button,
+  Dialog,
+  Typography,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -17,6 +29,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useBoolean } from '../../hooks/use-boolean';
+import SubtripCreateForm from '../subtrip/subtrip-create-form';
 import { useCreateTrip, useUpdateTrip } from '../../query/use-trip';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
@@ -34,7 +47,7 @@ const NewTripSchema = zod.object({
   remarks: zod.string().optional(),
 });
 
-export default function TripForm({ currentTrip, drivers, vehicles }) {
+export default function TripForm({ currentTrip, drivers, vehicles, trips, customers }) {
   const navigate = useNavigate();
 
   const createTrip = useCreateTrip();
@@ -42,6 +55,8 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
 
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
+  const subtripDialog = useBoolean(false);
+  const [createdTripId, setCreatedTripId] = useState(null);
 
   const defaultValues = useMemo(
     () => ({
@@ -110,13 +125,25 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
           driverId: data?.driverId?.value,
           vehicleId: data?.vehicleId?.value,
         });
-        navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
+
+        // Store the created trip ID and open the subtrip dialog
+        setCreatedTripId(createdTrip._id);
+        subtripDialog.onTrue();
+
+        // Don't navigate away, let the user create a subtrip first
+        // navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();
     } catch (error) {
       console.error(error);
       toast.error('An error occurred. Please try again.', { variant: 'error' });
     }
+  };
+
+  const handleSubtripCreated = () => {
+    // Close the dialog and navigate to the trip details
+    subtripDialog.onFalse();
+    navigate(paths.dashboard.trip.details(paramCase(createdTripId)));
   };
 
   return (
@@ -240,6 +267,28 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
         selectedDriver={selectedDriver}
         onDriverChange={handleDriverChange}
       />
+
+      {/* Subtrip Creation Dialog */}
+      <Dialog open={subtripDialog.value} onClose={subtripDialog.onFalse} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6">Create Subtrip for New Trip</Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <SubtripCreateForm
+              currentTrip={createdTripId}
+              trips={trips}
+              customers={customers}
+              onSuccess={handleSubtripCreated}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={subtripDialog.onFalse} color="inherit">
+            Skip for now
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Form>
   );
 }
