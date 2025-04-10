@@ -43,7 +43,11 @@ export function ExpenseEditView({ expense, vehicles, pumps }) {
           {isVehicleExpense ? (
             <VehicleExpenseForm currentExpense={expense} vehicles={vehicles} />
           ) : (
-            <SubtripExpenseForm currentExpense={expense} pumps={pumps} />
+            <SubtripExpenseForm
+              currentExpense={expense}
+              fromDialog
+              currentSubtrip={expense?.subtripId}
+            />
           )}
         </CardContent>
       </Card>

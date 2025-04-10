@@ -1,6 +1,4 @@
-import { useState } from 'react';
-
-import { Card, Typography } from '@mui/material';
+import { Card } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -8,19 +6,9 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import SubtripsSelector from '../subtrips-selector';
 import ExpenseCoreForm from '../subtrip-expense-form';
 
-export function SubtripExpenseCreateView({ subtrips, pumps }) {
-  const [currentSubtrip, setCurrentSubtrip] = useState({
-    _id: '',
-    routeCd: { routeName: 'None' },
-    loadingPoint: '',
-    unloadingPoint: '',
-  });
-
-  console.log({ currentSubtrip });
-
+export function SubtripExpenseCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -33,21 +21,8 @@ export function SubtripExpenseCreateView({ subtrips, pumps }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <SubtripsSelector
-        subtrips={subtrips}
-        currentSubtrip={currentSubtrip}
-        onChangeSubtrip={(subtrip) => {
-          setCurrentSubtrip(subtrip);
-        }}
-      />
       <Card sx={{ p: 3, mb: 5 }}>
-        {currentSubtrip?._id ? (
-          <ExpenseCoreForm currentSubtrip={currentSubtrip} pumps={pumps} />
-        ) : (
-          <Typography variant="h6" sx={{ color: 'text.primary' }}>
-            Please Select Subtrip to Add Expense
-          </Typography>
-        )}
+        <ExpenseCoreForm />
       </Card>
     </DashboardContent>
   );

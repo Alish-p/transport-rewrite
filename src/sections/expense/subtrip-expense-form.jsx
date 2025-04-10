@@ -20,6 +20,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import ExpenseInsights from './expense-insights';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
+import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
 // Validation Schema (Combine and adapt schemas from both forms)
 const validationSchema = zod
@@ -79,10 +80,12 @@ const validationSchema = zod
     }
   });
 
-function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = false, onSuccess }) {
+function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, onSuccess }) {
   const navigate = useNavigate();
   const [selectedPump, setSelectedPump] = useState(currentExpense?.pumpCd || null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState(currentSubtrip || null);
   const pumpDialog = useBoolean(false);
+  const subtripDialog = useBoolean(false);
 
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
@@ -177,14 +180,20 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
     setValue('pumpCd', { label: pump.pumpName, value: pump._id });
   };
 
+  const handleSubtripChange = (subtrip) => {
+    setSelectedSubtrip(subtrip);
+  };
+
   // Handlers for submit and cancel
   const onSubmit = async (data) => {
     const transformedData = {
       ...data,
       expenseCategory: 'subtrip',
       pumpCd: data.pumpCd?.value || null,
-      subtripId: currentExpense ? currentExpense.subtripId : currentSubtrip?._id,
-      vehicleId: currentExpense ? currentExpense.vehicleId : currentSubtrip?.tripId?.vehicleId?._id,
+      subtripId: currentExpense ? currentExpense.subtripId : selectedSubtrip?._id,
+      vehicleId: currentExpense
+        ? currentExpense.vehicleId
+        : selectedSubtrip?.tripId?.vehicleId?._id,
     };
 
     let newExpense;
@@ -196,17 +205,19 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
     }
 
     if (fromDialog) {
-      navigate(paths.dashboard.subtrip.details(currentSubtrip._id));
+      navigate(paths.dashboard.subtrip.details(selectedSubtrip._id));
       onSuccess?.(); // Call onSuccess callback if provided
     } else {
       // Reset form values when not using dialog
       reset(defaultValues);
+      setSelectedPump(null);
+      setSelectedSubtrip(null);
     }
   };
 
   return (
     <>
-      <ExpenseInsights subtrip={currentSubtrip} expenseType={expenseType} />
+      <ExpenseInsights subtrip={selectedSubtrip} expenseType={expenseType} />
 
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Box
@@ -216,6 +227,32 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
           columnGap={2}
           sx={{ mt: 1 }}
         >
+          {/* Subtrip Selection Button */}
+          <Box>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={subtripDialog.onTrue}
+              disabled={fromDialog}
+              sx={{
+                height: 56,
+                justifyContent: 'flex-start',
+                typography: 'body2',
+                borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
+              }}
+              startIcon={
+                <Iconify
+                  icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
+                  sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
+                />
+              }
+            >
+              {selectedSubtrip
+                ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
+                : 'Select Subtrip *'}
+            </Button>
+          </Box>
+
           <Field.DatePicker name="date" label="Date" />
 
           <Field.Select name="expenseType" label="Expense Type">
@@ -324,6 +361,13 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, pumps, fromDialog = f
         onClose={pumpDialog.onFalse}
         selectedPump={selectedPump}
         onPumpChange={handlePumpChange}
+      />
+
+      <KanbanSubtripDialog
+        open={subtripDialog.value}
+        onClose={subtripDialog.onFalse}
+        selectedSubtrip={selectedSubtrip}
+        onSubtripChange={handleSubtripChange}
       />
     </>
   );

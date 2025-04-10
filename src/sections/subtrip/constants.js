@@ -5,14 +5,12 @@ import { schemaHelper } from 'src/components/hook-form';
 export const SUBTRIP_STATUS_COLORS = {
   'in-queue': 'warning',
   loaded: 'info',
-  received: 'info',
+  received: 'primary',
   error: 'error',
   closed: 'secondary',
   'billed-pending': 'warning',
   'billed-overdue': 'error',
   'billed-paid': 'success',
-  completed: 'success',
-  cancelled: 'error',
 };
 
 export const SUBTRIP_STATUS = {
