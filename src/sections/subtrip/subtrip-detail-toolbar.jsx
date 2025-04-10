@@ -84,8 +84,6 @@ const ActionButton = ({ label, icon, onClick, disabled, startIcon, endIcon }) =>
 // ----------------------------------------------------------------------
 
 export default function SubtripToolbar({
-  backLink,
-  tripId,
   status,
   subtrip,
   onAddMaterialInfo,
@@ -282,7 +280,6 @@ export default function SubtripToolbar({
                 viewPopover.onClose();
                 viewEntryPass.onTrue();
               }}
-              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
             >
               <Iconify icon="mdi:file-document-outline" />
               Entry Pass
@@ -345,7 +342,6 @@ export default function SubtripToolbar({
               fileName={`${subtrip._id}_entry_pass`}
               label="Entry Pass"
               onClose={downloadPopover.onClose}
-              disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
             />
           )}
 
