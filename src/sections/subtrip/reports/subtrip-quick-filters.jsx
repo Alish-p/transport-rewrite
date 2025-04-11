@@ -16,7 +16,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 
-export default function SubtripQuickFilters({ onFilters, selectedFilter }) {
+export default function SubtripQuickFilters({ onFilters }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [selected, setSelected] = useState(null);

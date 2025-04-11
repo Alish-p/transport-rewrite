@@ -18,14 +18,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripTableFiltersResult({
-  filters,
-  onFilters,
-  onResetFilters,
-  onClearQuickFilter,
-  results,
-  ...other
-}) {
+export default function SubtripTableFiltersResult({ filters, onFilters, onResetFilters }) {
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
@@ -66,16 +59,8 @@ export default function SubtripTableFiltersResult({
     onFilters('subtripEndEndDate', null);
   };
 
-  const handleRemoveStatus = () => {
-    onFilters('status', []);
-  };
-
   const handleClearAll = () => {
     onResetFilters();
-    // Also clear any selected quick filter
-    if (onClearQuickFilter) {
-      onClearQuickFilter();
-    }
   };
 
   const getCustomerName = (id) => {
@@ -109,7 +94,7 @@ export default function SubtripTableFiltersResult({
   );
 
   return (
-    <Stack spacing={1.5} {...other}>
+    <Stack spacing={1.5} sx={{ p: 2, pt: 0 }}>
       <Box sx={{ width: '100%' }}>
         <Scrollbar>
           <Stack
