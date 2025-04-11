@@ -28,6 +28,10 @@ export default function DriverTableFiltersResult({
     onFilters('vehicleNo', '');
   };
 
+  const handleRemoveIsOwn = () => {
+    onFilters('isOwn', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -38,7 +42,7 @@ export default function DriverTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.vehicleType !== 'all' && (
+        {filters.vehicleType && filters.vehicleType !== 'all' && (
           <Block label="Vehicle Type :">
             <Chip size="small" label={filters.vehicleType} onDelete={handleRemoveVehicleType} />
           </Block>
@@ -53,6 +57,16 @@ export default function DriverTableFiltersResult({
         {filters.vehicleNo && (
           <Block label="Vehicle No:">
             <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+          </Block>
+        )}
+
+        {filters.isOwn && filters.isOwn !== 'all' && (
+          <Block label="Vehicle Ownership:">
+            <Chip
+              size="small"
+              label={filters.isOwn === 'market' ? 'Market Vehicles' : 'Own Vehicles'}
+              onDelete={handleRemoveIsOwn}
+            />
           </Block>
         )}
 

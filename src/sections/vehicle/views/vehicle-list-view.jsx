@@ -75,6 +75,7 @@ const defaultFilters = {
   vehicleNo: '',
   transporter: '',
   vehicleTypes: [],
+  isOwn: 'all',
 };
 
 // ----------------------------------------------------------------------
@@ -132,7 +133,11 @@ export function VehicleListView({ vehicles }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.vehicleNo || !!filters.transporter || filters.vehicleTypes.length > 0;
+  const canReset =
+    !!filters.vehicleNo ||
+    !!filters.transporter ||
+    filters.vehicleTypes.length > 0 ||
+    filters.isOwn !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -529,7 +534,7 @@ export function VehicleListView({ vehicles }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { vehicleNo, transporter, vehicleTypes } = filters;
+  const { vehicleNo, transporter, vehicleTypes, isOwn } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -556,6 +561,19 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (vehicleTypes && vehicleTypes.length > 0) {
     inputData = inputData.filter((record) => vehicleTypes.includes(record.vehicleType));
+  }
+
+  // Filter by isOwn property (market/old vehicles)
+  if (isOwn !== 'all') {
+    inputData = inputData.filter((record) => {
+      if (isOwn === 'market') {
+        return record.isOwn === false; // Market vehicles
+      }
+      if (isOwn === 'old') {
+        return record.isOwn === true; // Old vehicles
+      }
+      return true;
+    });
   }
 
   return inputData;

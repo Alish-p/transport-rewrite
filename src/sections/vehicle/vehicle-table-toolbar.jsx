@@ -59,6 +59,13 @@ export default function VehicleTableToolbar({
     [onFilters]
   );
 
+  const handleFilterIsOwn = useCallback(
+    (event) => {
+      onFilters('isOwn', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -133,6 +140,21 @@ export default function VehicleTableToolbar({
                 {transporter.transportName}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
+          <InputLabel id="is-own-select-label">Vehicle Ownership</InputLabel>
+          <Select
+            value={filters.isOwn || 'all'}
+            onChange={handleFilterIsOwn}
+            input={<OutlinedInput label="Vehicle Ownership" />}
+            labelId="is-own-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="all">All Vehicles</MenuItem>
+            <MenuItem value="market">Market Vehicles</MenuItem>
+            <MenuItem value="old">Own Vehicles</MenuItem>
           </Select>
         </FormControl>
 
