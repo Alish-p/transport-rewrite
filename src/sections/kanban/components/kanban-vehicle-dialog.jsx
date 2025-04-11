@@ -28,6 +28,9 @@ import { SearchNotFound } from 'src/components/search-not-found';
 // Import vehicle configuration
 import { vehicleTypes } from 'src/sections/vehicle/vehicle-config';
 
+// Import transporter dialog
+import { KanbanTransporterDialog } from './kanban-transporter-dialog';
+
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 74;
@@ -154,6 +157,13 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
   });
 
   const values = methods.watch();
+  const [transporterDialogOpen, setTransporterDialogOpen] = useState(false);
+  const [selectedTransporter, setSelectedTransporter] = useState(null);
+
+  const handleTransporterSelect = (transporter) => {
+    setSelectedTransporter(transporter);
+    methods.setValue('transporter', transporter._id);
+  };
 
   return (
     <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
@@ -190,7 +200,7 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
           labelPlacement="start"
           label={
             <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              Market Vehicle ?
+              Company Vehicle ?
             </Typography>
           }
           sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between', mb: 2 }}
@@ -201,7 +211,7 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => {}}
+              onClick={() => setTransporterDialogOpen(true)}
               sx={{
                 height: 56,
                 justifyContent: 'flex-start',
@@ -209,7 +219,9 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
               }}
               startIcon={<Iconify icon="mdi:truck-outline" sx={{ color: 'text.disabled' }} />}
             >
-              Select Transport Company *
+              {selectedTransporter
+                ? selectedTransporter.transportName
+                : 'Select Transport Company *'}
             </Button>
           </Box>
         )}
@@ -220,6 +232,13 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
           {isSubmitting ? 'Creating...' : 'Create'}
         </Button>
       </DialogActions>
+
+      <KanbanTransporterDialog
+        selectedTransporter={selectedTransporter}
+        open={transporterDialogOpen}
+        onClose={() => setTransporterDialogOpen(false)}
+        onTransporterChange={handleTransporterSelect}
+      />
     </Form>
   );
 };
