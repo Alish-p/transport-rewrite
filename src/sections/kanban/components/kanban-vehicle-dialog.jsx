@@ -151,12 +151,10 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
       vehicleNo: searchQuery || '',
       vehicleType: '',
       noOfTyres: 6,
-      isOwn: true,
       transporter: '',
     },
   });
 
-  const values = methods.watch();
   const [transporterDialogOpen, setTransporterDialogOpen] = useState(false);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
@@ -174,15 +172,12 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
             Create a new vehicle with minimal information. You can update the full details later.
           </Box>
         </Typography>
-
         {error && (
           <Typography variant="body2" color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
-
         <Field.Text name="vehicleNo" label="Vehicle No" required sx={{ mb: 2 }} />
-
         <Field.Select name="vehicleType" label="Vehicle Type" required sx={{ mb: 2 }}>
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -192,39 +187,20 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
             </MenuItem>
           ))}
         </Field.Select>
-
         <Field.Text name="noOfTyres" label="No Of Tyres" type="number" required sx={{ mb: 2 }} />
-
-        <Field.Switch
-          name="isOwn"
-          labelPlacement="start"
-          label={
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              Company Vehicle ?
-            </Typography>
-          }
-          sx={{ mx: 0, my: 1, width: 1, justifyContent: 'space-between', mb: 2 }}
-        />
-
-        {!values.isOwn && (
-          <Box sx={{ mb: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => setTransporterDialogOpen(true)}
-              sx={{
-                height: 56,
-                justifyContent: 'flex-start',
-                typography: 'body2',
-              }}
-              startIcon={<Iconify icon="mdi:truck-outline" sx={{ color: 'text.disabled' }} />}
-            >
-              {selectedTransporter
-                ? selectedTransporter.transportName
-                : 'Select Transport Company *'}
-            </Button>
-          </Box>
-        )}
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={() => setTransporterDialogOpen(true)}
+          sx={{
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
+          }}
+          startIcon={<Iconify icon="mdi:truck-outline" sx={{ color: 'text.disabled' }} />}
+        >
+          {selectedTransporter ? selectedTransporter.transportName : 'Select Transport Company *'}
+        </Button>
       </Box>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
@@ -341,13 +317,14 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
       const newVehicle = {
         ...data,
         // Add default values for required fields
+        isOwn: true,
         modelType: '3118', // Default model type
-        vehicleCompany: 'bharatBenz', // Default company
-        chasisNo: 'TEMP0000000000000', // Placeholder
-        engineNo: 'TEMP0000000000000', // Placeholder
+        vehicleCompany: '', // Default company
+        chasisNo: '0000000000000', // Placeholder
+        engineNo: '0000000000000', // Placeholder
         manufacturingYear: new Date().getFullYear(),
-        loadingCapacity: 10, // Default loading capacity
-        engineType: 'bs4', // Default engine type
+        loadingCapacity: 35, // Default loading capacity
+        engineType: 'bs6', // Default engine type
         fuelTankCapacity: 200, // Default fuel tank capacity
         isActive: true,
       };
