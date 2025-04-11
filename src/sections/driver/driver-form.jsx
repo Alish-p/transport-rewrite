@@ -15,7 +15,7 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useCreateDriver, useUpdateDriver } from 'src/query/use-driver';
+import { useUpdateDriver, useCreateFullDriver } from 'src/query/use-driver';
 
 // components
 import { Label } from 'src/components/label';
@@ -78,7 +78,7 @@ export const NewDriverSchema = zod.object({
 export default function DriverForm({ currentDriver, bankList }) {
   const navigate = useNavigate();
   const router = useRouter();
-  const createDriver = useCreateDriver();
+  const createDriver = useCreateFullDriver();
   const updateDriver = useUpdateDriver();
 
   const defaultValues = useMemo(

@@ -82,6 +82,7 @@ export default function TripForm({ currentTrip, drivers, vehicles, trips, custom
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
     defaultValues,
+    mode: 'all',
   });
 
   const {
@@ -89,6 +90,7 @@ export default function TripForm({ currentTrip, drivers, vehicles, trips, custom
     setValue,
     handleSubmit,
     formState: { isSubmitting, errors },
+    clearErrors,
   } = methods;
 
   useEffect(() => {
@@ -98,11 +100,13 @@ export default function TripForm({ currentTrip, drivers, vehicles, trips, custom
   const handleVehicleChange = (vehicle) => {
     setSelectedVehicle(vehicle);
     setValue('vehicleId', { label: vehicle.vehicleNo, value: vehicle._id });
+    clearErrors('vehicleId');
   };
 
   const handleDriverChange = (driver) => {
     setSelectedDriver(driver);
     setValue('driverId', { label: driver.driverName, value: driver._id });
+    clearErrors('driverId');
   };
 
   const onSubmit = async (data) => {

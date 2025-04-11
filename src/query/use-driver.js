@@ -50,27 +50,79 @@ export function useDriver(id) {
   });
 }
 
-export function useCreateDriver() {
+// New hook for creating a quick driver with minimal information
+export function useCreateQuickDriver() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+
+  return useMutation({
     mutationFn: createDriver,
     onSuccess: (newDriver) => {
+      // Update the drivers list in the cache
       queryClient.setQueryData([QUERY_KEY], (oldData) => {
         if (!oldData) return [newDriver];
-
         return [...oldData, newDriver];
       });
 
+      // Also update the individual driver query if it exists
+      queryClient.setQueryData([QUERY_KEY, newDriver._id], newDriver);
+
+      toast.success('Quick driver added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+}
+
+// New hook for creating a full driver with all required information
+export function useCreateFullDriver() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createDriver,
+    onSuccess: (newDriver) => {
+      // Update the drivers list in the cache
+      queryClient.setQueryData([QUERY_KEY], (oldData) => {
+        if (!oldData) return [newDriver];
+        return [...oldData, newDriver];
+      });
+
+      // Also update the individual driver query if it exists
       queryClient.setQueryData([QUERY_KEY, newDriver._id], newDriver);
 
       toast.success('Driver added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
-  return mutate;
+}
+
+// Legacy hook that determines which creation method to use based on the driver data
+export function useCreateDriver() {
+  const createQuickDriver = useCreateQuickDriver();
+  const createFullDriver = useCreateFullDriver();
+
+  return {
+    ...createFullDriver,
+    mutate: (driverData) => {
+      // Check if this is a quick driver (only has name and cell number)
+      const isQuickDriver =
+        driverData &&
+        driverData.driverName &&
+        driverData.driverCellNo &&
+        !driverData.driverLicenceNo &&
+        !driverData.driverPresentAddress;
+
+      if (isQuickDriver) {
+        return createQuickDriver.mutate(driverData);
+      }
+
+      return createFullDriver.mutate(driverData);
+    },
+  };
 }
 
 export function useUpdateDriver() {

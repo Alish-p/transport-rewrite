@@ -14,7 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useDrivers, useCreateDriver } from 'src/query/use-driver';
+import { useDrivers, useCreateQuickDriver } from 'src/query/use-driver';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -91,6 +91,8 @@ const DriverListItem = ({ driver, isSelected, onSelect }) => (
     </Button>
   </Box>
 );
+
+DriverListItem.displayName = 'DriverListItem';
 
 // Driver list component
 const DriverList = ({ drivers, selectedDriver, onSelectDriver }) => (
@@ -209,10 +211,13 @@ function applyFilter({ inputData, query }) {
 
 export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDriverChange }) {
   const { data: drivers, refetch } = useDrivers();
-  const createDriver = useCreateDriver();
+  const {
+    mutate: createDriver,
+    isLoading: isSubmitting,
+    error: mutationError,
+  } = useCreateQuickDriver();
   const [searchDriver, setSearchDriver] = useState('');
   const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [newlyCreatedDriver, setNewlyCreatedDriver] = useState(null);
 
@@ -242,7 +247,6 @@ export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDri
 
   const handleQuickCreate = async (data) => {
     try {
-      setIsSubmitting(true);
       setError(null);
 
       // Create a minimal driver object with required fields
@@ -266,29 +270,25 @@ export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDri
         },
       };
 
-      const createdDriver = await createDriver(newDriver);
+      createDriver(newDriver, {
+        onSuccess: (createdDriver) => {
+          // Store the newly created driver
+          setNewlyCreatedDriver(createdDriver);
 
-      // Ensure we have a valid driver object before proceeding
-      if (createdDriver && createdDriver._id) {
-        // Store the newly created driver
-        setNewlyCreatedDriver(createdDriver);
+          // Select the newly created driver
+          onDriverChange(createdDriver);
 
-        // Refresh the drivers list
-        await refetch();
-
-        // Select the newly created driver
-        onDriverChange(createdDriver);
-
-        // Close the dialog
-        onClose();
-      } else {
-        throw new Error('Failed to create driver: Invalid response');
-      }
+          // Close the dialog
+          onClose();
+        },
+        onError: (err) => {
+          console.error('Error creating driver:', err);
+          setError(err.message || 'Failed to create driver. Please try again.');
+        },
+      });
     } catch (err) {
       console.error('Error creating driver:', err);
       setError(err.message || 'Failed to create driver. Please try again.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -312,7 +312,7 @@ export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDri
             onShowQuickCreate={setShowQuickCreate}
             onQuickCreate={handleQuickCreate}
             isSubmitting={isSubmitting}
-            error={error}
+            error={error || (mutationError ? mutationError.message : null)}
           />
         ) : (
           <DriverList
