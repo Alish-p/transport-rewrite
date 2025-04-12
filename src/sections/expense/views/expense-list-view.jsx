@@ -27,6 +27,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteExpense } from 'src/query/use-expense';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -44,7 +45,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { useDeleteExpense } from '../../../query/use-expense';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
@@ -82,7 +82,7 @@ const defaultFilters = {
 export function ExpenseListView({ expenses }) {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc' });
   const confirm = useBoolean();
 
   const navigate = useNavigate();
