@@ -9,6 +9,8 @@ import {
   Tabs,
   Dialog,
   Button,
+  Tooltip,
+  IconButton,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -21,6 +23,8 @@ import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -81,6 +85,8 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
   const { _id, loadingWeight, startKm, tripId } = subtrip;
 
+  const { vehicleType, isOwn, trackingLink } = tripId.vehicleId;
+
   const handleTabChange = (_, newValue) => {
     setTabValue(newValue);
   };
@@ -109,9 +115,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     handleSubmit,
     reset,
     watch,
-    setValue,
     formState: { isSubmitting },
-    control,
   } = methods;
 
   const onSubmit = async (data) => {
@@ -168,22 +172,47 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
                   autoFocus
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end"> ≤ {loadingWeight} Ton</InputAdornment>
+                      <InputAdornment position="end">
+                        {' '}
+                        ≤ {loadingWeight} {loadingWeightUnit[vehicleType]}
+                      </InputAdornment>
                     ),
                   }}
                 />
 
-                <Field.Text
-                  name="endKm"
-                  label="End Km"
-                  type="number"
-                  required
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">≥ {startKm} Km</InputAdornment>,
-                  }}
-                />
-
-                <Field.DatePicker name="endDate" label="End Date" required />
+                {isOwn && (
+                  <Box sx={{ position: 'relative' }}>
+                    <Field.Text
+                      name="endKm"
+                      label="End Km"
+                      type="number"
+                      required
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">≥ {startKm} Km</InputAdornment>
+                        ),
+                      }}
+                    />
+                    {trackingLink && (
+                      <Tooltip title="Track Vehicle">
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            window.open(trackingLink, '_blank');
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            right: 60,
+                            top: 10,
+                            color: 'primary.main',
+                          }}
+                        >
+                          <Iconify icon="mdi:map-marker" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                )}
 
                 {!tripId?.vehicleId?.isOwn && (
                   <Field.Text

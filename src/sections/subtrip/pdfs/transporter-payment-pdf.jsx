@@ -8,6 +8,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { CONFIG } from 'src/config-global';
 
 import { pdfStyles } from './pdf-styles';
+import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +38,7 @@ export default function TransporterPaymentPdf({ subtrip }) {
     unloadingPoint,
   } = subtrip;
 
-  const { vehicleNo, transporter } = vehicleId;
+  const { vehicleNo, transporter, vehicleType } = vehicleId;
 
   const totalExpense = useMemo(
     () => expenses.reduce((total, expense) => total + expense.amount, 0),
@@ -198,10 +199,14 @@ export default function TransporterPaymentPdf({ subtrip }) {
           <Text style={[styles.horizontalCellTitle]}>Vehicle No</Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Load QTY(MT)</Text>
+          <Text style={[styles.horizontalCellTitle]}>
+            Load QTY({loadingWeightUnit[vehicleType]})
+          </Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Unload QTY(MT)</Text>
+          <Text style={[styles.horizontalCellTitle]}>
+            Unload QTY({loadingWeightUnit[vehicleType]})
+          </Text>
         </View>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>EFF. Freight Rate</Text>

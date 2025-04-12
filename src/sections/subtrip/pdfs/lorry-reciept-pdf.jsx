@@ -7,6 +7,7 @@ import { fDate } from 'src/utils/format-time';
 import { CONFIG } from 'src/config-global';
 
 import { pdfStyles } from './pdf-styles';
+import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -30,17 +31,15 @@ export default function LRPDF({ subtrip }) {
     invoiceNo,
     loadingPoint,
     loadingWeight,
-    materialType,
     orderNo,
-    quantity,
-    shipmentNo,
     startDate,
     unloadingPoint,
+    grade,
 
     tripId: { driverId, vehicleId },
   } = subtrip;
 
-  console.log({ subtrip });
+  const { vehicleType } = vehicleId;
 
   const styles = useStyles();
 
@@ -164,13 +163,15 @@ export default function LRPDF({ subtrip }) {
           <Text style={[styles.horizontalCellTitle]}>Vehicle NO.</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Qty. in (MT)</Text>
+          <Text style={[styles.horizontalCellTitle]}>
+            Qty. in ({loadingWeightUnit[vehicleType]})
+          </Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>No. Of Bags</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Description</Text>
+          <Text style={[styles.horizontalCellTitle]}>Grade</Text>
         </View>
       </View>
       {/* Values */}
@@ -185,13 +186,13 @@ export default function LRPDF({ subtrip }) {
           <Text style={[styles.horizontalCellContent]}>{vehicleId?.vehicleNo}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{loadingWeight}</Text>
+          <Text style={[styles.horizontalCellContent]}>{loadingWeight} </Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellContent]}>{loadingWeight}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellContent]}>P.P.C</Text>
+          <Text style={[styles.horizontalCellContent]}>{grade}</Text>
         </View>
       </View>
       {/* Vehicle Details Header */}

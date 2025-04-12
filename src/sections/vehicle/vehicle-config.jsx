@@ -4,9 +4,15 @@ export const vehicleTypes = [
   { key: 'bulker', value: 'Bulker' },
   { key: 'localBulker', value: 'Local Bulker' },
   { key: 'tanker', value: 'Tanker' },
-  { key: 'pickup', value: 'Pickup' },
-  { key: 'crane', value: 'Crane' },
 ];
+
+export const loadingWeightUnit = {
+  body: 'Ton',
+  trailer: 'Ton',
+  bulker: 'Ton',
+  localBulker: 'Ton',
+  tanker: 'KL',
+};
 
 export const modelType = [
   { key: '3118', value: '3118' },

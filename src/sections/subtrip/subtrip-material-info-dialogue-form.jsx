@@ -24,7 +24,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
-import { usePumps } from 'src/query/use-pump';
 import { useRoutes } from 'src/query/use-route';
 import { useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
@@ -33,6 +32,7 @@ import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 
@@ -67,7 +67,7 @@ const validationSchema = zod
     loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
     startKm: zod.number(),
     rate: zod.number().positive(),
-    invoiceNo: zod.string().optional(),
+    invoiceNo: zod.string(),
     shipmentNo: zod.string().optional(),
     orderNo: zod.string().optional(),
     ewayBill: zod.string().optional(),
@@ -143,13 +143,11 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   // Extract data from props
   const { tripId, customerId, _id } = subtrip;
-  const vehicleId = tripId?.vehicleId?._id;
+  const { _id: vehicleId, isOwn, vehicleType, fuelTankCapacity } = tripId.vehicleId;
   const consignees = customerId?.consignees || [];
-  const fuelTankCapacity = tripId?.vehicleId?.fuelTankCapacity || 0;
 
   // API hooks
   const updateMaterialInfo = useUpdateSubtripMaterialInfo();
-  const { data: pumps } = usePumps(showDialog);
   const { data: routes } = useRoutes(customerId?._id, true);
 
   // Form setup
@@ -309,18 +307,44 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
         type="number"
         required
         InputProps={{
-          endAdornment: <InputAdornment position="end">Ton</InputAdornment>,
+          endAdornment: (
+            <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
+          ),
         }}
       />
-      <Field.Text
-        name="startKm"
-        label="Start Km"
-        type="number"
-        required
-        InputProps={{
-          endAdornment: <InputAdornment position="end">KM</InputAdornment>,
-        }}
-      />
+
+      {isOwn && (
+        <Box sx={{ position: 'relative' }}>
+          <Field.Text
+            name="startKm"
+            label="Start Km"
+            type="number"
+            required
+            InputProps={{
+              endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+            }}
+          />
+          {tripId?.vehicleId?.trackingLink && (
+            <Tooltip title="Track Vehicle">
+              <IconButton
+                size="small"
+                onClick={() => {
+                  window.open(tripId.vehicleId.trackingLink, '_blank');
+                }}
+                sx={{
+                  position: 'absolute',
+                  right: 35,
+                  top: 10,
+                  color: 'primary.main',
+                }}
+              >
+                <Iconify icon="mdi:map-marker" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      )}
+
       <Field.Text
         name="rate"
         label="Rate"
@@ -335,7 +359,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
       {/* Consignment No details */}
       <Box sx={{ position: 'relative' }}>
-        <Field.Text name="invoiceNo" label="Invoice No" />
+        <Field.Text name="invoiceNo" label="Invoice No" required />
         <Tooltip title="Scan Invoice">
           <IconButton
             size="small"
@@ -351,6 +375,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           </IconButton>
         </Tooltip>
       </Box>
+
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
 

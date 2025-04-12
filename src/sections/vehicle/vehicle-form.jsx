@@ -62,6 +62,7 @@ export const NewVehicleSchema = zod
     isActive: zod.boolean().default(true),
     isOwn: zod.boolean().default(true),
     transporter: zod.string().optional(),
+    trackingLink: zod.string().optional(),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -97,6 +98,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
       isActive: currentVehicle?.isActive ?? true,
       isOwn: currentVehicle?.isOwn ?? false,
       transporter: currentVehicle?.transporter?._id || '',
+      trackingLink: currentVehicle?.trackingLink || '',
     }),
     [currentVehicle]
   );
@@ -332,6 +334,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                   </Button>
                 </Box>
               )}
+              <Field.Text name="trackingLink" label="Tracking Link" />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
