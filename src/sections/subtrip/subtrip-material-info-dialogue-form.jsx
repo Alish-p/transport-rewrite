@@ -65,7 +65,7 @@ const validationSchema = zod
       .nullable()
       .refine((val) => val !== null, { message: 'Consignee is required' }),
     loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
-    startKm: zod.number(),
+    startKm: zod.number().optional(),
     rate: zod.number().positive(),
     invoiceNo: zod.string(),
     shipmentNo: zod.string().optional(),
@@ -143,7 +143,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
 
   // Extract data from props
   const { tripId, customerId, _id } = subtrip;
-  const { _id: vehicleId, isOwn, vehicleType, fuelTankCapacity } = tripId.vehicleId;
+  const { _id: vehicleId, isOwn, vehicleType, fuelTankCapacity, trackingLink } = tripId.vehicleId;
   const consignees = customerId?.consignees || [];
 
   // API hooks
@@ -324,12 +324,12 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
               endAdornment: <InputAdornment position="end">KM</InputAdornment>,
             }}
           />
-          {tripId?.vehicleId?.trackingLink && (
+          {trackingLink && (
             <Tooltip title="Track Vehicle">
               <IconButton
                 size="small"
                 onClick={() => {
-                  window.open(tripId.vehicleId.trackingLink, '_blank');
+                  window.open(trackingLink, '_blank');
                 }}
                 sx={{
                   position: 'absolute',
@@ -367,7 +367,7 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
             sx={{
               position: 'absolute',
               right: 8,
-              top: 8,
+              top: 13,
               color: 'primary.main',
             }}
           >

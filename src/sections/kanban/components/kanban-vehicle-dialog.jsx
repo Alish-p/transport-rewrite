@@ -317,9 +317,9 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
       const newVehicle = {
         ...data,
         // Add default values for required fields
-        isOwn: true,
+        isOwn: false,
         modelType: '3118', // Default model type
-        vehicleCompany: '', // Default company
+        vehicleCompany: 'NA', // Default company
         chasisNo: '0000000000000', // Placeholder
         engineNo: '0000000000000', // Placeholder
         manufacturingYear: new Date().getFullYear(),

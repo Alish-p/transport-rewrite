@@ -32,9 +32,15 @@ import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field } from 'src/components/hook-form';
 
-// assets
-import { modelType, engineType, vehicleTypes, vehicleCompany } from './vehicle-config';
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
+// assets
+import {
+  modelType,
+  engineType,
+  vehicleTypes,
+  vehicleCompany,
+  vehicleTypeIcon,
+} from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -255,6 +261,7 @@ export default function VehicleForm({ currentVehicle, transporters }) {
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleTypes.map(({ key, value }) => (
                   <MenuItem key={key} value={key}>
+                    <Iconify icon={vehicleTypeIcon[key]} sx={{ mr: 1 }} />
                     {value}
                   </MenuItem>
                 ))}

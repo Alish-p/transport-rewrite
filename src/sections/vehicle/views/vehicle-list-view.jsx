@@ -44,6 +44,7 @@ import {
 } from 'src/components/table';
 
 import VehicleTableRow from '../vehicle-table-row';
+import { vehicleTypeIcon } from '../vehicle-config';
 import VehicleAnalytic from '../widgets/vehicle-analytic';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
 import { useDeleteVehicle } from '../../../query/use-vehicle';
@@ -165,8 +166,6 @@ export function VehicleListView({ vehicles }) {
       count: getVehicleLength('localBulker'),
     },
     { value: 'tanker', label: 'Tanker', color: 'default', count: getVehicleLength('tanker') },
-    { value: 'pickup', label: 'Pickup', color: 'success', count: getVehicleLength('pickup') },
-    { value: 'crane', label: 'Crane', color: 'warning', count: getVehicleLength('crane') },
   ];
 
   const handleFilters = useCallback(
@@ -285,7 +284,7 @@ export function VehicleListView({ vehicles }) {
                 total={getVehicleLength('body')}
                 percent={getPercentByvehicleType('body')}
                 price={getTotalAmount('body')}
-                icon="solar:file-check-bold-duotone"
+                icon={vehicleTypeIcon.body}
                 color={theme.palette.success.main}
               />
 
@@ -294,7 +293,7 @@ export function VehicleListView({ vehicles }) {
                 total={getVehicleLength('trailer')}
                 percent={getPercentByvehicleType('trailer')}
                 price={getTotalAmount('trailer')}
-                icon="solar:sort-by-time-bold-duotone"
+                icon={vehicleTypeIcon.trailer}
                 color={theme.palette.warning.main}
               />
 
@@ -303,7 +302,7 @@ export function VehicleListView({ vehicles }) {
                 total={getVehicleLength('bulker')}
                 percent={getPercentByvehicleType('bulker')}
                 price={getTotalAmount('bulker')}
-                icon="solar:sort-by-time-bold-duotone"
+                icon={vehicleTypeIcon.bulker}
                 color={theme.palette.error.main}
               />
               <VehicleAnalytic
@@ -311,7 +310,7 @@ export function VehicleListView({ vehicles }) {
                 total={getVehicleLength('localBulker')}
                 percent={getPercentByvehicleType('localBulker')}
                 price={getTotalAmount('localBulker')}
-                icon="solar:sort-by-time-bold-duotone"
+                icon={vehicleTypeIcon.localBulker}
                 color={theme.palette.text.secondary}
               />
               <VehicleAnalytic
@@ -319,24 +318,8 @@ export function VehicleListView({ vehicles }) {
                 total={getVehicleLength('tanker')}
                 percent={getPercentByvehicleType('tanker')}
                 price={getTotalAmount('tanker')}
-                icon="solar:sort-by-time-bold-duotone"
+                icon={vehicleTypeIcon.tanker}
                 color={theme.palette.primary.main}
-              />
-              <VehicleAnalytic
-                title="Pickup"
-                total={getVehicleLength('pickup')}
-                percent={getPercentByvehicleType('pickup')}
-                price={getTotalAmount('pickup')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.secondary.main}
-              />
-              <VehicleAnalytic
-                title="Crane"
-                total={getVehicleLength('crane')}
-                percent={getPercentByvehicleType('crane')}
-                price={getTotalAmount('crane')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.common.white}
               />
             </Stack>
           </Scrollbar>

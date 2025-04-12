@@ -38,3 +38,11 @@ export const vehicleCompany = [
   { key: 'tata', value: 'Tata' },
   { key: 'ace', value: 'Ace' },
 ];
+
+export const vehicleTypeIcon = {
+  body: 'mdi:truck',
+  trailer: 'mdi:truck-trailer',
+  bulker: 'mdi:truck-cargo-container',
+  localBulker: 'mdi:truck-fast',
+  tanker: 'mdi:tanker-truck',
+};
