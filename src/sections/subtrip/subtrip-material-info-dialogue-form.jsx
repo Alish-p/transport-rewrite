@@ -312,6 +312,16 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
           ),
         }}
       />
+      {vehicleType !== 'tanker' && (
+        <Field.Text
+          name="quantity"
+          label="Quantity"
+          type="number"
+          InputProps={{
+            endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+          }}
+        />
+      )}
 
       {isOwn && (
         <Box sx={{ position: 'relative' }}>
@@ -382,14 +392,6 @@ export function SubtripMaterialInfoDialog({ showDialog, setShowDialog, subtrip }
       {/* Material Details */}
       <Field.Text name="materialType" label="Material Type" />
       <Field.Text name="grade" label="Grade" />
-      <Field.Text
-        name="quantity"
-        label="Quantity"
-        type="number"
-        InputProps={{
-          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
-        }}
-      />
     </Box>
   );
 

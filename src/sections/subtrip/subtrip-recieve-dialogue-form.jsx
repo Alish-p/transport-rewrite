@@ -214,7 +214,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
                   </Box>
                 )}
 
-                {!tripId?.vehicleId?.isOwn && (
+                {!isOwn && (
                   <Field.Text
                     name="commissionRate"
                     label="Transporter Commission Rate"
