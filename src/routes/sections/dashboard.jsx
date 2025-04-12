@@ -77,6 +77,7 @@ const SubtripListPage = lazy(() => import('src/pages/dashboard/subtrip/list'));
 const SubtripReportsPage = lazy(() => import('src/pages/dashboard/subtrip/reports'));
 const SubtripCreatePage = lazy(() => import('src/pages/dashboard/subtrip/new'));
 const SubtripEditPage = lazy(() => import('src/pages/dashboard/subtrip/edit'));
+const SubtripReceivePage = lazy(() => import('src/pages/dashboard/subtrip/receive-subtrip'));
 
 // Trip
 const TripDetailsPage = lazy(() => import('src/pages/dashboard/trip/details'));
@@ -620,7 +621,15 @@ export const dashboardRoutes = [
             ),
           },
           {
-            path: 'billed-paid',
+            path: 'receive',
+            element: (
+              <PermissionBasedGuard resource="subtrip" action="update" hasContent>
+                <SubtripReceivePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'reports',
             element: (
               <PermissionBasedGuard resource="subtrip" action="view" hasContent>
                 <SubtripReportsPage />

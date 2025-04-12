@@ -114,6 +114,7 @@ export const navData = [
           { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
           { title: 'Reports', path: paths.dashboard.subtrip.billedPaid, action: 'view' },
           { title: 'Create', path: paths.dashboard.subtrip.new, action: 'create' },
+          { title: 'Receive', path: paths.dashboard.subtrip.receive, action: 'update' },
         ],
       },
       {

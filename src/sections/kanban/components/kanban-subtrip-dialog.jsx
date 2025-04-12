@@ -11,7 +11,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useSubtrips } from 'src/query/use-subtrip';
+import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -26,8 +26,14 @@ const ITEM_HEIGHT = 90;
 
 // ----------------------------------------------------------------------
 
-export function KanbanSubtripDialog({ selectedSubtrip = null, open, onClose, onSubtripChange }) {
-  const { data: subtrips } = useSubtrips();
+export function KanbanSubtripDialog({
+  selectedSubtrip = null,
+  open,
+  onClose,
+  onSubtripChange,
+  filterParams = {},
+}) {
+  const { data: subtrips = [] } = useFilteredSubtrips(filterParams);
   const [searchSubtrip, setSearchSubtrip] = useState('');
 
   const handleSearchSubtrips = useCallback((event) => {

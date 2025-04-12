@@ -19,6 +19,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import ExpenseInsights from './expense-insights';
+import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
@@ -362,6 +363,9 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
+        filterParams={{
+          subtripStatus: [SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED],
+        }}
       />
     </>
   );
