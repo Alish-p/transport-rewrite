@@ -28,7 +28,6 @@ const validationSchema = zod
     date: schemaHelper.date({ message: { required_error: 'Date is required!' } }),
     expenseType: zod.string({ required_error: 'Expense Type is required' }),
     amount: zod.number({ required_error: 'Amount is required' }),
-    slipNo: zod.string().optional(),
     pumpCd: zod
       .object({
         label: zod.string(),
@@ -40,7 +39,6 @@ const validationSchema = zod
     dieselPrice: zod.number().optional(),
     remarks: zod.string().optional(),
     paidThrough: zod.string().optional(),
-    authorisedBy: zod.string().optional(),
     fixedSalary: zod.number().optional(),
     variableSalary: zod.number().optional(),
     performanceSalary: zod.number().optional(),
@@ -98,7 +96,6 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
       date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
       expenseType: currentExpense?.expenseType || '',
       amount: currentExpense?.amount || 0,
-      slipNo: currentExpense?.slipNo || '',
       pumpCd: currentExpense?.pumpCd
         ? { label: currentExpense?.pumpCd?.pumpName, value: currentExpense?.pumpCd?._id }
         : null,
@@ -106,7 +103,6 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
       dieselLtr: currentExpense?.dieselLtr || 0,
       dieselPrice: currentExpense?.dieselPrice || 0,
       paidThrough: currentExpense?.paidThrough || '',
-      authorisedBy: currentExpense?.authorisedBy || '',
       fixedSalary: currentExpense?.fixedSalary || 0,
       variableSalary: currentExpense?.variableSalary || 0,
       performanceSalary: currentExpense?.performanceSalary || 0,
@@ -340,10 +336,8 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
               endAdornment: <InputAdornment position="end">₹</InputAdornment>,
             }}
           />
-          <Field.Text name="slipNo" label="Slip No" />
           <Field.Text name="remarks" label="Remarks" />
           <Field.Text name="paidThrough" label="Paid Through" />
-          <Field.Text name="authorisedBy" label="Authorised By" />
         </Box>
         <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
           <Button color="inherit" variant="outlined" onClick={reset}>
