@@ -126,12 +126,18 @@ export function SubtripReceiveForm({ currentSubtrip }) {
       await receiveSubtrip({ id: selectedSubtrip._id, data });
 
       // Reset form after successful submission
-      reset(defaultValues);
+      reset({
+        endKm: 0,
+        startKm: 0,
+        loadingWeight: 0,
+        unloadingWeight: 0,
+        commissionRate: 0,
+        hasShortage: false,
+        hasError: false,
+      });
 
       // If no currentSubtrip was provided, clear the selected subtrip
-      if (!currentSubtrip) {
-        setSelectedSubtrip(null);
-      }
+      setSelectedSubtrip(null);
     } catch (error) {
       console.error(error);
     }
