@@ -2,7 +2,6 @@ export const vehicleTypes = [
   { key: 'body', value: 'Body' },
   { key: 'trailer', value: 'Trailer' },
   { key: 'bulker', value: 'Bulker' },
-  { key: 'localBulker', value: 'Local Bulker' },
   { key: 'tanker', value: 'Tanker' },
 ];
 
@@ -10,7 +9,6 @@ export const loadingWeightUnit = {
   body: 'Ton',
   trailer: 'Ton',
   bulker: 'Ton',
-  localBulker: 'Ton',
   tanker: 'KL',
 };
 

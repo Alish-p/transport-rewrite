@@ -57,6 +57,11 @@ export default function VehicleTableRow({
     loadingCapacity,
     transporter,
     fuelTankCapacity,
+    vehicleCompany,
+    modelType,
+    chasisNo,
+    engineNo,
+    engineType,
   } = row;
 
   const confirm = useBoolean();
@@ -106,6 +111,15 @@ export default function VehicleTableRow({
           </TableCell>
         )}
 
+        {(visibleColumns.transporter || disabledColumns.transporter) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={transporter?.transportName || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
         {(visibleColumns.noOfTyres || disabledColumns.noOfTyres) && (
           <TableCell align="center">
             <ListItemText
@@ -118,7 +132,7 @@ export default function VehicleTableRow({
         {(visibleColumns.manufacturingYear || disabledColumns.manufacturingYear) && (
           <TableCell align="center">
             <ListItemText
-              primary={manufacturingYear}
+              primary={manufacturingYear || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
@@ -127,7 +141,7 @@ export default function VehicleTableRow({
         {(visibleColumns.loadingCapacity || disabledColumns.loadingCapacity) && (
           <TableCell align="center">
             <Label variant="soft" color={loadingCapacity >= 20 ? 'success' : 'error'}>
-              {loadingCapacity}
+              {loadingCapacity || '-'}
             </Label>
           </TableCell>
         )}
@@ -135,16 +149,52 @@ export default function VehicleTableRow({
         {(visibleColumns.fuelTankCapacity || disabledColumns.fuelTankCapacity) && (
           <TableCell align="center">
             <ListItemText
-              primary={fuelTankCapacity}
+              primary={fuelTankCapacity || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
         )}
 
-        {(visibleColumns.transporter || disabledColumns.transporter) && (
+        {(visibleColumns.vehicleCompany || disabledColumns.vehicleCompany) && (
           <TableCell align="center">
             <ListItemText
-              primary={transporter?.transportName || '-'}
+              primary={vehicleCompany || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.modelType || disabledColumns.modelType) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={modelType || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.chasisNo || disabledColumns.chasisNo) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={chasisNo || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.engineNo || disabledColumns.engineNo) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={engineNo || '-'}
+              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            />
+          </TableCell>
+        )}
+
+        {(visibleColumns.engineType || disabledColumns.engineType) && (
+          <TableCell align="center">
+            <ListItemText
+              primary={engineType || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>

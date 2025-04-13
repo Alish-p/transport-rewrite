@@ -58,6 +58,11 @@ const TABLE_HEAD = [
     id: 'isOwn',
     label: 'Ownership',
   },
+  {
+    id: 'transporter',
+    label: 'Transport Company',
+    align: 'center',
+  },
   { id: 'noOfTyres', label: 'No Of Tyres' },
   {
     id: 'manufacturingYear',
@@ -65,10 +70,12 @@ const TABLE_HEAD = [
   },
   { id: 'loadingCapacity', label: 'Loading Capacity' },
   { id: 'fuelTankCapacity', label: 'Fuel Tank Capacity' },
-  {
-    id: 'transporter',
-    label: 'Transport Company',
-  },
+  { id: 'vehicleCompany', label: 'Vehicle Company' },
+  { id: 'modelType', label: 'Vehicle Model' },
+  { id: 'chasisNo', label: 'Chasis No' },
+  { id: 'engineNo', label: 'Engine No' },
+  { id: 'engineType', label: 'Engine Type' },
+
   { id: '' },
 ];
 
@@ -102,6 +109,11 @@ export function VehicleListView({ vehicles }) {
     loadingCapacity: true,
     fuelTankCapacity: true,
     transporter: true,
+    vehicleCompany: false,
+    modelType: false,
+    chasisNo: false,
+    engineNo: false,
+    engineType: false,
   });
 
   // Define which columns should be disabled (always visible)
@@ -114,6 +126,11 @@ export function VehicleListView({ vehicles }) {
       loadingCapacity: false,
       fuelTankCapacity: false,
       transporter: false,
+      vehicleCompany: false,
+      modelType: false,
+      chasisNo: false,
+      engineNo: false,
+      engineType: false,
     }),
     []
   );
@@ -159,12 +176,6 @@ export function VehicleListView({ vehicles }) {
     { value: 'body', label: 'Body', color: 'default', count: getVehicleLength('body') },
     { value: 'trailer', label: 'Trailer', color: 'success', count: getVehicleLength('trailer') },
     { value: 'bulker', label: 'Bulker', color: 'warning', count: getVehicleLength('bulker') },
-    {
-      value: 'localBulker',
-      label: 'Local Bulker',
-      color: 'error',
-      count: getVehicleLength('localBulker'),
-    },
     { value: 'tanker', label: 'Tanker', color: 'default', count: getVehicleLength('tanker') },
   ];
 
@@ -305,14 +316,7 @@ export function VehicleListView({ vehicles }) {
                 icon={vehicleTypeIcon.bulker}
                 color={theme.palette.error.main}
               />
-              <VehicleAnalytic
-                title="Local Bulker"
-                total={getVehicleLength('localBulker')}
-                percent={getPercentByvehicleType('localBulker')}
-                price={getTotalAmount('localBulker')}
-                icon={vehicleTypeIcon.localBulker}
-                color={theme.palette.text.secondary}
-              />
+
               <VehicleAnalytic
                 title="Tanker"
                 total={getVehicleLength('tanker')}
