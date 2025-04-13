@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Stack,
@@ -98,7 +99,7 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     reset,
     watch,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     setValue,
   } = methods;
 
@@ -422,9 +423,14 @@ export function SubtripReceiveForm({ currentSubtrip }) {
             Reset
           </Button>
 
-          <Button type="submit" variant="contained" loading={isSubmitting}>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+            disabled={!isValid || !selectedSubtrip}
+          >
             Save Changes
-          </Button>
+          </LoadingButton>
         </Stack>
       </Form>
 

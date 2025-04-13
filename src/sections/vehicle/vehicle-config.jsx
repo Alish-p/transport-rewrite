@@ -6,10 +6,10 @@ export const vehicleTypes = [
 ];
 
 export const loadingWeightUnit = {
-  body: 'Ton',
-  trailer: 'Ton',
-  bulker: 'Ton',
-  tanker: 'KL',
+  body: 'Ton', // bags
+  trailer: 'Ton', // bags
+  bulker: 'Ton', // loose
+  tanker: 'KL', // fluid
 };
 
 export const modelType = [
