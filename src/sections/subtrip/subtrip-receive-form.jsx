@@ -85,6 +85,7 @@ export function SubtripReceiveForm({ currentSubtrip }) {
       startKm: selectedSubtrip?.startKm || 0,
       invoiceNo: selectedSubtrip?.invoiceNo || '',
       rate: selectedSubtrip?.rate || 0,
+      effectiveRate: selectedSubtrip?.rate || 0 - (selectedSubtrip?.commissionRate || 0),
     }),
     [selectedSubtrip]
   );
