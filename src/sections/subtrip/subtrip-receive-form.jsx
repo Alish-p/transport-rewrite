@@ -40,6 +40,8 @@ const validationSchema = zod
     shortageWeight: zod.number().optional(),
     shortageAmount: zod.number().optional(),
     hasShortage: zod.boolean(),
+    invoiceNo: zod.string().optional(),
+    rate: zod.number().optional(),
   })
   .superRefine((values, ctx) => {
     // Validate unloadingWeight <= loadingWeight if loadingWeight is available
@@ -80,6 +82,8 @@ export function SubtripReceiveForm({ currentSubtrip }) {
       hasShortage: false,
       loadingWeight: selectedSubtrip?.loadingWeight || 0,
       startKm: selectedSubtrip?.startKm || 0,
+      invoiceNo: selectedSubtrip?.invoiceNo || '',
+      rate: selectedSubtrip?.rate || 0,
     }),
     [selectedSubtrip]
   );
@@ -95,9 +99,10 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     watch,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = methods;
 
-  const { hasError, hasShortage } = watch();
+  const { hasError, hasShortage, commissionRate, rate } = watch();
 
   // Update form values when selectedSubtrip changes
   useEffect(() => {
@@ -108,9 +113,18 @@ export function SubtripReceiveForm({ currentSubtrip }) {
         endKm: selectedSubtrip.startKm || 0,
         loadingWeight: selectedSubtrip.loadingWeight || 0,
         startKm: selectedSubtrip.startKm || 0,
+        invoiceNo: selectedSubtrip.invoiceNo || '',
+        rate: selectedSubtrip.rate || 0,
       });
     }
   }, [selectedSubtrip, reset, defaultValues]);
+
+  // update effective rate when commission rate is changed
+  useEffect(() => {
+    if (commissionRate) {
+      setValue('effectiveRate', rate - commissionRate);
+    }
+  }, [commissionRate, rate, setValue]);
 
   const handleSubtripChange = (subtrip) => {
     setSelectedSubtrip(subtrip);
@@ -190,105 +204,139 @@ export function SubtripReceiveForm({ currentSubtrip }) {
               </Button>
             </Box>
 
-            <Field.Text
-              name="unloadingWeight"
-              label="Unloading Weight"
-              type="number"
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {selectedSubtrip?.loadingWeight && (
-                      <>
-                        ≤ {selectedSubtrip.loadingWeight} {loadingWeightUnit[vehicleType]}
-                      </>
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            {isOwn && (
-              <Box sx={{ position: 'relative' }}>
+            {selectedSubtrip && (
+              <>
                 <Field.Text
-                  name="endKm"
-                  label="End Km"
+                  name="unloadingWeight"
+                  label="Unloading Weight"
                   type="number"
                   required
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        {' '}
-                        ≥ {selectedSubtrip?.startKm} Km
+                        {selectedSubtrip?.loadingWeight && (
+                          <>
+                            ≤ {selectedSubtrip.loadingWeight} {loadingWeightUnit[vehicleType]}
+                          </>
+                        )}
                       </InputAdornment>
                     ),
                   }}
                 />
-                {trackingLink && (
-                  <Tooltip title="Track Vehicle">
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        window.open(trackingLink, '_blank');
-                      }}
-                      sx={{
-                        position: 'absolute',
-                        right: 60,
-                        top: 10,
-                        color: 'primary.main',
-                      }}
-                    >
-                      <Iconify icon="mdi:map-marker" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-            )}
 
-            {!isOwn && (
-              <Field.Text
-                name="commissionRate"
-                label="Transporter Commission Rate"
-                type="number"
-                placeholder="0"
-                required
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                }}
-              />
+                {/* Invoice No */}
+                <Field.Text name="invoiceNo" label="Invoice No" type="text" required />
+
+                {/* Rate */}
+                <Field.Text
+                  name="rate"
+                  label="Freight Rate"
+                  type="number"
+                  required
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+
+                {isOwn && (
+                  <Box sx={{ position: 'relative' }}>
+                    <Field.Text
+                      name="endKm"
+                      label="End Km"
+                      type="number"
+                      required
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {' '}
+                            ≥ {selectedSubtrip?.startKm} Km
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {trackingLink && (
+                      <Tooltip title="Track Vehicle">
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            window.open(trackingLink, '_blank');
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            right: 60,
+                            top: 10,
+                            color: 'primary.main',
+                          }}
+                        >
+                          <Iconify icon="mdi:map-marker" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                )}
+
+                {!isOwn && (
+                  <>
+                    <Field.Text
+                      name="commissionRate"
+                      label="Transporter Commission Rate"
+                      type="number"
+                      placeholder="0"
+                      required
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                      }}
+                    />
+
+                    <Field.Text
+                      name="effectiveRate"
+                      label="Effective Rate"
+                      type="number"
+                      placeholder="0"
+                      required
+                      disabled
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                      }}
+                    />
+                  </>
+                )}
+              </>
             )}
           </Box>
         </Box>
 
         {/* Toggle Switches */}
-        <Box sx={{ mb: 3 }}>
-          <Stack direction="row" spacing={3}>
-            <Field.Switch
-              name="hasShortage"
-              label="Has Shortage"
-              sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: 'warning.main',
-                },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: 'warning.main',
-                },
-              }}
-            />
-            <Field.Switch
-              name="hasError"
-              label="Has Error"
-              sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: 'error.main',
-                },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: 'error.main',
-                },
-              }}
-            />
-          </Stack>
-        </Box>
+        {selectedSubtrip && (
+          <Box sx={{ mb: 3 }}>
+            <Stack direction="row" spacing={3}>
+              <Field.Switch
+                name="hasShortage"
+                label="Has Shortage"
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'warning.main',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'warning.main',
+                  },
+                }}
+              />
+              <Field.Switch
+                name="hasError"
+                label="Has Error"
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'error.main',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'error.main',
+                  },
+                }}
+              />
+            </Stack>
+          </Box>
+        )}
 
         {/* Shortage Section */}
         {hasShortage && (
@@ -364,6 +412,9 @@ export function SubtripReceiveForm({ currentSubtrip }) {
                 commissionRate: 0,
                 hasShortage: false,
                 hasError: false,
+                invoiceNo: '',
+                rate: 0,
+                effectiveRate: 0,
               });
               setSelectedSubtrip(null);
             }}
