@@ -4,7 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Card,
+  Stack,
+  Table,
+  Button,
+  Divider,
+  MenuItem,
+  TableRow,
+  TableBody,
+  TableCell,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // Assuming you have a pump slice
 import { paths } from 'src/routes/paths';
@@ -13,13 +26,15 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { EXPENSE_TYPES } from 'src/constant';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
-import { useCreateExpense, useUpdateExpense } from 'src/query/use-expense';
+import { useCreateExpense, useUpdateExpense, useFilteredExpenses } from 'src/query/use-expense';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import ExpenseInsights from './expense-insights';
+import { TableNoData } from '../../components/table';
 import { SUBTRIP_STATUS } from '../subtrip/constants';
+import { Scrollbar } from '../../components/scrollbar';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
@@ -88,6 +103,11 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
 
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
+
+  // Add query for filtered expenses
+  const { data: subtripExpenses = [] } = useFilteredExpenses(
+    selectedSubtrip ? { subtripId: selectedSubtrip._id } : null
+  );
 
   const defaultValues = useMemo(
     () => ({
@@ -216,140 +236,181 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
     <>
       <ExpenseInsights subtrip={selectedSubtrip} expenseType={expenseType} />
 
-      <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-          rowGap={3}
-          columnGap={2}
-          sx={{ mt: 1 }}
-        >
-          {/* Subtrip Selection Button */}
-          <Box>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={subtripDialog.onTrue}
-              disabled={fromDialog}
-              sx={{
-                height: 56,
-                justifyContent: 'flex-start',
-                typography: 'body2',
-                borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
-              }}
-              startIcon={
-                <Iconify
-                  icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
-                  sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
-                />
-              }
-            >
-              {selectedSubtrip
-                ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
-                : 'Select Subtrip *'}
-            </Button>
-          </Box>
+      <Card sx={{ p: 3, mb: 5 }}>
+        <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <Box
+            display="grid"
+            gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+            rowGap={3}
+            columnGap={2}
+            sx={{ mt: 1 }}
+          >
+            {/* Subtrip Selection Button */}
+            <Box>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={subtripDialog.onTrue}
+                disabled={fromDialog}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                  borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
+                }}
+                startIcon={
+                  <Iconify
+                    icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
+                    sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
+                  />
+                }
+              >
+                {selectedSubtrip
+                  ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
+                  : 'Select Subtrip *'}
+              </Button>
+            </Box>
 
-          <Field.DatePicker name="date" label="Date" />
+            <Field.DatePicker name="date" label="Date" />
 
-          <Field.Select name="expenseType" label="Expense Type">
-            <MenuItem value="">None</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {EXPENSE_TYPES.map((type) => (
-              <MenuItem key={type} value={type}>
-                {type.replace(/-/g, ' ')}
-              </MenuItem>
-            ))}
-          </Field.Select>
+            <Field.Select name="expenseType" label="Expense Type">
+              <MenuItem value="">None</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              {EXPENSE_TYPES.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type.replace(/-/g, ' ')}
+                </MenuItem>
+              ))}
+            </Field.Select>
 
-          {expenseType === 'diesel' && (
-            <>
-              <Box>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={pumpDialog.onTrue}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                    borderColor: errors.pumpCd?.message ? 'error.main' : 'text.disabled',
+            {expenseType === 'diesel' && (
+              <>
+                <Box>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={pumpDialog.onTrue}
+                    sx={{
+                      height: 56,
+                      justifyContent: 'flex-start',
+                      typography: 'body2',
+                      borderColor: errors.pumpCd?.message ? 'error.main' : 'text.disabled',
+                    }}
+                    startIcon={
+                      <Iconify
+                        icon={selectedPump ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
+                        sx={{ color: selectedPump ? 'primary.main' : 'text.disabled' }}
+                      />
+                    }
+                  >
+                    {selectedPump ? selectedPump.pumpName : 'Select Pump *'}
+                  </Button>
+                </Box>
+                <Field.Text
+                  name="dieselLtr"
+                  label="Diesel Liters"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
                   }}
-                  startIcon={
-                    <Iconify
-                      icon={selectedPump ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
-                      sx={{ color: selectedPump ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {selectedPump ? selectedPump.pumpName : 'Select Pump *'}
-                </Button>
-              </Box>
-              <Field.Text
-                name="dieselLtr"
-                label="Diesel Liters"
-                type="number"
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
-                }}
-              />
-              <Field.Text
-                name="dieselPrice"
-                label="Per Litre Diesel Price"
-                type="number"
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                }}
-              />
-            </>
-          )}
+                />
+                <Field.Text
+                  name="dieselPrice"
+                  label="Per Litre Diesel Price"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+              </>
+            )}
 
-          {expenseType === 'driver-salary' && (
-            <>
-              <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
-              <Field.Text
-                name="variableSalary"
-                label="Variable Salary"
-                type="number"
-                placeholder="0"
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                }}
-              />
-              <Field.Text
-                name="performanceSalary"
-                label="Performance Salary"
-                type="number"
-                placeholder="0"
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                }}
-              />
-            </>
-          )}
+            {expenseType === 'driver-salary' && (
+              <>
+                <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
+                <Field.Text
+                  name="variableSalary"
+                  label="Variable Salary"
+                  type="number"
+                  placeholder="0"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+                <Field.Text
+                  name="performanceSalary"
+                  label="Performance Salary"
+                  type="number"
+                  placeholder="0"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+              </>
+            )}
 
-          <Field.Text
-            name="amount"
-            label="Amount"
-            type="number"
-            disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-            }}
-          />
-          <Field.Text name="remarks" label="Remarks" />
-          <Field.Text name="paidThrough" label="Paid Through" />
-        </Box>
-        <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
-          <Button color="inherit" variant="outlined" onClick={reset}>
-            Reset
-          </Button>
+            <Field.Text
+              name="amount"
+              label="Amount"
+              type="number"
+              disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+              }}
+            />
+            <Field.Text name="remarks" label="Remarks" />
+            <Field.Text name="paidThrough" label="Paid Through" />
+          </Box>
+          <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
+            <Button color="inherit" variant="outlined" onClick={reset}>
+              Reset
+            </Button>
 
-          <Button type="submit" variant="contained">
-            Add Expense
-          </Button>
-        </Stack>
-      </Form>
+            <Button type="submit" variant="contained">
+              Add Expense
+            </Button>
+          </Stack>
+        </Form>
+      </Card>
+
+      {selectedSubtrip && (
+        <Card sx={{ mt: 3 }}>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6">Existing Expenses</Typography>
+          </Box>
+          <Scrollbar>
+            <Box sx={{ minWidth: 800 }}>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell align="right">Amount</TableCell>
+                    <TableCell align="right">Diesel Ltr</TableCell>
+                    <TableCell align="right">Diesel Price</TableCell>
+                    <TableCell align="right">Variable Salary</TableCell>
+                    <TableCell align="right">Fixed Salary</TableCell>
+                    <TableCell>Remarks</TableCell>
+                  </TableRow>
+                  {subtripExpenses.map((expense) => (
+                    <TableRow key={expense._id}>
+                      <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{expense.expenseType}</TableCell>
+                      <TableCell align="right">{expense.amount}</TableCell>
+                      <TableCell align="right">{expense.dieselLtr || '-'}</TableCell>
+                      <TableCell align="right">{expense.dieselPrice || '-'}</TableCell>
+                      <TableCell align="right">{expense.variableSalary || '-'}</TableCell>
+                      <TableCell align="right">{expense.fixedSalary || '-'}</TableCell>
+                      <TableCell>{expense.remarks || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableNoData notFound={subtripExpenses.length === 0} />
+                </TableBody>
+              </Table>
+            </Box>
+          </Scrollbar>
+        </Card>
+      )}
 
       <KanbanPumpDialog
         open={pumpDialog.value}

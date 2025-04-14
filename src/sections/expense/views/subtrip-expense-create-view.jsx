@@ -1,5 +1,3 @@
-import { Card } from '@mui/material';
-
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -21,9 +19,7 @@ export function SubtripExpenseCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <Card sx={{ p: 3, mb: 5 }}>
-        <ExpenseCoreForm />
-      </Card>
+      <ExpenseCoreForm />
     </DashboardContent>
   );
 }

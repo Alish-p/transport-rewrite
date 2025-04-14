@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
+import { FixedSizeList as List } from 'react-window';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Skeleton from '@mui/material/Skeleton';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -23,8 +25,101 @@ import { SUBTRIP_STATUS_COLORS } from '../../subtrip/constants';
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 90;
+const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // ----------------------------------------------------------------------
+
+const SubtripItem = ({ data: { subtrips, selectedSubtrip, onSelect }, index, style }) => {
+  const subtrip = subtrips[index];
+  const isSelected = selectedSubtrip?._id === subtrip._id;
+
+  return (
+    <Box
+      component="li"
+      style={style}
+      sx={{
+        gap: 2,
+        display: 'flex',
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+      }}
+    >
+      <ListItemText
+        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.5 } }}
+        secondaryTypographyProps={{ typography: 'caption' }}
+        primary={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="subtitle2">#{subtrip._id}</Typography>
+            <Label
+              variant="soft"
+              color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus] || 'default'}
+              size="small"
+            >
+              {subtrip.subtripStatus.replace('-', ' ')}
+            </Label>
+          </Stack>
+        }
+        secondary={
+          <Stack spacing={1}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              {/* <Iconify icon="mdi:map-marker-path" sx={{ color: 'text.secondary' }} /> */}
+              <Typography variant="caption">
+                {`${subtrip.loadingPoint || 'N/A'} → ${subtrip.unloadingPoint || 'N/A'}`}
+              </Typography>
+            </Stack>
+
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="caption">
+                {`${subtrip.tripId?.vehicleId?.vehicleNo || 'N/A'} | ${subtrip.tripId?.driverId?.driverName || 'N/A'} | ${subtrip.startDate ? new Date(subtrip.startDate).toLocaleDateString() : 'N/A'}`}
+              </Typography>
+            </Stack>
+          </Stack>
+        }
+      />
+
+      <Button
+        size="small"
+        color={isSelected ? 'primary' : 'inherit'}
+        onClick={() => onSelect(subtrip)}
+        startIcon={
+          <Iconify
+            width={16}
+            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+            sx={{ mr: -0.5 }}
+          />
+        }
+      >
+        {isSelected ? 'Selected' : 'Select'}
+      </Button>
+    </Box>
+  );
+};
+
+const LoadingSkeleton = () => (
+  <Box sx={{ height: LIST_HEIGHT, px: 2.5 }}>
+    <Box component="ul">
+      {[...Array(6)].map((_, index) => (
+        <Box
+          component="li"
+          key={index}
+          sx={{
+            gap: 2,
+            display: 'flex',
+            height: ITEM_HEIGHT,
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Skeleton variant="text" width={120} height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="80%" height={20} />
+            <Skeleton variant="text" width="90%" height={20} />
+          </Box>
+          <Skeleton variant="rectangular" width={80} height={32} sx={{ borderRadius: 1 }} />
+        </Box>
+      ))}
+    </Box>
+  </Box>
+);
 
 export function KanbanSubtripDialog({
   selectedSubtrip = null,
@@ -33,7 +128,7 @@ export function KanbanSubtripDialog({
   onSubtripChange,
   filterParams = {},
 }) {
-  const { data: subtrips = [] } = useFilteredSubtrips(filterParams);
+  const { data: subtrips = [], isLoading } = useFilteredSubtrips(filterParams);
   const [searchSubtrip, setSearchSubtrip] = useState('');
 
   const handleSearchSubtrips = useCallback((event) => {
@@ -75,75 +170,33 @@ export function KanbanSubtripDialog({
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : notFound ? (
           <SearchNotFound query={searchSubtrip} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
-            <Box component="ul">
-              {dataFiltered.map((subtrip) => {
-                const isSelected = selectedSubtrip?._id === subtrip._id;
-
-                return (
-                  <Box
-                    component="li"
-                    key={subtrip._id}
-                    sx={{
-                      gap: 2,
-                      display: 'flex',
-                      height: ITEM_HEIGHT,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <ListItemText
-                      primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.5 } }}
-                      secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Typography variant="subtitle2">#{subtrip._id}</Typography>
-                          <Label
-                            variant="soft"
-                            color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus] || 'default'}
-                            size="small"
-                          >
-                            {subtrip.subtripStatus.replace('-', ' ')}
-                          </Label>
-                        </Stack>
-                      }
-                      secondary={
-                        <Stack spacing={1}>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            {/* <Iconify icon="mdi:map-marker-path" sx={{ color: 'text.secondary' }} /> */}
-                            <Typography variant="caption">
-                              {`${subtrip.loadingPoint || 'N/A'} → ${subtrip.unloadingPoint || 'N/A'}`}
-                            </Typography>
-                          </Stack>
-
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="caption">
-                              {`${subtrip.tripId?.vehicleId?.vehicleNo || 'N/A'} | ${subtrip.tripId?.driverId?.driverName || 'N/A'} | ${subtrip.startDate ? new Date(subtrip.startDate).toLocaleDateString() : 'N/A'}`}
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      }
-                    />
-
-                    <Button
-                      size="small"
-                      color={isSelected ? 'primary' : 'inherit'}
-                      onClick={() => handleSelectSubtrip(subtrip)}
-                      startIcon={
-                        <Iconify
-                          width={16}
-                          icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-                          sx={{ mr: -0.5 }}
-                        />
-                      }
-                    >
-                      {isSelected ? 'Selected' : 'Select'}
-                    </Button>
-                  </Box>
-                );
-              })}
+          <Scrollbar sx={{ height: LIST_HEIGHT }}>
+            <Box sx={{ px: 2.5 }}>
+              <List
+                height={LIST_HEIGHT}
+                width="100%"
+                itemCount={dataFiltered.length}
+                itemSize={ITEM_HEIGHT}
+                itemData={{
+                  subtrips: dataFiltered,
+                  selectedSubtrip,
+                  onSelect: handleSelectSubtrip,
+                }}
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                }}
+              >
+                {SubtripItem}
+              </List>
             </Box>
           </Scrollbar>
         )}
