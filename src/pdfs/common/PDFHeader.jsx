@@ -8,7 +8,7 @@ const { name, tagline, address, email, website, contacts } = CONFIG.company;
 
 const CompanyLogo = () => (
   <View style={[PDFStyles.col4, PDFStyles.alignCenter, PDFStyles.logoContainer]}>
-    <Image source="/logo/company-logo.png" style={{ width: 120, height: 120 }} />
+    <Image source="/logo/company-logo.png" style={{ width: 60, height: 60 }} />
   </View>
 );
 
