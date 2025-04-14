@@ -230,18 +230,9 @@ const pdfStyles = {
   // Modern styling additions
   headerContainer: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 4,
-    backgroundColor: '#ffffff',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+    borderColor: 'black',
   },
-  headerSection: {
-    padding: 12,
-  },
-  headerDivider: {
-    borderRightWidth: 1,
-    borderColor: '#e0e0e0',
-  },
+
   companyName: {
     fontSize: 18,
     fontWeight: 700,
@@ -270,11 +261,7 @@ const pdfStyles = {
     color: '#333333',
     marginBottom: 4,
   },
-  logoContainer: {
-    padding: 8,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 4,
-  },
+
   contactSection: {
     backgroundColor: '#f9f9f9',
     borderRadius: 4,
