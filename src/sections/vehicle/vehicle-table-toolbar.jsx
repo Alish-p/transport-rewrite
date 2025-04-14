@@ -210,15 +210,6 @@ export default function VehicleTableToolbar({
         anchorEl={popover.anchorEl}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
               document={<VehicleListPdf vehicles={tableData} />}

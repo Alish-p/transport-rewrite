@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -43,6 +44,7 @@ import {
 } from 'src/components/table';
 
 import SubtripTableRow from '../reports/subtrip-table-row';
+import SubtripListPdf from '../../../pdfs/subtrip-list-pdf';
 import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
 import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
@@ -300,6 +302,22 @@ export function SubtripReportsView() {
         >
           Export
         </Button>
+
+        <PDFDownloadLink
+          document={<SubtripListPdf subtrips={tableData} />}
+          fileName="Subtrip-list.pdf"
+        >
+          {({ loading }) => (
+            <Button
+              variant="outlined"
+              size="small"
+              color="primary"
+              startIcon={<Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} />}
+            >
+              PDF
+            </Button>
+          )}
+        </PDFDownloadLink>
 
         <Button
           variant="outlined"

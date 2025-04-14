@@ -10,10 +10,14 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 // components
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import CustomerListPdf from '../../pdfs/customer-list-pdf';
 
 // ----------------------------------------------------------------------
 
@@ -152,13 +156,27 @@ export default function CustomerTableToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={<CustomerListPdf customers={tableData} />}
+              fileName="Customer-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
 
           <MenuItem
