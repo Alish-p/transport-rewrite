@@ -11,12 +11,13 @@ import { Box, Dialog, MenuList, DialogActions } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import IndentPdf from 'src/pdfs/petrol-pump-indent';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import LRPDF from './pdfs/lorry-reciept-pdf';
-import IndentPdf from './pdfs/petrol-indent-pdf';
 import EntryPassPdf from './pdfs/entry-pass-pdf';
 import DriverPaymentPdf from './pdfs/driver-payment-pdf';
 import TransporterPayment from './pdfs/transporter-payment-pdf';
