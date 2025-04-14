@@ -111,10 +111,27 @@ export const navData = [
         icon: ICONS.subtrip,
         resource: 'subtrip',
         children: [
+          {
+            title: 'Create',
+            path: paths.dashboard.subtrip.new,
+            action: 'create',
+            info: <Iconify icon="material-symbols:add" />,
+          },
+          {
+            title: 'Load',
+            path: paths.dashboard.subtrip.receive,
+            action: 'update',
+            info: <Iconify icon="mdi:truck-fast" />,
+          },
+          {
+            title: 'Receive',
+            path: paths.dashboard.subtrip.receive,
+            action: 'update',
+            info: <Iconify icon="material-symbols:call-received" />,
+          },
+
           { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
           { title: 'Reports', path: paths.dashboard.subtrip.billedPaid, action: 'view' },
-          { title: 'Create', path: paths.dashboard.subtrip.new, action: 'create' },
-          { title: 'Receive', path: paths.dashboard.subtrip.receive, action: 'update' },
         ],
       },
       {
@@ -125,7 +142,11 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.expense.root, action: 'view' },
           { title: 'Reports', path: paths.dashboard.expense.reports, action: 'view' },
-          { title: 'Add Expense to Subtrip', path: paths.dashboard.expense.new, action: 'create' },
+          {
+            title: 'Add Expense to Subtrip',
+            path: paths.dashboard.expense.new,
+            action: 'create',
+          },
           {
             title: 'Add Expense to Vehicle ',
             path: paths.dashboard.expense.newVehicleExpense,

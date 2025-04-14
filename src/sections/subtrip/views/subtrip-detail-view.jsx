@@ -94,7 +94,11 @@ export function SubtripDetailView({ subtrip }) {
           status={subtrip.subtripStatus}
           subtrip={subtrip}
           onAddMaterialInfo={() => setShowMaterialDialog(true)}
-          onRecieve={() => setShowRecieveDialog(true)}
+          onRecieve={() =>
+            navigate(
+              `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
+            )
+          }
           onEdit={() => {
             navigate(paths.dashboard.subtrip.edit(subtrip._id));
           }}

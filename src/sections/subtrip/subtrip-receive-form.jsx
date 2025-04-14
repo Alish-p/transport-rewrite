@@ -1,20 +1,28 @@
+// ----------------------------------------------------------------------
+// IMPORTS
+// ----------------------------------------------------------------------
+
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
+// React and Form Libraries
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+// MUI Components
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Stack,
+  Paper,
   Button,
   Tooltip,
-  Divider,
   IconButton,
   Typography,
   InputAdornment,
 } from '@mui/material';
 
+// Custom Hooks and Components
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
@@ -22,10 +30,14 @@ import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
+// Constants and Config
 import { SUBTRIP_STATUS } from './constants';
+import { useSearchParams } from '../../routes/hooks';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
+// ----------------------------------------------------------------------
+// VALIDATION SCHEMA
 // ----------------------------------------------------------------------
 
 const validationSchema = zod
@@ -65,12 +77,257 @@ const validationSchema = zod
   });
 
 // ----------------------------------------------------------------------
+// COMPONENTS
+// ----------------------------------------------------------------------
+
+// Basic Information Section
+const BasicInfoSection = ({
+  selectedSubtrip,
+  subtripDialog,
+  currentSubtrip,
+  errors,
+  vehicleType,
+  isOwn,
+  trackingLink,
+}) => (
+  <Paper
+    elevation={0}
+    sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+  >
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+      <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
+      <Typography variant="h6">Basic Information</Typography>
+    </Stack>
+
+    <Box
+      display="grid"
+      gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}
+      rowGap={3}
+      columnGap={2}
+    >
+      {/* Subtrip Selection Button */}
+      <Box>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={subtripDialog.onTrue}
+          disabled={!!currentSubtrip}
+          sx={{
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
+            borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
+          }}
+          startIcon={
+            <Iconify
+              icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
+              sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
+            />
+          }
+        >
+          {selectedSubtrip
+            ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
+            : 'Select Subtrip *'}
+        </Button>
+      </Box>
+
+      {selectedSubtrip && (
+        <>
+          <Field.Text
+            name="unloadingWeight"
+            label="Unloading Weight"
+            type="number"
+            required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {selectedSubtrip?.loadingWeight && (
+                    <>
+                      ≤ {selectedSubtrip.loadingWeight} {loadingWeightUnit[vehicleType]}
+                    </>
+                  )}
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Field.Text name="invoiceNo" label="Invoice No" type="text" required />
+
+          <Field.Text
+            name="rate"
+            label="Freight Rate"
+            type="number"
+            required
+            InputProps={{
+              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+            }}
+          />
+
+          {isOwn && (
+            <Box sx={{ position: 'relative' }}>
+              <Field.Text
+                name="endKm"
+                label="End Km"
+                type="number"
+                required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end"> ≥ {selectedSubtrip?.startKm} Km</InputAdornment>
+                  ),
+                }}
+              />
+              {trackingLink && (
+                <Tooltip title="Track Vehicle">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      window.open(trackingLink, '_blank');
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      right: 60,
+                      top: 10,
+                      color: 'primary.main',
+                    }}
+                  >
+                    <Iconify icon="mdi:map-marker" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          )}
+
+          {!isOwn && (
+            <>
+              <Field.Text
+                name="commissionRate"
+                label="Transporter Commission Rate"
+                type="number"
+                placeholder="0"
+                required
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+
+              <Field.Text
+                name="effectiveRate"
+                label="Effective Rate"
+                type="number"
+                placeholder="0"
+                required
+                disabled
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+            </>
+          )}
+        </>
+      )}
+    </Box>
+  </Paper>
+);
+
+// Toggle Switches Section
+const ToggleSwitchesSection = () => (
+  <Paper
+    elevation={0}
+    sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+  >
+    <Stack direction="row" spacing={3}>
+      <Field.Switch
+        name="hasShortage"
+        label="Has Shortage"
+        sx={{
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: 'warning.main',
+          },
+          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: 'warning.main',
+          },
+        }}
+      />
+      <Field.Switch
+        name="hasError"
+        label="Has Error"
+        sx={{
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: 'error.main',
+          },
+          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: 'error.main',
+          },
+        }}
+      />
+    </Stack>
+  </Paper>
+);
+
+// Shortage Information Section
+const ShortageInfoSection = () => (
+  <Paper
+    elevation={0}
+    sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+  >
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+      <Iconify icon="mdi:alert-circle-outline" sx={{ color: 'warning.main' }} />
+      <Typography variant="h6">Shortage Information</Typography>
+    </Stack>
+
+    <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} rowGap={3} columnGap={2}>
+      <Field.Text
+        name="shortageWeight"
+        label="Shortage Weight"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">Ton</InputAdornment>,
+        }}
+      />
+
+      <Field.Text
+        name="shortageAmount"
+        label="Shortage Amount"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+        }}
+      />
+    </Box>
+  </Paper>
+);
+
+// Error Information Section
+const ErrorInfoSection = () => (
+  <Paper
+    elevation={0}
+    sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+  >
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+      <Iconify icon="mdi:alert-octagon-outline" sx={{ color: 'error.main' }} />
+      <Typography variant="h6">Error Information</Typography>
+    </Stack>
+
+    <Box display="grid" rowGap={3}>
+      <Field.Text name="errorRemarks" label="Error Remarks" type="text" multiline rows={3} />
+    </Box>
+  </Paper>
+);
+
+// ----------------------------------------------------------------------
+// MAIN COMPONENT
+// ----------------------------------------------------------------------
 
 export function SubtripReceiveForm({ currentSubtrip }) {
+  // State and Hooks
   const [selectedSubtrip, setSelectedSubtrip] = useState(currentSubtrip || null);
   const subtripDialog = useBoolean(false);
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo');
+  const navigate = useNavigate();
 
+  // Default form values
   const defaultValues = useMemo(
     () => ({
       unloadingWeight: selectedSubtrip?.loadingWeight || 0,
@@ -90,6 +347,7 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     [selectedSubtrip]
   );
 
+  // Form setup
   const methods = useForm({
     resolver: zodResolver(validationSchema),
     defaultValues,
@@ -121,15 +379,32 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     }
   }, [selectedSubtrip, reset, defaultValues]);
 
-  // update effective rate when commission rate is changed
+  // Update effective rate when commission rate changes
   useEffect(() => {
     if (commissionRate) {
       setValue('effectiveRate', rate - commissionRate);
     }
   }, [commissionRate, rate, setValue]);
 
+  // Event handlers
   const handleSubtripChange = (subtrip) => {
     setSelectedSubtrip(subtrip);
+  };
+
+  const handleReset = () => {
+    reset({
+      endKm: 0,
+      startKm: 0,
+      loadingWeight: 0,
+      unloadingWeight: 0,
+      commissionRate: 0,
+      hasShortage: false,
+      hasError: false,
+      invoiceNo: '',
+      rate: 0,
+      effectiveRate: 0,
+    });
+    setSelectedSubtrip(null);
   };
 
   const onSubmit = async (data) => {
@@ -140,20 +415,11 @@ export function SubtripReceiveForm({ currentSubtrip }) {
       }
 
       await receiveSubtrip({ id: selectedSubtrip._id, data });
+      handleReset();
 
-      // Reset form after successful submission
-      reset({
-        endKm: 0,
-        startKm: 0,
-        loadingWeight: 0,
-        unloadingWeight: 0,
-        commissionRate: 0,
-        hasShortage: false,
-        hasError: false,
-      });
-
-      // If no currentSubtrip was provided, clear the selected subtrip
-      setSelectedSubtrip(null);
+      if (redirectTo) {
+        navigate(redirectTo);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -167,260 +433,24 @@ export function SubtripReceiveForm({ currentSubtrip }) {
   return (
     <>
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        {/* Basic Info Section */}
-        <Box sx={{ mb: 4 }}>
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-            <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
-            <Typography variant="h6">Basic Information</Typography>
-          </Stack>
+        <BasicInfoSection
+          selectedSubtrip={selectedSubtrip}
+          subtripDialog={subtripDialog}
+          currentSubtrip={currentSubtrip}
+          errors={errors}
+          vehicleType={vehicleType}
+          isOwn={isOwn}
+          trackingLink={trackingLink}
+        />
 
-          <Box
-            display="grid"
-            gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}
-            rowGap={3}
-            columnGap={2}
-          >
-            {/* Subtrip Selection Button */}
-            <Box>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={subtripDialog.onTrue}
-                disabled={!!currentSubtrip}
-                sx={{
-                  height: 56,
-                  justifyContent: 'flex-start',
-                  typography: 'body2',
-                  borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
-                }}
-                startIcon={
-                  <Iconify
-                    icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
-                    sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
-                  />
-                }
-              >
-                {selectedSubtrip
-                  ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
-                  : 'Select Subtrip *'}
-              </Button>
-            </Box>
+        {selectedSubtrip && <ToggleSwitchesSection />}
 
-            {selectedSubtrip && (
-              <>
-                <Field.Text
-                  name="unloadingWeight"
-                  label="Unloading Weight"
-                  type="number"
-                  required
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {selectedSubtrip?.loadingWeight && (
-                          <>
-                            ≤ {selectedSubtrip.loadingWeight} {loadingWeightUnit[vehicleType]}
-                          </>
-                        )}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+        {hasShortage && <ShortageInfoSection />}
 
-                {/* Invoice No */}
-                <Field.Text name="invoiceNo" label="Invoice No" type="text" required />
+        {hasError && <ErrorInfoSection />}
 
-                {/* Rate */}
-                <Field.Text
-                  name="rate"
-                  label="Freight Rate"
-                  type="number"
-                  required
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                  }}
-                />
-
-                {isOwn && (
-                  <Box sx={{ position: 'relative' }}>
-                    <Field.Text
-                      name="endKm"
-                      label="End Km"
-                      type="number"
-                      required
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {' '}
-                            ≥ {selectedSubtrip?.startKm} Km
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    {trackingLink && (
-                      <Tooltip title="Track Vehicle">
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            window.open(trackingLink, '_blank');
-                          }}
-                          sx={{
-                            position: 'absolute',
-                            right: 60,
-                            top: 10,
-                            color: 'primary.main',
-                          }}
-                        >
-                          <Iconify icon="mdi:map-marker" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </Box>
-                )}
-
-                {!isOwn && (
-                  <>
-                    <Field.Text
-                      name="commissionRate"
-                      label="Transporter Commission Rate"
-                      type="number"
-                      placeholder="0"
-                      required
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                      }}
-                    />
-
-                    <Field.Text
-                      name="effectiveRate"
-                      label="Effective Rate"
-                      type="number"
-                      placeholder="0"
-                      required
-                      disabled
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                      }}
-                    />
-                  </>
-                )}
-              </>
-            )}
-          </Box>
-        </Box>
-
-        {/* Toggle Switches */}
-        {selectedSubtrip && (
-          <Box sx={{ mb: 3 }}>
-            <Stack direction="row" spacing={3}>
-              <Field.Switch
-                name="hasShortage"
-                label="Has Shortage"
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'warning.main',
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: 'warning.main',
-                  },
-                }}
-              />
-              <Field.Switch
-                name="hasError"
-                label="Has Error"
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'error.main',
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: 'error.main',
-                  },
-                }}
-              />
-            </Stack>
-          </Box>
-        )}
-
-        {/* Shortage Section */}
-        {hasShortage && (
-          <>
-            <Divider sx={{ my: 3 }} />
-            <Box sx={{ mb: 4 }}>
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                <Iconify icon="mdi:alert-circle-outline" sx={{ color: 'warning.main' }} />
-                <Typography variant="h6">Shortage Information</Typography>
-              </Stack>
-
-              <Box
-                display="grid"
-                gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-                rowGap={3}
-                columnGap={2}
-              >
-                <Field.Text
-                  name="shortageWeight"
-                  label="Shortage Weight"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">Ton</InputAdornment>,
-                  }}
-                />
-
-                <Field.Text
-                  name="shortageAmount"
-                  label="Shortage Amount"
-                  type="number"
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                  }}
-                />
-              </Box>
-            </Box>
-          </>
-        )}
-
-        {/* Error Section */}
-        {hasError && (
-          <>
-            <Divider sx={{ my: 3 }} />
-            <Box sx={{ mb: 4 }}>
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                <Iconify icon="mdi:alert-octagon-outline" sx={{ color: 'error.main' }} />
-                <Typography variant="h6">Error Information</Typography>
-              </Stack>
-
-              <Box display="grid" rowGap={3}>
-                <Field.Text
-                  name="errorRemarks"
-                  label="Error Remarks"
-                  type="text"
-                  multiline
-                  rows={3}
-                />
-              </Box>
-            </Box>
-          </>
-        )}
-
-        <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
-          <Button
-            color="inherit"
-            variant="outlined"
-            onClick={() => {
-              reset({
-                endKm: 0,
-                startKm: 0,
-                loadingWeight: 0,
-                unloadingWeight: 0,
-                commissionRate: 0,
-                hasShortage: false,
-                hasError: false,
-                invoiceNo: '',
-                rate: 0,
-                effectiveRate: 0,
-              });
-              setSelectedSubtrip(null);
-            }}
-          >
+        <Stack sx={{ mt: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
+          <Button color="inherit" variant="outlined" onClick={handleReset}>
             Reset
           </Button>
 
