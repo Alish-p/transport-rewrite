@@ -15,12 +15,17 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Tooltip, MenuList, ListItemText } from '@mui/material';
 // components
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
+import { exportToExcel } from 'src/utils/export-to-excel';
+
+import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
+import { useTransporters } from 'src/query/use-transporter';
+
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { vehicleTypes } from './vehicle-config';
-import { exportToExcel } from '../../utils/export-to-excel';
-import { useTransporters } from '../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
@@ -212,6 +217,29 @@ export default function VehicleTableToolbar({
           >
             <Iconify icon="solar:printer-minimalistic-bold" />
             Print
+          </MenuItem>
+
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={<VehicleListPdf vehicles={tableData} />}
+              fileName="Vehicle-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
 
           <MenuItem
