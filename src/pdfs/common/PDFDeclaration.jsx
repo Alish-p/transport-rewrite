@@ -1,0 +1,23 @@
+/* eslint-disable react/prop-types */
+import { View, Text } from '@react-pdf/renderer';
+
+import PDFStyles from './styles';
+
+export default function PDFDeclaration({ title = 'Declaration:', content }) {
+  return (
+    <View style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.noBorderTop]}>
+      <View style={[PDFStyles.col12, PDFStyles.p4]}>
+        <Text style={[PDFStyles.subtitle2, PDFStyles.mb4]}>{title}</Text>
+        {Array.isArray(content) ? (
+          content.map((line, index) => (
+            <Text key={index} style={[PDFStyles.body2, PDFStyles.mb2]}>
+              {line}
+            </Text>
+          ))
+        ) : (
+          <Text style={[PDFStyles.body2]}>{content}</Text>
+        )}
+      </View>
+    </View>
+  );
+}

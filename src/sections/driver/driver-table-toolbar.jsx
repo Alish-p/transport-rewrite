@@ -1,4 +1,7 @@
+/* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+// components
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -9,6 +12,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
+
+import DriverListPdf from 'src/pdfs/driver-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -65,21 +70,7 @@ export default function DriverTableToolbar({
           fullWidth
           value={filters.driverName}
           onChange={handleFilterDriverName}
-          placeholder="Search driver name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.driverCellNo}
-          onChange={handleFilterCellNo}
-          placeholder="Search mobile number..."
+          placeholder="Search Driver Name..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -93,7 +84,21 @@ export default function DriverTableToolbar({
           fullWidth
           value={filters.driverLicenceNo}
           onChange={handleFilterLicenseNo}
-          placeholder="Search license number..."
+          placeholder="Search License No..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.driverCellNo}
+          onChange={handleFilterCellNo}
+          placeholder="Search Cell No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -129,15 +134,7 @@ export default function DriverTableToolbar({
               sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
             >
               <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
+              <ListItemText primary={column.charAt(0).toUpperCase() + column.slice(1)} />
             </MenuItem>
           ))}
         </MenuList>
@@ -159,6 +156,29 @@ export default function DriverTableToolbar({
             Print
           </MenuItem>
 
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={<DriverListPdf drivers={tableData} />}
+              fileName="Driver-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
+
           <MenuItem
             onClick={() => {
               popover.onClose();
@@ -175,7 +195,7 @@ export default function DriverTableToolbar({
             }}
           >
             <Iconify icon="solar:export-bold" />
-            Export
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
