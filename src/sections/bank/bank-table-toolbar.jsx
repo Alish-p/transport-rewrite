@@ -10,12 +10,16 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 // components
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import BankListPdf from './pdfs/bank-list-pdf';
 
 // ----------------------------------------------------------------------
 
@@ -156,6 +160,56 @@ export default function BankTableToolbar({
             Print
           </MenuItem>
 
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={<BankListPdf banks={tableData} />}
+              fileName="Bank-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem>
+
+          {/* <MenuItem
+            onClick={() => {
+              popover.onClose();
+            }}
+          >
+            <PDFDownloadLink
+              document={<BankListPdf banks={tableData} />}
+              fileName="Bank-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 1 }}
+                  />
+                  Download
+                </>
+              )}
+            </PDFDownloadLink>
+          </MenuItem> */}
+
           <MenuItem
             onClick={() => {
               popover.onClose();
@@ -172,7 +226,7 @@ export default function BankTableToolbar({
             }}
           >
             <Iconify icon="solar:export-bold" />
-            Export
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
