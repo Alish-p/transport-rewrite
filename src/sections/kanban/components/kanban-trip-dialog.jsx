@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
+import { FixedSizeList as List } from 'react-window';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Skeleton from '@mui/material/Skeleton';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -17,10 +19,87 @@ import { SearchNotFound } from 'src/components/search-not-found';
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 64;
+const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // ----------------------------------------------------------------------
 
-export function KanbanTripDialog({ selectedTrip = null, open, onClose, onTripChange, trips = [] }) {
+const TripItem = ({ data: { trips, selectedTrip, onSelect }, index, style }) => {
+  const trip = trips[index];
+  const isSelected = selectedTrip?._id === trip._id;
+
+  return (
+    <Box
+      component="li"
+      style={style}
+      sx={{
+        gap: 2,
+        display: 'flex',
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+      }}
+    >
+      <ListItemText
+        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
+        secondaryTypographyProps={{ typography: 'caption' }}
+        primary={`Trip ${trip._id}`}
+        secondary={
+          <>
+            Vehicle: {trip.vehicleId?.vehicleNo} • Driver: {trip.driverId?.driverName}
+          </>
+        }
+      />
+
+      <Button
+        size="small"
+        color={isSelected ? 'primary' : 'inherit'}
+        onClick={() => onSelect(trip)}
+        startIcon={
+          <Iconify
+            width={16}
+            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+            sx={{ mr: -0.5 }}
+          />
+        }
+      >
+        {isSelected ? 'Selected' : 'Select'}
+      </Button>
+    </Box>
+  );
+};
+
+const LoadingSkeleton = () => (
+  <Box sx={{ height: LIST_HEIGHT, px: 2.5 }}>
+    <Box component="ul">
+      {[...Array(6)].map((_, index) => (
+        <Box
+          component="li"
+          key={index}
+          sx={{
+            gap: 2,
+            display: 'flex',
+            height: ITEM_HEIGHT,
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Skeleton variant="text" width={100} height={24} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="80%" height={20} />
+          </Box>
+          <Skeleton variant="rectangular" width={80} height={32} sx={{ borderRadius: 1 }} />
+        </Box>
+      ))}
+    </Box>
+  </Box>
+);
+
+export function KanbanTripDialog({
+  selectedTrip = null,
+  open,
+  onClose,
+  onTripChange,
+  trips = [],
+  isLoading,
+}) {
   const [searchTrip, setSearchTrip] = useState('');
 
   const handleSearchTrips = useCallback((event) => {
@@ -62,53 +141,33 @@ export function KanbanTripDialog({ selectedTrip = null, open, onClose, onTripCha
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : notFound ? (
           <SearchNotFound query={searchTrip} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
-            <Box component="ul">
-              {dataFiltered.map((trip) => {
-                const isSelected = selectedTrip?._id === trip._id;
-
-                return (
-                  <Box
-                    component="li"
-                    key={trip._id}
-                    sx={{
-                      gap: 2,
-                      display: 'flex',
-                      height: ITEM_HEIGHT,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <ListItemText
-                      primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-                      secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={`Trip ${trip._id}`}
-                      secondary={
-                        <>
-                          Vehicle: {trip.vehicleId?.vehicleNo} • Driver: {trip.driverId?.driverName}
-                        </>
-                      }
-                    />
-
-                    <Button
-                      size="small"
-                      color={isSelected ? 'primary' : 'inherit'}
-                      onClick={() => handleSelectTrip(trip)}
-                      startIcon={
-                        <Iconify
-                          width={16}
-                          icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-                          sx={{ mr: -0.5 }}
-                        />
-                      }
-                    >
-                      {isSelected ? 'Selected' : 'Select'}
-                    </Button>
-                  </Box>
-                );
-              })}
+          <Scrollbar sx={{ height: LIST_HEIGHT }}>
+            <Box sx={{ px: 2.5 }}>
+              <List
+                height={LIST_HEIGHT}
+                width="100%"
+                itemCount={dataFiltered.length}
+                itemSize={ITEM_HEIGHT}
+                itemData={{
+                  trips: dataFiltered,
+                  selectedTrip,
+                  onSelect: handleSelectTrip,
+                }}
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                }}
+              >
+                {TripItem}
+              </List>
             </Box>
           </Scrollbar>
         )}
