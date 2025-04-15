@@ -32,7 +32,6 @@ import { useDeleteExpense } from 'src/query/use-expense';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -198,7 +197,6 @@ export function ExpenseListView({ expenses }) {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.expense.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -239,266 +237,233 @@ export function ExpenseListView({ expenses }) {
   );
 
   return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Expense List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Expense',
-              href: paths.dashboard.expense.root,
-            },
-            {
-              name: 'Expense List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.expense.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Expense
-            </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
-
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <ExpenseAnalytic
-                title="All Expenses"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <ExpenseAnalytic
-                title="Subtrip Expenses"
-                total={getExpensesByCategory('subtrip').length}
-                percent={(getExpensesByCategory('subtrip').length / tableData.length) * 100}
-                price={getTotalAmountByCategory('subtrip')}
-                icon="material-symbols:route"
-                color={theme.palette.primary.main}
-              />
-
-              <ExpenseAnalytic
-                title="Vehicle Expenses"
-                total={getExpensesByCategory('vehicle').length}
-                percent={(getExpensesByCategory('vehicle').length / tableData.length) * 100}
-                price={getTotalAmountByCategory('vehicle')}
-                icon="mdi:truck"
-                color={theme.palette.secondary.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
-
-        {/* Table Section */}
-        <Card>
-          {/* filtering Tabs */}
-          <Tabs
-            value={filters.expenseCategory}
-            onChange={handleFilterExpenseCategory}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.expenseCategory) &&
-                        'filled') ||
-                      'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <ExpenseTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={dataFiltered}
-            subtripExpenseTypes={subtripExpenseTypes}
-            vehicleExpenseTypes={vehicleExpenseTypes}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
-
-          {canReset && (
-            <ExpenseTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row._id)
-                )
-              }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'filtered');
-                      }}
-                    >
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <ExpenseTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteExpense(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Expense List"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Expense',
+            href: paths.dashboard.expense.root,
+          },
+          {
+            name: 'Expense List',
+          },
+        ]}
         action={
           <Button
+            component={RouterLink}
+            href={paths.dashboard.expense.new}
             variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
+            startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            Delete
+            New Expense
           </Button>
         }
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
       />
-    </>
+
+      {/* Analytics Section */}
+      <Card
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Scrollbar>
+          <Stack
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+            sx={{ py: 2 }}
+          >
+            <ExpenseAnalytic
+              title="All Expenses"
+              total={tableData.length}
+              percent={100}
+              price={sumBy(tableData, 'totalAmount')}
+              icon="solar:bill-list-bold-duotone"
+              color={theme.palette.info.main}
+            />
+
+            <ExpenseAnalytic
+              title="Subtrip Expenses"
+              total={getExpensesByCategory('subtrip').length}
+              percent={(getExpensesByCategory('subtrip').length / tableData.length) * 100}
+              price={getTotalAmountByCategory('subtrip')}
+              icon="material-symbols:route"
+              color={theme.palette.primary.main}
+            />
+
+            <ExpenseAnalytic
+              title="Vehicle Expenses"
+              total={getExpensesByCategory('vehicle').length}
+              percent={(getExpensesByCategory('vehicle').length / tableData.length) * 100}
+              price={getTotalAmountByCategory('vehicle')}
+              icon="mdi:truck"
+              color={theme.palette.secondary.main}
+            />
+          </Stack>
+        </Scrollbar>
+      </Card>
+
+      {/* Table Section */}
+      <Card>
+        {/* filtering Tabs */}
+        <Tabs
+          value={filters.expenseCategory}
+          onChange={handleFilterExpenseCategory}
+          sx={{
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+          }}
+        >
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                <Label
+                  variant={
+                    ((tab.value === 'all' || tab.value === filters.expenseCategory) && 'filled') ||
+                    'soft'
+                  }
+                  color={tab.color}
+                >
+                  {tab.count}
+                </Label>
+              }
+            />
+          ))}
+        </Tabs>
+
+        <ExpenseTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={dataFiltered}
+          subtripExpenseTypes={subtripExpenseTypes}
+          vehicleExpenseTypes={vehicleExpenseTypes}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+        />
+
+        {canReset && (
+          <ExpenseTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            results={dataFiltered.length}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={dataFiltered.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                dataFiltered.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Sent">
+                  <IconButton color="primary">
+                    <Iconify icon="iconamoon:send-fill" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      exportToExcel(selectedRows, 'filtered');
+                    }}
+                  >
+                    <Iconify icon="eva:download-outline" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Print">
+                  <IconButton color="primary">
+                    <Iconify icon="solar:printer-minimalistic-bold" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleTableHead}
+                rowCount={dataFiltered.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    dataFiltered.map((row) => row._id)
+                  )
+                }
+              />
+              <TableBody>
+                {dataFiltered
+                  .slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
+                  .map((row) => (
+                    <ExpenseTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteExpense(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
+
+                <TableEmptyRows
+                  height={denseHeight}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                />
+
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={dataFiltered.length}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          //
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
 

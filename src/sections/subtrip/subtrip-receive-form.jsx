@@ -10,12 +10,17 @@ import {
   Grid,
   Stack,
   Paper,
+  Table,
   Button,
   Tooltip,
   Divider,
+  TableRow,
+  TableBody,
+  TableCell,
   IconButton,
   Typography,
   InputAdornment,
+  TableContainer,
   CircularProgress,
 } from '@mui/material';
 
@@ -31,11 +36,13 @@ import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+// Table Components
+import { TableHeadCustom } from 'src/components/table';
 
 // Constants and Config
 import { SUBTRIP_STATUS } from './constants';
-import { today } from '../../utils/format-time';
 import { receiveSchema } from './subtrip-schemas';
+import { today, fDate } from '../../utils/format-time';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
@@ -252,6 +259,56 @@ const ErrorSection = () => (
     </Box>
   </Paper>
 );
+
+const ExpenseListSection = ({ selectedSubtrip }) => {
+  const TABLE_HEAD = [
+    { id: 'expenseType', label: 'Type', align: 'left' },
+    { id: 'amount', label: 'Amount', align: 'right' },
+    { id: 'date', label: 'Date', align: 'center' },
+  ];
+
+  if (!selectedSubtrip?.expenses?.length) {
+    return null;
+  }
+
+  const { expenses } = selectedSubtrip;
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{ p: 3, my: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+    >
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+        <Iconify icon="mdi:cash-multiple" sx={{ color: 'info.main' }} />
+        <Typography variant="h6">Expense List</Typography>
+      </Stack>
+
+      <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+        <Table size="medium" sx={{ minWidth: 800 }}>
+          <TableHeadCustom headLabel={TABLE_HEAD} />
+
+          <TableBody>
+            {expenses.map((expense, index) => (
+              <TableRow hover key={expense._id || index}>
+                <TableCell>{expense.expenseType || '-'}</TableCell>
+                <TableCell align="right">
+                  <Typography variant="body2" color="error.main">
+                    {fCurrency(expense.amount || 0)}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Typography variant="body2" color="text.secondary">
+                    {fDate(expense.date)}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
+  );
+};
 
 const SubtripMetadataSection = ({ selectedSubtrip, isEditMode, handleEditToggle, methods }) => {
   const { watch } = methods;
@@ -677,7 +734,7 @@ export function SubtripReceiveForm({ currentSubtrip }) {
 
             {hasError && <ErrorSection />}
 
-            <Stack sx={{ mt: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
+            <Stack sx={{ my: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
               <Button color="inherit" variant="outlined" onClick={handleReset}>
                 Reset
               </Button>
@@ -691,6 +748,8 @@ export function SubtripReceiveForm({ currentSubtrip }) {
                 Save Changes
               </LoadingButton>
             </Stack>
+
+            {selectedSubtripData && <ExpenseListSection selectedSubtrip={selectedSubtripData} />}
           </Grid>
 
           <Grid item xs={12} md={4}>

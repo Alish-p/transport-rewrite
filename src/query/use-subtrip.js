@@ -157,7 +157,6 @@ export function useClosedSubtripsByTransporterAndDate(
 }
 
 export function useFilteredSubtrips(params) {
-  console.log(params);
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: getFilteredSubtrips,
