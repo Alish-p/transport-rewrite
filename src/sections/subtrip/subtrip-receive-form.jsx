@@ -1,38 +1,41 @@
-// ----------------------------------------------------------------------
-// IMPORTS
-// ----------------------------------------------------------------------
-
-import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
 // React and Form Libraries
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // MUI Components
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
+  Grid,
   Stack,
   Paper,
   Button,
   Tooltip,
+  Divider,
   IconButton,
   Typography,
   InputAdornment,
+  CircularProgress,
 } from '@mui/material';
 
 // Custom Hooks and Components
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
+// Utility functions
+import { wrapText } from 'src/utils/change-case';
+import { fCurrency } from 'src/utils/format-number';
+import { calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
+
+import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 // Constants and Config
 import { SUBTRIP_STATUS } from './constants';
-import { useSearchParams } from '../../routes/hooks';
+import { today } from '../../utils/format-time';
+import { receiveSchema } from './subtrip-schemas';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
@@ -40,73 +43,27 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 // VALIDATION SCHEMA
 // ----------------------------------------------------------------------
 
-const validationSchema = zod
-  .object({
-    unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
-    endKm: zod.number({ required_error: 'End Km is required' }).optional(),
-    commissionRate: zod
-      .number()
-      .min(0, { message: 'Commission rate cannot be negative' })
-      .optional(),
-    hasError: zod.boolean(),
-    errorRemarks: zod.string().optional(),
-    shortageWeight: zod.number().optional(),
-    shortageAmount: zod.number().optional(),
-    hasShortage: zod.boolean(),
-    invoiceNo: zod.string().optional(),
-    rate: zod.number().optional(),
-  })
-  .superRefine((values, ctx) => {
-    // Validate unloadingWeight <= loadingWeight if loadingWeight is available
-    if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
-      ctx.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'Unloading weight must be less than or equal to loading weight',
-        path: ['unloadingWeight'],
-      });
-    }
-
-    // Validate endKm >= startKm if both are available
-    if (values.startKm && values.endKm && values.endKm < values.startKm) {
-      ctx.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'End Km must be greater than or equal to Start Km',
-        path: ['endKm'],
-      });
-    }
-  });
-
 // ----------------------------------------------------------------------
 // COMPONENTS
 // ----------------------------------------------------------------------
 
-// Basic Information Section
-const BasicInfoSection = ({
-  selectedSubtrip,
-  subtripDialog,
-  currentSubtrip,
-  errors,
-  vehicleType,
-  isOwn,
-  trackingLink,
-}) => (
-  <Paper
-    elevation={0}
-    sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
-  >
-    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
-      <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
-      <Typography variant="h6">Basic Information</Typography>
-    </Stack>
+const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors, methods }) => {
+  const { vehicleType, isOwn, trackingLink } = selectedSubtrip?.tripId?.vehicleId || {};
 
-    <Box
-      display="grid"
-      gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}
-      rowGap={3}
-      columnGap={2}
+  const { watch } = methods;
+  const { loadingWeight, startKm } = watch();
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
     >
-      {/* Subtrip Selection Button */}
-      <Box>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+        <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
+        <Typography variant="h6">LR Receive Information</Typography>
+      </Stack>
+
+      <Box sx={{ mb: 3 }}>
         <Button
           fullWidth
           variant="outlined"
@@ -131,74 +88,67 @@ const BasicInfoSection = ({
         </Button>
       </Box>
 
-      {selectedSubtrip && (
-        <>
-          <Field.Text
-            name="unloadingWeight"
-            label="Unloading Weight"
-            type="number"
-            required
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {selectedSubtrip?.loadingWeight && (
-                    <>
-                      ≤ {selectedSubtrip.loadingWeight} {loadingWeightUnit[vehicleType]}
-                    </>
-                  )}
-                </InputAdornment>
-              ),
-            }}
-          />
+      <Box
+        display="grid"
+        gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}
+        rowGap={3}
+        columnGap={2}
+      >
+        {/* Subtrip Selection Button */}
 
-          <Field.Text name="invoiceNo" label="Invoice No" type="text" required />
+        {selectedSubtrip && (
+          <>
+            <Field.Text
+              name="unloadingWeight"
+              label="Unloading Weight"
+              type="number"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {loadingWeight && (
+                      <>
+                        ≤ {loadingWeight} {loadingWeightUnit[vehicleType]}
+                      </>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-          <Field.Text
-            name="rate"
-            label="Freight Rate"
-            type="number"
-            required
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-            }}
-          />
+            {isOwn && (
+              <Box sx={{ position: 'relative' }}>
+                <Field.Text
+                  name="endKm"
+                  label="End Km"
+                  type="number"
+                  required
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end"> ≥ {startKm} Km</InputAdornment>,
+                  }}
+                />
+                {trackingLink && (
+                  <Tooltip title="Track Vehicle">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        window.open(trackingLink, '_blank');
+                      }}
+                      sx={{
+                        position: 'absolute',
+                        right: 60,
+                        top: 10,
+                        color: 'primary.main',
+                      }}
+                    >
+                      <Iconify icon="mdi:map-marker" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+            )}
 
-          {isOwn && (
-            <Box sx={{ position: 'relative' }}>
-              <Field.Text
-                name="endKm"
-                label="End Km"
-                type="number"
-                required
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end"> ≥ {selectedSubtrip?.startKm} Km</InputAdornment>
-                  ),
-                }}
-              />
-              {trackingLink && (
-                <Tooltip title="Track Vehicle">
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      window.open(trackingLink, '_blank');
-                    }}
-                    sx={{
-                      position: 'absolute',
-                      right: 60,
-                      top: 10,
-                      color: 'primary.main',
-                    }}
-                  >
-                    <Iconify icon="mdi:map-marker" />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Box>
-          )}
-
-          {!isOwn && (
-            <>
+            {!isOwn && (
               <Field.Text
                 name="commissionRate"
                 label="Transporter Commission Rate"
@@ -209,28 +159,17 @@ const BasicInfoSection = ({
                   endAdornment: <InputAdornment position="end">₹</InputAdornment>,
                 }}
               />
+            )}
 
-              <Field.Text
-                name="effectiveRate"
-                label="Effective Rate"
-                type="number"
-                placeholder="0"
-                required
-                disabled
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                }}
-              />
-            </>
-          )}
-        </>
-      )}
-    </Box>
-  </Paper>
-);
+            <Field.DatePicker name="endDate" label="LR Receive Date *" />
+          </>
+        )}
+      </Box>
+    </Paper>
+  );
+};
 
-// Toggle Switches Section
-const ToggleSwitchesSection = () => (
+const IssueIndicatorsSection = () => (
   <Paper
     elevation={0}
     sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
@@ -239,6 +178,7 @@ const ToggleSwitchesSection = () => (
       <Field.Switch
         name="hasShortage"
         label="Has Shortage"
+        color="warning"
         sx={{
           '& .MuiSwitch-switchBase.Mui-checked': {
             color: 'warning.main',
@@ -251,6 +191,7 @@ const ToggleSwitchesSection = () => (
       <Field.Switch
         name="hasError"
         label="Has Error"
+        color="error"
         sx={{
           '& .MuiSwitch-switchBase.Mui-checked': {
             color: 'error.main',
@@ -264,15 +205,14 @@ const ToggleSwitchesSection = () => (
   </Paper>
 );
 
-// Shortage Information Section
-const ShortageInfoSection = () => (
+const ShortageSection = () => (
   <Paper
     elevation={0}
     sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
   >
     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
       <Iconify icon="mdi:alert-circle-outline" sx={{ color: 'warning.main' }} />
-      <Typography variant="h6">Shortage Information</Typography>
+      <Typography variant="h6">Shortage Details</Typography>
     </Stack>
 
     <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} rowGap={3} columnGap={2}>
@@ -297,22 +237,348 @@ const ShortageInfoSection = () => (
   </Paper>
 );
 
-// Error Information Section
-const ErrorInfoSection = () => (
+const ErrorSection = () => (
   <Paper
     elevation={0}
     sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
   >
     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
       <Iconify icon="mdi:alert-octagon-outline" sx={{ color: 'error.main' }} />
-      <Typography variant="h6">Error Information</Typography>
+      <Typography variant="h6">Error Details</Typography>
     </Stack>
 
     <Box display="grid" rowGap={3}>
-      <Field.Text name="errorRemarks" label="Error Remarks" type="text" multiline rows={3} />
+      <Field.Text name="remarks" label="Error Remarks" type="text" multiline rows={3} />
     </Box>
   </Paper>
 );
+
+const SubtripMetadataSection = ({ selectedSubtrip, isEditMode, handleEditToggle, methods }) => {
+  const { watch } = methods;
+  const {
+    loadingWeight,
+    rate,
+    commissionRate,
+    startKm,
+    invoiceNo,
+    shipmentNo,
+    consignee,
+    orderNo,
+    materialType,
+    grade,
+    diNumber,
+  } = watch();
+
+  // Calculate financial metrics
+  const calculateFinancials = () => {
+    if (!selectedSubtrip)
+      return {
+        freightAmount: 0,
+        expenses: 0,
+        driverSalary: 0,
+      };
+
+    // Calculate freightAmount (rate * loadingWeight)
+    const freightAmount = (rate || 0) * (loadingWeight || 0);
+
+    // Calculate total expenses
+    const expenses =
+      selectedSubtrip.expenses?.reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
+
+    // Calculate driver salary
+    const driverSalary = calculateDriverSalaryPerSubtrip(selectedSubtrip);
+
+    // Calculate invoice details
+
+    return {
+      freightAmount,
+      expenses,
+      driverSalary,
+    };
+  };
+
+  const { freightAmount, expenses, driverSalary } = calculateFinancials();
+
+  // Check if vehicle is owned
+  const isOwn = selectedSubtrip?.tripId?.vehicleId?.isOwn || false;
+  const vehicleType = selectedSubtrip?.tripId?.vehicleId?.vehicleType || '';
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+    >
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Iconify icon="mdi:truck-fast-outline" sx={{ color: 'primary.main' }} />
+          Subtrip Metadata
+        </Typography>
+        <Tooltip title={isEditMode ? 'Save Changes' : 'Edit Details'}>
+          <IconButton onClick={handleEditToggle} color={isEditMode ? 'primary' : 'default'}>
+            <Iconify icon={isEditMode ? 'mdi:content-save' : 'mdi:pencil'} />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+
+      {selectedSubtrip ? (
+        <Stack spacing={2}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            {isOwn && (
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Start Km
+                </Typography>
+                <Typography variant="body2" color="warning.main">
+                  {startKm || '-'} km
+                </Typography>
+              </Box>
+            )}
+
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Freight Rate
+              </Typography>
+              {isEditMode ? (
+                <Field.Text
+                  name="rate"
+                  size="small"
+                  sx={{ mt: 0.5 }}
+                  type="number"
+                  InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                />
+              ) : (
+                <Typography variant="body2" color="warning.main">
+                  {fCurrency(rate || 0)}
+                </Typography>
+              )}
+            </Box>
+
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Loading Weight
+              </Typography>
+              {isEditMode ? (
+                <Field.Text
+                  name="loadingWeight"
+                  size="small"
+                  sx={{ mt: 0.5 }}
+                  type="number"
+                  InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
+                />
+              ) : (
+                <Typography variant="body2" color="warning.main">
+                  {loadingWeight || 0} {loadingWeightUnit[vehicleType]}
+                </Typography>
+              )}
+            </Box>
+
+            {!isOwn && (
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Effective Rate
+                </Typography>
+                <Typography variant="body2" color="warning.main">
+                  {fCurrency(rate - commissionRate || 0)}
+                </Typography>
+              </Box>
+            )}
+
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Invoice No
+              </Typography>
+              {isEditMode ? (
+                <Field.Text name="invoiceNo" size="small" sx={{ mt: 0.5 }} />
+              ) : (
+                <Typography variant="body2">{invoiceNo || '-'}</Typography>
+              )}
+            </Box>
+
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Shipment No
+              </Typography>
+              {isEditMode ? (
+                <Field.Text name="shipmentNo" size="small" sx={{ mt: 0.5 }} />
+              ) : (
+                <Typography variant="body2">{shipmentNo || '-'}</Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Consignee
+              </Typography>
+              <Typography variant="body2">{consignee || '-'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Order No
+              </Typography>
+              <Typography variant="body2">{orderNo || '-'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Material Type
+              </Typography>
+              <Typography variant="body2">{materialType || '-'}</Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Grade
+              </Typography>
+              <Typography variant="body2">{grade || '-'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                DI Number
+              </Typography>
+              {isEditMode ? (
+                <Field.Text name="diNumber" size="small" sx={{ mt: 0.5 }} />
+              ) : (
+                <Typography variant="body2">{diNumber || '-'}</Typography>
+              )}
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box>
+            <Typography variant="caption" color="text.secondary">
+              Trip Details
+            </Typography>
+            <Box sx={{ mt: 1, p: 2, bgcolor: 'background.neutral', borderRadius: 1 }}>
+              <Stack spacing={1}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2">Vehicle</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {selectedSubtrip.tripId?.vehicleId?.vehicleNo || '-'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2">Driver</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {selectedSubtrip.tripId?.driverId?.driverName || '-'}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2">Customer</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {wrapText(selectedSubtrip?.customerId?.customerName || '-', 20)}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2">Route</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {wrapText(selectedSubtrip?.routeCd?.routeName || '-', 20)}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Financial Summary Section */}
+          <Box>
+            <Typography variant="caption" color="text.secondary">
+              Financial Summary
+            </Typography>
+            <Box sx={{ mt: 1 }}>
+              <Grid container spacing={2}>
+                {/* Income Card */}
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      bgcolor: 'success.lighter',
+                      border: '1px solid',
+                      borderColor: 'success.light',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Iconify icon="mdi:cash-plus" sx={{ color: 'success.main' }} />
+                      <Typography variant="subtitle2" sx={{ color: 'success.dark' }}>
+                        Freight Amount
+                      </Typography>
+                    </Stack>
+                    <Typography variant="h6" sx={{ color: 'success.dark' }}>
+                      {fCurrency(freightAmount)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Rate: ₹{rate || 0} × Weight: {loadingWeight || 0} Ton
+                    </Typography>
+                  </Paper>
+                </Grid>
+                {/* Expenses Card */}
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      bgcolor: 'error.lighter',
+                      border: '1px solid',
+                      borderColor: 'error.light',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Iconify icon="mdi:cash-minus" sx={{ color: 'error.main' }} />
+                      <Typography variant="subtitle2" sx={{ color: 'error.dark' }}>
+                        Expenses
+                      </Typography>
+                    </Stack>
+                    <Typography variant="h6" sx={{ color: 'error.dark' }}>
+                      {fCurrency(expenses)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {selectedSubtrip.expenses?.length || 0} expense entries
+                    </Typography>
+                  </Paper>
+                </Grid>
+
+                {/* Driver Salary Card */}
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      bgcolor: 'primary.lighter',
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Iconify icon="mdi:account-cash" sx={{ color: 'primary.main' }} />
+                      <Typography variant="subtitle2" sx={{ color: 'primary.dark' }}>
+                        Driver Salary
+                      </Typography>
+                    </Stack>
+                    <Typography variant="h6" sx={{ color: 'primary.dark' }}>
+                      {fCurrency(driverSalary || 0)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Driver: {selectedSubtrip.tripId?.driverId?.driverName || '-'}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Stack>
+      ) : (
+        <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', py: 3 }}>
+          Select a subtrip to view details
+        </Typography>
+      )}
+    </Paper>
+  );
+};
 
 // ----------------------------------------------------------------------
 // MAIN COMPONENT
@@ -320,36 +586,22 @@ const ErrorInfoSection = () => (
 
 export function SubtripReceiveForm({ currentSubtrip }) {
   // State and Hooks
-  const [selectedSubtrip, setSelectedSubtrip] = useState(currentSubtrip || null);
-  const subtripDialog = useBoolean(false);
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo');
-  const navigate = useNavigate();
 
-  // Default form values
+  const editMode = useBoolean();
+  const subtripDialog = useBoolean();
+
   const defaultValues = useMemo(
     () => ({
-      unloadingWeight: selectedSubtrip?.loadingWeight || 0,
-      endKm: selectedSubtrip?.startKm || 0,
-      commissionRate: 0,
-      hasError: false,
-      errorRemarks: '',
-      shortageWeight: 0,
-      shortageAmount: 0,
-      hasShortage: false,
-      loadingWeight: selectedSubtrip?.loadingWeight || 0,
-      startKm: selectedSubtrip?.startKm || 0,
-      invoiceNo: selectedSubtrip?.invoiceNo || '',
-      rate: selectedSubtrip?.rate || 0,
-      effectiveRate: selectedSubtrip?.rate || 0 - (selectedSubtrip?.commissionRate || 0),
+      subtripId: currentSubtrip || '',
+      endDate: today(),
     }),
-    [selectedSubtrip]
+    [currentSubtrip]
   );
 
   // Form setup
   const methods = useForm({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(receiveSchema),
     defaultValues,
     mode: 'all',
   });
@@ -358,117 +610,112 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     reset,
     watch,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
     setValue,
+    formState: { errors, isSubmitting, isValid },
   } = methods;
 
-  const { hasError, hasShortage, commissionRate, rate } = watch();
+  const { subtripId, hasError, hasShortage } = watch();
+
+  const { data: selectedSubtripData, isLoading: isSubtripLoading } = useSubtrip(subtripId);
 
   // Update form values when selectedSubtrip changes
   useEffect(() => {
-    if (selectedSubtrip) {
+    if (selectedSubtripData) {
       reset({
         ...defaultValues,
-        unloadingWeight: selectedSubtrip.loadingWeight || 0,
-        endKm: selectedSubtrip.startKm || 0,
-        loadingWeight: selectedSubtrip.loadingWeight || 0,
-        startKm: selectedSubtrip.startKm || 0,
-        invoiceNo: selectedSubtrip.invoiceNo || '',
-        rate: selectedSubtrip.rate || 0,
+        ...selectedSubtripData,
+        subtripId: selectedSubtripData._id,
+        unloadingWeight: selectedSubtripData.loadingWeight || 0,
       });
     }
-  }, [selectedSubtrip, reset, defaultValues]);
-
-  // Update effective rate when commission rate changes
-  useEffect(() => {
-    if (commissionRate) {
-      setValue('effectiveRate', rate - commissionRate);
-    }
-  }, [commissionRate, rate, setValue]);
+  }, [selectedSubtripData, reset, defaultValues]);
 
   // Event handlers
   const handleSubtripChange = (subtrip) => {
-    setSelectedSubtrip(subtrip);
+    setValue('subtripId', subtrip._id);
+    editMode.onFalse();
   };
 
   const handleReset = () => {
     reset({
-      endKm: 0,
-      startKm: 0,
-      loadingWeight: 0,
-      unloadingWeight: 0,
-      commissionRate: 0,
-      hasShortage: false,
-      hasError: false,
-      invoiceNo: '',
-      rate: 0,
-      effectiveRate: 0,
+      subtripId: '',
     });
-    setSelectedSubtrip(null);
+    editMode.onFalse();
   };
 
   const onSubmit = async (data) => {
     try {
-      if (!selectedSubtrip) {
-        console.error('No subtrip selected');
-        return;
-      }
-
-      await receiveSubtrip({ id: selectedSubtrip._id, data });
+      await receiveSubtrip({ id: subtripId, data });
       handleReset();
-
-      if (redirectTo) {
-        navigate(redirectTo);
-      }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Get vehicle details from selected subtrip
-  const vehicleType = selectedSubtrip?.tripId?.vehicleId?.vehicleType || '';
-  const isOwn = selectedSubtrip?.tripId?.vehicleId?.isOwn || false;
-  const trackingLink = selectedSubtrip?.tripId?.vehicleId?.trackingLink || '';
-
   return (
     <>
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <BasicInfoSection
-          selectedSubtrip={selectedSubtrip}
-          subtripDialog={subtripDialog}
-          currentSubtrip={currentSubtrip}
-          errors={errors}
-          vehicleType={vehicleType}
-          isOwn={isOwn}
-          trackingLink={trackingLink}
-        />
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
+            <ReceiveSection
+              selectedSubtrip={selectedSubtripData}
+              subtripDialog={subtripDialog}
+              currentSubtrip={currentSubtrip}
+              errors={errors}
+              methods={methods}
+            />
 
-        {selectedSubtrip && <ToggleSwitchesSection />}
+            {isSubtripLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
 
-        {hasShortage && <ShortageInfoSection />}
+            {selectedSubtripData && <IssueIndicatorsSection />}
 
-        {hasError && <ErrorInfoSection />}
+            {hasShortage && <ShortageSection />}
 
-        <Stack sx={{ mt: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
-          <Button color="inherit" variant="outlined" onClick={handleReset}>
-            Reset
-          </Button>
+            {hasError && <ErrorSection />}
 
-          <LoadingButton
-            type="submit"
-            variant="contained"
-            loading={isSubmitting}
-            disabled={!isValid || !selectedSubtrip}
-          >
-            Save Changes
-          </LoadingButton>
-        </Stack>
+            <Stack sx={{ mt: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
+              <Button color="inherit" variant="outlined" onClick={handleReset}>
+                Reset
+              </Button>
+
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                disabled={!isValid || !selectedSubtripData || isSubtripLoading}
+              >
+                Save Changes
+              </LoadingButton>
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            {isSubtripLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              selectedSubtripData && (
+                <SubtripMetadataSection
+                  selectedSubtrip={selectedSubtripData}
+                  isEditMode={editMode.value}
+                  handleEditToggle={editMode.onToggle}
+                  methods={methods}
+                />
+              )
+            )}
+          </Grid>
+        </Grid>
       </Form>
 
       <KanbanSubtripDialog
         open={subtripDialog.value}
         onClose={subtripDialog.onFalse}
-        selectedSubtrip={selectedSubtrip}
+        selectedSubtrip={selectedSubtripData}
         onSubtripChange={handleSubtripChange}
         filterParams={{
           subtripStatus: [SUBTRIP_STATUS.LOADED],

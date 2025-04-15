@@ -198,7 +198,7 @@ export function useUpdateSubtrip() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
-      toast.success('Subtrip edited successfully!');
+      toast.success('Subtrip updated successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
