@@ -12,6 +12,11 @@ const getExpenses = async () => {
   return data;
 };
 
+const getAllExpensesOfSubtrip = async (subtripId) => {
+  const { data } = await axios.get(`${ENDPOINT}/subtrip/${subtripId}`);
+  return data;
+};
+
 const getPastFilteredExpenses = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
@@ -47,6 +52,14 @@ export function useFilteredExpenses(params) {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPastFilteredExpenses(params),
     enabled: !!params,
+  });
+}
+
+export function useAllExpensesOfSubtrip(subtripId) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'subtrip', subtripId],
+    queryFn: () => getAllExpensesOfSubtrip(subtripId),
+    enabled: !!subtripId,
   });
 }
 

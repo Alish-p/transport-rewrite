@@ -32,7 +32,7 @@ import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
 
-import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
+import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -40,7 +40,6 @@ import { Form, Field } from 'src/components/hook-form';
 import { TableHeadCustom } from 'src/components/table';
 
 // Constants and Config
-import { SUBTRIP_STATUS } from './constants';
 import { receiveSchema } from './subtrip-schemas';
 import { today, fDate } from '../../utils/format-time';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -644,6 +643,7 @@ const SubtripMetadataSection = ({ selectedSubtrip, isEditMode, handleEditToggle,
 export function SubtripReceiveForm({ currentSubtrip }) {
   // State and Hooks
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
+  const { data: loadedSubtrips, isLoading: isLoadedSubtripsLoading } = useLoadedSubtrips();
 
   const editMode = useBoolean();
   const subtripDialog = useBoolean();
@@ -776,9 +776,8 @@ export function SubtripReceiveForm({ currentSubtrip }) {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtripData}
         onSubtripChange={handleSubtripChange}
-        filterParams={{
-          subtripStatus: [SUBTRIP_STATUS.LOADED],
-        }}
+        subtrips={loadedSubtrips}
+        isLoading={isLoadedSubtripsLoading}
       />
     </>
   );

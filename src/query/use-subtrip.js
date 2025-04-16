@@ -13,6 +13,15 @@ const getSubtrips = async () => {
   const { data } = await axios.get(ENDPOINT);
   return data;
 };
+const getLoadedSubtrips = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/loaded`);
+  return data;
+};
+
+const getLoadedInQueueSubtrips = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/loaded-in-queue`);
+  return data;
+};
 
 const getSubtrip = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
@@ -80,6 +89,13 @@ const closeEmptySubtrip = async (id, subtripData) => {
 // Queries & Mutations
 export function useSubtrips() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getSubtrips });
+}
+
+export function useLoadedSubtrips() {
+  return useQuery({ queryKey: [QUERY_KEY, 'loaded'], queryFn: getLoadedSubtrips });
+}
+export function useLoadedInQueueSubtrips() {
+  return useQuery({ queryKey: [QUERY_KEY, 'loaded-in-queue'], queryFn: getLoadedInQueueSubtrips });
 }
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {

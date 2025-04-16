@@ -26,15 +26,15 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { EXPENSE_TYPES } from 'src/constant';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
-import { useCreateExpense, useUpdateExpense, useFilteredExpenses } from 'src/query/use-expense';
+import { useCreateExpense, useUpdateExpense, useAllExpensesOfSubtrip } from 'src/query/use-expense';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import ExpenseInsights from './expense-insights';
 import { TableNoData } from '../../components/table';
-import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { Scrollbar } from '../../components/scrollbar';
+import { useLoadedInQueueSubtrips } from '../../query/use-subtrip';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
@@ -104,9 +104,12 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
 
+  const { data: inqueueAndLoadedSubtrips, isLoading: isInqueueAndLoadedSubtripsLoading } =
+    useLoadedInQueueSubtrips();
+
   // Add query for filtered expenses
-  const { data: subtripExpenses = [] } = useFilteredExpenses(
-    selectedSubtrip ? { subtripId: selectedSubtrip._id } : null
+  const { data: subtripExpenses = [] } = useAllExpensesOfSubtrip(
+    selectedSubtrip ? selectedSubtrip._id : null
   );
 
   const defaultValues = useMemo(
@@ -424,9 +427,8 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
-        filterParams={{
-          subtripStatus: [SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED],
-        }}
+        subtrips={inqueueAndLoadedSubtrips}
+        isLoading={isInqueueAndLoadedSubtripsLoading}
       />
     </>
   );

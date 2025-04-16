@@ -13,8 +13,6 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useFilteredSubtrips } from 'src/query/use-subtrip';
-
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -122,13 +120,13 @@ const LoadingSkeleton = () => (
 );
 
 export function KanbanSubtripDialog({
+  subtrips = [],
   selectedSubtrip = null,
   open,
   onClose,
   onSubtripChange,
-  filterParams = {},
+  isLoading = false,
 }) {
-  const { data: subtrips = [], isLoading } = useFilteredSubtrips(filterParams);
   const [searchSubtrip, setSearchSubtrip] = useState('');
 
   const handleSearchSubtrips = useCallback((event) => {
