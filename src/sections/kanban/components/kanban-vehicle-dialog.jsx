@@ -36,26 +36,20 @@ import { KanbanTransporterDialog } from './kanban-transporter-dialog';
 const ITEM_HEIGHT = 74;
 
 // Quick vehicle creation schema with minimal required fields
-const QuickVehicleSchema = zod
-  .object({
-    vehicleNo: zod
-      .string()
-      .min(1, { message: 'Vehicle No is required' })
-      .regex(/^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4}$/, {
-        message: 'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
-      }),
-    vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
-    noOfTyres: zod
-      .number()
-      .min(3, { message: 'No Of Tyres must be at least 3' })
-      .max(30, { message: 'No Of Tyres cannot exceed 30' }),
-    isOwn: zod.boolean().default(true),
-    transporter: zod.string().optional(),
-  })
-  .refine((data) => data.isOwn || data.transporter, {
-    message: 'Transport Company is required when the vehicle is not owned',
-    path: ['transporter'],
-  });
+const QuickVehicleSchema = zod.object({
+  vehicleNo: zod
+    .string()
+    .min(1, { message: 'Vehicle No is required' })
+    .regex(/^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4}$/, {
+      message: 'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
+    }),
+  vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
+  noOfTyres: zod
+    .number()
+    .min(3, { message: 'No Of Tyres must be at least 3' })
+    .max(30, { message: 'No Of Tyres cannot exceed 30' }),
+  transporter: zod.string(),
+});
 
 // ----------------------------------------------------------------------
 
@@ -283,14 +277,12 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [newlyCreatedVehicle, setNewlyCreatedVehicle] = useState(null);
   // Reset state when dialog opens
   useEffect(() => {
     if (open) {
       setSearchVehicle('');
       setShowQuickCreate(false);
       setError(null);
-      setNewlyCreatedVehicle(null);
     }
   }, [open]);
 
@@ -333,9 +325,6 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
 
       // Ensure we have a valid vehicle object before proceeding
       if (createdVehicle && createdVehicle._id) {
-        // Store the newly created vehicle
-        setNewlyCreatedVehicle(createdVehicle);
-
         // Refresh the vehicles list
         await refetch();
 

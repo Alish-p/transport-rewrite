@@ -138,6 +138,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                   selected={selectedVehicle?.vehicleNo}
                   error={!!errors.vehicleId?.message}
                   iconName="mdi:truck"
+                  disabled={currentTrip}
                 />
               </Box>
 
@@ -149,6 +150,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                   selected={selectedDriver?.driverName}
                   error={!!errors.driverId?.message}
                   iconName="mdi:account"
+                  disabled={currentTrip}
                 />
               </Box>
 
