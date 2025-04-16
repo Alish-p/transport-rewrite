@@ -10,9 +10,7 @@ export function SubtripCreateView({ trips, currentTrip, customers }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={
-          currentTrip !== 'undefined' ? `Add New Subtrip to ${currentTrip}` : 'Create New Subtrip'
-        }
+        heading={currentTrip ? `Add New Subtrip to ${currentTrip}` : 'Create New Subtrip'}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Subtrip List', href: paths.dashboard.subtrip.list },

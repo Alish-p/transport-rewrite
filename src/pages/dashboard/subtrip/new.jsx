@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useTrips } from 'src/query/use-trip';
+import { useOpenTrips } from 'src/query/use-trip';
 import { useCustomers } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -19,7 +19,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const currentTrip = searchParams.get('id');
 
-  const { data: trips, isLoading: tripLoading, isError: tripError } = useTrips();
+  const { data: trips, isLoading: tripLoading, isError: tripError } = useOpenTrips();
   const { data: customers, isLoading: customerLoading, isError: customerError } = useCustomers();
 
   if (tripLoading || customerLoading) {

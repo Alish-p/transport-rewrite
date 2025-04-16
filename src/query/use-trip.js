@@ -12,6 +12,11 @@ const getTrips = async () => {
   return data;
 };
 
+const getOpenTrips = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/open`);
+  return data;
+};
+
 const getTrip = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -41,6 +46,10 @@ const deleteTrip = async (id) => {
 // Queries & Mutations
 export function useTrips() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTrips });
+}
+
+export function useOpenTrips() {
+  return useQuery({ queryKey: [QUERY_KEY, 'open'], queryFn: getOpenTrips });
 }
 
 export function useTrip(id) {

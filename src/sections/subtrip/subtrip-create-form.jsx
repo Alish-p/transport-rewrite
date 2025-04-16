@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -12,7 +12,6 @@ import {
   Grid,
   Tabs,
   Stack,
-  Button,
   Accordion,
   Typography,
   InputAdornment,
@@ -27,6 +26,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
+import { useTrip } from 'src/query/use-trip';
 import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
@@ -35,6 +35,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { SUBTRIP_STATUS_COLORS } from './constants';
 import { KanbanTripDialog } from '../kanban/components/kanban-trip-dialog';
+import { DialogSelectButton } from '../../components/dialog-select-button';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
@@ -87,6 +88,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('loaded');
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedTripId, setSelectedTripId] = useState(currentTrip || null);
 
   const addSubtrip = useCreateSubtrip();
   const addEmptySubtrip = useCreateEmptySubtrip();
@@ -94,9 +96,12 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
   const tripDialog = useBoolean(false);
   const routeDialog = useBoolean(false);
 
+  // Fetch trip details including subtrips when a trip is selected
+  const { data: selectedTripDetails, isLoading: isLoadingTripDetails } = useTrip(selectedTripId);
+
   const defaultValues = useMemo(
     () => ({
-      tripId: currentTrip ? { label: currentTrip, value: currentTrip } : null,
+      tripId: currentTrip || null,
       customerId: null,
       startDate: today(),
       diNumber: '',
@@ -131,10 +136,9 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
   };
 
   const handleTripChange = (trip) => {
-    setValue('tripId', {
-      label: `${trip.vehicleId?.vehicleNo} - ${trip.driverId?.driverName}`,
-      value: trip._id,
-    });
+    const tripId = trip._id;
+    setSelectedTripId(tripId);
+    setValue('tripId', tripId);
   };
 
   const handleRouteChange = (route) => {
@@ -150,14 +154,14 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
       const submitData =
         currentTab === 'loaded'
           ? {
-              tripId: data?.tripId?.value,
+              tripId: data?.tripId,
               customerId: data?.customerId?.value,
               startDate: data?.startDate,
               diNumber: data?.diNumber,
               isEmpty: false,
             }
           : {
-              tripId: data?.tripId?.value,
+              tripId: data?.tripId,
               routeCd: data?.routeCd,
               loadingPoint: data?.loadingPoint,
               unloadingPoint: data?.unloadingPoint,
@@ -184,8 +188,6 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
 
   const selectedCustomer = customers.find((c) => c._id === methods.watch('customerId')?.value);
   const selectedTrip = trips.find((t) => t._id === methods.watch('tripId')?.value);
-
-  console.log({ errors, values: methods.watch() });
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -221,80 +223,43 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
 
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
               <Box>
-                <Button
-                  fullWidth
-                  variant="outlined"
+                <DialogSelectButton
                   onClick={tripDialog.onTrue}
                   disabled={currentTrip}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                    borderColor: errors.tripId?.message ? 'error.main' : 'text.disabled',
-                  }}
-                  startIcon={
-                    <Iconify
-                      icon={selectedTrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
-                      sx={{ color: selectedTrip ? 'primary.main' : 'text.disabled' }}
-                    />
+                  placeholder="Select Trip *"
+                  selected={
+                    selectedTripDetails &&
+                    `${selectedTripDetails.vehicleId?.vehicleNo} - ${selectedTripDetails.driverId?.driverName}`
                   }
-                >
-                  {selectedTrip
-                    ? `${selectedTrip.vehicleId?.vehicleNo} - ${selectedTrip.driverId?.driverName}`
-                    : 'Select Trip *'}
-                </Button>
+                  error={!!errors.tripId?.message}
+                  iconName="mdi:truck-fast"
+                />
               </Box>
 
               {currentTab === 'loaded' && (
                 <Box>
-                  <Button
-                    fullWidth
-                    variant="outlined"
+                  <DialogSelectButton
                     onClick={customerDialog.onTrue}
-                    sx={{
-                      height: 56,
-                      justifyContent: 'flex-start',
-                      typography: 'body2',
-                      borderColor: errors.customerId?.message ? 'error.main' : 'text.disabled',
-                    }}
-                    startIcon={
-                      <Iconify
-                        icon={
-                          selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'
-                        }
-                        sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
-                      />
-                    }
-                  >
-                    {selectedCustomer ? selectedCustomer.customerName : 'Select Customer *'}
-                  </Button>
+                    placeholder="Select Customer *"
+                    selected={selectedCustomer?.customerName}
+                    error={!!errors.customerId?.message}
+                    iconName="mdi:office-building"
+                  />
                 </Box>
               )}
 
               {currentTab === 'empty' ? (
                 <>
                   <Box>
-                    <Button
-                      fullWidth
-                      variant="outlined"
+                    <DialogSelectButton
                       onClick={routeDialog.onTrue}
-                      sx={{
-                        height: 56,
-                        justifyContent: 'flex-start',
-                        typography: 'body2',
-                        borderColor: errors.routeCd?.message ? 'error.main' : 'text.disabled',
-                      }}
-                      startIcon={
-                        <Iconify
-                          icon="mdi:map-marker-path"
-                          sx={{ color: selectedRoute ? 'primary.main' : 'text.disabled' }}
-                        />
+                      placeholder="Select Route *"
+                      selected={
+                        selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
                       }
-                    >
-                      {selectedRoute
-                        ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
-                        : 'Select Route *'}
-                    </Button>
+                      error={!!errors.routeCd?.message}
+                      iconName="mdi:map-marker-path"
+                    />
                   </Box>
 
                   <Field.Text
@@ -322,95 +287,103 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
             </Box>
           </Card>
 
-          {selectedTrip && selectedTrip.subtrips && selectedTrip.subtrips.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, color: 'text.primary' }}>
-                Trip Details
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
-                This trip has {selectedTrip.subtrips.length} subtrip
-                {selectedTrip.subtrips.length > 1 ? 's' : ''}. Below are the details of each
-                subtrip:
-              </Typography>
-              <Stack spacing={2}>
-                {selectedTrip.subtrips.map((subtrip) => (
-                  <Card key={subtrip._id} sx={{ p: 2 }}>
-                    <Accordion>
-                      <AccordionSummary expandIcon={<Iconify icon="mdi:chevron-down" />}>
-                        <Stack
-                          direction="row"
-                          alignItems="space-between"
-                          justifyContent="space-between"
-                          sx={{ width: '100%' }}
-                        >
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Iconify icon="mdi:truck-fast" sx={{ color: 'primary.main' }} />
-                            <Typography variant="subtitle1">Subtrip #{subtrip._id} </Typography>
-                          </Stack>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Label variant="soft" color="info" size="small">
-                              {subtrip.isEmpty ? 'Empty' : 'Loaded'}
-                            </Label>
-                            <Label
-                              variant="soft"
-                              color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus]}
-                              size="small"
-                            >
-                              {subtrip.subtripStatus.replace('-', ' ')}
-                            </Label>
-                          </Stack>
-                        </Stack>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Stack spacing={1}>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Iconify icon="mdi:map-marker-path" sx={{ color: 'text.secondary' }} />
-                            <Typography variant="body2">
-                              <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
-                                Route:
-                              </Box>
-                              {subtrip.loadingPoint} → {subtrip.unloadingPoint}
-                            </Typography>
-                          </Stack>
-
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Iconify icon="mdi:account" sx={{ color: 'text.secondary' }} />
-                            <Typography variant="body2">
-                              <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
-                                Consignee:
-                              </Box>
-                              {subtrip.consignee}
-                            </Typography>
-                          </Stack>
-
-                          {subtrip.materialType && (
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <Iconify
-                                icon="mdi:package-variant"
-                                sx={{ color: 'text.secondary' }}
-                              />
-                              <Typography variant="body2">
-                                <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
-                                  Material:
-                                </Box>
-                                {subtrip.materialType}
-                                {subtrip.quantity && ` (${subtrip.quantity} bags)`}
-                              </Typography>
-                            </Stack>
-                          )}
-                        </Stack>
-                      </AccordionDetails>
-                    </Accordion>
-                  </Card>
-                ))}
-              </Stack>
-            </Box>
-          )}
           <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
               Create Subtrip
             </LoadingButton>
           </Stack>
+
+          {selectedTripDetails &&
+            selectedTripDetails.subtrips &&
+            selectedTripDetails.subtrips.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2, color: 'text.primary' }}>
+                  Trip Details
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
+                  This trip has {selectedTripDetails.subtrips.length} subtrip
+                  {selectedTripDetails.subtrips.length > 1 ? 's' : ''}. Below are the details of
+                  each subtrip:
+                </Typography>
+                <Stack spacing={2}>
+                  {selectedTripDetails.subtrips.map((subtrip) => (
+                    <Card key={subtrip._id} sx={{ p: 2 }}>
+                      <Accordion>
+                        <AccordionSummary expandIcon={<Iconify icon="mdi:chevron-down" />}>
+                          <Stack
+                            direction="row"
+                            alignItems="space-between"
+                            justifyContent="space-between"
+                            sx={{ width: '100%' }}
+                          >
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Iconify icon="mdi:truck-fast" sx={{ color: 'primary.main' }} />
+                              <Typography variant="subtitle1">Subtrip #{subtrip._id} </Typography>
+                            </Stack>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              {subtrip.isEmpty && (
+                                <Label variant="soft" color="info" size="small">
+                                  Empty
+                                </Label>
+                              )}
+                              <Label
+                                variant="soft"
+                                color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus]}
+                                size="small"
+                              >
+                                {subtrip.subtripStatus.replace('-', ' ')}
+                              </Label>
+                            </Stack>
+                          </Stack>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Stack spacing={1}>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Iconify
+                                icon="mdi:map-marker-path"
+                                sx={{ color: 'text.secondary' }}
+                              />
+                              <Typography variant="body2">
+                                <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
+                                  Route:
+                                </Box>
+                                {subtrip.loadingPoint} → {subtrip.unloadingPoint}
+                              </Typography>
+                            </Stack>
+
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Iconify icon="mdi:account" sx={{ color: 'text.secondary' }} />
+                              <Typography variant="body2">
+                                <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
+                                  Consignee:
+                                </Box>
+                                {subtrip.consignee}
+                              </Typography>
+                            </Stack>
+
+                            {subtrip.materialType && (
+                              <Stack direction="row" alignItems="center" spacing={1}>
+                                <Iconify
+                                  icon="mdi:package-variant"
+                                  sx={{ color: 'text.secondary' }}
+                                />
+                                <Typography variant="body2">
+                                  <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
+                                    Material:
+                                  </Box>
+                                  {subtrip.materialType}
+                                  {subtrip.quantity && ` (${subtrip.quantity} bags)`}
+                                </Typography>
+                              </Stack>
+                            )}
+                          </Stack>
+                        </AccordionDetails>
+                      </Accordion>
+                    </Card>
+                  ))}
+                </Stack>
+              </Box>
+            )}
         </Grid>
       </Grid>
 
