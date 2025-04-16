@@ -5,19 +5,21 @@ import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Alert, Stack, Button, Typography } from '@mui/material';
+import { Box, Card, Grid, Alert, Stack, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
-import { toast } from 'src/components/snackbar';
-import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { useCreateTrip, useUpdateTrip } from 'src/query/use-trip';
 
-import { useBoolean } from '../../hooks/use-boolean';
-import { useCreateTrip, useUpdateTrip } from '../../query/use-trip';
+import { toast } from 'src/components/snackbar';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
+
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
@@ -45,12 +47,8 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
 
   const defaultValues = useMemo(
     () => ({
-      driverId: currentTrip?.driverId
-        ? { label: currentTrip?.driverId?.driverName, value: currentTrip?.driverId?._id }
-        : null,
-      vehicleId: currentTrip?.vehicleId
-        ? { label: currentTrip?.vehicleId?.vehicleNo, value: currentTrip?.vehicleId?._id }
-        : null,
+      driverId: currentTrip?.driverId || null,
+      vehicleId: currentTrip?.vehicleId || null,
       fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : today(),
       remarks: currentTrip?.remarks || '',
     }),
@@ -84,13 +82,13 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
 
   const handleVehicleChange = (vehicle) => {
     setSelectedVehicle(vehicle);
-    setValue('vehicleId', { label: vehicle.vehicleNo, value: vehicle._id });
+    setValue('vehicleId', vehicle._id);
     clearErrors('vehicleId');
   };
 
   const handleDriverChange = (driver) => {
     setSelectedDriver(driver);
-    setValue('driverId', { label: driver.driverName, value: driver._id });
+    setValue('driverId', driver._id);
     clearErrors('driverId');
   };
 
@@ -100,20 +98,12 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
         // Update Trip
         await updateTrip({
           id: currentTrip._id,
-          data: {
-            ...data,
-            driverId: data?.driverId?.value,
-            vehicleId: data?.vehicleId?.value,
-          },
+          data,
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
         // Add New Trip
-        const createdTrip = await createTrip({
-          ...data,
-          driverId: data?.driverId?.value,
-          vehicleId: data?.vehicleId?.value,
-        });
+        const createdTrip = await createTrip(data);
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();
@@ -142,48 +132,24 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
               {/* Vehicle Selection */}
               <Box>
-                <Button
-                  fullWidth
-                  variant="outlined"
+                <DialogSelectButton
                   onClick={vehicleDialog.onTrue}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                    borderColor: errors.vehicleId?.message ? 'error.main' : 'text.disabled',
-                  }}
-                  startIcon={
-                    <Iconify
-                      icon={selectedVehicle ? 'mdi:truck' : 'mdi:truck-outline'}
-                      sx={{ color: selectedVehicle ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {selectedVehicle ? selectedVehicle.vehicleNo : 'Select Vehicle *'}
-                </Button>
+                  placeholder="Select Vehicle *"
+                  selected={selectedVehicle?.vehicleNo}
+                  error={!!errors.vehicleId?.message}
+                  iconName="mdi:truck"
+                />
               </Box>
 
               {/* Driver Selection */}
               <Box>
-                <Button
-                  fullWidth
-                  variant="outlined"
+                <DialogSelectButton
                   onClick={driverDialog.onTrue}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                    borderColor: errors.driverId?.message ? 'error.main' : 'text.disabled',
-                  }}
-                  startIcon={
-                    <Iconify
-                      icon={selectedDriver ? 'mdi:account' : 'mdi:account-outline'}
-                      sx={{ color: selectedDriver ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {selectedDriver ? selectedDriver.driverName : 'Select Driver *'}
-                </Button>
+                  placeholder="Select Driver *"
+                  selected={selectedDriver?.driverName}
+                  error={!!errors.driverId?.message}
+                  iconName="mdi:account"
+                />
               </Box>
 
               <Field.DatePicker name="fromDate" label="From Date *" />
@@ -191,36 +157,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
             </Box>
           </Card>
 
-          {selectedVehicle && (
-            <Box sx={{ mt: 3 }}>
-              {/* Vehicle Information Alert */}
-              <Alert severity="success" variant="outlined">
-                <strong>Vehicle Information: </strong>
-                This is a <strong>{selectedVehicle?.vehicleType}</strong> vehicle with{' '}
-                <strong>{selectedVehicle?.noOfTyres}</strong> tyres.
-              </Alert>
-
-              {/* Ownership Details Alert */}
-              <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
-                <strong>Ownership Details: </strong>
-
-                {selectedVehicle?.isOwn ? (
-                  <span>
-                    This is a <strong>company-owned vehicle.</strong>
-                  </span>
-                ) : (
-                  <span>
-                    This is a <strong>market / transporter&apos;s vehicle</strong> managed by{' '}
-                    {selectedVehicle?.transporter?.transportName ? (
-                      <strong>{selectedVehicle.transporter.transportName}</strong>
-                    ) : (
-                      <em>an unknown transporter.</em>
-                    )}
-                  </span>
-                )}
-              </Alert>
-            </Box>
-          )}
+          {selectedVehicle && <VehicleInfoDetails vehicle={selectedVehicle} />}
         </Grid>
       </Grid>
 
@@ -247,3 +184,34 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     </Form>
   );
 }
+
+const VehicleInfoDetails = ({ vehicle }) => (
+  <Box sx={{ mt: 3 }}>
+    {/* Vehicle Information Alert */}
+    <Alert severity="success" variant="outlined">
+      <strong>Vehicle Information: </strong>
+      This is a <strong>{vehicle?.vehicleType}</strong> vehicle with{' '}
+      <strong>{vehicle?.noOfTyres}</strong> tyres.
+    </Alert>
+
+    {/* Ownership Details Alert */}
+    <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
+      <strong>Ownership Details: </strong>
+
+      {vehicle?.isOwn ? (
+        <span>
+          This is a <strong>company-owned vehicle.</strong>
+        </span>
+      ) : (
+        <span>
+          This is a <strong>market / transporter&apos;s vehicle</strong> managed by{' '}
+          {vehicle?.transporter?.transportName ? (
+            <strong>{vehicle.transporter.transportName}</strong>
+          ) : (
+            <em>an unknown transporter.</em>
+          )}
+        </span>
+      )}
+    </Alert>
+  </Box>
+);
