@@ -18,6 +18,11 @@ const getLoadedSubtrips = async () => {
   return data;
 };
 
+const getInQueueSubtrips = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/inqueue`);
+  return data;
+};
+
 const getLoadedInQueueSubtrips = async () => {
   const { data } = await axios.get(`${ENDPOINT}/loaded-in-queue`);
   return data;
@@ -96,6 +101,10 @@ export function useLoadedSubtrips() {
 }
 export function useLoadedInQueueSubtrips() {
   return useQuery({ queryKey: [QUERY_KEY, 'loaded-in-queue'], queryFn: getLoadedInQueueSubtrips });
+}
+
+export function useInQueueSubtrips() {
+  return useQuery({ queryKey: [QUERY_KEY, 'in-queue'], queryFn: getInQueueSubtrips });
 }
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {

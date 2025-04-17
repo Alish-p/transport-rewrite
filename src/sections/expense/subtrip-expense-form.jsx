@@ -47,6 +47,7 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 
 function ExpenseCoreForm({ currentSubtrip }) {
   const [selectedPump, setSelectedPump] = useState(null);
+
   const [selectedSubtrip, setSelectedSubtrip] = useState({ _id: currentSubtrip } || null);
 
   const pumpDialog = useBoolean(false);

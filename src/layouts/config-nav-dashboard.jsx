@@ -119,7 +119,7 @@ export const navData = [
           },
           {
             title: 'Load',
-            path: paths.dashboard.subtrip.receive,
+            path: paths.dashboard.subtrip.load,
             action: 'update',
             info: <Iconify icon="mdi:truck-fast" />,
           },

@@ -28,7 +28,6 @@ import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
 import { SubtripCloseEmptyDialog } from '../subtrip-close-empty-dialogue-form';
-import { SubtripMaterialInfoDialog } from '../subtrip-material-info-dialogue-form';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
@@ -93,7 +92,11 @@ export function SubtripDetailView({ subtrip }) {
           tripId={subtrip.tripId._id}
           status={subtrip.subtripStatus}
           subtrip={subtrip}
-          onAddMaterialInfo={() => setShowMaterialDialog(true)}
+          onAddMaterialInfo={() =>
+            navigate(
+              `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
+            )
+          }
           onRecieve={() =>
             navigate(
               `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
@@ -213,13 +216,6 @@ export function SubtripDetailView({ subtrip }) {
           <Grid item xs={12} md={6} lg={4} />
         </Grid>
       </DashboardContent>
-
-      {/* Add Material Dialogue Form */}
-      <SubtripMaterialInfoDialog
-        showDialog={showMaterialDialog}
-        setShowDialog={setShowMaterialDialog}
-        subtrip={subtrip}
-      />
 
       {/* Render the RecieveSubtripDialog */}
       <RecieveSubtripDialog
