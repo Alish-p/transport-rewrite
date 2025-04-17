@@ -27,6 +27,7 @@ import { LoadingButton } from '@mui/lab';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { useLoadedInQueueSubtrips } from 'src/query/use-subtrip';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
@@ -305,8 +306,13 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
       {selectedSubtrip && subtripExpenses.length > 0 && (
         <Card sx={{ mt: 3, p: 2 }}>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h6">Existing Expenses</Typography>
+          <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="subtitle1">Existing Expenses</Typography>
+            <Typography variant="subtitle2" color="primary">
+              {`Total Expenses: ${fCurrency(
+                subtripExpenses.reduce((acc, expense) => acc + expense.amount, 0)
+              )}`}
+            </Typography>
           </Box>
 
           <TableContainer>
@@ -328,7 +334,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                   <TableRow key={expense._id}>
                     <TableCell align="center">{fDate(expense.date)}</TableCell>
                     <TableCell align="center">
-                      <Box display="flex" alignItems="center">
+                      <Box display="flex" alignItems="center" justifyContent="center">
                         <Iconify
                           icon={
                             subtripExpenseTypes.find((type) => type.value === expense.expenseType)
@@ -339,9 +345,14 @@ function ExpenseCoreForm({ currentSubtrip }) {
                         {expense.expenseType}
                       </Box>
                     </TableCell>
-                    <TableCell align="center">{expense.amount}</TableCell>
-                    <TableCell align="center">{expense.dieselLtr || '-'}</TableCell>
-                    <TableCell align="center">{expense.dieselPrice || '-'}</TableCell>
+                    <TableCell align="center">
+                      {expense.dieselLtr ? `${fNumber(expense.dieselLtr)} L` : '-'}
+                    </TableCell>
+                    <TableCell align="center">
+                      {expense.dieselPrice ? `${fNumber(expense.dieselPrice)}` : '-'}
+                    </TableCell>
+                    <TableCell align="center">{fCurrency(expense.amount)}</TableCell>
+
                     <TableCell align="center">{expense.remarks || '-'}</TableCell>
                     <TableCell align="center">
                       <IconButton
