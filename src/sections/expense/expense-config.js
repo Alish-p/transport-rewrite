@@ -1,8 +1,8 @@
 export const subtripExpenseTypes = [
   { label: 'Diesel', value: 'diesel', icon: 'mdi:gas-station' },
   { label: 'Adblue', value: 'adblue', icon: 'mdi:water' },
+  { label: 'Trip Advance', value: 'trip-advance', icon: 'mdi:cash-fast' },
   { label: 'Driver Salary', value: 'driver-salary', icon: 'mdi:wallet' },
-  { label: 'Driver Advance', value: 'trip-advance', icon: 'mdi:cash-fast' },
   { label: 'Extra Advance', value: 'trip-extra-advance', icon: 'mdi:cash-plus' },
   { label: 'Tyre Puncher', value: 'puncher', icon: 'mdi:car-tire-alert' },
   { label: 'Tyre Expense', value: 'tyre-expense', icon: 'solar:wheel-bold-duotone' },
