@@ -25,6 +25,8 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { fCurrency } from '../../../utils/format-number';
+
 // ----------------------------------------------------------------------
 
 export default function ExpenseTableRow({
@@ -141,7 +143,7 @@ export default function ExpenseTableRow({
         {(visibleColumns.amount || disabledColumns.amount) && (
           <TableCell>
             <ListItemText
-              primary={amount}
+              primary={fCurrency(amount)}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>

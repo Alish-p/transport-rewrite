@@ -17,17 +17,6 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-const getStatusColor = (status) => {
-  if (!status) return 'default';
-  const statusColors = {
-    paid: 'success',
-    pending: 'warning',
-    overdue: 'error',
-    processing: 'info',
-  };
-  return statusColors[status.toLowerCase()] || 'default';
-};
-
 // ----------------------------------------------------------------------
 
 export default function ExpenseTableRow({ row, selected, onSelectRow, onViewRow }) {
