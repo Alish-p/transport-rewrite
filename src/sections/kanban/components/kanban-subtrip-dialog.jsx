@@ -55,6 +55,12 @@ const SubtripItem = ({ data: { subtrips, selectedSubtrip, onSelect }, index, sty
             >
               {subtrip.subtripStatus.replace('-', ' ')}
             </Label>
+
+            {!subtrip.tripId?.vehicleId?.isOwn && (
+              <Label variant="soft" color="default" size="small">
+                Market
+              </Label>
+            )}
           </Stack>
         }
         secondary={
