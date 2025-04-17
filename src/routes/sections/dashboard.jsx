@@ -69,7 +69,6 @@ const ExpenseReportPage = lazy(() => import('src/pages/dashboard/expense/report'
 const VehicleExpenseCreatePage = lazy(
   () => import('src/pages/dashboard/expense/newVehicleExpense')
 );
-const ExpenseEditPage = lazy(() => import('src/pages/dashboard/expense/edit'));
 
 // Subtrip
 const SubtripDetailsPage = lazy(() => import('src/pages/dashboard/subtrip/details'));
@@ -564,14 +563,6 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="expense" action="create" hasContent>
                 <VehicleExpenseCreatePage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <PermissionBasedGuard resource="expense" action="update" hasContent>
-                <ExpenseEditPage />
               </PermissionBasedGuard>
             ),
           },

@@ -179,7 +179,11 @@ export function SubtripDetailView({ subtrip }) {
                     <CardHeader title="Expense List" subheader="Detail of Expenses" />
                     <Button
                       variant="contained"
-                      onClick={() => setShowExpenseDialog(true)}
+                      onClick={() =>
+                        navigate(
+                          `${paths.dashboard.expense.new}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
+                        )
+                      }
                       disabled={!isEditingAllowed()}
                     >
                       New Expense

@@ -1,6 +1,4 @@
-import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -15,128 +13,77 @@ import {
   TableRow,
   TableBody,
   TableCell,
+  TableHead,
   Typography,
+  IconButton,
   InputAdornment,
+  TableContainer,
 } from '@mui/material';
 
 // Assuming you have a pump slice
-import { paths } from 'src/routes/paths';
+
+import { LoadingButton } from '@mui/lab';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { EXPENSE_TYPES } from 'src/constant';
+import { fDate } from 'src/utils/format-time';
+
+import { useLoadedInQueueSubtrips } from 'src/query/use-subtrip';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
-import { useCreateExpense, useUpdateExpense, useAllExpensesOfSubtrip } from 'src/query/use-expense';
+import { useCreateExpense, useDeleteExpense, useAllExpensesOfSubtrip } from 'src/query/use-expense';
 
 import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { TableNoData } from 'src/components/table';
+import { Form, Field } from 'src/components/hook-form';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import ExpenseInsights from './expense-insights';
-import { TableNoData } from '../../components/table';
-import { Scrollbar } from '../../components/scrollbar';
-import { useLoadedInQueueSubtrips } from '../../query/use-subtrip';
+import { SubtripExpenseSchema } from './expense-schemas';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
+import { subtripExpenseTypes, SUBTRIP_EXPENSE_TYPES } from './expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
-// Validation Schema (Combine and adapt schemas from both forms)
-const validationSchema = zod
-  .object({
-    date: schemaHelper.date({ message: { required_error: 'Date is required!' } }),
-    expenseType: zod.string({ required_error: 'Expense Type is required' }),
-    amount: zod.number({ required_error: 'Amount is required' }),
-    pumpCd: zod
-      .object({
-        label: zod.string(),
-        value: zod.string(),
-      })
-      .nullable()
-      .optional(),
-    dieselLtr: zod.number().optional(),
-    dieselPrice: zod.number().optional(),
-    remarks: zod.string().optional(),
-    paidThrough: zod.string().optional(),
-    fixedSalary: zod.number().optional(),
-    variableSalary: zod.number().optional(),
-    performanceSalary: zod.number().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.expenseType === 'diesel') {
-      if (!data.pumpCd) {
-        ctx.addIssue({ path: ['pumpCd'], message: 'Pump Code is required for Diesel expenses' });
-      }
-      if (!data.dieselLtr || data.dieselLtr <= 0) {
-        ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive Number' });
-      }
-      if (!data.dieselPrice || data.dieselPrice <= 0) {
-        ctx.addIssue({ path: ['dieselPrice'], message: 'Per Litre Diesel Price must be positive' });
-      }
-    }
+function ExpenseCoreForm({ currentSubtrip }) {
+  const [selectedPump, setSelectedPump] = useState(null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState({ _id: currentSubtrip } || null);
 
-    if (data.expenseType === 'driver-salary') {
-      if (data.fixedSalary == null || data.fixedSalary < 0) {
-        ctx.addIssue({
-          path: ['fixedSalary'],
-          message: 'Fixed Salary must be a non-negative number',
-        });
-      }
-      if (data.variableSalary == null || data.variableSalary < 0) {
-        ctx.addIssue({
-          path: ['variableSalary'],
-          message: 'Variable Salary must be a non-negative number',
-        });
-      }
-      if (data.performanceSalary == null || data.performanceSalary < 0) {
-        ctx.addIssue({
-          path: ['performanceSalary'],
-          message: 'Performance Salary must be a non-negative number',
-        });
-      }
-    }
-  });
-
-function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, onSuccess }) {
-  const navigate = useNavigate();
-  const [selectedPump, setSelectedPump] = useState(currentExpense?.pumpCd || null);
-  const [selectedSubtrip, setSelectedSubtrip] = useState(currentSubtrip || null);
   const pumpDialog = useBoolean(false);
   const subtripDialog = useBoolean(false);
-
+  const confirm = useBoolean(false);
   const createExpense = useCreateExpense();
-  const updateExpense = useUpdateExpense();
+  const deleteExpense = useDeleteExpense();
+  const [expenseId, setExpenseId] = useState(null);
 
   const { data: inqueueAndLoadedSubtrips, isLoading: isInqueueAndLoadedSubtripsLoading } =
     useLoadedInQueueSubtrips();
 
-  // Add query for filtered expenses
   const { data: subtripExpenses = [] } = useAllExpensesOfSubtrip(
     selectedSubtrip ? selectedSubtrip._id : null
   );
 
   const defaultValues = useMemo(
     () => ({
-      subtripId: currentSubtrip
-        ? { label: currentSubtrip?.subtripId, value: currentSubtrip?.subtripId }
-        : null,
-      date: currentExpense?.date ? new Date(currentExpense?.date) : new Date(),
-      expenseType: currentExpense?.expenseType || '',
-      amount: currentExpense?.amount || 0,
-      pumpCd: currentExpense?.pumpCd
-        ? { label: currentExpense?.pumpCd?.pumpName, value: currentExpense?.pumpCd?._id }
-        : null,
-      remarks: currentExpense?.remarks || '',
-      dieselLtr: currentExpense?.dieselLtr || 0,
-      dieselPrice: currentExpense?.dieselPrice || 0,
-      paidThrough: currentExpense?.paidThrough || '',
-      fixedSalary: currentExpense?.fixedSalary || 0,
-      variableSalary: currentExpense?.variableSalary || 0,
-      performanceSalary: currentExpense?.performanceSalary || 0,
+      subtripId: currentSubtrip || null,
+      date: new Date(),
+      expenseType: '',
+      amount: 0,
+      pumpCd: '',
+      remarks: '',
+      dieselLtr: 0,
+      dieselPrice: 0,
+      paidThrough: '',
+      fixedSalary: 0,
+      variableSalary: 0,
+      performanceSalary: 0,
     }),
-    [currentExpense, currentSubtrip]
+    [currentSubtrip]
   );
 
   const methods = useForm({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(SubtripExpenseSchema),
     defaultValues,
+    mode: 'onChange',
   });
 
   const {
@@ -144,7 +91,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
     watch,
     setValue,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isValid },
   } = methods;
 
   const {
@@ -160,9 +107,9 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
 
   const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd?.value, date });
 
-  // Dynamic Calculations (as in AddExpenseDialog)
+  // updating amount based on expense type (driver salary and diesel)
   useEffect(() => {
-    if (expenseType === 'driver-salary') {
+    if (expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY) {
       const totalSalary =
         (Number(fixedSalary) || 0) +
         (Number(variableSalary) || 0) +
@@ -170,7 +117,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
       setValue('amount', totalSalary, { shouldValidate: true });
     }
 
-    if (expenseType === 'diesel') {
+    if (expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL) {
       const totalAmount = (Number(dieselLtr) || 0) * (Number(dieselPrice) || 0);
       setValue('amount', totalAmount, { shouldValidate: true });
     }
@@ -184,24 +131,24 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
     setValue,
   ]);
 
+  // update diesel price based on pump and date
   useEffect(() => {
-    // If the expense is not present, then set the diesel price to the diesel price on date
-    if (!currentExpense) {
-      if (dieselPriceOnDate) {
-        setValue('dieselPrice', dieselPriceOnDate.price);
-      } else {
-        setValue('dieselPrice', 0);
-      }
+    if (dieselPriceOnDate) {
+      setValue('dieselPrice', dieselPriceOnDate.price);
+    } else {
+      setValue('dieselPrice', 0);
     }
-  }, [setValue, dieselPriceOnDate, currentExpense]);
+  }, [setValue, dieselPriceOnDate]);
 
   const handlePumpChange = (pump) => {
     setSelectedPump(pump);
-    setValue('pumpCd', { label: pump.pumpName, value: pump._id });
+    setValue('pumpCd', pump._id);
   };
 
   const handleSubtripChange = (subtrip) => {
+    console.log({ subtrip });
     setSelectedSubtrip(subtrip);
+    setValue('subtripId', subtrip?._id);
   };
 
   // Handlers for submit and cancel
@@ -209,38 +156,26 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
     const transformedData = {
       ...data,
       expenseCategory: 'subtrip',
-      pumpCd: data.pumpCd?.value || null,
-      subtripId: currentExpense ? currentExpense.subtripId : selectedSubtrip?._id,
-      vehicleId: currentExpense
-        ? currentExpense.vehicleId
-        : selectedSubtrip?.tripId?.vehicleId?._id,
+      subtripId: selectedSubtrip?._id,
+      vehicleId: selectedSubtrip?.tripId?.vehicleId?._id,
     };
 
-    let newExpense;
+    await createExpense(transformedData);
 
-    if (!currentExpense) {
-      newExpense = await createExpense(transformedData);
-    } else {
-      newExpense = await updateExpense({ id: currentExpense._id, data: transformedData });
-    }
-
-    if (fromDialog) {
-      navigate(paths.dashboard.subtrip.details(selectedSubtrip._id));
-      onSuccess?.(); // Call onSuccess callback if provided
-    } else {
-      // Reset form values when not using dialog
-      reset(defaultValues);
-      setSelectedPump(null);
-      setSelectedSubtrip(null);
-    }
+    // Reset form values when not using dialog
+    reset(defaultValues);
+    setSelectedPump(null);
+    setSelectedSubtrip(null);
   };
+
+  console.log({ errors, values: watch() });
 
   return (
     <>
       <ExpenseInsights subtrip={selectedSubtrip} expenseType={expenseType} />
 
-      <Card sx={{ p: 3, mb: 5 }}>
-        <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <Card sx={{ p: 3, mb: 5 }}>
           <Box
             display="grid"
             gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
@@ -250,64 +185,38 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
           >
             {/* Subtrip Selection Button */}
             <Box>
-              <Button
-                fullWidth
-                variant="outlined"
+              <DialogSelectButton
                 onClick={subtripDialog.onTrue}
-                disabled={fromDialog}
-                sx={{
-                  height: 56,
-                  justifyContent: 'flex-start',
-                  typography: 'body2',
-                  borderColor: errors.subtripId?.message ? 'error.main' : 'text.disabled',
-                }}
-                startIcon={
-                  <Iconify
-                    icon={selectedSubtrip ? 'mdi:truck-fast' : 'mdi:truck-fast-outline'}
-                    sx={{ color: selectedSubtrip ? 'primary.main' : 'text.disabled' }}
-                  />
-                }
-              >
-                {selectedSubtrip
-                  ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
-                  : 'Select Subtrip *'}
-              </Button>
+                placeholder="Select Subtrip *"
+                selected={selectedSubtrip?._id}
+                error={!!errors.subtripId?.message}
+                iconName="mdi:truck-fast"
+              />
             </Box>
 
-            <Field.DatePicker name="date" label="Date" />
+            <Field.DatePicker name="date" label="Date *" required />
 
-            <Field.Select name="expenseType" label="Expense Type">
+            <Field.Select name="expenseType" label="Expense Type" required>
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
-              {EXPENSE_TYPES.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type.replace(/-/g, ' ')}
+              {subtripExpenseTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  <Iconify icon={type.icon} sx={{ mr: 1 }} />
+                  {type.label}
                 </MenuItem>
               ))}
             </Field.Select>
 
-            {expenseType === 'diesel' && (
+            {expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL && (
               <>
                 <Box>
-                  <Button
-                    fullWidth
-                    variant="outlined"
+                  <DialogSelectButton
                     onClick={pumpDialog.onTrue}
-                    sx={{
-                      height: 56,
-                      justifyContent: 'flex-start',
-                      typography: 'body2',
-                      borderColor: errors.pumpCd?.message ? 'error.main' : 'text.disabled',
-                    }}
-                    startIcon={
-                      <Iconify
-                        icon={selectedPump ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
-                        sx={{ color: selectedPump ? 'primary.main' : 'text.disabled' }}
-                      />
-                    }
-                  >
-                    {selectedPump ? selectedPump.pumpName : 'Select Pump *'}
-                  </Button>
+                    placeholder="Select Pump *"
+                    selected={selectedPump?.pumpName}
+                    error={!!errors.tripId?.message}
+                    iconName="mdi:gas-station"
+                  />
                 </Box>
                 <Field.Text
                   name="dieselLtr"
@@ -328,7 +237,7 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
               </>
             )}
 
-            {expenseType === 'driver-salary' && (
+            {expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY && (
               <>
                 <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
                 <Field.Text
@@ -356,7 +265,10 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
               name="amount"
               label="Amount"
               type="number"
-              disabled={expenseType === 'driver-salary' || expenseType === 'diesel'}
+              disabled={
+                expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY ||
+                expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL
+              }
               InputProps={{
                 endAdornment: <InputAdornment position="end">₹</InputAdornment>,
               }}
@@ -364,54 +276,90 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
             <Field.Text name="remarks" label="Remarks" />
             <Field.Text name="paidThrough" label="Paid Through" />
           </Box>
-          <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
-            <Button color="inherit" variant="outlined" onClick={reset}>
-              Reset
-            </Button>
+        </Card>
+        <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={() => {
+              reset(defaultValues);
+              setSelectedPump(null);
+              setSelectedSubtrip(null);
+            }}
+          >
+            Reset
+          </Button>
 
-            <Button type="submit" variant="contained">
-              Add Expense
-            </Button>
-          </Stack>
-        </Form>
-      </Card>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+            disabled={!isValid || isSubmitting}
+          >
+            Add Expense
+          </LoadingButton>
+        </Stack>
+      </Form>
 
-      {selectedSubtrip && (
-        <Card sx={{ mt: 3 }}>
-          <Box sx={{ p: 2 }}>
+      <Divider sx={{ my: 3 }} />
+
+      {selectedSubtrip && subtripExpenses.length > 0 && (
+        <Card sx={{ mt: 3, p: 2 }}>
+          <Box sx={{ p: 3 }}>
             <Typography variant="h6">Existing Expenses</Typography>
           </Box>
-          <Scrollbar>
-            <Box sx={{ minWidth: 800 }}>
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Diesel Ltr</TableCell>
-                    <TableCell align="right">Diesel Price</TableCell>
-                    <TableCell align="right">Variable Salary</TableCell>
-                    <TableCell align="right">Fixed Salary</TableCell>
-                    <TableCell>Remarks</TableCell>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Date</TableCell>
+                  <TableCell align="center">Type</TableCell>
+                  <TableCell align="center">Diesel Ltr</TableCell>
+                  <TableCell align="center">Diesel Price</TableCell>
+                  <TableCell align="center">Amount</TableCell>
+                  <TableCell align="center">Remarks</TableCell>
+                  <TableCell align="center" />
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {subtripExpenses.map((expense) => (
+                  <TableRow key={expense._id}>
+                    <TableCell align="center">{fDate(expense.date)}</TableCell>
+                    <TableCell align="center">
+                      <Box display="flex" alignItems="center">
+                        <Iconify
+                          icon={
+                            subtripExpenseTypes.find((type) => type.value === expense.expenseType)
+                              .icon
+                          }
+                          sx={{ mr: 1 }}
+                        />
+                        {expense.expenseType}
+                      </Box>
+                    </TableCell>
+                    <TableCell align="center">{expense.amount}</TableCell>
+                    <TableCell align="center">{expense.dieselLtr || '-'}</TableCell>
+                    <TableCell align="center">{expense.dieselPrice || '-'}</TableCell>
+                    <TableCell align="center">{expense.remarks || '-'}</TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        color="error"
+                        onClick={() => {
+                          confirm.onTrue();
+                          setExpenseId(expense._id);
+                        }}
+                      >
+                        <Iconify icon="mdi:delete" />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
-                  {subtripExpenses.map((expense) => (
-                    <TableRow key={expense._id}>
-                      <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
-                      <TableCell>{expense.expenseType}</TableCell>
-                      <TableCell align="right">{expense.amount}</TableCell>
-                      <TableCell align="right">{expense.dieselLtr || '-'}</TableCell>
-                      <TableCell align="right">{expense.dieselPrice || '-'}</TableCell>
-                      <TableCell align="right">{expense.variableSalary || '-'}</TableCell>
-                      <TableCell align="right">{expense.fixedSalary || '-'}</TableCell>
-                      <TableCell>{expense.remarks || '-'}</TableCell>
-                    </TableRow>
-                  ))}
-                  <TableNoData notFound={subtripExpenses.length === 0} />
-                </TableBody>
-              </Table>
-            </Box>
-          </Scrollbar>
+                ))}
+                <TableNoData notFound={subtripExpenses.length === 0} />
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Card>
       )}
 
@@ -429,6 +377,25 @@ function ExpenseCoreForm({ currentExpense, currentSubtrip, fromDialog = false, o
         onSubtripChange={handleSubtripChange}
         subtrips={inqueueAndLoadedSubtrips}
         isLoading={isInqueueAndLoadedSubtripsLoading}
+      />
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content="Are you sure want to delete?"
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              confirm.onFalse();
+              deleteExpense(expenseId);
+            }}
+          >
+            Delete
+          </Button>
+        }
       />
     </>
   );

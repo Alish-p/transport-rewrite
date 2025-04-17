@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import ExpenseCoreForm from '../subtrip-expense-form';
 
-export function SubtripExpenseCreateView() {
+export function SubtripExpenseCreateView({ currentSubtrip }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function SubtripExpenseCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseCoreForm />
+      <ExpenseCoreForm currentSubtrip={currentSubtrip} />
     </DashboardContent>
   );
 }

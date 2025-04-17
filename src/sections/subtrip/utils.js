@@ -1,11 +1,11 @@
-import { EXPENSE_TYPES } from '../../constant';
+import { subtripExpenseTypes } from '../expense/expense-config';
 
 export const mapExpensesToChartData = (expenses) => {
-  const expenseData = EXPENSE_TYPES.map((type) => {
+  const expenseData = subtripExpenseTypes.map((type) => {
     const total = expenses
-      .filter((expense) => expense.expenseType === type)
+      .filter((expense) => expense.expenseType === type.value)
       .reduce((sum, expense) => sum + expense.amount, 0);
-    return { label: type, value: total };
+    return { label: type.label, value: total };
   });
 
   return expenseData;
