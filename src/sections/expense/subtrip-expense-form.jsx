@@ -106,7 +106,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
     date,
   } = watch();
 
-  const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd?.value, date });
+  const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd, date });
 
   // updating amount based on expense type (driver salary and diesel)
   useEffect(() => {
