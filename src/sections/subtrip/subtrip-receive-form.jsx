@@ -797,6 +797,7 @@ export function SubtripReceiveForm() {
       });
 
       handleReset();
+
       if (redirectTo) {
         navigate(redirectTo);
       }

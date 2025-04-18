@@ -43,6 +43,7 @@ import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { paths } from '../../routes/paths';
 // Config & Constants
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -149,7 +150,6 @@ export function SubtripLoadForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentSubtripId = searchParams.get('currentSubtrip');
-  const redirectTo = searchParams.get('redirectTo');
 
   // State management
   const [activeStep, setActiveStep] = useState(0);
@@ -311,9 +311,7 @@ export function SubtripLoadForm() {
       });
 
       handleReset();
-      if (redirectTo) {
-        navigate(redirectTo);
-      }
+      navigate(paths.dashboard.subtrip.details(selectedSubtrip._id));
     } catch (error) {
       console.error('Failed to update subtrip:', error);
     }
