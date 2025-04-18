@@ -1,26 +1,30 @@
 import { useForm } from 'react-hook-form';
-// React and Form Libraries
-import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 // MUI Components
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Grid,
+  Card,
   Stack,
   Paper,
   Table,
+  Alert,
   Button,
   Tooltip,
   Divider,
   TableRow,
   TableBody,
   TableCell,
+  TableHead,
   IconButton,
   Typography,
   InputAdornment,
   TableContainer,
+  LinearProgress,
   CircularProgress,
 } from '@mui/material';
 
@@ -29,7 +33,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 // Utility functions
 import { wrapText } from 'src/utils/change-case';
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
 
 import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
@@ -37,23 +41,27 @@ import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 // Table Components
-import { TableHeadCustom } from 'src/components/table';
 
 // Constants and Config
 import { receiveSchema } from './subtrip-schemas';
+import { TableNoData } from '../../components/table';
 import { today, fDate } from '../../utils/format-time';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { subtripExpenseTypes } from '../expense/expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
-
-// ----------------------------------------------------------------------
-// VALIDATION SCHEMA
-// ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 // COMPONENTS
 // ----------------------------------------------------------------------
 
-const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors, methods }) => {
+const ReceiveSection = ({
+  selectedSubtrip,
+  subtripDialog,
+  currentSubtrip,
+  errors,
+  methods,
+  isLoadingSubtripDetails,
+}) => {
   const { vehicleType, isOwn, trackingLink } = selectedSubtrip?.tripId?.vehicleId || {};
 
   const { watch } = methods;
@@ -62,8 +70,21 @@ const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors
   return (
     <Paper
       elevation={0}
-      sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
+      sx={{
+        p: 3,
+        mb: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        position: 'relative',
+      }}
     >
+      {isLoadingSubtripDetails && (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 2 }}>
+          <LinearProgress color="info" />
+        </Box>
+      )}
+
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
         <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
         <Typography variant="h6">LR Receive Information</Typography>
@@ -74,7 +95,7 @@ const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors
           fullWidth
           variant="outlined"
           onClick={subtripDialog.onTrue}
-          disabled={!!currentSubtrip}
+          disabled={!!currentSubtrip || isLoadingSubtripDetails}
           sx={{
             height: 56,
             justifyContent: 'flex-start',
@@ -92,6 +113,11 @@ const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors
             ? `Subtrip #${selectedSubtrip._id || selectedSubtrip}`
             : 'Select Subtrip *'}
         </Button>
+        {errors.subtripId && (
+          <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+            {errors.subtripId.message}
+          </Typography>
+        )}
       </Box>
 
       <Box
@@ -100,8 +126,6 @@ const ReceiveSection = ({ selectedSubtrip, subtripDialog, currentSubtrip, errors
         rowGap={3}
         columnGap={2}
       >
-        {/* Subtrip Selection Button */}
-
         {selectedSubtrip && (
           <>
             <Field.Text
@@ -260,52 +284,63 @@ const ErrorSection = () => (
 );
 
 const ExpenseListSection = ({ selectedSubtrip }) => {
-  const TABLE_HEAD = [
-    { id: 'expenseType', label: 'Type', align: 'left' },
-    { id: 'amount', label: 'Amount', align: 'right' },
-    { id: 'date', label: 'Date', align: 'center' },
-  ];
-
-  if (!selectedSubtrip?.expenses?.length) {
-    return null;
-  }
-
-  const { expenses } = selectedSubtrip;
+  const subtripExpenses = selectedSubtrip?.expenses || [];
 
   return (
-    <Paper
-      elevation={0}
-      sx={{ p: 3, my: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
-    >
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
-        <Iconify icon="mdi:cash-multiple" sx={{ color: 'info.main' }} />
-        <Typography variant="h6">Expense List</Typography>
-      </Stack>
+    <Card sx={{ mt: 3, p: 2 }}>
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant="subtitle1">Existing Expenses</Typography>
+        <Typography variant="subtitle2" color="primary">
+          {`Total Expenses: ${fCurrency(
+            subtripExpenses.reduce((acc, expense) => acc + expense.amount, 0)
+          )}`}
+        </Typography>
+      </Box>
 
-      <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-        <Table size="medium" sx={{ minWidth: 800 }}>
-          <TableHeadCustom headLabel={TABLE_HEAD} />
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Date</TableCell>
+              <TableCell align="center">Type</TableCell>
+              <TableCell align="center">Diesel Ltr</TableCell>
+              <TableCell align="center">Diesel Price</TableCell>
+              <TableCell align="center">Amount</TableCell>
+              <TableCell align="center">Remarks</TableCell>
+            </TableRow>
+          </TableHead>
 
           <TableBody>
-            {expenses.map((expense, index) => (
-              <TableRow hover key={expense._id || index}>
-                <TableCell>{expense.expenseType || '-'}</TableCell>
-                <TableCell align="right">
-                  <Typography variant="body2" color="error.main">
-                    {fCurrency(expense.amount || 0)}
-                  </Typography>
+            {subtripExpenses.map((expense) => (
+              <TableRow key={expense._id}>
+                <TableCell align="center">{fDate(expense.date)}</TableCell>
+                <TableCell align="center">
+                  <Box display="flex" alignItems="center" justifyContent="center">
+                    <Iconify
+                      icon={
+                        subtripExpenseTypes.find((type) => type.value === expense.expenseType).icon
+                      }
+                      sx={{ mr: 1 }}
+                    />
+                    {expense.expenseType}
+                  </Box>
                 </TableCell>
                 <TableCell align="center">
-                  <Typography variant="body2" color="text.secondary">
-                    {fDate(expense.date)}
-                  </Typography>
+                  {expense.dieselLtr ? `${fNumber(expense.dieselLtr)} L` : '-'}
                 </TableCell>
+                <TableCell align="center">
+                  {expense.dieselPrice ? `${fNumber(expense.dieselPrice)}` : '-'}
+                </TableCell>
+                <TableCell align="center">{fCurrency(expense.amount)}</TableCell>
+
+                <TableCell align="center">{expense.remarks || '-'}</TableCell>
               </TableRow>
             ))}
+            <TableNoData notFound={subtripExpenses.length === 0} />
           </TableBody>
         </Table>
       </TableContainer>
-    </Paper>
+    </Card>
   );
 };
 
@@ -367,7 +402,7 @@ const SubtripMetadataSection = ({ selectedSubtrip, isEditMode, handleEditToggle,
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Iconify icon="mdi:truck-fast-outline" sx={{ color: 'primary.main' }} />
-          Subtrip Metadata
+          Subtrip Data
         </Typography>
         <Tooltip title={isEditMode ? 'Save Changes' : 'Edit Details'}>
           <IconButton onClick={handleEditToggle} color={isEditMode ? 'primary' : 'default'}>
@@ -640,27 +675,54 @@ const SubtripMetadataSection = ({ selectedSubtrip, isEditMode, handleEditToggle,
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 
-export function SubtripReceiveForm({ currentSubtrip }) {
-  // State and Hooks
-  const receiveSubtrip = useUpdateSubtripReceiveInfo();
-  const { data: loadedSubtrips, isLoading: isLoadedSubtripsLoading } = useLoadedSubtrips();
+export function SubtripReceiveForm() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const currentSubtripId = searchParams.get('currentSubtrip');
+  const redirectTo = searchParams.get('redirectTo');
 
+  // State management
+  const [selectedSubtripId, setSelectedSubtripId] = useState(null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+
+  // Dialog states
   const editMode = useBoolean();
   const subtripDialog = useBoolean();
 
+  // Data fetching
+  const { data: loadedSubtrips = [], isLoading: loadingLoadedSubtrips } = useLoadedSubtrips();
+
+  // Fetch FULL details of the selected subtrip ID
+  const {
+    data: detailedSubtrip,
+    isLoading: isLoadingSubtripDetails,
+    error: subtripDetailError,
+  } = useSubtrip(selectedSubtripId);
+
+  // Mutation hook
+  const receiveSubtrip = useUpdateSubtripReceiveInfo();
+
   const defaultValues = useMemo(
     () => ({
-      subtripId: currentSubtrip || '',
+      subtripId: '',
       endDate: today(),
+      unloadingWeight: 0,
+      endKm: 0,
+      commissionRate: 0,
+      hasShortage: false,
+      hasError: false,
+      shortageWeight: 0,
+      shortageAmount: 0,
+      remarks: '',
     }),
-    [currentSubtrip]
+    []
   );
 
   // Form setup
   const methods = useForm({
     resolver: zodResolver(receiveSchema),
     defaultValues,
-    mode: 'all',
+    mode: 'onChange',
   });
 
   const {
@@ -668,46 +730,154 @@ export function SubtripReceiveForm({ currentSubtrip }) {
     watch,
     handleSubmit,
     setValue,
+    trigger,
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
   const { subtripId, hasError, hasShortage } = watch();
 
-  const { data: selectedSubtripData, isLoading: isSubtripLoading } = useSubtrip(subtripId);
+  // ----------------------------------------------------------------------
+  // Event Handlers
+  // ----------------------------------------------------------------------
 
-  // Update form values when selectedSubtrip changes
-  useEffect(() => {
-    if (selectedSubtripData) {
-      reset({
-        ...defaultValues,
-        ...selectedSubtripData,
-        subtripId: selectedSubtripData._id,
-        unloadingWeight: selectedSubtripData.loadingWeight || 0,
-      });
-    }
-  }, [selectedSubtripData, reset, defaultValues]);
-
-  // Event handlers
-  const handleSubtripChange = (subtrip) => {
-    setValue('subtripId', subtrip._id);
+  const handleReset = useCallback(() => {
+    reset(defaultValues);
+    setSelectedSubtripId(null);
+    setSelectedSubtrip(null);
     editMode.onFalse();
-  };
+  }, [reset, defaultValues, editMode]);
 
-  const handleReset = () => {
-    reset({
-      subtripId: '',
-    });
-    editMode.onFalse();
-  };
+  const handleSubtripChange = useCallback(
+    (subtrip) => {
+      subtripDialog.onFalse();
+      const newId = subtrip?._id;
+
+      if (newId && newId !== selectedSubtripId) {
+        console.log('New Subtrip ID Selected:', newId);
+        setSelectedSubtripId(newId);
+        setSelectedSubtrip(null);
+        reset({ ...defaultValues, subtripId: newId }, { keepErrors: false, keepDirty: false });
+        setTimeout(() => trigger('subtripId'), 0);
+      } else if (!newId) {
+        handleReset();
+      }
+    },
+    [selectedSubtripId, reset, handleReset, subtripDialog, trigger, defaultValues]
+  );
 
   const onSubmit = async (data) => {
+    if (!selectedSubtrip) {
+      console.error('Submit attempted before subtrip details were loaded.');
+      return;
+    }
+
     try {
-      await receiveSubtrip({ id: subtripId, data });
+      await receiveSubtrip({
+        id: selectedSubtrip._id,
+        data: {
+          unloadingWeight: data.unloadingWeight,
+          endKm: data.endKm,
+          commissionRate: data.commissionRate,
+          endDate: data.endDate,
+          hasShortage: data.hasShortage,
+          hasError: data.hasError,
+          shortageWeight: data.shortageWeight,
+          shortageAmount: data.shortageAmount,
+          remarks: data.remarks,
+          invoiceNo: data.invoiceNo,
+          rate: data.rate,
+          shipmentNo: data.shipmentNo,
+          consignee: data.consignee,
+          orderNo: data.orderNo,
+          materialType: data.materialType,
+          grade: data.grade,
+          diNumber: data.diNumber,
+          loadingWeight: data.loadingWeight,
+        },
+      });
+
       handleReset();
+      if (redirectTo) {
+        navigate(redirectTo);
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Failed to update subtrip:', error);
     }
   };
+
+  // ----------------------------------------------------------------------
+  // Effects
+  // ----------------------------------------------------------------------
+
+  // Effect to handle initial load from URL param
+  useEffect(() => {
+    if (
+      currentSubtripId &&
+      !selectedSubtripId &&
+      !loadingLoadedSubtrips &&
+      loadedSubtrips.length > 0
+    ) {
+      const subtripExists = loadedSubtrips.some((s) => s._id === currentSubtripId);
+      if (subtripExists) {
+        console.log('Setting Subtrip ID from URL Param:', currentSubtripId);
+        setSelectedSubtripId(currentSubtripId);
+      } else {
+        console.warn(`Subtrip ID ${currentSubtripId} from URL not found.`);
+      }
+    }
+  }, [currentSubtripId, loadedSubtrips, selectedSubtripId, loadingLoadedSubtrips]);
+
+  // Effect to process fetched detailed subtrip data
+  useEffect(() => {
+    if (detailedSubtrip && detailedSubtrip._id === selectedSubtripId) {
+      console.log('Detailed Subtrip Data Received:', detailedSubtrip);
+      setSelectedSubtrip(detailedSubtrip);
+
+      reset(
+        {
+          ...defaultValues,
+          subtripId: detailedSubtrip._id,
+          loadingWeight: detailedSubtrip.loadingWeight || 0,
+          invoiceNo: detailedSubtrip.invoiceNo || '',
+          shipmentNo: detailedSubtrip.shipmentNo || '',
+          consignee: detailedSubtrip.consignee || '',
+          materialType: detailedSubtrip.materialType || '',
+          orderNo: detailedSubtrip.orderNo || '',
+          grade: detailedSubtrip.grade || '',
+          diNumber: detailedSubtrip.diNumber || '',
+          rate: detailedSubtrip.rate || 0,
+          unloadingWeight: detailedSubtrip.loadingWeight || 0,
+          endKm: detailedSubtrip.startKm || 0,
+          commissionRate: detailedSubtrip.commissionRate || 0,
+          hasShortage: detailedSubtrip.hasShortage || false,
+          hasError: detailedSubtrip.hasError || false,
+          shortageWeight: detailedSubtrip.shortageWeight || 0,
+          shortageAmount: detailedSubtrip.shortageAmount || 0,
+          remarks: detailedSubtrip.remarks || '',
+          endDate: detailedSubtrip.endDate ? new Date(detailedSubtrip.endDate) : today(),
+        },
+        { keepErrors: false, keepDirty: true }
+      );
+
+      setTimeout(() => trigger(['subtripId']), 100);
+    } else if (subtripDetailError) {
+      console.error('Error fetching subtrip details:', subtripDetailError);
+      alert(`Error loading subtrip details: ${subtripDetailError.message || 'Unknown error'}`);
+      handleReset();
+    }
+  }, [
+    detailedSubtrip,
+    selectedSubtripId,
+    reset,
+    defaultValues,
+    trigger,
+    handleReset,
+    subtripDetailError,
+  ]);
+
+  // ----------------------------------------------------------------------
+  // Render
+  // ----------------------------------------------------------------------
 
   return (
     <>
@@ -715,27 +885,39 @@ export function SubtripReceiveForm({ currentSubtrip }) {
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
             <ReceiveSection
-              selectedSubtrip={selectedSubtripData}
+              selectedSubtrip={selectedSubtrip}
               subtripDialog={subtripDialog}
-              currentSubtrip={currentSubtrip}
+              currentSubtrip={currentSubtripId}
               errors={errors}
               methods={methods}
+              isLoadingSubtripDetails={isLoadingSubtripDetails}
             />
 
-            {isSubtripLoading && (
+            {isLoadingSubtripDetails && (
               <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                 <CircularProgress />
               </Box>
             )}
 
-            {selectedSubtripData && <IssueIndicatorsSection />}
+            {subtripDetailError && !isLoadingSubtripDetails && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                Failed to load subtrip details. Please try selecting again.
+              </Alert>
+            )}
+
+            {selectedSubtrip && <IssueIndicatorsSection />}
 
             {hasShortage && <ShortageSection />}
 
             {hasError && <ErrorSection />}
 
             <Stack sx={{ my: 3 }} direction="row" justifyContent="flex-end" spacing={2}>
-              <Button color="inherit" variant="outlined" onClick={handleReset}>
+              <Button
+                color="inherit"
+                variant="outlined"
+                onClick={handleReset}
+                disabled={isSubmitting || isLoadingSubtripDetails}
+              >
                 Reset
               </Button>
 
@@ -743,24 +925,24 @@ export function SubtripReceiveForm({ currentSubtrip }) {
                 type="submit"
                 variant="contained"
                 loading={isSubmitting}
-                disabled={!isValid || !selectedSubtripData || isSubtripLoading}
+                disabled={!isValid || !selectedSubtrip || isLoadingSubtripDetails}
               >
                 Save Changes
               </LoadingButton>
             </Stack>
 
-            {selectedSubtripData && <ExpenseListSection selectedSubtrip={selectedSubtripData} />}
+            {selectedSubtrip && <ExpenseListSection selectedSubtrip={selectedSubtrip} />}
           </Grid>
 
           <Grid item xs={12} md={4}>
-            {isSubtripLoading ? (
+            {isLoadingSubtripDetails ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                 <CircularProgress />
               </Box>
             ) : (
-              selectedSubtripData && (
+              selectedSubtrip && (
                 <SubtripMetadataSection
-                  selectedSubtrip={selectedSubtripData}
+                  selectedSubtrip={selectedSubtrip}
                   isEditMode={editMode.value}
                   handleEditToggle={editMode.onToggle}
                   methods={methods}
@@ -774,10 +956,11 @@ export function SubtripReceiveForm({ currentSubtrip }) {
       <KanbanSubtripDialog
         open={subtripDialog.value}
         onClose={subtripDialog.onFalse}
-        selectedSubtrip={selectedSubtripData}
+        selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
         subtrips={loadedSubtrips}
-        isLoading={isLoadedSubtripsLoading}
+        isLoading={loadingLoadedSubtrips}
+        dialogTitle="Select Subtrip to Receive"
       />
     </>
   );

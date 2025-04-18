@@ -19,6 +19,7 @@ import {
   Typography,
   IconButton,
   StepContent,
+  LinearProgress,
   InputAdornment,
 } from '@mui/material';
 
@@ -30,7 +31,11 @@ import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
 
 // Queries & Mutations
 import { useRoutes } from 'src/query/use-route';
-import { useInQueueSubtrips, useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
+import {
+  useSubtrip,
+  useInQueueSubtrips,
+  useUpdateSubtripMaterialInfo,
+} from 'src/query/use-subtrip';
 
 // Components
 import { Iconify } from 'src/components/iconify';
@@ -54,6 +59,14 @@ const STEPS = [
   { label: 'Route Details', icon: 'mdi:map-marker-path' },
   { label: 'Material Details', icon: 'mdi:package-variant-closed' },
   { label: 'Driver Advance', icon: 'mdi:cash-multiple' },
+];
+
+// Fields to validate per step
+const STEP_FIELDS = [
+  ['subtripId'], // Step 0
+  ['consignee', 'routeCd', 'loadingPoint', 'unloadingPoint'], // Step 1
+  ['loadingWeight', 'rate', 'invoiceNo', 'ewayExpiryDate'], // Step 2
+  ['driverAdvance', 'driverAdvanceGivenBy', 'initialAdvanceDiesel', 'pumpCd'], // Step 3
 ];
 
 // ----------------------------------------------------------------------
@@ -140,6 +153,7 @@ export function SubtripLoadForm() {
 
   // State management
   const [activeStep, setActiveStep] = useState(0);
+  const [selectedSubtripId, setSelectedSubtripId] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
@@ -151,8 +165,14 @@ export function SubtripLoadForm() {
   const scannerDialog = useBoolean(false);
 
   // Data fetching
-  const { data: loadableSubtrips = [], isLoading: isLoadingLoadableSubtrips } =
-    useInQueueSubtrips();
+  const { data: inqueueSubtrips = [], isLoading: loadingInqueueSubtrips } = useInQueueSubtrips();
+
+  // Fetch FULL details of the selected subtrip ID
+  const {
+    data: detailedSubtrip,
+    isLoading: isLoadingSubtripDetails,
+    error: subtripDetailError,
+  } = useSubtrip(selectedSubtripId);
 
   // Get routes based on selected customer
   const customerId = selectedSubtrip?.customerId?._id;
@@ -208,13 +228,12 @@ export function SubtripLoadForm() {
   // ----------------------------------------------------------------------
 
   const handleNext = async () => {
-    // const isStepValid = await trigger();
-    // if (isStepValid) {
-    setActiveStep((prev) => prev + 1);
-    // }
+    const fieldsToValidate = STEP_FIELDS[activeStep];
+    const isStepValid = await trigger(fieldsToValidate);
+    if (isStepValid) {
+      setActiveStep((prev) => prev + 1);
+    }
   };
-
-  console.log({ errors });
 
   const handleBack = () => {
     setActiveStep((prev) => prev - 1);
@@ -223,37 +242,32 @@ export function SubtripLoadForm() {
   const handleReset = useCallback(() => {
     reset(defaultValues);
     setActiveStep(0);
+    setSelectedSubtripId(null);
     setSelectedSubtrip(null);
     setSelectedRoute(null);
     setSelectedPump(null);
   }, [reset]);
 
+  // --- Subtrip Selection Change ---
   const handleSubtripChange = useCallback(
-    (subtrip) => {
-      if (subtrip) {
-        setSelectedSubtrip(subtrip);
-        setValue('subtripId', subtrip._id, { shouldValidate: true });
+    (summarySubtrip) => {
+      subtripDialog.onFalse();
+      const newId = summarySubtrip?._id;
+
+      if (newId && newId !== selectedSubtripId) {
+        console.log('New Subtrip ID Selected:', newId);
+        setSelectedSubtripId(newId);
+        setSelectedSubtrip(null);
         setSelectedRoute(null);
         setSelectedPump(null);
-        setValue('routeCd', '', { shouldValidate: true });
-        setValue('loadingPoint', '', { shouldValidate: true });
-        setValue('unloadingPoint', '', { shouldValidate: true });
-        setValue('pumpCd', '', { shouldValidate: true });
-        setValue('consignee', null, { shouldValidate: true });
-
-        reset(
-          {
-            ...defaultValues,
-            subtripId: subtrip._id,
-          },
-          { keepErrors: false, keepDirty: false }
-        );
-      } else {
+        reset({ ...defaultValues, subtripId: newId }, { keepErrors: false, keepDirty: false });
+        setActiveStep(0);
+        setTimeout(() => trigger('subtripId'), 0);
+      } else if (!newId) {
         handleReset();
       }
-      subtripDialog.onFalse();
     },
-    [setValue, reset, handleReset, subtripDialog]
+    [selectedSubtripId, reset, handleReset, subtripDialog, trigger]
   );
 
   const handleRouteChange = (route) => {
@@ -278,6 +292,11 @@ export function SubtripLoadForm() {
   };
 
   const onSubmit = async (data) => {
+    if (!selectedSubtrip) {
+      console.error('Submit attempted before subtrip details were loaded.');
+      return;
+    }
+
     try {
       const payload = {
         ...data,
@@ -305,13 +324,67 @@ export function SubtripLoadForm() {
   // ----------------------------------------------------------------------
 
   useEffect(() => {
-    if (currentSubtripId) {
-      const subtrip = loadableSubtrips.find((s) => s._id === currentSubtripId);
-      if (subtrip) {
-        handleSubtripChange(subtrip);
+    if (
+      currentSubtripId &&
+      !selectedSubtripId &&
+      !loadingInqueueSubtrips &&
+      inqueueSubtrips.length > 0
+    ) {
+      const subtripExists = inqueueSubtrips.some((s) => s._id === currentSubtripId);
+      if (subtripExists) {
+        console.log('Setting Subtrip ID from URL Param:', currentSubtripId);
+        setSelectedSubtripId(currentSubtripId);
+      } else {
+        console.warn(`Subtrip ID ${currentSubtripId} from URL not found.`);
       }
     }
-  }, [currentSubtripId, loadableSubtrips, handleSubtripChange]);
+  }, [currentSubtripId, inqueueSubtrips, selectedSubtripId, loadingInqueueSubtrips]);
+
+  useEffect(() => {
+    if (detailedSubtrip && detailedSubtrip._id === selectedSubtripId) {
+      console.log('Detailed Subtrip Data Received:', detailedSubtrip);
+      setSelectedSubtrip(detailedSubtrip);
+
+      reset(
+        {
+          ...defaultValues,
+          subtripId: detailedSubtrip._id,
+          invoiceNo: detailedSubtrip.invoiceNo || '',
+          startKm: detailedSubtrip.startKm || 0,
+          ewayExpiryDate: detailedSubtrip.ewayExpiryDate
+            ? new Date(detailedSubtrip.ewayExpiryDate)
+            : null,
+          consignee: detailedSubtrip.consigneeName
+            ? { label: detailedSubtrip.consigneeName, value: detailedSubtrip.consigneeName }
+            : null,
+        },
+        { keepErrors: false, keepDirty: true }
+      );
+
+      if (detailedSubtrip.routeCd && routes.length > 0) {
+        const initialRoute = routes.find((r) => r._id === detailedSubtrip.routeCd);
+        if (initialRoute) {
+          console.log('Pre-selecting route:', initialRoute);
+          setSelectedRoute(initialRoute);
+        }
+      }
+
+      setTimeout(() => trigger(STEP_FIELDS[0]), 100);
+    } else if (subtripDetailError) {
+      console.error('Error fetching subtrip details:', subtripDetailError);
+      alert(`Error loading subtrip details: ${subtripDetailError.message || 'Unknown error'}`);
+      handleReset();
+    }
+  }, [
+    detailedSubtrip,
+    selectedSubtripId,
+    reset,
+    setValue,
+    routes,
+    trigger,
+    handleReset,
+    subtripDetailError,
+  ]);
 
   useEffect(() => {
     if (
@@ -327,27 +400,39 @@ export function SubtripLoadForm() {
   // ----------------------------------------------------------------------
 
   const renderSubtripSelection = () => (
-    <Card sx={{ p: 3 }}>
+    <Card sx={{ p: 3, position: 'relative' }}>
+      {isLoadingSubtripDetails && (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 2 }}>
+          <LinearProgress color="info" />
+        </Box>
+      )}
       <Typography variant="h6" sx={{ mb: 2 }}>
         Select Subtrip to Load
       </Typography>
       <DialogSelectButton
         onClick={subtripDialog.onTrue}
         placeholder="Select Subtrip *"
-        selected={selectedSubtrip?._id}
-        error={!!errors.subtripId?.message && !selectedSubtrip}
+        selected={selectedSubtripId}
+        error={!!errors.subtripId}
         iconName="mdi:truck"
-        disabled={isLoadingLoadableSubtrips}
+        disabled={loadingInqueueSubtrips || isLoadingSubtripDetails || !!currentSubtripId}
         selectedText={
           selectedSubtrip
             ? `Subtrip: ${selectedSubtrip?.displayIdentifier || selectedSubtrip?._id}`
-            : null
+            : selectedSubtripId
+              ? 'Loading Details...'
+              : null
         }
       />
-      {errors.subtripId && !selectedSubtrip && (
+      {errors.subtripId && (
         <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
           {errors.subtripId.message}
         </Typography>
+      )}
+      {subtripDetailError && !isLoadingSubtripDetails && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          Failed to load subtrip details. Please try selecting again.
+        </Alert>
       )}
     </Card>
   );
@@ -414,13 +499,13 @@ export function SubtripLoadForm() {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              {vehicleType ? loadingWeightUnit[vehicleType] || 'Units' : 'Units'}
+              {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
             </InputAdornment>
           ),
         }}
       />
 
-      {vehicleType !== 'tanker' && (
+      {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
         <Field.Text
           name="quantity"
           label="Quantity"
@@ -619,28 +704,40 @@ export function SubtripLoadForm() {
                   {step.label}
                 </StepLabel>
                 <StepContent TransitionProps={{ unmountOnExit: false }}>
+                  {index > 0 && isLoadingSubtripDetails && <LinearProgress sx={{ mb: 2 }} />}
+
                   {index === 0 && renderSubtripSelection()}
                   {index === 1 && renderRouteDetails()}
                   {index === 2 && renderMaterialDetails()}
                   {index === 3 && renderAdvanceDetails()}
 
                   <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
-                    <Button disabled={index === 0} onClick={handleBack}>
+                    <Button
+                      disabled={index === 0 || isSubmitting || isLoadingSubtripDetails}
+                      onClick={handleBack}
+                    >
                       Back
                     </Button>
-                    {index === STEPS.length - 1 ? (
+
+                    {index < STEPS.length - 1 && (
+                      <Button
+                        variant="contained"
+                        onClick={handleNext}
+                        disabled={isLoadingSubtripDetails || (index === 0 && !selectedSubtripId)}
+                      >
+                        Continue
+                      </Button>
+                    )}
+
+                    {index === STEPS.length - 1 && (
                       <LoadingButton
                         variant="contained"
-                        onClick={handleSubmit(onSubmit)}
+                        type="submit"
                         loading={isSubmitting}
-                        disabled={!isValid || isSubmitting}
+                        disabled={isLoadingSubtripDetails || !isValid || isSubmitting}
                       >
                         Load Subtrip & Save Changes
                       </LoadingButton>
-                    ) : (
-                      <Button variant="contained" onClick={handleNext}>
-                        Continue
-                      </Button>
                     )}
                   </Box>
                 </StepContent>
@@ -655,8 +752,8 @@ export function SubtripLoadForm() {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
-        subtrips={loadableSubtrips}
-        isLoading={isLoadingLoadableSubtrips}
+        subtrips={inqueueSubtrips}
+        isLoading={loadingInqueueSubtrips}
         dialogTitle="Select Subtrip to Load"
       />
 

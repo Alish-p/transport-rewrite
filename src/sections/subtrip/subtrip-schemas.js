@@ -6,6 +6,8 @@ export const receiveSchema = zod
   .object({
     subtripId: zod.string(),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
+    loadingWeight: zod.number({ required_error: 'Loading weight is required' }),
+    startKm: zod.number().optional(),
     endKm: zod.number({ required_error: 'End Km is required' }).optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionRate: zod
@@ -29,21 +31,35 @@ export const receiveSchema = zod
     diNumber: zod.string().optional(),
   })
   .superRefine((values, ctx) => {
-    // Validate unloadingWeight <= loadingWeight if loadingWeight is available
     if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
-        message: 'Unloading weight must be less than or equal to loading weight',
+        message: 'Unloading weight must be ≤ loading weight',
         path: ['unloadingWeight'],
       });
     }
 
-    // Validate endKm >= startKm if both are available
     if (values.startKm && values.endKm && values.endKm < values.startKm) {
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
-        message: 'End Km must be greater than or equal to Start Km',
+        message: 'End Km must be ≥ Start Km',
         path: ['endKm'],
+      });
+    }
+
+    if (values.hasShortage && (!values.shortageWeight || !values.shortageAmount)) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Provide shortage details',
+        path: ['shortageWeight'],
+      });
+    }
+
+    if (values.hasError && !values.remarks) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Remarks are required when error is reported',
+        path: ['remarks'],
       });
     }
   });

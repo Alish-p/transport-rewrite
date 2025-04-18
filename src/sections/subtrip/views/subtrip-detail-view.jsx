@@ -36,7 +36,6 @@ export function SubtripDetailView({ subtrip }) {
   const navigate = useNavigate();
 
   // State for dialog visibility
-  const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   const [showRecieveDialog, setShowRecieveDialog] = useState(false);
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
