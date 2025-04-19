@@ -218,7 +218,7 @@ export function SubtripReceiveForm() {
   const onSubmit = async (data) => {
     try {
       console.log('form data', data);
-      // await receiveSubtrip({ id: selectedSubtripData._id, data });
+      await receiveSubtrip({ id: selectedSubtripData._id, data });
       reset(defaultValues);
       setSelectedSubtripId(null);
       if (redirectTo) navigate(redirectTo);
