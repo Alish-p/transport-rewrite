@@ -4,10 +4,8 @@ import { schemaHelper } from 'src/components/hook-form';
 
 export const receiveSchema = zod
   .object({
-    subtripId: zod.string(),
+    subtripId: zod.string().min(1, { message: 'Subtrip is required' }),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
-    loadingWeight: zod.number({ required_error: 'Loading weight is required' }),
-    startKm: zod.number().optional(),
     endKm: zod.number({ required_error: 'End Km is required' }).optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionRate: zod
@@ -19,16 +17,6 @@ export const receiveSchema = zod
     shortageWeight: zod.number().optional(),
     shortageAmount: zod.number().optional(),
     hasShortage: zod.boolean().optional(),
-    invoiceNo: zod.string().optional(),
-    rate: zod.number().optional(),
-    effectiveRate: zod.number().optional(),
-    shipmentNo: zod.string().optional(),
-    consignee: zod.string().optional(),
-    orderNo: zod.string().optional(),
-    materialType: zod.string().optional(),
-    quantity: zod.number().optional(),
-    grade: zod.string().optional(),
-    diNumber: zod.string().optional(),
   })
   .superRefine((values, ctx) => {
     if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
