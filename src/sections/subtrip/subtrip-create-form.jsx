@@ -32,10 +32,10 @@ import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { SUBTRIP_STATUS_COLORS } from './constants';
 import { KanbanTripDialog } from '../kanban/components/kanban-trip-dialog';
-import { DialogSelectButton } from '../../components/dialog-select-button';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 

@@ -684,6 +684,7 @@ export function SubtripReceiveForm() {
   // State management
   const [selectedSubtripId, setSelectedSubtripId] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Dialog states
   const editMode = useBoolean();
@@ -745,6 +746,7 @@ export function SubtripReceiveForm() {
     setSelectedSubtripId(null);
     setSelectedSubtrip(null);
     editMode.onFalse();
+    setHasSubmitted(true); // Mark form as submitted
   }, [reset, defaultValues, editMode]);
 
   const handleSubtripChange = useCallback(
@@ -830,6 +832,11 @@ export function SubtripReceiveForm() {
 
   // Effect to process fetched detailed subtrip data
   useEffect(() => {
+    if (hasSubmitted) {
+      setHasSubmitted(false);
+      return; // Skip populating the form after submission
+    }
+
     if (detailedSubtrip && detailedSubtrip._id === selectedSubtripId) {
       console.log('Detailed Subtrip Data Received:', detailedSubtrip);
       setSelectedSubtrip(detailedSubtrip);
@@ -874,6 +881,7 @@ export function SubtripReceiveForm() {
     trigger,
     handleReset,
     subtripDetailError,
+    hasSubmitted,
   ]);
 
   // ----------------------------------------------------------------------

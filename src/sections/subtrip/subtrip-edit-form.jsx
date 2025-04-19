@@ -1,332 +1,521 @@
-// ------------------------------------------------------------
+import { z } from 'zod';
 import { toast } from 'sonner';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useEffect } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
   Grid,
-  Stack,
+  Button,
   Divider,
-  MenuItem,
+  Tooltip,
+  FormLabel,
   Typography,
-  ListSubheader,
+  InputAdornment,
 } from '@mui/material';
 
-import { Form, Field } from 'src/components/hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { useUpdateSubtrip } from 'src/query/use-subtrip';
+
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { paths } from '../../routes/paths';
-import { today } from '../../utils/format-time';
 import { paramCase } from '../../utils/change-case';
-import { useUpdateSubtrip } from '../../query/use-subtrip';
-import { loadedSchema, inQueueSchema, receivedSchema, SUBTRIP_STATUS } from './constants';
+import { useSearchParams } from '../../routes/hooks';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
+import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
+import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
+import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
-// ------------------------------------------------------------
+// Base schema for common fields
+const baseSchema = z.object({
+  customerId: z.string().min(1, 'Customer is required'),
+  diNumber: z.string().max(50, 'DI/DO No is too long'),
+  startDate: schemaHelper.date(),
+});
 
-export default function SubtripEditForm({ currentSubtrip, routesList, customersList }) {
+// Schema for In-queue status
+const inQueueSchema = baseSchema;
+
+// Schema for Loaded status (extends in-queue)
+const loadedSchema = inQueueSchema.extend({
+  consignee: z.string().max(100),
+  routeCd: z.string(),
+  loadingPoint: z.string().max(100),
+  unloadingPoint: z.string().max(100),
+  loadingWeight: z.number().nonnegative('Loading weight must be positive'),
+  quantity: z.number().nonnegative('Quantity must be positive').optional(),
+  startKm: z.number().nonnegative('Start Km must be positive').optional(),
+  rate: z.number().min(0, 'Rate must be at least 0'),
+  ewayBill: z.string().max(100),
+  ewayExpiryDate: z.string(),
+  invoiceNo: z.string().max(100),
+  shipmentNo: z.string().max(100),
+  orderNo: z.string().max(100),
+  materialType: z.string().max(100),
+  grade: z.string().max(100),
+  driverAdvance: z.number().min(0, 'Advance must be non-negative').optional(),
+  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']),
+  initialAdvanceDiesel: z.number().min(0, 'Diesel value must be non-negative'),
+  intentFuelPump: z.string().optional(),
+});
+
+// Schema for Received status (extends loaded)
+const receivedSchema = loadedSchema.extend({
+  unloadingWeight: z.number().nonnegative('Unloading weight must be positive'),
+  endKm: z.number().nonnegative('End Km must be positive').optional(),
+  endDate: z.string(),
+  hasShortage: z.boolean().optional(),
+  shortageWeight: z.number().nonnegative('Shortage weight must be non-negative').optional(),
+  shortageAmount: z.number().nonnegative('Shortage amount must be non-negative').optional(),
+  hasError: z.boolean().optional(),
+  errorRemarks: z.string().max(500).optional(),
+  remarks: z.string().max(500).optional(),
+  commissionRate: z.number().min(0, 'Commission rate must be non-negative').optional(),
+});
+
+// Get the appropriate schema based on status
+const getSchemaForStatus = (status) => {
+  switch (status) {
+    case SUBTRIP_STATUS.IN_QUEUE:
+      return inQueueSchema;
+    case SUBTRIP_STATUS.LOADED:
+      return loadedSchema;
+    case SUBTRIP_STATUS.RECEIVED:
+      return receivedSchema;
+    default:
+      return baseSchema;
+  }
+};
+
+// ----------------------------------------------------------------------
+
+export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
-
   const updateSubtrip = useUpdateSubtrip();
+
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
+
+  const customerDialog = useBoolean();
+  const pumpDialog = useBoolean();
+  const routeDialog = useBoolean();
+
+  const [selectedPump, setSelectedPump] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const defaultValues = useMemo(
     () => ({
-      // Inqueue
-      customerId: currentSubtrip?.customerId?._id || '',
-      startDate: currentSubtrip?.startDate || today(),
-      diNumber: currentSubtrip?.diNumber || '',
-
-      // Loaded
-      consignee: currentSubtrip?.consignee || null,
-      loadingWeight: currentSubtrip?.loadingWeight || 0,
-      startKm: currentSubtrip?.startKm || 0,
-      rate: currentSubtrip?.rate || 0,
-      invoiceNo: currentSubtrip?.invoiceNo || '',
-      shipmentNo: currentSubtrip?.shipmentNo || '',
-      orderNo: currentSubtrip?.orderNo || '',
-      ewayBill: currentSubtrip?.ewayBill || '',
-      ewayExpiryDate: currentSubtrip?.ewayExpiryDate || null,
-      materialType: currentSubtrip?.materialType || '',
-      quantity: currentSubtrip?.quantity || 0,
-      grade: currentSubtrip?.grade || '',
-      tds: currentSubtrip?.tripId?.vehicleId?.transporter?.tdsPercentage || 0,
-      driverAdvance:
-        currentSubtrip?.expenses?.find((exp) => exp.expenseType === 'trip-advance')?.amount || 0,
-      dieselLtr: currentSubtrip?.initialAdvanceDiesel || '',
-      pumpCd: currentSubtrip?.expenses?.find((exp) => exp.pumpCd)?.pumpCd?._id || '',
-      routeCd: currentSubtrip?.routeCd?._id || '',
-      loadingPoint: currentSubtrip?.loadingPoint || '',
-      unloadingPoint: currentSubtrip?.tripId?.remarks || '',
-
-      // Receive
-      remarks: currentSubtrip?.remarks || '',
-      unloadingWeight: currentSubtrip?.unloadingWeight || 0,
-      deductedWeight: currentSubtrip?.deductedWeight || 0,
-      deductedAmount: currentSubtrip?.deductedAmount || 0,
-      endKm: currentSubtrip?.endKm || 0,
-      totalKm: currentSubtrip?.totalKm || 0,
-      endDate: currentSubtrip?.endDate || today(),
-      hasError: currentSubtrip?.hasError || false,
+      ...currentSubtrip,
+      customerId: currentSubtrip?.customerId?._id,
+      intentFuelPump: currentSubtrip?.intentFuelPump?._id,
+      routeCd: currentSubtrip?.routeCd?._id,
     }),
     [currentSubtrip]
   );
 
-  // Choose the validation schema based on the subtripStatus
-  const validationSchema = useMemo(() => {
-    switch (currentSubtrip?.subtripStatus) {
-      case SUBTRIP_STATUS.LOADED:
-        return loadedSchema;
-      case SUBTRIP_STATUS.RECEIVED:
-        return receivedSchema;
-      case SUBTRIP_STATUS.IN_QUEUE:
-      default:
-        return inQueueSchema;
-    }
-  }, [currentSubtrip?.subtripStatus]);
-
   const methods = useForm({
-    resolver: zodResolver(validationSchema),
     defaultValues,
     mode: 'all',
+    resolver: (values) => {
+      const schema = getSchemaForStatus(currentSubtrip.subtripStatus);
+      try {
+        schema.parse(values);
+        return { values, errors: {} };
+      } catch (error) {
+        return { values, errors: error.formErrors.fieldErrors };
+      }
+    },
   });
 
   const {
-    reset,
     watch,
-    control,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, dirtyFields },
   } = methods;
+
+  const values = watch();
+
+  const { vehicleType, isOwn } = currentSubtrip?.tripId?.vehicleId || {};
+
+  // effects
+  useEffect(() => {
+    if (currentSubtrip?.customerId) {
+      setSelectedCustomer(currentSubtrip?.customerId);
+    }
+
+    if (currentSubtrip?.intentFuelPump) {
+      setSelectedPump(currentSubtrip?.intentFuelPump);
+    }
+
+    if (currentSubtrip?.routeCd) {
+      setSelectedRoute(currentSubtrip?.routeCd);
+    }
+  }, [currentSubtrip]);
+
+  const handleCustomerChange = (customer) => {
+    setSelectedCustomer(customer);
+    setValue('customerId', customer._id, { shouldDirty: true });
+  };
+
+  const handlePumpChange = (pump) => {
+    setSelectedPump(pump);
+    setValue('intentFuelPump', pump._id, { shouldDirty: true });
+  };
+
+  const handleRouteChange = (route) => {
+    setSelectedRoute(route);
+    setValue('routeCd', route._id, { shouldDirty: true });
+  };
 
   const onSubmit = async (data) => {
     try {
-      console.log(data);
-      const updatedSubtrip = await updateSubtrip({ id: currentSubtrip?._id, data });
-      console.log({ updatedSubtrip });
-      reset();
-      toast.success('Subtrip edited successfully!');
-      navigate(paths.dashboard.subtrip.details(paramCase(currentSubtrip._id)));
+      // only send the data that has changed
+      const changedFields = Object.keys(dirtyFields).reduce((acc, key) => {
+        acc[key] = data[key];
+        return acc;
+      }, {});
+
+      await updateSubtrip({
+        id: currentSubtrip._id,
+        data: {
+          ...changedFields,
+        },
+      });
+
+      if (redirect) {
+        navigate(`${redirect}?currentSubtrip=${currentSubtrip._id}`);
+      } else {
+        navigate(paths.dashboard.subtrip.details(paramCase(currentSubtrip._id)));
+      }
     } catch (error) {
+      toast.error('Failed to update subtrip!');
       console.error(error);
     }
   };
 
-  const renderInqueueFields = () => (
-    <Grid container spacing={3} sx={{ pt: 10 }}>
-      <Grid item xs={12} md={3}>
-        <Box sx={{ pt: 2, pb: 5, px: 3 }}>
-          <Typography variant="h6" sx={{ color: 'text.primary' }}>
-            In-queue Info
-          </Typography>
-          <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 1 }}>
-            Status in-queue edit fields are here
-          </Typography>
-        </Box>
-      </Grid>
+  // Render fields based on status
+  const renderFields = () => {
+    const status = currentSubtrip.subtripStatus;
 
-      <Grid item xs={12} md={8}>
+    return (
+      <>
+        {/* Creation fields - always visible */}
+        <Typography variant="h6" sx={{ my: 2 }}>
+          Create Subtrip Details
+        </Typography>
         <Card sx={{ p: 3 }}>
-          <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-            <Field.Select name="customerId" label="Customer">
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {customersList.map((customer) => (
-                <MenuItem key={customer._id} value={customer._id}>
-                  {customer.customerName}
-                </MenuItem>
-              ))}
-            </Field.Select>
-
-            <Field.Text name="diNumber" label="DI/DO No" />
-            <Field.DatePicker name="startDate" label="Subtrip Start Date" />
-
-            {/* <Field.Select name="routeCd" label="Route">
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {routesList.map((route) => (
-                <MenuItem key={route._id} value={route._id}>
-                  {route.routeName}
-                </MenuItem>
-              ))}
-            </Field.Select>
-
-            <Field.Select native name="customerId" label="Customer">
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {customersList.map((customer) => (
-                <MenuItem key={customer._id} value={customer._id}>
-                  {customer.customerName}
-                </MenuItem>
-              ))}
-            </Field.Select>
-
-            <Field.Text name="loadingPoint" label="Loading Point" />
-            <Field.Text name="unloadingPoint" label="Unloading Point" />
-            <Field.Text name="startKm" label="Start Km" />
-            <Field.Text name="rate" label="Rate" />
-            <Field.DatePicker name="subtripStartDate" label="Start Date" />
-
-            <Field.Text name="tds" label="TDS" /> */}
+          <Box sx={{ mb: 3 }}>
+            <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+              <Tooltip title="Customer Edit is not allowed.">
+                <DialogSelectButton
+                  variant="outlined"
+                  placeholder="Select Customer"
+                  selected={selectedCustomer?.customerName}
+                  onClick={customerDialog.onTrue}
+                  iconName="mdi:office-building"
+                  sx={{ mb: 2 }}
+                  disabled
+                />
+              </Tooltip>
+              <Field.Text name="diNumber" label="DI/DO No" />
+              <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+            </Box>
           </Box>
         </Card>
-      </Grid>
-    </Grid>
-  );
 
-  const renderLoadedFields = () => (
-    <Grid container spacing={3} sx={{ pt: 10 }}>
-      <Grid item xs={12} md={3}>
-        <Box sx={{ pt: 2, pb: 5, px: 3 }}>
-          <Typography variant="h6" sx={{ color: 'text.primary' }}>
-            Loaded Info
-          </Typography>
-          <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 1 }}>
-            Status loaded edit fields are here
-          </Typography>
-        </Box>
-      </Grid>
-      <Grid item xs={12} md={8}>
-        <Card sx={{ p: 3 }}>
-          <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-            <Field.Select name="routeCd" label="Route">
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              <ListSubheader
-                sx={{
-                  fontSize: '0.7rem',
-                  lineHeight: 1,
-                  color: 'primary.main',
-                  textAlign: 'start',
-                  padding: '3px',
-                  my: 1,
-                }}
-              >
-                Customer Specific Routes
-              </ListSubheader>
-              {routesList
-                .filter((route) => route.isCustomerSpecific)
-                .map(({ _id: routeId, routeName }) => (
-                  <MenuItem key={routeId} value={routeId}>
-                    {routeName}
-                  </MenuItem>
-                ))}
-              <Divider sx={{ borderStyle: 'dashed' }} />
+        {/* Loaded fields - visible for loaded and received status */}
+        {[SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED].includes(status) && (
+          <>
+            <Typography variant="h6" sx={{ my: 2 }}>
+              Loaded Subtrip Details
+            </Typography>
+            <Card sx={{ p: 3 }}>
+              <Box sx={{ mb: 3 }}>
+                {/* Route and Logistics Details */}
+                <Typography variant="h6" sx={{ mb: 3 }} color="primary">
+                  Route Details
+                </Typography>
+                <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                  <Field.Text name="consignee" label="Consignee" />
+                  <DialogSelectButton
+                    variant="outlined"
+                    placeholder="Select Route"
+                    selected={selectedRoute?.routeName}
+                    onClick={routeDialog.onTrue}
+                    iconName="mdi:map-marker-path"
+                    sx={{ mb: 2 }}
+                    disabled
+                  />
+                  <Field.Text name="loadingPoint" label="Loading Point" />
+                  <Field.Text
+                    name="unloadingPoint"
+                    label="Unloading Point"
+                    helperText="Consignee's address"
+                  />
+                </Box>
 
-              <ListSubheader
-                sx={{
-                  fontSize: '0.7rem',
-                  lineHeight: 1,
-                  color: 'primary.main',
-                  textAlign: 'start',
-                  padding: '3px',
-                  my: 1,
-                }}
-              >
-                Generic Routes
-              </ListSubheader>
-              {routesList
-                .filter((route) => !route.isCustomerSpecific)
-                .map(({ _id: routeId, routeName }) => (
-                  <MenuItem key={routeId} value={routeId}>
-                    {routeName}
-                  </MenuItem>
-                ))}
-            </Field.Select>
+                <Divider sx={{ my: 4 }} />
 
-            <Field.Text name="loadingPoint" label="Loading Point" />
-            <Field.Text name="unloadingPoint" label="Unloading Point" />
+                <Typography variant="h6" sx={{ mb: 3 }} color="primary">
+                  Weight Details
+                </Typography>
+                <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                  <Field.Text
+                    name="loadingWeight"
+                    label="Loading Weight *"
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
 
-            <Field.Autocomplete
-              freeSolo
-              name="consignee"
-              label="Consignee"
-              options={currentSubtrip?.customerId?.consignees.map(({ name }) => ({
-                label: name,
-                value: name,
-              }))}
-              getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.value === value.value}
-            />
-            <Field.Text name="loadingWeight" label="Loading Weight" type="number" />
-            <Field.Text name="startKm" label="Start Km" type="number" />
-            <Field.Text name="rate" label="Rate" type="number" />
-            <Field.Text name="invoiceNo" label="Invoice No" />
-            <Field.Text name="shipmentNo" label="Shipment No" />
-            <Field.Text name="orderNo" label="Order No" />
-            <Field.Text name="ewayBill" label="Eway Bill" />
-            <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" />
-            <Field.Text name="materialType" label="Material Type" />
-            <Field.Text name="quantity" label="Quantity" type="number" />
-            <Field.Text name="grade" label="Grade" />
-          </Box>
-        </Card>
-      </Grid>
-    </Grid>
-  );
+                  {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
+                    <Field.Text
+                      name="quantity"
+                      label="Quantity"
+                      type="number"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                      }}
+                    />
+                  )}
 
-  const renderRecievedFields = () => (
-    <Grid container spacing={3} sx={{ pt: 10 }}>
-      <Grid item xs={12} md={3}>
-        <Box sx={{ pt: 2, pb: 5, px: 3 }}>
-          <Typography variant="h6" sx={{ color: 'text.primary' }}>
-            Recieve Subtrip Info
-          </Typography>
-          <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 1 }}>
-            Please provide the details of the Recieve info.
-          </Typography>
-        </Box>
-      </Grid>
-      <Grid item xs={12} md={8}>
-        <Card sx={{ p: 3 }}>
-          <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-            <Field.Text name="unloadingWeight" label="Unloading Wt." type="number" />
-            <Field.Text
-              name="deductedWeight"
-              label="Deducted Weight"
-              type="number"
-              placeholder="0"
-            />
+                  {isOwn && (
+                    <Field.Text
+                      name="startKm"
+                      label="Start Km"
+                      type="number"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+                      }}
+                    />
+                  )}
 
-            <Field.Text name="endKm" label="End Km" type="number" />
+                  <Field.Text
+                    name="rate"
+                    label="Rate *"
+                    type="number"
+                    InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                  />
 
-            <Field.Text name="deductedAmount" label="Deducted Amount" type="number" />
-            <Field.DatePicker name="endDate" label="End Date" />
+                  <Field.Text name="ewayBill" label="Eway Bill" />
+                  <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" />
 
-            <Field.Text name="remarks" label="Remarks" type="text" />
-          </Box>
-        </Card>
-      </Grid>
-    </Grid>
-  );
+                  <Field.Text name="invoiceNo" label="Invoice No *" />
+                  <Field.Text name="shipmentNo" label="Shipment No" />
+                  <Field.Text name="orderNo" label="Order No" />
 
-  const subtripStatus = currentSubtrip?.subtripStatus;
+                  <Field.Text name="materialType" label="Material Type" />
+                  <Field.Text name="grade" label="Grade" />
+                </Box>
+
+                <Divider sx={{ my: 4 }} />
+
+                <Typography variant="h6" sx={{ mb: 3 }} color="primary">
+                  Trip Advance
+                </Typography>
+                <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                  <Field.Text
+                    name="driverAdvance"
+                    label="Amount"
+                    type="number"
+                    placeholder="0"
+                    InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                  />
+                  <Box>
+                    <FormLabel component="legend" sx={{ mb: 0.5 }}>
+                      Given By:
+                    </FormLabel>
+                    <Field.RadioGroup
+                      row
+                      name="driverAdvanceGivenBy"
+                      options={Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((opt) => ({
+                        label: opt,
+                        value: opt,
+                      }))}
+                    />
+                  </Box>
+
+                  <Field.Text
+                    name="initialAdvanceDiesel"
+                    label="Diesel"
+                    type="number"
+                    placeholder="0"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
+                    }}
+                  />
+
+                  <DialogSelectButton
+                    variant="outlined"
+                    placeholder="Select Pump"
+                    selected={selectedPump?.pumpName}
+                    onClick={pumpDialog.onTrue}
+                    iconName="mdi:gas-station"
+                  />
+                </Box>
+              </Box>
+            </Card>
+          </>
+        )}
+
+        {/* Received fields - only visible for received status */}
+        {status === SUBTRIP_STATUS.RECEIVED && (
+          <>
+            <Typography variant="h6" sx={{ my: 2 }}>
+              Received Subtrip Details
+            </Typography>
+            <Card sx={{ p: 3 }}>
+              <Box sx={{ mb: 3 }}>
+                <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                  <Field.Text
+                    name="unloadingWeight"
+                    label="Unloading Weight"
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <>{loadingWeightUnit[vehicleType]}</>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {isOwn && (
+                    <Field.Text
+                      name="endKm"
+                      label="End Km"
+                      type="number"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+                      }}
+                    />
+                  )}
+                  {!isOwn && (
+                    <Field.Text
+                      name="commissionRate"
+                      label="Transporter Commission Rate"
+                      type="number"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                      }}
+                    />
+                  )}
+                  <Field.DatePicker name="endDate" label="LR Receive Date *" />
+                </Box>
+
+                <Divider sx={{ my: 4 }} />
+
+                {/* Issue Indicators */}
+                <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                  <Field.Switch name="hasShortage" label="Has Shortage?" />
+                  <Field.Switch name="hasError" label="Has Error?" />
+
+                  {values.hasShortage && (
+                    <>
+                      <Field.Text
+                        name="shortageWeight"
+                        label="Shortage Weight"
+                        type="number"
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+                        }}
+                      />
+                      <Field.Text
+                        name="shortageAmount"
+                        label="Shortage Amount"
+                        type="number"
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                        }}
+                      />
+                    </>
+                  )}
+
+                  {values.hasError && (
+                    <Field.Text name="errorRemarks" label="Error Remarks" multiline rows={3} />
+                  )}
+                </Box>
+              </Box>
+            </Card>
+          </>
+        )}
+      </>
+    );
+  };
+  console.log({ errors: methods.formState.errors });
 
   return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      {subtripStatus === SUBTRIP_STATUS.IN_QUEUE && renderInqueueFields()}
+    <>
+      <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={3} sx={{ pt: 10 }}>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ pt: 2, pb: 5, px: 3 }}>
+              <Typography variant="h6">Edit Subtrip</Typography>
+              <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                Edit subtrip details.
+              </Typography>
+            </Box>
+          </Grid>
 
-      {subtripStatus === SUBTRIP_STATUS.LOADED && (
-        <>
-          {renderInqueueFields()}
-          {renderLoadedFields()}
-        </>
-      )}
-      {subtripStatus === SUBTRIP_STATUS.RECEIVED && (
-        <>
-          {renderInqueueFields()}
-          {renderLoadedFields()}
-          {renderRecievedFields()}
-        </>
-      )}
+          <Grid item xs={12} md={8} sx={{ my: 2 }}>
+            {renderFields()}
 
-      <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
-        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-          Save Changes
-        </LoadingButton>
-      </Stack>
-    </Form>
+            <Box sx={{ pt: 2, pb: 5, px: 3, display: 'flex', gap: 2 }}>
+              <Button
+                variant="outlined"
+                disabled={isSubmitting || !dirtyFields || Object.keys(dirtyFields).length === 0}
+                onClick={() => methods.reset()}
+              >
+                Reset
+              </Button>
+              <LoadingButton
+                variant="contained"
+                type="submit"
+                color="primary"
+                loading={isSubmitting}
+                disabled={Object.keys(dirtyFields).length === 0}
+              >
+                Save
+              </LoadingButton>
+            </Box>
+          </Grid>
+        </Grid>
+      </Form>
+
+      {/* Dialogs */}
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleCustomerChange}
+      />
+
+      <KanbanRouteDialog
+        open={routeDialog.value}
+        onClose={routeDialog.onFalse}
+        selectedRoute={selectedRoute}
+        onRouteChange={handleRouteChange}
+      />
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={selectedPump}
+        onPumpChange={handlePumpChange}
+      />
+    </>
   );
 }

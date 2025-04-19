@@ -26,6 +26,7 @@ export function RHFTextField({ name, helperText, placeholder, type, ...other }) 
               field.onChange(event.target.value);
             }
           }}
+          onWheel={type === 'number' ? (e) => e.target.blur() : undefined}
           error={!!error}
           helperText={error?.message ?? helperText}
           inputProps={{

@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { usePumps } from 'src/query/use-pump';
 import { useRoutes } from 'src/query/use-route';
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useCustomers } from 'src/query/use-customer';
@@ -22,6 +23,7 @@ export default function Page() {
   const { data: subtrip, isLoading: subtripLoading, isError: subtripError } = useSubtrip(id);
   const { data: routes, isLoading: routesLoading, isError: routesError } = useRoutes(null, null);
   const { data: customers, isLoading: customersLoading, isError: customersError } = useCustomers();
+  const { data: pumps, isLoading: pumpsLoading, isError: pumpsError } = usePumps();
 
   if (subtripLoading || routesLoading || customersLoading) {
     return <LoadingScreen />;
@@ -43,7 +45,12 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripEditView subtrip={subtrip} routesList={routes} customersList={customers} />
+      <SubtripEditView
+        subtrip={subtrip}
+        routesList={routes}
+        customersList={customers}
+        pumpsList={pumps}
+      />
     </>
   );
 }

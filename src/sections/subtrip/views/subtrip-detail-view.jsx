@@ -22,7 +22,6 @@ import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
-import { RecieveSubtripDialog } from '../subtrip-recieve-dialogue-form';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
@@ -217,11 +216,11 @@ export function SubtripDetailView({ subtrip }) {
       </DashboardContent>
 
       {/* Render the RecieveSubtripDialog */}
-      <RecieveSubtripDialog
+      {/* <RecieveSubtripDialog
         showDialog={showRecieveDialog}
         setShowDialog={setShowRecieveDialog}
         subtrip={subtrip}
-      />
+      /> */}
 
       {/* Resolve Subtrip Dialogue */}
       <ResolveSubtripDialog
