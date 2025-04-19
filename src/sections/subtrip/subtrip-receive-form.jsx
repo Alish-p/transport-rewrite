@@ -10,7 +10,9 @@ import {
   Grid,
   Card,
   Stack,
+  Paper,
   Button,
+  Divider,
   Typography,
   LinearProgress,
   InputAdornment,
@@ -51,25 +53,27 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   const { isOwn, vehicleType } = selectedSubtrip?.tripId?.vehicleId || {};
 
   return (
-    <Card sx={{ p: 3 }}>
+    <Card sx={{ p: 2, height: '100%' }}>
       {isLoading && (
         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
           <LinearProgress color="info" size={24} sx={{ mt: 1 }} />
         </Box>
       )}
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
         <Typography variant="h6">Subtrip Receive Details</Typography>
       </Stack>
-      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr 1fr' }} gap={3}>
+
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           placeholder="Select Subtrip *"
           selected={selectedSubtrip?._id}
           error={!!errors.subtripId?.message}
           iconName="mdi:truck-fast"
-          sx={{ mb: 3 }}
+          sx={{ gridColumn: '1 / -1' }}
         />
+
         {selectedSubtrip && (
           <>
             <Field.Text
@@ -83,6 +87,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 ),
               }}
             />
+
             {isOwn ? (
               <Field.Text
                 name="endKm"
@@ -115,48 +120,57 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       </Box>
 
       {selectedSubtrip && (
-        <Stack direction="row" spacing={2} sx={{ mt: 3, mr: 'auto' }}>
-          <Field.Switch name="hasShortage" label="Has Shortage" color="warning" />
-          <Field.Switch name="hasError" label="Has Error" color="error" />
-        </Stack>
-      )}
+        <>
+          <Divider sx={{ my: 2 }} />
 
-      {hasShortage && (
-        <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-          <Field.Text
-            name="shortageWeight"
-            label="Shortage Weight"
-            type="number"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
-              ),
-            }}
-          />
-          <Field.Text
-            name="shortageAmount"
-            label="Shortage Amount"
-            type="number"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
-      )}
+          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+            <Field.Switch name="hasShortage" label="Has Shortage" color="warning" />
+            <Field.Switch name="hasError" label="Has Error" color="error" />
+          </Stack>
 
-      {hasError && (
-        <Field.Text
-          name="remarks"
-          label="Error Remarks"
-          type="text"
-          multiline
-          rows={3}
-          sx={{ mt: 3 }}
-        />
+          {hasShortage && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="warning.main" gutterBottom>
+                Shortage Details
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <Field.Text
+                  name="shortageWeight"
+                  label="Shortage Weight"
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {loadingWeightUnit[vehicleType]}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Field.Text
+                  name="shortageAmount"
+                  label="Shortage Amount"
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Stack>
+            </Box>
+          )}
+
+          {hasError && (
+            <Box>
+              <Typography variant="subtitle2" color="error.main" gutterBottom>
+                Error Details
+              </Typography>
+              <Field.Text name="remarks" label="Error Remarks" type="text" multiline rows={3} />
+            </Box>
+          )}
+        </>
       )}
     </Card>
   );
@@ -216,44 +230,78 @@ export function SubtripReceiveForm() {
   return (
     <>
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <ReceiveFormFields
-          selectedSubtrip={selectedSubtripData}
-          methods={methods}
-          errors={errors}
-          subtripDialog={subtripDialog}
-          isLoading={isLoadingSelectedSubtrip}
-        />
+        <Grid container spacing={3}>
+          {/* Form Section */}
+          <Grid item xs={12} md={5}>
+            <ReceiveFormFields
+              selectedSubtrip={selectedSubtripData}
+              methods={methods}
+              errors={errors}
+              subtripDialog={subtripDialog}
+              isLoading={isLoadingSelectedSubtrip}
+            />
 
-        <Stack direction="row" justifyContent="flex-end" spacing={2} sx={{ mt: 3 }}>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              reset(defaultValues);
-              setSelectedSubtripId(null);
-            }}
-            disabled={isSubmitting}
-          >
-            Reset
-          </Button>
-          <LoadingButton
-            type="submit"
-            variant="contained"
-            loading={isSubmitting}
-            disabled={!isValid}
-          >
-            Save Changes
-          </LoadingButton>
-        </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} sx={{ mt: 2 }}>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  reset(defaultValues);
+                  setSelectedSubtripId(null);
+                }}
+                disabled={isSubmitting}
+              >
+                Reset
+              </Button>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                disabled={!isValid}
+              >
+                Save Changes
+              </LoadingButton>
+            </Stack>
+          </Grid>
+
+          {/* Details Section */}
+          <Grid item xs={12} md={7}>
+            {selectedSubtripData ? (
+              <Stack spacing={2}>
+                <SubtripDetailCard selectedSubtrip={selectedSubtripData} />
+                <BasicExpenseTable selectedSubtrip={selectedSubtripData} />
+              </Stack>
+            ) : (
+              <Paper
+                sx={{
+                  p: 4,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  minHeight: 300,
+                  bgcolor: 'background.neutral',
+                }}
+              >
+                <Iconify
+                  icon="mdi:truck-fast-outline"
+                  sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }}
+                />
+                <Typography variant="h6" color="text.secondary">
+                  Select a subtrip to view details
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1, textAlign: 'center' }}
+                >
+                  Choose a subtrip from the form to see its details and expenses
+                </Typography>
+              </Paper>
+            )}
+          </Grid>
+        </Grid>
       </Form>
-
-      <Grid container spacing={3} sx={{ mt: 3 }}>
-        <Grid item xs={12} md={8}>
-          {selectedSubtripData && <BasicExpenseTable selectedSubtrip={selectedSubtripData} />}
-        </Grid>
-        <Grid item xs={12} md={4}>
-          {selectedSubtripData && <SubtripDetailCard selectedSubtrip={selectedSubtripData} />}
-        </Grid>
-      </Grid>
 
       <KanbanSubtripDialog
         open={subtripDialog.value}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 // components
 import { useNavigate } from 'react-router';
 
-import { Box, Grid, Card, Stack, Button, CardHeader } from '@mui/material';
+import { Grid, Stack } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -14,12 +14,12 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { SUBTRIP_STATUS } from '../constants';
 import LRInfo from '../widgets/subtrip-info-widget';
-import SimpleExpenseList from '../basic-expense-table';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import InsightsWidget from '../widgets/insights-widget';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
+import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
@@ -167,31 +167,7 @@ export function SubtripDetailView({ subtrip }) {
                 />
               </Stack>
               <Grid item>
-                <Card sx={{ minHeight: 400 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 3,
-                      px: 3,
-                    }}
-                  >
-                    <CardHeader title="Expense List" subheader="Detail of Expenses" />
-                    <Button
-                      variant="contained"
-                      onClick={() =>
-                        navigate(
-                          `${paths.dashboard.expense.new}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-                        )
-                      }
-                      disabled={!isEditingAllowed()}
-                    >
-                      New Expense
-                    </Button>
-                  </Box>
-                  <SimpleExpenseList expenses={subtrip?.expenses || []} />
-                </Card>
+                <BasicExpenseTable selectedSubtrip={subtrip} withAdd />
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart
