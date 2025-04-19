@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState, useEffect } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import {
@@ -107,9 +107,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const pumpDialog = useBoolean();
   const routeDialog = useBoolean();
 
-  const [selectedPump, setSelectedPump] = useState(null);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(currentSubtrip?.intentFuelPump);
+  const [selectedRoute, setSelectedRoute] = useState(currentSubtrip?.routeCd);
+  const [selectedCustomer, setSelectedCustomer] = useState(currentSubtrip?.customerId);
 
   const defaultValues = useMemo(
     () => ({
@@ -145,21 +145,6 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const values = watch();
 
   const { vehicleType, isOwn } = currentSubtrip?.tripId?.vehicleId || {};
-
-  // effects
-  useEffect(() => {
-    if (currentSubtrip?.customerId) {
-      setSelectedCustomer(currentSubtrip?.customerId);
-    }
-
-    if (currentSubtrip?.intentFuelPump) {
-      setSelectedPump(currentSubtrip?.intentFuelPump);
-    }
-
-    if (currentSubtrip?.routeCd) {
-      setSelectedRoute(currentSubtrip?.routeCd);
-    }
-  }, [currentSubtrip]);
 
   const handleCustomerChange = (customer) => {
     setSelectedCustomer(customer);

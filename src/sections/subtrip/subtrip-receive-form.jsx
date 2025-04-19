@@ -5,7 +5,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Grid, Card, Stack, Button, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Card,
+  Stack,
+  Button,
+  Typography,
+  LinearProgress,
+  InputAdornment,
+} from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -18,6 +27,7 @@ import { Form, Field } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { receiveSchema } from './subtrip-schemas';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
@@ -38,87 +48,115 @@ const defaultValues = {
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch } = methods;
   const { hasError, hasShortage } = watch();
-  const { isOwn } = selectedSubtrip?.tripId?.vehicleId || {};
+  const { isOwn, vehicleType } = selectedSubtrip?.tripId?.vehicleId || {};
 
   return (
     <Card sx={{ p: 3 }}>
       {isLoading && (
         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
-          <CircularProgress color="info" size={24} sx={{ mt: 1 }} />
+          <LinearProgress color="info" size={24} sx={{ mt: 1 }} />
         </Box>
       )}
-
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
         <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
         <Typography variant="h6">Subtrip Receive Details</Typography>
       </Stack>
-
-      <DialogSelectButton
-        onClick={subtripDialog.onTrue}
-        placeholder="Select Subtrip *"
-        selected={selectedSubtrip?._id}
-        error={!!errors.subtripId?.message}
-        iconName="mdi:truck-fast"
-        sx={{ mb: 3 }}
-      />
-
-      {selectedSubtrip && (
-        <>
-          <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }} gap={3}>
-            <Field.Text name="unloadingWeight" label="Unloading Weight" type="number" required />
-
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr 1fr' }} gap={3}>
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          placeholder="Select Subtrip *"
+          selected={selectedSubtrip?._id}
+          error={!!errors.subtripId?.message}
+          iconName="mdi:truck-fast"
+          sx={{ mb: 3 }}
+        />
+        {selectedSubtrip && (
+          <>
+            <Field.Text
+              name="unloadingWeight"
+              label="Unloading Weight"
+              type="number"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
+                ),
+              }}
+            />
             {isOwn ? (
-              <Field.Text name="endKm" label="End Km" type="number" required />
+              <Field.Text
+                name="endKm"
+                label="End Km"
+                type="number"
+                required
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+                }}
+              />
             ) : (
               <Field.Text
                 name="commissionRate"
                 label="Transporter Commission Rate"
                 type="number"
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
             )}
 
             <Field.DatePicker name="endDate" label="LR Receive Date *" />
-          </Box>
+          </>
+        )}
+      </Box>
 
-          <Box
-            display="grid"
-            gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-            sx={{ mt: 3 }}
-            gap={1}
-          >
-            <Field.Switch name="hasShortage" label="Has Shortage" color="warning" />
-            <Field.Switch name="hasError" label="Has Error" color="error" />
-          </Box>
+      {selectedSubtrip && (
+        <Stack direction="row" spacing={2} sx={{ mt: 3, mr: 'auto' }}>
+          <Field.Switch name="hasShortage" label="Has Shortage" color="warning" />
+          <Field.Switch name="hasError" label="Has Error" color="error" />
+        </Stack>
+      )}
 
-          {hasShortage && (
-            <>
-              <Field.Text
-                name="shortageWeight"
-                label="Shortage Weight"
-                type="number"
-                sx={{ mt: 3 }}
-              />
-              <Field.Text
-                name="shortageAmount"
-                label="Shortage Amount"
-                type="number"
-                sx={{ mt: 3 }}
-              />
-            </>
-          )}
+      {hasShortage && (
+        <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+          <Field.Text
+            name="shortageWeight"
+            label="Shortage Weight"
+            type="number"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
+              ),
+            }}
+          />
+          <Field.Text
+            name="shortageAmount"
+            label="Shortage Amount"
+            type="number"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+      )}
 
-          {hasError && (
-            <Field.Text
-              name="remarks"
-              label="Error Remarks"
-              type="text"
-              multiline
-              rows={3}
-              sx={{ mt: 3 }}
-            />
-          )}
-        </>
+      {hasError && (
+        <Field.Text
+          name="remarks"
+          label="Error Remarks"
+          type="text"
+          multiline
+          rows={3}
+          sx={{ mt: 3 }}
+        />
       )}
     </Card>
   );
