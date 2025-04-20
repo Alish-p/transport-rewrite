@@ -24,6 +24,7 @@ import { Label } from 'src/components/label';
 
 import { paths } from '../../routes/paths';
 import { useInvoice } from './context/InvoiceContext';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -115,14 +116,11 @@ function RenderTable({ invoice }) {
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>Vehicle No</StyledTableCell>
             <StyledTableCell>LR No</StyledTableCell>
-            <StyledTableCell>Invoice No</StyledTableCell>
             <StyledTableCell>Disp Date</StyledTableCell>
+            <StyledTableCell>Freight Rate</StyledTableCell>
+            <StyledTableCell>QTY</StyledTableCell>
             <StyledTableCell>Rate/MT</StyledTableCell>
-            <StyledTableCell>QTY(MT)</StyledTableCell>
-            <StyledTableCell>Freight</StyledTableCell>
 
-            <StyledTableCell>Shortage QTY(MT)</StyledTableCell>
-            <StyledTableCell>Shortage Amount</StyledTableCell>
             <StyledTableCell>Total Amount</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -148,28 +146,27 @@ function RenderTable({ invoice }) {
                 </TableCell>
                 <TableCell>{fDate(st.startDate)}</TableCell>
                 <TableCell>{fCurrency(st.rate || 0)}</TableCell>
-                <TableCell>{st.loadingWeight || 0}</TableCell>
+                <TableCell>
+                  {st.loadingWeight || 0} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                </TableCell>
                 <TableCell>{fCurrency(freightAmount)}</TableCell>
 
-                <TableCell>{st.shortageWeight || 0}</TableCell>
-                <TableCell>{fCurrency(shortageAmount || 0)}</TableCell>
                 <TableCell>{fCurrency(totalAmountPerSubtrip || 0)}</TableCell>
               </TableRow>
             );
           })}
 
           <StyledTableRow>
-            <TableCell colSpan={7} />
+            <TableCell colSpan={6} />
             <StyledTableCell>Total</StyledTableCell>
             <TableCell>{totalFreightWt}</TableCell>
             <TableCell>{fCurrency(totalFreightAmount)}</TableCell>
-            <TableCell>{totalShortageWt}</TableCell>
-            <TableCell>{fCurrency(totalShortageAmount)}</TableCell>
+
             <TableCell>{fCurrency(totalAmountBeforeTax)}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={11} />
+            <TableCell colSpan={8} />
             <StyledTableCell>CGST({CONFIG.customerInvoiceTax}%)</StyledTableCell>
             <TableCell>
               {fCurrency(totalAmountBeforeTax * (CONFIG.customerInvoiceTax / 100))}
@@ -177,7 +174,7 @@ function RenderTable({ invoice }) {
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={11} />
+            <TableCell colSpan={8} />
             <StyledTableCell>SGST({CONFIG.customerInvoiceTax}%)</StyledTableCell>
             <TableCell>
               {fCurrency(totalAmountBeforeTax * (CONFIG.customerInvoiceTax / 100))}
@@ -185,7 +182,7 @@ function RenderTable({ invoice }) {
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={11} />
+            <TableCell colSpan={8} />
             <StyledTableCell>Net-Total</StyledTableCell>
             <TableCell sx={{ color: 'error.main' }}>
               {fCurrency(totalAmountBeforeTax * (1 + (2 * CONFIG.customerInvoiceTax) / 100))}

@@ -115,7 +115,7 @@ export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
         customerId,
         fromDate,
         toDate,
-        subtripStatus: SUBTRIP_STATUS.CLOSED,
+        subtripStatus: SUBTRIP_STATUS.RECEIVED,
         isEmpty: false,
         hasInvoice: false,
       },

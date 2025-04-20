@@ -7,8 +7,9 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/c
 
 import { useBoolean } from '../../hooks/use-boolean';
 import { useInvoice } from './context/InvoiceContext';
-import { SubtripsDialog } from './components/SubtripsDialog';
+import { DialogSelectButton } from '../../components/dialog-select-button';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
+import KanbanSubtripMultiSelectDialog from '../kanban/components/kanban-subtrip-multi-select-dialog';
 
 /** Reusable Field Wrapper */
 const FieldWrapper = ({ children, error, ...props }) => (
@@ -34,24 +35,13 @@ const CustomerSelector = ({ value, onChange, error }) => {
 
   return (
     <>
-      <Button
-        fullWidth
-        variant="outlined"
+      <DialogSelectButton
         onClick={customerDialog.onTrue}
-        sx={{
-          height: 56,
-          justifyContent: 'flex-start',
-          typography: 'body2',
-        }}
-        startIcon={
-          <Iconify
-            icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
-            sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
-          />
-        }
-      >
-        {selectedCustomer ? selectedCustomer.customerName : 'Select Customer'}
-      </Button>
+        placeholder="Select Customer *"
+        selected={selectedCustomer?.customerName}
+        error={!!error}
+        iconName="mdi:office-building"
+      />
 
       <KanbanCustomerDialog
         open={customerDialog.value}
@@ -118,8 +108,8 @@ const DateRangeSelector = ({ fromDate, toDate, onChange, error }) => {
   );
 };
 
-/** Subtrip Selector */
-const SubtripSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
+/** Subtrip Multi-Selector */
+const SubtripMultiSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
   const subtripsDialog = useBoolean();
 
   const handleSubtripsChange = useCallback(
@@ -147,10 +137,12 @@ const SubtripSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
           />
         }
       >
-        {selectedSubtrips?.length > 0 ? selectedSubtrips.join(', ') : 'Select Subtrips'}
+        {selectedSubtrips?.length > 0
+          ? `${selectedSubtrips.length} subtrips selected`
+          : 'Select Subtrips'}
       </Button>
 
-      <SubtripsDialog
+      <KanbanSubtripMultiSelectDialog
         open={subtripsDialog.value}
         onClose={subtripsDialog.onFalse}
         subtrips={subtrips}
@@ -204,7 +196,7 @@ export default function InvoiceForm() {
         {/* only show if there are subtrips */}
         {allSubTripsByCustomer?.length > 0 && (
           <FieldWrapper md={6} error={errors?.invoicedSubTrips}>
-            <SubtripSelector
+            <SubtripMultiSelector
               subtrips={allSubTripsByCustomer}
               selectedSubtrips={invoicedSubTrips}
               onChange={updateFormState}
