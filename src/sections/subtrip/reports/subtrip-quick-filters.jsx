@@ -60,13 +60,13 @@ export default function SubtripQuickFilters({ onFilters }) {
       },
     },
     {
-      id: 'recent-closed',
-      label: 'Recently Closed',
-      tooltip: 'Subtrips closed in the last 7 days',
+      id: 'recent-received',
+      label: 'Recently Received',
+      tooltip: 'Subtrips received in the last 7 days',
       filters: {
         subtripEndFromDate: dayjs().subtract(7, 'day'),
         subtripEndEndDate: dayjs(),
-        status: [SUBTRIP_STATUS.CLOSED],
+        status: [SUBTRIP_STATUS.RECEIVED],
       },
     },
   ];
@@ -133,5 +133,5 @@ export const QUICK_FILTER_IDS = {
   PENDING_INVOICES: 'pending-invoices',
   OVERDUE_INVOICES: 'overdue-invoices',
   EXPIRING_EWAY: 'expiring-eway',
-  RECENT_CLOSED: 'recent-closed',
+  RECENT_RECEIVED: 'recent-received',
 };

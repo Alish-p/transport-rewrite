@@ -29,8 +29,7 @@ const getEventIcon = (eventType) => {
       return 'mdi:progress-tick';
     case 'ERROR':
       return 'material-symbols:error-outline';
-    case 'CLOSED':
-      return 'zondicons:lock-closed';
+
     case 'EXPENSE_ADDED':
       return 'mdi:currency-usd';
     default:
@@ -52,8 +51,7 @@ const getEventColor = (eventType) => {
       return 'success';
     case 'ERROR':
       return 'error';
-    case 'CLOSED':
-      return 'secondary';
+
     case 'EXPENSE_ADDED':
       return 'success';
     default:
@@ -76,8 +74,6 @@ const getEventTitle = (event) => {
       return 'Subtrip Completed';
     case 'ERROR':
       return 'Error Occurred';
-    case 'CLOSED':
-      return 'Subtrip Closed';
     case 'EXPENSE_ADDED':
       return 'Expense Added';
     default:

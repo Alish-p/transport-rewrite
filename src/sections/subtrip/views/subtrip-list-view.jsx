@@ -161,7 +161,6 @@ export function SubtripListView({ subtrips }) {
     { value: 'loaded', label: 'Loaded', color: 'success', count: getSubtripLength('loaded') },
     { value: 'received', label: 'Recieved', color: 'success', count: getSubtripLength('received') },
     { value: 'error', label: 'Error', color: 'error', count: getSubtripLength('error') },
-    { value: 'closed', label: 'Closed', color: 'success', count: getSubtripLength('closed') },
     {
       value: 'billed-pending',
       label: 'Billed Pending',
@@ -325,14 +324,6 @@ export function SubtripListView({ subtrips }) {
                 color={theme.palette.error.main}
               />
 
-              <SubtripAnalytic
-                title="Closed"
-                total={getSubtripLength('closed')}
-                percent={getPercentBySubtripStatus('closed')}
-                price={getTotalAmount('closed')}
-                icon="zondicons:lock-closed"
-                color={theme.palette.secondary.main}
-              />
               <SubtripAnalytic
                 title="Billed Pending"
                 total={getSubtripLength('billed-pending')}

@@ -18,7 +18,7 @@ export const SUBTRIP_STATUS = {
   LOADED: 'loaded', // When the vehicle is fully loaded and has left for delivery
   ERROR: 'error', // When there is a problem with documents or other issues
   RECEIVED: 'received', // When the consignment is successfully received at the destination
-  CLOSED: 'closed', // When all details are verified and the subtrip is officially completed
+  // CLOSED: 'closed', // When all details are verified and the subtrip is officially completed
   BILLED_PENDING: 'billed-pending', // When the invoice is generated but pending payment
   BILLED_OVERDUE: 'billed-overdue', // When the invoice is overdue and not yet paid
   BILLED_PAID: 'billed-paid', // When the invoice is fully paid

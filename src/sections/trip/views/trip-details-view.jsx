@@ -204,12 +204,7 @@ export function TripDetailView({ trip }) {
                           (st) => st.subtripStatus === SUBTRIP_STATUS.ERROR
                         ).length,
                       },
-                      {
-                        label: 'Closed',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.CLOSED
-                        ).length,
-                      },
+
                       {
                         label: 'Billed',
                         value: trip?.subtrips?.filter(

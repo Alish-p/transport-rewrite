@@ -138,7 +138,7 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
         subtripStatus: [
           SUBTRIP_STATUS.RECEIVED,
           SUBTRIP_STATUS.ERROR,
-          SUBTRIP_STATUS.CLOSED,
+
           SUBTRIP_STATUS.BILLED_PENDING,
           SUBTRIP_STATUS.BILLED_OVERDUE,
           SUBTRIP_STATUS.BILLED_PAID,
@@ -166,7 +166,7 @@ export function useClosedSubtripsByTransporterAndDate(
         fromDate: periodStartDate,
         toDate: periodEndDate,
         subtripStatus: [
-          SUBTRIP_STATUS.CLOSED,
+          SUBTRIP_STATUS.RECEIVED,
           SUBTRIP_STATUS.BILLED_PENDING,
           SUBTRIP_STATUS.BILLED_OVERDUE,
           SUBTRIP_STATUS.BILLED_PAID,
