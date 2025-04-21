@@ -23,13 +23,13 @@ import { calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
 
 import { Iconify } from 'src/components/iconify';
 
-export const SubtripDetailCard = ({ selectedSubtrip }) => {
+export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
   const [activeTab, setActiveTab] = useState(0);
 
   const {
     loadingWeight,
     rate,
-    commissionRate,
+
     startKm,
     invoiceNo,
     shipmentNo,
@@ -90,20 +90,20 @@ export const SubtripDetailCard = ({ selectedSubtrip }) => {
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Loading Weight</Typography>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight="bold" color="primary">
                   {loadingWeight || 0} Ton
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Freight Rate</Typography>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight="bold" color="primary">
                   {fCurrency(rate || 0)}
                 </Typography>
               </Box>
               {isOwn && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2">Start Km</Typography>
-                  <Typography variant="body2" fontWeight="bold">
+                  <Typography variant="body2" fontWeight="bold" color="primary">
                     {startKm || '-'} km
                   </Typography>
                 </Box>
@@ -111,7 +111,7 @@ export const SubtripDetailCard = ({ selectedSubtrip }) => {
               {!isOwn && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2">Effective Rate</Typography>
-                  <Typography variant="body2" fontWeight="bold">
+                  <Typography variant="body2" fontWeight="bold" color="error">
                     {fCurrency(rate - commissionRate || 0)}
                   </Typography>
                 </Box>

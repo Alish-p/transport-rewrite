@@ -17,23 +17,37 @@ export const receiveSchema = zod
     shortageWeight: zod.number().optional(),
     shortageAmount: zod.number().optional(),
     hasShortage: zod.boolean().optional(),
+
+    // Required for validation [not the actual fields]
   })
   .superRefine((values, ctx) => {
-    if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
-      ctx.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'Unloading weight must be ≤ loading weight',
-        path: ['unloadingWeight'],
-      });
-    }
+    // if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
+    //   ctx.addIssue({
+    //     code: zod.ZodIssueCode.custom,
+    //     message: 'Unloading weight must be ≤ loading weight',
+    //     path: ['unloadingWeight'],
+    //   });
+    // }
 
-    if (values.startKm && values.endKm && values.endKm < values.startKm) {
-      ctx.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'End Km must be ≥ Start Km',
-        path: ['endKm'],
-      });
-    }
+    // if (values.startKm && values.endKm && values.endKm < values.startKm) {
+    //   ctx.addIssue({
+    //     code: zod.ZodIssueCode.custom,
+    //     message: 'End Km must be ≥ Start Km',
+    //     path: ['endKm'],
+    //   });
+    // }
+
+    // if (
+    //   values.commissionRate !== undefined &&
+    //   values.rate !== undefined &&
+    //   values.commissionRate > values.rate
+    // ) {
+    //   ctx.addIssue({
+    //     code: zod.ZodIssueCode.custom,
+    //     message: 'Commission rate cannot be more than the rate',
+    //     path: ['commissionRate'],
+    //   });
+    // }
 
     if (values.hasShortage && (!values.shortageWeight || !values.shortageAmount)) {
       ctx.addIssue({

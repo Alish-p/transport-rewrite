@@ -11,6 +11,7 @@ import {
   Card,
   Stack,
   Paper,
+  Alert,
   Button,
   Divider,
   Typography,
@@ -49,7 +50,7 @@ const defaultValues = {
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch } = methods;
-  const { hasError, hasShortage } = watch();
+  const { hasError, hasShortage, unloadingWeight, endKm, commissionRate } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.tripId?.vehicleId || {};
 
   return (
@@ -172,6 +173,24 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           )}
         </>
       )}
+
+      <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
+        {unloadingWeight > selectedSubtrip?.loadingWeight && (
+          <Alert severity="error" variant="outlined">
+            Unloading weight cannot be more than loading weight
+          </Alert>
+        )}
+        {endKm < selectedSubtrip?.startKm && (
+          <Alert severity="error" variant="outlined">
+            End Km cannot be less than start Km.
+          </Alert>
+        )}
+        {commissionRate > selectedSubtrip?.rate && (
+          <Alert severity="error" variant="outlined">
+            Commission rate cannot be more than the freight rate
+          </Alert>
+        )}
+      </Stack>
     </Card>
   );
 };
@@ -203,14 +222,21 @@ export function SubtripReceiveForm() {
 
   const {
     reset,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
+  const { unloadingWeight, endKm, commissionRate } = watch();
+
   const handleSubtripChange = useCallback(
     (subtrip) => {
       setSelectedSubtripId(subtrip._id);
-      reset({ ...defaultValues, subtripId: subtrip._id });
+
+      reset({
+        ...defaultValues,
+        subtripId: subtrip._id,
+      });
     },
     [reset]
   );
@@ -218,7 +244,7 @@ export function SubtripReceiveForm() {
   const onSubmit = async (data) => {
     try {
       console.log('form data', data);
-      await receiveSubtrip({ id: selectedSubtripData._id, data });
+      // await receiveSubtrip({ id: selectedSubtripData._id, data });
       reset(defaultValues);
       setSelectedSubtripId(null);
       if (redirectTo) navigate(redirectTo);
@@ -256,7 +282,14 @@ export function SubtripReceiveForm() {
                 type="submit"
                 variant="contained"
                 loading={isSubmitting}
-                disabled={!isValid}
+                disabled={
+                  !isValid ||
+                  isSubmitting ||
+                  // local errors
+                  unloadingWeight > selectedSubtripData?.loadingWeight ||
+                  endKm < selectedSubtripData?.startKm ||
+                  commissionRate > selectedSubtripData?.rate
+                }
               >
                 Save Changes
               </LoadingButton>
@@ -267,7 +300,10 @@ export function SubtripReceiveForm() {
           <Grid item xs={12} md={7}>
             {selectedSubtripData ? (
               <Stack spacing={2}>
-                <SubtripDetailCard selectedSubtrip={selectedSubtripData} />
+                <SubtripDetailCard
+                  selectedSubtrip={selectedSubtripData}
+                  commissionRate={watch('commissionRate')}
+                />
                 <BasicExpenseTable selectedSubtrip={selectedSubtripData} />
               </Stack>
             ) : (
