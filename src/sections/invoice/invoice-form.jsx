@@ -2,12 +2,14 @@ import { useCallback } from 'react';
 
 import { Card, Grid, Button, FormHelperText } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
 
-import { useBoolean } from '../../hooks/use-boolean';
 import { useInvoice } from './context/InvoiceContext';
-import { DialogSelectButton } from '../../components/dialog-select-button';
+import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 import KanbanSubtripMultiSelectDialog from '../kanban/components/kanban-subtrip-multi-select-dialog';
 
@@ -90,9 +92,7 @@ const DateRangeSelector = ({ fromDate, toDate, onChange, error }) => {
           typography: 'body2',
         }}
       >
-        {fromDate && toDate
-          ? `${fromDate.toLocaleDateString()} - ${toDate.toLocaleDateString()}`
-          : 'Select Date Range'}
+        {fromDate && toDate ? `${fDateRangeShortLabel(fromDate, toDate)}` : 'Select Date Range'}
       </Button>
 
       <CustomDateRangePicker

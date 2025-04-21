@@ -26,6 +26,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
@@ -44,7 +45,6 @@ import {
 } from 'src/components/table';
 
 import SubtripTableRow from '../reports/subtrip-table-row';
-import SubtripListPdf from '../../../pdfs/subtrip-list-pdf';
 import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
 import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';

@@ -60,25 +60,27 @@ export default function KanbanSubtripMultiSelectDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }} my={1}>
           <Button
-            variant="outlined"
+            variant="soft"
             size="small"
-            onClick={handleSelectAll}
-            startIcon={<Iconify icon="mdi:check-all" />}
-          >
-            Select All
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
+            color="error"
             onClick={handleDeselectAll}
             startIcon={<Iconify icon="mdi:close-box-multiple" />}
           >
             Deselect All
+          </Button>
+          <Button
+            variant="soft"
+            size="small"
+            color="primary"
+            onClick={handleSelectAll}
+            startIcon={<Iconify icon="mdi:check-all" />}
+          >
+            Select All
           </Button>
         </Box>
         <Divider sx={{ mb: 2 }} />

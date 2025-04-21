@@ -1,9 +1,8 @@
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router';
 import { useMemo, useState, useContext, useCallback, createContext } from 'react';
 
 import { paths } from 'src/routes/paths';
-
-import { getFirstDayOfCurrentMonth } from 'src/utils/format-time';
 
 import { useCreateInvoice } from 'src/query/use-invoice';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
@@ -32,18 +31,18 @@ export function InvoiceProvider({ children, customerList, existingInvoice }) {
     existingInvoice
       ? {
           customerId: existingInvoice.customerId?._id || '',
-          createdDate: existingInvoice.createdDate || new Date(),
-          fromDate: existingInvoice.fromDate || getFirstDayOfCurrentMonth(),
-          toDate: existingInvoice.toDate || new Date(),
-          dueDate: existingInvoice.dueDate || new Date(),
+          createdDate: existingInvoice.createdDate || dayjs(),
+          fromDate: existingInvoice.fromDate || dayjs().startOf('month'),
+          toDate: existingInvoice.toDate || dayjs(),
+          dueDate: existingInvoice.dueDate || dayjs().add(1, 'month'),
           invoicedSubTrips: existingInvoice.invoicedSubTrips?.map((st) => st._id) || [],
         }
       : {
           customerId: '',
-          createdDate: new Date(),
-          fromDate: getFirstDayOfCurrentMonth(),
-          toDate: new Date(),
-          dueDate: new Date(),
+          createdDate: dayjs(),
+          fromDate: dayjs().startOf('month'),
+          toDate: dayjs(),
+          dueDate: dayjs().add(1, 'month'),
           invoicedSubTrips: [],
         }
   );
