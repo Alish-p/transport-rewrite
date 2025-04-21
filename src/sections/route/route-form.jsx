@@ -1,4 +1,5 @@
 import { z as zod } from 'zod';
+import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,6 @@ import {
   Stack,
   Table,
   Paper,
-  Button,
   Tooltip,
   TableRow,
   TableBody,
@@ -35,6 +35,7 @@ import { useCreateRoute, useUpdateRoute } from 'src/query/use-route';
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import RouteConfigDialogue from './components/route-config-dialogue';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
@@ -59,6 +60,7 @@ export const NewRouteSchema = zod
 export default function RouteForm({ currentRoute, customers }) {
   const navigate = useNavigate();
   const customerDialog = useBoolean(false);
+
   const [vehicleConfigs, setVehicleConfigs] = useState(currentRoute?.vehicleConfiguration || []);
   const [editingConfig, setEditingConfig] = useState(null);
 
@@ -118,6 +120,14 @@ export default function RouteForm({ currentRoute, customers }) {
   };
 
   const handleAddConfig = (config) => {
+    const isDuplicate = vehicleConfigs.some(
+      (c) => c.vehicleType === config.vehicleType && c.noOfTyres === config.noOfTyres
+    );
+
+    if (isDuplicate) {
+      toast.error('Duplicate configuration for same vehicle type and tyre count');
+      return;
+    }
     setVehicleConfigs((prev) => [...prev, config]);
   };
 
@@ -125,10 +135,23 @@ export default function RouteForm({ currentRoute, customers }) {
     setEditingConfig(config);
   };
 
-  const handleUpdateConfig = (config) => {
-    setVehicleConfigs((prev) =>
-      prev.map((item, index) => (index === editingConfig.index ? config : item))
+  const handleUpdateConfig = (updatedConfig) => {
+    const isDuplicate = vehicleConfigs.some(
+      (c, i) =>
+        i !== editingConfig.index &&
+        c.vehicleType === updatedConfig.vehicleType &&
+        c.noOfTyres === updatedConfig.noOfTyres
     );
+
+    if (isDuplicate) {
+      toast.error('Duplicate configuration for same vehicle type and tyre count');
+      return;
+    }
+
+    setVehicleConfigs((prev) =>
+      prev.map((item, index) => (index === editingConfig.index ? updatedConfig : item))
+    );
+
     setEditingConfig(null);
   };
 
@@ -215,25 +238,14 @@ export default function RouteForm({ currentRoute, customers }) {
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 Customer
               </Typography>
-              <Button
-                fullWidth
-                variant="outlined"
+
+              <DialogSelectButton
                 onClick={customerDialog.onTrue}
-                sx={{
-                  height: 56,
-                  justifyContent: 'flex-start',
-                  typography: 'body2',
-                  borderColor: errors.customer?.message ? 'error.main' : 'text.disabled',
-                }}
-                startIcon={
-                  <Iconify
-                    icon={selectedCustomer ? 'mdi:office-building' : 'mdi:office-building-outline'}
-                    sx={{ color: selectedCustomer ? 'primary.main' : 'text.disabled' }}
-                  />
-                }
-              >
-                {selectedCustomer ? selectedCustomer.customerName : 'Select Customer *'}
-              </Button>
+                placeholder="Select Customer *"
+                selected={selectedCustomer?.customerName}
+                error={!!errors.customer?.message}
+                iconName="mdi:office-building"
+              />
             </Box>
           )}
         </Box>

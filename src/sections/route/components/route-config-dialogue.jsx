@@ -22,10 +22,7 @@ const vehicleTypeSuggestions = [
   { type: 'Body', tyres: [12, 14, 16, 20] },
   { type: 'Trailer', tyres: [12, 16, 20] },
   { type: 'Bulker', tyres: [14, 16, 20] },
-  { type: 'Local Bulker', tyres: [12, 16] },
   { type: 'Tanker', tyres: [16, 20] },
-  { type: 'Pickup', tyres: [4, 6] },
-  { type: 'Crane', tyres: [10, 12, 16] },
 ];
 
 function TabPanel({ children, value, index, ...other }) {
@@ -192,7 +189,7 @@ export default function SmartConfigAssistant({ onApply, editingConfig, onUpdate 
         type="number"
         value={config.percentageSalary || ''}
         onChange={(e) => handleChange('percentageSalary', Number(e.target.value))}
-        fullWidth
+        h
         InputProps={{
           endAdornment: <InputAdornment position="end">%</InputAdornment>,
         }}
