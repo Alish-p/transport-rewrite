@@ -393,7 +393,7 @@ export function SubtripLoadForm() {
   }, [driverAdvanceGivenBy, initialAdvanceDiesel, trigger]);
 
   useEffect(() => {
-    if (detailedRoute && vehicleData) {
+    if (isOwn && detailedRoute && vehicleData) {
       try {
         const expenses = getFixedExpensesByVehicleType(detailedRoute, vehicleData);
         setExpenseError(null);
@@ -412,7 +412,7 @@ export function SubtripLoadForm() {
       setExpenseMessage(null);
       setExpenseError(null);
     }
-  }, [detailedRoute, vehicleData]);
+  }, [detailedRoute, vehicleData, isOwn]);
 
   // ----------------------------------------------------------------------
   // Step Content Rendering

@@ -1,7 +1,7 @@
 // Cleaned & Simplified SubtripReceiveForm
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
@@ -228,7 +228,7 @@ export function SubtripReceiveForm() {
   } = methods;
 
   const { unloadingWeight, endKm, commissionRate } = watch();
-
+  const { isOwn } = selectedSubtripData?.tripId?.vehicleId || {};
   const handleSubtripChange = useCallback(
     (subtrip) => {
       setSelectedSubtripId(subtrip._id);
@@ -244,7 +244,7 @@ export function SubtripReceiveForm() {
   const onSubmit = async (data) => {
     try {
       console.log('form data', data);
-      // await receiveSubtrip({ id: selectedSubtripData._id, data });
+      await receiveSubtrip({ id: selectedSubtripData._id, data });
       reset(defaultValues);
       setSelectedSubtripId(null);
       if (redirectTo) navigate(redirectTo);
@@ -252,6 +252,13 @@ export function SubtripReceiveForm() {
       console.error('Submit failed:', err);
     }
   };
+
+  // effects to fetch data
+  useEffect(() => {
+    if (currentSubtripId) {
+      handleSubtripChange({ _id: currentSubtripId });
+    }
+  }, [currentSubtripId, handleSubtripChange]);
 
   return (
     <>
@@ -287,8 +294,8 @@ export function SubtripReceiveForm() {
                   isSubmitting ||
                   // local errors
                   unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  endKm < selectedSubtripData?.startKm ||
-                  commissionRate > selectedSubtripData?.rate
+                  (isOwn && endKm < selectedSubtripData?.startKm) ||
+                  (!isOwn && commissionRate > selectedSubtripData?.rate)
                 }
               >
                 Save Changes
