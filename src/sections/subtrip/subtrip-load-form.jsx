@@ -23,14 +23,16 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 // Hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
 // Utils
-import { getSalaryDetailsByVehicleType } from 'src/utils/utils';
+import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
 // Queries & Mutations
-import { useRoutes } from 'src/query/use-route';
+import { useRoute, useRoutes } from 'src/query/use-route';
 import {
   useSubtrip,
   useInQueueSubtrips,
@@ -43,7 +45,6 @@ import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { paths } from '../../routes/paths';
 // Config & Constants
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -158,6 +159,9 @@ export function SubtripLoadForm() {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
 
+  const [expenseMessage, setExpenseMessage] = useState(null);
+  const [expenseError, setExpenseError] = useState(null);
+
   // Dialog states
   const subtripDialog = useBoolean(false);
   const routeDialog = useBoolean(false);
@@ -173,6 +177,13 @@ export function SubtripLoadForm() {
     isLoading: isLoadingSubtripDetails,
     error: subtripDetailError,
   } = useSubtrip(selectedSubtripId);
+
+  // fetch full details of the selected route ID
+  const {
+    data: detailedRoute,
+    isLoading: isLoadingRouteDetails,
+    error: routeDetailError,
+  } = useRoute(selectedRoute?._id);
 
   // Get routes based on selected customer
   const customerId = selectedSubtrip?.customerId?._id;
@@ -204,24 +215,12 @@ export function SubtripLoadForm() {
 
   // Derived data
   const vehicleData = selectedSubtrip?.tripId?.vehicleId;
-  const { _id: vehicleId, isOwn, vehicleType, fuelTankCapacity, trackingLink } = vehicleData || {};
+  const { isOwn, vehicleType, trackingLink } = vehicleData || {};
+
   const consignees = useMemo(
     () => selectedSubtrip?.customerId?.consignees || [],
     [selectedSubtrip]
   );
-
-  // Calculate advance amount based on route
-  const { advanceAmt } = useMemo(() => {
-    if (routeCd && vehicleType && routes.length > 0) {
-      return (
-        getSalaryDetailsByVehicleType(routes, routeCd, {
-          vehicleType,
-          noOfTyres: vehicleData?.noOfTyres,
-        }) || {}
-      );
-    }
-    return {};
-  }, [routeCd, routes, vehicleType, vehicleData?.noOfTyres]);
 
   // ----------------------------------------------------------------------
   // Event Handlers
@@ -392,6 +391,28 @@ export function SubtripLoadForm() {
       trigger('pumpCd');
     }
   }, [driverAdvanceGivenBy, initialAdvanceDiesel, trigger]);
+
+  useEffect(() => {
+    if (detailedRoute && vehicleData) {
+      try {
+        const expenses = getFixedExpensesByVehicleType(detailedRoute, vehicleData);
+        setExpenseError(null);
+        setExpenseMessage(
+          `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
+            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+        );
+      } catch (error) {
+        setExpenseMessage(null);
+        setExpenseError(
+          `This route has no fixed expenses configured for vehicle type "${vehicleData.vehicleType}" with ${vehicleData.noOfTyres} tyres. 
+        Please ask the route admin/manager to add fixed expenses for this vehicle configuration.`
+        );
+      }
+    } else {
+      setExpenseMessage(null);
+      setExpenseError(null);
+    }
+  }, [detailedRoute, vehicleData]);
 
   // ----------------------------------------------------------------------
   // Step Content Rendering
@@ -654,9 +675,15 @@ export function SubtripLoadForm() {
         </Box>
       </Box>
 
-      {advanceAmt && (
+      {expenseMessage && (
         <Alert severity="info" variant="outlined" sx={{ mt: 3 }}>
-          {`For this route, the usual driver advance is ${advanceAmt} ₹.`}
+          {expenseMessage}
+        </Alert>
+      )}
+
+      {expenseError && (
+        <Alert severity="error" variant="outlined" sx={{ mt: 3 }}>
+          {expenseError}
         </Alert>
       )}
     </>
