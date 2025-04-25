@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -20,7 +20,6 @@ import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
-import { useInvoice } from 'src/query/use-invoice';
 
 import { Label } from 'src/components/label';
 
@@ -193,13 +192,7 @@ function RenderFooter() {
   );
 }
 
-export default function InvoiceView() {
-  const { id } = useParams();
-  const { data: invoice, isLoading, error } = useInvoice(id);
-
-  if (isLoading) return <Typography>Loading...</Typography>;
-  if (error || !invoice) return <Typography>Error loading invoice.</Typography>;
-
+export default function InvoiceView({ invoice }) {
   const { customerId: customer, issueDate, dueDate } = invoice;
 
   return (

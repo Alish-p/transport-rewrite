@@ -17,7 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -34,7 +34,17 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, customerId, invoiceStatus, issueDate, dueDate, subtripIds, totalAfterTax } = row;
+  const {
+    _id,
+    invoiceNo,
+    customerId,
+    invoiceStatus,
+    issueDate,
+    billingPeriod,
+    dueDate,
+    subtripIds,
+    totalAfterTax,
+  } = row;
 
   const confirm = useBoolean();
 
@@ -55,7 +65,7 @@ export default function InvoiceTableRow({
             disableTypography
             primary={
               <Typography variant="body2" noWrap>
-                {_id}
+                {invoiceNo}
               </Typography>
             }
             secondary={
@@ -83,6 +93,15 @@ export default function InvoiceTableRow({
           >
             {invoiceStatus}
           </Label>
+        </TableCell>
+        <TableCell>
+          <ListItemText
+            primary={fDateRangeShortLabel(
+              new Date(billingPeriod.start),
+              new Date(billingPeriod.end)
+            )}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
         </TableCell>
         <TableCell>
           <ListItemText
