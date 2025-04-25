@@ -451,8 +451,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   }
   if (subtrip) {
     inputData = inputData.filter(
-      (record) =>
-        record.invoicedSubTrips && record.invoicedSubTrips.some((st) => st._id === subtrip)
+      (record) => record.subtripIds && record.subtripIds.some((st) => st._id === subtrip)
     );
   }
 

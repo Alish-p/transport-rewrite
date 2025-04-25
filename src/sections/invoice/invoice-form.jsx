@@ -1,209 +1,167 @@
-import { useCallback } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import { Card, Grid, Button, FormHelperText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+
+import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
+
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
 
-import { useInvoice } from './context/InvoiceContext';
-import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 import KanbanSubtripMultiSelectDialog from '../kanban/components/kanban-subtrip-multi-select-dialog';
 
-/** Reusable Field Wrapper */
-const FieldWrapper = ({ children, error, ...props }) => (
-  <Grid item xs={12} md={props.md || 3}>
-    {children}
-    {error && <FormHelperText error>{error}</FormHelperText>}
-  </Grid>
-);
-
-/** Customer Selector */
-const CustomerSelector = ({ value, onChange, error }) => {
-  const customerDialog = useBoolean();
-  const { customerList } = useInvoice();
-
-  const selectedCustomer = customerList.find((customer) => customer._id === value);
-
-  const handleCustomerChange = useCallback(
-    (customer) => {
-      onChange({ customerId: customer._id });
-    },
-    [onChange]
-  );
-
+function FieldWrapper({ children, error, md = 3 }) {
   return (
-    <>
-      <DialogSelectButton
-        onClick={customerDialog.onTrue}
-        placeholder="Select Customer *"
-        selected={selectedCustomer?.customerName}
-        error={!!error}
-        iconName="mdi:office-building"
-      />
-
-      <KanbanCustomerDialog
-        open={customerDialog.value}
-        onClose={customerDialog.onFalse}
-        onCustomerChange={handleCustomerChange}
-        selectedCustomer={selectedCustomer}
-      />
-    </>
+    <Grid item xs={12} md={md}>
+      {children}
+      {error && <FormHelperText error>{error}</FormHelperText>}
+    </Grid>
   );
-};
+}
 
-/** Date Range Selector */
-const DateRangeSelector = ({ fromDate, toDate, onChange, error }) => {
+export default function InvoiceForm({ customerList }) {
+  const { control, setValue, getValues, watch } = useFormContext();
+
+  const billingPeriod = getValues('billingPeriod');
+  const subtripIds = getValues('subtripIds');
+  const customerId = getValues('customerId');
+
+  // Dialogs for selecting
+  const customerDialog = useBoolean();
+  const subtripsDialog = useBoolean();
   const dateRangeDialog = useBoolean();
 
-  const handleStartDateChange = useCallback(
-    (date) => {
-      onChange({ fromDate: date });
-    },
-    [onChange]
+  const selectedCustomer = customerList.find((c) => c._id === customerId);
+
+  // Fetch subtrips when customer and dates are selected
+  const { data: availableSubtrips = [], refetch: fetchSubtrips } = useClosedTripsByCustomerAndDate(
+    customerId,
+    billingPeriod?.start,
+    billingPeriod?.end
   );
 
-  const handleEndDateChange = useCallback(
-    (date) => {
-      onChange({ toDate: date });
-    },
-    [onChange]
-  );
-
-  return (
-    <>
-      <Button
-        fullWidth
-        variant="outlined"
-        size="small"
-        onClick={dateRangeDialog.onTrue}
-        startIcon={
-          <Iconify
-            icon={fromDate && toDate ? 'mdi:calendar' : 'mdi:calendar-outline'}
-            sx={{ color: fromDate && toDate ? 'primary.main' : 'text.disabled' }}
-          />
-        }
-        sx={{
-          height: 56,
-          justifyContent: 'flex-start',
-          typography: 'body2',
-        }}
-      >
-        {fromDate && toDate ? `${fDateRangeShortLabel(fromDate, toDate)}` : 'Select Date Range'}
-      </Button>
-
-      <CustomDateRangePicker
-        open={dateRangeDialog.value}
-        onClose={dateRangeDialog.onFalse}
-        startDate={fromDate}
-        endDate={toDate}
-        onChangeStartDate={handleStartDateChange}
-        onChangeEndDate={handleEndDateChange}
-        error={error}
-      />
-    </>
-  );
-};
-
-/** Subtrip Multi-Selector */
-const SubtripMultiSelector = ({ subtrips, selectedSubtrips, onChange, error }) => {
-  const subtripsDialog = useBoolean();
-
-  const handleSubtripsChange = useCallback(
-    (newSelectedSubtrips) => {
-      onChange({ invoicedSubTrips: newSelectedSubtrips });
-    },
-    [onChange]
-  );
-
-  return (
-    <>
-      <Button
-        variant="outlined"
-        fullWidth
-        sx={{
-          height: 56,
-          justifyContent: 'flex-start',
-          typography: 'body2',
-        }}
-        onClick={subtripsDialog.onTrue}
-        startIcon={
-          <Iconify
-            icon={selectedSubtrips?.length > 0 ? 'mdi:check' : 'mdi:check-outline'}
-            sx={{ color: selectedSubtrips?.length > 0 ? 'primary.main' : 'text.disabled' }}
-          />
-        }
-      >
-        {selectedSubtrips?.length > 0
-          ? `${selectedSubtrips.length} subtrips selected`
-          : 'Select Subtrips'}
-      </Button>
-
-      <KanbanSubtripMultiSelectDialog
-        open={subtripsDialog.value}
-        onClose={subtripsDialog.onFalse}
-        subtrips={subtrips}
-        selectedSubtrips={selectedSubtrips}
-        onChange={handleSubtripsChange}
-        title="Select Subtrips for Invoice"
-      />
-    </>
-  );
-};
-
-/** Main Component */
-export default function InvoiceForm() {
-  const { formState, updateFormState, fetchSubtrips, allSubTripsByCustomer, errors } = useInvoice();
-
-  const { customerId, fromDate, toDate, invoicedSubTrips } = formState;
+  const handleFetchSubtrips = () => {
+    if (!customerId || !billingPeriod?.start || !billingPeriod?.end) {
+      return;
+    }
+    fetchSubtrips();
+  };
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
       <Grid container spacing={2}>
-        <FieldWrapper error={errors?.customerId}>
-          <CustomerSelector
-            value={customerId}
-            onChange={updateFormState}
-            error={errors?.customerId}
+        {/* Customer Selector */}
+        <FieldWrapper error={!!control._formState?.errors?.customerId}>
+          <Controller
+            name="customerId"
+            control={control}
+            render={({ field }) => (
+              <>
+                <DialogSelectButton
+                  placeholder="Select Customer *"
+                  selected={selectedCustomer?.customerName}
+                  onClick={customerDialog.onTrue}
+                  error={!!field.error}
+                  iconName="mdi:office-building"
+                />
+                <KanbanCustomerDialog
+                  open={customerDialog.value}
+                  onClose={customerDialog.onFalse}
+                  onCustomerChange={(customer) => {
+                    setValue('customerId', customer._id, { shouldValidate: true });
+                  }}
+                  selectedCustomer={selectedCustomer}
+                />
+              </>
+            )}
           />
         </FieldWrapper>
 
-        <FieldWrapper md={2} error={errors?.fromDate || errors?.toDate}>
-          <DateRangeSelector
-            fromDate={fromDate}
-            toDate={toDate}
-            onChange={updateFormState}
-            error={errors?.fromDate || errors?.toDate}
+        {/* Billing Period Selector */}
+        <FieldWrapper md={2} error={!!control._formState?.errors?.billingPeriod}>
+          <DialogSelectButton
+            placeholder="Select Date Range *"
+            selected={
+              billingPeriod.start && billingPeriod.end
+                ? fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)
+                : 'Select Date Range'
+            }
+            onClick={dateRangeDialog.onTrue}
+            error={!!control._formState?.errors?.billingPeriod}
+            iconName="mdi:calendar"
+          />
+          <CustomDateRangePicker
+            open={dateRangeDialog.value}
+            onClose={dateRangeDialog.onFalse}
+            startDate={billingPeriod.start}
+            endDate={billingPeriod.end}
+            onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
+            onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+            error={!!control._formState?.errors?.billingPeriod}
           />
         </FieldWrapper>
 
+        {/* Fetch Subtrips Button */}
         <FieldWrapper md={1}>
           <Button
             variant="contained"
             color="primary"
             fullWidth
             sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
-            onClick={fetchSubtrips}
+            onClick={handleFetchSubtrips}
+            disabled={!customerId || !billingPeriod?.start || !billingPeriod?.end}
             startIcon={<Iconify icon="mdi:pointer" />}
           >
             Fetch Subtrips
           </Button>
         </FieldWrapper>
 
-        {/* only show if there are subtrips */}
-        {allSubTripsByCustomer?.length > 0 && (
-          <FieldWrapper md={6} error={errors?.invoicedSubTrips}>
-            <SubtripMultiSelector
-              subtrips={allSubTripsByCustomer}
-              selectedSubtrips={invoicedSubTrips}
-              onChange={updateFormState}
-              error={errors?.invoicedSubTrips}
-            />
-          </FieldWrapper>
-        )}
+        {/* Subtrip Selector */}
+        <FieldWrapper md={6} error={!!control._formState?.errors?.subtripIds}>
+          <Controller
+            name="subtripIds"
+            control={control}
+            render={({ field }) => (
+              <>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    height: 56,
+                    justifyContent: 'flex-start',
+                    typography: 'body2',
+                  }}
+                  onClick={subtripsDialog.onTrue}
+                  disabled={availableSubtrips.length === 0}
+                  startIcon={
+                    <Iconify
+                      icon={field.value.length > 0 ? 'mdi:check' : 'mdi:check-outline'}
+                      sx={{ color: field.value.length > 0 ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {field.value.length > 0
+                    ? `${field.value.length} subtrips selected`
+                    : 'Select Subtrips'}
+                </Button>
+
+                <KanbanSubtripMultiSelectDialog
+                  open={subtripsDialog.value}
+                  onClose={subtripsDialog.onFalse}
+                  subtrips={availableSubtrips}
+                  selectedSubtrips={field.value}
+                  onChange={(selected) => field.onChange(selected)}
+                  title="Select Subtrips for Invoice"
+                />
+              </>
+            )}
+          />
+        </FieldWrapper>
       </Grid>
     </Card>
   );

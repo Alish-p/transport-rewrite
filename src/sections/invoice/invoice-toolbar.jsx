@@ -20,9 +20,9 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Iconify } from 'src/components/iconify';
+import InvoicePDF from 'src/pdfs/invoice-pdf';
 
-import InvoicePDF from './invoice-pdf';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

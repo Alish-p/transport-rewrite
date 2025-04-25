@@ -1,7 +1,5 @@
 /* eslint-disable react/prop-types */
 
-import { useMemo } from 'react';
-
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -20,7 +18,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
-import { calculateInvoiceSummary } from 'src/utils/utils';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -37,9 +34,7 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, customerId, invoiceStatus, createdDate, dueDate, invoicedSubTrips } = row;
-
-  const { totalAfterTax } = useMemo(() => calculateInvoiceSummary(row), [row]);
+  const { _id, customerId, invoiceStatus, issueDate, dueDate, subtripIds, totalAfterTax } = row;
 
   const confirm = useBoolean();
 
@@ -91,8 +86,8 @@ export default function InvoiceTableRow({
         </TableCell>
         <TableCell>
           <ListItemText
-            primary={fDate(new Date(createdDate))}
-            secondary={fTime(new Date(createdDate))}
+            primary={fDate(new Date(issueDate))}
+            secondary={fTime(new Date(issueDate))}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,

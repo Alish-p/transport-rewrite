@@ -3,16 +3,29 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
-export default function PDFTable({ headers, data, showBorders = true, columnWidths = [] }) {
+export default function PDFTable({
+  headers,
+  data,
+  columnWidths = [],
+  showBorders = true,
+  hideHeader = false,
+  tableTitle,
+  tableFooter,
+}) {
   const getColumnWidth = (index) => {
     if (columnWidths && columnWidths[index]) {
-      return PDFStyles[`col${columnWidths[index]}`];
+      return PDFStyles[`col${columnWidths[index]}`] || {};
     }
     return PDFStyles[`col${Math.floor(12 / headers.length)}`];
   };
 
+  const renderTitle = () =>
+    tableTitle ? (
+      <Text style={[PDFStyles.h3, PDFStyles.mb8, PDFStyles.mt4]}>{tableTitle}</Text>
+    ) : null;
+
   const renderHeader = () => (
-    <View style={[PDFStyles.gridContainer, PDFStyles.border]}>
+    <View style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight]}>
       {headers.map((header, index) => (
         <View
           key={index}
@@ -53,10 +66,31 @@ export default function PDFTable({ headers, data, showBorders = true, columnWidt
     </View>
   );
 
+  const renderFooter = () =>
+    tableFooter ? (
+      <View
+        style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.noBorderTop, PDFStyles.bgDark]}
+      >
+        {tableFooter.map((footerCell, index) => (
+          <View
+            key={index}
+            style={[
+              PDFStyles.horizontalCell,
+              getColumnWidth(index),
+              index !== headers.length - 1 && PDFStyles.borderRight,
+            ]}
+          >
+            <Text style={[PDFStyles.horizontalCellTitle, PDFStyles.textWhite]}>{footerCell}</Text>
+          </View>
+        ))}
+      </View>
+    ) : null;
+
   return (
     <>
-      {renderHeader()}
+      {!hideHeader && renderHeader()}
       {data.map((row, index) => renderRow(row, index))}
+      {renderFooter()}
     </>
   );
 }

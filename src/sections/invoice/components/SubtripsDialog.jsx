@@ -34,16 +34,16 @@ export function SubtripsDialog({ open, onClose, subtrips = [], selectedSubtrips 
         ? selectedSubtrips.filter((selectedId) => selectedId !== id)
         : [...selectedSubtrips, id];
 
-      onChange({ invoicedSubTrips: newSelectedSubtrips });
+      onChange({ subtripIds: newSelectedSubtrips });
     },
     [selectedSubtrips, onChange]
   );
 
   const handleSelectAll = useCallback(() => {
     if (selectedSubtrips.length === subtrips.length) {
-      onChange({ invoicedSubTrips: [] });
+      onChange({ subtripIds: [] });
     } else {
-      onChange({ invoicedSubTrips: subtrips.map((st) => st._id) });
+      onChange({ subtripIds: subtrips.map((st) => st._id) });
     }
   }, [selectedSubtrips, subtrips, onChange]);
 

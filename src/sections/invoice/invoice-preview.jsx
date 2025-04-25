@@ -1,45 +1,60 @@
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useWatch } from 'react-hook-form';
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import { Stack } from '@mui/material';
-import Table from '@mui/material/Table';
-import Divider from '@mui/material/Divider';
-import { styled } from '@mui/material/styles';
-import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
-import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Table,
+  Divider,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  Typography,
+  TableContainer,
+} from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { calculateInvoiceSummary, calculateInvoicePerSubtrip } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
-
-import { Label } from 'src/components/label';
+import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { paths } from '../../routes/paths';
-import { useInvoice } from './context/InvoiceContext';
+import { RouterLink } from '../../routes/components';
+import { getCustomerInvoiceTax } from '../../utils/utils';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '& td': {
-    borderBottom: 'none',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+// Some dummy subtrips to simulate preview (you can connect real ones later)
+const dummySubtrips = [
+  {
+    _id: 'st-001',
+    consignee: 'Consignee A',
+    unloadingPoint: 'Location A',
+    vehicleNo: 'GJ01AA1234',
+    startDate: new Date(),
+    loadingWeight: 10,
+    rate: 1500,
+    shortageAmount: 0,
+    tripId: { vehicleId: { vehicleType: 'truck' } },
   },
-}));
+];
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-}));
+const StyledTableRow = (props) => (
+  <TableRow {...props} sx={{ '& td': { borderBottom: 'none', pt: 1, pb: 1 } }} />
+);
 
-function RenderHeader({ invoice }) {
-  const { _id, invoiceStatus } = invoice || {};
+const StyledTableCell = (props) => <TableCell {...props} sx={{ fontWeight: 'bold' }} />;
+
+function calculateSubtripTotal(subtrip) {
+  const freightAmount = (subtrip.loadingWeight || 0) * (subtrip.rate || 0);
+  const shortage = subtrip.shortageAmount || 0;
+  return freightAmount - shortage;
+}
+
+function RenderHeader({ draft }) {
   return (
     <Box
       rowGap={3}
@@ -54,21 +69,7 @@ function RenderHeader({ invoice }) {
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label
-          variant="soft"
-          color={
-            invoiceStatus === 'paid'
-              ? 'success'
-              : invoiceStatus === 'pending'
-                ? 'warning'
-                : invoiceStatus === 'overdue'
-                  ? 'error'
-                  : 'default'
-          }
-        >
-          {invoiceStatus || 'Draft'}
-        </Label>
-        <Typography variant="h6">{_id || 'INV - XXX'}</Typography>
+        <Typography variant="h6">Draft Invoice Preview</Typography>
       </Stack>
     </Box>
   );
@@ -80,113 +81,98 @@ function RenderAddress({ title, details }) {
       <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
         {title}
       </Typography>
-      {details && details}
+      {details}
     </Stack>
   );
 }
 
-function RenderDateInfo({ createdDate, dueDate }) {
-  return (
-    <>
-      <RenderAddress title="Created" details={createdDate && fDate(createdDate)} />
-      <RenderAddress title="Due Date" details={dueDate && fDate(dueDate)} />
-    </>
-  );
-}
+function RenderTable({ subtrips, selectedCustomer }) {
+  const { cgst, sgst, igst } = getCustomerInvoiceTax(selectedCustomer);
 
-function RenderTable({ invoice }) {
-  const {
-    totalAfterTax,
-    totalAmountBeforeTax,
-    totalFreightAmount,
-    totalFreightWt,
-    totalShortageAmount,
-    totalShortageWt,
-  } = calculateInvoiceSummary(invoice);
-
-  const navigate = useNavigate();
+  const subtotal = subtrips.reduce((acc, st) => acc + calculateSubtripTotal(st), 0);
+  const cgstAmount = subtotal * (cgst / 100);
+  const sgstAmount = subtotal * (sgst / 100);
+  const igstAmount = subtotal * (igst / 100);
+  const netTotal = subtotal + cgstAmount + sgstAmount + igstAmount;
 
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
       <Table sx={{ minWidth: 960 }}>
         <TableHead>
           <TableRow>
-            <StyledTableCell width={40}>#</StyledTableCell>
+            <StyledTableCell>#</StyledTableCell>
+            <StyledTableCell>Vehicle No</StyledTableCell>
             <StyledTableCell>Consignee</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
-            <StyledTableCell>Vehicle No</StyledTableCell>
-            <StyledTableCell>LR No</StyledTableCell>
-            <StyledTableCell>Disp Date</StyledTableCell>
+            <StyledTableCell>Subtrip ID</StyledTableCell>
+            <StyledTableCell>Dispatch Date</StyledTableCell>
             <StyledTableCell>Freight Rate</StyledTableCell>
-            <StyledTableCell>QTY</StyledTableCell>
-            <StyledTableCell>Rate/MT</StyledTableCell>
-
+            <StyledTableCell>Quantity</StyledTableCell>
             <StyledTableCell>Total Amount</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {invoice?.invoicedSubTrips?.map((st, index) => {
-            const {
-              freightAmount,
-              shortageAmount,
-              totalAmount: totalAmountPerSubtrip,
-            } = calculateInvoicePerSubtrip(st);
+          {subtrips.map((st, idx) => (
+            <TableRow key={st._id}>
+              <TableCell>{idx + 1}</TableCell>
+              <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
 
-            return (
-              <TableRow key={st._id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{st.consignee}</TableCell>
-                <TableCell>{st.unloadingPoint}</TableCell>
-                <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
-                <TableCell
-                  sx={{ color: 'success.main', cursor: 'pointer' }}
-                  onClick={() => navigate(paths.dashboard.subtrip.details(st._id))}
+              <TableCell>{st.consignee}</TableCell>
+              <TableCell>{st.unloadingPoint}</TableCell>
+              <TableCell>
+                <RouterLink
+                  to={paths.dashboard.subtrip.details(st._id)}
+                  style={{
+                    color: '#2e7d32',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
                 >
                   {st._id}
-                </TableCell>
-                <TableCell>{fDate(st.startDate)}</TableCell>
-                <TableCell>{fCurrency(st.rate || 0)}</TableCell>
-                <TableCell>
-                  {st.loadingWeight || 0} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
-                </TableCell>
-                <TableCell>{fCurrency(freightAmount)}</TableCell>
-
-                <TableCell>{fCurrency(totalAmountPerSubtrip || 0)}</TableCell>
-              </TableRow>
-            );
-          })}
+                </RouterLink>
+              </TableCell>
+              <TableCell>{fDate(st.startDate)}</TableCell>
+              <TableCell>{fCurrency(st.rate)}</TableCell>
+              <TableCell>
+                {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+              </TableCell>
+              <TableCell>{fCurrency(calculateSubtripTotal(st))}</TableCell>
+            </TableRow>
+          ))}
 
           <StyledTableRow>
-            <TableCell colSpan={6} />
-            <StyledTableCell>Total</StyledTableCell>
-            <TableCell>{totalFreightWt}</TableCell>
-            <TableCell>{fCurrency(totalFreightAmount)}</TableCell>
-
-            <TableCell>{fCurrency(totalAmountBeforeTax)}</TableCell>
+            <TableCell colSpan={7} />
+            <StyledTableCell>Subtotal</StyledTableCell>
+            <TableCell colSpan={1}>{fCurrency(subtotal)}</TableCell>
           </StyledTableRow>
 
-          <StyledTableRow>
-            <TableCell colSpan={8} />
-            <StyledTableCell>CGST({CONFIG.customerInvoiceTax}%)</StyledTableCell>
-            <TableCell>
-              {fCurrency(totalAmountBeforeTax * (CONFIG.customerInvoiceTax / 100))}
-            </TableCell>
-          </StyledTableRow>
+          {cgst > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={7} />
+              <StyledTableCell>CGST ({cgst}%)</StyledTableCell>
+              <TableCell>{fCurrency(cgstAmount)}</TableCell>
+            </StyledTableRow>
+          )}
 
-          <StyledTableRow>
-            <TableCell colSpan={8} />
-            <StyledTableCell>SGST({CONFIG.customerInvoiceTax}%)</StyledTableCell>
-            <TableCell>
-              {fCurrency(totalAmountBeforeTax * (CONFIG.customerInvoiceTax / 100))}
-            </TableCell>
-          </StyledTableRow>
+          {sgst > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={7} />
+              <StyledTableCell>SGST ({sgst}%)</StyledTableCell>
+              <TableCell>{fCurrency(sgstAmount)}</TableCell>
+            </StyledTableRow>
+          )}
 
+          {igst > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={7} />
+              <StyledTableCell>IGST ({igst}%)</StyledTableCell>
+              <TableCell>{fCurrency(igstAmount)}</TableCell>
+            </StyledTableRow>
+          )}
           <StyledTableRow>
-            <TableCell colSpan={8} />
-            <StyledTableCell>Net-Total</StyledTableCell>
-            <TableCell sx={{ color: 'error.main' }}>
-              {fCurrency(totalAmountBeforeTax * (1 + (2 * CONFIG.customerInvoiceTax) / 100))}
-            </TableCell>
+            <TableCell colSpan={7} />
+            <StyledTableCell>Net Total</StyledTableCell>
+            <TableCell sx={{ color: 'error.main' }}>{fCurrency(netTotal)}</TableCell>
           </StyledTableRow>
         </TableBody>
       </Table>
@@ -209,13 +195,31 @@ function RenderFooter() {
   );
 }
 
-export default function InvoicePreview() {
-  const { draftInvoice } = useInvoice();
-  const { customerId: customer, createdDate, dueDate } = draftInvoice || {};
+export default function InvoicePreview({ customerList }) {
+  // Watch entire form live!
+  const draft = useWatch();
+
+  // Fetch subtrips data for preview
+  const { data: availableSubtrips = [] } = useClosedTripsByCustomerAndDate(
+    draft.customerId,
+    draft.billingPeriod?.start,
+    draft.billingPeriod?.end
+  );
+
+  // Filter subtrips based on selected IDs
+  const previewSubtrips = useMemo(() => {
+    if (!draft.subtripIds?.length || !availableSubtrips.length) return [];
+    return availableSubtrips.filter((st) => draft.subtripIds.includes(st._id));
+  }, [draft.subtripIds, availableSubtrips]);
+
+  const selectedCustomer = useMemo(() => {
+    if (!draft.customerId || !customerList.length) return null;
+    return customerList.find((c) => c._id === draft.customerId);
+  }, [draft.customerId, customerList]);
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
-      <RenderHeader invoice={draftInvoice} />
+      <RenderHeader draft={draft} />
       <Box
         rowGap={5}
         display="grid"
@@ -240,20 +244,21 @@ export default function InvoicePreview() {
         <RenderAddress
           title="Invoice To"
           details={
-            customer && (
-              <>
-                {customer?.customerName}
-                <br />
-                {customer?.address}
-                <br />
-                {customer?.cellNo && <>Phone: {customer?.cellNo} </>}
-              </>
-            )
+            <>
+              {selectedCustomer?.customerName || '---'}
+              <br />
+              {selectedCustomer?.address || '---'}
+              <br />
+              {selectedCustomer?.state || '---'}
+              <br />
+              {selectedCustomer?.cellNo || '---'}
+            </>
           }
         />
-        <RenderDateInfo createdDate={createdDate} dueDate={dueDate} />
+        <RenderAddress title="Due Date" details={draft.dueDate ? fDate(draft.dueDate) : '---'} />
       </Box>
-      <RenderTable invoice={draftInvoice} />
+
+      <RenderTable subtrips={previewSubtrips} selectedCustomer={selectedCustomer} />
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
       <RenderFooter />
     </Card>

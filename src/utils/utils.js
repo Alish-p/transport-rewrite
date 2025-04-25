@@ -140,7 +140,7 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
 };
 
 export const calculateInvoiceSummary = (invoice) => {
-  if (!invoice?.invoicedSubTrips || !Array.isArray(invoice.invoicedSubTrips)) {
+  if (!invoice?.subtripIds || !Array.isArray(invoice.subtripIds)) {
     return {
       freightAmount: 0,
       shortageAmount: 0,
@@ -153,7 +153,7 @@ export const calculateInvoiceSummary = (invoice) => {
   const { customerInvoiceTax = 0 } = CONFIG;
 
   // Calculate totals for each subtrip
-  const subtripTotals = invoice.invoicedSubTrips.map((subtrip) => {
+  const subtripTotals = invoice.subtripIds.map((subtrip) => {
     const { freightAmount, shortageAmount, totalAmount } = calculateInvoicePerSubtrip(subtrip);
     const shortageWeight = subtrip.shortageWeight || 0;
 
@@ -279,5 +279,29 @@ export function getFixedExpensesByVehicleType(route, vehicle) {
     adBlue: vehicleConfig.adBlue,
     advanceAmt: vehicleConfig.advanceAmt,
     tollAmt: vehicleConfig.tollAmt,
+  };
+}
+
+export function getCustomerInvoiceTax(customer) {
+  if (!customer) {
+    return {
+      cgst: 0,
+      sgst: 0,
+      igst: 0,
+    };
+  }
+
+  if (customer?.state === CONFIG.company.state) {
+    return {
+      cgst: 6,
+      sgst: 6,
+      igst: 0,
+    };
+  }
+
+  return {
+    cgst: 0,
+    sgst: 0,
+    igst: 12,
   };
 }

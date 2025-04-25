@@ -18,15 +18,6 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-// customerName: { type: String, required: true },
-//   GSTNo: { type: String, required: true },
-//   PANNo: { type: String, required: true },
-//   address: { type: String },
-//   place: { type: String },
-//   state: { type: String, required: true },
-//   pinCode: { type: String, required: true },
-//   cellNo: { type: String, required: true },
-
 export default function CustomerListPdf({ customers }) {
   const renderCustomerTable = () => {
     const headers = [

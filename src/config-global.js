@@ -26,6 +26,7 @@ export const CONFIG = {
       line2: 'Dist: BagalKot',
       state: 'Karnataka',
     },
+    state: 'Karnataka',
     email: 'shree.enterprises34064@gmail.com',
     website: 'www.shreeenterprises.biz',
     contacts: ['+91 9448134064', '+91 9448134064', '+91 9448134064'],

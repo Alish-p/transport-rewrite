@@ -6,7 +6,17 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  MenuItem,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -20,6 +30,7 @@ import { useCreateCustomer, useUpdateCustomer } from 'src/query/use-customer';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { STATES } from './config';
 import { BankListDialog } from '../bank/bank-list-dialogue';
 
 export const NewCustomerSchema = zod.object({
@@ -29,6 +40,7 @@ export const NewCustomerSchema = zod.object({
   address: zod.string().min(1, { message: 'Address is required' }),
   place: zod.string(),
   state: zod.string().min(1, { message: 'State is required' }),
+  invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
   pinCode: schemaHelper.pinCode({
     message: {
       required_error: 'Pin Code is required',
@@ -89,6 +101,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
       cellNo: currentCustomer?.cellNo || '',
       GSTNo: currentCustomer?.GSTNo || '',
       PANNo: currentCustomer?.PANNo || '',
+      invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
       consignees: currentCustomer?.consignees || [
         { name: '', address: '', state: '', pinCode: '' },
       ],
@@ -151,8 +164,6 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
     remove(index);
   };
 
-  // Separate render methods
-
   const renderCustomerDetails = () => (
     <>
       <Typography variant="h6" gutterBottom>
@@ -171,7 +182,16 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
           <Field.Text name="customerName" label="Customer Name" required />
           <Field.Text name="address" label="Address" required />
           <Field.Text name="place" label="Place" />
-          <Field.Text name="state" label="State" required />
+
+          <Field.Select name="state" label="State" required>
+            <MenuItem value="">None</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            {STATES.map((state) => (
+              <MenuItem key={state.value} value={state.value}>
+                {state.label}
+              </MenuItem>
+            ))}
+          </Field.Select>
           <Field.Text name="pinCode" label="Pin Code" required />
           <Field.Text name="cellNo" label="Cell No" required />
           <Field.Text name="GSTNo" label="GST No" required />
@@ -180,6 +200,15 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
             name="transporterCode"
             label="Transporter Code"
             helperText="Enter the unique identifier provided by the customer for their transportation services"
+          />
+          <Field.Text
+            name="invoiceDueInDays"
+            label="Invoice Due In Days"
+            required
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+            }}
           />
         </Box>
       </Card>

@@ -1,7 +1,9 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
 const pdfStyles = {
-  // Column widths
+  // ------------------------------------------
+  // Layout: Columns (Grid System - 12 cols)
+  // ------------------------------------------
   col1: { width: '8.33%' },
   col2: { width: '16.67%' },
   col3: { width: '25%' },
@@ -15,7 +17,11 @@ const pdfStyles = {
   col11: { width: '91.67%' },
   col12: { width: '100%' },
 
-  // Margin styles
+  // ------------------------------------------
+  // Spacing: Margin & Padding
+  // ------------------------------------------
+  // Margin
+  mb2: { marginBottom: 2 },
   mb4: { marginBottom: 2 },
   mb8: { marginBottom: 4 },
   mb16: { marginBottom: 8 },
@@ -28,7 +34,7 @@ const pdfStyles = {
   my4: { marginVertical: 2 },
   my8: { marginVertical: 4 },
 
-  // Padding styles
+  // Padding
   p4: { padding: 2 },
   p8: { padding: 4 },
   p16: { padding: 8 },
@@ -38,27 +44,40 @@ const pdfStyles = {
   py4: { paddingVertical: 2 },
   py8: { paddingVertical: 4 },
 
-  // Text alignment
-  textCenter: { textAlign: 'center' },
-  textRight: { textAlign: 'right' },
-  textLeft: { textAlign: 'left' },
-
-  // Fonts
+  // ------------------------------------------
+  // Typography
+  // ------------------------------------------
   h1: { fontSize: 16, fontWeight: 700 },
   h2: { fontSize: 14, fontWeight: 700 },
   h3: { fontSize: 12, fontWeight: 700 },
   h4: { fontSize: 10, fontWeight: 700 },
   body1: { fontSize: 8 },
-  body2: { fontSize: 7 },
-  subtitle1: { fontSize: 8, fontWeight: 700 },
+  body2: { fontSize: 7, color: '#111111', lineHeight: 1.4 },
+  subtitle1: { fontSize: 8, fontWeight: 700, color: '#333333' },
   subtitle2: { fontSize: 7, fontWeight: 700 },
+  caption: { fontSize: 6, color: '#777777' },
 
-  // Miscellaneous styles
+  textCenter: { textAlign: 'center' },
+  textRight: { textAlign: 'right' },
+  textLeft: { textAlign: 'left' },
+
   bold: { fontWeight: 700 },
   italic: { fontStyle: 'italic' },
   underline: { textDecoration: 'underline' },
 
-  // Page styles
+  // ------------------------------------------
+  // Colors
+  // ------------------------------------------
+  textPrimary: { color: '#007bff' },
+  textSecondary: { color: '#6c757d' },
+  textDanger: { color: '#dc3545' },
+  textWhite: { color: '#ffffff' },
+  bgLight: { backgroundColor: '#f1f3f5' },
+  bgDark: { backgroundColor: '#343a40' },
+
+  // ------------------------------------------
+  // Page
+  // ------------------------------------------
   page: {
     fontSize: 7,
     lineHeight: 1.4,
@@ -66,19 +85,75 @@ const pdfStyles = {
     backgroundColor: '#FFFFFF',
     padding: '10px 12px 40px 12px',
   },
+
+  // ------------------------------------------
+  // Header & Footer
+  // ------------------------------------------
+  headerContainer: {
+    borderWidth: 1,
+    borderColor: 'black',
+  },
   footer: {
     left: 0,
     right: 0,
     bottom: 0,
-    padding: 12,
-    margin: 'auto',
-    borderTopWidth: 1,
-    borderStyle: 'solid',
     position: 'absolute',
+    padding: 12,
+    borderTopWidth: 1,
     borderColor: '#DFE3E8',
+    borderStyle: 'solid',
+    backgroundColor: '#f8f9fa',
   },
 
-  // Grid system
+  // ------------------------------------------
+  // Company Info Block
+  // ------------------------------------------
+  companyName: {
+    fontSize: 14,
+    fontWeight: 700,
+    marginBottom: 2,
+    color: '#333333',
+  },
+  companyTagline: {
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#555555',
+  },
+  companyAddress: {
+    fontSize: 8,
+    color: '#666666',
+    lineHeight: 1.4,
+  },
+  contactSection: {
+    backgroundColor: '#f9f9f9',
+    padding: 8,
+    borderRadius: 2,
+  },
+  contactLabel: {
+    fontSize: 8,
+    fontWeight: 600,
+    color: '#555555',
+  },
+  contactValue: {
+    fontSize: 8,
+    color: '#333333',
+  },
+
+  // ------------------------------------------
+  // Flex Utilities
+  // ------------------------------------------
+  flexRow: { flexDirection: 'row' },
+  flexColumn: { flexDirection: 'column' },
+  justifyCenter: { justifyContent: 'center' },
+  justifyEnd: { justifyContent: 'flex-end' },
+  justifyStart: { justifyContent: 'flex-start' },
+  alignCenter: { alignItems: 'center' },
+  alignEnd: { alignItems: 'flex-end' },
+  alignStart: { alignItems: 'flex-start' },
+
+  // ------------------------------------------
+  // Grid System
+  // ------------------------------------------
   gridContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -88,7 +163,9 @@ const pdfStyles = {
     margin: 2,
   },
 
-  // Table styles
+  // ------------------------------------------
+  // Table Styles
+  // ------------------------------------------
   table: {
     display: 'flex',
     width: 'auto',
@@ -100,84 +177,11 @@ const pdfStyles = {
     borderStyle: 'solid',
     borderColor: '#DFE3E8',
   },
+  tableCell_1: { width: '5%' },
+  tableCell_2: { width: '50%', paddingRight: 8 },
+  tableCell_3: { width: '15%' },
 
-  tableCell_1: {
-    width: '5%',
-  },
-  tableCell_2: {
-    width: '50%',
-    paddingRight: 8,
-  },
-  tableCell_3: {
-    width: '15%',
-  },
-
-  // General border
-  border: {
-    borderWidth: 1,
-    borderColor: 'black',
-  },
-
-  // Border sides
-  borderTop: {
-    borderTopWidth: 1,
-    borderColor: 'black',
-  },
-  borderBottom: {
-    borderBottomWidth: 1,
-    borderColor: 'black',
-  },
-  borderLeft: {
-    borderLeftWidth: 1,
-    borderColor: 'black',
-  },
-  borderRight: {
-    borderRightWidth: 1,
-    borderColor: 'black',
-  },
-
-  // No border sides
-  noBorder: {
-    borderWidth: 0,
-  },
-  noBorderTop: {
-    borderTopWidth: 0,
-  },
-  noBorderBottom: {
-    borderBottomWidth: 0,
-  },
-  noBorderLeft: {
-    borderLeftWidth: 0,
-  },
-  noBorderRight: {
-    borderRightWidth: 0,
-  },
-
-  // Combined borders (for merging)
-  borderHorizontal: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: 'black',
-  },
-  borderVertical: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: 'black',
-  },
-
-  // Exclude specific combinations
-  borderNoTopBottom: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: 'black',
-  },
-  borderNoLeftRight: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: 'black',
-  },
-
-  // Horizontal cell styles
+  // Table Cell Layouts
   horizontalCell: {
     padding: 2,
     display: 'flex',
@@ -193,8 +197,6 @@ const pdfStyles = {
   horizontalCellContent: {
     fontSize: 7,
   },
-
-  // Vertical cell styles
   verticalCell: {
     padding: 2,
     flexDirection: 'column',
@@ -210,63 +212,41 @@ const pdfStyles = {
     fontSize: 7,
   },
 
-  // Flex utilities
-  flexRow: { flexDirection: 'row' },
-  flexColumn: { flexDirection: 'column' },
-  justifyCenter: { justifyContent: 'center' },
-  justifyEnd: { justifyContent: 'flex-end' },
-  justifyStart: { justifyContent: 'flex-start' },
-  alignCenter: { alignItems: 'center' },
-  alignEnd: { alignItems: 'flex-end' },
-  alignStart: { alignItems: 'flex-start' },
-
-  // Colors
-  bgLight: { backgroundColor: '#f8f9fa' },
-  bgDark: { backgroundColor: '#343a40' },
-  textPrimary: { color: '#007bff' },
-  textSecondary: { color: '#6c757d' },
-  textDanger: { color: '#dc3545' },
-
-  // Modern styling additions
-  headerContainer: {
-    borderWidth: 1,
+  // ------------------------------------------
+  // Borders
+  // ------------------------------------------
+  border: { borderWidth: 1, borderColor: 'black' },
+  borderTop: { borderTopWidth: 1, borderColor: 'black' },
+  borderBottom: { borderBottomWidth: 1, borderColor: 'black' },
+  borderLeft: { borderLeftWidth: 1, borderColor: 'black' },
+  borderRight: { borderRightWidth: 1, borderColor: 'black' },
+  borderHorizontal: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'black',
+  },
+  borderVertical: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'black',
+  },
+  borderNoTopBottom: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'black',
+  },
+  borderNoLeftRight: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: 'black',
   },
 
-  companyName: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: '#333333',
-    marginBottom: 4,
-  },
-  companyTagline: {
-    fontSize: 10,
-    fontWeight: 500,
-    color: '#555555',
-    marginBottom: 4,
-  },
-  companyAddress: {
-    fontSize: 8,
-    color: '#666666',
-    lineHeight: 1.4,
-  },
-  contactLabel: {
-    fontSize: 8,
-    fontWeight: 600,
-    color: '#555555',
-    marginBottom: 4,
-  },
-  contactValue: {
-    fontSize: 8,
-    color: '#333333',
-    marginBottom: 4,
-  },
-
-  contactSection: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 4,
-    padding: 8,
-  },
+  // No Borders
+  noBorder: { borderWidth: 0 },
+  noBorderTop: { borderTopWidth: 0 },
+  noBorderBottom: { borderBottomWidth: 0 },
+  noBorderLeft: { borderLeftWidth: 0 },
+  noBorderRight: { borderRightWidth: 0 },
 };
 
 const Styles = StyleSheet.create(pdfStyles);
