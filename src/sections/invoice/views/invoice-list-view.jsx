@@ -212,7 +212,7 @@ export function InvoiceListView({ invoices }) {
                 total={tableData.length}
                 percent={100}
                 price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
+                icon="mdi:clipboard-list-outline"
                 color={theme.palette.info.main}
               />
 
@@ -221,8 +221,8 @@ export function InvoiceListView({ invoices }) {
                 total={getInvoiceLength('pending')}
                 percent={getPercentByInvoiceStatus('pending')}
                 price={getTotalAmount('pending')}
-                icon="lucide:fuel"
-                color={theme.palette.success.main}
+                icon="mdi:clock-outline"
+                color={theme.palette.warning.main}
               />
 
               <InvoiceAnalytic
@@ -230,8 +230,8 @@ export function InvoiceListView({ invoices }) {
                 total={getInvoiceLength('over-due')}
                 percent={getPercentByInvoiceStatus('over-due')}
                 price={getTotalAmount('over-due')}
-                icon="lucide:fuel"
-                color={theme.palette.success.main}
+                icon="mdi:alert-circle-outline"
+                color={theme.palette.error.main}
               />
 
               <InvoiceAnalytic
@@ -239,8 +239,8 @@ export function InvoiceListView({ invoices }) {
                 total={getInvoiceLength('paid')}
                 percent={getPercentByInvoiceStatus('paid')}
                 price={getTotalAmount('paid')}
-                icon="mdi:fossil-fuel"
-                color={theme.palette.warning.main}
+                icon="mdi:check-decagram-outline"
+                color={theme.palette.success.main}
               />
             </Stack>
           </Scrollbar>
