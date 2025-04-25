@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { Card, Grid, Button, FormHelperText } from '@mui/material';
+import { Card, Grid, Alert, Button, FormHelperText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -25,7 +26,7 @@ function FieldWrapper({ children, error, md = 3 }) {
 }
 
 export default function InvoiceForm({ customerList }) {
-  const { control, setValue, getValues, watch } = useFormContext();
+  const { control, setValue, getValues, watch, reset } = useFormContext();
 
   const billingPeriod = getValues('billingPeriod');
   const subtripIds = getValues('subtripIds');
@@ -38,22 +39,57 @@ export default function InvoiceForm({ customerList }) {
 
   const selectedCustomer = customerList.find((c) => c._id === customerId);
 
-  // Fetch subtrips when customer and dates are selected
-  const { data: availableSubtrips = [], refetch: fetchSubtrips } = useClosedTripsByCustomerAndDate(
-    customerId,
-    billingPeriod?.start,
-    billingPeriod?.end
-  );
+  // Watch for changes in customer and billing period
+  const watchedCustomerId = watch('customerId');
+  const watchedBillingPeriod = watch('billingPeriod');
+  const watchedSubtripIds = watch('subtripIds');
+  const isDirty =
+    watchedCustomerId ||
+    watchedBillingPeriod?.start ||
+    watchedBillingPeriod?.end ||
+    watchedSubtripIds?.length > 0;
 
-  const handleFetchSubtrips = () => {
-    if (!customerId || !billingPeriod?.start || !billingPeriod?.end) {
-      return;
+  // Fetch subtrips when customer and dates are selected
+  const {
+    data: availableSubtrips = [],
+    refetch: fetchSubtrips,
+    isLoading: isLoadingSubtrips,
+    error: subtripsError,
+  } = useClosedTripsByCustomerAndDate(customerId, billingPeriod?.start, billingPeriod?.end);
+
+  // Auto-fetch subtrips when customer or billing period changes
+  useEffect(() => {
+    if (watchedCustomerId && watchedBillingPeriod?.start && watchedBillingPeriod?.end) {
+      fetchSubtrips();
+      // Reset selected subtrips when customer or date changes
+      setValue('subtripIds', [], { shouldValidate: true });
     }
-    fetchSubtrips();
+  }, [
+    watchedCustomerId,
+    watchedBillingPeriod?.start,
+    watchedBillingPeriod?.end,
+    fetchSubtrips,
+    setValue,
+  ]);
+
+  const handleReset = () => {
+    reset({
+      customerId: '',
+      billingPeriod: {
+        start: null,
+        end: null,
+      },
+      subtripIds: [],
+    });
   };
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
+      {subtripsError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Error loading subtrips: {subtripsError.message}
+        </Alert>
+      )}
       <Grid container spacing={2}>
         {/* Customer Selector */}
         <FieldWrapper error={!!control._formState?.errors?.customerId}>
@@ -68,6 +104,7 @@ export default function InvoiceForm({ customerList }) {
                   onClick={customerDialog.onTrue}
                   error={!!field.error}
                   iconName="mdi:office-building"
+                  disabled={isLoadingSubtrips}
                 />
                 <KanbanCustomerDialog
                   open={customerDialog.value}
@@ -94,31 +131,21 @@ export default function InvoiceForm({ customerList }) {
             onClick={dateRangeDialog.onTrue}
             error={!!control._formState?.errors?.billingPeriod}
             iconName="mdi:calendar"
+            disabled={isLoadingSubtrips}
           />
           <CustomDateRangePicker
             open={dateRangeDialog.value}
             onClose={dateRangeDialog.onFalse}
             startDate={billingPeriod.start}
             endDate={billingPeriod.end}
-            onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
-            onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+            onChangeStartDate={(date) =>
+              setValue('billingPeriod.start', date, { shouldValidate: true })
+            }
+            onChangeEndDate={(date) =>
+              setValue('billingPeriod.end', date, { shouldValidate: true })
+            }
             error={!!control._formState?.errors?.billingPeriod}
           />
-        </FieldWrapper>
-
-        {/* Fetch Subtrips Button */}
-        <FieldWrapper md={1}>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
-            onClick={handleFetchSubtrips}
-            disabled={!customerId || !billingPeriod?.start || !billingPeriod?.end}
-            startIcon={<Iconify icon="mdi:pointer" />}
-          >
-            Fetch Subtrips
-          </Button>
         </FieldWrapper>
 
         {/* Subtrip Selector */}
@@ -137,7 +164,7 @@ export default function InvoiceForm({ customerList }) {
                     typography: 'body2',
                   }}
                   onClick={subtripsDialog.onTrue}
-                  disabled={availableSubtrips.length === 0}
+                  disabled={availableSubtrips.length === 0 || isLoadingSubtrips}
                   startIcon={
                     <Iconify
                       icon={field.value.length > 0 ? 'mdi:check' : 'mdi:check-outline'}
@@ -147,7 +174,9 @@ export default function InvoiceForm({ customerList }) {
                 >
                   {field.value.length > 0
                     ? `${field.value.length} subtrips selected`
-                    : 'Select Subtrips'}
+                    : availableSubtrips.length > 0
+                      ? 'Select Subtrips'
+                      : 'No subtrips available'}
                 </Button>
 
                 <KanbanSubtripMultiSelectDialog
@@ -162,6 +191,22 @@ export default function InvoiceForm({ customerList }) {
             )}
           />
         </FieldWrapper>
+
+        {/* Reset Button */}
+        {isDirty && (
+          <FieldWrapper md={1}>
+            <Button
+              variant="outlined"
+              color="error"
+              fullWidth
+              sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
+              onClick={handleReset}
+              startIcon={<Iconify icon="mdi:refresh" />}
+            >
+              Reset
+            </Button>
+          </FieldWrapper>
+        )}
       </Grid>
     </Card>
   );

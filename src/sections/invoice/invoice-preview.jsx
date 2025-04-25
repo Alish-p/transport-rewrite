@@ -198,6 +198,11 @@ function RenderFooter() {
 export default function InvoicePreview({ customerList }) {
   // Watch entire form live!
   const draft = useWatch();
+  const isDirty =
+    draft.customerId ||
+    draft.billingPeriod?.start ||
+    draft.billingPeriod?.end ||
+    draft.subtripIds?.length > 0;
 
   // Fetch subtrips data for preview
   const { data: availableSubtrips = [] } = useClosedTripsByCustomerAndDate(
@@ -216,6 +221,10 @@ export default function InvoicePreview({ customerList }) {
     if (!draft.customerId || !customerList.length) return null;
     return customerList.find((c) => c._id === draft.customerId);
   }, [draft.customerId, customerList]);
+
+  if (!isDirty) {
+    return null;
+  }
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
