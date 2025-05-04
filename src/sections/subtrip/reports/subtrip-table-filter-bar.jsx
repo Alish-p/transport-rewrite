@@ -181,8 +181,10 @@ export default function SubtripTableFilters({ filters, onFilters }) {
     },
     {
       id: 'startDateRange',
-      label: startDateRangeSelected ? `Start: ${startDateRangeShortLabel}` : 'Start Date Range',
-      tooltip: 'Filter by start date range',
+      label: startDateRangeSelected
+        ? `Dispatch: ${startDateRangeShortLabel}`
+        : 'Dispatch Date Range',
+      tooltip: 'Filter by Dispatch date range',
       onClick: startDateRangePopover.onOpen,
       isSelected: startDateRangeSelected,
       icon: <Iconify icon="mdi:calendar" />,
@@ -197,8 +199,8 @@ export default function SubtripTableFilters({ filters, onFilters }) {
     },
     {
       id: 'endDateRange',
-      label: endDateRangeSelected ? `End: ${endDateRangeShortLabel}` : 'End Date Range',
-      tooltip: 'Filter by end date range',
+      label: endDateRangeSelected ? `Received: ${endDateRangeShortLabel}` : 'Received Date Range',
+      tooltip: 'Filter by Received date range',
       onClick: endDateRangePopover.onOpen,
       isSelected: endDateRangeSelected,
       icon: <Iconify icon="mdi:calendar" />,

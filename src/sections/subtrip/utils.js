@@ -146,7 +146,7 @@ export function generateInsightsForSubtrip(subtrip) {
 }
 
 export function transformSubtripsForExcel(subtrips) {
-  return subtrips.map((subtrip) => {
+  const rows = subtrips.map((subtrip) => {
     const vehicle = subtrip?.tripId?.vehicleId;
     const driver = subtrip?.tripId?.driverId;
     const transporter = vehicle?.transporter;
@@ -167,23 +167,56 @@ export function transformSubtripsForExcel(subtrips) {
       'Dispatch Date': fDate(subtrip.startDate),
       'Received Date': fDate(subtrip.endDate),
       'E-Way Expiry': fDate(subtrip.ewayExpiryDate),
-      'Initial Diesel (Ltr)': subtrip?.initialAdvanceDiesel || '-',
+      'Initial Diesel (Ltr)': subtrip?.initialAdvanceDiesel || 0,
       Advance: subtrip?.expenses?.reduce(
         (acc, e) => (e.expenseType === 'trip-advance' ? acc + e.amount : acc),
         0
       ),
       'Invoice No': subtrip.invoiceNo || '-',
       'Invoice Amount':
-        subtrip.events?.find((e) => e.eventType === 'INVOICE_GENERATED')?.details?.amount || '-',
-      'Freight Rate (₹)': subtrip.rate || '-',
-      'Loading Wt.': `${subtrip.loadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`,
-      'Unloading Wt.': `${subtrip.unloadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`,
-      'Shortage Wt.': subtrip.shortageWeight,
-      'Shortage Amt.': subtrip.shortageAmount,
+        subtrip.events?.find((e) => e.eventType === 'INVOICE_GENERATED')?.details?.amount || 0,
+      'Freight Rate (₹)': subtrip.rate || 0,
+      'Loading Wt.': `${subtrip.loadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}` || 0,
+      'Unloading Wt.': `${subtrip.unloadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}` || 0,
+      'Shortage Wt.': subtrip.shortageWeight || 0,
+      'Shortage Amt.': subtrip.shortageAmount || 0,
       Consignee: subtrip.consignee,
       'Route Name': subtrip.routeCd?.routeName || '-',
-      'Distance (km)': subtrip.routeCd?.distance || '-',
+      'Distance (km)': subtrip.routeCd?.distance || 0,
       'Initial Fuel Pump': subtrip.intentFuelPump?.pumpName || '-',
     };
   });
+
+  // Calculate totals
+  const totals = {
+    'Subtrip No': 'TOTAL',
+    'Trip No': '',
+    Customer: '',
+    'Vehicle No': '',
+    'Vehicle Type': '',
+    'No of Tyres': '',
+    'Driver Name': '',
+    'Driver Mobile': '',
+    'Transporter Name': '',
+    'Loading Point': '',
+    'Unloading Point': '',
+    'Dispatch Date': '',
+    'Received Date': '',
+    'E-Way Expiry': '',
+    'Initial Diesel (Ltr)': subtrips.reduce((sum, st) => sum + (st.initialAdvanceDiesel || 0), 0),
+    Advance: rows.reduce((sum, r) => sum + r.Advance, 0),
+    'Invoice No': '',
+    'Invoice Amount': '',
+    'Freight Rate (₹)': '',
+    'Loading Wt.': subtrips.reduce((sum, st) => sum + (st.loadingWeight || 0), 0),
+    'Unloading Wt.': subtrips.reduce((sum, st) => sum + (st.unloadingWeight || 0), 0),
+    'Shortage Wt.': subtrips.reduce((sum, st) => sum + (st.shortageWeight || 0), 0),
+    'Shortage Amt.': subtrips.reduce((sum, st) => sum + (st.shortageAmount || 0), 0),
+    Consignee: '',
+    'Route Name': '',
+    'Distance (km)': subtrips.reduce((sum, st) => sum + (st.routeCd?.distance || 0), 0),
+    'Initial Fuel Pump': '',
+  };
+
+  return [...rows, totals];
 }

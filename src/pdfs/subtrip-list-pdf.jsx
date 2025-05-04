@@ -51,6 +51,15 @@ export default function SubtripListPdf({ subtrips }) {
       subtrip.subtripStatus,
     ]);
 
+    const totalLoadingWeight = subtrips.reduce(
+      (acc, subtrip) => acc + (subtrip.loadingWeight || 0),
+      0
+    );
+
+    data.push(['', '', '', '', '', '', '', '', '', `Total: ${totalLoadingWeight}`, '', '']);
+
+    console.log(data);
+
     const columnWidths = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
     return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
