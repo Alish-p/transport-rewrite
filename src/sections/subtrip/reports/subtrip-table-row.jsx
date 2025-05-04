@@ -123,8 +123,8 @@ export default function SubtripTableRow({
         {(visibleColumns.startDate || disabledColumns.startDate) && (
           <TableCell>
             <ListItemText
-              primary={fDate(new Date(startDate))}
-              secondary={fTime(new Date(startDate))}
+              primary={fDate(startDate)}
+              secondary={fTime(startDate)}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
               secondaryTypographyProps={{
                 mt: 0.5,

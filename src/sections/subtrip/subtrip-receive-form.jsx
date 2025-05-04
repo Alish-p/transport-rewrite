@@ -21,8 +21,6 @@ import {
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { today } from 'src/utils/format-time';
-
 import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
@@ -37,7 +35,7 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 
 const defaultValues = {
   subtripId: '',
-  endDate: today(),
+  endDate: new Date(),
   unloadingWeight: 0,
   endKm: 0,
   commissionRate: 0,

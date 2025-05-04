@@ -11,7 +11,6 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
 import { useCreateTrip, useUpdateTrip } from 'src/query/use-trip';
@@ -49,7 +48,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     () => ({
       driverId: currentTrip?.driverId || null,
       vehicleId: currentTrip?.vehicleId || null,
-      fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : today(),
+      fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : new Date(),
       remarks: currentTrip?.remarks || '',
     }),
     [currentTrip]

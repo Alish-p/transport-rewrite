@@ -23,7 +23,6 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { today } from 'src/utils/format-time';
 import { paramCase } from 'src/utils/change-case';
 
 import { useTrip } from 'src/query/use-trip';
@@ -103,7 +102,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
     () => ({
       tripId: currentTrip || null,
       customerId: null,
-      startDate: today(),
+      startDate: new Date(),
       diNumber: '',
       isEmpty: false,
       routeCd: '',

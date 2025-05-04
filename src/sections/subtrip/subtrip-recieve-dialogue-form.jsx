@@ -17,8 +17,6 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { today } from 'src/utils/format-time';
-
 import { useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
@@ -95,7 +93,7 @@ export function RecieveSubtripDialog({ showDialog, setShowDialog, subtrip }) {
     () => ({
       unloadingWeight: subtrip?.loadingWeight || 0,
       endKm: subtrip?.startKm || 0,
-      endDate: today(),
+      endDate: new Date(),
       commissionRate: 0,
       hasError: false,
       errorRemarks: '',
