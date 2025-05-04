@@ -6,26 +6,46 @@ import { saveAs } from 'file-saver';
 export const exportToExcel = (data, fileName) => {
   console.log({ data });
 
-  // Convert JSON data to worksheet
   const worksheet = XLSX.utils.json_to_sheet(data);
 
-  // Add styling to headers
   const headerStyle = {
-    font: { bold: true, color: { rgb: 'FFFFFF' } },
-    fill: { fgColor: { rgb: '4472C4' } },
-    alignment: { horizontal: 'center' },
+    font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12 },
+    fill: { fgColor: { rgb: '305496' } },
+    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+    border: {
+      top: { style: 'thin', color: { rgb: '000000' } },
+      bottom: { style: 'thin', color: { rgb: '000000' } },
+      left: { style: 'thin', color: { rgb: '000000' } },
+      right: { style: 'thin', color: { rgb: '000000' } },
+    },
   };
 
-  // Get the range of the worksheet
+  const bodyStyle = (isOddRow) => ({
+    fill: { fgColor: { rgb: isOddRow ? 'F9F9F9' : 'FFFFFF' } },
+    alignment: { horizontal: 'left', vertical: 'top', wrapText: true },
+    border: {
+      top: { style: 'thin', color: { rgb: 'DDDDDD' } },
+      bottom: { style: 'thin', color: { rgb: 'DDDDDD' } },
+      left: { style: 'thin', color: { rgb: 'DDDDDD' } },
+      right: { style: 'thin', color: { rgb: 'DDDDDD' } },
+    },
+  });
+
   const range = XLSX.utils.decode_range(worksheet['!ref']);
   const columns = range.e.c + 1;
 
-  // Apply header styling to the first row
   for (let col = 0; col < columns; col++) {
     const headerCell = XLSX.utils.encode_cell({ r: 0, c: col });
     if (!worksheet[headerCell]) continue;
-
     worksheet[headerCell].s = headerStyle;
+  }
+
+  for (let row = 1; row <= range.e.r; row++) {
+    for (let col = 0; col < columns; col++) {
+      const cell = XLSX.utils.encode_cell({ r: row, c: col });
+      if (!worksheet[cell]) continue;
+      worksheet[cell].s = bodyStyle(row % 2);
+    }
   }
 
   // Auto-size columns
@@ -39,36 +59,19 @@ export const exportToExcel = (data, fileName) => {
         maxLength = Math.max(maxLength, length);
       }
     }
-    columnWidths[col] = { wch: maxLength + 2 }; // Add padding
+    columnWidths[col] = { wch: maxLength + 4 }; // more padding
   }
   worksheet['!cols'] = columnWidths;
 
-  // Add zebra striping to rows
-  for (let row = 1; row <= range.e.r; row++) {
-    const rowStyle = {
-      fill: { fgColor: { rgb: row % 2 ? 'F2F2F2' : 'FFFFFF' } },
-      alignment: { horizontal: 'left' },
-    };
-
-    for (let col = 0; col < columns; col++) {
-      const cell = XLSX.utils.encode_cell({ r: row, c: col });
-      if (!worksheet[cell]) continue;
-      worksheet[cell].s = rowStyle;
-    }
-  }
-
-  // Create a new workbook
   const workbook = XLSX.utils.book_new();
-  // Append worksheet to workbook
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  // Write the workbook with styling
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Subtrip Report');
+
   const excelBuffer = XLSX.write(workbook, {
     bookType: 'xlsx',
     type: 'array',
     cellStyles: true,
   });
-  // Create a Blob from the buffer
+
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  // Save the file using file-saver
   saveAs(blob, `${fileName}.xlsx`);
 };

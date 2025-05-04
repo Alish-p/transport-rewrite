@@ -1,3 +1,5 @@
+import { fDate } from '../../utils/format-time';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { subtripExpenseTypes } from '../expense/expense-config';
 
 export const mapExpensesToChartData = (expenses) => {
@@ -141,4 +143,47 @@ export function generateInsightsForSubtrip(subtrip) {
 
   // Return the final array of insights
   return insights;
+}
+
+export function transformSubtripsForExcel(subtrips) {
+  return subtrips.map((subtrip) => {
+    const vehicle = subtrip?.tripId?.vehicleId;
+    const driver = subtrip?.tripId?.driverId;
+    const transporter = vehicle?.transporter;
+    const customer = subtrip?.customerId;
+
+    return {
+      'Subtrip No': subtrip._id,
+      'Trip No': subtrip?.tripId?._id,
+      Customer: customer?.customerName,
+      'Vehicle No': vehicle?.vehicleNo,
+      'Vehicle Type': vehicle?.vehicleType,
+      'No of Tyres': vehicle?.noOfTyres,
+      'Driver Name': driver?.driverName,
+      'Driver Mobile': driver?.driverCellNo,
+      'Transporter Name': transporter?.transportName || '',
+      'Loading Point': subtrip.loadingPoint,
+      'Unloading Point': subtrip.unloadingPoint,
+      'Dispatch Date': fDate(subtrip.startDate),
+      'Received Date': fDate(subtrip.endDate),
+      'E-Way Expiry': fDate(subtrip.ewayExpiryDate),
+      'Initial Diesel (Ltr)': subtrip?.initialAdvanceDiesel || '-',
+      Advance: subtrip?.expenses?.reduce(
+        (acc, e) => (e.expenseType === 'trip-advance' ? acc + e.amount : acc),
+        0
+      ),
+      'Invoice No': subtrip.invoiceNo || '-',
+      'Invoice Amount':
+        subtrip.events?.find((e) => e.eventType === 'INVOICE_GENERATED')?.details?.amount || '-',
+      'Freight Rate (₹)': subtrip.rate || '-',
+      'Loading Wt.': `${subtrip.loadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`,
+      'Unloading Wt.': `${subtrip.unloadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`,
+      'Shortage Wt.': subtrip.shortageWeight,
+      'Shortage Amt.': subtrip.shortageAmount,
+      Consignee: subtrip.consignee,
+      'Route Name': subtrip.routeCd?.routeName || '-',
+      'Distance (km)': subtrip.routeCd?.distance || '-',
+      'Initial Fuel Pump': subtrip.intentFuelPump?.pumpName || '-',
+    };
+  });
 }

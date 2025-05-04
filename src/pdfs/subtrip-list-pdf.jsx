@@ -31,7 +31,7 @@ export default function SubtripListPdf({ subtrips }) {
       'Route',
       'Dispatch Time',
       'Received Time',
-      'Total Distance',
+      'Loading Weight',
       'Transporter',
       'Status',
     ];
@@ -46,7 +46,7 @@ export default function SubtripListPdf({ subtrips }) {
       subtrip.routeCd?.routeName,
       subtrip.startDate ? fDate(subtrip.startDate) : '',
       subtrip.endDate ? fDate(subtrip.endDate) : '',
-      subtrip.startKm && subtrip.endKm ? subtrip.endKm - subtrip.startKm : '0',
+      subtrip.loadingWeight,
       subtrip.tripId?.vehicleId?.transporter?.transportName,
       subtrip.subtripStatus,
     ]);

@@ -44,6 +44,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { transformSubtripsForExcel } from '../utils';
 import SubtripTableRow from '../reports/subtrip-table-row';
 import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
@@ -296,8 +297,7 @@ export function SubtripReportsView() {
           size="small"
           startIcon={<Iconify icon="mdi:export" />}
           onClick={() => {
-            const selectedRows = tableData.filter(({ _id }) => table.selected.includes(_id));
-            exportToExcel(selectedRows, 'filtered');
+            exportToExcel(transformSubtripsForExcel(tableData), 'subtrip-reports');
           }}
         >
           Export
