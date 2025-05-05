@@ -2,12 +2,12 @@
 
 // @mui
 import Link from '@mui/material/Link';
-import { MenuList } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
@@ -17,7 +17,9 @@ import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { SUBTRIP_STATUS_COLORS } from '../constants';
+import { wrapText } from '../../../utils/change-case';
 import { fDate, fTime } from '../../../utils/format-time';
+import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +36,7 @@ export default function SubtripTableRow({
     startDate: true,
     subtripStatus: true,
     transport: true,
+    loadingWeight: true,
   },
   disabledColumns = {
     vehicleNo: true,
@@ -43,6 +46,7 @@ export default function SubtripTableRow({
     startDate: false,
     subtripStatus: false,
     transport: false,
+    loadingWeight: false,
   },
 }) {
   const {
@@ -53,6 +57,7 @@ export default function SubtripTableRow({
     subtripStatus,
     startDate,
     tripId: { vehicleId },
+    loadingWeight,
   } = row;
 
   const popover = usePopover();
@@ -94,25 +99,29 @@ export default function SubtripTableRow({
         )}
 
         {(visibleColumns.customerId || disabledColumns.customerId) && (
-          <TableCell>
-            <ListItemText
-              primary={customerId?.customerName}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
+          <TableCell align="center">
+            <Tooltip title={customerId?.customerName}>
+              <ListItemText
+                primary={customerId?.customerName ? wrapText(customerId?.customerName, 20) : '-'}
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              />
+            </Tooltip>
           </TableCell>
         )}
 
         {(visibleColumns.routeName || disabledColumns.routeName) && (
-          <TableCell>
-            <ListItemText
-              primary={routeName || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
+          <TableCell align="center">
+            <Tooltip title={routeName}>
+              <ListItemText
+                primary={routeName ? wrapText(routeName, 20) : '-'}
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              />
+            </Tooltip>
           </TableCell>
         )}
 
         {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
               primary={invoiceNo || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
@@ -121,7 +130,7 @@ export default function SubtripTableRow({
         )}
 
         {(visibleColumns.startDate || disabledColumns.startDate) && (
-          <TableCell>
+          <TableCell align="center">
             <ListItemText
               primary={fDate(startDate)}
               secondary={fTime(startDate)}
@@ -135,17 +144,35 @@ export default function SubtripTableRow({
           </TableCell>
         )}
 
-        {(visibleColumns.transport || disabledColumns.transport) && (
+        {(visibleColumns.loadingWeight || disabledColumns.loadingWeight) && (
           <TableCell align="center">
             <ListItemText
-              primary={vehicleId?.transporter?.transportName || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              primary={
+                loadingWeight
+                  ? `${loadingWeight} ${loadingWeightUnit[vehicleId?.vehicleType]}`
+                  : '-'
+              }
             />
           </TableCell>
         )}
 
+        {(visibleColumns.transport || disabledColumns.transport) && (
+          <TableCell align="center">
+            <Tooltip title={vehicleId?.transporter?.transportName}>
+              <ListItemText
+                primary={
+                  vehicleId?.transporter?.transportName
+                    ? wrapText(vehicleId?.transporter?.transportName, 20)
+                    : '-'
+                }
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              />
+            </Tooltip>
+          </TableCell>
+        )}
+
         {(visibleColumns.subtripStatus || disabledColumns.subtripStatus) && (
-          <TableCell>
+          <TableCell align="center">
             <Label variant="soft" color={SUBTRIP_STATUS_COLORS[subtripStatus] || 'default'}>
               {subtripStatus}
             </Label>

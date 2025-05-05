@@ -59,6 +59,7 @@ const TABLE_HEAD = [
   { id: 'routeName', label: 'Route', align: 'center', type: 'string' },
   { id: 'invoiceNo', label: 'Invoice No', align: 'center', type: 'string' },
   { id: 'startDate', label: 'Start Date', align: 'center' },
+  { id: 'loadingWeight', label: 'Loading Weight', align: 'center', type: 'string' },
   { id: 'transport', label: 'Transporter', align: 'center', type: 'string' },
   { id: 'subtripStatus', label: 'Subtrip Status', align: 'center', type: 'string' },
   { id: '' },
@@ -100,6 +101,7 @@ export function SubtripReportsView() {
     startDate: true,
     subtripStatus: true,
     transport: true,
+    loadingWeight: true,
   });
 
   // Define which columns should be disabled (always visible)
@@ -111,6 +113,7 @@ export function SubtripReportsView() {
     startDate: false,
     subtripStatus: false,
     transport: false,
+    loadingWeight: false,
   };
 
   // Use the filtered subtrips query

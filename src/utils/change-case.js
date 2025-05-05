@@ -34,6 +34,7 @@ export function titleCase(string) {
 // write function to wrap the text into few characters and wrap with three dots
 
 export function wrapText(text, maxLength) {
+  if (!text) return '';
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength)}...`;
 }
