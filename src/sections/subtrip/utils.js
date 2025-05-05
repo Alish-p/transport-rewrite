@@ -163,6 +163,8 @@ export function transformSubtripsForExcel(subtrips) {
       'Loading Point': subtrip.loadingPoint,
       'Unloading Point': subtrip.unloadingPoint,
       'Dispatch Date': fDate(subtrip.startDate),
+      'Invoice No': subtrip.invoiceNo,
+      'Shipment No': subtrip.shipmentNo,
       'E-Way Expiry': fDate(subtrip.ewayExpiryDate),
       'Total Diesel (Ltr)': subtrip?.expenses?.reduce(
         (acc, e) => (e.expenseType === 'diesel' ? acc + (e.dieselLtr || 0) : acc),
@@ -198,6 +200,8 @@ export function transformSubtripsForExcel(subtrips) {
     'Loading Point': '',
     'Unloading Point': '',
     'Dispatch Date': '',
+    'Invoice No': '',
+    'Shipment No': '',
     'E-Way Expiry': '',
     'Total Diesel (Ltr)': rows.reduce((sum, r) => sum + r['Total Diesel (Ltr)'], 0),
     Advance: rows.reduce((sum, r) => sum + r.Advance, 0),
