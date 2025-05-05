@@ -29,6 +29,7 @@ export default function LRPDF({ subtrip }) {
     startDate,
     unloadingPoint,
     grade,
+    quantity,
     tripId: { driverId, vehicleId },
   } = subtrip;
 
@@ -72,14 +73,7 @@ export default function LRPDF({ subtrip }) {
       'Grade',
     ];
     const goodsData = [
-      [
-        customerId?.transporterCode,
-        orderNo,
-        vehicleId?.vehicleNo,
-        loadingWeight,
-        loadingWeight,
-        grade,
-      ],
+      [customerId?.transporterCode, orderNo, vehicleId?.vehicleNo, loadingWeight, quantity, grade],
     ];
 
     const driverHeaders = ['Driver Name', 'Mobile No.', 'DL No.', 'Vehicle Type', 'Signature'];
@@ -103,7 +97,7 @@ export default function LRPDF({ subtrip }) {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page} orientation="landscape">
+      <Page size="A5" style={styles.page} orientation="landscape">
         <PDFTitle styles={styles} title="Lorry Receipt" />
         <PDFHeader styles={styles} />
         {renderStructuredHeader()}
