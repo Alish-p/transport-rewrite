@@ -8,7 +8,6 @@ import {
   PDFHeader,
   PDFFooter,
   PDFStyles,
-  PDFEmptyLine,
   PDFDeclaration,
 } from 'src/pdfs/common';
 
@@ -58,7 +57,6 @@ export default function SubtripListPdf({ subtrips, visibleColumns = [] }) {
         <PDFDeclaration
           content={`This report contains a list of subtrips as of ${fDate(new Date())}.`}
         />
-        <PDFEmptyLine />
         {renderSubtripTable()}
         <PDFFooter additionalInfo={`Total Subtrips: ${subtrips.length}`} />
       </Page>

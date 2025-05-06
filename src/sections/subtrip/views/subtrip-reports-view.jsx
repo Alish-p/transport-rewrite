@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { useRef, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,7 +17,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
@@ -38,6 +36,7 @@ import {
 } from 'src/components/table';
 
 import { transformSubtripsForExcel } from '../utils';
+import { PDFDownloadButton } from '../../../pdfs/common';
 import SubtripTableRow from '../reports/subtrip-table-row';
 import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
@@ -76,6 +75,10 @@ export function SubtripReportsView() {
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
+
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const pdfDownloadRef = useRef(null);
 
   // Initialize visible columns from config
   const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
@@ -179,6 +182,20 @@ export function SubtripReportsView() {
         return acc;
       }, {})
     );
+  };
+
+  const handleGeneratePdf = async () => {
+    setPdfGenerating(true);
+    const visibleCols = getVisibleColumnsForExport();
+    const { default: SubtripListPdf } = await import('src/pdfs/subtrip-list-pdf');
+    const doc = <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+    setPdfDoc(doc);
+    setPdfGenerating(false);
+
+    // Wait a tick and programmatically click download
+    setTimeout(() => {
+      pdfDownloadRef.current?.click();
+    }, 0);
   };
 
   // Filter the table head based on visible columns
@@ -286,23 +303,14 @@ export function SubtripReportsView() {
           Export
         </Button>
 
-        <PDFDownloadLink
-          document={
-            <SubtripListPdf subtrips={tableData} visibleColumns={getVisibleColumnsForExport()} />
-          }
+        <PDFDownloadButton
           fileName="Subtrip-list.pdf"
-        >
-          {({ loading }) => (
-            <Button
-              variant="outlined"
-              size="small"
-              color="primary"
-              startIcon={<Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} />}
-            >
-              PDF
-            </Button>
-          )}
-        </PDFDownloadLink>
+          getDocument={async () => {
+            const { default: SubtripListPdf } = await import('src/pdfs/subtrip-list-pdf');
+            const visibleCols = getVisibleColumnsForExport();
+            return () => <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+          }}
+        />
 
         <Button
           variant="outlined"
