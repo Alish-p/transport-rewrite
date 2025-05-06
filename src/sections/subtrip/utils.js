@@ -1,5 +1,4 @@
-import { fDate } from '../../utils/format-time';
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { TABLE_COLUMNS } from './config/table-columns';
 import { subtripExpenseTypes } from '../expense/expense-config';
 
 export const mapExpensesToChartData = (expenses) => {
@@ -145,74 +144,35 @@ export function generateInsightsForSubtrip(subtrip) {
   return insights;
 }
 
-export function transformSubtripsForExcel(subtrips) {
-  const rows = subtrips.map((subtrip) => {
-    const vehicle = subtrip?.tripId?.vehicleId;
-    const driver = subtrip?.tripId?.driverId;
-    const transporter = vehicle?.transporter;
-    const customer = subtrip?.customerId;
+export function transformSubtripsForExcel(subtrips, visibleColumnIds = []) {
+  // Step 1: Get visible column configs and maintain label-to-id mapping
+  const visibleColumns = TABLE_COLUMNS.filter((col) => visibleColumnIds.includes(col.id));
 
-    return {
-      'Subtrip No': subtrip._id,
-      'Trip No': subtrip?.tripId?._id,
-      Customer: customer?.customerName,
-      'Vehicle No': vehicle?.vehicleNo,
-      'Driver Name': driver?.driverName,
-      'Driver Mobile': driver?.driverCellNo,
-      'Transporter Name': transporter?.transportName || '',
-      'Loading Point': subtrip.loadingPoint,
-      'Unloading Point': subtrip.unloadingPoint,
-      'Dispatch Date': fDate(subtrip.startDate),
-      'Invoice No': subtrip.invoiceNo,
-      'Shipment No': subtrip.shipmentNo,
-      'E-Way Expiry': fDate(subtrip.ewayExpiryDate),
-      'Total Diesel (Ltr)': subtrip?.expenses?.reduce(
-        (acc, e) => (e.expenseType === 'diesel' ? acc + (e.dieselLtr || 0) : acc),
-        0
-      ),
-      Advance: subtrip?.expenses?.reduce(
-        (acc, e) => (e.expenseType === 'trip-advance' ? acc + e.amount : acc),
-        0
-      ),
-      'Freight Rate (₹)': subtrip.rate || 0,
-      'Loading Wt.': subtrip.loadingWeight
-        ? `${subtrip.loadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`
-        : 0,
-      'Unloading Wt.': subtrip.unloadingWeight
-        ? `${subtrip.unloadingWeight} ${loadingWeightUnit[vehicle?.vehicleType]}`
-        : 0,
-      'Shortage Wt.': subtrip.shortageWeight || 0,
-      'Shortage Amt.': subtrip.shortageAmount || 0,
-      Consignee: subtrip.consignee,
-      'Initial Fuel Pump': subtrip.intentFuelPump?.pumpName || '-',
-    };
+  const rows = subtrips.map((subtrip) => {
+    const row = {};
+
+    visibleColumns.forEach((col) => {
+      row[col.label] = col.getter(subtrip);
+    });
+
+    return row;
   });
 
-  // Calculate totals
-  const totals = {
-    'Subtrip No': 'TOTAL',
-    'Trip No': '',
-    Customer: '',
-    'Vehicle No': '',
-    'Driver Name': '',
-    'Driver Mobile': '',
-    'Transporter Name': '',
-    'Loading Point': '',
-    'Unloading Point': '',
-    'Dispatch Date': '',
-    'Invoice No': '',
-    'Shipment No': '',
-    'E-Way Expiry': '',
-    'Total Diesel (Ltr)': rows.reduce((sum, r) => sum + r['Total Diesel (Ltr)'], 0),
-    Advance: rows.reduce((sum, r) => sum + r.Advance, 0),
-    'Freight Rate (₹)': '',
-    'Loading Wt.': subtrips.reduce((sum, st) => sum + (st.loadingWeight || 0), 0),
-    'Unloading Wt.': subtrips.reduce((sum, st) => sum + (st.unloadingWeight || 0), 0),
-    'Shortage Wt.': subtrips.reduce((sum, st) => sum + (st.shortageWeight || 0), 0),
-    'Shortage Amt.': subtrips.reduce((sum, st) => sum + (st.shortageAmount || 0), 0),
-    Consignee: '',
-    'Initial Fuel Pump': '',
-  };
+  // Step 2: Optional: Add a totals row only for numeric columns (basic implementation)
+  const totals = visibleColumns.reduce(
+    (acc, col) => {
+      const isNumeric =
+        subtrips.every((s) => typeof col.getter(s) === 'number') &&
+        !['LR No', 'Vehicle No', 'Driver', 'Customer'].includes(col.label); // adjust exclusions
+
+      acc[col.label] = isNumeric
+        ? subtrips.reduce((sum, subtrip) => sum + (col.getter(subtrip) || 0), 0)
+        : '';
+
+      return acc;
+    },
+    { [visibleColumns[0]?.label || '']: 'TOTAL' }
+  );
 
   return [...rows, totals];
 }

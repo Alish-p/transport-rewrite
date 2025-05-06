@@ -406,7 +406,7 @@ export function ExpenseListView({ expenses }) {
           />
 
           <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }} stickyHeader>
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}

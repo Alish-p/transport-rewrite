@@ -9,15 +9,7 @@ import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import {
-  Chip,
-  Tooltip,
-  Divider,
-  MenuItem,
-  Checkbox,
-  IconButton,
-  CircularProgress,
-} from '@mui/material';
+import { Chip, Tooltip, Divider, IconButton, CircularProgress } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -40,6 +32,7 @@ import {
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
+  ColumnSelectorList,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
@@ -50,20 +43,13 @@ import SubtripQuickFilters from '../reports/subtrip-quick-filters';
 import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
 import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
 import SubtripTableActions from '../reports/subtrip-table-filter-search-actions';
+import {
+  TABLE_COLUMNS,
+  getDisabledColumns,
+  getDefaultVisibleColumns,
+} from '../config/table-columns';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Details', align: 'center' },
-  { id: 'customerId', label: 'Customer', align: 'center' },
-  { id: 'routeName', label: 'Route', align: 'center', type: 'string' },
-  { id: 'invoiceNo', label: 'Invoice No', align: 'center', type: 'string' },
-  { id: 'startDate', label: 'Start Date', align: 'center' },
-  { id: 'loadingWeight', label: 'Loading Weight', align: 'center', type: 'string' },
-  { id: 'transport', label: 'Transporter', align: 'center', type: 'string' },
-  { id: 'subtripStatus', label: 'Subtrip Status', align: 'center', type: 'string' },
-  { id: '' },
-];
 
 const defaultFilters = {
   customerId: '',
@@ -90,31 +76,10 @@ export function SubtripReportsView() {
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useState(null);
-  const [selectedQuickFilter, setSelectedQuickFilter] = useState(null);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    customerId: true,
-    routeName: true,
-    invoiceNo: true,
-    startDate: true,
-    subtripStatus: true,
-    transport: true,
-    loadingWeight: true,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = {
-    vehicleNo: true,
-    customerId: false,
-    routeName: false,
-    invoiceNo: false,
-    startDate: false,
-    subtripStatus: false,
-    transport: false,
-    loadingWeight: false,
-  };
+  // Initialize visible columns from config
+  const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
+  const disabledColumns = getDisabledColumns();
 
   // Use the filtered subtrips query
   const { data: tableData = [], isLoading } = useFilteredSubtrips({
@@ -207,10 +172,23 @@ export function SubtripReportsView() {
     }));
   };
 
+  const handleToggleAllColumns = (checked) => {
+    setVisibleColumns((prev) =>
+      TABLE_COLUMNS.reduce((acc, column) => {
+        acc[column.id] = disabledColumns[column.id] ? prev[column.id] : checked;
+        return acc;
+      }, {})
+    );
+  };
+
   // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
+  const visibleTableHead = TABLE_COLUMNS.filter(
     (column) => column.id === '' || visibleColumns[column.id]
   );
+
+  // Get visible columns for export
+  const getVisibleColumnsForExport = () =>
+    TABLE_COLUMNS.filter((column) => visibleColumns[column.id]).map((column) => column.id);
 
   // Render methods for different states
   const renderNoFiltersState = () => (
@@ -244,7 +222,6 @@ export function SubtripReportsView() {
 
   const renderNoResultsState = () => (
     <Box sx={{ p: 5, textAlign: 'center' }}>
-      {/* use different icon for no results found */}
       <Iconify
         icon="mdi:file-search-outline"
         width={64}
@@ -275,7 +252,6 @@ export function SubtripReportsView() {
     </Box>
   );
 
-  // New method to render the table header with results count and column selection
   const renderTableHeader = () => (
     <Box
       sx={{
@@ -300,14 +276,20 @@ export function SubtripReportsView() {
           size="small"
           startIcon={<Iconify icon="mdi:export" />}
           onClick={() => {
-            exportToExcel(transformSubtripsForExcel(tableData), 'subtrip-reports');
+            const selectedVisibleColumns = getVisibleColumnsForExport();
+            exportToExcel(
+              transformSubtripsForExcel(tableData, selectedVisibleColumns),
+              'subtrip-reports'
+            );
           }}
         >
           Export
         </Button>
 
         <PDFDownloadLink
-          document={<SubtripListPdf subtrips={tableData} />}
+          document={
+            <SubtripListPdf subtrips={tableData} visibleColumns={getVisibleColumnsForExport()} />
+          }
           fileName="Subtrip-list.pdf"
         >
           {({ loading }) => (
@@ -333,40 +315,19 @@ export function SubtripReportsView() {
 
         <CustomPopover
           open={columnsPopover.open}
-          anchorEl={columnsPopover.anchorEl}
           onClose={columnsPopover.onClose}
+          anchorEl={columnsPopover.anchorEl}
           slotProps={{
-            paper: { sx: { p: 1, width: 200 } },
-            arrow: { placement: 'bottom-right' },
+            arrow: { placement: 'right-top' },
           }}
         >
-          <Stack spacing={1}>
-            {Object.entries(visibleColumns).map(([columnName, isVisible]) => (
-              <MenuItem
-                key={columnName}
-                selected={isVisible}
-                onClick={() => {
-                  handleToggleColumn(columnName);
-                  if (Object.values(visibleColumns).filter(Boolean).length === 1 && isVisible) {
-                    // Prevent hiding the last visible column
-                  }
-                }}
-                disabled={disabledColumns[columnName]}
-                sx={{
-                  py: 1,
-                  px: 2,
-                  borderRadius: 1,
-                }}
-              >
-                <Checkbox
-                  checked={isVisible}
-                  disabled={disabledColumns[columnName]}
-                  sx={{ mr: 1 }}
-                />
-                {columnName}
-              </MenuItem>
-            ))}
-          </Stack>
+          <ColumnSelectorList
+            TABLE_COLUMNS={TABLE_COLUMNS}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            handleToggleColumn={handleToggleColumn}
+            handleToggleAllColumns={handleToggleAllColumns}
+          />
         </CustomPopover>
       </Stack>
     </Box>
@@ -401,7 +362,8 @@ export function SubtripReportsView() {
                     const selectedRows = tableData.filter(({ _id }) =>
                       table.selected.includes(_id)
                     );
-                    exportToExcel(selectedRows, 'filtered');
+                    const selectedVisibleColumns = getVisibleColumnsForExport();
+                    exportToExcel(selectedRows, 'filtered', selectedVisibleColumns);
                   }}
                 >
                   <Iconify icon="eva:download-outline" />
@@ -424,7 +386,7 @@ export function SubtripReportsView() {
         />
 
         <Scrollbar>
-          <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+          <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }} stickyHeader>
             <TableHeadCustom
               order={table.order}
               orderBy={table.orderBy}
@@ -456,7 +418,6 @@ export function SubtripReportsView() {
                     onEditRow={() => {}}
                     onDeleteRow={() => {}}
                     visibleColumns={visibleColumns}
-                    disabledColumns={disabledColumns}
                   />
                 ))}
 
@@ -506,7 +467,6 @@ export function SubtripReportsView() {
       />
 
       <Card>
-        {/* Quick Filter Chips */}
         <SubtripQuickFilters onFilters={handleFilters} />
 
         <SubtripTableFilters filters={filters} onFilters={handleFilters} />
@@ -521,7 +481,6 @@ export function SubtripReportsView() {
 
         <Divider orientation="horizontal" flexItem />
 
-        {/* Action Items Section */}
         <SubtripTableActions onSearch={handleSearch} canSearch={isFilterApplied} />
       </Card>
 

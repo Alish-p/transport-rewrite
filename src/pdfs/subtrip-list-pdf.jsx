@@ -12,6 +12,8 @@ import {
   PDFDeclaration,
 } from 'src/pdfs/common';
 
+import { TABLE_COLUMNS } from 'src/sections/subtrip/config/table-columns';
+
 // ----------------------------------------------------------------------
 
 Font.register({
@@ -19,48 +21,31 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function SubtripListPdf({ subtrips }) {
+export default function SubtripListPdf({ subtrips, visibleColumns = [] }) {
   const renderSubtripTable = () => {
-    const headers = [
-      'S.No',
-      'ID',
-      'Trip ID',
-      'Vehicle No',
-      'Driver Name',
-      'Customer Name',
-      'Route',
-      'Dispatch Time',
-      'Received Time',
-      'Loading Weight',
-      'Transporter',
-      'Status',
-    ];
+    // Filter columns to include only the visible ones
+    const columnsToShow = TABLE_COLUMNS.filter((col) => visibleColumns.includes(col.id));
+
+    const headers = ['S.No', ...columnsToShow.map((col) => col.label)];
 
     const data = subtrips.map((subtrip, index) => [
       index + 1,
-      subtrip._id,
-      subtrip.tripId?._id,
-      subtrip.tripId?.vehicleId?.vehicleNo,
-      subtrip.tripId?.driverId?.driverName,
-      subtrip.customerId?.customerName,
-      subtrip.routeCd?.routeName,
-      subtrip.startDate ? fDate(subtrip.startDate) : '',
-      subtrip.endDate ? fDate(subtrip.endDate) : '',
-      subtrip.loadingWeight,
-      subtrip.tripId?.vehicleId?.transporter?.transportName,
-      subtrip.subtripStatus,
+      ...columnsToShow.map((col) => col.getter(subtrip) || ''),
     ]);
 
-    const totalLoadingWeight = subtrips.reduce(
-      (acc, subtrip) => acc + (subtrip.loadingWeight || 0),
-      0
-    );
+    // Optional total row (only for numeric values)
+    const totals = ['Total'];
+    columnsToShow.forEach((col) => {
+      const isNumeric = subtrips.every((s) => typeof col.getter(s) === 'number');
+      const totalValue = isNumeric
+        ? subtrips.reduce((sum, s) => sum + (col.getter(s) || 0), 0)
+        : '';
+      totals.push(totalValue);
+    });
 
-    data.push(['', '', '', '', '', '', '', '', '', `Total: ${totalLoadingWeight}`, '', '']);
+    data.push(totals);
 
-    console.log(data);
-
-    const columnWidths = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const columnWidths = new Array(headers.length).fill(1); // equal width columns
 
     return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
   };
@@ -71,7 +56,7 @@ export default function SubtripListPdf({ subtrips }) {
         <PDFTitle title="Subtrip List" />
         <PDFHeader />
         <PDFDeclaration
-          content={`This report contains a list of all subtrips in the system as of ${fDate(new Date())}.`}
+          content={`This report contains a list of subtrips as of ${fDate(new Date())}.`}
         />
         <PDFEmptyLine />
         {renderSubtripTable()}
