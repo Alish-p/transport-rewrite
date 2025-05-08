@@ -30,6 +30,25 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'tripId',
+    label: 'Trip No',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row?.tripId?._id,
+    align: 'center',
+    render: (value) => (
+      <RouterLink
+        to={`${paths.dashboard.trip.details(value)}`}
+        style={{ color: 'green', textDecoration: 'underline' }}
+      >
+        <ListItemText
+          primary={value}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      </RouterLink>
+    ),
+  },
+  {
     id: 'vehicleNo',
     label: 'Vehicle No',
     defaultVisible: true,
