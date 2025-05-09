@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
@@ -23,8 +23,6 @@ import { useTrips } from 'src/query/use-trip';
 import { usePumps } from 'src/query/use-pump';
 import { useVehicles } from 'src/query/use-vehicle';
 import { useSubtrips } from 'src/query/use-subtrip';
-import { useCustomers } from 'src/query/use-customer';
-import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -35,9 +33,7 @@ import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dia
 import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 // import { KanbanSubtripDialog } from 'src/sections/kanban/components/';
-import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { subtripExpenseTypes, vehicleExpenseTypes } from 'src/sections/expense/expense-config';
-import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +42,17 @@ const EXPENSE_CATEGORIES = [
   { value: 'subtrip', label: 'Subtrip Expense' },
 ];
 
-export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) {
+// tripId: '',
+// subtripId: '',
+// vehicleId: '',
+// startDate: null,
+// endDate: null,
+// expenseType: [],
+// expenseCategory: '',
+// pumpCd: '',
+// paidThrough: '',
+
+export default function ExpenseTableFilterBar({ filters, onFilters }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -54,50 +60,15 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
   const expenseTypePopover = usePopover();
   const categoryPopover = usePopover();
 
-  const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
   const { data: pumps = [] } = usePumps();
-  const { data: transporters = [] } = useTransporters();
   const { data: subtrips = [] } = useSubtrips();
   const { data: trips = [] } = useTrips();
 
   const vehicleDialog = useBoolean();
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
-  const customerDialog = useBoolean();
-  const transporterDialog = useBoolean();
   const pumpDialog = useBoolean();
-
-  // Local state for pump selection
-  const [pumpName, setPumpName] = useState(filters.pumpName || '');
-
-  const handleFilterCustomer = useCallback(
-    (customer) => {
-      onFilters('customerId', customer._id);
-    },
-    [onFilters]
-  );
-
-  const handleFilterTransporter = useCallback(
-    (transporter) => {
-      onFilters('transportName', transporter._id);
-    },
-    [onFilters]
-  );
-
-  const handleFilterExpenseId = useCallback(
-    (event) => {
-      onFilters('expenseId', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterSubtrip = useCallback(
-    (subtrip) => {
-      onFilters('subtripId', subtrip._id);
-    },
-    [onFilters]
-  );
 
   const handleFilterTrip = useCallback(
     (trip) => {
@@ -108,15 +79,20 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
 
   const handleFilterPump = useCallback(
     (pump) => {
-      onFilters('pumpName', pump._id);
+      onFilters('pumpCd', pump._id);
     },
     [onFilters]
   );
 
-  const handleFilterDateRange = useCallback(
-    (startDate, endDate) => {
-      onFilters('fromDate', startDate);
-      onFilters('endDate', endDate);
+  const handleFilterStartDate = useCallback(
+    (newValue) => {
+      onFilters('startDate', newValue);
+    },
+    [onFilters]
+  );
+  const handleFilterEndDate = useCallback(
+    (newValue) => {
+      onFilters('endDate', newValue);
     },
     [onFilters]
   );
@@ -130,7 +106,7 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
 
   const handleFilterVehicle = useCallback(
     (vehicle) => {
-      onFilters('vehicleNo', vehicle._id);
+      onFilters('vehicleId', vehicle._id);
     },
     [onFilters]
   );
@@ -147,16 +123,14 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
     [filters.expenseType, onFilters]
   );
 
-  const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleNo);
-  const selectedPump = pumps.find((p) => p._id === filters.pumpName);
-  const selectedCustomer = customers.find((c) => c._id === filters.customerId);
-  const selectedTransporter = transporters.find((t) => t._id === filters.transportName);
+  const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleId);
+  const selectedPump = pumps.find((p) => p._id === filters.pumpCd);
   const selectedSubtrip = subtrips.find((s) => s._id === filters.subtripId);
   const selectedTrip = trips.find((t) => t._id === filters.tripId);
 
-  const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
+  const dateRangeSelected = !!filters.startDate && !!filters.endDate;
   const dateRangeShortLabel = dateRangeSelected
-    ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
+    ? fDateRangeShortLabel(filters.startDate, filters.endDate)
     : '';
 
   // Combine expense types based on selected category
@@ -189,22 +163,6 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
       icon: <Iconify icon="mdi:filter-variant" />,
     },
     {
-      id: 'customer',
-      label: selectedCustomer ? selectedCustomer.customerName : 'Customer',
-      tooltip: 'Filter by customer',
-      onClick: customerDialog.onTrue,
-      isSelected: !!selectedCustomer,
-      icon: <Iconify icon="mdi:office-building" />,
-    },
-    {
-      id: 'transporter',
-      label: selectedTransporter ? selectedTransporter.transportName : 'Transporter',
-      tooltip: 'Filter by transporter',
-      onClick: transporterDialog.onTrue,
-      isSelected: !!selectedTransporter,
-      icon: <Iconify icon="mdi:truck-delivery" />,
-    },
-    {
       id: 'vehicle',
       label: selectedVehicle ? selectedVehicle.vehicleNo : 'Vehicle',
       tooltip: 'Filter by vehicle',
@@ -230,7 +188,7 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
     },
     {
       id: 'pump',
-      label: selectedPump ? selectedPump._id : 'Pump',
+      label: selectedPump ? selectedPump.pumpName : 'Pump',
       tooltip: 'Filter by pump',
       onClick: pumpDialog.onTrue,
       isSelected: !!selectedPump,
@@ -301,14 +259,15 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
 
       {/* Date Range Picker Popover */}
       <CustomDateRangePicker
+        variant="calendar"
         open={dateRangePopover.open}
         onClose={dateRangePopover.onClose}
-        onOk={(startDate, endDate) => {
-          handleFilterDateRange(startDate, endDate);
-          dateRangePopover.onClose();
-        }}
-        startDate={filters.fromDate || null}
-        endDate={filters.endDate || null}
+        startDate={filters.startDate}
+        endDate={filters.endDate}
+        onChangeStartDate={handleFilterStartDate}
+        onChangeEndDate={handleFilterEndDate}
+        selected={dateRangeSelected}
+        error={false}
       />
 
       {/* Expense Type Popover */}
@@ -404,24 +363,6 @@ export default function ExpenseTableFilterBar({ filters, onFilters, onSearch }) 
           onClose={vehicleDialog.onFalse}
           onVehicleChange={handleFilterVehicle}
           selectedVehicle={selectedVehicle?._id || ''}
-        />
-      )}
-
-      {customerDialog.value && (
-        <KanbanCustomerDialog
-          open={customerDialog.value}
-          onClose={customerDialog.onFalse}
-          onCustomerChange={handleFilterCustomer}
-          selectedCustomer={selectedCustomer?._id || ''}
-        />
-      )}
-
-      {transporterDialog.value && (
-        <KanbanTransporterDialog
-          open={transporterDialog.value}
-          onClose={transporterDialog.onFalse}
-          onTransporterChange={handleFilterTransporter}
-          selectedTransporter={selectedTransporter?._id || ''}
         />
       )}
 

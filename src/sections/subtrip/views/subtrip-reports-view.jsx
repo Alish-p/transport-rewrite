@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -38,10 +38,11 @@ import {
 import { transformSubtripsForExcel } from '../utils';
 import { PDFDownloadButton } from '../../../pdfs/common';
 import SubtripTableRow from '../reports/subtrip-table-row';
-import SubtripQuickFilters from '../reports/subtrip-quick-filters';
-import SubtripTableFilters from '../reports/subtrip-table-filter-bar';
-import SubtripTableFiltersResult from '../reports/subtrip-table-filters-result';
-import SubtripTableActions from '../reports/subtrip-table-filter-search-actions';
+import SubtripQuickFilters from '../reports/subtrip-quick-filters-bar';
+import SubtripTableActions from '../reports/subtrip-filter-search-bar';
+import SubtripTableFiltersResult from '../reports/subtrip-filters-result';
+import SubtripTableFilters from '../reports/subtrip-additional-filter-bar';
+import { DEFAULT_FILTERS, isAnyFilterApplied } from '../config/subtrip-reports-filters';
 import {
   TABLE_COLUMNS,
   getDisabledColumns,
@@ -50,21 +51,6 @@ import {
 
 // ----------------------------------------------------------------------
 
-const defaultFilters = {
-  customerId: '',
-  subtripId: '',
-  vehicleNo: '',
-  transportName: '',
-  startFromDate: null,
-  startEndDate: null,
-  ewayExpiryFromDate: null,
-  ewayExpiryEndDate: null,
-  subtripEndFromDate: null,
-  subtripEndEndDate: null,
-  status: [],
-  driverId: '',
-};
-
 // ----------------------------------------------------------------------
 
 export function SubtripReportsView() {
@@ -72,13 +58,10 @@ export function SubtripReportsView() {
   const confirm = useBoolean();
   const router = useRouter();
   const columnsPopover = usePopover();
+  const denseHeight = table.dense ? 56 : 76;
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [searchParams, setSearchParams] = useState(null);
-
-  const [pdfDoc, setPdfDoc] = useState(null);
-  const [pdfGenerating, setPdfGenerating] = useState(false);
-  const pdfDownloadRef = useRef(null);
 
   // Initialize visible columns from config
   const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
@@ -89,18 +72,7 @@ export function SubtripReportsView() {
     ...searchParams,
   });
 
-  const denseHeight = table.dense ? 56 : 76;
-
-  const isFilterApplied =
-    !!filters.vehicleNo ||
-    !!filters.subtripId ||
-    !!filters.transportName ||
-    !!filters.customerId ||
-    !!filters.driverId ||
-    (!!filters.startFromDate && !!filters.startEndDate) ||
-    (!!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate) ||
-    (!!filters.subtripEndFromDate && !!filters.subtripEndEndDate) ||
-    (filters.status && filters.status.length > 0);
+  const isFilterApplied = isAnyFilterApplied(filters);
 
   const notFound = (!tableData.length && isFilterApplied) || !tableData.length;
 
@@ -109,14 +81,14 @@ export function SubtripReportsView() {
 
     // If reset action, reset all filters
     if (name === 'reset') {
-      setFilters(defaultFilters);
+      setFilters(DEFAULT_FILTERS);
       return;
     }
 
     // Handle batch filter updates from quick filters
     if (name === 'batch') {
       const newFilters = {
-        ...defaultFilters,
+        ...DEFAULT_FILTERS,
         ...value,
       };
 
@@ -163,7 +135,7 @@ export function SubtripReportsView() {
   };
 
   const handleResetFilters = () => {
-    setFilters(defaultFilters);
+    setFilters(DEFAULT_FILTERS);
     setSearchParams(null);
   };
 
@@ -182,20 +154,6 @@ export function SubtripReportsView() {
         return acc;
       }, {})
     );
-  };
-
-  const handleGeneratePdf = async () => {
-    setPdfGenerating(true);
-    const visibleCols = getVisibleColumnsForExport();
-    const { default: SubtripListPdf } = await import('src/pdfs/subtrip-list-pdf');
-    const doc = <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
-    setPdfDoc(doc);
-    setPdfGenerating(false);
-
-    // Wait a tick and programmatically click download
-    setTimeout(() => {
-      pdfDownloadRef.current?.click();
-    }, 0);
   };
 
   // Filter the table head based on visible columns

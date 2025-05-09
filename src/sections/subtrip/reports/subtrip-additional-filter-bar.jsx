@@ -46,7 +46,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const startDateRangePopover = usePopover();
   const ewayDateRangePopover = usePopover();
   const endDateRangePopover = usePopover();
-
   const statusPopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
@@ -75,7 +74,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
 
   const handleFilterDispatchStartDate = useCallback(
     (newValue) => {
-      console.log({ newValue });
       onFilters('startFromDate', newValue);
     },
     [onFilters]
@@ -83,7 +81,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
 
   const handleFilterDispatchEndDate = useCallback(
     (newValue) => {
-      console.log({ newValue });
       onFilters('startEndDate', newValue);
     },
     [onFilters]
@@ -113,13 +110,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const handleFilterSubtripStartDate = useCallback(
     (newValue) => {
       onFilters('subtripEndFromDate', newValue);
-    },
-    [onFilters]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event) => {
-      onFilters('status', event.target.value);
     },
     [onFilters]
   );
@@ -301,43 +291,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
         </MenuList>
       </Popover>
 
-      <CustomDateRangePicker
-        title="Select dispatch date range"
-        startDate={filters.startFromDate}
-        endDate={filters.startEndDate}
-        onChangeStartDate={handleFilterDispatchStartDate}
-        onChangeEndDate={handleFilterDispatchEndDate}
-        open={startDateRangePopover.open}
-        onClose={startDateRangePopover.onClose}
-        selected={startDateRangeSelected}
-        error={false}
-      />
-
-      <CustomDateRangePicker
-        title="Select e-way expiry date range"
-        startDate={filters.ewayExpiryFromDate}
-        endDate={filters.ewayExpiryEndDate}
-        onChangeStartDate={handleFilterEwayStartDate}
-        onChangeEndDate={handleFilterEwayEndDate}
-        open={ewayDateRangePopover.open}
-        onClose={ewayDateRangePopover.onClose}
-        selected={ewayDateRangeSelected}
-        error={false}
-      />
-
-      <CustomDateRangePicker
-        variant="calendar"
-        title="Select end date range"
-        startDate={filters.subtripEndFromDate}
-        endDate={filters.subtripEndEndDate}
-        onChangeStartDate={handleFilterSubtripStartDate}
-        onChangeEndDate={handleFilterSubtripEndDate}
-        open={endDateRangePopover.open}
-        onClose={endDateRangePopover.onClose}
-        selected={endDateRangeSelected}
-        error={false}
-      />
-
       <KanbanVehicleDialog
         open={vehicleDialog.value}
         onClose={vehicleDialog.onFalse}
@@ -364,6 +317,45 @@ export default function SubtripTableFilters({ filters, onFilters }) {
         onClose={transporterDialog.onFalse}
         selectedTransporter={selectedTransporter}
         onTransporterChange={handleFilterTransporter}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        title="Select dispatch date range"
+        startDate={filters.startFromDate}
+        endDate={filters.startEndDate}
+        onChangeStartDate={handleFilterDispatchStartDate}
+        onChangeEndDate={handleFilterDispatchEndDate}
+        open={startDateRangePopover.open}
+        onClose={startDateRangePopover.onClose}
+        selected={startDateRangeSelected}
+        error={false}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        title="Select e-way expiry date range"
+        startDate={filters.ewayExpiryFromDate}
+        endDate={filters.ewayExpiryEndDate}
+        onChangeStartDate={handleFilterEwayStartDate}
+        onChangeEndDate={handleFilterEwayEndDate}
+        open={ewayDateRangePopover.open}
+        onClose={ewayDateRangePopover.onClose}
+        selected={ewayDateRangeSelected}
+        error={false}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        title="Select end date range"
+        startDate={filters.subtripEndFromDate}
+        endDate={filters.subtripEndEndDate}
+        onChangeStartDate={handleFilterSubtripStartDate}
+        onChangeEndDate={handleFilterSubtripEndDate}
+        open={endDateRangePopover.open}
+        onClose={endDateRangePopover.onClose}
+        selected={endDateRangeSelected}
+        error={false}
       />
     </Box>
   );

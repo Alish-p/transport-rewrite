@@ -1,0 +1,56 @@
+export const EXPENSE_CATEGORY_COLORS = {
+  subtrip: 'primary',
+  vehicle: 'secondary',
+};
+
+export const subtripExpenseTypes = [
+  { label: 'Diesel', value: 'diesel', icon: 'mdi:gas-station' },
+  { label: 'Adblue', value: 'adblue', icon: 'mdi:water' },
+  { label: 'Trip Advance', value: 'trip-advance', icon: 'mdi:cash-fast' },
+  { label: 'Driver Salary', value: 'driver-salary', icon: 'mdi:wallet' },
+  { label: 'Extra Advance', value: 'trip-extra-advance', icon: 'mdi:cash-plus' },
+  { label: 'Tyre Puncher', value: 'puncher', icon: 'mdi:car-tire-alert' },
+  { label: 'Tyre Expense', value: 'tyre-expense', icon: 'solar:wheel-bold-duotone' },
+  { label: 'Police', value: 'police', icon: 'mdi:police-badge' },
+  { label: 'RTO', value: 'rto', icon: 'mdi:office-building' },
+  { label: 'Toll', value: 'toll', icon: 'mdi:gate' },
+  { label: 'Vehicle Repair', value: 'vehicle-repair', icon: 'mdi:car-wrench' },
+  { label: 'Other', value: 'other', icon: 'mdi:dots-horizontal' },
+];
+
+export const vehicleExpenseTypes = [
+  { label: 'Insurance', value: 'insurance' },
+  { label: 'Permit', value: 'permit' },
+  { label: 'Passing', value: 'passing' },
+  { label: 'Tyre', value: 'tyre' },
+  { label: 'Major Repair', value: 'major-repair' },
+  { label: 'Fitness Certificate', value: 'fitness-certificate' },
+  { label: 'Over-Load Fees', value: 'over-load-fees' },
+  { label: 'Other', value: 'other' },
+];
+
+export const SUBTRIP_EXPENSE_TYPES = {
+  DIESEL: 'diesel',
+  ADBLUE: 'adblue',
+  DRIVER_SALARY: 'driver-salary',
+  DRIVER_ADVANCE: 'trip-advance',
+  EXTRA_ADVANCE: 'trip-extra-advance',
+  TYRE_PUNCHER: 'puncher',
+  TYRE_EXPENSE: 'tyre-expense',
+  POLICE: 'police',
+  RTO: 'rto',
+  TOLL: 'toll',
+  VEHICLE_REPAIR: 'vehicle-repair',
+  OTHER: 'other',
+};
+
+export const VEHICLE_EXPENSE_TYPES = {
+  INSURANCE: 'insurance',
+  PERMIT: 'permit',
+  PASSING: 'passing',
+  TYRE: 'tyre',
+  MAJOR_REPAIR: 'major-repair',
+  FITNESS_CERTIFICATE: 'fitness-certificate',
+  OVER_LOAD_FEES: 'over-load-fees',
+  OTHER: 'other',
+};

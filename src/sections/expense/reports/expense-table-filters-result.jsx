@@ -3,61 +3,42 @@ import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useTrips } from 'src/query/use-trip';
 import { useVehicles } from 'src/query/use-vehicle';
 import { useSubtrips } from 'src/query/use-subtrip';
-import { useCustomers } from 'src/query/use-customer';
-import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
+import { usePumps } from '../../../query/use-pump';
+
+// const defaultFilters = {
+//   tripId: '',
+//   subtripId: '',
+//   vehicleId: '',
+//   startDate: null,
+//   endDate: null,
+//   expenseType: [],
+//   expenseCategory: '',
+//   pumpCd: '',
+//   paidThrough: '',
+// };
+
 // ----------------------------------------------------------------------
 
-export default function ExpenseTableFiltersResult({
-  filters,
-  onFilters,
-  onResetFilters,
-  onClearQuickFilter,
-  results,
-  ...other
-}) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+export default function ExpenseTableFiltersResult({ filters, onFilters, onResetFilters }) {
+  console.log({ filters });
 
-  const canReset =
-    !!filters.vehicleNo ||
-    !!filters.expenseId ||
-    !!filters.transportName ||
-    !!filters.customerId ||
-    !!filters.subtripId ||
-    !!filters.tripId ||
-    !!filters.pumpName ||
-    !!filters.expenseCategory ||
-    (Array.isArray(filters.expenseType) && filters.expenseType.length > 0) ||
-    (!!filters.fromDate && !!filters.endDate);
-
-  const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
-  const { data: transporters = [] } = useTransporters();
   const { data: subtrips = [] } = useSubtrips();
   const { data: trips = [] } = useTrips();
-
-  const handleRemoveCustomer = () => {
-    onFilters('customerId', '');
-  };
-
-  const handleRemoveTransport = () => {
-    onFilters('transportName', '');
-  };
+  const { data: pumps = [] } = usePumps();
 
   const handleRemoveVehicleNo = () => {
-    onFilters('vehicleNo', '');
+    onFilters('vehicleId', '');
   };
 
   const handleRemoveExpenseId = () => {
@@ -65,7 +46,7 @@ export default function ExpenseTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
+    onFilters('startDate', null);
     onFilters('endDate', null);
   };
 
@@ -82,7 +63,7 @@ export default function ExpenseTableFiltersResult({
   };
 
   const handleRemovePump = () => {
-    onFilters('pumpName', '');
+    onFilters('pumpCd', '');
   };
 
   const handleRemoveCategory = () => {
@@ -91,25 +72,16 @@ export default function ExpenseTableFiltersResult({
 
   const handleClearAll = () => {
     onResetFilters();
-    // Also clear any selected quick filter
-    if (onClearQuickFilter) {
-      onClearQuickFilter();
-    }
-  };
-
-  const getCustomerName = (id) => {
-    const customer = customers.find((c) => c._id === id);
-    return customer?.customerName || id;
-  };
-
-  const getTransporterName = (id) => {
-    const transporter = transporters.find((t) => t._id === id);
-    return transporter?.transportName || id;
   };
 
   const getVehicleNumber = (id) => {
     const vehicle = vehicles.find((v) => v._id === id);
     return vehicle?.vehicleNo || id;
+  };
+
+  const getPumpName = (id) => {
+    const pump = pumps.find((p) => p._id === id);
+    return pump?.pumpName || id;
   };
 
   const getSubtripId = (id) => {
@@ -133,10 +105,10 @@ export default function ExpenseTableFiltersResult({
     }
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const shortLabel = fDateRangeShortLabel(filters.startDate, filters.endDate);
 
   return (
-    <Stack spacing={1.5} {...other}>
+    <Stack spacing={1.5}>
       <Box sx={{ width: '100%' }}>
         <Scrollbar>
           <Stack
@@ -150,31 +122,11 @@ export default function ExpenseTableFiltersResult({
               minWidth: 'min-content',
             }}
           >
-            {filters.customerId && (
-              <Block label="Customer">
-                <Chip
-                  size="small"
-                  label={getCustomerName(filters.customerId)}
-                  onDelete={handleRemoveCustomer}
-                />
-              </Block>
-            )}
-
-            {filters.transportName && (
-              <Block label="Transporter">
-                <Chip
-                  size="small"
-                  label={getTransporterName(filters.transportName)}
-                  onDelete={handleRemoveTransport}
-                />
-              </Block>
-            )}
-
-            {filters.vehicleNo && (
+            {filters.vehicleId && (
               <Block label="Vehicle No:">
                 <Chip
                   size="small"
-                  label={getVehicleNumber(filters.vehicleNo)}
+                  label={getVehicleNumber(filters.vehicleId)}
                   onDelete={handleRemoveVehicleNo}
                 />
               </Block>
@@ -202,9 +154,13 @@ export default function ExpenseTableFiltersResult({
               </Block>
             )}
 
-            {filters.pumpName && (
+            {filters.pumpCd && (
               <Block label="Pump:">
-                <Chip size="small" label={filters.pumpName} onDelete={handleRemovePump} />
+                <Chip
+                  size="small"
+                  label={getPumpName(filters.pumpCd)}
+                  onDelete={handleRemovePump}
+                />
               </Block>
             )}
 
@@ -218,7 +174,7 @@ export default function ExpenseTableFiltersResult({
               </Block>
             )}
 
-            {filters.fromDate && filters.endDate && (
+            {filters.startDate && filters.endDate && (
               <Block label="Date:">
                 <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
               </Block>
