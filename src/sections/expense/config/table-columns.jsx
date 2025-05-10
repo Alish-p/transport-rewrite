@@ -3,12 +3,12 @@ import { Stack, Typography, ListItemText } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
-import { Iconify } from '../../../components/iconify';
-import { fCurrency } from '../../../utils/format-number';
 import { subtripExpenseTypes, EXPENSE_CATEGORY_COLORS } from './constants';
 
 export const TABLE_COLUMNS = [
@@ -35,7 +35,7 @@ export const TABLE_COLUMNS = [
     id: 'tripId',
     label: 'Trip No',
     defaultVisible: true,
-    disabled: true,
+    disabled: false,
     getter: (row) => row?.tripId?._id || '-',
     render: (value) => (
       <RouterLink
@@ -70,7 +70,7 @@ export const TABLE_COLUMNS = [
     id: 'expenseType',
     label: 'Expense Type',
     defaultVisible: true,
-    disabled: false,
+    disabled: true,
     getter: (row) => row?.expenseType || '-',
     render: (value) => (
       <Stack direction="row" alignItems="center" spacing={1}>
@@ -88,14 +88,17 @@ export const TABLE_COLUMNS = [
     id: 'amount',
     label: 'Amount',
     defaultVisible: true,
-    disabled: false,
+    type: 'number',
+    disabled: true,
     getter: (row) => (row?.amount ? fCurrency(row?.amount) : '-'),
+    align: 'center',
   },
   {
     id: 'remarks',
     label: 'Remarks',
     defaultVisible: true,
     disabled: false,
+    align: 'center',
     getter: (row) => row?.remarks || '-',
   },
   {
@@ -104,6 +107,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.dieselLtr || '-',
+    align: 'center',
   },
   {
     id: 'paidThrough',
@@ -111,6 +115,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     getter: (row) => row?.paidThrough || '-',
+    align: 'center',
   },
   {
     id: 'date',
@@ -138,6 +143,7 @@ export const TABLE_COLUMNS = [
     label: 'Expense Category',
     defaultVisible: false,
     disabled: false,
+    align: 'center',
     getter: (row) => row?.expenseCategory || '-',
     render: (value) => (
       <Label variant="soft" color={EXPENSE_CATEGORY_COLORS[value] || 'default'}>
@@ -150,6 +156,7 @@ export const TABLE_COLUMNS = [
     label: 'Pump Code',
     defaultVisible: false,
     disabled: false,
+    align: 'center',
     getter: (row) => row?.pumpCd?.pumpName || '-',
   },
 ];

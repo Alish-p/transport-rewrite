@@ -12,6 +12,8 @@ import {
   PDFDeclaration,
 } from 'src/pdfs/common';
 
+import { TABLE_COLUMNS } from 'src/sections/expense/config/table-columns';
+
 // ----------------------------------------------------------------------
 
 Font.register({
@@ -19,22 +21,31 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function ExpenseListPdf({ expenses }) {
+export default function ExpenseListPdf({ expenses, visibleColumns = [] }) {
   const renderExpenseTable = () => {
-    const headers = ['S.No', 'Category', 'Vehicle', 'Subtrip', 'Type', 'Remarks', 'Date', 'Amount'];
+    // Filter columns to include only the visible ones
+    const columnsToShow = TABLE_COLUMNS.filter((col) => visibleColumns.includes(col.id));
+
+    const headers = ['S.No', ...columnsToShow.map((col) => col.label)];
 
     const data = expenses.map((expense, index) => [
       index + 1,
-      expense.expenseCategory,
-      expense.vehicleId?.vehicleNo,
-      expense.subtripId?._id || 'N/A',
-      expense.expenseType,
-      expense.remarks,
-      expense.date ? fDate(expense.date) : '',
-      expense.amount,
+      ...columnsToShow.map((col) => col.getter(expense) || ''),
     ]);
 
-    const columnWidths = [1, 1, 1, 1, 1, 2, 1, 1];
+    // Optional total row (only for numeric values)
+    const totals = ['Total'];
+    columnsToShow.forEach((col) => {
+      const isNumeric = expenses.every((e) => typeof col.getter(e) === 'number');
+      const totalValue = isNumeric
+        ? expenses.reduce((sum, e) => sum + (col.getter(e) || 0), 0)
+        : '';
+      totals.push(totalValue);
+    });
+
+    data.push(totals);
+
+    const columnWidths = new Array(headers.length).fill(1); // equal width columns
 
     return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
   };
