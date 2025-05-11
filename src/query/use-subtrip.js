@@ -153,7 +153,7 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
   });
 }
 
-export function useClosedSubtripsByTransporterAndDate(
+export function useFetchSubtripsForTransporterBilling(
   transporterId,
   periodStartDate,
   periodEndDate
@@ -359,4 +359,19 @@ export function useCloseEmptySubtrip() {
     },
   });
   return mutateAsync;
+}
+
+const getSubtripsByTransporter = async ({ queryKey }) => {
+  const [, , { startDate, endDate }] = queryKey;
+  console.log({ startDate, endDate });
+  const { data } = await axios.post(`${ENDPOINT}/by-transporter`, { startDate, endDate });
+  return data;
+};
+
+export function useSubtripsByTransporter(startDate, endDate) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'by-transporter', { startDate, endDate }],
+    queryFn: getSubtripsByTransporter,
+    enabled: !!startDate && !!endDate,
+  });
 }

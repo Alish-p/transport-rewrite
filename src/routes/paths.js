@@ -211,6 +211,7 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/transporterPayment/list`,
       details: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}/edit`,
+      bulkCreate: `${ROOTS.DASHBOARD}/transporterPayment/bulk-create`,
     },
   },
 };

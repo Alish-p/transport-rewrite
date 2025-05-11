@@ -1,160 +1,132 @@
-import { z as zod } from 'zod';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { Stack, Alert } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
-
-import { usePendingLoans } from 'src/query/use-loan';
-import { useClosedSubtripsByTransporterAndDate } from 'src/query/use-subtrip';
 import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 
-import { Form, schemaHelper } from 'src/components/hook-form';
-
+import { schemaHelper } from '../../components/hook-form';
 import TransporterPaymentForm from './transporter-payment-form';
-import TransporterPaymentPreview from './transport-payment-preview';
+import TransporterPaymentPreview from './transporter-payment-preview';
 
-// TransporterPayment Schema (Make sure this matches database schema)
-export const TransporterPaymentSchema = zod
-  .object({
-    _id: zod.string().optional(),
-    transporterId: zod.string().min(1),
-    status: zod.string().optional(),
-    createdDate: schemaHelper
-      .date({ message: { required_error: 'Create date is required!' } })
-      .optional(),
-    dueDate: schemaHelper.date({ message: { required_error: 'Due date is required!' } }).optional(),
-    fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-    toDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
-    associatedSubtrips: zod.array(zod.string().min(1)).optional(),
-    selectedLoans: zod.array(zod.string().min(1)).optional(),
-  })
-  .refine((data) => !fIsAfter(data.fromDate, data.toDate), {
-    message: 'To-date cannot be earlier than From date!',
-    path: ['toDate'],
-  });
+// Define the transporter payment schema
+const TransporterPaymentSchema = z.object({
+  transporterId: z.string().min(1, 'Transporter is required'),
+  billingPeriod: z
+    .object({
+      start: schemaHelper.date({
+        required_error: 'Start date is required',
+      }),
+      end: schemaHelper.date({
+        required_error: 'End date is required',
+      }),
+    })
+    .refine(
+      (data) => {
+        if (!data.start || !data.end) return true;
+        return (
+          dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start))
+        );
+      },
+      {
+        message: 'End date must be after or equal to start date',
+        path: ['end'],
+      }
+    ),
+  subtripIds: z
+    .array(z.string())
+    .min(1, 'At least one subtrip must be selected')
+    .max(100, 'Maximum 100 subtrips can be selected at once'),
+});
 
-// Form values and api to create will have ids only
-// draft transporterPayment object and api call to fetch will have ids and values
-
+// Parent Component
 export default function TransporterPaymentFormAndPreview({ transporterList }) {
   const navigate = useNavigate();
   const createTransporterPayment = useCreateTransporterPayment();
 
-  const defaultValues = useMemo(
-    () => ({
-      _id: '',
-      transporterId: '',
-      status: '',
-      createdDate: new Date(),
-      fromDate: getFirstDayOfCurrentMonth(),
-      toDate: new Date(),
-      dueDate: new Date(),
-      associatedSubtrips: [],
-      selectedLoans: [],
-    }),
-    []
-  );
-
   const methods = useForm({
     resolver: zodResolver(TransporterPaymentSchema),
-    defaultValues,
-    mode: 'all',
+    defaultValues: {
+      transporterId: '',
+      billingPeriod: {
+        start: dayjs().startOf('month'),
+        end: dayjs(),
+      },
+      subtripIds: [],
+    },
+    mode: 'onChange',
   });
 
   const {
     handleSubmit,
-    watch,
-    formState: { isSubmitting, errors },
+    formState: { isValid, isSubmitting, errors },
+    setError,
   } = methods;
 
-  const {
-    associatedSubtrips,
-    transporterId: selectedTransporterID,
-    createdDate,
-    dueDate,
-    selectedLoans,
-    fromDate,
-    toDate,
-  } = watch();
-
-  const { data: allSubTripsByTransporter, refetch } = useClosedSubtripsByTransporterAndDate(
-    selectedTransporterID,
-    fromDate,
-    toDate
-  );
-
-  // This callback will be passed to the child button
-  const handleFetchSubtrips = () => {
-    if (selectedTransporterID && fromDate && toDate) {
-      refetch();
-    }
-  };
-
-  const { data: pendingLoans } = usePendingLoans({
-    borrowerType: 'Transporter',
-    borrowerId: selectedTransporterID,
-  });
-
-  // Construct the draftTransporterPayment object for the preview
-  const draftTransporterPayment = useMemo(() => {
-    const selectedTransporter = transporterList.find(
-      (transporter) => transporter._id === selectedTransporterID
-    );
-    return {
-      // Match your database schema names:
-      associatedSubtrips: allSubTripsByTransporter?.filter((st) =>
-        associatedSubtrips.includes(st._id)
-      ),
-      selectedLoans: pendingLoans?.filter((loan) => selectedLoans.includes(loan._id)),
-      transporterId: selectedTransporter || {},
-      status: 'draft',
-      createdDate: createdDate || new Date(),
-      dueDate: dueDate || null,
-    };
-  }, [
-    transporterList,
-    allSubTripsByTransporter,
-    pendingLoans,
-    createdDate,
-    dueDate,
-    selectedTransporterID,
-    associatedSubtrips,
-    selectedLoans,
-  ]);
-
-  // Handle form submission (create or update)
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      const createdTransporterPayment = await createTransporterPayment(draftTransporterPayment);
-      navigate(paths.dashboard.transporterPayment.details(createdTransporterPayment._id));
+      // Additional security checks
+      if (
+        !data.transporterId ||
+        !data.billingPeriod?.start ||
+        !data.billingPeriod?.end ||
+        !data.subtripIds?.length
+      ) {
+        setError('root', {
+          type: 'manual',
+          message: 'Please complete all required fields',
+        });
+        return;
+      }
+
+      // Validate date range
+      if (dayjs(data.billingPeriod.end).isBefore(dayjs(data.billingPeriod.start))) {
+        setError('billingPeriod.end', {
+          type: 'manual',
+          message: 'End date must be after start date',
+        });
+        return;
+      }
+
+      const createdPayment = await createTransporterPayment(data);
+      navigate(paths.dashboard.transporterPayment.details(createdPayment._id));
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Failed to create transporter payment', error);
+      setError('root', {
+        type: 'manual',
+        message: error.message || 'Failed to create transporter payment. Please try again.',
+      });
     }
   };
 
   return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <TransporterPaymentForm
-        transportersList={transporterList}
-        loans={pendingLoans}
-        filteredSubtrips={allSubTripsByTransporter}
-        onFetchSubtrips={handleFetchSubtrips}
-      />
-
-      <TransporterPaymentPreview transporterPayment={draftTransporterPayment} />
-
-      <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
-        <LoadingButton type="submit" size="large" variant="contained" loading={isSubmitting}>
-          Create Payment
-        </LoadingButton>
-      </Stack>
-    </Form>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {errors.root && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errors.root.message}
+          </Alert>
+        )}
+        <TransporterPaymentForm transporterList={transporterList} />
+        <TransporterPaymentPreview transporterList={transporterList} />
+        <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
+          <LoadingButton
+            type="submit"
+            size="large"
+            variant="contained"
+            disabled={!isValid}
+            loading={isSubmitting}
+          >
+            Create Payment
+          </LoadingButton>
+        </Stack>
+      </form>
+    </FormProvider>
   );
 }

@@ -116,6 +116,9 @@ const TransporterPaymentCreatePage = lazy(
 const TransporterPaymentEditPage = lazy(
   () => import('src/pages/dashboard/transporter-payment/edit')
 );
+const BulkTransporterPaymentCreatePage = lazy(
+  () => import('src/pages/dashboard/transporter-payment/bulk-create')
+);
 
 // User
 const UserDetailPage = lazy(() => import('src/pages/dashboard/user/details'));
@@ -906,6 +909,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="transporterPayment" action="create" hasContent>
                 <TransporterPaymentCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'bulk-create',
+            element: (
+              <PermissionBasedGuard resource="transporterPayment" action="create" hasContent>
+                <BulkTransporterPaymentCreatePage />
               </PermissionBasedGuard>
             ),
           },
