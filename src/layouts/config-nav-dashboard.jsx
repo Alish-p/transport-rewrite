@@ -303,6 +303,11 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.transporterPayment.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.transporterPayment.new, action: 'create' },
+          {
+            title: 'Bulk Create',
+            path: paths.dashboard.transporterPayment.bulkCreate,
+            action: 'create',
+          },
         ],
       },
     ],

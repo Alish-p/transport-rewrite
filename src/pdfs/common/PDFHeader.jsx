@@ -6,10 +6,9 @@ import { CONFIG } from 'src/config-global';
 import PDFStyles from './styles';
 
 export default function PDFHeader({
-  logoPath = '/logo/company-logo-1.png',
+  logoPath = '/logo/company-logo-main.png',
   company = CONFIG.company,
-  showContactInfo = true,
-  logoSize = 50,
+  logoSize = 72,
 }) {
   const { name, tagline, address, email, website, contacts } = company;
 
@@ -18,8 +17,7 @@ export default function PDFHeader({
       {/* Grid Container */}
       <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
         {/* Logo Section */}
-        <View style={[showContactInfo ? PDFStyles.col1 : PDFStyles.col2, PDFStyles.alignCenter]}>
-          {/* Uncomment logo if needed */}
+        <View style={[PDFStyles.col2, PDFStyles.alignCenter]}>
           <Image
             src={logoPath}
             style={{ width: logoSize, height: logoSize, objectFit: 'contain' }}
@@ -27,7 +25,7 @@ export default function PDFHeader({
         </View>
 
         {/* Company Info */}
-        <View style={[showContactInfo ? PDFStyles.col6 : PDFStyles.col10]}>
+        <View style={[PDFStyles.col6]}>
           <Text style={[PDFStyles.companyName]}>{name}</Text>
           <Text style={[PDFStyles.companyTagline, PDFStyles.mb4]}>{tagline}</Text>
           <Text style={[PDFStyles.companyAddress]}>{address.line1}</Text>
@@ -37,15 +35,13 @@ export default function PDFHeader({
         </View>
 
         {/* Contact Info */}
-        {showContactInfo && (
-          <View style={[PDFStyles.col3, PDFStyles.contactSection, PDFStyles.borderLeft]}>
-            <View style={[PDFStyles.flexColumn, PDFStyles.p8]}>
-              <ContactRow label="Mobile" value={contacts?.[0]} />
-              <ContactRow label="Email" value={email} />
-              <ContactRow label="Website" value={website} />
-            </View>
+        <View style={[PDFStyles.col4, PDFStyles.contactSection, PDFStyles.borderLeft]}>
+          <View style={[PDFStyles.flexColumn, PDFStyles.p8]}>
+            <ContactRow label="Mobile" value={contacts?.[0]} />
+            <ContactRow label="Email" value={email} />
+            <ContactRow label="Website" value={website} />
           </View>
-        )}
+        </View>
       </View>
     </View>
   );

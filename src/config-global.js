@@ -26,6 +26,13 @@ export const CONFIG = {
       line2: 'Dist: BagalKot',
       state: 'Karnataka',
     },
+    bankDetails: {
+      name: 'HDFC BANK LIMITED',
+      accountNumber: '22262320000058',
+      ifsc: 'HDFC0002226',
+    },
+    panNo: 'AVEPS8011L',
+    gstin: '29AVEPS8011L2Z3',
     state: 'Karnataka',
     email: 'shree.enterprises34064@gmail.com',
     website: 'www.shreeenterprises.biz',

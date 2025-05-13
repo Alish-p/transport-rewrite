@@ -38,7 +38,7 @@ function RenderHeader({ loan }) {
       <Box
         component="img"
         alt="logo"
-        src="/logo/company-logo-green.png"
+        src="/logo/company-logo-main.png"
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
