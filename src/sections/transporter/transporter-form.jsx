@@ -7,7 +7,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  MenuItem,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -20,6 +30,7 @@ import { useCreateTransporter, useUpdateTransporter } from 'src/query/use-transp
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
+import { STATES } from '../customer/config';
 import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
@@ -28,6 +39,7 @@ export const NewTransporterSchema = zod.object({
   transportName: zod.string().min(1, { message: 'Transport Name is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
   place: zod.string(),
+  state: zod.string().min(1, { message: 'State is required' }),
   pinNo: zod.string().min(1, { message: 'Pin No is required' }),
   cellNo: schemaHelper.phoneNumber({
     message: {
@@ -50,6 +62,7 @@ export const NewTransporterSchema = zod.object({
   panNo: zod.string(),
   gstNo: zod.string(),
   tdsPercentage: zod.number().min(0, { message: 'TDS Percentage is required' }),
+  podCharges: zod.number().min(0, { message: 'POD Charges is required' }),
 
   bankDetails: zod.object({
     name: zod.string().min(1, { message: 'Bank name is required' }),
@@ -80,6 +93,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
       transportName: currentTransporter?.transportName || '',
       address: currentTransporter?.address || '',
       place: currentTransporter?.place || '',
+      state: currentTransporter?.state || '',
       pinNo: currentTransporter?.pinNo || '',
       cellNo: currentTransporter?.cellNo || '',
       ownerName: currentTransporter?.ownerName || '',
@@ -98,6 +112,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
       transportType: currentTransporter?.transportType || '',
       agreementNo: currentTransporter?.agreementNo || '',
       tdsPercentage: currentTransporter?.tdsPercentage || 0,
+      podCharges: currentTransporter?.podCharges || 0,
     }),
     [currentTransporter]
   );
@@ -153,6 +168,15 @@ export default function TransporterForm({ currentTransporter, bankList }) {
           <Field.Text name="transportName" label="Transport Name" required />
           <Field.Text name="address" label="Address" required />
           <Field.Text name="place" label="Place" />
+          <Field.Select name="state" label="State" required>
+            <MenuItem value="">None</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            {STATES.map((state) => (
+              <MenuItem key={state.value} value={state.value}>
+                {state.label}
+              </MenuItem>
+            ))}
+          </Field.Select>
           <Field.Text name="pinNo" label="Pin No" required />
           <Field.Text
             name="cellNo"
@@ -239,6 +263,15 @@ export default function TransporterForm({ currentTransporter, bankList }) {
             type="number"
             InputProps={{
               endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+          />
+          <Field.Text
+            name="podCharges"
+            label="POD Charges"
+            required
+            type="number"
+            InputProps={{
+              endAdornment: <InputAdornment position="end">₹ / Subtrip</InputAdornment>,
             }}
           />
         </Box>
