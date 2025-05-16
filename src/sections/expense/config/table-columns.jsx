@@ -125,10 +125,10 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.date) || '-',
     type: 'date',
     align: 'center',
-    render: (value) => (
+    render: (value, row) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={fDate(new Date(row?.date))}
+        secondary={fTime(new Date(row?.date))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
