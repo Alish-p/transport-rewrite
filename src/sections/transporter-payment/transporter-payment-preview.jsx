@@ -1,3 +1,4 @@
+// 📦 Updated TransporterPaymentPreview.js (adds Totals, GST, Additional Charges)
 import { useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -16,20 +17,19 @@ import {
   TableContainer,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 import { useFetchSubtripsForTransporterBilling } from 'src/query/use-subtrip';
 
-import { paths } from '../../routes/paths';
-import { RouterLink } from '../../routes/components';
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
-import { calculateTransporterPayment, calculateTransporterPaymentSummary } from '../../utils/utils';
-
-const StyledTableRow = (props) => (
-  <TableRow {...props} sx={{ '& td': { borderBottom: 'none', pt: 1, pb: 1 } }} />
-);
+import {
+  calculateTransporterPayment,
+  calculateTransporterPaymentSummary,
+} from './utils/transporter-payment-calculations';
 
 const StyledTableCell = (props) => <TableCell {...props} sx={{ fontWeight: 'bold' }} />;
 
@@ -65,11 +65,17 @@ function RenderAddress({ title, details }) {
   );
 }
 
-function RenderTable({ associatedSubtrips, selectedTransporter }) {
-  const { netIncome } = calculateTransporterPaymentSummary({
-    associatedSubtrips,
-    transporterId: selectedTransporter,
-  });
+function RenderTable({ subtrips, transporter, additionalCharges = [] }) {
+  const summary = calculateTransporterPaymentSummary(subtrips, transporter, additionalCharges);
+  const {
+    taxBreakup,
+    totalTax,
+    netIncome,
+    totalFreightAmount,
+    totalExpense,
+    totalShortageAmount,
+    totalTripWiseIncome,
+  } = summary;
 
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
@@ -77,76 +83,140 @@ function RenderTable({ associatedSubtrips, selectedTransporter }) {
         <TableHead>
           <TableRow>
             <StyledTableCell>#</StyledTableCell>
-            <StyledTableCell>Vehicle No</StyledTableCell>
-            <StyledTableCell>Consignee</StyledTableCell>
-            <StyledTableCell>Destination</StyledTableCell>
-            <StyledTableCell>Subtrip ID</StyledTableCell>
             <StyledTableCell>Dispatch Date</StyledTableCell>
-            <StyledTableCell>Freight Rate</StyledTableCell>
-            <StyledTableCell>Quantity</StyledTableCell>
-            <StyledTableCell>Total Amount</StyledTableCell>
+            <StyledTableCell>LR No.</StyledTableCell>
+            <StyledTableCell>VEH No</StyledTableCell>
+            <StyledTableCell>From</StyledTableCell>
+            <StyledTableCell>Destination</StyledTableCell>
+            <StyledTableCell>InvoiceNo</StyledTableCell>
+            <StyledTableCell>Load Qty</StyledTableCell>
+            <StyledTableCell>Shortage Qty</StyledTableCell>
+            <StyledTableCell>Shortage Amt</StyledTableCell>
+            <StyledTableCell>FRT-RATE</StyledTableCell>
+            <StyledTableCell>FRT-AMT</StyledTableCell>
+            <StyledTableCell>Expense</StyledTableCell>
+            <StyledTableCell>Total Payable</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {associatedSubtrips.map((st, idx) => {
+          {subtrips.map((st, index) => {
             const {
               effectiveFreightRate,
-              totalFreightAmount,
-              totalExpense,
+              totalFreightAmount: freightAmount,
+              totalExpense: expense,
               totalTransporterPayment,
-              totalShortageAmount,
+              totalShortageAmount: shortageAmount,
             } = calculateTransporterPayment(st);
+
             return (
               <TableRow key={st._id}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
-                <TableCell>{st.consignee}</TableCell>
-                <TableCell>{st.unloadingPoint}</TableCell>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{fDate(st.startDate)}</TableCell>
                 <TableCell>
                   <RouterLink
                     to={paths.dashboard.subtrip.details(st._id)}
-                    style={{
-                      color: '#2e7d32',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                    }}
+                    style={{ color: '#2e7d32', textDecoration: 'underline' }}
                   >
                     {st._id}
                   </RouterLink>
                 </TableCell>
-                <TableCell>{fDate(st.startDate)}</TableCell>
-                <TableCell>{fCurrency(effectiveFreightRate)}</TableCell>
-                <TableCell>
-                  {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
-                </TableCell>
-                <TableCell>{fCurrency(totalTransporterPayment)}</TableCell>
+                <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                <TableCell>{st.loadingPoint}</TableCell>
+                <TableCell>{st.unloadingPoint}</TableCell>
+                <TableCell>{st.invoiceNo}</TableCell>
+                <TableCell align="right">{st.loadingWeight}</TableCell>
+                <TableCell align="right">{st.shortageWeight}</TableCell>
+                <TableCell align="right">{fCurrency(shortageAmount)}</TableCell>
+                <TableCell align="right">{fCurrency(effectiveFreightRate)}</TableCell>
+                <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
+                <TableCell align="right">{fCurrency(expense)}</TableCell>
+                <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
               </TableRow>
             );
           })}
 
-          <StyledTableRow>
-            <TableCell colSpan={7} />
-            <StyledTableCell>Subtotal</StyledTableCell>
-            <TableCell>{fCurrency(netIncome)}</TableCell>
-          </StyledTableRow>
+          <TableRow>
+            <TableCell colSpan={8} />
+            <StyledTableCell sx={{ color: 'info.main' }}>Total</StyledTableCell>
+            <TableCell align="right" sx={{ color: 'info.main' }}>
+              {fCurrency(totalShortageAmount)}
+            </TableCell>
+            <TableCell align="right">-</TableCell>
+            <TableCell align="right" sx={{ color: 'info.main' }}>
+              {fCurrency(totalFreightAmount)}
+            </TableCell>
+            <TableCell align="right" sx={{ color: 'info.main' }}>
+              {fCurrency(totalExpense)}
+            </TableCell>
+            <TableCell align="right" sx={{ color: 'info.main' }}>
+              {fCurrency(totalTripWiseIncome)}
+            </TableCell>
+          </TableRow>
 
-          {selectedTransporter?.tdsPercentage > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={7} />
-              <StyledTableCell>TDS ({selectedTransporter.tdsPercentage}%)</StyledTableCell>
-              <TableCell>
-                {fCurrency(netIncome * (selectedTransporter.tdsPercentage / 100))}
+          {taxBreakup?.cgst?.rate > 0 && (
+            <TableRow>
+              <TableCell colSpan={13} align="right">
+                CGST ({taxBreakup.cgst.rate}%)
               </TableCell>
-            </StyledTableRow>
+              <TableCell sx={{ color: 'error.main' }} align="right">
+                - {fCurrency(taxBreakup.cgst.amount)}
+              </TableCell>
+            </TableRow>
           )}
 
-          <StyledTableRow>
-            <TableCell colSpan={7} />
-            <StyledTableCell>Net Total</StyledTableCell>
-            <TableCell sx={{ color: 'error.main' }}>
-              {fCurrency(netIncome * (1 - (selectedTransporter?.tdsPercentage || 0) / 100))}
+          {taxBreakup?.sgst?.rate > 0 && (
+            <TableRow>
+              <TableCell colSpan={13} align="right">
+                SGST ({taxBreakup.sgst.rate}%)
+              </TableCell>
+              <TableCell sx={{ color: 'error.main' }} align="right">
+                - {fCurrency(taxBreakup.sgst.amount)}
+              </TableCell>
+            </TableRow>
+          )}
+
+          {taxBreakup?.igst?.rate > 0 && (
+            <TableRow>
+              <TableCell colSpan={13} align="right">
+                IGST ({taxBreakup.igst.rate}%)
+              </TableCell>
+              <TableCell sx={{ color: 'error.main' }} align="right">
+                {fCurrency(taxBreakup.igst.amount)}
+              </TableCell>
+            </TableRow>
+          )}
+
+          {taxBreakup?.tds?.rate > 0 && (
+            <TableRow>
+              <TableCell colSpan={13} align="right">
+                TDS ({taxBreakup.tds.rate}%)
+              </TableCell>
+              <TableCell sx={{ color: 'error.main' }} align="right">
+                {fCurrency(taxBreakup.tds.amount)}
+              </TableCell>
+            </TableRow>
+          )}
+
+          {additionalCharges?.length > 0 &&
+            additionalCharges.map(({ label, amount }, i) => (
+              <TableRow key={`ac-${i}`}>
+                <TableCell colSpan={13} align="right">
+                  {label}
+                </TableCell>
+                <TableCell sx={{ color: 'error.main' }} align="right">
+                  {fCurrency(amount)}
+                </TableCell>
+              </TableRow>
+            ))}
+
+          <TableRow>
+            <TableCell colSpan={13} align="right">
+              <strong>Net Total</strong>
             </TableCell>
-          </StyledTableRow>
+            <TableCell align="right" sx={{ color: 'success.main' }}>
+              {fCurrency(netIncome)}
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
@@ -169,22 +239,14 @@ function RenderFooter() {
 }
 
 export default function TransporterPaymentPreview({ transporterList }) {
-  // Watch entire form live!
   const draft = useWatch();
-  const isDirty =
-    draft.transporterId ||
-    draft.billingPeriod?.start ||
-    draft.billingPeriod?.end ||
-    draft.associatedSubtrips?.length > 0;
 
-  // Fetch subtrips data for preview
   const { data: availableSubtrips = [] } = useFetchSubtripsForTransporterBilling(
     draft.transporterId,
     draft.billingPeriod?.start,
     draft.billingPeriod?.end
   );
 
-  // Filter subtrips based on selected IDs
   const previewSubtrips = useMemo(() => {
     if (!draft.associatedSubtrips?.length || !availableSubtrips.length) return [];
     return availableSubtrips.filter((st) => draft.associatedSubtrips.includes(st._id));
@@ -195,9 +257,8 @@ export default function TransporterPaymentPreview({ transporterList }) {
     return transporterList.find((t) => t._id === draft.transporterId);
   }, [draft.transporterId, transporterList]);
 
-  if (!isDirty) {
+  if (!draft.transporterId || !draft.billingPeriod?.start || previewSubtrips.length === 0)
     return null;
-  }
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -230,9 +291,7 @@ export default function TransporterPaymentPreview({ transporterList }) {
               <>
                 {selectedTransporter.transportName}
                 <br />
-                {selectedTransporter.address}
-                <br />
-                {selectedTransporter.place}
+                {selectedTransporter.address}, {selectedTransporter.pinNo}
                 <br />
                 Phone: {selectedTransporter.cellNo}
                 <br />
@@ -244,8 +303,21 @@ export default function TransporterPaymentPreview({ transporterList }) {
           }
         />
       </Box>
-
-      <RenderTable associatedSubtrips={previewSubtrips} selectedTransporter={selectedTransporter} />
+      <RenderTable
+        subtrips={previewSubtrips}
+        transporter={selectedTransporter}
+        additionalCharges={
+          draft.additionalCharges || [
+            {
+              label: 'POD Charges',
+              amount:
+                previewSubtrips?.length > 0
+                  ? previewSubtrips.length * selectedTransporter.podCharges
+                  : 0,
+            },
+          ]
+        }
+      />
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
       <RenderFooter />
     </Card>

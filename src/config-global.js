@@ -42,5 +42,5 @@ export const CONFIG = {
   },
 
   customerInvoiceTax: 6,
-  transporterPaymentTax: 6,
+  transporterInvoiceTax: 6,
 };
