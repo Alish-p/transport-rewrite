@@ -11,7 +11,8 @@ import { paths } from 'src/routes/paths';
 
 import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 
-import { schemaHelper } from '../../components/hook-form';
+import { schemaHelper } from 'src/components/hook-form';
+
 import TransporterPaymentForm from './transporter-payment-form';
 import TransporterPaymentPreview from './transporter-payment-preview';
 
@@ -39,7 +40,7 @@ const TransporterPaymentSchema = z.object({
         path: ['end'],
       }
     ),
-  subtripIds: z
+  associatedSubtrips: z
     .array(z.string())
     .min(1, 'At least one subtrip must be selected')
     .max(100, 'Maximum 100 subtrips can be selected at once'),
@@ -58,7 +59,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
         start: dayjs().startOf('month'),
         end: dayjs(),
       },
-      subtripIds: [],
+      associatedSubtrips: [],
     },
     mode: 'onChange',
   });
@@ -76,7 +77,7 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
         !data.transporterId ||
         !data.billingPeriod?.start ||
         !data.billingPeriod?.end ||
-        !data.subtripIds?.length
+        !data.associatedSubtrips?.length
       ) {
         setError('root', {
           type: 'manual',
@@ -94,7 +95,17 @@ export default function TransporterPaymentFormAndPreview({ transporterList }) {
         return;
       }
 
-      const createdPayment = await createTransporterPayment(data);
+      const selectedTransporter = transporterList?.find((t) => t._id === data.transporterId);
+
+      const createdPayment = await createTransporterPayment({
+        ...data,
+        additionalCharges: [
+          {
+            label: 'POD Charges',
+            amount: data.associatedSubtrips.length * selectedTransporter.podCharges,
+          },
+        ],
+      });
       navigate(paths.dashboard.transporterPayment.details(createdPayment._id));
     } catch (error) {
       console.error('Failed to create transporter payment', error);

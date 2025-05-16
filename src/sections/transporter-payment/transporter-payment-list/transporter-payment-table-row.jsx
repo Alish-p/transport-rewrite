@@ -170,7 +170,14 @@ export default function TransporterPaymentTableRow({
         title="Delete"
         content="Are you sure want to delete?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              confirm.onFalse();
+              onDeleteRow();
+            }}
+          >
             Delete
           </Button>
         }

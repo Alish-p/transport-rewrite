@@ -65,9 +65,9 @@ function RenderAddress({ title, details }) {
   );
 }
 
-function RenderTable({ subtrips, selectedTransporter }) {
+function RenderTable({ associatedSubtrips, selectedTransporter }) {
   const { netIncome } = calculateTransporterPaymentSummary({
-    subtrips,
+    associatedSubtrips,
     transporterId: selectedTransporter,
   });
 
@@ -88,7 +88,7 @@ function RenderTable({ subtrips, selectedTransporter }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {subtrips.map((st, idx) => {
+          {associatedSubtrips.map((st, idx) => {
             const {
               effectiveFreightRate,
               totalFreightAmount,
@@ -175,7 +175,7 @@ export default function TransporterPaymentPreview({ transporterList }) {
     draft.transporterId ||
     draft.billingPeriod?.start ||
     draft.billingPeriod?.end ||
-    draft.subtripIds?.length > 0;
+    draft.associatedSubtrips?.length > 0;
 
   // Fetch subtrips data for preview
   const { data: availableSubtrips = [] } = useFetchSubtripsForTransporterBilling(
@@ -186,9 +186,9 @@ export default function TransporterPaymentPreview({ transporterList }) {
 
   // Filter subtrips based on selected IDs
   const previewSubtrips = useMemo(() => {
-    if (!draft.subtripIds?.length || !availableSubtrips.length) return [];
-    return availableSubtrips.filter((st) => draft.subtripIds.includes(st._id));
-  }, [draft.subtripIds, availableSubtrips]);
+    if (!draft.associatedSubtrips?.length || !availableSubtrips.length) return [];
+    return availableSubtrips.filter((st) => draft.associatedSubtrips.includes(st._id));
+  }, [draft.associatedSubtrips, availableSubtrips]);
 
   const selectedTransporter = useMemo(() => {
     if (!draft.transporterId || !transporterList.length) return null;
@@ -245,7 +245,7 @@ export default function TransporterPaymentPreview({ transporterList }) {
         />
       </Box>
 
-      <RenderTable subtrips={previewSubtrips} selectedTransporter={selectedTransporter} />
+      <RenderTable associatedSubtrips={previewSubtrips} selectedTransporter={selectedTransporter} />
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
       <RenderFooter />
     </Card>

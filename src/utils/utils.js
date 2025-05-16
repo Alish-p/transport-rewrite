@@ -305,3 +305,30 @@ export function getCustomerInvoiceTax(customer) {
     igst: 12,
   };
 }
+
+export function getTransporterTax(transporter) {
+  if (!transporter) {
+    return {
+      cgst: 0,
+      sgst: 0,
+      igst: 0,
+      tds: 0,
+    };
+  }
+
+  if (transporter?.state === CONFIG.company.state) {
+    return {
+      cgst: 6,
+      sgst: 6,
+      igst: 0,
+      tds: transporter?.tdsPercentage,
+    };
+  }
+
+  return {
+    cgst: 0,
+    sgst: 0,
+    igst: 12,
+    tds: transporter?.tdsPercentage,
+  };
+}

@@ -124,6 +124,17 @@ export function TransporterPaymentListView({ payments }) {
     [router]
   );
 
+  const handleDeleteRow = useCallback(
+    (id) => {
+      deleteTransporterPayment(id, {
+        onSuccess: () => {
+          setTableData((prev) => prev.filter((row) => row._id !== id));
+        },
+      });
+    },
+    [deleteTransporterPayment]
+  );
+
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
@@ -257,7 +268,7 @@ export function TransporterPaymentListView({ payments }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteTransporterPayment(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
                       />
                     ))}
 

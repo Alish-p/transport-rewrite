@@ -2,16 +2,7 @@
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import {
-  Card,
-  Grid,
-  Alert,
-  Button,
-  Divider,
-  MenuItem,
-  Typography,
-  FormHelperText,
-} from '@mui/material';
+import { Card, Grid, Alert, Button, FormHelperText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -19,7 +10,6 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useFetchSubtripsForTransporterBilling } from 'src/query/use-subtrip';
 
-import { Field } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
@@ -35,75 +25,26 @@ const FieldWrapper = ({ children, error, md = 3 }) => (
   </Grid>
 );
 
-/** Transporter Dropdown */
-const TransporterDropdown = ({ transportersList }) => (
-  <Field.Select name="transporterId" label="Transporter">
-    <MenuItem value="">None</MenuItem>
-    <Divider sx={{ borderStyle: 'dashed' }} />
-    {transportersList.map((transporter) => (
-      <MenuItem key={transporter._id} value={transporter._id}>
-        {transporter.transportName}
-      </MenuItem>
-    ))}
-  </Field.Select>
-);
-
-/** Subtrips MultiSelect */
-const SubtripsMultiSelect = ({ filteredSubtrips }) =>
-  filteredSubtrips &&
-  filteredSubtrips.length > 0 && (
-    <Field.MultiSelect
-      checkbox
-      name="associatedSubtrips"
-      label="Subtrips"
-      options={filteredSubtrips.map((subtrip) => ({
-        label: subtrip._id,
-        value: subtrip._id,
-      }))}
-      sx={{ width: '100%' }}
-    />
-  );
-
-const RenderRepaymentComponent = ({ loans }) => (
-  <Grid container spacing={1} sx={{ m: 1, p: 1 }} key="index">
-    <Field.MultiCheckbox
-      column
-      name="selectedLoans"
-      label="Loans"
-      options={loans?.map((loan) => ({
-        label: `Total Amount: ₹${loan?.totalAmount} | Installment Amount: ${loan?.installmentAmount} | Remarks: ${loan?.remarks}`,
-        value: loan._id,
-      }))}
-    />
-  </Grid>
-);
-
 /** Main Component */
-export default function TransporterPaymentForm({ transportersList, loans }) {
-  const { control, setValue, getValues, watch, reset } = useFormContext();
+export default function TransporterPaymentForm({ transporterList }) {
+  const { control, setValue, watch, reset } = useFormContext();
 
-  const billingPeriod = getValues('billingPeriod');
-  const subtripIds = getValues('subtripIds');
-  const transporterId = getValues('transporterId');
+  // Watch values for reactive logic
+  const transporterId = watch('transporterId');
+  const billingPeriod = watch('billingPeriod');
+  const associatedSubtrips = watch('associatedSubtrips');
 
-  // Dialogs for selecting
+  const isDirty =
+    transporterId || billingPeriod?.start || billingPeriod?.end || associatedSubtrips?.length > 0;
+
+  const selectedTransporter = transporterList?.find((t) => t._id === transporterId);
+
+  // Dialog states
   const transporterDialog = useBoolean();
   const subtripsDialog = useBoolean();
   const dateRangeDialog = useBoolean();
 
-  const selectedTransporter = transportersList?.find((t) => t._id === transporterId);
-
-  // Watch for changes in transporter and billing period
-  const watchedTransporterId = watch('transporterId');
-  const watchedBillingPeriod = watch('billingPeriod');
-  const watchedSubtripIds = watch('subtripIds');
-  const isDirty =
-    watchedTransporterId ||
-    watchedBillingPeriod?.start ||
-    watchedBillingPeriod?.end ||
-    watchedSubtripIds?.length > 0;
-
-  // Fetch subtrips when transporter and dates are selected
+  // Fetch subtrips
   const {
     data: availableSubtrips = [],
     refetch: fetchSubtrips,
@@ -117,27 +58,17 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
 
   // Auto-fetch subtrips when transporter or billing period changes
   useEffect(() => {
-    if (watchedTransporterId && watchedBillingPeriod?.start && watchedBillingPeriod?.end) {
+    if (transporterId && billingPeriod?.start && billingPeriod?.end) {
       fetchSubtrips();
-      // Reset selected subtrips when transporter or date changes
-      setValue('subtripIds', [], { shouldValidate: true });
+      setValue('associatedSubtrips', [], { shouldValidate: true });
     }
-  }, [
-    watchedTransporterId,
-    watchedBillingPeriod?.start,
-    watchedBillingPeriod?.end,
-    fetchSubtrips,
-    setValue,
-  ]);
+  }, [transporterId, billingPeriod?.start, billingPeriod?.end, fetchSubtrips, setValue]);
 
   const handleReset = () => {
     reset({
       transporterId: '',
-      billingPeriod: {
-        start: null,
-        end: null,
-      },
-      subtripIds: [],
+      billingPeriod: { start: null, end: null },
+      associatedSubtrips: [],
     });
   };
 
@@ -182,7 +113,7 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
           <DialogSelectButton
             placeholder="Select Date Range *"
             selected={
-              billingPeriod.start && billingPeriod.end
+              billingPeriod?.start && billingPeriod?.end
                 ? fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)
                 : 'Select Date Range'
             }
@@ -192,10 +123,11 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
             disabled={isLoadingSubtrips}
           />
           <CustomDateRangePicker
+            variant="calendar"
             open={dateRangeDialog.value}
             onClose={dateRangeDialog.onFalse}
-            startDate={billingPeriod.start}
-            endDate={billingPeriod.end}
+            startDate={billingPeriod?.start}
+            endDate={billingPeriod?.end}
             onChangeStartDate={(date) =>
               setValue('billingPeriod.start', date, { shouldValidate: true })
             }
@@ -207,9 +139,9 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
         </FieldWrapper>
 
         {/* Subtrip Selector */}
-        <FieldWrapper md={6} error={!!control._formState?.errors?.subtripIds}>
+        <FieldWrapper md={6} error={!!control._formState?.errors?.associatedSubtrips}>
           <Controller
-            name="subtripIds"
+            name="associatedSubtrips"
             control={control}
             render={({ field }) => (
               <>
@@ -266,18 +198,6 @@ export default function TransporterPaymentForm({ transportersList, loans }) {
           </FieldWrapper>
         )}
       </Grid>
-
-      {/* Loan Selector */}
-      {loans && loans.length > 0 && transporterId && (
-        <Grid sx={{ my: 2 }}>
-          <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-            These are some pending loans of the transporter. Select the loans to repay.
-          </Typography>
-
-          <RenderRepaymentComponent loans={loans} />
-          <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
-        </Grid>
-      )}
     </Card>
   );
 }

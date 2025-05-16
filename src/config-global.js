@@ -37,7 +37,7 @@ export const CONFIG = {
     email: 'shree.enterprises34064@gmail.com',
     website: 'www.shreeenterprises.biz',
     contacts: ['+91 9448134064', '+91 9448134064', '+91 9448134064'],
-
+    podChargesPerSubtrip: 150,
     transporterCommissionRate: 100,
   },
 

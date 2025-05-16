@@ -16,31 +16,17 @@ import {
   TableContainer,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { getCustomerInvoiceTax } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
-import { paths } from '../../routes/paths';
-import { RouterLink } from '../../routes/components';
-import { getCustomerInvoiceTax } from '../../utils/utils';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
-
-// Some dummy subtrips to simulate preview (you can connect real ones later)
-const dummySubtrips = [
-  {
-    _id: 'st-001',
-    consignee: 'Consignee A',
-    unloadingPoint: 'Location A',
-    vehicleNo: 'GJ01AA1234',
-    startDate: new Date(),
-    loadingWeight: 10,
-    rate: 1500,
-    shortageAmount: 0,
-    tripId: { vehicleId: { vehicleType: 'truck' } },
-  },
-];
 
 const StyledTableRow = (props) => (
   <TableRow {...props} sx={{ '& td': { borderBottom: 'none', pt: 1, pb: 1 } }} />
@@ -196,7 +182,6 @@ function RenderFooter() {
 }
 
 export default function InvoicePreview({ customerList }) {
-  // Watch entire form live!
   const draft = useWatch();
   const isDirty =
     draft.customerId ||

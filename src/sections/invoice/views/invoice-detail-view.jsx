@@ -5,38 +5,23 @@ import { useUpdateInvoiceStatus } from 'src/query/use-invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoicePreview from '../invoice-view';
+import InvoiceView from '../invoice-view';
 import InvoiceToolbar from '../invoice-toolbar';
 
-export const INVOICE_STATUS_OPTIONS = [
+// Available invoice status options
+const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
 ];
 
+// Main component to display invoice details and allow status update
 export function InvoiceDetailView({ invoice }) {
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading={invoice.invoiceNo}
-        links={[
-          { name: 'Dashboard', href: '/dashboard' },
-          { name: 'Invoice', href: '/dashboard/invoice' },
-          { name: invoice.invoiceNo },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-
-      <InvoiceDetailContent invoice={invoice} />
-    </DashboardContent>
-  );
-}
-
-function InvoiceDetailContent({ invoice }) {
   const updateInvoice = useUpdateInvoiceStatus();
 
-  const { invoiceStatus, _id } = invoice;
+  const { invoiceStatus = '', _id, invoiceNo } = invoice;
 
+  // Callback to handle status change from the toolbar dropdown
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
@@ -46,15 +31,28 @@ function InvoiceDetailContent({ invoice }) {
   );
 
   return (
-    <>
+    <DashboardContent>
+      {/* Breadcrumb navigation */}
+      <CustomBreadcrumbs
+        heading={invoiceNo}
+        links={[
+          { name: 'Dashboard', href: '/dashboard' },
+          { name: 'Invoice', href: '/dashboard/invoice' },
+          { name: invoiceNo },
+        ]}
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      {/* Toolbar for status update and action buttons */}
       <InvoiceToolbar
         invoice={invoice}
-        currentStatus={invoiceStatus || ''}
+        currentStatus={invoiceStatus}
         onChangeStatus={handleChangeStatus}
         statusOptions={INVOICE_STATUS_OPTIONS}
       />
 
-      <InvoicePreview invoice={invoice} />
-    </>
+      {/* Invoice display content */}
+      <InvoiceView invoice={invoice} />
+    </DashboardContent>
   );
 }

@@ -134,6 +134,7 @@ export default function InvoiceForm({ customerList }) {
             disabled={isLoadingSubtrips}
           />
           <CustomDateRangePicker
+            variant="calendar"
             open={dateRangeDialog.value}
             onClose={dateRangeDialog.onFalse}
             startDate={billingPeriod.start}
@@ -178,7 +179,6 @@ export default function InvoiceForm({ customerList }) {
                       ? 'Select Subtrips'
                       : 'No subtrips available'}
                 </Button>
-
                 <KanbanSubtripMultiSelectDialog
                   open={subtripsDialog.value}
                   onClose={subtripsDialog.onFalse}

@@ -5,7 +5,7 @@ import { useUpdateTransporterPaymentStatus } from 'src/query/use-transporter-pay
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import TransporterPaymentPreview from '../transport-payment-preview';
+import TransporterPaymentView from '../transporter-payment-view';
 import TransporterPaymentToolbar from '../transporter-payment-toolbar';
 
 export const TRANSPORTER_PAYMENT_OPTIONS = [
@@ -15,7 +15,7 @@ export const TRANSPORTER_PAYMENT_OPTIONS = [
 ];
 
 export function TransporterPaymentDetailView({ transporterPayment }) {
-  const { _id, status } = transporterPayment;
+  const { _id, status, paymentId } = transporterPayment;
 
   const updateTransporterPaymentStatus = useUpdateTransporterPaymentStatus();
 
@@ -29,11 +29,11 @@ export function TransporterPaymentDetailView({ transporterPayment }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={_id}
+        heading={paymentId}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Transporter Payment', href: '/dashboard/transporterPayment' },
-          { name: _id },
+          { name: paymentId },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
@@ -44,7 +44,7 @@ export function TransporterPaymentDetailView({ transporterPayment }) {
         statusOptions={TRANSPORTER_PAYMENT_OPTIONS}
       />
 
-      <TransporterPaymentPreview transporterPayment={transporterPayment} />
+      <TransporterPaymentView transporterPayment={transporterPayment} />
     </DashboardContent>
   );
 }

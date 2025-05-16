@@ -11,9 +11,10 @@ import { paths } from 'src/routes/paths';
 
 import { useCreateInvoice } from 'src/query/use-invoice';
 
+import { schemaHelper } from 'src/components/hook-form';
+
 import InvoiceForm from './invoice-form';
 import InvoicePreview from './invoice-preview';
-import { schemaHelper } from '../../components/hook-form';
 
 // Define the invoice schema with enhanced validation
 const InvoiceSchema = z.object({
@@ -109,7 +110,7 @@ export default function InvoiceFormAndPreview({ customerList }) {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
         {errors.root && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} variant="outlined">
             {errors.root.message}
           </Alert>
         )}

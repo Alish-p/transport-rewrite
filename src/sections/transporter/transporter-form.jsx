@@ -35,48 +35,59 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
-export const NewTransporterSchema = zod.object({
-  transportName: zod.string().min(1, { message: 'Transport Name is required' }),
-  address: zod.string().min(1, { message: 'Address is required' }),
-  place: zod.string(),
-  state: zod.string().min(1, { message: 'State is required' }),
-  pinNo: zod.string().min(1, { message: 'Pin No is required' }),
-  cellNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Mobile No is required',
-      invalid_error: 'Mobile No must be exactly 10 digits',
-    },
-  }),
-  ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  ownerPhoneNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Owner Mobile No is required',
-      invalid_error: 'Owner Mobile No must be exactly 10 digits',
-    },
-  }),
-  emailId: zod
-    .string()
-    .min(1, { message: 'Email ID is required' })
-    .email({ message: 'Email ID must be a valid email' }),
-  paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
-  panNo: zod.string(),
-  gstNo: zod.string(),
-  tdsPercentage: zod.number().min(0, { message: 'TDS Percentage is required' }),
-  podCharges: zod.number().min(0, { message: 'POD Charges is required' }),
-
-  bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Bank name is required' }),
-    branch: zod.string().min(1, { message: 'Branch is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: schemaHelper.accountNumber({
+export const NewTransporterSchema = zod
+  .object({
+    transportName: zod.string().min(1, { message: 'Transport Name is required' }),
+    address: zod.string().min(1, { message: 'Address is required' }),
+    place: zod.string(),
+    state: zod.string().min(1, { message: 'State is required' }),
+    pinNo: zod.string().min(1, { message: 'Pin No is required' }),
+    cellNo: schemaHelper.phoneNumber({
       message: {
-        required_error: 'Account number is required',
-        invalid_error: 'Account number must be between 9 and 18 digits',
+        required_error: 'Mobile No is required',
+        invalid_error: 'Mobile No must be exactly 10 digits',
       },
     }),
-  }),
-});
+    ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
+    ownerPhoneNo: schemaHelper.phoneNumber({
+      message: {
+        required_error: 'Owner Mobile No is required',
+        invalid_error: 'Owner Mobile No must be exactly 10 digits',
+      },
+    }),
+    emailId: zod
+      .string()
+      .min(1, { message: 'Email ID is required' })
+      .email({ message: 'Email ID must be a valid email' }),
+    paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
+    panNo: zod.string(),
+    gstEnabled: zod.boolean(),
+    gstNo: zod.string().optional(),
+    tdsPercentage: zod.number().min(0, { message: 'TDS Percentage is required' }),
+    podCharges: zod.number().min(0, { message: 'POD Charges is required' }),
+
+    bankDetails: zod.object({
+      name: zod.string().min(1, { message: 'Bank name is required' }),
+      branch: zod.string().min(1, { message: 'Branch is required' }),
+      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+      place: zod.string().min(1, { message: 'Place is required' }),
+      accNo: schemaHelper.accountNumber({
+        message: {
+          required_error: 'Account number is required',
+          invalid_error: 'Account number must be between 9 and 18 digits',
+        },
+      }),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.gstEnabled && !data.gstNo) {
+      ctx.addIssue({
+        path: ['gstNo'],
+        code: zod.ZodIssueCode.custom,
+        message: 'GST No is required when GST is enabled',
+      });
+    }
+  });
 
 // ----------------------------------------------------------------------
 
@@ -109,6 +120,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
       paymentMode: currentTransporter?.paymentMode || '',
       panNo: currentTransporter?.panNo || '',
       gstNo: currentTransporter?.gstNo || '',
+      gstEnabled: currentTransporter?.gstEnabled ?? false,
       transportType: currentTransporter?.transportType || '',
       agreementNo: currentTransporter?.agreementNo || '',
       tdsPercentage: currentTransporter?.tdsPercentage || 0,
@@ -255,7 +267,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
         >
           <Field.Text name="paymentMode" label="Payment Mode" required />
           <Field.Text name="panNo" label="PAN No" />
-          <Field.Text name="gstNo" label="GST No" />
+
           <Field.Text
             name="tdsPercentage"
             label="TDS Percentage"
@@ -274,6 +286,16 @@ export default function TransporterForm({ currentTransporter, bankList }) {
               endAdornment: <InputAdornment position="end">₹ / Subtrip</InputAdornment>,
             }}
           />
+          <Field.Switch name="gstEnabled" label="GST Enabled" />
+
+          {values.gstEnabled && (
+            <Field.Text
+              name="gstNo"
+              label="GST No"
+              required
+              helperText="Enter only if GST is enabled"
+            />
+          )}
         </Box>
       </Card>
     </>
