@@ -143,10 +143,10 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.startDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value) => (
+    render: (value, row) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={fDate(new Date(row?.startDate))}
+        secondary={fTime(new Date(row?.startDate))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
@@ -164,10 +164,10 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.endDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value) => (
+    render: (value, row) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={row?.endDate ? fDate(new Date(row?.endDate)) : '-'}
+        secondary={row?.endDate ? fTime(new Date(row?.endDate)) : '-'}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
@@ -185,10 +185,10 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.ewayExpiryDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value) => (
+    render: (value, row) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={row?.ewayExpiryDate ? fDate(new Date(row?.ewayExpiryDate)) : '-'}
+        secondary={row?.ewayExpiryDate ? fTime(new Date(row?.ewayExpiryDate)) : '-'}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
