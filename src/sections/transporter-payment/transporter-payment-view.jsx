@@ -145,13 +145,13 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
-              <TableCell>{st.loadingWeight}</TableCell>
-              <TableCell>{st.shortageWeight}</TableCell>
-              <TableCell>{fCurrency(st.shortageAmount)}</TableCell>
-              <TableCell>{fCurrency(st.effectiveFreightRate)}</TableCell>
-              <TableCell>{fCurrency(st.freightAmount)}</TableCell>
-              <TableCell>{fCurrency(st.totalExpense)}</TableCell>
-              <TableCell>
+              <TableCell align="right">{st.loadingWeight}</TableCell>
+              <TableCell align="right">{st.shortageWeight}</TableCell>
+              <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
+              <TableCell align="right">{fCurrency(st.effectiveFreightRate)}</TableCell>
+              <TableCell align="right">{fCurrency(st.freightAmount)}</TableCell>
+              <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
+              <TableCell align="right">
                 {fCurrency(st.freightAmount - st.totalExpense - st.shortageAmount)}
               </TableCell>
             </TableRow>
@@ -159,19 +159,31 @@ function RenderTable({ transporterPayment }) {
 
           <StyledTableRow>
             <TableCell colSpan={8} />
-            <StyledTableCell sx={{ color: 'info.main' }}>Total</StyledTableCell>
-            <TableCell sx={{ color: 'info.main' }}>{fCurrency(totalShortageAmount)}</TableCell>
-            <TableCell>-</TableCell>
-            <TableCell sx={{ color: 'info.main' }}>{fCurrency(totalFreightAmount)}</TableCell>
-            <TableCell sx={{ color: 'info.main' }}>{fCurrency(totalExpense)}</TableCell>
-            <TableCell sx={{ color: 'info.main' }}>{fCurrency(totalTripWiseIncome)}</TableCell>
+            <StyledTableCell align="right" sx={{ color: 'info.main' }}>
+              Total
+            </StyledTableCell>
+            <TableCell sx={{ color: 'info.main' }} align="right">
+              {fCurrency(totalShortageAmount)}
+            </TableCell>
+            <TableCell align="right">-</TableCell>
+            <TableCell sx={{ color: 'info.main' }} align="right">
+              {fCurrency(totalFreightAmount)}
+            </TableCell>
+            <TableCell sx={{ color: 'info.main' }} align="right">
+              {fCurrency(totalExpense)}
+            </TableCell>
+            <TableCell sx={{ color: 'info.main' }} align="right">
+              {fCurrency(totalTripWiseIncome)}
+            </TableCell>
           </StyledTableRow>
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
               <TableCell colSpan={12} />
               <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
-              <TableCell sx={{ color: 'error.main' }}>{fCurrency(cgst.amount)}</TableCell>
+              <TableCell align="right" sx={{ color: 'error.main' }}>
+                {fCurrency(cgst.amount)}
+              </TableCell>
             </StyledTableRow>
           )}
 
@@ -179,7 +191,9 @@ function RenderTable({ transporterPayment }) {
             <StyledTableRow>
               <TableCell colSpan={12} />
               <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
-              <TableCell sx={{ color: 'error.main' }}>{fCurrency(sgst.amount)}</TableCell>
+              <TableCell align="right" sx={{ color: 'error.main' }}>
+                {fCurrency(sgst.amount)}
+              </TableCell>
             </StyledTableRow>
           )}
 
@@ -187,7 +201,9 @@ function RenderTable({ transporterPayment }) {
             <StyledTableRow>
               <TableCell colSpan={12} />
               <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
-              <TableCell sx={{ color: 'error.main' }}>{fCurrency(igst.amount)}</TableCell>
+              <TableCell align="right" sx={{ color: 'error.main' }}>
+                {fCurrency(igst.amount)}
+              </TableCell>
             </StyledTableRow>
           )}
 
@@ -195,7 +211,9 @@ function RenderTable({ transporterPayment }) {
             <StyledTableRow>
               <TableCell colSpan={12} />
               <StyledTableCell>TDS({tds?.rate || 0}%)</StyledTableCell>
-              <TableCell sx={{ color: 'error.main' }}>{fCurrency(tds?.amount || 0)}</TableCell>
+              <TableCell align="right" sx={{ color: 'error.main' }}>
+                {fCurrency(tds?.amount || 0)}
+              </TableCell>
             </StyledTableRow>
           )}
 
@@ -204,14 +222,18 @@ function RenderTable({ transporterPayment }) {
               <StyledTableRow>
                 <TableCell colSpan={12} />
                 <StyledTableCell>{label}</StyledTableCell>
-                <TableCell sx={{ color: 'error.main' }}>{fCurrency(amount || 0)}</TableCell>
+                <TableCell align="right" sx={{ color: 'error.main' }}>
+                  {fCurrency(amount || 0)}
+                </TableCell>
               </StyledTableRow>
             ))}
 
           <StyledTableRow>
             <TableCell colSpan={12} />
             <StyledTableCell>Net-Total</StyledTableCell>
-            <TableCell sx={{ color: 'success.main' }}>{fCurrency(netIncome)}</TableCell>
+            <TableCell align="right" sx={{ color: 'success.main' }}>
+              {fCurrency(netIncome)}
+            </TableCell>
           </StyledTableRow>
         </TableBody>
       </Table>

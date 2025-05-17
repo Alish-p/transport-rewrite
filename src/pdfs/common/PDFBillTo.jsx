@@ -3,24 +3,26 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
-export default function PDFBillToSection({ billTo, metaDetails = [] }) {
+export default function PDFBillToSection({
+  title = 'Bill To',
+  billToDetails = [],
+  metaDetails = [],
+}) {
   return (
     <View style={[PDFStyles.border, PDFStyles.p16, PDFStyles.mb16]}>
       {/* Grid Container */}
       <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
         {/* Bill To Section - 70% width */}
         <View style={[PDFStyles.col8, PDFStyles.pr8]}>
-          <Text style={[PDFStyles.subtitle1, PDFStyles.mb4]}>Consignor / Bill To</Text>
-          <Text style={[PDFStyles.body1, PDFStyles.mb2]}>{billTo?.name}</Text>
-          <Text style={[PDFStyles.body1, PDFStyles.mb2]}>{billTo?.address}</Text>
-          <Text style={[PDFStyles.body1, PDFStyles.mb2]}>
-            {billTo?.pinCode}, {billTo?.state}
-          </Text>
-          {billTo?.gstin && (
-            <Text style={[PDFStyles.body1, PDFStyles.mb2]}>GSTIN: {billTo.gstin}</Text>
-          )}
-          {billTo?.sacCode && (
-            <Text style={[PDFStyles.body1, PDFStyles.mb2]}>SAC / HSN Code: {billTo.sacCode}</Text>
+          <Text style={[PDFStyles.subtitle1, PDFStyles.mb4]}>{title}</Text>
+
+          {billToDetails.map(
+            (value, index) =>
+              value && (
+                <Text key={index} style={[PDFStyles.body1, PDFStyles.mb2]}>
+                  {value}
+                </Text>
+              )
           )}
         </View>
 

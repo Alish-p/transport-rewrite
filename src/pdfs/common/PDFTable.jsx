@@ -9,7 +9,6 @@ export default function PDFTable({
   columnWidths = [],
   showBorders = true,
   hideHeader = false,
-  tableTitle,
   tableFooter,
 }) {
   const getColumnWidth = (index) => {
@@ -18,11 +17,6 @@ export default function PDFTable({
     }
     return PDFStyles[`col${Math.floor(12 / headers.length)}`];
   };
-
-  const renderTitle = () =>
-    tableTitle ? (
-      <Text style={[PDFStyles.h3, PDFStyles.mb8, PDFStyles.mt4]}>{tableTitle}</Text>
-    ) : null;
 
   const renderHeader = () => (
     <View style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight]}>

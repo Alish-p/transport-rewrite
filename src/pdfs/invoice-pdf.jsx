@@ -93,14 +93,15 @@ export default function InvoicePdf({ invoice }) {
         <PDFHeader />
 
         <PDFBillToSection
-          billTo={{
-            name: customerId?.customerName || '-',
-            address: customerId?.address || '-',
-            gstin: customerId?.GSTNo || '-',
-            sacCode: customerId?.sacCode || '996791',
-            pinCode: customerId?.pinCode || '-',
-            state: customerId?.state || '-',
-          }}
+          title="Consignor / Bill To"
+          billToDetails={[
+            customerId?.customerName,
+            customerId?.address,
+            customerId?.GSTNo,
+            customerId?.sacCode || 'SAC-CODE : 996791',
+            customerId?.pinCode,
+            customerId?.state,
+          ]}
           metaDetails={[
             ['Bill No.', invoiceNo],
             ['Date', fDate(issueDate)],
