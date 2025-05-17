@@ -9,7 +9,6 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
-import { calculateTransporterPaymentSummary } from 'src/utils/utils';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useSubtripsByTransporter } from 'src/query/use-subtrip';
@@ -43,15 +42,6 @@ export function BulkTransporterPaymentCreateView() {
     // TODO: Implement bulk payment generation
     // This will be implemented when we create the bulk payment generation API
   };
-
-  const hasAnyNegativeAmount = transporterDataList?.some((data) => {
-    const { netIncome } = calculateTransporterPaymentSummary({
-      associatedSubtrips: data.subtrips,
-      selectedLoans: data.loans,
-      transporterId: data.transporterId,
-    });
-    return netIncome * (1 - (data.transporterId?.tdsPercentage || 0) / 100) < 0;
-  });
 
   return (
     <DashboardContent>
@@ -94,7 +84,7 @@ export function BulkTransporterPaymentCreateView() {
             <Button
               variant="contained"
               onClick={handleGeneratePayments}
-              disabled={hasAnyNegativeAmount || !transporterDataList?.length}
+              disabled={!transporterDataList?.length}
             >
               Generate All Payments
             </Button>
