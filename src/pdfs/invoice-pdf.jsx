@@ -2,7 +2,7 @@
 import { Page, Font, Document } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
-import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
 
@@ -65,7 +65,7 @@ export default function InvoicePdf({ invoice }) {
 
   const renderTaxBreakup = () => {
     const totalWeight = subtripSnapshot.reduce((acc, subtrip) => acc + subtrip.loadingWeight, 0);
-    const headers = [' ', totalWeight, fCurrency(totalAmountBeforeTax), ' '];
+    const headers = [' ', fShortenNumber(totalWeight), fCurrency(totalAmountBeforeTax), ' '];
 
     const data = [headers];
 
