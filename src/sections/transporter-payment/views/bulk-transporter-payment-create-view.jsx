@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Card, Stack, Alert, Button, Typography } from '@mui/material';
+import { Card, Stack, Alert, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -80,15 +80,6 @@ export function BulkTransporterPaymentCreateView() {
             onChangeStartDate={(date) => setDateRange({ ...dateRange, startDate: date })}
             onChangeEndDate={(date) => setDateRange({ ...dateRange, endDate: date })}
           />
-          {dateRange.startDate && dateRange.endDate && (
-            <Button
-              variant="contained"
-              onClick={handleGeneratePayments}
-              disabled={!transporterDataList?.length}
-            >
-              Generate All Payments
-            </Button>
-          )}
         </Stack>
       </Card>
 
