@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import { Stack } from '@mui/material';
 import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { Grid, Card, Stack, CardContent } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 
@@ -46,18 +46,27 @@ export default function BulkTransporterPaymentPreview({ transporterDataList, dat
     setSelected((prev) => (prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]));
   };
 
+  // prepare summary data
+  const selectedData = transporterDataList.filter(({ transporter }) =>
+    selected.includes(transporter._id)
+  );
+  const totalTransporters = selectedData.length;
+  const totalSubtrips = selectedData.reduce((sum, { subtrips }) => sum + subtrips.length, 0);
+  const totalPODCharges = selectedData.reduce(
+    (sum, { transporter, subtrips }) => sum + (transporter.podCharges || 0) * subtrips.length,
+    0
+  );
+
   const handleGenerate = async () => {
-    const payload = transporterDataList
-      .filter(({ transporter }) => selected.includes(transporter._id))
-      .map(({ transporter, subtrips }) => {
-        const podAmount = (transporter.podCharges || 0) * subtrips.length;
-        return {
-          transporterId: transporter._id,
-          billingPeriod: dateRange,
-          associatedSubtrips: subtrips.map((st) => st._id),
-          additionalCharges: [{ label: 'POD Charges', amount: podAmount }],
-        };
-      });
+    const payload = selectedData.map(({ transporter, subtrips }) => {
+      const podAmount = (transporter.podCharges || 0) * subtrips.length;
+      return {
+        transporterId: transporter._id,
+        billingPeriod: dateRange,
+        associatedSubtrips: subtrips.map((st) => st._id),
+        additionalCharges: [{ label: 'POD Charges', amount: podAmount }],
+      };
+    });
 
     try {
       const res = await fetch('/api/bulk-transporter-payment', {
@@ -114,6 +123,34 @@ export default function BulkTransporterPaymentPreview({ transporterDataList, dat
           })}
         </Stack>
       </Stack>
+
+      {/* Summary */}
+      <Box mt={4}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Summary
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2">Transporters</Typography>
+                <Typography variant="h5">{totalTransporters}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2">Subtrips</Typography>
+                <Typography variant="h5">{totalSubtrips}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2">Total POD Charges</Typography>
+                <Typography variant="h5">
+                  {CONFIG.currencySymbol}
+                  {totalPODCharges.toLocaleString()}
+                </Typography>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* action button */}
       <Box textAlign="right" mt={2}>
