@@ -5,14 +5,9 @@ import { useUpdateTransporterPaymentStatus } from 'src/query/use-transporter-pay
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { TRANSPORTER_PAYMENT_OPTIONS } from '../utils/constant';
 import TransporterPaymentView from '../transporter-payment-view';
 import TransporterPaymentToolbar from '../transporter-payment-toolbar';
-
-export const TRANSPORTER_PAYMENT_OPTIONS = [
-  { value: 'paid', label: 'Paid' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
-];
 
 export function TransporterPaymentDetailView({ transporterPayment }) {
   const { _id, status, paymentId } = transporterPayment;

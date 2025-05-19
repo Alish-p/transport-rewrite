@@ -85,10 +85,7 @@ export default function TransporterPaymentTableRow({
           />
         </TableCell>
         <TableCell>
-          <Label
-            variant="soft"
-            color={status === 'paid' ? 'success' : status === 'overdue' ? 'error' : 'warning'}
-          >
+          <Label variant="soft" color={status === 'paid' ? 'success' : 'error'}>
             {status}
           </Label>
         </TableCell>
