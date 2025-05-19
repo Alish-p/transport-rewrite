@@ -21,12 +21,12 @@ import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { getCustomerInvoiceTax } from 'src/utils/utils';
 
 import { CONFIG } from 'src/config-global';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { calculateTaxBreakup } from './utills/invoice-calculation';
 
 const StyledTableRow = (props) => (
   <TableRow {...props} sx={{ '& td': { borderBottom: 'none', pt: 1, pb: 1 } }} />
@@ -73,7 +73,7 @@ function RenderAddress({ title, details }) {
 }
 
 function RenderTable({ subtrips, selectedCustomer }) {
-  const { cgst, sgst, igst } = getCustomerInvoiceTax(selectedCustomer);
+  const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
 
   const subtotal = subtrips.reduce((acc, st) => acc + calculateSubtripTotal(st), 0);
   const cgstAmount = subtotal * (cgst / 100);

@@ -33,53 +33,64 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { STATES } from './config';
 import { BankListDialog } from '../bank/bank-list-dialogue';
 
-export const NewCustomerSchema = zod.object({
-  customerName: zod.string().min(1, { message: 'Customer Name is required' }),
-  GSTNo: zod.string().min(1, { message: 'GST No is required' }),
-  PANNo: zod.string().min(1, { message: 'PAN No is required' }),
-  address: zod.string().min(1, { message: 'Address is required' }),
-  place: zod.string(),
-  state: zod.string().min(1, { message: 'State is required' }),
-  invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
-  pinCode: schemaHelper.pinCode({
-    message: {
-      required_error: 'Pin Code is required',
-      invalid_error: 'Pin Code must be exactly 6 digits',
-    },
-  }),
-  cellNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Mobile No is required',
-      invalid_error: 'Mobile No must be exactly 10 digits',
-    },
-  }),
-  consignees: zod.array(
-    zod.object({
-      name: zod.string().min(1, { message: 'Name is required' }),
-      address: zod.string().min(1, { message: 'Address is required' }),
-      state: zod.string().min(1, { message: 'State is required' }),
-      pinCode: schemaHelper.pinCode({
-        message: {
-          required_error: 'Consignee Pin Code is required',
-          invalid_error: 'Consignee Pin Code must be exactly 6 digits',
-        },
-      }),
-    })
-  ),
-  bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Bank name is required' }),
-    branch: zod.string().min(1, { message: 'Branch is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: schemaHelper.accountNumber({
+export const NewCustomerSchema = zod
+  .object({
+    customerName: zod.string().min(1, { message: 'Customer Name is required' }),
+    gstEnabled: zod.boolean(),
+    GSTNo: zod.string().optional(),
+    PANNo: zod.string().min(1, { message: 'PAN No is required' }),
+    address: zod.string().min(1, { message: 'Address is required' }),
+    place: zod.string(),
+    state: zod.string().min(1, { message: 'State is required' }),
+    invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
+    pinCode: schemaHelper.pinCode({
       message: {
-        required_error: 'Account number is required',
-        invalid_error: 'Account number must be between 9 and 18 digits',
+        required_error: 'Pin Code is required',
+        invalid_error: 'Pin Code must be exactly 6 digits',
       },
     }),
-  }),
-  transporterCode: zod.string().optional(),
-});
+    cellNo: schemaHelper.phoneNumber({
+      message: {
+        required_error: 'Mobile No is required',
+        invalid_error: 'Mobile No must be exactly 10 digits',
+      },
+    }),
+    consignees: zod.array(
+      zod.object({
+        name: zod.string().min(1, { message: 'Name is required' }),
+        address: zod.string().min(1, { message: 'Address is required' }),
+        state: zod.string().min(1, { message: 'State is required' }),
+        pinCode: schemaHelper.pinCode({
+          message: {
+            required_error: 'Consignee Pin Code is required',
+            invalid_error: 'Consignee Pin Code must be exactly 6 digits',
+          },
+        }),
+      })
+    ),
+    bankDetails: zod.object({
+      name: zod.string().min(1, { message: 'Bank name is required' }),
+      branch: zod.string().min(1, { message: 'Branch is required' }),
+      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+      place: zod.string().min(1, { message: 'Place is required' }),
+      accNo: schemaHelper.accountNumber({
+        message: {
+          required_error: 'Account number is required',
+          invalid_error: 'Account number must be between 9 and 18 digits',
+        },
+      }),
+    }),
+    transporterCode: zod.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.gstEnabled && !data.GSTNo) {
+      ctx.addIssue({
+        path: ['GSTNo'],
+        code: zod.ZodIssueCode.custom,
+        message: 'GST No is required when GST is enabled',
+      });
+    }
+  });
 
 // ----------------------------------------------------------------------
 
@@ -99,6 +110,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
       state: currentCustomer?.state || '',
       pinCode: currentCustomer?.pinCode || '',
       cellNo: currentCustomer?.cellNo || '',
+      gstEnabled: currentCustomer?.gstEnabled ?? false,
       GSTNo: currentCustomer?.GSTNo || '',
       PANNo: currentCustomer?.PANNo || '',
       invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
@@ -194,7 +206,6 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
           </Field.Select>
           <Field.Text name="pinCode" label="Pin Code" required />
           <Field.Text name="cellNo" label="Cell No" required />
-          <Field.Text name="GSTNo" label="GST No" required />
           <Field.Text name="PANNo" label="PAN No" required />
           <Field.Text
             name="transporterCode"
@@ -210,6 +221,12 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
               endAdornment: <InputAdornment position="end">Days</InputAdornment>,
             }}
           />
+
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Field.Switch name="gstEnabled" label="GST Enabled" />
+
+            {values.gstEnabled && <Field.Text name="GSTNo" label="GST No" required />}
+          </Stack>
         </Box>
       </Card>
     </>

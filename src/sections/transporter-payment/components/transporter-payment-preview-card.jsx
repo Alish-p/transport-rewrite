@@ -189,7 +189,7 @@ export default function TransporterPaymentPreviewUI({
                       {['CGST', 'SGST', 'IGST', 'TDS'][idx]} ({rate}%)
                     </TableCell>
                     <TableCell align="right" sx={{ color: 'error.main' }}>
-                      {rate === taxBreakup.igst.rate ? fCurrency(amount) : `- ${fCurrency(amount)}`}
+                      {`- ${fCurrency(amount)}`}
                     </TableCell>
                   </TableRow>
                 )
