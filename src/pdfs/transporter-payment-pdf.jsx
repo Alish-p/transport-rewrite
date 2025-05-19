@@ -122,7 +122,7 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
           metaDetails={[
             ['Payment No.', paymentId],
             ['Date', fDate(issueDate)],
-            ['Billing Period', fDateRangeShortLabel(billingPeriod?.start, billingPeriod.end)],
+            ['Billing Period', fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)],
             ['Status', status?.toUpperCase()],
           ]}
         />

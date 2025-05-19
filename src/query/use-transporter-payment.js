@@ -22,6 +22,11 @@ const createTransporterPayment = async (transporterPayment) => {
   return data;
 };
 
+const createBulkTransporterPayment = async (list) => {
+  const { data } = await axios.post(`${ENDPOINT}/bulk-transporter-payment`, { payments: list });
+  return data;
+};
+
 const updateTransporterPayment = async (id, transporterPaymentData) => {
   console.log({ transporterPaymentDataInAPICAll: transporterPaymentData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, transporterPaymentData);
@@ -58,6 +63,22 @@ export function useCreateTransporterPayment() {
     onSuccess: (newTransporterPayment) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useCreateBulkTransporterPayment() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: createBulkTransporterPayment,
+    onSuccess: (newTransporterPayment) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success('Bulk Transporters Payment generated successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';

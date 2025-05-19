@@ -11,6 +11,7 @@ import { Grid, Card, Stack, CardContent } from '@mui/material';
 import { fDate } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
+import { useCreateBulkTransporterPayment } from 'src/query/use-transporter-payment';
 
 import TransporterPaymentPreviewCard from './components/transporter-payment-preview-card';
 
@@ -37,6 +38,8 @@ function RenderHeader({ transporterName, index, isSelected, onToggle }) {
 }
 
 export default function BulkTransporterPaymentPreview({ transporterDataList, dateRange }) {
+  const createBulkTransporterPayment = useCreateBulkTransporterPayment();
+
   // track which transporter IDs are “included”
   const [selected, setSelected] = useState(
     transporterDataList.map(({ transporter }) => transporter._id)
@@ -69,14 +72,7 @@ export default function BulkTransporterPaymentPreview({ transporterDataList, dat
     });
 
     try {
-      const res = await fetch('/api/bulk-transporter-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payments: payload }),
-      });
-      if (!res.ok) throw new Error('Failed to generate bulk payments');
-      const data = await res.json();
-      console.log('Success', data);
+      createBulkTransporterPayment(payload);
     } catch (err) {
       console.error(err);
     }
@@ -91,7 +87,7 @@ export default function BulkTransporterPaymentPreview({ transporterDataList, dat
             Bulk Transporter Payment Preview
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Period: {fDate(dateRange.startDate)} – {fDate(dateRange.endDate)}
+            Period: {fDate(dateRange.start)} – {fDate(dateRange.end)}
           </Typography>
         </Box>
 

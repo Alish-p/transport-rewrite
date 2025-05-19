@@ -1,6 +1,5 @@
 // src/sections/transporter-payment/views/bulk-transporter-payment-create-view.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { Card, Stack, Alert, Typography } from '@mui/material';
 
@@ -21,27 +20,17 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import BulkTransporterPaymentPreview from '../bulk-transporter-payment-preview';
 
 export function BulkTransporterPaymentCreateView() {
-  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState({
-    startDate: null,
-    endDate: null,
+    start: null,
+    end: null,
   });
 
   const { data: transporterDataList, isLoading } = useSubtripsByTransporter(
-    dateRange.startDate,
-    dateRange.endDate
+    dateRange.start,
+    dateRange.end
   );
 
   const dateRangeDialog = useBoolean();
-
-  const handleDateRangeChange = (newDateRange) => {
-    setDateRange(newDateRange);
-  };
-
-  const handleGeneratePayments = async () => {
-    // TODO: Implement bulk payment generation
-    // This will be implemented when we create the bulk payment generation API
-  };
 
   return (
     <DashboardContent>
@@ -62,8 +51,8 @@ export function BulkTransporterPaymentCreateView() {
           <DialogSelectButton
             placeholder="Select Date Range *"
             selected={
-              dateRange.startDate && dateRange.endDate
-                ? fDateRangeShortLabel(dateRange.startDate, dateRange.endDate)
+              dateRange.start && dateRange.end
+                ? fDateRangeShortLabel(dateRange.start, dateRange.end)
                 : 'Select Date Range'
             }
             onClick={dateRangeDialog.onTrue}
@@ -75,10 +64,10 @@ export function BulkTransporterPaymentCreateView() {
             variant="calendar"
             open={dateRangeDialog.value}
             onClose={dateRangeDialog.onFalse}
-            startDate={dateRange.startDate}
-            endDate={dateRange.endDate}
-            onChangeStartDate={(date) => setDateRange({ ...dateRange, startDate: date })}
-            onChangeEndDate={(date) => setDateRange({ ...dateRange, endDate: date })}
+            startDate={dateRange.start}
+            endDate={dateRange.end}
+            onChangeStartDate={(date) => setDateRange({ ...dateRange, start: date })}
+            onChangeEndDate={(date) => setDateRange({ ...dateRange, end: date })}
           />
         </Stack>
       </Card>
@@ -90,7 +79,7 @@ export function BulkTransporterPaymentCreateView() {
           transporterDataList={transporterDataList}
           dateRange={dateRange}
         />
-      ) : dateRange.startDate && dateRange.endDate ? (
+      ) : dateRange.start && dateRange.end ? (
         <Alert severity="info">No transporter payments found for the selected date range.</Alert>
       ) : null}
     </DashboardContent>

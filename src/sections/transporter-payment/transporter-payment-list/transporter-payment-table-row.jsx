@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-import { useMemo } from 'react';
+import { useNavigate } from 'react-router';
 
 // @mui
 import Link from '@mui/material/Link';
@@ -15,9 +15,10 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
+import { paths } from 'src/routes/paths';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { calculateTransporterPaymentSummary } from 'src/utils/utils';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -35,16 +36,13 @@ export default function TransporterPaymentTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, transporterId, createdDate, periodStartDate, periodEndDate, status } = row;
-
-  const total = useMemo(() => {
-    const { netIncome } = calculateTransporterPaymentSummary(row);
-    return netIncome;
-  }, [row]);
+  const { _id, paymentId, transporterId, issueDate, billingPeriod, status, summary } = row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -53,7 +51,18 @@ export default function TransporterPaymentTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
         <TableCell>
-          <Label variant="soft">{_id}</Label>
+          <Label variant="soft">
+            <Link
+              noWrap
+              variant="body2"
+              onClick={() => {
+                navigate(paths.dashboard.transporterPayment.details(_id));
+              }}
+              sx={{ color: 'text.disabled', cursor: 'pointer' }}
+            >
+              {paymentId}
+            </Link>
+          </Label>
         </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <ListItemText
@@ -85,8 +94,8 @@ export default function TransporterPaymentTableRow({
         </TableCell>
         <TableCell>
           <ListItemText
-            primary={fDate(new Date(createdDate))}
-            secondary={fTime(new Date(createdDate))}
+            primary={fDate(new Date(issueDate))}
+            secondary={fTime(new Date(issueDate))}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
@@ -98,18 +107,15 @@ export default function TransporterPaymentTableRow({
 
         <TableCell>
           <ListItemText
-            primary={total}
+            primary={summary?.netIncome}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
 
         <TableCell>
           <ListItemText
-            primary={fDateRangeShortLabel(periodStartDate, periodEndDate)}
+            primary={fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)}
             primaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
               color: 'text.disabled',
             }}
           />
