@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fShortenNumber } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -105,7 +105,7 @@ export default function TransporterPaymentTableRow({
 
         <TableCell>
           <ListItemText
-            primary={fShortenNumber(summary?.netIncome)}
+            primary={fNumber(summary?.netIncome)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
