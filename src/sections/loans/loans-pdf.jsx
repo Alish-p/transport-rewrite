@@ -31,6 +31,7 @@ export default function LoansPdf({ loan }) {
     outstandingBalance,
     status,
     remarks,
+    payments,
   } = loan || {};
 
   // table headers
@@ -75,10 +76,17 @@ export default function LoansPdf({ loan }) {
     ['Status', status?.toUpperCase()],
   ];
 
+  // 2) Payments table
+  const paymentHeaders = ['Date', 'Amount', 'Remarks'];
+  const paymentData = useMemo(
+    () => payments.map((p) => [fDate(p.paymentDate), fCurrency(p.amount), p.remarks || '-']),
+    [payments]
+  );
+
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
-        <PDFTitle title="Loan Schedule" />
+        <PDFTitle title="Loan Summary" />
         <PDFHeader />
 
         <PDFBillToSection
@@ -92,6 +100,15 @@ export default function LoansPdf({ loan }) {
         <PDFTable headers={['', '']} data={summaryData} columnWidths={[10, 2]} hideHeader />
 
         <PDFInvoiceFooter declaration={remarks} signatory={`For ${CONFIG.company.name}`} />
+      </Page>
+
+      <Page size="A4" style={PDFStyles.page} orientation="landscape">
+        {payments.length > 0 && (
+          <>
+            <PDFTitle title="Payment history" />
+            <PDFTable headers={paymentHeaders} data={paymentData} columnWidths={[1, 1, 2]} />
+          </>
+        )}
       </Page>
     </Document>
   );
