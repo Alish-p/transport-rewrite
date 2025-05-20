@@ -44,10 +44,10 @@ export const LoansSchema = zod.object({
     .min(0)
     .max(100, { message: 'Interest Rate must be between 0 and 100' }),
   remarks: zod.string().optional(),
-  issuedDate: schemaHelper
+  disbursementDate: schemaHelper
     .date({ message: { required_error: 'Issued date is required!' } })
     .optional(),
-  tenure: zod.number().min(1).optional(),
+  tenureMonths: zod.number().min(1).optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -65,9 +65,9 @@ export default function LoanForm({ currentLoan }) {
       principalAmount: currentLoan?.principalAmount || 0,
       interestRate: currentLoan?.interestRate || 0,
       remarks: currentLoan?.remarks || '',
-      issuedDate: currentLoan?.issuedDate || new Date(),
+      disbursementDate: currentLoan?.disbursementDate || new Date(),
       repaymentType: currentLoan?.repaymentType || 'full',
-      tenure: currentLoan?.tenure || 1,
+      tenureMonths: currentLoan?.tenureMonths || 1,
     }),
     [currentLoan]
   );
@@ -85,7 +85,7 @@ export default function LoanForm({ currentLoan }) {
     setValue,
   } = methods;
 
-  const { borrowerType, interestRate, principalAmount, tenure } = watch();
+  const { borrowerType, interestRate, principalAmount, tenureMonths } = watch();
 
   const { data: drivers, isLoading: driversLoading } = useDrivers({
     enabled: borrowerType === 'Driver',
@@ -174,11 +174,11 @@ export default function LoanForm({ currentLoan }) {
           />
           <Field.Text name="remarks" label="Remarks" />
 
-          <Field.DatePicker name="issuedDate" label="Issue Date" />
+          <Field.DatePicker name="disbursementDate" label="Issue Date" />
 
           <Field.Text
-            name="tenure"
-            label="tenure"
+            name="tenureMonths"
+            label="tenureMonths"
             type="number"
             InputProps={{
               endAdornment: <InputAdornment position="end">Months</InputAdornment>,
@@ -201,16 +201,16 @@ export default function LoanForm({ currentLoan }) {
     const monthlyRate = interestRate / 100 / 12;
     const emiAmount =
       interestRate === 0
-        ? principalAmount / tenure
-        : (principalAmount * monthlyRate) / (1 - (1 + monthlyRate) ** -tenure);
-    const totalAmount = emiAmount * tenure;
+        ? principalAmount / tenureMonths
+        : (principalAmount * monthlyRate) / (1 - (1 + monthlyRate) ** -tenureMonths);
+    const totalAmount = emiAmount * tenureMonths;
 
     return (
       <>
-        {watch('tenure') > 0 && watch('principalAmount') > 0 && (
+        {watch('tenureMonths') > 0 && watch('principalAmount') > 0 && (
           <>
             <Alert severity="success" variant="outlined" sx={{ my: 2 }}>
-              {`The total loan amount is ${fCurrency(principalAmount)}. It will be repaid over ${tenure} months with an EMI of ${fCurrency(emiAmount)} each month.`}
+              {`The total loan amount is ${fCurrency(principalAmount)}. It will be repaid over ${tenureMonths} months with an EMI of ${fCurrency(emiAmount)} each month.`}
             </Alert>
             <Alert severity="info" variant="outlined" sx={{ my: 2 }}>
               {`The interest amount is ${fCurrency(totalAmount - principalAmount)}. The total amount to be repaid is ${fCurrency(totalAmount)}.`}

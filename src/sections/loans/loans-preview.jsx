@@ -1,3 +1,5 @@
+import React from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -8,7 +10,6 @@ import { styled } from '@mui/material/styles';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -27,7 +28,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function RenderHeader({ loan }) {
-  const { status } = loan || {};
+  const { status } = loan;
   return (
     <Box
       rowGap={3}
@@ -56,45 +57,41 @@ function RenderAddress({ title, details }) {
       <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
         {title}
       </Typography>
-      {details}
+      {details && details}
     </Stack>
   );
 }
 
 function RenderInstallments({ loan }) {
-  const totalInstallments = loan.tenure;
-  const paidInstallments = loan.installmentsPaid || [];
+  const { installments = [] } = loan;
+  const hasOverpayment = installments.some((inst) => inst.paidAmount > inst.totalDue);
 
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Installment No.</TableCell>
-            <TableCell>Amount</TableCell>
+            <TableCell>No.</TableCell>
+            <TableCell>EMI Amount</TableCell>
             <TableCell>Due Date</TableCell>
             <TableCell>Status</TableCell>
+            <TableCell>Paid</TableCell>
+            {hasOverpayment && <TableCell>Extra Paid</TableCell>}
             <TableCell>Paid Date</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {Array.from({ length: totalInstallments }).map((_, index) => {
-            const paidInstallment = paidInstallments[index];
-            const isPaid = !!paidInstallment;
+          {installments.map((inst) => {
+            const { installmentNumber, totalDue, dueDate, status, paidAmount = 0, paidDate } = inst;
+            const extra = paidAmount > totalDue ? paidAmount - totalDue : 0;
 
             return (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{fCurrency(loan.installmentAmount)}</TableCell>
+              <StyledTableRow key={installmentNumber}>
+                <TableCell>{installmentNumber}</TableCell>
+                <TableCell>{fCurrency(totalDue)}</TableCell>
+                <TableCell>{fDate(dueDate)}</TableCell>
                 <TableCell>
-                  {fDate(
-                    new Date(loan.createdAt).setMonth(
-                      new Date(loan.createdAt).getMonth() + index + 1
-                    )
-                  )}
-                </TableCell>
-                <TableCell>
-                  {isPaid ? (
+                  {status === 'paid' ? (
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Iconify icon="eva:checkmark-circle-2-fill" sx={{ color: 'success.main' }} />
                       <Typography variant="body2" sx={{ color: 'success.main' }}>
@@ -103,35 +100,34 @@ function RenderInstallments({ loan }) {
                     </Stack>
                   ) : (
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Pending
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
                     </Typography>
                   )}
                 </TableCell>
-                <TableCell>{isPaid ? fDate(paidInstallment.paidDate) : '-'}</TableCell>
-              </TableRow>
+                <TableCell>{fCurrency(paidAmount)}</TableCell>
+                {hasOverpayment && <TableCell>{extra > 0 ? fCurrency(extra) : '-'}</TableCell>}
+                <TableCell>{paidDate ? fDate(paidDate) : '-'}</TableCell>
+              </StyledTableRow>
             );
           })}
 
+          {/* summary rows */}
           <StyledTableRow>
-            <TableCell colSpan={3} />
+            <TableCell colSpan={hasOverpayment ? 5 : 4} />
             <TableCell sx={{ fontWeight: 'bold' }}>Total Amount</TableCell>
             <TableCell>{fCurrency(loan.totalAmount)}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={3} />
+            <TableCell colSpan={hasOverpayment ? 5 : 4} />
             <TableCell sx={{ fontWeight: 'bold' }}>Paid Amount</TableCell>
-            <TableCell>
-              {fCurrency(loan.totalAmount - (loan.remainingBalance || loan.totalAmount))}
-            </TableCell>
+            <TableCell>{fCurrency(loan.totalAmount - loan.outstandingBalance)}</TableCell>
           </StyledTableRow>
 
           <StyledTableRow>
-            <TableCell colSpan={3} />
+            <TableCell colSpan={hasOverpayment ? 5 : 4} />
             <TableCell sx={{ fontWeight: 'bold' }}>Remaining Balance</TableCell>
-            <TableCell sx={{ color: 'error.main' }}>
-              {fCurrency(loan.remainingBalance || loan.totalAmount)}
-            </TableCell>
+            <TableCell sx={{ color: 'error.main' }}>{fCurrency(loan.outstandingBalance)}</TableCell>
           </StyledTableRow>
         </TableBody>
       </Table>
@@ -140,7 +136,7 @@ function RenderInstallments({ loan }) {
 }
 
 export default function LoansPreview({ loan }) {
-  const { borrowerId: borrower, createdAt } = loan || {};
+  const { borrowerId: borrower, createdAt, emi } = loan;
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -189,7 +185,7 @@ export default function LoansPreview({ loan }) {
               <br />
               Interest Rate: {loan?.interestRate}%
               <br />
-              Tenure: {loan?.tenure} months
+              Tenure: {loan?.tenureMonths} months
               <br />
               Created: {fDate(createdAt)}
             </>
@@ -200,13 +196,6 @@ export default function LoansPreview({ loan }) {
       <RenderInstallments loan={loan} />
 
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
-
-      <Grid container>
-        <Grid xs={12} md={9} sx={{ py: 3 }}>
-          <Typography variant="subtitle2">REMARKS</Typography>
-          <Typography variant="body2">{loan?.remarks}</Typography>
-        </Grid>
-      </Grid>
     </Card>
   );
 }
