@@ -121,13 +121,13 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>InvoiceNo</StyledTableCell>
-            <StyledTableCell>Load QTY(MT)</StyledTableCell>
-            <StyledTableCell>Shortage Qty(MT)</StyledTableCell>
-            <StyledTableCell>Shortage Amt</StyledTableCell>
-            <StyledTableCell>FRT-RATE</StyledTableCell>
-            <StyledTableCell>FRT-Amt</StyledTableCell>
-            <StyledTableCell>Expense</StyledTableCell>
-            <StyledTableCell>Total Payable</StyledTableCell>
+            <StyledTableCell align="right">Load QTY(MT)</StyledTableCell>
+            <StyledTableCell align="right">Shortage Qty(MT)</StyledTableCell>
+            <StyledTableCell align="right">Shortage Amt</StyledTableCell>
+            <StyledTableCell align="right">FRT-RATE</StyledTableCell>
+            <StyledTableCell align="right">FRT-Amt</StyledTableCell>
+            <StyledTableCell align="right">Deductions</StyledTableCell>
+            <StyledTableCell align="right">Total Payable</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -177,36 +177,6 @@ function RenderTable({ transporterPayment }) {
             </TableCell>
           </StyledTableRow>
 
-          {cgst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12} />
-              <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'error.main' }}>
-                {fCurrency(cgst.amount)}
-              </TableCell>
-            </StyledTableRow>
-          )}
-
-          {sgst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12} />
-              <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'error.main' }}>
-                {fCurrency(sgst.amount)}
-              </TableCell>
-            </StyledTableRow>
-          )}
-
-          {igst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12} />
-              <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'error.main' }}>
-                {fCurrency(igst.amount)}
-              </TableCell>
-            </StyledTableRow>
-          )}
-
           {tds?.rate > 0 && (
             <StyledTableRow>
               <TableCell colSpan={12} />
@@ -230,11 +200,41 @@ function RenderTable({ transporterPayment }) {
 
           <StyledTableRow>
             <TableCell colSpan={12} />
-            <StyledTableCell>Net-Total</StyledTableCell>
+            <StyledTableCell>Net-Payable</StyledTableCell>
             <TableCell align="right" sx={{ color: 'success.main' }}>
               {fCurrency(netIncome)}
             </TableCell>
           </StyledTableRow>
+
+          {cgst?.rate > 0 && (
+            <StyledTableRow title="GST under RCM Mechnism">
+              <TableCell colSpan={12} />
+              <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
+              <TableCell align="right" sx={{ color: 'info.main' }}>
+                {fCurrency(cgst.amount)}
+              </TableCell>
+            </StyledTableRow>
+          )}
+
+          {sgst?.rate > 0 && (
+            <StyledTableRow title="GST under RCM Mechnism">
+              <TableCell colSpan={12} />
+              <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
+              <TableCell align="right" sx={{ color: 'info.main' }}>
+                {fCurrency(sgst.amount)}
+              </TableCell>
+            </StyledTableRow>
+          )}
+
+          {igst?.rate > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={12} />
+              <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
+              <TableCell align="right" sx={{ color: 'info.main' }} title="GST under RCM Mechnism">
+                {fCurrency(igst.amount)}
+              </TableCell>
+            </StyledTableRow>
+          )}
         </TableBody>
       </Table>
     </TableContainer>

@@ -186,8 +186,8 @@ const pdfStyles = {
     padding: 2,
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   horizontalCellTitle: {
     fontSize: 7,

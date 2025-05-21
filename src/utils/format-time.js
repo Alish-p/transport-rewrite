@@ -158,7 +158,7 @@ export function fDateRangeShortLabel(startDate, endDate, initial) {
   const isAfter = fIsAfter(startDate, endDate);
 
   if (!isValid || isAfter) {
-    return 'Invalid time value';
+    return 'N/A';
   }
 
   let label = `${fDate(startDate)} - ${fDate(endDate)}`;

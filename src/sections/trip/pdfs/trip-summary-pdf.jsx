@@ -1,336 +1,149 @@
 /* eslint-disable react/prop-types */
-import { useMemo } from 'react';
-import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
-import { titleCase } from 'src/utils/change-case';
-import { fCurrency } from 'src/utils/format-number';
-import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
+import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fDate, fDateTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
+import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
 
-import { pdfStyles } from 'src/sections/subtrip/pdfs/pdf-styles';
-
-// ----------------------------------------------------------------------
+import { wrapText } from '../../../utils/change-case';
+import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
 Font.register({
   family: 'Roboto',
-  fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
+  fonts: [
+    { src: '/fonts/Roboto-Regular.ttf' },
+    { src: '/fonts/Roboto-Bold.ttf', fontWeight: 'bold' },
+  ],
 });
 
-const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
-
-const COMPANY = CONFIG.company;
-
-// ----------------------------------------------------------------------
-
 export default function TripSummaryPdf({ trip }) {
-  const { _id, tripStatus, fromDate, toDate, subtrips, vehicleId, driverId, transporter } = trip;
+  const {
+    _id: tripId,
+    tripStatus,
+    fromDate,
+    endDate,
+    vehicleId,
+    driverId,
+    subtrips = [],
+  } = trip || {};
 
-  console.log({ trip });
+  // Prepare subtrip table data
+  const subtripData = subtrips.map((st, idx) => {
+    const income = st.rate * st.loadingWeight;
+    const expenseTotal = Array.isArray(st.expenses)
+      ? st.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+      : 0;
+    const net = income - expenseTotal;
+    return [
+      idx + 1,
+      st._id || '-',
+      st.customerId?.customerName || '-',
+      st.routeCd?.routeName || '-',
+      fDateRangeShortLabel(st?.startDate, st?.endDate),
+      `${st.endKm - st.startKm || 0} km`,
+      fCurrency(income || 0),
+      fCurrency(expenseTotal || 0),
+      fCurrency(net || 0),
+    ];
+  });
 
-  const styles = useStyles();
+  const subtripHeaders = [
+    'Sr. No',
+    'LR No',
+    'Customer',
+    'Route',
+    'Duration',
+    'Distance',
+    'Income',
+    'Expenses',
+    'Net Amount',
+  ];
 
-  const renderDocumentTitle = () => (
-    <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Trip Summary</Text>
-    </View>
+  // Prepare flat expense table
+  const allExpenses = subtrips.flatMap((st) =>
+    (st.expenses || []).map((e, idx) => [
+      idx + 1,
+      st._id || '-',
+      e.expenseType,
+      fDateTime(e.date),
+      fCurrency(e.amount),
+      e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? `${e.dieselLtr} LTR` : '-',
+      wrapText(e.remarks, 60),
+    ])
   );
+  const expenseHeaders = ['Sr. No', 'LR No', 'Type', 'Date', 'Amount', 'LTR', 'Remarks'];
 
-  const renderCompanyHeader = () => (
-    <View style={[styles.gridContainer, styles.border]}>
-      <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
-        <View style={[styles.col4]}>
-          <Image source="/logo/company-logo-main.png" style={{ width: 48, height: 48 }} />
-        </View>
-
-        <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
-          <Text style={[styles.h1]}>{COMPANY.name}</Text>
-          <Text style={styles.body2}>{COMPANY.tagline}</Text>
-          <Text style={styles.body2}>{COMPANY.address.line1} </Text>
-          <Text style={styles.body2}>{`${COMPANY.address.line2} , ${COMPANY.address.state}`}</Text>
-        </View>
-      </View>
-
-      <View
-        style={[
-          styles.gridContainer,
-          styles.col4,
-          styles.p8,
-          { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-        ]}
-      >
-        <View style={{ flex: 1, marginRight: 16 }}>
-          <Text style={[styles.subtitle2]}>Mobile No</Text>
-          <Text style={[styles.subtitle2]}>Email</Text>
-          <Text style={[styles.subtitle2]}>Website</Text>
-        </View>
-
-        <View style={{ flex: 2 }}>
-          <Text style={[styles.body2]}>{COMPANY.contacts[0]}</Text>
-          <Text style={[styles.body2]}>{COMPANY.email}</Text>
-          <Text style={styles.body2}>{COMPANY.website}</Text>
-        </View>
-      </View>
-    </View>
+  // Summary calculations
+  const totalDistance = subtrips.reduce((sum, st) => sum + (st.routeCd?.distance || 0), 0);
+  const totalIncome = subtrips.reduce((sum, st) => sum + (st.rate * st.loadingWeight || 0), 0);
+  const totalExpenses = subtrips.reduce(
+    (sum, st) =>
+      sum + (Array.isArray(st.expenses) ? st.expenses.reduce((s, e) => s + (e.amount || 0), 0) : 0),
+    0
   );
-
-  const renderTripDetails = () => (
-    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-      {/* Trip Details */}
-      <View style={[styles.col4, styles.borderRight, { minHeight: 80 }]}>
-        <Text style={[styles.subtitle2, styles.p8]}>Trip Details:</Text>
-        <View
-          style={[
-            styles.col12,
-            { display: 'flex', alignItems: 'flex-start', justifyContent: 'center' },
-            styles.p8,
-          ]}
-        >
-          <Text style={styles.body2}>Trip ID: {_id}</Text>
-          <Text style={styles.body2}>Status: {titleCase(tripStatus)}</Text>
-          <Text style={styles.body2}>Start Date: {fDate(fromDate)}</Text>
-          <Text style={styles.body2}>End Date: {toDate ? fDate(toDate) : 'N/A'}</Text>
-        </View>
-      </View>
-
-      {/* Vehicle Details */}
-      <View style={[styles.col4, { minHeight: 80 }, styles.borderRight]}>
-        <Text style={[styles.subtitle2, styles.p8]}>Vehicle Details:</Text>
-        <View
-          style={[
-            styles.col12,
-            { display: 'flex', alignItems: 'flex-start', justifyContent: 'center' },
-            styles.p8,
-          ]}
-        >
-          <Text style={[styles.body2]}>Vehicle: {vehicleId?.vehicleNo}</Text>
-          <Text style={[styles.body2]}>
-            Ownership: {vehicleId?.isOwn ? COMPANY.name : transporter?.transportName}
-          </Text>
-
-          <Text style={[styles.body2]}>Type: {vehicleId?.vehicleType}</Text>
-          <Text style={[styles.body2]}>Loading Capacity: {vehicleId?.loadingCapacity}</Text>
-          <Text style={[styles.body2]}>No Of Tyres: {vehicleId?.noOfTyres}</Text>
-          <Text style={[styles.body2]}>Loading Capacity: {vehicleId?.loadingCapacity}</Text>
-        </View>
-      </View>
-
-      {/* Driver Details */}
-      <View style={[styles.col4, { minHeight: 80 }]}>
-        <Text style={[styles.subtitle2, styles.p8]}>Driver Details:</Text>
-        <View
-          style={[
-            styles.col12,
-            { display: 'flex', alignItems: 'flex-start', justifyContent: 'center' },
-            styles.p8,
-          ]}
-        >
-          <Text style={[styles.body2]}>Name: {driverId?.driverName}</Text>
-          <Text style={[styles.body2]}>Cell No: {driverId?.driverCellNo}</Text>
-          <Text style={[styles.body2]}>Licence No: {driverId?.driverLicenceNo}</Text>
-          <Text style={[styles.body2]}>Present Address: {driverId?.driverPresentAddress}</Text>
-          <Text style={[styles.body2]}>Permanent Address: {driverId?.permanentAddress}</Text>
-          <Text style={[styles.body2]}>Experience: {driverId?.experience}</Text>
-        </View>
-      </View>
-    </View>
-  );
-
-  const renderSummaryDetails = () => (
-    <>
-      <View style={[styles.gridContainer]}>
-        <Text style={[styles.h4, styles.mb4]}>Trip Summary</Text>
-      </View>
-
-      <View style={[styles.gridContainer, styles.border]}>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total Trips</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total Income</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total Expenses</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total Diesel</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total KM</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Net Profit</Text>
-        </View>
-      </View>
-
-      <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{subtrips?.length || 0}</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>
-            {fCurrency(
-              subtrips?.reduce((sum, subtrip) => sum + subtrip.rate * subtrip.loadingWeight, 0) || 0
-            )}
-          </Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>
-            {fCurrency(
-              subtrips?.reduce((sum, subtrip) => {
-                const subtripExpenses =
-                  subtrip.expenses?.reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
-                return sum + subtripExpenses;
-              }, 0) || 0
-            )}
-          </Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>
-            {fCurrency(
-              subtrips?.reduce((sum, subtrip) => {
-                const dieselExpenses =
-                  subtrip.expenses
-                    ?.filter((expense) => expense.expenseType === 'fuel')
-                    .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
-                return sum + dieselExpenses;
-              }, 0) || 0
-            )}
-          </Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>
-            {subtrips?.reduce((sum, subtrip) => {
-              const kmCovered = (subtrip.endKm || 0) - (subtrip.startKm || 0);
-              return sum + kmCovered;
-            }, 0) || 0}
-          </Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellContent]}>
-            {fCurrency(
-              subtrips?.reduce((sum, subtrip) => {
-                const subtripIncome = subtrip.rate * subtrip.loadingWeight;
-                const subtripExpenses =
-                  subtrip.expenses?.reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
-                return sum + (subtripIncome - subtripExpenses);
-              }, 0) || 0
-            )}
-          </Text>
-        </View>
-      </View>
-    </>
-  );
-
-  const renderSubtripDetails = () => (
-    <>
-      <View style={[styles.gridContainer]}>
-        <Text style={[styles.h4, styles.mb4]}>Subtrip Details</Text>
-      </View>
-
-      <View style={[styles.gridContainer, styles.border]}>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Sr. No</Text>
-        </View>
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>LR No</Text>
-        </View>
-
-        <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Customer</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Route</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Dispatch/closed Date</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Distance</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Income</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Expenses</Text>
-        </View>
-
-        <View style={[styles.col1, styles.horizontalCell]}>
-          <Text style={[styles.horizontalCellTitle]}>Net Amount</Text>
-        </View>
-      </View>
-
-      {subtrips?.map((subtrip, idx) => {
-        const kmCovered = (subtrip.endKm || 0) - (subtrip.startKm || 0);
-        const expenses = subtrip.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
-        const income = subtrip.rate * subtrip.loadingWeight;
-        const netAmount = income - expenses;
-
-        return (
-          <View key={subtrip._id} style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>{idx + 1}</Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>{subtrip._id}</Text>
-            </View>
-
-            <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>
-                {subtrip?.customerId?.customerName || 'NA'}
-              </Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>
-                {subtrip.loadingPoint} to {subtrip.unloadingPoint}
-              </Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>
-                {fDateRangeShortLabel(subtrip.startDate, subtrip.endDate)}
-              </Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>{kmCovered}</Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>{fCurrency(income)}</Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-              <Text style={[styles.horizontalCellContent]}>{fCurrency(expenses)}</Text>
-            </View>
-
-            <View style={[styles.col1, styles.horizontalCell]}>
-              <Text style={[styles.horizontalCellContent]}>{fCurrency(netAmount)}</Text>
-            </View>
-          </View>
-        );
-      })}
-    </>
-  );
+  const netTotal = totalIncome - totalExpenses;
 
   return (
     <Document>
-      <Page size="A5" style={styles.page} orientation="landscape">
-        {renderDocumentTitle()}
-        {renderCompanyHeader()}
-        {renderTripDetails()}
-        {renderSummaryDetails()}
-      </Page>
+      <Page size="A4" style={PDFStyles.page} orientation="landscape">
+        <PDFTitle title="Trip Summary" />
+        <PDFHeader />
 
-      <Page size="A5" style={styles.page} orientation="landscape">
-        {renderSubtripDetails()}
+        {/* Details Section */}
+        <View style={{ flexDirection: 'row', marginVertical: 1 }}>
+          <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
+            <Text style={PDFStyles.subtitle1}>Trip Details</Text>
+            <Text>Trip ID: {tripId}</Text>
+            <Text>Status: {tripStatus}</Text>
+            <Text>Start Date: {fDate(fromDate)}</Text>
+            <Text>End Date: {endDate ? fDate(endDate) : 'N/A'}</Text>
+          </View>
+          <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
+            <Text style={PDFStyles.subtitle1}>Vehicle Details</Text>
+            <Text>Vehicle: {vehicleId?.vehicleNo}</Text>
+            <Text>Ownership: {vehicleId?.isOwn ? 'Own' : 'Market'}</Text>
+            <Text>Type: {vehicleId?.vehicleType}</Text>
+            <Text>No. Of Tyres: {vehicleId?.noOfTyres}</Text>
+          </View>
+          <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
+            <Text style={PDFStyles.subtitle1}>Driver Details</Text>
+            <Text>Name: {driverId?.driverName}</Text>
+            <Text>Cell No: {driverId?.driverCellNo}</Text>
+          </View>
+        </View>
+
+        {/* Subtrip Table */}
+        <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Subtrip Details</Text>
+        <PDFTable
+          headers={subtripHeaders}
+          data={subtripData}
+          columnWidths={[1, 1, 2, 3, 1, 1, 1, 1, 1]}
+        />
+
+        {/* Expense Table */}
+        <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Expense Details</Text>
+        <PDFTable
+          headers={expenseHeaders}
+          data={allExpenses}
+          columnWidths={[1, 1, 1, 2, 1, 1, 5]}
+        />
+
+        {/* Summary Section */}
+        <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
+        <PDFTable
+          headers={['Total Distance', 'Total Diesel', 'Total Income', 'Total Expenses', 'Profit']}
+          data={[
+            [
+              fNumber(totalDistance),
+              '',
+              fCurrency(totalIncome),
+              fCurrency(totalExpenses),
+              fCurrency(netTotal),
+            ],
+          ]}
+          columnWidths={[1, 1, 1, 1, 1]}
+        />
       </Page>
     </Document>
   );
