@@ -149,7 +149,6 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                   selected={selectedDriver?.driverName}
                   error={!!errors.driverId?.message}
                   iconName="mdi:account"
-                  disabled={currentTrip}
                 />
               </Box>
 
@@ -181,6 +180,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
         onClose={driverDialog.onFalse}
         selectedDriver={selectedDriver}
         onDriverChange={handleDriverChange}
+        allowQuickCreate={!currentTrip}
       />
     </Form>
   );

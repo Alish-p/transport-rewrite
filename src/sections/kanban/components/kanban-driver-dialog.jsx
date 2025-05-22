@@ -165,28 +165,33 @@ const NotFoundWithQuickCreate = ({
   onQuickCreate,
   isSubmitting,
   error,
+  allowQuickCreate,
 }) => (
   <Box sx={{ p: 3 }}>
     {!showQuickCreate ? (
       <>
         <SearchNotFound query={searchQuery} sx={{ mt: 3, mb: 3 }} />
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={onShowQuickCreate}
-          startIcon={<Iconify icon="eva:plus-fill" />}
-        >
-          Create New Driver
-        </Button>
+        {allowQuickCreate && (
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={onShowQuickCreate}
+            startIcon={<Iconify icon="eva:plus-fill" />}
+          >
+            Create New Driver
+          </Button>
+        )}
       </>
     ) : (
-      <QuickCreateForm
-        onSubmit={onQuickCreate}
-        onCancel={() => onShowQuickCreate(false)}
-        isSubmitting={isSubmitting}
-        searchQuery={searchQuery}
-        error={error}
-      />
+      allowQuickCreate && (
+        <QuickCreateForm
+          onSubmit={onQuickCreate}
+          onCancel={() => onShowQuickCreate(false)}
+          isSubmitting={isSubmitting}
+          searchQuery={searchQuery}
+          error={error}
+        />
+      )
     )}
   </Box>
 );
@@ -209,7 +214,13 @@ function applyFilter({ inputData, query }) {
 
 // ----------------------------------------------------------------------
 
-export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDriverChange }) {
+export function KanbanDriverDialog({
+  selectedDriver = null,
+  open,
+  onClose,
+  onDriverChange,
+  allowQuickCreate,
+}) {
   const { data: drivers, refetch } = useDrivers();
   const {
     mutate: createDriver,
@@ -313,6 +324,7 @@ export function KanbanDriverDialog({ selectedDriver = null, open, onClose, onDri
             onQuickCreate={handleQuickCreate}
             isSubmitting={isSubmitting}
             error={error || (mutationError ? mutationError.message : null)}
+            allowQuickCreate={allowQuickCreate}
           />
         ) : (
           <DriverList
