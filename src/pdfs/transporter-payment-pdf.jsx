@@ -74,18 +74,6 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
   const renderTaxBreakup = () => {
     const data = [];
 
-    if (taxBreakup?.cgst?.rate > 0) {
-      data.push([' ', `CGST-${taxBreakup.cgst.rate}%`, fCurrency(taxBreakup.cgst.amount)]);
-    }
-
-    if (taxBreakup?.sgst?.rate > 0) {
-      data.push([' ', `SGST-${taxBreakup.sgst.rate}%`, fCurrency(taxBreakup.sgst.amount)]);
-    }
-
-    if (taxBreakup?.igst?.rate > 0) {
-      data.push([' ', `IGST-${taxBreakup.igst.rate}%`, fCurrency(taxBreakup.igst.amount)]);
-    }
-
     if (taxBreakup?.tds?.rate > 0) {
       data.push([' ', `TDS-${taxBreakup.tds.rate}%`, fCurrency(taxBreakup.tds.amount)]);
     }
@@ -97,6 +85,26 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
     }
 
     data.push([' ', 'Net Total', fCurrency(summary.netIncome)]);
+
+    if (taxBreakup?.cgst?.rate > 0) {
+      data.push([
+        'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us. ',
+        `CGST-${taxBreakup.cgst.rate}%`,
+        fCurrency(taxBreakup.cgst.amount),
+      ]);
+    }
+
+    if (taxBreakup?.sgst?.rate > 0) {
+      data.push([' ', `SGST-${taxBreakup.sgst.rate}%`, fCurrency(taxBreakup.sgst.amount)]);
+    }
+
+    if (taxBreakup?.igst?.rate > 0) {
+      data.push([
+        'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us. ',
+        `IGST-${taxBreakup.igst.rate}%`,
+        fCurrency(taxBreakup.igst.amount),
+      ]);
+    }
 
     return <PDFTable headers={['', '', '']} data={data} columnWidths={[12, 1, 1]} hideHeader />;
   };

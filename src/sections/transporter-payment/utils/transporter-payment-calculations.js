@@ -24,7 +24,7 @@ export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
       sgst: { rate: taxRate, amount: taxAmount },
       igst: { rate: 0, amount: 0 },
       tds: { rate: tdsRate, amount: tdsAmount },
-      totalTax: 2 * taxAmount + tdsAmount, // shall not deduct GST in net total under GST reverse mechanism
+      totalTax: tdsAmount, // shall not deduct GST in net total under GST reverse mechanism
     };
   }
   const igstRate = 2 * taxRate;

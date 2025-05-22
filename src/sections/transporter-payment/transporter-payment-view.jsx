@@ -207,30 +207,32 @@ function RenderTable({ transporterPayment }) {
           </StyledTableRow>
 
           {cgst?.rate > 0 && (
-            <StyledTableRow title="GST under RCM Mechnism">
-              <TableCell colSpan={12} />
-              <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'info.main' }}>
-                {fCurrency(cgst.amount)}
+            <StyledTableRow>
+              <TableCell colSpan={12}>
+                I/we have taken registration under the CGST Act, 2017 and have exercised the option
+                to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
+              <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
+              <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
             </StyledTableRow>
           )}
 
           {sgst?.rate > 0 && (
-            <StyledTableRow title="GST under RCM Mechnism">
+            <StyledTableRow>
               <TableCell colSpan={12} />
               <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'info.main' }}>
-                {fCurrency(sgst.amount)}
-              </TableCell>
+              <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
             </StyledTableRow>
           )}
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12} />
+              <TableCell colSpan={12}>
+                I/we have taken registration under the CGST Act, 2017 and have exercised the option
+                to pay tax on services of GTA in relation to transport of goods supplied by us.
+              </TableCell>
               <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
-              <TableCell align="right" sx={{ color: 'info.main' }} title="GST under RCM Mechnism">
+              <TableCell align="right" title="GST under RCM Mechnism">
                 {fCurrency(igst.amount)}
               </TableCell>
             </StyledTableRow>

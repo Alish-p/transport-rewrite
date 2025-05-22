@@ -180,19 +180,15 @@ export default function TransporterPaymentPreviewUI({
               </TableCell>
             </TableRow>
 
-            {/* tax & extra charges */}
-            {[taxBreakup.cgst, taxBreakup.sgst, taxBreakup.igst, taxBreakup.tds].map(
-              ({ rate, amount }, idx) =>
-                rate > 0 && (
-                  <TableRow key={idx}>
-                    <TableCell colSpan={13} align="right">
-                      {['CGST', 'SGST', 'IGST', 'TDS'][idx]} ({rate}%)
-                    </TableCell>
-                    <TableCell align="right" sx={{ color: 'error.main' }}>
-                      {`- ${fCurrency(amount)}`}
-                    </TableCell>
-                  </TableRow>
-                )
+            {taxBreakup?.tds?.rate > 0 && (
+              <TableRow>
+                <TableCell colSpan={13} align="right">
+                  TDS ({taxBreakup.tds.rate}%)
+                </TableCell>
+                <TableCell sx={{ color: 'error.main' }} align="right">
+                  -{fCurrency(taxBreakup.tds.amount)}
+                </TableCell>
+              </TableRow>
             )}
 
             {additionalCharges.map(({ label, amount }, i) => (
@@ -215,6 +211,19 @@ export default function TransporterPaymentPreviewUI({
                 {fCurrency(netIncome)}
               </TableCell>
             </TableRow>
+
+            {/* tax & extra charges */}
+            {[taxBreakup.cgst, taxBreakup.sgst, taxBreakup.igst].map(
+              ({ rate, amount }, idx) =>
+                rate > 0 && (
+                  <TableRow key={idx}>
+                    <TableCell colSpan={13} align="right">
+                      {['CGST', 'SGST', 'IGST', 'TDS'][idx]} ({rate}%)
+                    </TableCell>
+                    <TableCell align="right">{fCurrency(amount)}</TableCell>
+                  </TableRow>
+                )
+            )}
           </TableBody>
         </Table>
       </TableContainer>
