@@ -156,6 +156,7 @@ export default function TripToolbar({
               viewPopover.onClose();
               viewTripSummary.onTrue();
             }}
+            disabled={!tripData.vehicleId.isOwn}
           >
             Trip Summary
           </MenuItem>

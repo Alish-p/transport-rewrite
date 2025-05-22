@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { FixedSizeList as List } from 'react-window';
 
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Skeleton from '@mui/material/Skeleton';
@@ -15,6 +16,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
+
+import { Label } from '../../../components/label';
+import { fDate } from '../../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -39,13 +43,29 @@ const TripItem = ({ data: { trips, selectedTrip, onSelect }, index, style }) => 
       }}
     >
       <ListItemText
-        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-        secondaryTypographyProps={{ typography: 'caption' }}
+        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 1, color: 'primary.dark' } }}
+        secondaryTypographyProps={{ typography: 'caption', marginBottom: '5px' }}
         primary={`Trip ${trip._id}`}
         secondary={
-          <>
-            Vehicle: {trip.vehicleId?.vehicleNo} • Driver: {trip.driverId?.driverName}
-          </>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Label variant="primary" color="primary" startIcon={<Iconify icon="eva:car-outline" />}>
+              {trip.vehicleId?.vehicleNo || '—'}
+            </Label>
+            <Label
+              variant="primary"
+              color="default"
+              startIcon={<Iconify icon="eva:person-outline" width={16} />}
+            >
+              {trip.driverId?.driverName || '—'}
+            </Label>
+            <Label
+              variant="primary"
+              color="default"
+              startIcon={<Iconify icon="eva:calendar-outline" width={16} />}
+            >
+              {fDate(trip.fromDate)}
+            </Label>
+          </Stack>
         }
       />
 
@@ -119,7 +139,7 @@ export function KanbanTripDialog({
   const notFound = !dataFiltered.length && !!searchTrip;
 
   return (
-    <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
+    <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
         Trips <Typography component="span">({trips?.length})</Typography>
       </DialogTitle>

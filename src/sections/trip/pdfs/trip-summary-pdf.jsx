@@ -60,18 +60,23 @@ export default function TripSummaryPdf({ trip }) {
     'Net Amount',
   ];
 
-  // Prepare flat expense table
+  // Prepare flat expense table with global indexing
+  let expenseIndex = 0;
   const allExpenses = subtrips.flatMap((st) =>
-    (st.expenses || []).map((e, idx) => [
-      idx + 1,
-      st._id || '-',
-      e.expenseType,
-      fDateTime(e.date),
-      fCurrency(e.amount),
-      e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? `${e.dieselLtr} LTR` : '-',
-      wrapText(e.remarks, 60),
-    ])
+    (st.expenses || []).map((e) => {
+      expenseIndex += 1;
+      return [
+        expenseIndex,
+        st._id || '-',
+        e.expenseType,
+        fDateTime(e.date),
+        fCurrency(e.amount),
+        e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? `${e.dieselLtr} LTR` : '-',
+        wrapText(e.remarks, 60),
+      ];
+    })
   );
+
   const expenseHeaders = ['Sr. No', 'LR No', 'Type', 'Date', 'Amount', 'LTR', 'Remarks'];
 
   // Summary calculations
@@ -80,6 +85,17 @@ export default function TripSummaryPdf({ trip }) {
   const totalExpenses = subtrips.reduce(
     (sum, st) =>
       sum + (Array.isArray(st.expenses) ? st.expenses.reduce((s, e) => s + (e.amount || 0), 0) : 0),
+    0
+  );
+  const totalDiesel = subtrips.reduce(
+    (sum, st) =>
+      sum +
+      (Array.isArray(st.expenses)
+        ? st.expenses.reduce(
+            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+            0
+          )
+        : 0),
     0
   );
   const netTotal = totalIncome - totalExpenses;
@@ -135,14 +151,14 @@ export default function TripSummaryPdf({ trip }) {
           headers={['Total Distance', 'Total Diesel', 'Total Income', 'Total Expenses', 'Profit']}
           data={[
             [
-              fNumber(totalDistance),
-              '',
+              `${fNumber(totalDistance)} Km`,
+              `${fNumber(totalDiesel)} L`,
               fCurrency(totalIncome),
               fCurrency(totalExpenses),
               fCurrency(netTotal),
             ],
           ]}
-          columnWidths={[1, 1, 1, 1, 1]}
+          columnWidths={[2, 2, 2, 2, 2]}
         />
       </Page>
     </Document>
