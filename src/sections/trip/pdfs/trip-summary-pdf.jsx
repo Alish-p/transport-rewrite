@@ -1,8 +1,8 @@
 import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
 import { wrapText } from 'src/utils/change-case';
+import { fDate, fDateTime } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
-import { fDate, fDateTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
 
@@ -39,7 +39,8 @@ export default function TripSummaryPdf({ trip }) {
       st._id || '-',
       st.customerId?.customerName || '-',
       st.routeCd?.routeName || '-',
-      fDateRangeShortLabel(st?.startDate, st?.endDate),
+      fDate(st?.startDate),
+      fDate(st?.endDate),
       `${st.endKm - st.startKm || 0} km`,
       fCurrency(income || 0),
       fCurrency(expenseTotal || 0),
@@ -52,7 +53,8 @@ export default function TripSummaryPdf({ trip }) {
     'LR No',
     'Customer',
     'Route',
-    'Duration',
+    'Start Date',
+    'Received Date',
     'Distance',
     'Income',
     'Expenses',
@@ -79,13 +81,16 @@ export default function TripSummaryPdf({ trip }) {
   const expenseHeaders = ['Sr. No', 'LR No', 'Type', 'Date', 'Amount', 'LTR', 'Remarks'];
 
   // Summary calculations
-  const totalDistance = subtrips.reduce((sum, st) => sum + (st.routeCd?.distance || 0), 0);
   const totalIncome = subtrips.reduce((sum, st) => sum + (st.rate * st.loadingWeight || 0), 0);
   const totalExpenses = subtrips.reduce(
     (sum, st) =>
       sum + (Array.isArray(st.expenses) ? st.expenses.reduce((s, e) => s + (e.amount || 0), 0) : 0),
     0
   );
+  const netTotal = totalIncome - totalExpenses;
+
+  // Calculate total distance and diesel consumption
+  const totalKm = subtrips.reduce((sum, st) => sum + (st.endKm - st.startKm || 0), 0);
   const totalDiesel = subtrips.reduce(
     (sum, st) =>
       sum +
@@ -97,7 +102,7 @@ export default function TripSummaryPdf({ trip }) {
         : 0),
     0
   );
-  const netTotal = totalIncome - totalExpenses;
+  const mileage = totalDiesel > 0 ? totalKm / totalDiesel : 0;
 
   return (
     <Document>
@@ -110,7 +115,6 @@ export default function TripSummaryPdf({ trip }) {
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Trip Details</Text>
             <Text>Trip ID: {tripId}</Text>
-            <Text>Status: {tripStatus}</Text>
             <Text>Start Date: {fDate(fromDate)}</Text>
             <Text>End Date: {endDate ? fDate(endDate) : 'N/A'}</Text>
           </View>
@@ -133,7 +137,7 @@ export default function TripSummaryPdf({ trip }) {
         <PDFTable
           headers={subtripHeaders}
           data={subtripData}
-          columnWidths={[1, 1, 2, 3, 1, 1, 1, 1, 1]}
+          columnWidths={[1, 1, 2, 2, 1, 1, 1, 1, 1, 1]}
         />
 
         {/* Expense Table */}
@@ -147,17 +151,25 @@ export default function TripSummaryPdf({ trip }) {
         {/* Summary Section */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
         <PDFTable
-          headers={['Total Distance', 'Total Diesel', 'Total Income', 'Total Expenses', 'Profit']}
+          headers={[
+            'Total Distance',
+            'Mileage',
+            'Total Diesel',
+            'Total Income',
+            'Total Expenses',
+            'Profit',
+          ]}
           data={[
             [
-              `${fNumber(totalDistance)} Km`,
+              `${fNumber(totalKm)} Km`,
+              `${fNumber(mileage)} Km/L`,
               `${fNumber(totalDiesel)} L`,
               fCurrency(totalIncome),
               fCurrency(totalExpenses),
               fCurrency(netTotal),
             ],
           ]}
-          columnWidths={[2, 2, 2, 2, 2]}
+          columnWidths={[2, 2, 2, 2, 2, 2]}
         />
       </Page>
     </Document>
