@@ -1,12 +1,11 @@
-/* eslint-disable react/prop-types */
 import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
+import { wrapText } from 'src/utils/change-case';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDate, fDateTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
 
-import { wrapText } from '../../../utils/change-case';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
 Font.register({

@@ -20,25 +20,23 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
-import { calculateTaxBreakup } from './utills/invoice-calculation';
+import {
+  calculateTaxBreakup,
+  calculateInvoiceSummary,
+  calculateInvoicePerSubtrip,
+} from './utills/invoice-calculation';
 
 const StyledTableRow = (props) => (
   <TableRow {...props} sx={{ '& td': { borderBottom: 'none', pt: 1, pb: 1 } }} />
 );
 
 const StyledTableCell = (props) => <TableCell {...props} sx={{ fontWeight: 'bold' }} />;
-
-function calculateSubtripTotal(subtrip) {
-  const freightAmount = (subtrip.loadingWeight || 0) * (subtrip.rate || 0);
-  const shortage = subtrip.shortageAmount || 0;
-  return freightAmount - shortage;
-}
 
 function RenderHeader({ draft }) {
   return (
@@ -74,12 +72,7 @@ function RenderAddress({ title, details }) {
 
 function RenderTable({ subtrips, selectedCustomer }) {
   const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
-
-  const subtotal = subtrips.reduce((acc, st) => acc + calculateSubtripTotal(st), 0);
-  const cgstAmount = subtotal * (cgst / 100);
-  const sgstAmount = subtotal * (sgst / 100);
-  const igstAmount = subtotal * (igst / 100);
-  const netTotal = subtotal + cgstAmount + sgstAmount + igstAmount;
+  const summary = calculateInvoiceSummary({ subtripIds: subtrips });
 
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
@@ -95,48 +88,54 @@ function RenderTable({ subtrips, selectedCustomer }) {
             <StyledTableCell>Freight Rate</StyledTableCell>
             <StyledTableCell>Quantity</StyledTableCell>
             <StyledTableCell>Total Amount</StyledTableCell>
+            <StyledTableCell>Shortage Weight</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {subtrips.map((st, idx) => (
-            <TableRow key={st._id}>
-              <TableCell>{idx + 1}</TableCell>
-              <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
-
-              <TableCell>{st.consignee}</TableCell>
-              <TableCell>{st.unloadingPoint}</TableCell>
-              <TableCell>
-                <RouterLink
-                  to={paths.dashboard.subtrip.details(st._id)}
-                  style={{
-                    color: '#2e7d32',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                  }}
-                >
-                  {st._id}
-                </RouterLink>
-              </TableCell>
-              <TableCell>{fDate(st.startDate)}</TableCell>
-              <TableCell>{fCurrency(st.rate)}</TableCell>
-              <TableCell>
-                {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
-              </TableCell>
-              <TableCell>{fCurrency(calculateSubtripTotal(st))}</TableCell>
-            </TableRow>
-          ))}
+          {subtrips.map((st, idx) => {
+            const { totalAmount } = calculateInvoicePerSubtrip(st);
+            return (
+              <TableRow key={st._id}>
+                <TableCell>{idx + 1}</TableCell>
+                <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                <TableCell>{st.consignee}</TableCell>
+                <TableCell>{st.unloadingPoint}</TableCell>
+                <TableCell>
+                  <RouterLink
+                    to={paths.dashboard.subtrip.details(st._id)}
+                    style={{
+                      color: '#2e7d32',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    {st._id}
+                  </RouterLink>
+                </TableCell>
+                <TableCell>{fDate(st.startDate)}</TableCell>
+                <TableCell>{fCurrency(st.rate)}</TableCell>
+                <TableCell>
+                  {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                </TableCell>
+                <TableCell>{fCurrency(totalAmount)}</TableCell>
+                <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
+                  {fNumber(st.shortageWeight)}
+                </TableCell>
+              </TableRow>
+            );
+          })}
 
           <StyledTableRow>
             <TableCell colSpan={7} />
             <StyledTableCell>Subtotal</StyledTableCell>
-            <TableCell colSpan={1}>{fCurrency(subtotal)}</TableCell>
+            <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
           </StyledTableRow>
 
           {cgst > 0 && (
             <StyledTableRow>
               <TableCell colSpan={7} />
               <StyledTableCell>CGST ({cgst}%)</StyledTableCell>
-              <TableCell>{fCurrency(cgstAmount)}</TableCell>
+              <TableCell>{fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
             </StyledTableRow>
           )}
 
@@ -144,7 +143,7 @@ function RenderTable({ subtrips, selectedCustomer }) {
             <StyledTableRow>
               <TableCell colSpan={7} />
               <StyledTableCell>SGST ({sgst}%)</StyledTableCell>
-              <TableCell>{fCurrency(sgstAmount)}</TableCell>
+              <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
             </StyledTableRow>
           )}
 
@@ -152,13 +151,14 @@ function RenderTable({ subtrips, selectedCustomer }) {
             <StyledTableRow>
               <TableCell colSpan={7} />
               <StyledTableCell>IGST ({igst}%)</StyledTableCell>
-              <TableCell>{fCurrency(igstAmount)}</TableCell>
+              <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
             </StyledTableRow>
           )}
+
           <StyledTableRow>
             <TableCell colSpan={7} />
             <StyledTableCell>Net Total</StyledTableCell>
-            <TableCell sx={{ color: 'error.main' }}>{fCurrency(netTotal)}</TableCell>
+            <TableCell sx={{ color: 'error.main' }}>{fCurrency(summary.totalAfterTax)}</TableCell>
           </StyledTableRow>
         </TableBody>
       </Table>

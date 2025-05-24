@@ -41,7 +41,7 @@ export default function InvoicePdf({ invoice }) {
       'Freight Rate',
       'Dispatch Weight',
       'Freight Amount',
-      'Shortage',
+      'Shortage Weight',
     ];
 
     const data = subtripSnapshot.map((subtrip, index) => [

@@ -17,16 +17,18 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { useSearchParams } from 'src/routes/hooks';
+
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { paramCase } from 'src/utils/change-case';
 
 import { useUpdateSubtrip } from 'src/query/use-subtrip';
 
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { paths } from '../../routes/paths';
-import { paramCase } from '../../utils/change-case';
-import { useSearchParams } from '../../routes/hooks';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
@@ -114,6 +116,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const defaultValues = useMemo(
     () => ({
       ...currentSubtrip,
+      hasShortage: currentSubtrip?.shortageWeight > 0 || false,
       customerId: currentSubtrip?.customerId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
       routeCd: currentSubtrip?.routeCd?._id,
