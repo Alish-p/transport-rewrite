@@ -1,4 +1,3 @@
-// Cleaned & Simplified SubtripReceiveForm
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect, useCallback } from 'react';
@@ -133,10 +132,11 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 Shortage Details
               </Typography>
               <Stack direction="row" spacing={2}>
-                <Field.Text
+                <Field.Number
                   name="shortageWeight"
                   label="Shortage Weight"
-                  type="number"
+                  helperText=""
+                  placeholder="0"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">

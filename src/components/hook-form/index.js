@@ -30,4 +30,6 @@ export * from './rhf-phone-input';
 
 export * from './rhf-autocomplete';
 
+export * from './rhf-number-field';
+
 export * from './rhf-country-select';
