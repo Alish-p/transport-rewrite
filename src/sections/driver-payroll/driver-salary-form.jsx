@@ -1,238 +1,341 @@
-/* eslint-disable react/prop-types */
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import React, { useState, useEffect } from 'react';
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import { Divider, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Alert,
+  Button,
+  Typography,
+  IconButton,
+  FormHelperText,
+} from '@mui/material';
 
-import { Field } from 'src/components/hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Iconify } from '../../components/iconify';
+import { useTripsCompletedByDriverAndDate } from 'src/query/use-subtrip';
 
-/** Reusable Field Wrapper */
-const FieldWrapper = ({ children, ...props }) => (
-  <Grid item xs={12} md={props.md || 3}>
+import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
+
+import { RHFTextField } from '../../components/hook-form';
+import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
+import KanbanSubtripMultiSelectDialog from '../kanban/components/kanban-subtrip-multi-select-dialog';
+
+const FieldWrapper = ({ children, error, md = 3 }) => (
+  <Grid item xs={12} md={md}>
     {children}
+    {error && <FormHelperText error>{error}</FormHelperText>}
   </Grid>
 );
 
-/** Driver Dropdown */
-const DriverDropdown = ({ driversList }) => (
-  <Field.Select name="driverId" label="Driver">
-    <MenuItem value="">None</MenuItem>
-    <Divider sx={{ borderStyle: 'dashed' }} />
-    {driversList.map((driver) => (
-      <MenuItem key={driver._id} value={driver._id}>
-        {driver.driverName}
-      </MenuItem>
-    ))}
-  </Field.Select>
-);
+export default function DriverSalaryForm({ driverList }) {
+  const { control, watch, setValue, reset } = useFormContext();
+  const driverId = watch('driverId');
+  const billingPeriod = watch('billingPeriod');
+  const associatedSubtrips = watch('associatedSubtrips');
 
-/** Subtrips MultiSelect */
-const SubtripsMultiSelect = ({ filteredSubtrips }) =>
-  filteredSubtrips &&
-  filteredSubtrips.length > 0 && (
-    <Field.MultiSelect
-      checkbox
-      name="subtripComponents"
-      label="Subtrips"
-      options={filteredSubtrips.map((subtrip) => ({
-        label: subtrip._id,
-        value: subtrip._id,
-      }))}
-      sx={{ width: '100%' }}
-    />
-  );
+  // Dialog states
+  const driverDialog = useBoolean();
+  const subtripsDialog = useBoolean();
+  const dateDialog = useBoolean();
 
-/** Render Extra Salary Component */
-const RenderOtherSalaryComponent = ({ fields, remove }) => {
-  const handleRemoveSalaryComponent = (index) => {
-    remove(index);
-  };
+  // Fetch subtrips
+  const {
+    data: availableSubtrips = [],
+    refetch,
+    isLoading: loadingSubtrips,
+    error: subtripsError,
+  } = useTripsCompletedByDriverAndDate(driverId, billingPeriod?.start, billingPeriod?.end);
 
-  return (
-    <>
-      {fields.map((field, index) => (
-        <Grid container spacing={2} sx={{ mb: 2 }} key={field.id}>
-          <Grid
-            item
-            xs={12}
-            md={1}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-            }}
-          >
-            {index + 1}
-          </Grid>
-          <FieldWrapper>
-            <Field.Select name={`otherSalaryComponent[${index}].paymentType`} label="Payment Type">
-              <MenuItem value="">None</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              {[
-                { key: 'fixedSalary', value: 'Fixed Salary' },
-                { key: 'penalty', value: 'Penalty Deduction' },
-              ].map(({ value, key }) => (
-                <MenuItem key={key} value={value}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Field.Select>
-          </FieldWrapper>
-          <FieldWrapper>
-            <Field.Text name={`otherSalaryComponent[${index}].remarks`} label="Remarks" />
-          </FieldWrapper>
-          <FieldWrapper>
-            <Field.Text
-              name={`otherSalaryComponent[${index}].amount`}
-              label="Amount"
-              type="number"
-            />
-          </FieldWrapper>
-          <Grid
-            item
-            xs={12}
-            md={2}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-            }}
-          >
-            <Button
-              size="small"
-              color="error"
-              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-              onClick={() => handleRemoveSalaryComponent(index)}
-            >
-              Remove
-            </Button>
-          </Grid>
-        </Grid>
-      ))}
-    </>
-  );
-};
+  useEffect(() => {
+    if (driverId && billingPeriod?.start && billingPeriod?.end) {
+      refetch();
+      setValue('associatedSubtrips', [], { shouldValidate: true });
+    }
+  }, [driverId, billingPeriod?.start, billingPeriod?.end, refetch, setValue]);
 
-const RenderRepaymentComponent = ({ loans }) => (
-  <Grid container spacing={1} sx={{ m: 1, p: 1 }} key="index">
-    <Field.MultiCheckbox
-      column
-      name="selectedLoans"
-      label="Loans"
-      options={loans?.map((loan) => ({
-        label: `Total Amount: ₹${loan?.totalAmount} | Installment Amount: ${loan?.installmentAmount} | Remarks: ${loan?.remarks}`,
-        value: loan._id,
-      }))}
-    />
-  </Grid>
-);
-
-export default function DriverSalaryForm({
-  driversList,
-  loans,
-  filteredSubtrips,
-  onFetchSubtrips,
-}) {
-  const { watch, setValue, control } = useFormContext();
-
-  const { driverId, periodStartDate, periodEndDate } = watch();
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'otherSalaryComponent',
-  });
-
-  const handleAddSalaryComponent = () => {
-    append({
-      paymentType: '',
-      amount: 0,
-      remarks: '',
+  const handleReset = () => {
+    reset({
+      driverId: '',
+      billingPeriod: { start: null, end: null },
+      associatedSubtrips: [],
+      additionalPayments: [],
+      additionalDeductions: [],
     });
   };
 
+  // keep temp inputs in local state
+  const [tempPayment, setTempPayment] = useState({ label: '', amount: '' });
+  const [tempDeduction, setTempDeduction] = useState({ label: '', amount: '' });
+
+  const {
+    fields: paymentFields,
+    append: appendPayment,
+    remove: removePayment,
+  } = useFieldArray({ name: 'additionalPayments', control });
+
+  const {
+    fields: deductionFields,
+    append: appendDeduction,
+    remove: removeDeduction,
+  } = useFieldArray({ name: 'additionalDeductions', control });
+
   return (
-    <>
-      <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-        Driver Payroll Form
-      </Typography>
+    <Card sx={{ p: 3, mb: 3 }}>
+      {subtripsError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Error loading subtrips: {subtripsError.message}
+        </Alert>
+      )}
+      <Grid container spacing={2}>
+        {/* Driver Selector */}
+        <FieldWrapper error={!!control._formState.errors?.driverId}>
+          <Controller
+            name="driverId"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <DialogSelectButton
+                  placeholder="Select Driver *"
+                  selected={driverList.find((d) => d._id === field.value)?.driverName}
+                  onClick={driverDialog.onTrue}
+                  error={!!fieldState.error}
+                  iconName="mdi:person"
+                  disabled={loadingSubtrips}
+                />
+                <KanbanDriverDialog
+                  open={driverDialog.value}
+                  onClose={driverDialog.onFalse}
+                  selectedDriver={driverList.find((d) => d._id === field.value)}
+                  onDriverChange={(drv) => setValue('driverId', drv._id, { shouldValidate: true })}
+                />
+              </>
+            )}
+          />
+        </FieldWrapper>
 
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-          Please Select the Trips Completed By Driver.
-        </Typography>
+        {/* Billing Period Selector */}
+        <FieldWrapper md={2} error={!!control._formState.errors?.billingPeriod}>
+          <DialogSelectButton
+            placeholder="Select Date Range *"
+            selected={
+              billingPeriod?.start && billingPeriod?.end
+                ? `${new Date(billingPeriod.start).toLocaleDateString()} - ${new Date(billingPeriod.end).toLocaleDateString()}`
+                : 'Select Date Range'
+            }
+            onClick={dateDialog.onTrue}
+            error={!!control._formState.errors?.billingPeriod}
+            disabled={loadingSubtrips}
+            iconName="mdi:calendar"
+          />
+          <CustomDateRangePicker
+            open={dateDialog.value}
+            onClose={dateDialog.onFalse}
+            startDate={billingPeriod?.start}
+            endDate={billingPeriod?.end}
+            onChangeStartDate={(date) =>
+              setValue('billingPeriod.start', date, { shouldValidate: true })
+            }
+            onChangeEndDate={(date) =>
+              setValue('billingPeriod.end', date, { shouldValidate: true })
+            }
+          />
+        </FieldWrapper>
 
-        {/* Trip Selector */}
-        <Grid container spacing={2}>
-          <FieldWrapper>
-            <DriverDropdown driversList={driversList} />
-          </FieldWrapper>
+        {/* Subtrip Selector */}
+        <FieldWrapper md={6} error={!!control._formState.errors?.associatedSubtrips}>
+          <Controller
+            name="associatedSubtrips"
+            control={control}
+            render={({ field }) => (
+              <>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
+                  onClick={subtripsDialog.onTrue}
+                  disabled={availableSubtrips.length === 0 || loadingSubtrips}
+                  startIcon={
+                    <Iconify
+                      icon={field.value.length > 0 ? 'mdi:check' : 'mdi:check-outline'}
+                      sx={{ color: field.value.length > 0 ? 'primary.main' : 'text.disabled' }}
+                    />
+                  }
+                >
+                  {field.value.length > 0
+                    ? `${field.value.length} subtrip(s) selected`
+                    : availableSubtrips.length > 0
+                      ? 'Select Subtrips'
+                      : 'No subtrips available'}
+                </Button>
+                <KanbanSubtripMultiSelectDialog
+                  open={subtripsDialog.value}
+                  onClose={subtripsDialog.onFalse}
+                  subtrips={availableSubtrips}
+                  selectedSubtrips={field.value}
+                  onChange={field.onChange}
+                  title="Select Subtrips for Salary"
+                />
+              </>
+            )}
+          />
+        </FieldWrapper>
 
-          <FieldWrapper md={2}>
-            <Field.DatePicker name="periodStartDate" label="Start Date" />
-          </FieldWrapper>
-
-          <FieldWrapper md={2}>
-            <Field.DatePicker name="periodEndDate" label="End Date" />
-          </FieldWrapper>
-
+        {/* Reset Button */}
+        {(driverId ||
+          billingPeriod.start ||
+          billingPeriod.end ||
+          associatedSubtrips.length > 0) && (
           <FieldWrapper md={1}>
             <Button
-              type="button"
-              variant="contained"
-              fullWidth
-              sx={{ height: '100%', width: '50%' }}
-              onClick={onFetchSubtrips}
-            >
-              {'>'}
-            </Button>
-          </FieldWrapper>
-
-          <FieldWrapper md={4}>
-            <SubtripsMultiSelect filteredSubtrips={filteredSubtrips} />
-          </FieldWrapper>
-        </Grid>
-
-        {/* Loan Selector */}
-        {loans && loans.length > 0 && driverId && (
-          <Grid sx={{ my: 2 }}>
-            <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-              These are some pending loans of the driver. Select the loans to repay.
-            </Typography>
-
-            <RenderRepaymentComponent loans={loans} />
-            <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
-          </Grid>
-        )}
-
-        {/* Other Salary Component  */}
-
-        {driverId && (
-          <Grid sx={{ my: 2 }}>
-            <Typography sx={{ p: 1, mb: 1 }} variant="h6" color="green">
-              Please Select Extra Salary Component
-            </Typography>
-
-            <RenderOtherSalaryComponent fields={fields} remove={remove} />
-            <Button
-              size="medium"
               variant="outlined"
-              color="success"
-              onClick={handleAddSalaryComponent}
+              color="error"
+              fullWidth
+              sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
+              onClick={handleReset}
+              startIcon={<Iconify icon="mdi:refresh" />}
             >
-              + Add Salary Item
+              Reset
             </Button>
-
-            <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
-          </Grid>
+          </FieldWrapper>
         )}
-      </Card>
-    </>
+
+        {/* --- Additional Payments Section --- */}
+        <Grid container spacing={2} sx={{ mt: 3 }}>
+          <Grid item xs={6}>
+            <Box mt={4}>
+              <Typography variant="h6">Additional Payments</Typography>
+
+              <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
+                <Grid item xs={5}>
+                  <RHFTextField
+                    name="__tempPayment_label"
+                    label="Label"
+                    value={tempPayment.label}
+                    onChange={(e) => setTempPayment((p) => ({ ...p, label: e.target.value }))}
+                    placeholder="e.g. Fuel bonus"
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <RHFTextField
+                    name="__tempPayment_amount"
+                    label="Amount"
+                    type="number"
+                    value={tempPayment.amount}
+                    onChange={(e) => setTempPayment((p) => ({ ...p, amount: e.target.value }))}
+                    placeholder="0"
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<Iconify icon="mdi:plus-circle-outline" />}
+                    disabled={!tempPayment.label || !tempPayment.amount}
+                    onClick={() => {
+                      appendPayment({
+                        label: tempPayment.label,
+                        amount: Number(tempPayment.amount),
+                      });
+                      setTempPayment({ label: '', amount: '' });
+                    }}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+
+              {paymentFields.map((item, index) => (
+                <Grid container spacing={2} alignItems="center" key={item.id} sx={{ mt: 1 }}>
+                  <Grid item xs={5}>
+                    <RHFTextField name={`additionalPayments.${index}.label`} label="Label" />
+                  </Grid>
+                  <Grid item xs={5}>
+                    <RHFTextField
+                      name={`additionalPayments.${index}.amount`}
+                      label="Amount"
+                      type="number"
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <IconButton color="error" onClick={() => removePayment(index)} size="large">
+                      <Iconify icon="mdi:trash-can-outline" />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            {/* --- Additional Deductions (mirror the above block) --- */}
+            <Box mt={4}>
+              <Typography variant="h6">Additional Deductions</Typography>
+
+              <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
+                <Grid item xs={5}>
+                  <RHFTextField
+                    name="__tempDeduction_label"
+                    label="Label"
+                    value={tempDeduction.label}
+                    onChange={(e) => setTempDeduction((p) => ({ ...p, label: e.target.value }))}
+                    placeholder="e.g. Penalty"
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <RHFTextField
+                    name="__tempDeduction_amount"
+                    label="Amount"
+                    type="number"
+                    value={tempDeduction.amount}
+                    onChange={(e) => setTempDeduction((p) => ({ ...p, amount: e.target.value }))}
+                    placeholder="0"
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<Iconify icon="mdi:plus-circle-outline" />}
+                    disabled={!tempDeduction.label || !tempDeduction.amount}
+                    onClick={() => {
+                      appendDeduction({
+                        label: tempDeduction.label,
+                        amount: Number(tempDeduction.amount),
+                      });
+                      setTempDeduction({ label: '', amount: '' });
+                    }}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+
+              {deductionFields.map((item, index) => (
+                <Grid container spacing={2} alignItems="center" key={item.id} sx={{ mt: 1 }}>
+                  <Grid item xs={5}>
+                    <RHFTextField name={`additionalDeductions.${index}.label`} label="Label" />
+                  </Grid>
+                  <Grid item xs={5}>
+                    <RHFTextField
+                      name={`additionalDeductions.${index}.amount`}
+                      label="Amount"
+                      type="number"
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <IconButton color="error" onClick={() => removeDeduction(index)} size="large">
+                      <Iconify icon="mdi:trash-can-outline" />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Card>
   );
 }

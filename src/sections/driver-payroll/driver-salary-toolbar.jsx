@@ -20,9 +20,9 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Iconify } from 'src/components/iconify';
+import DriverSalaryPDF from 'src/pdfs/driver-salary-pdf';
 
-import DriverSalaryPDF from './driver-salary-pdf';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ export default function DriverSalaryToolbar({
           </Tooltip>
 
           <PDFDownloadLink
-            document={<DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />}
+            document={<DriverSalaryPDF driverSalary={payslip} />}
             fileName={payslip._id}
             style={{ textDecoration: 'none' }}
           >

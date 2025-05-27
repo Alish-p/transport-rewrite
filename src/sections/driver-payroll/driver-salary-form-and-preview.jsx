@@ -1,161 +1,119 @@
-import { z as zod } from 'zod';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import React from 'react';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { Stack } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { Stack, Alert } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter, getFirstDayOfCurrentMonth } from 'src/utils/format-time';
-
-import { Form, schemaHelper } from 'src/components/hook-form';
+import { useCreateDriverPayroll } from 'src/query/use-driver-payroll';
 
 import DriverSalaryForm from './driver-salary-form';
-import { usePendingLoans } from '../../query/use-loan';
 import DriverSalaryPreview from './driver-salary-preview';
-import { useCreateDriverPayroll } from '../../query/use-driver-payroll';
-import { useTripsCompletedByDriverAndDate } from '../../query/use-subtrip';
+import { schemaHelper } from '../../components/hook-form';
 
-// should match with db schema
-export const DriverSalarySchema = zod
-  .object({
-    _id: zod.string().optional(),
-    driverId: zod.string().min(1),
-    status: zod.string().optional(),
-    createdDate: schemaHelper
-      .date({ message: { required_error: 'Create date is required!' } })
-      .optional(),
-    periodStartDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-    periodEndDate: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
-    subtripComponents: zod.array(zod.string().min(1)).optional(),
-    selectedLoans: zod.array(zod.string().min(1)).optional(),
-    otherSalaryComponent: zod.array(
-      zod.object({
-        paymentType: zod.string().min(1, { message: 'Payment Type is required' }),
-        amount: zod.number().min(1, { message: 'Amount is required' }),
-        remarks: zod.string().min(1, { message: 'Invalid Remarks' }),
-      })
+// Zod schema for driver salary form
+const DriverSalarySchema = z.object({
+  driverId: z.string().min(1, 'Driver is required'),
+  billingPeriod: z
+    .object({
+      start: schemaHelper.date({
+        required_error: 'Start date is required',
+      }),
+      end: schemaHelper.date({
+        required_error: 'End date is required',
+      }),
+    })
+    .refine(
+      (data) => {
+        if (!data.start || !data.end) return true;
+        return (
+          dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start))
+        );
+      },
+      {
+        message: 'End date must be after or equal to start date',
+        path: ['end'],
+      }
     ),
-  })
-  .refine((data) => !fIsAfter(data.periodStartDate, data.periodEndDate), {
-    message: 'To-date cannot be earlier than From date!',
-    path: ['periodEndDate'],
-  });
+  associatedSubtrips: z.array(z.string()).min(1, 'At least one subtrip must be selected'),
+  additionalPayments: z
+    .array(
+      z.object({
+        label: z.string().min(1, 'Label required'),
+        amount: z.number().min(0, 'Amount must be ≥ 0'),
+      })
+    )
+    .optional(),
+  additionalDeductions: z
+    .array(
+      z.object({
+        label: z.string().min(1, 'Label required'),
+        amount: z.number().min(0, 'Amount must be ≥ 0'),
+      })
+    )
+    .optional(),
+});
 
 export default function DriverSalaryFormAndPreview({ driverList }) {
   const navigate = useNavigate();
-  const addDriverPayroll = useCreateDriverPayroll();
-
-  const defaultValues = useMemo(
-    () => ({
-      _id: '',
-      driverId: '',
-      status: '',
-      createdDate: new Date(),
-      periodStartDate: getFirstDayOfCurrentMonth(),
-      periodEndDate: new Date(),
-      subtripComponents: [],
-      otherSalaryComponent: [],
-      selectedLoans: [],
-    }),
-    []
-  );
+  const createDriverSalary = useCreateDriverPayroll();
 
   const methods = useForm({
     resolver: zodResolver(DriverSalarySchema),
-    defaultValues,
-    mode: 'all',
+    defaultValues: {
+      driverId: '',
+      billingPeriod: {
+        start: dayjs().startOf('month'),
+        end: dayjs(),
+      },
+      associatedSubtrips: [],
+      additionalPayments: [],
+      additionalDeductions: [],
+    },
+    mode: 'onChange',
   });
 
   const {
     handleSubmit,
-    watch,
-    formState: { isSubmitting, errors },
+    formState: { isValid, isSubmitting, errors },
+    setError,
   } = methods;
 
-  const {
-    subtripComponents,
-    driverId: selectedDriverID,
-    createdDate,
-    otherSalaryComponent,
-    periodStartDate,
-    periodEndDate,
-    selectedLoans,
-  } = watch();
-
-  const { data: allSubTripsByDriver, refetch } = useTripsCompletedByDriverAndDate(
-    selectedDriverID,
-    periodStartDate,
-    periodEndDate
-  );
-
-  // This callback will be passed to the child button
-  const handleFetchSubtrips = () => {
-    if (selectedDriverID && periodStartDate && periodEndDate) {
-      refetch();
-    }
-  };
-
-  const { data: pendingLoans } = usePendingLoans({
-    borrowerType: 'Driver',
-    borrowerId: selectedDriverID,
-  });
-
-  // Construct the draftDriverSalary object for the preview
-  const draftDriverSalary = useMemo(() => {
-    const selectedDriver = driverList.find((driver) => driver._id === selectedDriverID);
-    return {
-      // Match database schema names:
-      subtripComponents: allSubTripsByDriver?.filter((st) => subtripComponents.includes(st._id)),
-      selectedLoans: pendingLoans?.filter((loan) => selectedLoans.includes(loan._id)),
-      otherSalaryComponent,
-      driverId: selectedDriver || {},
-      status: 'pending',
-      createdDate: createdDate || new Date(),
-      periodStartDate,
-      periodEndDate,
-    };
-  }, [
-    driverList,
-    allSubTripsByDriver,
-    pendingLoans,
-    otherSalaryComponent,
-    createdDate,
-    periodStartDate,
-    periodEndDate,
-    selectedDriverID,
-    subtripComponents,
-    selectedLoans,
-  ]);
-
-  // Handle form submission (create)
   const onSubmit = async (data) => {
     try {
-      const createdDriverSalaryslip = await addDriverPayroll(draftDriverSalary);
-      navigate(paths.dashboard.driverSalary.details(createdDriverSalaryslip._id));
-    } catch (error) {
-      console.error('Error:', error);
+      const saved = await createDriverSalary(data);
+      navigate(paths.dashboard.driverSalary.details(saved._id));
+    } catch (err) {
+      setError('root', { type: 'manual', message: err.message || 'Failed to create salary.' });
     }
   };
 
   return (
-    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <DriverSalaryForm
-        driversList={driverList}
-        loans={pendingLoans}
-        filteredSubtrips={allSubTripsByDriver}
-        onFetchSubtrips={handleFetchSubtrips}
-      />
-      <DriverSalaryPreview driverSalary={draftDriverSalary} />
-
-      <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
-        <LoadingButton type="submit" size="large" variant="contained" loading={isSubmitting}>
-          Create Payslip
-        </LoadingButton>
-      </Stack>
-    </Form>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {errors.root && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errors.root.message}
+          </Alert>
+        )}
+        <DriverSalaryForm driverList={driverList} />
+        <DriverSalaryPreview driverList={driverList} />
+        <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!isValid}
+            loading={isSubmitting}
+          >
+            Create Salary
+          </LoadingButton>
+        </Stack>
+      </form>
+    </FormProvider>
   );
 }

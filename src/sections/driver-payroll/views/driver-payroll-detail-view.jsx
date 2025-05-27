@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useUpdateDriverPayrollStatus } from 'src/query/use-driver-payroll';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import DriverSalaryPreview from '../driver-salary-preview';
+import DriverSalaryView from '../driver-salary-view';
 import DriverSalaryToolbar from '../driver-salary-toolbar';
-import { useUpdateDriverPayrollStatus } from '../../../query/use-driver-payroll';
 
 export const PAYSLIP_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
@@ -47,7 +47,7 @@ export function DriverPayrollDetailView({ driverPayroll }) {
         statusOptions={PAYSLIP_STATUS_OPTIONS}
       />
 
-      <DriverSalaryPreview driverSalary={driverPayroll} />
+      <DriverSalaryView driverSalary={driverPayroll} />
     </DashboardContent>
   );
 }
