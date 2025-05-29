@@ -38,9 +38,9 @@ export default function DriverSalaryPdf({ driverSalary }) {
       st.subtripId,
       st.loadingPoint,
       st.unloadingPoint,
-      fCurrency(st.totaldriverSalary || 0),
+      fCurrency(st.totalDriverSalary || 0),
     ]);
-    const colWidths = [1, 1, 1, 1, 1, 1];
+    const colWidths = [2, 2, 2, 2, 2, 2];
     return <PDFTable headers={headers} data={data} columnWidths={colWidths} />;
   };
 
@@ -50,7 +50,7 @@ export default function DriverSalaryPdf({ driverSalary }) {
     additionalPayments.forEach((p) => rows.push(['', p.label, fCurrency(p.amount)]));
     additionalDeductions.forEach((d) => rows.push(['', d.label, fCurrency(d.amount)]));
     rows.push(['', 'Net Total', fCurrency(summary.netIncome)]);
-    return <PDFTable headers={['', '', '']} data={rows} columnWidths={[12, 1, 1]} hideHeader />;
+    return <PDFTable headers={['', '', '']} data={rows} columnWidths={[8, 2, 2]} hideHeader />;
   };
 
   return (

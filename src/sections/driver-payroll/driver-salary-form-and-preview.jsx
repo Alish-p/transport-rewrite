@@ -12,9 +12,10 @@ import { paths } from 'src/routes/paths';
 
 import { useCreateDriverPayroll } from 'src/query/use-driver-payroll';
 
+import { schemaHelper } from 'src/components/hook-form';
+
 import DriverSalaryForm from './driver-salary-form';
 import DriverSalaryPreview from './driver-salary-preview';
-import { schemaHelper } from '../../components/hook-form';
 
 // Zod schema for driver salary form
 const DriverSalarySchema = z.object({
@@ -97,7 +98,7 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
         {errors.root && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ my: 2 }}>
             {errors.root.message}
           </Alert>
         )}
