@@ -16,8 +16,8 @@ import { Iconify } from 'src/components/iconify';
 
 export default function LRInfoCard({ subtrip }) {
   const {
-    routeCd: { routeName } = {},
-    customerId: { customerName } = {},
+    routeCd = {},
+    customerId = {},
     ewayBill,
     ewayExpiryDate,
     loadingPoint,
@@ -39,6 +39,9 @@ export default function LRInfoCard({ subtrip }) {
     orderNo = '-',
     shipmentNo = '-',
   } = subtrip;
+
+  const routeName = routeCd?.routeName || '-';
+  const customerName = customerId?.customerName || '-';
 
   const renderCustomer = (
     <>

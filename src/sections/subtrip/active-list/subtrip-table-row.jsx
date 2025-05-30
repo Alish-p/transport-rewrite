@@ -56,13 +56,15 @@ export default function SubtripTableRow({
   const {
     _id,
     customerId,
-    routeCd: { routeName } = {},
+    routeCd,
     invoiceNo,
     subtripStatus,
     startDate,
     tripId: { vehicleId },
     ewayExpiryDate,
-  } = row;
+  } = row || {};
+
+  const routeName = routeCd?.routeName || '-';
 
   const confirm = useBoolean();
 
