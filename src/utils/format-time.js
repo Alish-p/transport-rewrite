@@ -247,3 +247,23 @@ export const getFirstDayOfCurrentMonth = () => {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1);
 };
+
+/**
+ * Returns the current fiscal year in "YY-YY" format (e.g. "25-26").
+ * Assumes fiscal year = April 1 → March 31.
+ */
+export function getCurrentFiscalYearShort() {
+  const now = dayjs();
+  const year = now.year(); // e.g. 2025
+  const month = now.month(); // 0 = Jan, 1 = Feb, …, 3 = Apr, …, 11 = Dec
+
+  // If month >= 3 (April or later), startYear = current year; otherwise (Jan–Mar), startYear = previous year
+  const startYear = month >= 3 ? year : year - 1;
+  const endYear = startYear + 1;
+
+  // Get last two digits (e.g. 2025 → "25", 2024 → "24")
+  const startShort = String(startYear).slice(-2);
+  const endShort = String(endYear).slice(-2);
+
+  return `${startShort}-${endShort}`;
+}

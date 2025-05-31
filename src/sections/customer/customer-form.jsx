@@ -1,60 +1,98 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
 // @mui
-import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Button,
-  Divider,
-  MenuItem,
-  Typography,
-  InputAdornment,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import CardHeader from '@mui/material/CardHeader';
+import LoadingButton from '@mui/lab/LoadingButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import { Paper, Tooltip, MenuItem, Typography } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+// hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
+// queries
 import { useCreateCustomer, useUpdateCustomer } from 'src/query/use-customer';
 
+import { Label } from 'src/components/label';
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { STATES } from './config';
 import { BankListDialog } from '../bank/bank-list-dialogue';
+import { getCurrentFiscalYearShort } from '../../utils/format-time';
 
+// ----------------------
+// 1. Updated Zod schema
+// ----------------------
 export const NewCustomerSchema = zod
   .object({
+    // Basic Details
     customerName: zod.string().min(1, { message: 'Customer Name is required' }),
-    gstEnabled: zod.boolean(),
-    GSTNo: zod.string().optional(),
-    PANNo: zod.string().min(1, { message: 'PAN No is required' }),
     address: zod.string().min(1, { message: 'Address is required' }),
-    place: zod.string(),
     state: zod.string().min(1, { message: 'State is required' }),
+
+    // pinCode is optional—but if they fill something, it must be 6 digits
+    pinCode: schemaHelper.pinCodeOptional({
+      message: { invalid_error: 'Pin Code must be exactly 6 digits' },
+    }),
+
+    // cellNo is optional—but if they fill something, it must be 10 digits
+    cellNo: schemaHelper.phoneNumberOptional({
+      message: { invalid_error: 'Phone number must be exactly 10 digits' },
+    }),
+
+    // Finance Details
+    bankDetails: zod.object({
+      name: zod.string().min(1, { message: 'Bank name is required' }),
+      branch: zod.string().min(1, { message: 'Branch is required' }),
+      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
+      place: zod.string().min(1, { message: 'Place is required' }),
+      accNo: schemaHelper.accountNumber({
+        message: {
+          required_error: 'Account number is required',
+          invalid_error: 'Account number must be between 9 and 18 digits',
+        },
+      }),
+    }),
+
+    GSTNo: schemaHelper.gstNumberOptional({
+      message: {
+        invalid_error: 'GST No must be a valid 15-character GST number. example: 27ABCDE1234F1Z5',
+      },
+    }),
+    gstEnabled: zod.boolean(),
+    PANNo: schemaHelper.panNumberOptional({
+      message: {
+        invalid_error: 'PAN No must be a valid 10-character PAN. example: ABCDE1234F',
+      },
+    }),
+
+    // Additional Details
+    transporterCode: zod.string().optional(),
     invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
-    pinCode: schemaHelper.pinCode({
-      message: {
-        required_error: 'Pin Code is required',
-        invalid_error: 'Pin Code must be exactly 6 digits',
-      },
-    }),
-    cellNo: schemaHelper.phoneNumber({
-      message: {
-        required_error: 'Mobile No is required',
-        invalid_error: 'Mobile No must be exactly 10 digits',
-      },
-    }),
+    invoicePrefix: zod.string().min(1, { message: 'Invoice Prefix is required' }),
+    currentInvoiceSerialNumber: zod
+      .number({
+        invalid_type_error: 'Invoice Serial Number must be a number',
+        required_error: 'Invoice Serial Number is required',
+      })
+      .int({ message: 'Invoice Serial Number must be an integer' })
+      .min(0, { message: 'Invoice Serial Number cannot be negative' }),
+
+    // Consignees (array of sub‐objects)
     consignees: zod.array(
       zod.object({
         name: zod.string().min(1, { message: 'Name is required' }),
@@ -68,19 +106,6 @@ export const NewCustomerSchema = zod
         }),
       })
     ),
-    bankDetails: zod.object({
-      name: zod.string().min(1, { message: 'Bank name is required' }),
-      branch: zod.string().min(1, { message: 'Branch is required' }),
-      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-      place: zod.string().min(1, { message: 'Place is required' }),
-      accNo: schemaHelper.accountNumber({
-        message: {
-          required_error: 'Account number is required',
-          invalid_error: 'Account number must be between 9 and 18 digits',
-        },
-      }),
-    }),
-    transporterCode: zod.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.gstEnabled && !data.GSTNo) {
@@ -92,8 +117,9 @@ export const NewCustomerSchema = zod
     }
   });
 
-// ----------------------------------------------------------------------
-
+// ----------------------
+// 2. Main component
+// ----------------------
 export default function CustomerNewForm({ currentCustomer, bankList }) {
   const navigate = useNavigate();
   const router = useRouter();
@@ -102,21 +128,17 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
   const addCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
 
+  // 2.1 Default values – include new fields, remove `place`
   const defaultValues = useMemo(
     () => ({
+      // Basic Details
       customerName: currentCustomer?.customerName || '',
       address: currentCustomer?.address || '',
-      place: currentCustomer?.place || '',
       state: currentCustomer?.state || '',
       pinCode: currentCustomer?.pinCode || '',
       cellNo: currentCustomer?.cellNo || '',
-      gstEnabled: currentCustomer?.gstEnabled ?? false,
-      GSTNo: currentCustomer?.GSTNo || '',
-      PANNo: currentCustomer?.PANNo || '',
-      invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
-      consignees: currentCustomer?.consignees || [
-        { name: '', address: '', state: '', pinCode: '' },
-      ],
+
+      // Finance Details
       bankDetails: {
         name: currentCustomer?.bankDetails?.name || '',
         ifsc: currentCustomer?.bankDetails?.ifsc || '',
@@ -124,11 +146,23 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
         branch: currentCustomer?.bankDetails?.branch || '',
         accNo: currentCustomer?.bankDetails?.accNo || '',
       },
+      gstEnabled: currentCustomer?.gstEnabled ?? false,
+      GSTNo: currentCustomer?.GSTNo || '',
+      PANNo: currentCustomer?.PANNo || '',
+
+      // Additional Details
       transporterCode: currentCustomer?.transporterCode || '',
+      invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
+      invoicePrefix: currentCustomer?.invoicePrefix || '',
+      currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,
+
+      // Consignees
+      consignees: currentCustomer?.consignees || [],
     }),
     [currentCustomer]
   );
 
+  // 2.2 Initialize React Hook Form
   const methods = useForm({
     resolver: zodResolver(NewCustomerSchema),
     defaultValues,
@@ -144,15 +178,17 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
     formState: { isSubmitting, errors },
   } = methods;
 
+  // Watch all form values for conditional rendering (e.g., gstEnabled)
   const values = watch();
-
   const { bankDetails } = values;
 
+  // 2.3 FieldArray for consignees
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'consignees',
   });
 
+  // 2.4 Submit handler
   const onSubmit = async (data) => {
     try {
       if (!currentCustomer) {
@@ -161,13 +197,13 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
         await updateCustomer({ id: currentCustomer._id, data });
       }
       reset();
-
       navigate(paths.dashboard.customer.list);
     } catch (error) {
       console.error(error);
     }
   };
 
+  // 2.5 Helpers to add/remove consignees
   const handleAddConsignee = () => {
     append({ name: '', address: '', state: '', pinCode: '' });
   };
@@ -176,110 +212,150 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
     remove(index);
   };
 
-  const renderCustomerDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Customer Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
-          }}
-        >
-          <Field.Text name="customerName" label="Customer Name" required />
-          <Field.Text name="address" label="Address" required />
-          <Field.Text name="place" label="Place" />
+  // ------------------------------------------------------
+  // 3.1. Whenever customerName changes, update prefix in “create” mode
+  // ------------------------------------------------------
+  useEffect(() => {
+    // If we're editing an existing customer, do nothing
+    if (currentCustomer) return;
 
-          <Field.Select name="state" label="State" required>
-            <MenuItem value="">None</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {STATES.map((state) => (
-              <MenuItem key={state.value} value={state.value}>
-                {state.label}
-              </MenuItem>
-            ))}
-          </Field.Select>
-          <Field.Text name="pinCode" label="Pin Code" required />
-          <Field.Text name="cellNo" label="Cell No" required />
-          <Field.Text name="PANNo" label="PAN No" required />
+    // Grab whichever text is in the Customer Name field
+    const nameValue = values.customerName || '';
+    // Remove all spaces, take first 3 chars, uppercase
+    const firstThree = nameValue.replace(/\s+/g, '').substring(0, 3).toUpperCase();
+
+    // If there aren’t at least 3 characters yet, just skip setting it
+    if (firstThree.length < 1) {
+      setValue('invoicePrefix', '');
+      return;
+    }
+
+    // Compute fiscal year suffix (e.g. "25-26")
+    const fy = getCurrentFiscalYearShort();
+
+    // Compose: e.g. "JKC/25-26/"
+    const newPrefix = `${firstThree}/${fy}/`;
+    setValue('invoicePrefix', newPrefix);
+  }, [values.customerName, currentCustomer, setValue]);
+
+  // ----------------------
+  // 4. Render each section as a Card
+  // ----------------------
+  const renderBasicDetails = (
+    <Card>
+      <CardHeader title="Basic Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="customerName" label="Customer Name" />
+        <Field.Text name="address" label="Address" multiline rows={4} />
+        <Field.Select name="state" label="State">
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {STATES.map((state) => (
+            <MenuItem key={state.value} value={state.value}>
+              {state.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
+        <Field.Text name="pinCode" label="Pin Code (Optional)" />
+        <Field.Text name="cellNo" label="Phone No (Optional)" />
+      </Stack>
+    </Card>
+  );
+
+  const renderFinanceDetails = (
+    <Card>
+      <CardHeader title="Finance Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        {/* Bank Selector */}
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={bankDialogue.onTrue}
+          sx={{
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
+            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+          }}
+          startIcon={
+            <Iconify
+              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
+            />
+          }
+        >
+          {bankDetails?.name || 'Select Bank'}
+        </Button>
+
+        <Field.Text name="bankDetails.accNo" label="Account No" />
+
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Field.Switch name="gstEnabled" label="GST Enabled" />
+
+          {values.gstEnabled && <Field.Text name="GSTNo" label="GST No" />}
+        </Stack>
+
+        <Field.Text name="PANNo" label="PAN No (Optional)" />
+      </Stack>
+    </Card>
+  );
+
+  const renderAdditionalDetails = (
+    <Card>
+      <CardHeader title="Additional Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Tooltip title="Customer’s transport ID for your company (appears on LR & invoice)" arrow>
           <Field.Text
             name="transporterCode"
-            label="Transporter Code"
-            helperText="Enter the unique identifier provided by the customer for their transportation services"
+            label="Transporter Code (Optional)"
+            placeholder="SHR321"
           />
-          <Field.Text
-            name="invoiceDueInDays"
-            label="Invoice Due In Days"
-            required
-            type="number"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">Days</InputAdornment>,
-            }}
-          />
-
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Field.Switch name="gstEnabled" label="GST Enabled" />
-
-            {values.gstEnabled && <Field.Text name="GSTNo" label="GST No" required />}
-          </Stack>
-        </Box>
-      </Card>
-    </>
-  );
-
-  const renderBankDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Bank Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+        </Tooltip>
+        <Field.Text
+          name="invoiceDueInDays"
+          label="Invoice Due In Days"
+          type="number"
+          InputProps={{
+            endAdornment: <InputAdornment position="end">Days</InputAdornment>,
           }}
-          gap={3}
-        >
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={bankDialogue.onTrue}
-            sx={{
-              height: 56,
-              justifyContent: 'flex-start',
-              typography: 'body2',
-              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-            }}
-            startIcon={
-              <Iconify
-                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-              />
-            }
-          >
-            {bankDetails?.name || 'Select Bank *'}
-          </Button>
+        />
+        <Paper elevation={1} variant="outlined" sx={{ p: 2 }}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Field.Text name="invoicePrefix" label="Invoice Prefix" placeholder="INV/2025-26/" />
 
-          <Field.Text name="bankDetails.accNo" label="Account No" required />
-        </Box>
-      </Card>
-    </>
+            <Field.Text
+              name="currentInvoiceSerialNumber"
+              label="Invoice Serial Number"
+              type="number"
+              placeholder="0"
+            />
+
+            {/* 3) Live preview label */}
+            <Box>
+              <Typography variant="body2">Preview:</Typography>
+              {values.invoicePrefix !== '' && values.currentInvoiceSerialNumber !== '' && (
+                <Label color="primary" variant="soft" sx={{ mt: 0.5 }}>
+                  {values.invoicePrefix}
+                  {values.currentInvoiceSerialNumber}
+                </Label>
+              )}
+            </Box>
+          </Stack>
+        </Paper>
+      </Stack>
+    </Card>
   );
 
-  const renderConsignees = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Consignees
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
+  const renderConsignees = (
+    <Card>
+      <CardHeader title="Consignees" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={2} sx={{ p: 3 }}>
         {fields.map((field, index) => (
-          <Stack key={field.id} spacing={2} sx={{ mt: 2 }}>
+          <Stack key={field.id} spacing={2} sx={{ mt: 1 }}>
             <Box
               rowGap={3}
               columnGap={2}
@@ -328,15 +404,15 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
           color="primary"
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleAddConsignee}
-          sx={{ mt: 3 }}
+          sx={{ mt: 2 }}
         >
           Add Consignee
         </Button>
-      </Card>
-    </>
+      </Stack>
+    </Card>
   );
 
-  const renderActions = () => (
+  const renderActions = (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
         {!currentCustomer ? 'Create Customer' : 'Save Changes'}
@@ -344,46 +420,47 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
     </Stack>
   );
 
-  const renderDialogues = () => (
-    <BankListDialog
-      title="Banks"
-      open={bankDialogue.value}
-      onClose={bankDialogue.onFalse}
-      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
-      onSelect={(bank) => {
-        setValue('bankDetails.branch', bank?.branch);
-        setValue('bankDetails.ifsc', bank?.ifsc);
-        setValue('bankDetails.place', bank?.place);
-        setValue('bankDetails.name', bank?.name);
-      }}
-      list={bankList}
-      action={
-        <Button
-          size="small"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{ alignSelf: 'flex-end' }}
-          onClick={() => {
-            router.push(paths.dashboard.bank.new);
-          }}
-        >
-          New
-        </Button>
-      }
-    />
-  );
-
+  // ----------------------
+  // 5. Final return
+  // ----------------------
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
-          {renderCustomerDetails()}
-          {renderBankDetails()}
-          {renderConsignees()}
-        </Grid>
-      </Grid>
+      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderBasicDetails}
+        {renderFinanceDetails}
+        {renderAdditionalDetails}
+        {renderConsignees}
+        {renderActions}
+      </Stack>
 
-      {renderActions()}
-      {renderDialogues()}
+      {/**
+       * BankListDialog is rendered outside the Stack so it can float above the form.
+       */}
+      <BankListDialog
+        title="Banks"
+        open={bankDialogue.value}
+        onClose={bankDialogue.onFalse}
+        selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+        onSelect={(bank) => {
+          setValue('bankDetails.branch', bank?.branch);
+          setValue('bankDetails.ifsc', bank?.ifsc);
+          setValue('bankDetails.place', bank?.place);
+          setValue('bankDetails.name', bank?.name);
+        }}
+        list={bankList}
+        action={
+          <Button
+            size="small"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{ alignSelf: 'flex-end' }}
+            onClick={() => {
+              router.push(paths.dashboard.bank.new);
+            }}
+          >
+            New
+          </Button>
+        }
+      />
     </Form>
   );
 }

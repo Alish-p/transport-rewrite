@@ -53,7 +53,9 @@ function RenderHeader({ draft }) {
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Typography variant="h6">Draft Invoice Preview</Typography>
+        <Typography variant="h6" color="warning.main">
+          Draft Invoice
+        </Typography>
       </Stack>
     </Box>
   );
