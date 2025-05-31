@@ -128,6 +128,18 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
     setValue('isEmpty', newValue === 'empty');
+
+    if (newValue === 'empty') {
+      // Switching to “empty” tab → clear loaded‐trip fields
+      setValue('customerId', null);
+      setValue('diNumber', '');
+    } else {
+      // Switching to “loaded” tab → clear empty‐trip fields
+      setValue('routeCd', '');
+      setValue('loadingPoint', '');
+      setValue('unloadingPoint', '');
+      setValue('startKm', 0);
+    }
   };
 
   const handleCustomerChange = (customer) => {

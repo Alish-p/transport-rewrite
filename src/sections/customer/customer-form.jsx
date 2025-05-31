@@ -22,6 +22,8 @@ import { useRouter } from 'src/routes/hooks';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { getCurrentFiscalYearShort } from 'src/utils/format-time';
+
 // queries
 import { useCreateCustomer, useUpdateCustomer } from 'src/query/use-customer';
 
@@ -32,7 +34,6 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { STATES } from './config';
 import { BankListDialog } from '../bank/bank-list-dialogue';
-import { getCurrentFiscalYearShort } from '../../utils/format-time';
 
 // ----------------------
 // 1. Updated Zod schema
@@ -128,7 +129,6 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
   const addCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
 
-  // 2.1 Default values – include new fields, remove `place`
   const defaultValues = useMemo(
     () => ({
       // Basic Details
@@ -178,7 +178,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
     formState: { isSubmitting, errors },
   } = methods;
 
-  // Watch all form values for conditional rendering (e.g., gstEnabled)
+  // Watch all form values for conditional rendering
   const values = watch();
   const { bankDetails } = values;
 
@@ -331,6 +331,9 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
               label="Invoice Serial Number"
               type="number"
               placeholder="0"
+              helperText={
+                currentCustomer ? '⚠️ Changing this can cause Duplicate Invoice numbers.' : ''
+              }
             />
 
             {/* 3) Live preview label */}
