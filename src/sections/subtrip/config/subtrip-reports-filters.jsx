@@ -35,7 +35,7 @@ export const FILTER_CONFIG = [
     id: 'materials',
     type: 'multi-select',
     label: 'Materials',
-    options: Object.values(CONFIG.MATERIALS),
+    options: Object.values(CONFIG.materialOptions),
     icon: 'mdi:filter-variant',
     isSelected: (f) => f.materials && f.materials.length > 0,
     mapToParam: 'materials',
