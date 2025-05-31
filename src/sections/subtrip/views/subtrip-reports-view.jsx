@@ -17,6 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { PDFDownloadButton } from 'src/pdfs/common';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useFilteredSubtrips } from 'src/query/use-subtrip';
 
@@ -36,7 +37,6 @@ import {
 } from 'src/components/table';
 
 import { transformSubtripsForExcel } from '../utils';
-import { PDFDownloadButton } from '../../../pdfs/common';
 import SubtripTableRow from '../reports/subtrip-table-row';
 import SubtripQuickFilters from '../reports/subtrip-quick-filters-bar';
 import SubtripTableActions from '../reports/subtrip-filter-search-bar';
@@ -121,6 +121,7 @@ export function SubtripReportsView() {
       subtripEndToDate: filters.subtripEndEndDate || undefined,
       transporterId: filters.transportName || undefined,
       subtripStatus: filters.status?.length > 0 ? filters.status : undefined,
+      materials: filters.materials?.length > 0 ? filters.materials : undefined,
       driverId: filters.driverId || undefined,
     };
 

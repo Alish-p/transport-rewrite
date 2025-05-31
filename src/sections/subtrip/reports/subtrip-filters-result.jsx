@@ -188,6 +188,22 @@ export default function SubtripTableFiltersResult({ filters, onFilters, onResetF
               </Block>
             )}
 
+            {filters.materials && filters.materials.length > 0 && (
+              <Block label="Status:">
+                {filters.materials.map((materials) => (
+                  <Chip
+                    key={materials}
+                    size="small"
+                    label={materials}
+                    onDelete={() => {
+                      const newStatus = filters.materials.filter((s) => s !== materials);
+                      onFilters('materials', newStatus);
+                    }}
+                  />
+                ))}
+              </Block>
+            )}
+
             <Button
               color="error"
               onClick={handleClearAll}

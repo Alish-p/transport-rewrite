@@ -2,6 +2,8 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 
+import { CONFIG } from '../../../config-global';
+
 export const DEFAULT_FILTERS = {
   customerId: '',
   subtripId: '',
@@ -14,6 +16,7 @@ export const DEFAULT_FILTERS = {
   subtripEndFromDate: null,
   subtripEndEndDate: null,
   status: [],
+  materials: [],
   driverId: '',
 };
 
@@ -27,6 +30,16 @@ export const FILTER_CONFIG = [
     isSelected: (f) => f.status && f.status.length > 0,
     mapToParam: 'subtripStatus',
     getValue: (f) => f.status,
+  },
+  {
+    id: 'materials',
+    type: 'multi-select',
+    label: 'Materials',
+    options: Object.values(CONFIG.MATERIALS),
+    icon: 'mdi:filter-variant',
+    isSelected: (f) => f.materials && f.materials.length > 0,
+    mapToParam: 'materials',
+    getValue: (f) => f.materials,
   },
   {
     id: 'startDateRange',

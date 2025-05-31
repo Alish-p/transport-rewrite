@@ -13,6 +13,8 @@ import {
   Button,
   Tooltip,
   Stepper,
+  Divider,
+  MenuItem,
   Container,
   FormLabel,
   StepLabel,
@@ -45,6 +47,7 @@ import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { CONFIG } from '../../config-global';
 // Config & Constants
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -588,7 +591,16 @@ export function SubtripLoadForm() {
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
 
-      <Field.Text name="materialType" label="Material Type" />
+      <Field.Select name="materialType" label="Material Type">
+        <MenuItem value="">None</MenuItem>
+        <Divider sx={{ borderStyle: 'dashed' }} />
+        {CONFIG.materialOptions.map(({ label, value }) => (
+          <MenuItem key={value} value={value}>
+            {label}
+          </MenuItem>
+        ))}
+      </Field.Select>
+
       <Field.Text name="grade" label="Grade" />
     </Box>
   );

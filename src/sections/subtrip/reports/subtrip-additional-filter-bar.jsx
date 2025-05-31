@@ -37,6 +37,8 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
+import { CONFIG } from '../../../config-global';
+
 // ----------------------------------------------------------------------
 
 export default function SubtripTableFilters({ filters, onFilters }) {
@@ -47,6 +49,7 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const ewayDateRangePopover = usePopover();
   const endDateRangePopover = usePopover();
   const statusPopover = usePopover();
+  const materialPopover = usePopover();
 
   const { data: customers = [] } = useCustomers();
   const { data: vehicles = [] } = useVehicles();
@@ -124,6 +127,18 @@ export default function SubtripTableFilters({ filters, onFilters }) {
       onFilters('status', newStatuses);
     },
     [filters.status, onFilters]
+  );
+
+  const handleToggleMaterialTypes = useCallback(
+    (materials) => {
+      const currentMaterials = Array.isArray(filters.materials) ? [...filters.materials] : [];
+      const newMaterials = currentMaterials.includes(materials)
+        ? currentMaterials.filter((s) => s !== materials)
+        : [...currentMaterials, materials];
+
+      onFilters('materials', newMaterials);
+    },
+    [filters.materials, onFilters]
   );
 
   const handleFilterVehicle = useCallback(
@@ -227,6 +242,15 @@ export default function SubtripTableFilters({ filters, onFilters }) {
       isSelected: !!selectedDriver,
       icon: <Iconify icon="mdi:account" />,
     },
+
+    {
+      id: 'materials',
+      label: 'Materials',
+      tooltip: 'Filter by Material Types',
+      onClick: materialPopover.onOpen,
+      isSelected: Array.isArray(filters.materials) && filters.materials.length > 0,
+      icon: <Iconify icon="mdi:filter-variant" />,
+    },
   ];
 
   return (
@@ -286,6 +310,26 @@ export default function SubtripTableFilters({ filters, onFilters }) {
                 checked={Array.isArray(filters.status) && filters.status.includes(status)}
               />
               <ListItemText primary={status} />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Popover>
+
+      {/* Material Type Filter Popover */}
+      <Popover
+        open={materialPopover.open}
+        onClose={materialPopover.onClose}
+        anchorEl={materialPopover.anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      >
+        <MenuList sx={{ width: 200, height: 400, overflowY: 'auto' }}>
+          {Object.values(CONFIG.materialOptions).map(({ label, value }) => (
+            <MenuItem key={value} onClick={() => handleToggleMaterialTypes(value)}>
+              <Checkbox
+                checked={Array.isArray(filters.materials) && filters.materials.includes(value)}
+              />
+              <ListItemText primary={value} />
             </MenuItem>
           ))}
         </MenuList>
