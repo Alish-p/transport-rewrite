@@ -22,6 +22,11 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
+// --------------------------------------------------------------------------------------
+// 1) Extend the Zod schema to include the new boolean flag “closePreviousTrips”
+//    – Default to true.
+//    – We don’t need a refine here, since it’s just a toggle.
+// --------------------------------------------------------------------------------------
 const NewTripSchema = zod.object({
   driverId: zod
     .any()
@@ -33,6 +38,7 @@ const NewTripSchema = zod.object({
     .refine((val) => val !== null, { message: 'Vehicle is required' }),
   fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
   remarks: zod.string().optional(),
+  closePreviousTrips: zod.boolean().default(true),
 });
 
 export default function TripForm({ currentTrip, drivers, vehicles }) {
@@ -44,16 +50,22 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
 
+  // ------------------------------------------------------------------------------------
+  // 2) Build defaultValues including `closePreviousTrips: true`
+  //    – If editing (`currentTrip` exists), we’ll pick up any existing value (or default to true).
+  // ------------------------------------------------------------------------------------
   const defaultValues = useMemo(
     () => ({
       driverId: currentTrip?.driverId || null,
       vehicleId: currentTrip?.vehicleId || null,
-      fromDate: currentTrip?.fromDate ? new Date(currentTrip?.fromDate) : new Date(),
+      fromDate: currentTrip?.fromDate ? new Date(currentTrip.fromDate) : new Date(),
       remarks: currentTrip?.remarks || '',
+      closePreviousTrips: true,
     }),
     [currentTrip]
   );
 
+  // Keep local copies of “selected” driver/vehicle so we can disable/enable the toggle
   const [selectedVehicle, setSelectedVehicle] = useState(
     currentTrip?.vehicleId ? vehicles.find((v) => v._id === currentTrip.vehicleId._id) : null
   );
@@ -73,16 +85,33 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     handleSubmit,
     formState: { isSubmitting, errors },
     clearErrors,
+    control,
   } = methods;
 
+  // Whenever defaultValues change (e.g. when switching from “create” to “edit”),
+  // reset the form to those defaultValues
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
+  // ------------------------------------------------------------------------------------
+  // 3) When the vehicle changes, we must:
+  //      • Save it into React-Hook-Form via setValue('vehicleId', vehicle._id)
+  //      • Update our local `selectedVehicle` (so we can know .isOwn)
+  //      • Clear any validation errors that might have been on vehicleId
+  //      • AND: If this is a market vehicle (isOwn === false),
+  //            force “closePreviousTrips” ⇒ true (and leave it disabled).
+  // ------------------------------------------------------------------------------------
   const handleVehicleChange = (vehicle) => {
     setSelectedVehicle(vehicle);
     setValue('vehicleId', vehicle._id);
     clearErrors('vehicleId');
+
+    // If it’s a market/transporter vehicle (isOwn === false),
+    // force closePreviousTrips = true
+    if (vehicle.isOwn === false) {
+      setValue('closePreviousTrips', true);
+    }
   };
 
   const handleDriverChange = (driver) => {
@@ -91,17 +120,18 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
     clearErrors('driverId');
   };
 
+  // ------------------------------------------------------------------------------------
+  // 4) onSubmit
+  // ------------------------------------------------------------------------------------
   const onSubmit = async (data) => {
     try {
       if (currentTrip) {
-        // Update Trip
         await updateTrip({
           id: currentTrip._id,
           data,
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
-        // Add New Trip
         const createdTrip = await createTrip(data);
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
@@ -137,7 +167,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                   selected={selectedVehicle?.vehicleNo}
                   error={!!errors.vehicleId?.message}
                   iconName="mdi:truck"
-                  disabled={currentTrip}
+                  disabled={!!currentTrip} // disable if in edit mode
                 />
               </Box>
 
@@ -155,6 +185,23 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Field.DatePicker name="fromDate" label="From Date *" />
               <Field.Text name="remarks" label="Remarks" />
             </Box>
+
+            {/* Close Previous Trips */}
+            {!currentTrip && selectedVehicle && (
+              <Box sx={{ mt: 3 }}>
+                <Field.Checkbox
+                  name="closePreviousTrips"
+                  label="Close all previous trips"
+                  // Disable whenever no vehicle OR vehicle.isOwn===false:
+                  disabled={!selectedVehicle.isOwn}
+                  helperText={
+                    selectedVehicle.isOwn === false
+                      ? 'Market vehicles will always close previous trips.'
+                      : ''
+                  }
+                />
+              </Box>
+            )}
           </Card>
 
           {selectedVehicle && <VehicleInfoDetails vehicle={selectedVehicle} />}
@@ -198,14 +245,13 @@ const VehicleInfoDetails = ({ vehicle }) => (
     {/* Ownership Details Alert */}
     <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
       <strong>Ownership Details: </strong>
-
       {vehicle?.isOwn ? (
         <span>
           This is a <strong>company-owned vehicle.</strong>
         </span>
       ) : (
         <span>
-          This is a <strong>market / transporter&apos;s vehicle</strong> managed by{' '}
+          This is a <strong>market / transporter’s vehicle</strong> managed by{' '}
           {vehicle?.transporter?.transportName ? (
             <strong>{vehicle.transporter.transportName}</strong>
           ) : (

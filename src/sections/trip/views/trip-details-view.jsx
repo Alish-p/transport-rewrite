@@ -24,8 +24,6 @@ import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-curre
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
 function getTripDashboardData(trip) {
-  const allSubtripsBilled = trip?.subtrips?.every((subtrip) => subtrip.subtripStatus === 'billed');
-
   const totalTrips = trip?.subtrips?.length || 0;
   const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
 
@@ -55,7 +53,6 @@ function getTripDashboardData(trip) {
     }, 0) || 0;
 
   return {
-    allSubtripsBilled,
     totalTrips,
     totalAdblueAmt,
     totalExpenses,
@@ -73,15 +70,8 @@ export function TripDetailView({ trip }) {
 
   const closeTrip = useCloseTrip();
 
-  const {
-    allSubtripsBilled,
-    totalTrips,
-    totalAdblueAmt,
-    totalExpenses,
-    totalIncome,
-    totalDieselAmt,
-    totalKm,
-  } = getTripDashboardData(trip);
+  const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalKm } =
+    getTripDashboardData(trip);
 
   return (
     <DashboardContent>
@@ -100,7 +90,6 @@ export function TripDetailView({ trip }) {
         status={trip.tripStatus}
         tripData={trip}
         onTripClose={() => closeTrip(trip._id)}
-        isCloseDisabled={!allSubtripsBilled}
         onEdit={() => {
           navigate(paths.dashboard.trip.edit(trip._id));
         }}

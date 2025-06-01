@@ -16,6 +16,8 @@ import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import { Box, Paper, Stack, Collapse, MenuList } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate, fTime } from 'src/utils/format-time';
@@ -24,8 +26,6 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { paths } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -115,10 +115,7 @@ export default function VehicleTableRow({
 
       {(visibleColumns.tripStatus || disabledColumns.tripStatus) && (
         <TableCell>
-          <Label
-            variant="soft"
-            color={tripStatus.toLowerCase() === 'pending' ? 'error' : 'success'}
-          >
+          <Label variant="soft" color={tripStatus.toLowerCase() === 'open' ? 'warning' : 'success'}>
             {tripStatus}
           </Label>
         </TableCell>

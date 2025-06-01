@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { Box, Dialog, Tooltip, MenuList, DialogActions } from '@mui/material';
+import { Box, Dialog, MenuList, DialogActions } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components/router-link';
 
@@ -22,14 +22,7 @@ import TripSummaryPdf from '../pdfs/trip-summary-pdf';
 
 // ----------------------------------------------------------------------
 
-export default function TripToolbar({
-  status,
-  backLink,
-  tripData,
-  onTripClose,
-  onEdit,
-  isCloseDisabled,
-}) {
+export default function TripToolbar({ status, backLink, tripData, onTripClose, onEdit }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
   const viewTripSummary = useBoolean();
@@ -54,9 +47,8 @@ export default function TripToolbar({
               <Label
                 variant="soft"
                 color={
-                  (status === 'completed' && 'success') ||
-                  (status === 'In-queue' && 'warning') ||
-                  (status === 'cancelled' && 'error') ||
+                  (status === 'open' && 'warning') ||
+                  (status === 'closed' && 'success') ||
                   'default'
                 }
               >
@@ -97,14 +89,6 @@ export default function TripToolbar({
           <Button
             color="primary"
             variant="outlined"
-            startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
-          >
-            Print
-          </Button>
-
-          <Button
-            color="primary"
-            variant="outlined"
             startIcon={<Iconify icon="solar:pen-bold" />}
             onClick={onEdit}
           >
@@ -120,27 +104,16 @@ export default function TripToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <Tooltip
-            title={
-              isCloseDisabled
-                ? 'All subtrips must be in the "billed" state before you can close this trip.'
-                : ''
-            }
-            disableHoverListener={!isCloseDisabled}
-            placement="right"
-          >
-            <span>
-              <MenuItem
-                onClick={() => {
-                  onTripClose();
-                  actionPopover.onClose();
-                }}
-                disabled={isCloseDisabled}
-              >
-                Close Trip..
-              </MenuItem>
-            </span>
-          </Tooltip>
+          <span>
+            <MenuItem
+              onClick={() => {
+                onTripClose();
+                actionPopover.onClose();
+              }}
+            >
+              Close Trip..
+            </MenuItem>
+          </span>
         </MenuList>
       </CustomPopover>
 

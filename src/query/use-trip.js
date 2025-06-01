@@ -34,7 +34,7 @@ const updateTrip = async (id, tripData) => {
 };
 
 const closeTrip = async (id) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/billed`);
+  const { data } = await axios.put(`${ENDPOINT}/${id}/close`);
   return data;
 };
 
