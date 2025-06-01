@@ -136,24 +136,3 @@ export const FILTER_CONFIG = [
 
 export const isAnyFilterApplied = (filters) =>
   FILTER_CONFIG.some((config) => config.isSelected?.(filters));
-
-export const buildSearchParams = (filters) => {
-  const params = {};
-
-  FILTER_CONFIG.forEach((cfg) => {
-    const key = cfg.mapToParam || cfg.id;
-    const val = cfg.getValue ? cfg.getValue(filters) : filters[cfg.id];
-
-    if (Array.isArray(key)) {
-      key.forEach((k, i) => {
-        if (val?.[i] !== undefined && val[i] !== '') {
-          params[k] = val[i];
-        }
-      });
-    } else if (val !== undefined && val !== '') {
-      params[key] = val;
-    }
-  });
-
-  return params;
-};

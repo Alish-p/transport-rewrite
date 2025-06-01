@@ -59,57 +59,6 @@ export const calculatePayslipSummary = (payslip) => {
 };
 
 // for providing insignts while adding salary expense
-export function getSalaryDetailsByVehicleType(routes, currentRouteId, vehicleInfo) {
-  if (!routes || !Array.isArray(routes)) {
-    throw new Error('Routes must be a valid array.');
-  }
-  if (!currentRouteId || !vehicleInfo || !vehicleInfo.vehicleType || !vehicleInfo.noOfTyres) {
-    throw new Error('Both currentRouteId and vehicleInfo parameters are required.');
-  }
-
-  // Find the selected route by its ID
-  const selectedRoute = routes.find((route) => route._id === currentRouteId);
-
-  if (!selectedRoute) {
-    throw new Error(`No route found with ID: ${currentRouteId}`);
-  }
-
-  // Find the salary details for the given vehicle type
-  const salaryDetails = selectedRoute.vehicleConfiguration.find(
-    (item) =>
-      item.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase() &&
-      item.noOfTyres === vehicleInfo.noOfTyres
-  );
-
-  if (!salaryDetails) {
-    console.log(
-      `No salary details found for vehicleType: ${vehicleInfo.vehicleType} and noOfTyres: ${vehicleInfo.noOfTyres} in the selected route.`
-    );
-    return {};
-  }
-
-  // Return combined details
-  return {
-    routeName: selectedRoute.routeName,
-    vehicleType: salaryDetails.vehicleType,
-    fixedSalary: salaryDetails.fixedSalary,
-    percentageSalary: salaryDetails.percentageSalary,
-    fixMilage: salaryDetails.fixMilage,
-    performanceMilage: salaryDetails.performanceMilage,
-    diesel: salaryDetails.diesel,
-    adBlue: salaryDetails.adBlue,
-    advanceAmt: salaryDetails.advanceAmt,
-    // Common route fields
-    tollAmt: selectedRoute.tollAmt,
-    distance: selectedRoute.distance,
-    tripType: selectedRoute.tripType,
-    fromPlace: selectedRoute.fromPlace,
-    toPlace: selectedRoute.toPlace,
-    noOfDays: selectedRoute.noOfDays,
-  };
-}
-
-// for providing insignts while adding salary expense
 export function getFixedExpensesByVehicleType(route, vehicle) {
   if (!route || !vehicle) {
     throw new Error('Route and vehicle parameters are required.');

@@ -95,19 +95,3 @@ export function fData(inputValue) {
 
   return fm;
 }
-
-export function fVehicleNo(vehicleNo) {
-  if (typeof vehicleNo !== 'string') return '';
-
-  // Convert the string to uppercase
-  const upperCaseVehicleNo = vehicleNo.toUpperCase();
-
-  // Use regex to insert dashes (-) between the parts
-  const formattedVehicleNo = upperCaseVehicleNo.replace(
-    /^([A-Z]{2})(\d{2})([A-Z]{2})(\d{4})$/,
-    '$1-$2-$3-$4'
-  );
-
-  // If the format is not matching, return the original string or handle it
-  return formattedVehicleNo || vehicleNo;
-}
