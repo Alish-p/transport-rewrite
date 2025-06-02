@@ -12,6 +12,7 @@ import {
   Button,
   Divider,
   Tooltip,
+  MenuItem,
   FormLabel,
   Typography,
   InputAdornment,
@@ -29,6 +30,7 @@ import { useUpdateSubtrip } from 'src/query/use-subtrip';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { CONFIG } from '../../config-global';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
@@ -306,7 +308,16 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <Field.Text name="shipmentNo" label="Shipment No" />
                   <Field.Text name="orderNo" label="Order No" />
 
-                  <Field.Text name="materialType" label="Material Type" />
+                  <Field.Select name="materialType" label="Material Type">
+                    <MenuItem value="">None</MenuItem>
+                    <Divider sx={{ borderStyle: 'dashed' }} />
+                    {CONFIG.materialOptions.map(({ label, value }) => (
+                      <MenuItem key={value} value={value}>
+                        {label}
+                      </MenuItem>
+                    ))}
+                  </Field.Select>
+
                   <Field.Text name="grade" label="Grade" />
                 </Box>
 

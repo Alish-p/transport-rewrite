@@ -31,7 +31,6 @@
     "@fontsource/inter": "^5.0.18",
     "@fontsource/nunito-sans": "^5.0.13",
     "@fontsource/public-sans": "^5.0.18",
-
     "@hookform/resolvers": "^3.6.0",
     "@iconify/react": "^5.0.1",
     "@mui/lab": "^5.0.0-alpha.170",
@@ -52,13 +51,11 @@
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
-    "apexcharts": "^3.49.1",
+    "apexcharts": "^4.7.0",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "embla-carousel": "^8.1.5",
-
-
     "embla-carousel-autoplay": "^8.1.5",
     "embla-carousel-react": "^8.1.5",
     "file-saver": "^2.0.5",
@@ -71,13 +68,12 @@
     "mui-one-time-password-input": "^2.0.2",
     "nprogress": "^0.2.0",
     "react": "^18.3.1",
-    "react-apexcharts": "^1.4.1",
+    "react-apexcharts": "^1.7.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.51.5",
     "react-i18next": "^14.1.2",
-
     "react-lazy-load-image-component": "^1.6.0",
     "react-markdown": "^9.0.1",
     "react-phone-number-input": "^3.4.3",
