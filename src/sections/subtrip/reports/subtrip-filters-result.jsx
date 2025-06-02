@@ -189,7 +189,7 @@ export default function SubtripTableFiltersResult({ filters, onFilters, onResetF
             )}
 
             {filters.materials && filters.materials.length > 0 && (
-              <Block label="Status:">
+              <Block label="Materials:">
                 {filters.materials.map((materials) => (
                   <Chip
                     key={materials}
