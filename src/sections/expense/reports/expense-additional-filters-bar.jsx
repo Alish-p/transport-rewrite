@@ -21,8 +21,8 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useTrips } from 'src/query/use-trip';
 import { usePumps } from 'src/query/use-pump';
-import { useVehicles } from 'src/query/use-vehicle';
 import { useSubtrips } from 'src/query/use-subtrip';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -60,7 +60,7 @@ export default function ExpenseTableFilterBar({ filters, onFilters }) {
   const expenseTypePopover = usePopover();
   const categoryPopover = usePopover();
 
-  const { data: vehicles = [] } = useVehicles();
+  const { data: vehicles = [] } = useVehiclesSummary();
   const { data: pumps = [] } = usePumps();
   const { data: subtrips = [] } = useSubtrips();
   const { data: trips = [] } = useTrips();

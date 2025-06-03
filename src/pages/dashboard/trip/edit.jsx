@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useDrivers } from 'src/query/use-driver';
-import { useVehicles } from 'src/query/use-vehicle';
 import { useTrip, useTrips } from 'src/query/use-trip';
+import { useDriversSummary } from 'src/query/use-driver';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
 import { useCustomersSummary } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -21,8 +21,12 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTrip(id);
-  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDrivers();
-  const { data: vehicles, isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
+  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDriversSummary();
+  const {
+    data: vehicles,
+    isLoading: vehiclesLoading,
+    isError: vehiclesError,
+  } = useVehiclesSummary();
   const { data: trips, isLoading: tripsLoading, isError: tripsError } = useTrips();
   const {
     data: customers,

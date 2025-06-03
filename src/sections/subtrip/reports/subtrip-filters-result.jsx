@@ -8,8 +8,8 @@ import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { useDrivers } from 'src/query/use-driver';
-import { useVehicles } from 'src/query/use-vehicle';
+import { useDriversSummary } from 'src/query/use-driver';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
 import { useTransporters } from 'src/query/use-transporter';
 import { useCustomersSummary } from 'src/query/use-customer';
 
@@ -20,9 +20,9 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 export default function SubtripTableFiltersResult({ filters, onFilters, onResetFilters }) {
   const { data: customers = [] } = useCustomersSummary();
-  const { data: vehicles = [] } = useVehicles();
+  const { data: vehicles = [] } = useVehiclesSummary();
   const { data: transporters = [] } = useTransporters();
-  const { data: drivers = [] } = useDrivers();
+  const { data: drivers = [] } = useDriversSummary();
 
   const handleRemoveCustomer = () => {
     onFilters('customerId', '');

@@ -12,6 +12,11 @@ const getDrivers = async () => {
   return data;
 };
 
+const getDriversSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/summary`);
+  return data;
+};
+
 const getDriver = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -38,6 +43,14 @@ export function useDrivers(options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY],
     queryFn: getDrivers,
+    ...options,
+  });
+}
+
+export function useDriversSummary(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'summary'],
+    queryFn: getDriversSummary,
     ...options,
   });
 }

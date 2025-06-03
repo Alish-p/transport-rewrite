@@ -24,14 +24,15 @@ import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { useDrivers } from 'src/query/use-driver';
+import { useTransporters } from 'src/query/use-transporter';
+import { useCreateLoan, useUpdateLoan } from 'src/query/use-loan';
+
 // components
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { BORROWER_TYPES } from './loans-config';
-import { useDrivers } from '../../query/use-driver';
-import { useTransporters } from '../../query/use-transporter';
-import { useCreateLoan, useUpdateLoan } from '../../query/use-loan';
 
 // ----------------------------------------------------------------------
 

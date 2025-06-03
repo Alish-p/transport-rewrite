@@ -7,32 +7,19 @@ import Button from '@mui/material/Button';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useTrips } from 'src/query/use-trip';
-import { useVehicles } from 'src/query/use-vehicle';
+import { usePumps } from 'src/query/use-pump';
 import { useSubtrips } from 'src/query/use-subtrip';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-
-import { usePumps } from '../../../query/use-pump';
-
-// const defaultFilters = {
-//   tripId: '',
-//   subtripId: '',
-//   vehicleId: '',
-//   startDate: null,
-//   endDate: null,
-//   expenseType: [],
-//   expenseCategory: '',
-//   pumpCd: '',
-//   paidThrough: '',
-// };
 
 // ----------------------------------------------------------------------
 
 export default function ExpenseTableFiltersResult({ filters, onFilters, onResetFilters }) {
   console.log({ filters });
 
-  const { data: vehicles = [] } = useVehicles();
+  const { data: vehicles = [] } = useVehiclesSummary();
   const { data: subtrips = [] } = useSubtrips();
   const { data: trips = [] } = useTrips();
   const { data: pumps = [] } = usePumps();

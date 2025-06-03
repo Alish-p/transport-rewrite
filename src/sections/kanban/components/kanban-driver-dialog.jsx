@@ -14,7 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useDrivers, useCreateQuickDriver } from 'src/query/use-driver';
+import { useDriversSummary, useCreateQuickDriver } from 'src/query/use-driver';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -221,7 +221,7 @@ export function KanbanDriverDialog({
   onDriverChange,
   allowQuickCreate,
 }) {
-  const { data: drivers, refetch } = useDrivers();
+  const { data: drivers, refetch } = useDriversSummary();
   const {
     mutate: createDriver,
     isLoading: isSubmitting,

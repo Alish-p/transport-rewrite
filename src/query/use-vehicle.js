@@ -12,6 +12,11 @@ const getVehicles = async () => {
   return data;
 };
 
+const getVehiclesSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/summary`);
+  return data;
+};
+
 const getVehicle = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -36,6 +41,10 @@ const deleteVehicle = async (id) => {
 // Queries & Mutations
 export function useVehicles() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getVehicles });
+}
+
+export function useVehiclesSummary() {
+  return useQuery({ queryKey: [QUERY_KEY, 'summary'], queryFn: getVehiclesSummary });
 }
 
 export function useVehicle(id) {

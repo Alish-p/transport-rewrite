@@ -17,7 +17,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useVehicles, useCreateVehicle } from 'src/query/use-vehicle';
+import { useCreateVehicle, useVehiclesSummary } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -271,7 +271,7 @@ function applyFilter({ inputData, query }) {
 // ----------------------------------------------------------------------
 
 export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onVehicleChange }) {
-  const { data: vehicles, refetch } = useVehicles();
+  const { data: vehicles, refetch } = useVehiclesSummary();
   const createVehicle = useCreateVehicle();
   const [searchVehicle, setSearchVehicle] = useState('');
   const [showQuickCreate, setShowQuickCreate] = useState(false);

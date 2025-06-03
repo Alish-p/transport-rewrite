@@ -22,8 +22,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
-import { useDrivers } from 'src/query/use-driver';
-import { useVehicles } from 'src/query/use-vehicle';
+import { useDriversSummary } from 'src/query/use-driver';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
 import { useTransporters } from 'src/query/use-transporter';
 import { useCustomersSummary } from 'src/query/use-customer';
 
@@ -51,9 +51,9 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const materialPopover = usePopover();
 
   const { data: customers = [] } = useCustomersSummary();
-  const { data: vehicles = [] } = useVehicles();
+  const { data: vehicles = [] } = useVehiclesSummary();
   const { data: transporters = [] } = useTransporters();
-  const { data: drivers = [] } = useDrivers();
+  const { data: drivers = [] } = useDriversSummary();
 
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
