@@ -26,6 +26,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
+import { useDeleteTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -47,7 +48,6 @@ import {
 import TripTableRow from '../trip-table-row';
 import TripAnalytic from '../widgets/trip-analytic';
 import TripTableToolbar from '../trip-table-toolbar';
-import { useDeleteTrip } from '../../../query/use-trip';
 import TripTableFiltersResult from '../trip-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -149,8 +149,8 @@ export function TripListView({ trips }) {
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'billed', label: 'Billed', color: 'success', count: getTripLength('billed') },
-    { value: 'pending', label: 'Pending', color: 'error', count: getTripLength('pending') },
+    { value: 'open', label: 'Open', color: 'warning', count: getTripLength('open') },
+    { value: 'closed', label: 'Closed', color: 'success', count: getTripLength('closed') },
   ];
 
   const handleFilters = useCallback(
@@ -261,21 +261,21 @@ export function TripListView({ trips }) {
               />
 
               <TripAnalytic
-                title="Billed"
-                total={getTripLength('billed')}
-                percent={getPercentByTripStatus('billed')}
-                price={getTotalAmount('billed')}
-                icon="solar:file-check-bold-duotone"
-                color={theme.palette.success.main}
+                title="Open"
+                total={getTripLength('open')}
+                percent={getPercentByTripStatus('open')}
+                price={getTotalAmount('open')}
+                icon="solar:sort-by-time-bold-duotone"
+                color={theme.palette.warning.main}
               />
 
               <TripAnalytic
-                title="Pending"
-                total={getTripLength('pending')}
-                percent={getPercentByTripStatus('pending')}
-                price={getTotalAmount('pending')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.warning.main}
+                title="Closed"
+                total={getTripLength('closed')}
+                percent={getPercentByTripStatus('closed')}
+                price={getTotalAmount('closed')}
+                icon="solar:file-check-bold-duotone"
+                color={theme.palette.success.main}
               />
             </Stack>
           </Scrollbar>
