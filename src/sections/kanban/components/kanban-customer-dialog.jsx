@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useCustomers } from 'src/query/use-customer';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -23,7 +23,7 @@ const ITEM_HEIGHT = 64;
 // ----------------------------------------------------------------------
 
 export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, onCustomerChange }) {
-  const { data: customers } = useCustomers();
+  const { data: customers } = useCustomersSummary();
   const [searchCustomer, setSearchCustomer] = useState('');
 
   const handleSearchCustomers = useCallback((event) => {
@@ -90,7 +90,7 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
                       primary={customer.customerName}
                       secondary={
                         <>
-                          {customer.place} • {customer.state} • {customer.cellNo}
+                          {customer.state} • {customer.cellNo}
                         </>
                       }
                     />

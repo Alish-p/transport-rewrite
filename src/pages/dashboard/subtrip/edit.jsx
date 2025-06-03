@@ -6,7 +6,7 @@ import { CONFIG } from 'src/config-global';
 import { usePumps } from 'src/query/use-pump';
 import { useRoutes } from 'src/query/use-route';
 import { useSubtrip } from 'src/query/use-subtrip';
-import { useCustomers } from 'src/query/use-customer';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -22,7 +22,11 @@ export default function Page() {
 
   const { data: subtrip, isLoading: subtripLoading, isError: subtripError } = useSubtrip(id);
   const { data: routes, isLoading: routesLoading, isError: routesError } = useRoutes(null, null);
-  const { data: customers, isLoading: customersLoading, isError: customersError } = useCustomers();
+  const {
+    data: customers,
+    isLoading: customersLoading,
+    isError: customersError,
+  } = useCustomersSummary();
   const { data: pumps, isLoading: pumpsLoading, isError: pumpsError } = usePumps();
 
   if (subtripLoading || routesLoading || customersLoading) {

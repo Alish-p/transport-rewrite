@@ -10,8 +10,8 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useDrivers } from 'src/query/use-driver';
 import { useVehicles } from 'src/query/use-vehicle';
-import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -19,7 +19,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 // ----------------------------------------------------------------------
 
 export default function SubtripTableFiltersResult({ filters, onFilters, onResetFilters }) {
-  const { data: customers = [] } = useCustomers();
+  const { data: customers = [] } = useCustomersSummary();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
   const { data: drivers = [] } = useDrivers();

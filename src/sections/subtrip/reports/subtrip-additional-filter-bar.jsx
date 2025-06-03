@@ -21,10 +21,11 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { CONFIG } from 'src/config-global';
 import { useDrivers } from 'src/query/use-driver';
 import { useVehicles } from 'src/query/use-vehicle';
-import { useCustomers } from 'src/query/use-customer';
 import { useTransporters } from 'src/query/use-transporter';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -36,8 +37,6 @@ import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
-
-import { CONFIG } from '../../../config-global';
 
 // ----------------------------------------------------------------------
 
@@ -51,7 +50,7 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const statusPopover = usePopover();
   const materialPopover = usePopover();
 
-  const { data: customers = [] } = useCustomers();
+  const { data: customers = [] } = useCustomersSummary();
   const { data: vehicles = [] } = useVehicles();
   const { data: transporters = [] } = useTransporters();
   const { data: drivers = [] } = useDrivers();

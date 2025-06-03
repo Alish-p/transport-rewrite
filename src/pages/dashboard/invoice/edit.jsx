@@ -1,19 +1,19 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+import { useCustomersSummary } from 'src/query/use-customer';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { InvoiceEditView } from 'src/sections/invoice/views';
-
-import { useCustomers } from '../../../query/use-customer';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Invoice edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const { data: customers, isLoading, isError } = useCustomers();
+  const { data: customers, isLoading, isError } = useCustomersSummary();
 
   if (isLoading) {
     return <LoadingScreen />;

@@ -12,6 +12,11 @@ const getCustomers = async () => {
   return data;
 };
 
+const getCustomersSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/summary`);
+  return data;
+};
+
 const getCustomer = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -36,6 +41,10 @@ const deleteCustomer = async (id) => {
 // Queries & Mutations
 export function useCustomers() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getCustomers });
+}
+
+export function useCustomersSummary() {
+  return useQuery({ queryKey: [QUERY_KEY, 'summary'], queryFn: getCustomersSummary });
 }
 
 export function useCustomer(id) {

@@ -4,7 +4,7 @@ import { useSearchParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useOpenTrips } from 'src/query/use-trip';
-import { useCustomers } from 'src/query/use-customer';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -20,7 +20,11 @@ export default function Page() {
   const currentTrip = searchParams.get('id');
 
   const { data: trips, isLoading: tripLoading, isError: tripError } = useOpenTrips();
-  const { data: customers, isLoading: customerLoading, isError: customerError } = useCustomers();
+  const {
+    data: customers,
+    isLoading: customerLoading,
+    isError: customerError,
+  } = useCustomersSummary();
 
   if (tripLoading || customerLoading) {
     return <LoadingScreen />;
