@@ -237,15 +237,38 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Customer</Typography>
-                <Typography variant="body2" fontWeight="bold">
-                  {wrapText(selectedSubtrip?.customerId?.customerName || '-', 20)}
-                </Typography>
+                <Tooltip title={selectedSubtrip?.customerId?.customerName}>
+                  <Typography variant="body2" fontWeight="bold">
+                    {wrapText(selectedSubtrip?.customerId?.customerName || '-', 20)}
+                  </Typography>
+                </Tooltip>
               </Box>
+              {/* Route */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Route</Typography>
-                <Typography variant="body2" fontWeight="bold">
-                  {wrapText(selectedSubtrip?.routeCd?.routeName || '-', 20)}
-                </Typography>
+                <Tooltip title={selectedSubtrip?.routeCd?.routeName}>
+                  <Typography variant="body2" fontWeight="bold">
+                    {wrapText(selectedSubtrip?.routeCd?.routeName || '-', 20)}
+                  </Typography>
+                </Tooltip>
+              </Box>
+              {/* Loading Point */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2">Loading Point</Typography>
+                <Tooltip title={selectedSubtrip?.loadingPoint}>
+                  <Typography variant="body2" fontWeight="bold">
+                    {wrapText(selectedSubtrip?.loadingPoint || '-', 20)}
+                  </Typography>
+                </Tooltip>
+              </Box>
+              {/* UnLoading Point */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2">UnLoading Point</Typography>
+                <Tooltip title={selectedSubtrip?.unloadingPoint}>
+                  <Typography variant="body2" fontWeight="bold">
+                    {wrapText(selectedSubtrip?.unloadingPoint || '-', 20)}
+                  </Typography>
+                </Tooltip>
               </Box>
             </Stack>
           </CardContent>
