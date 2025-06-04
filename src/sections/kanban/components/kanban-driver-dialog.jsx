@@ -1,5 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { FixedSizeList as List } from 'react-window';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -24,6 +25,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 64;
+const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // Quick driver creation schema with only name and cell number
 const QuickDriverSchema = zod.object({
@@ -57,55 +59,63 @@ const SearchInput = ({ value, onChange }) => (
   </Box>
 );
 
-// Driver list item component
-const DriverListItem = ({ driver, isSelected, onSelect }) => (
-  <Box
-    component="li"
-    sx={{
-      gap: 2,
-      display: 'flex',
-      height: ITEM_HEIGHT,
-      alignItems: 'center',
-    }}
-  >
-    <ListItemText
-      primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-      secondaryTypographyProps={{ typography: 'caption' }}
-      primary={driver.driverName}
-      secondary={driver.driverCellNo}
-    />
+// Driver list item component for react-window
+const DriverItem = ({ data: { drivers, selectedDriver, onSelect }, index, style }) => {
+  const driver = drivers[index];
+  const isSelected = selectedDriver?._id === driver._id;
 
-    <Button
-      size="small"
-      color={isSelected ? 'primary' : 'inherit'}
-      onClick={() => onSelect(driver)}
-      startIcon={
-        <Iconify
-          width={16}
-          icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-          sx={{ mr: -0.5 }}
-        />
-      }
+  return (
+    <Box
+      component="li"
+      style={style}
+      sx={{
+        gap: 2,
+        display: 'flex',
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+      }}
     >
-      {isSelected ? 'Selected' : 'Select'}
-    </Button>
-  </Box>
-);
+      <ListItemText
+        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
+        secondaryTypographyProps={{ typography: 'caption' }}
+        primary={driver.driverName}
+        secondary={driver.driverCellNo}
+      />
 
-DriverListItem.displayName = 'DriverListItem';
+      <Button
+        size="small"
+        color={isSelected ? 'primary' : 'inherit'}
+        onClick={() => onSelect(driver)}
+        startIcon={
+          <Iconify
+            width={16}
+            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+            sx={{ mr: -0.5 }}
+          />
+        }
+      >
+        {isSelected ? 'Selected' : 'Select'}
+      </Button>
+    </Box>
+  );
+};
+
+DriverItem.displayName = 'DriverItem';
 
 // Driver list component
 const DriverList = ({ drivers, selectedDriver, onSelectDriver }) => (
-  <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
-    <Box component="ul">
-      {drivers.map((driver) => (
-        <DriverListItem
-          key={driver._id}
-          driver={driver}
-          isSelected={selectedDriver?._id === driver._id}
-          onSelect={onSelectDriver}
-        />
-      ))}
+  <Scrollbar sx={{ height: LIST_HEIGHT }}>
+    <Box sx={{ px: 2.5 }}>
+      <List
+        height={LIST_HEIGHT}
+        width="100%"
+        itemCount={drivers.length}
+        itemSize={ITEM_HEIGHT}
+        itemData={{ drivers, selectedDriver, onSelect: onSelectDriver }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {DriverItem}
+      </List>
     </Box>
   </Scrollbar>
 );

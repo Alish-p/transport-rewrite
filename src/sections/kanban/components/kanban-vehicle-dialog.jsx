@@ -1,5 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { FixedSizeList as List } from 'react-window';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -34,6 +35,7 @@ import { KanbanTransporterDialog } from './kanban-transporter-dialog';
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 74;
+const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // Quick vehicle creation schema with minimal required fields
 const QuickVehicleSchema = zod.object({
@@ -72,67 +74,76 @@ const SearchInput = ({ value, onChange }) => (
   </Box>
 );
 
-// Vehicle list item component
-const VehicleListItem = ({ vehicle, isSelected, onSelect }) => (
-  <Box
-    component="li"
-    sx={{
-      gap: 2,
-      display: 'flex',
-      height: ITEM_HEIGHT,
-      alignItems: 'center',
-    }}
-  >
-    <ListItemText
-      secondaryTypographyProps={{ typography: 'caption' }}
-      primary={
-        <Stack direction="row" alignItems="center" gap={1} mb={1}>
-          <Typography variant="subtitle2" sx={{ mb: 0.25 }}>
-            {vehicle.vehicleNo}
-          </Typography>
-          <Label color={vehicle.isOwn ? 'success' : 'warning'} size="small" variant="soft">
-            {vehicle.isOwn ? 'Own' : 'Market'}
-          </Label>
-        </Stack>
-      }
-      secondary={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="caption">
-            {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}
-          </Typography>
-        </Box>
-      }
-    />
+// Vehicle list item component for react-window
 
-    <Button
-      size="small"
-      color={isSelected ? 'primary' : 'inherit'}
-      onClick={() => onSelect(vehicle)}
-      startIcon={
-        <Iconify
-          width={16}
-          icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-          sx={{ mr: -0.5 }}
-        />
-      }
+const VehicleItem = ({ data: { vehicles, selectedVehicle, onSelect }, index, style }) => {
+  const vehicle = vehicles[index];
+  const isSelected = selectedVehicle?._id === vehicle._id;
+
+  return (
+    <Box
+      component="li"
+      style={style}
+      sx={{
+        gap: 2,
+        display: 'flex',
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+      }}
     >
-      {isSelected ? 'Selected' : 'Select'}
-    </Button>
-  </Box>
-);
+      <ListItemText
+        secondaryTypographyProps={{ typography: 'caption' }}
+        primary={
+          <Stack direction="row" alignItems="center" gap={1} mb={1}>
+            <Typography variant="subtitle2" sx={{ mb: 0.25 }}>
+              {vehicle.vehicleNo}
+            </Typography>
+            <Label color={vehicle.isOwn ? 'success' : 'warning'} size="small" variant="soft">
+              {vehicle.isOwn ? 'Own' : 'Market'}
+            </Label>
+          </Stack>
+        }
+        secondary={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="caption">
+              {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}
+            </Typography>
+          </Box>
+        }
+      />
+
+      <Button
+        size="small"
+        color={isSelected ? 'primary' : 'inherit'}
+        onClick={() => onSelect(vehicle)}
+        startIcon={
+          <Iconify
+            width={16}
+            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+            sx={{ mr: -0.5 }}
+          />
+        }
+      >
+        {isSelected ? 'Selected' : 'Select'}
+      </Button>
+    </Box>
+  );
+};
 
 // Vehicle list component
 const VehicleList = ({ vehicles, selectedVehicle, onSelectVehicle }) => (
-  <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
-    <Box component="ul">
-      {vehicles.map((vehicle) => (
-        <VehicleListItem
-          key={vehicle._id}
-          vehicle={vehicle}
-          isSelected={selectedVehicle?._id === vehicle._id}
-          onSelect={onSelectVehicle}
-        />
-      ))}
+  <Scrollbar sx={{ height: LIST_HEIGHT }}>
+    <Box sx={{ px: 2.5 }}>
+      <List
+        height={LIST_HEIGHT}
+        width="100%"
+        itemCount={vehicles.length}
+        itemSize={ITEM_HEIGHT}
+        itemData={{ vehicles, selectedVehicle, onSelect: onSelectVehicle }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {VehicleItem}
+      </List>
     </Box>
   </Scrollbar>
 );
