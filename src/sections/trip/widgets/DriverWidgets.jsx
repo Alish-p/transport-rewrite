@@ -12,9 +12,9 @@ import Typography from '@mui/material/Typography';
 
 import { fDate } from 'src/utils/format-time';
 
-import { Iconify } from 'src/components/iconify';
+import { _mock } from 'src/_mock';
 
-import { _mock } from '../../../_mock';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

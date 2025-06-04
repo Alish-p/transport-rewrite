@@ -166,7 +166,7 @@ export function TripDetailView({ trip }) {
             <Grid item container spacing={1} xs={12} md={12}>
               <Grid item xs={5} md={6}>
                 <AnalyticsCurrentVisits
-                  title="SubTrip Status"
+                  title="Subtrip Status"
                   chart={{
                     series: [
                       {

@@ -1,5 +1,7 @@
 import { Card, CardHeader } from '@mui/material';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { Chart, useChart } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
@@ -28,9 +30,14 @@ export default function ProfitExpenseChart({ subtrips, title, subheader }) {
     xaxis: {
       categories: subtrips.map((subtrip) => subtrip._id),
     },
+    yaxis: {
+      labels: {
+        formatter: (value) => Math.round(value),
+      },
+    },
     tooltip: {
       y: {
-        formatter: (value) => `₹ ${value}`,
+        formatter: (value) => fCurrency(value),
       },
     },
     plotOptions: { bar: { columnWidth: '36%' } },

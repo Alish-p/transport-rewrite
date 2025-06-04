@@ -1,4 +1,3 @@
-// @mui
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
@@ -9,8 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
-import { fDate } from 'src/utils/format-time';
-
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -28,10 +26,11 @@ export default function VehicleCard({ vehicle, onVehicleEdit }) {
     loadingCapacity,
     engineType,
     fuelTankCapacity,
-    fromDate,
-    toDate,
+    trackingLink,
+    isActive,
+    isOwn,
     transporter,
-  } = vehicle;
+  } = vehicle || {};
 
   const renderHeader = (
     <>
@@ -50,11 +49,14 @@ export default function VehicleCard({ vehicle, onVehicleEdit }) {
         />
 
         <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2' }}>
-          <Typography variant="subtitle2">{vehicleNo}</Typography>
+          <Typography variant="subtitle2">{vehicleNo || '-'}</Typography>
+          <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
+            {isOwn ? 'Own' : 'Market'}
+          </Label>
 
           <Box>
             <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {transporter?.transportName}
+              {!isOwn ? `Owner: ${transporter?.transportName}` : ''}
             </Box>
           </Box>
         </Stack>
@@ -77,76 +79,98 @@ export default function VehicleCard({ vehicle, onVehicleEdit }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Vehicle Type
           </Box>
-          {vehicleType}
+          {vehicleType || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Model
           </Box>
-          {modelType}
+          {modelType || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Company
           </Box>
-          {vehicleCompany}
+          {vehicleCompany || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             NO Of Tyres
           </Box>
-          {noOfTyres}
+          {noOfTyres ?? '-'}
         </Stack>
 
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Chasis No
           </Box>
-          {chasisNo}
+          {chasisNo || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Engine No
           </Box>
           <Link underline="always" color="inherit">
-            {engineNo}
+            {engineNo || '-'}
           </Link>
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Manufacturing Year
           </Box>
-          {manufacturingYear}
+          {manufacturingYear || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Loading Capacity
           </Box>
-          {loadingCapacity}
+          {loadingCapacity ?? '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Fuel Tank Capacity
           </Box>
-          {fuelTankCapacity}
+          {fuelTankCapacity ?? '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
             Engine Type
           </Box>
-          {engineType}
+          {engineType || '-'}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            From Date
+            Tracking Link
           </Box>
-          {fDate(fromDate)}
+          {trackingLink ? (
+            <Link
+              underline="always"
+              color="inherit"
+              href={trackingLink}
+              target="_blank"
+              rel="noopener"
+            >
+              Track Vehicle
+            </Link>
+          ) : (
+            '-'
+          )}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            To Date
+            Ownership
           </Box>
-          {fDate(toDate)}
+          <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
+            {isOwn ? 'Own' : 'Market'}
+          </Label>
+        </Stack>
+        <Stack direction="row" alignItems="center">
+          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
+            Status
+          </Box>
+          <Label variant="soft" color={isActive ? 'success' : 'error'}>
+            {isActive ? 'Active' : 'Disabled'}
+          </Label>
         </Stack>
       </Stack>
     </>
