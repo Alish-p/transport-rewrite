@@ -95,7 +95,7 @@ export function KanbanTransporterDialog({
                       primary={transporter.transportName}
                       secondary={
                         <>
-                          {transporter.ownerName} • {transporter.place} • {transporter.cellNo}
+                          {transporter.place} • {transporter.cellNo}
                         </>
                       }
                     />
