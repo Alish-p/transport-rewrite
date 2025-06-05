@@ -13,18 +13,7 @@ import { varFade, AnimateText, MotionContainer, animateTextClasses } from 'src/c
 // ----------------------------------------------------------------------
 
 const CONTACTS = [
-  { country: 'Bali', address: '508 Bridle Avenue Newnan, GA 30263', phoneNumber: '(239) 555-0108' },
-  {
-    country: 'London',
-    address: '508 Bridle Avenue Newnan, GA 30263',
-    phoneNumber: '(319) 555-0115',
-  },
-  {
-    country: 'Prague',
-    address: '508 Bridle Avenue Newnan, GA 30263',
-    phoneNumber: '(252) 555-0126',
-  },
-  { country: 'Moscow', address: '508 Bridle', phoneNumber: '(307) 555-0133' },
+  { country: 'Pune,Maharashtra', address: 'Balewadi High Street', phoneNumber: '(+91) 7575049646' },
 ];
 
 // ----------------------------------------------------------------------
@@ -84,6 +73,12 @@ export function ContactHero() {
                 <m.div variants={varFade({ distance: 24 }).inUp}>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
                     {contact.address}
+                  </Typography>
+                </m.div>
+
+                <m.div variants={varFade({ distance: 24 }).inUp}>
+                  <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    {contact.phoneNumber}
                   </Typography>
                 </m.div>
               </Box>

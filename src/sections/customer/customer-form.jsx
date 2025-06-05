@@ -85,6 +85,7 @@ export const NewCustomerSchema = zod
     transporterCode: zod.string().optional(),
     invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
     invoicePrefix: zod.string().min(1, { message: 'Invoice Prefix is required' }),
+    invoiceSuffix: zod.string().optional(),
     currentInvoiceSerialNumber: zod
       .number({
         invalid_type_error: 'Invoice Serial Number must be a number',
@@ -154,6 +155,7 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
       transporterCode: currentCustomer?.transporterCode || '',
       invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
+      invoiceSuffix: currentCustomer?.invoiceSuffix || '',
       currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,
 
       // Consignees
@@ -336,6 +338,12 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
               }
             />
 
+            <Field.Text
+              name="invoiceSuffix"
+              label="Invoice Suffix (Optional)"
+              placeholder="e.g. /A, -2025, etc."
+            />
+
             {/* 3) Live preview label */}
             <Box>
               <Typography variant="body2">Preview:</Typography>
@@ -343,6 +351,8 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
                 <Label color="primary" variant="soft" sx={{ mt: 0.5 }}>
                   {values.invoicePrefix}
                   {values.currentInvoiceSerialNumber}
+                  {values.invoiceSuffix}
+
                 </Label>
               )}
             </Box>
