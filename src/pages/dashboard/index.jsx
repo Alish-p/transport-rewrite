@@ -3,10 +3,10 @@ import { Helmet } from 'react-helmet-async';
 import { CONFIG } from 'src/config-global';
 import { useDashboard } from 'src/query/use-dashboard';
 
-import { OverviewAppView } from 'src/sections/overview/app/view';
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
-import { EmptyContent } from '../../components/empty-content';
-import { LoadingScreen } from '../../components/loading-screen';
+import { OverviewAppView } from 'src/sections/overview/app/view';
 
 // ----------------------------------------------------------------------
 
