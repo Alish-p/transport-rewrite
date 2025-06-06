@@ -19,6 +19,12 @@ const getCustomerMonthlyFreight = async (month) => {
   return data;
 };
 
+const getSubtripsExpiry = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/subtrips-expiry`);
+  return data;
+};
+
+
 // Queries & Mutations
 export function useDashboard() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getDashboard });
@@ -32,4 +38,9 @@ export function useCustomerMonthlyFreight(month) {
       enabled: Boolean(month),
     }
   );
+}
+
+
+export function useSubtripsExpiry() {
+  return useQuery({ queryKey: ['subtripsExpiry'], queryFn: getSubtripsExpiry });
 }

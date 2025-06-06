@@ -81,7 +81,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                                         <TableCell>
                                             <RouterLink
                                                 to={paths.dashboard.customer.details(row.customerId)}
-                                                style={{ color: 'green', textDecoration: 'underline' }}
+                                                style={{ color: 'green' }}
                                             >
                                                 {row.customerName}
                                             </RouterLink>

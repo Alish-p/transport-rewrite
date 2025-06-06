@@ -4,9 +4,9 @@ import { useTheme } from '@mui/material/styles';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { CONFIG } from 'src/config-global';
+import { _appRelated, _appFeatured } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
-import { _appRelated, _appFeatured, _appInvoices } from 'src/_mock';
 
 import { SvgColor, svgColorClasses } from 'src/components/svg-color';
 
@@ -15,12 +15,12 @@ import { useAuthContext } from 'src/auth/hooks';
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
-import { AppNewInvoice } from '../app-new-invoice';
 import { AppTopRelated } from '../app-top-related';
 import { AppAreaInstalled } from '../app-area-installed';
 import { Iconify } from '../../../../components/iconify';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
+import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 
@@ -176,17 +176,9 @@ export function OverviewAppView({ dashboardData }) {
         </Grid>
 
         <Grid xs={12} lg={8}>
-          <AppNewInvoice
+          <SubtripExpiryTable
             title="⚠️ Expiring Eway Bills"
             subheader="Active subtrips with Eway Bills expiring within the next 24 hours. Please take timely action."
-            tableData={_appInvoices}
-            headLabel={[
-              { id: 'subtrip', label: 'Subtrip ID' },
-              { id: 'vehicle', label: 'Vehicle No.' },
-              { id: 'customer', label: 'Customer Name' },
-              { id: 'ewayBill', label: 'Eway Bill #' },
-              { id: '', label: '' },
-            ]}
           />
         </Grid>
 
