@@ -3,11 +3,12 @@ import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
-import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
+import { _appRelated, _appFeatured, _appInvoices } from 'src/_mock';
 
-import { svgColorClasses } from 'src/components/svg-color';
+import { SvgColor, svgColorClasses } from 'src/components/svg-color';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -15,14 +16,26 @@ import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
 import { AppNewInvoice } from '../app-new-invoice';
-import { AppTopAuthors } from '../app-top-authors';
 import { AppTopRelated } from '../app-top-related';
 import { AppAreaInstalled } from '../app-area-installed';
-import { AppWidgetSummary } from '../app-widget-summary';
+import { Iconify } from '../../../../components/iconify';
+import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
-import { AppTopInstalledCountries } from '../app-top-installed-countries';
+import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 
 // ----------------------------------------------------------------------
+
+const icon = (name) => <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />;
+
+const ICONS = {
+  vehicle: icon('ic_vehicle'),
+  driver: icon('ic-user'),
+  customer: icon('ic_customer'),
+  transporter: icon('ic_transporter'),
+  subtrip: icon('ic_subtrip'),
+  invoice: icon('ic-invoice'),
+}
+
 
 export function OverviewAppView({ dashboardData }) {
   const { user } = useAuthContext();
@@ -51,64 +64,87 @@ export function OverviewAppView({ dashboardData }) {
           <AppFeatured list={_appFeatured} />
         </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Trips Completed"
-            percent={2.6}
-            total={1765}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [15, 18, 12, 51, 68, 11, 39, 37],
-            }}
-          />
-        </Grid>
+        {/* Total's section */}
+        <>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Vehicles"
+              total={874}
+              color="warning"
+              icon={ICONS.vehicle}
+            />
+          </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Vehicles"
-            percent={0.2}
-            total={vehicles?.total}
-            chart={{
-              colors: [theme.vars.palette.info.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [20, 41, 63, 33, 28, 35, 50, 46],
-            }}
-          />
-        </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Drivers"
+              total={870}
+              color="primary"
+              icon={ICONS.driver}
+            />
+          </Grid>
+
+
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Customers"
+              total={87}
+              color="secondary"
+              icon={ICONS.customer}
+            />
+          </Grid>
+
+
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Transporters"
+              total={128}
+              color="info"
+              icon={ICONS.transporter}
+            />
+          </Grid>
+
+
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Invoice Generated"
+              total={190}
+              color="error"
+              icon={ICONS.invoice}
+            />
+          </Grid>
+
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget
+              title="Total Subtrips Completed"
+              total={2972}
+              color="success"
+              icon={ICONS.subtrip}
+            />
+          </Grid>
+
+        </>
+
 
         {invoices && (
-          <>
-            <Grid xs={12} md={4}>
-              <AppWidgetSummary
-                title="Total Invoices Generated"
-                percent={-0.1}
-                total={invoices.total}
-                chart={{
-                  colors: [theme.vars.palette.error.main],
-                  categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                  series: [18, 19, 31, 8, 16, 37, 12, 33],
-                }}
-              />
-            </Grid>
-            <Grid xs={12} md={6} lg={4}>
-              <AppCurrentDownload
-                title="Invoices"
-                subheader="Invoice generated through the dashboard"
-                chart={{
-                  series: [
-                    { label: 'Pending', value: invoices.pending },
-                    { label: 'Paid', value: invoices.paid },
-                    { label: 'OverDue', value: invoices.overdue },
-                  ],
-                }}
-              />
-            </Grid>
-          </>
+          <Grid xs={12} md={6} lg={4}>
+            <AppCurrentDownload
+              title="Invoices"
+              subheader="Invoice generated through the dashboard"
+              chart={{
+                series: [
+                  { label: 'Pending', value: 100 },
+                  { label: 'Paid', value: 899 },
+                  { label: 'OverDue', value: 19 },
+                ],
+              }}
+            />
+          </Grid>
         )}
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
-            title="Trips Completed"
+            title="Subtrips Completed"
             subheader="(+23%) than last year"
             chart={{
               categories: [
@@ -127,24 +163,10 @@ export function OverviewAppView({ dashboardData }) {
               ],
               series: [
                 {
-                  name: '2022',
+                  name: '2025',
                   data: [
-                    { name: 'Own', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Market', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                  ],
-                },
-                {
-                  name: '2023',
-                  data: [
-                    { name: 'Own', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Market', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                  ],
-                },
-                {
-                  name: '2024',
-                  data: [
-                    { name: 'Own', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Market', data: [6, 0, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
+                    { name: 'Own', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 10] },
+                    { name: 'Market', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 10] },
                   ],
                 },
               ],
@@ -154,14 +176,15 @@ export function OverviewAppView({ dashboardData }) {
 
         <Grid xs={12} lg={8}>
           <AppNewInvoice
-            title="New invoice"
+            title="⚠️ Expiring Eway Bills"
+            subheader="Active subtrips with Eway Bills expiring within the next 24 hours. Please take timely action."
             tableData={_appInvoices}
             headLabel={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
-              { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
+              { id: 'subtrip', label: 'Subtrip ID' },
+              { id: 'vehicle', label: 'Vehicle No.' },
+              { id: 'customer', label: 'Customer Name' },
+              { id: 'ewayBill', label: 'Eway Bill #' },
+              { id: '', label: '' },
             ]}
           />
         </Grid>
@@ -170,13 +193,20 @@ export function OverviewAppView({ dashboardData }) {
           <AppTopRelated title="Related applications" list={_appRelated} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
+        <Grid xs={12} md={6} lg={8}>
+          <AppNewInvoice
+            title="📦 Customer-wise Summary"
+            subheader="Shows total weight transferred and freight amount for each customer."
+            tableData={_appInvoices}
+            headLabel={[
+              { id: 'customer', label: 'Customer' },
+              { id: 'totalWeight', label: 'Total Weight Transferred' },
+              { id: 'freightAmount', label: 'Freight Amount' },
+            ]}
+          />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopAuthors title="Top authors" list={_appAuthors} />
-        </Grid>
+
 
         <Grid xs={12} md={6} lg={4}>
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
@@ -199,6 +229,36 @@ export function OverviewAppView({ dashboardData }) {
             />
           </Box>
         </Grid>
+
+        <Grid xs={12} lg={8}>
+          <AppSubtripExpensesCategory
+            title="Expenses categories"
+            chart={{
+              series: [
+                { label: 'Entertainment', value: 22 },
+                { label: 'Fuel', value: 18 },
+                { label: 'Fast food', value: 16 },
+                { label: 'Cafe', value: 17 },
+                { label: 'Сonnection', value: 14 },
+                { label: 'Healthcare', value: 22 },
+                { label: 'Fitness', value: 10 },
+                { label: 'Supermarket', value: 21 },
+              ],
+              icons: [
+                <Iconify icon="streamline:dices-entertainment-gaming-dices-solid" />,
+                <Iconify icon="maki:fuel" />,
+                <Iconify icon="ion:fast-food" />,
+                <Iconify icon="maki:cafe" />,
+                <Iconify icon="basil:mobile-phone-outline" />,
+                <Iconify icon="solar:medical-kit-bold" />,
+                <Iconify icon="ic:round-fitness-center" />,
+                <Iconify icon="solar:cart-3-bold" />,
+              ],
+            }}
+          />
+        </Grid>
+
+
       </Grid>
     </DashboardContent>
   );

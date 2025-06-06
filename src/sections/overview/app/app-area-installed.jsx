@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useState, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -8,12 +9,15 @@ import { fNumber, fShortenNumber } from 'src/utils/format-number';
 
 import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart';
 
+
 // ----------------------------------------------------------------------
 
 export function AppAreaInstalled({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
-  const [selectedSeries, setSelectedSeries] = useState('2023');
+  const currentYear = dayjs().format('YYYY');
+
+  const [selectedSeries, setSelectedSeries] = useState(currentYear);
 
   const chartColors = chart.colors ?? [
     theme.palette.primary.dark,

@@ -42,7 +42,7 @@ export const _appAuthors = [...Array(3)].map((_, index) => ({
   totalFavorites: _mock.number.nativeL(index),
 }));
 
-export const _appInvoices = [...Array(5)].map((_, index) => {
+export const _appInvoices = [...Array(25)].map((_, index) => {
   const category = ['Android', 'Mac', 'Windows', 'Android', 'Mac'][index];
 
   const status = ['paid', 'out of date', 'progress', 'paid', 'paid'][index];
