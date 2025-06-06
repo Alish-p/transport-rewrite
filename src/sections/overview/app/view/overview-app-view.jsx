@@ -22,6 +22,7 @@ import { Iconify } from '../../../../components/iconify';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
+import { CustomerFreightTable } from '../app-customer-freight-table';
 
 // ----------------------------------------------------------------------
 
@@ -194,15 +195,9 @@ export function OverviewAppView({ dashboardData }) {
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
-          <AppNewInvoice
+          <CustomerFreightTable
             title="📦 Customer-wise Summary"
             subheader="Shows total weight transferred and freight amount for each customer."
-            tableData={_appInvoices}
-            headLabel={[
-              { id: 'customer', label: 'Customer' },
-              { id: 'totalWeight', label: 'Total Weight Transferred' },
-              { id: 'freightAmount', label: 'Freight Amount' },
-            ]}
           />
         </Grid>
 
