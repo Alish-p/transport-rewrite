@@ -7,20 +7,23 @@ import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
 import { Select, TableRow, TableCell, FormControl } from '@mui/material';
 
+import { fNumber, fCurrency } from 'src/utils/format-number';
+
 import { useCustomerMonthlyFreight } from 'src/query/use-dashboard';
 
 import { Scrollbar } from 'src/components/scrollbar';
-import { TableHeadCustom } from 'src/components/table';
+import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-import { fNumber, fCurrency } from '../../../utils/format-number';
+import { paths } from '../../../routes/paths';
+import { RouterLink } from '../../../routes/components';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
     { id: 'index', label: "No." },
     { id: 'customer', label: 'Customer' },
-    { id: 'totalWeight', label: 'Total Weight' },
-    { id: 'freightAmount', label: 'Freight Amount' },
+    { id: 'totalWeight', label: 'Total Weight', align: 'right' },
+    { id: 'freightAmount', label: 'Freight Amount', align: 'right' },
 ];
 
 const MONTHS = [
@@ -82,26 +85,24 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
 
                     <TableBody>
                         {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={4} align="center">
-                                    Loading...
-                                </TableCell>
-                            </TableRow>
+                            <TableSkeleton />
                         ) : summary.length ? (
                             summary.map((row, idx) => (
                                 <TableRow key={idx}>
                                     <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{row.customerName}</TableCell>
-                                    <TableCell>{fNumber(row.totalLoadingWeight)}</TableCell>
-                                    <TableCell>{fCurrency(row.totalFreightAmount)}</TableCell>
+                                    <TableCell>
+                                        <RouterLink
+                                            to={`${paths.dashboard.customer.details(row.customerId)}`}
+                                            style={{ color: 'green', textDecoration: 'underline' }}
+                                        >
+                                            {row.customerName}</RouterLink></TableCell>
+                                    <TableCell align='right'>{fNumber(row.totalLoadingWeight)}</TableCell>
+                                    <TableCell align='right'>{fCurrency(row.totalFreightAmount)}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
-                            <TableRow>
-                                <TableCell colSpan={4} align="center">
-                                    No data
-                                </TableCell>
-                            </TableRow>
+                            <TableNoData notFound />
+
                         )}
                     </TableBody>
                 </Table>
