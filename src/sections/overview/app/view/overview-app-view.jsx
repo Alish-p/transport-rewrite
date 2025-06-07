@@ -17,7 +17,6 @@ import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
 import { AppTopRelated } from '../app-top-related';
 import { AppAreaInstalled } from '../app-area-installed';
-import { Iconify } from '../../../../components/iconify';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
@@ -226,31 +225,7 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData }) {
         </Grid>
 
         <Grid xs={12} lg={8}>
-          <AppSubtripExpensesCategory
-            title="Expenses categories"
-            chart={{
-              series: [
-                { label: 'Entertainment', value: 22 },
-                { label: 'Fuel', value: 18 },
-                { label: 'Fast food', value: 16 },
-                { label: 'Cafe', value: 17 },
-                { label: 'Сonnection', value: 14 },
-                { label: 'Healthcare', value: 22 },
-                { label: 'Fitness', value: 10 },
-                { label: 'Supermarket', value: 21 },
-              ],
-              icons: [
-                <Iconify icon="streamline:dices-entertainment-gaming-dices-solid" />,
-                <Iconify icon="maki:fuel" />,
-                <Iconify icon="ion:fast-food" />,
-                <Iconify icon="maki:cafe" />,
-                <Iconify icon="basil:mobile-phone-outline" />,
-                <Iconify icon="solar:medical-kit-bold" />,
-                <Iconify icon="ic:round-fitness-center" />,
-                <Iconify icon="solar:cart-3-bold" />,
-              ],
-            }}
-          />
+          <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
 
 

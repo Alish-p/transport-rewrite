@@ -65,3 +65,22 @@ export function useSubtripMonthlyData() {
 export function useDashboardCounts() {
   return useQuery({ queryKey: ['counts'], queryFn: getCounts });
 }
+
+
+
+// ----------------------------------------------------------------------
+// Monthly expense summary
+const getMonthlyExpenseSummary = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-expense`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyExpenseSummary(month) {
+  return useQuery({
+    queryKey: ['monthlyExpenseSummary', month],
+    queryFn: () => getMonthlyExpenseSummary(month),
+    enabled: Boolean(month),
+  });
+}
