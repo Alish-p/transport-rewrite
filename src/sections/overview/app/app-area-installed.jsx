@@ -41,6 +41,16 @@ export function AppAreaInstalled({ title, subheader, chart, ...other }) {
 
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
 
+
+  const legendItems = currentSeries?.data || [];
+
+  const legendTotals = legendItems.map(({ data }) =>
+    data.reduce((sum, v) => sum + v, 0)
+  );
+  const legendValues = legendTotals.map((total) =>
+    fShortenNumber(total)
+  );
+
   return (
     <Card {...other}>
       <CardHeader
@@ -58,8 +68,8 @@ export function AppAreaInstalled({ title, subheader, chart, ...other }) {
 
       <ChartLegends
         colors={chartOptions?.colors}
-        labels={chart.series[0].data.map((item) => item.name)}
-        values={[fShortenNumber(629), fShortenNumber(321)]}
+        labels={legendItems.map((item) => item.name)}
+        values={legendValues}
         sx={{
           px: 3,
           gap: 3,

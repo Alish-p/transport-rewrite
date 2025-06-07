@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useDashboard } from 'src/query/use-dashboard';
+import { useDashboard, useDashboardCounts, useSubtripMonthlyData } from 'src/query/use-dashboard';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -14,12 +14,19 @@ const metadata = { title: `Dashboard - ${CONFIG.site.name}` };
 
 export default function OverviewAppPage() {
   const { data, isLoading, isError } = useDashboard();
+  const { data: counts, isLoading: countsLoading, isError: countsError } = useDashboardCounts();
+  const {
+    data: subtripMonthlyData,
+    isLoading: monthlyLoading,
+    isError: monthlyError,
+  } = useSubtripMonthlyData();
 
-  if (isLoading) {
+
+  if (isLoading || countsLoading || monthlyLoading) {
     return <LoadingScreen />;
   }
 
-  if (isError) {
+  if (isError || countsError || monthlyError) {
     return (
       <EmptyContent
         filled
@@ -34,7 +41,7 @@ export default function OverviewAppPage() {
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
-      <OverviewAppView dashboardData={data} />
+      <OverviewAppView dashboardData={data} counts={counts} subtripMonthlyData={subtripMonthlyData} />
     </>
   );
 }

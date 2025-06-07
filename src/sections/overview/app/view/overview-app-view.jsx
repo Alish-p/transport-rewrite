@@ -38,12 +38,12 @@ const ICONS = {
 }
 
 
-export function OverviewAppView({ dashboardData }) {
+export function OverviewAppView({ dashboardData, counts, subtripMonthlyData }) {
   const { user } = useAuthContext();
 
   const theme = useTheme();
 
-  const { invoices, vehicles, transporters, customers, drivers } = dashboardData;
+  const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
 
   return (
     <DashboardContent maxWidth="xl">
@@ -70,7 +70,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Vehicles"
-              total={874}
+              total={vehicles}
               color="warning"
               icon={ICONS.vehicle}
             />
@@ -79,7 +79,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Drivers"
-              total={870}
+              total={drivers}
               color="primary"
               icon={ICONS.driver}
             />
@@ -89,7 +89,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Customers"
-              total={87}
+              total={customers}
               color="secondary"
               icon={ICONS.customer}
             />
@@ -99,7 +99,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Transporters"
-              total={128}
+              total={transporters}
               color="info"
               icon={ICONS.transporter}
             />
@@ -109,7 +109,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Invoice Generated"
-              total={190}
+              total={invoices}
               color="error"
               icon={ICONS.invoice}
             />
@@ -118,7 +118,7 @@ export function OverviewAppView({ dashboardData }) {
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Subtrips Completed"
-              total={2972}
+              total={subtrips}
               color="success"
               icon={ICONS.subtrip}
             />
@@ -163,13 +163,21 @@ export function OverviewAppView({ dashboardData }) {
                 'Dec',
               ],
               series: [
-                {
-                  name: '2025',
-                  data: [
-                    { name: 'Own', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 10] },
-                    { name: 'Market', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 10] },
-                  ],
-                },
+                subtripMonthlyData
+                  ? {
+                    name: String(subtripMonthlyData.year),
+                    data: [
+                      { name: 'Own', data: subtripMonthlyData.own },
+                      { name: 'Market', data: subtripMonthlyData.market },
+                    ],
+                  }
+                  : {
+                    name: 'Year',
+                    data: [
+                      { name: 'Own', data: Array(12).fill(0) },
+                      { name: 'Market', data: Array(12).fill(0) },
+                    ],
+                  },
               ],
             }}
           />
