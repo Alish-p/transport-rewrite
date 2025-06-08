@@ -15,13 +15,13 @@ import { useAuthContext } from 'src/auth/hooks';
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
-import { AppTopRelated } from '../app-top-related';
 import { AppAreaInstalled } from '../app-area-installed';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
+import { AppSubtripStatusWidget } from '../app-subtrip-status-widget';
 
 // ----------------------------------------------------------------------
 
@@ -190,7 +190,7 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData }) {
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
-          <AppTopRelated title="Related applications" list={_appRelated} />
+          <AppSubtripStatusWidget title="Subtrip Status" list={_appRelated} />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>

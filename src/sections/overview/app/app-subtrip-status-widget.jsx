@@ -2,33 +2,28 @@ import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import { svgIconClasses } from '@mui/material/SvgIcon';
 
 import { useTabs } from 'src/hooks/use-tabs';
 
-import { fData, fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
-import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
 
 // ----------------------------------------------------------------------
 
 const TABS = [
-  { value: '7days', label: 'Top 7 days' },
-  { value: '30days', label: 'Top 30 days' },
-  { value: 'all', label: 'All times' },
+  { value: 'subtrips', label: 'Subtrips' },
+  { value: 'emptySubtrips', label: 'Empty Subtrips' },
 ];
 
 // ----------------------------------------------------------------------
 
-export function AppTopRelated({ title, subheader, list, ...other }) {
-  const tabs = useTabs('7days');
+export function AppSubtripStatusWidget({ title, subheader, list, ...other }) {
+  const tabs = useTabs('subtrips');
 
   const renderTabs = (
     <CustomTabs
@@ -79,10 +74,6 @@ function Item({ item, sx, ...other }) {
           <Typography variant="subtitle2" noWrap>
             {item.name}
           </Typography>
-
-          <Label color={item.price === 0 ? 'default' : 'success'} sx={{ height: 20 }}>
-            {item.price === 0 ? 'Free' : fCurrency(item.price)}
-          </Label>
         </Box>
 
         <Stack
@@ -95,27 +86,9 @@ function Item({ item, sx, ...other }) {
           sx={{ typography: 'caption' }}
         >
           <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-            <Iconify width={16} icon="solar:download-bold" sx={{ color: 'text.disabled' }} />
             {fShortenNumber(item.downloaded)}
           </Box>
 
-          <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-            <Iconify width={16} icon="heroicons:server-solid" sx={{ color: 'text.disabled' }} />
-            {fData(item.size)}
-          </Box>
-
-          <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-            <Rating
-              readOnly
-              size="small"
-              precision={0.5}
-              name="reviews"
-              value={item.ratingNumber}
-              max={1}
-              sx={{ [` .${svgIconClasses.root}`]: { width: 16, height: 16 } }}
-            />
-            {fShortenNumber(item.totalReviews)}
-          </Box>
         </Stack>
       </div>
     </Box>
