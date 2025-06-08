@@ -259,7 +259,7 @@ export const navData = [
     subheader: 'Billing',
     items: [
       {
-        title: 'Invoice Creation',
+        title: 'Customer Invoice',
         path: paths.dashboard.invoice.root,
         icon: ICONS.invoice,
         resource: 'invoice',

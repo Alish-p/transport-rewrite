@@ -163,7 +163,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Box>
                 <DialogSelectButton
                   onClick={vehicleDialog.onTrue}
-                  placeholder="Select Vehicle *"
+                  placeholder="Select Vehicle"
                   selected={selectedVehicle?.vehicleNo}
                   error={!!errors.vehicleId?.message}
                   iconName="mdi:truck"
@@ -175,15 +175,15 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
               <Box>
                 <DialogSelectButton
                   onClick={driverDialog.onTrue}
-                  placeholder="Select Driver *"
+                  placeholder="Select Driver"
                   selected={selectedDriver?.driverName}
                   error={!!errors.driverId?.message}
                   iconName="mdi:account"
                 />
               </Box>
 
-              <Field.DatePicker name="fromDate" label="From Date *" />
-              <Field.Text name="remarks" label="Remarks" />
+              <Field.DatePicker name="fromDate" label="From Date" />
+              <Field.Text name="remarks" label="Remarks (Optional)" />
             </Box>
 
             {/* Close Previous Trips */}
