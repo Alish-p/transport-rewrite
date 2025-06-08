@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 
 // @mui
-import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -57,16 +56,6 @@ export default function BankTableRow({
                 <Typography variant="body2" noWrap>
                   {name}
                 </Typography>
-              }
-              secondary={
-                <Link
-                  noWrap
-                  variant="body2"
-                  onClick={() => {}}
-                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
-                >
-                  {name}
-                </Link>
               }
             />
           </TableCell>

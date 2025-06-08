@@ -1,4 +1,6 @@
 // @mui
+import { useNavigate } from 'react-router';
+
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -9,7 +11,6 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -17,6 +18,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { paths } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -48,12 +51,13 @@ export default function PumpTableRow({
     address: false,
   },
 }) {
-  const { pumpName, placeName, ownerName, ownerCellNo, pumpPhoneNo, taluk, district, address } =
+  const { _id, pumpName, placeName, ownerName, ownerCellNo, pumpPhoneNo, taluk, district, address } =
     row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
+  const navigate = useNavigate()
 
   return (
     <>
@@ -71,16 +75,13 @@ export default function PumpTableRow({
             <ListItemText
               disableTypography
               primary={
-                <Typography variant="body2" noWrap>
-                  {pumpName}
-                </Typography>
-              }
-              secondary={
                 <Link
                   noWrap
                   variant="body2"
-                  onClick={() => {}}
-                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                  onClick={() => {
+                    navigate(paths.dashboard.pump.details(_id))
+                  }}
+                  sx={{ color: 'success', cursor: 'pointer' }}
                 >
                   {pumpName}
                 </Link>

@@ -84,3 +84,16 @@ export function useMonthlyExpenseSummary(month) {
     enabled: Boolean(month),
   });
 }
+
+
+// ----------------------------------------------------------------------
+// Subtrip status summary
+
+const getSubtripStatusSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/subtrip-status-summary`);
+  return data;
+};
+
+export function useSubtripStatusSummary() {
+  return useQuery({ queryKey: ['subtripStatusSummary'], queryFn: getSubtripStatusSummary });
+}

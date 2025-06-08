@@ -3,8 +3,8 @@ import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { _appFeatured } from 'src/_mock';
 import { CONFIG } from 'src/config-global';
-import { _appRelated, _appFeatured } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
 
@@ -37,7 +37,7 @@ const ICONS = {
 }
 
 
-export function OverviewAppView({ dashboardData, counts, subtripMonthlyData }) {
+export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, subtripStatusSummary }) {
   const { user } = useAuthContext();
 
   const theme = useTheme();
@@ -190,7 +190,7 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData }) {
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
-          <AppSubtripStatusWidget title="Subtrip Status" list={_appRelated} />
+          <AppSubtripStatusWidget title="Subtrip Status" summary={subtripStatusSummary} />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
