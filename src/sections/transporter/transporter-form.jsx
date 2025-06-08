@@ -7,17 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Button,
-  Divider,
-  MenuItem,
-  Typography,
-  InputAdornment,
-} from '@mui/material';
+import { Card, Stack, Button, Divider, MenuItem, CardHeader, InputAdornment } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -39,9 +29,12 @@ export const NewTransporterSchema = zod
   .object({
     transportName: zod.string().min(1, { message: 'Transport Name is required' }),
     address: zod.string().min(1, { message: 'Address is required' }),
-    place: zod.string(),
     state: zod.string().min(1, { message: 'State is required' }),
-    pinNo: zod.string().min(1, { message: 'Pin No is required' }),
+
+    pinNo: schemaHelper.pinCodeOptional({
+      message: { invalid_error: 'Pin Code must be exactly 6 digits' },
+    }),
+
     cellNo: schemaHelper.phoneNumber({
       message: {
         required_error: 'Mobile No is required',
@@ -49,16 +42,7 @@ export const NewTransporterSchema = zod
       },
     }),
     ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-    ownerPhoneNo: schemaHelper.phoneNumber({
-      message: {
-        required_error: 'Owner Mobile No is required',
-        invalid_error: 'Owner Mobile No must be exactly 10 digits',
-      },
-    }),
-    emailId: zod
-      .string()
-      .min(1, { message: 'Email ID is required' })
-      .email({ message: 'Email ID must be a valid email' }),
+    emailId: zod.string().email({ message: 'Email ID must be a valid email' }).or(zod.literal('')),
     paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
     panNo: zod.string(),
     gstEnabled: zod.boolean(),
@@ -103,12 +87,10 @@ export default function TransporterForm({ currentTransporter, bankList }) {
     () => ({
       transportName: currentTransporter?.transportName || '',
       address: currentTransporter?.address || '',
-      place: currentTransporter?.place || '',
       state: currentTransporter?.state || '',
       pinNo: currentTransporter?.pinNo || '',
       cellNo: currentTransporter?.cellNo || '',
       ownerName: currentTransporter?.ownerName || '',
-      ownerPhoneNo: currentTransporter?.ownerPhoneNo || '',
       emailId: currentTransporter?.emailId || '',
       bankDetails: {
         name: currentTransporter?.bankDetails?.name || '',
@@ -147,8 +129,6 @@ export default function TransporterForm({ currentTransporter, bankList }) {
 
   const { bankDetails } = values;
 
-  console.log({ errors });
-
   const onSubmit = async (data) => {
     try {
       if (!currentTransporter) {
@@ -166,139 +146,95 @@ export default function TransporterForm({ currentTransporter, bankList }) {
   // Separate Render Methods
 
   const renderTransporterDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Transporter Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-        >
-          <Field.Text name="transportName" label="Transport Name" required />
-          <Field.Text name="address" label="Address" required />
-          <Field.Text name="place" label="Place" />
-          <Field.Select name="state" label="State" required>
-            <MenuItem value="">None</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {STATES.map((state) => (
-              <MenuItem key={state.value} value={state.value}>
-                {state.label}
-              </MenuItem>
-            ))}
-          </Field.Select>
-          <Field.Text name="pinNo" label="Pin No" required />
-          <Field.Text
-            name="cellNo"
-            label="Phone Number"
-            required
-            InputProps={{
-              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-            }}
-          />
-          <Field.Text name="ownerName" label="Owner Name" required />
-          <Field.Text
-            name="ownerPhoneNo"
-            label="Owner Phone Number"
-            required
-            InputProps={{
-              startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-            }}
-          />
-          <Field.Text name="emailId" label="Email ID" required />
-        </Box>
-      </Card>
-    </>
+    <Card>
+      <CardHeader title="Transporter Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="transportName" label="Transport Name" />
+        <Field.Text name="address" label="Address" multiline rows={4} placeholder="123 MG Road, Bengaluru, Karnataka 560001" />
+        <Field.Select name="state" label="State" >
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {STATES.map((state) => (
+            <MenuItem key={state.value} value={state.value}>
+              {state.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
+        <Field.Text name="pinNo" label="Pin Code (Optional) " placeholder="400001" />
+        <Field.Text
+          name="cellNo"
+          label="Phone Number"
+          InputProps={{
+            startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+          }}
+        />
+        <Field.Text name="ownerName" label="Owner Name" />
+        <Field.Text name="emailId" label="Email ID (Optional)" />
+      </Stack>
+    </Card>
   );
 
   const renderBankDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Bank Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+    <Card >
+      <CardHeader title="Bank Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={bankDialogue.onTrue}
+          sx={{
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
+            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
           }}
-          gap={3}
+          startIcon={
+            <Iconify
+              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
+            />
+          }
         >
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={bankDialogue.onTrue}
-            sx={{
-              height: 56,
-              justifyContent: 'flex-start',
-              typography: 'body2',
-              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-            }}
-            startIcon={
-              <Iconify
-                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-              />
-            }
-          >
-            {bankDetails?.name || 'Select Bank *'}
-          </Button>
+          {bankDetails?.name || 'Select Bank'}
+        </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" required />
-        </Box>
-      </Card>
-    </>
+        <Field.Text name="bankDetails.accNo" label="Account No" />
+      </Stack>
+    </Card>
   );
 
   const renderAdditionalDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Additional Details
-      </Typography>{' '}
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-        >
-          <Field.Text name="paymentMode" label="Payment Mode" required />
-          <Field.Text name="panNo" label="PAN No" />
+    <Card >
+      <CardHeader title="Additional Details" sx={{ mb: 3 }} />
+      <Divider />
 
-          <Field.Text
-            name="tdsPercentage"
-            label="TDS Percentage"
-            required
-            type="number"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">%</InputAdornment>,
-            }}
-          />
-          <Field.Text
-            name="podCharges"
-            label="POD Charges"
-            required
-            type="number"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₹ / Subtrip</InputAdornment>,
-            }}
-          />
-          <Field.Switch name="gstEnabled" label="GST Enabled" />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="paymentMode" label="Payment Mode" />
+        <Field.Text name="panNo" label="PAN No (Optional)" />
 
-          {values.gstEnabled && (
-            <Field.Text
-              name="gstNo"
-              label="GST No"
-              required
-              helperText="Enter only if GST is enabled"
-            />
-          )}
-        </Box>
-      </Card>
-    </>
+        <Field.Text
+          name="tdsPercentage"
+          label="TDS Percentage"
+          type="number"
+          InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
+        />
+        <Field.Text
+          name="podCharges"
+          label="POD Charges"
+          type="number"
+          InputProps={{
+            endAdornment: <InputAdornment position="end">₹ / Subtrip</InputAdornment>,
+          }}
+        />
+        <Field.Switch name="gstEnabled" label="GST Enabled" />
+
+        {values.gstEnabled && (
+          <Field.Text name="gstNo" label="GST No" helperText="Enter only if GST is enabled" />
+        )}
+      </Stack>
+    </Card>
   );
 
   const renderActions = () => (
@@ -339,17 +275,12 @@ export default function TransporterForm({ currentTransporter, bankList }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          {renderTransporterDetails()}
-          {renderBankDetails()}
-          {renderAdditionalDetails()}
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 3 }} />
-
-      {renderActions()}
+      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderTransporterDetails()}
+        {renderBankDetails()}
+        {renderAdditionalDetails()}
+        {renderActions()}
+      </Stack>
       {renderDialogues()}
     </Form>
   );
