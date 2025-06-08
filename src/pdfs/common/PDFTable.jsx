@@ -37,9 +37,9 @@ export default function PDFTable({
 
   const getAlignStyle = (colIdx) => {
     const align = columnAlignments[colIdx];
-    if (align === 'center') return styles.textCenter;
-    if (align === 'right') return styles.textRight;
-    if (align === 'left') return styles.textLeft;
+    if (align === 'center') return styles.justifyCenter;
+    if (align === 'right') return styles.justifyEnd;
+    if (align === 'left') return styles.justifyStart;
     return undefined;
   };
 
@@ -52,9 +52,10 @@ export default function PDFTable({
             styles.horizontalCell,
             getColumnWidth(index),
             index !== headers.length - 1 && styles.borderRight,
+            getAlignStyle(index),
           ]}
         >
-          <Text style={[styles.horizontalCellTitle, getAlignStyle(index)]}>{header}</Text>
+          <Text style={[styles.horizontalCellTitle]}>{header}</Text>
         </View>
       ))}
     </View>
@@ -77,14 +78,11 @@ export default function PDFTable({
             styles.horizontalCell,
             getColumnWidth(cellIndex),
             cellIndex !== headers.length - 1 && styles.borderRight,
+            getAlignStyle(cellIndex),
           ]}
         >
           <Text
-            style={[
-              styles.horizontalCellContent,
-              getAlignStyle(cellIndex),
-              getCellStyle(rowIndex, cellIndex),
-            ]}
+            style={[styles.horizontalCellContent, getCellStyle(rowIndex, cellIndex)]}
           >
             {cell}
           </Text>
@@ -103,9 +101,10 @@ export default function PDFTable({
               styles.horizontalCell,
               getColumnWidth(index),
               index !== headers.length - 1 && styles.borderRight,
+              getAlignStyle(index),
             ]}
           >
-            <Text style={[styles.horizontalCellTitle, styles.textWhite, getAlignStyle(index)]}>
+            <Text style={[styles.horizontalCellTitle, styles.textWhite]}>
               {footerCell}
             </Text>
           </View>
