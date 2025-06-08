@@ -2,7 +2,6 @@
 
 // @mui
 import Link from '@mui/material/Link';
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -10,12 +9,14 @@ import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { wrapText } from 'src/utils/change-case';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -114,10 +115,11 @@ export default function SubtripTableRow({
         )}
         {(visibleColumns.routeName || disabledColumns.routeName) && (
           <TableCell>
-            <ListItemText
-              primary={routeName || '-'}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
+            <Tooltip title={routeName}>
+              <Typography variant="body2" noWrap>
+                {wrapText(routeName || '-', 20)}
+              </Typography>
+            </Tooltip>
           </TableCell>
         )}
         {(visibleColumns.invoiceNo || disabledColumns.invoiceNo) && (

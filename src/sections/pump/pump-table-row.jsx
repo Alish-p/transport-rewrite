@@ -2,7 +2,6 @@
 import { useNavigate } from 'react-router';
 
 import Link from '@mui/material/Link';
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -12,6 +11,7 @@ import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import { Tooltip, MenuList, Typography } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -20,6 +20,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { paths } from '../../routes/paths';
+import { wrapText } from '../../utils/change-case';
 
 // ----------------------------------------------------------------------
 
@@ -146,10 +147,11 @@ export default function PumpTableRow({
 
         {(visibleColumns.address || disabledColumns.address) && (
           <TableCell>
-            <ListItemText
-              primary={address}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
+            <Tooltip title={address}>
+              <Typography variant="body2" noWrap>
+                {wrapText(address, 20)}
+              </Typography>
+            </Tooltip>
           </TableCell>
         )}
 
