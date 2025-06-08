@@ -61,8 +61,18 @@ export default function InvoicePdf({ invoice }) {
     ]);
 
     const columnWidths = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const columnAlignments = headers.map((_, idx) =>
+      idx >= 8 ? 'right' : undefined
+    );
 
-    return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
+    return (
+      <PDFTable
+        headers={headers}
+        data={data}
+        columnWidths={columnWidths}
+        columnAlignments={columnAlignments}
+      />
+    );
   };
 
   const renderTaxBreakup = () => {
@@ -85,7 +95,22 @@ export default function InvoicePdf({ invoice }) {
 
     data.push([' ', 'Net Total', fCurrency(totalAfterTax), ' ']);
 
-    return <PDFTable headers={headers} data={data} columnWidths={[10, 1, 1, 1]} hideHeader />;
+    const getRowStyle = (rowIdx) => {
+      const label = data[rowIdx][1];
+      if (label === 'Net Total') return { color: 'green' };
+      if (label.startsWith('CGST') || label.startsWith('SGST')) return { color: 'red' };
+      return undefined;
+    };
+
+    return (
+      <PDFTable
+        headers={headers}
+        data={data}
+        columnWidths={[10, 1, 1, 1]}
+        hideHeader
+        cellStyles={(r) => getRowStyle(r)}
+      />
+    );
   };
 
   return (

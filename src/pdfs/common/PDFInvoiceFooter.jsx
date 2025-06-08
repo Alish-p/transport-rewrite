@@ -3,23 +3,27 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
-export default function PDFInvoiceFooter({ declaration, signatory = 'For Shree Enterprises' }) {
+export default function PDFInvoiceFooter({
+  declaration,
+  signatory = 'For Shree Enterprises',
+  styles = PDFStyles,
+}) {
   return (
-    <View style={[PDFStyles.border, PDFStyles.p16, PDFStyles.mt16]}>
-      <View style={[PDFStyles.gridContainer]}>
+    <View style={[styles.border, styles.p16, styles.mt16]}>
+      <View style={[styles.gridContainer]}>
         {/* Declaration - 70% Width */}
-        <View style={[PDFStyles.col8]}>
-          <Text style={[PDFStyles.body1]}>{declaration}</Text>
+        <View style={[styles.col8]}>
+          <Text style={[styles.body1]}>{declaration}</Text>
         </View>
 
         {/* Signature Block - 30% Width */}
-        <View style={[PDFStyles.col4, PDFStyles.alignEnd]}>
-          <Text style={[PDFStyles.body1, PDFStyles.mb8]}>{signatory}</Text>
+        <View style={[styles.col4, styles.alignEnd]}>
+          <Text style={[styles.body1, styles.mb8]}>{signatory}</Text>
 
           {/* Empty space for stamp or sign */}
           <View style={{ height: 40 }} />
 
-          <Text style={[PDFStyles.subtitle2]}>Authorised Signatory</Text>
+          <Text style={[styles.subtitle2]}>Authorised Signatory</Text>
         </View>
       </View>
     </View>

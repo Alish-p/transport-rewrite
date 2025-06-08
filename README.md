@@ -52,3 +52,22 @@ To set up your local server:
 
 **NOTE:**
 _When copying folders remember to also copy hidden files like .env. This is important because .env files often contain environment variables that are crucial for the application to run correctly._
+
+## PDF Components
+
+Common PDF components under `src/pdfs/common` now accept a `styles` prop. This
+allows you to provide your own `StyleSheet` when rendering PDFs.
+
+```jsx
+import { PDFTable } from 'src/pdfs/common';
+import { StyleSheet } from '@react-pdf/renderer';
+
+const custom = StyleSheet.create({
+  ...
+});
+
+<PDFTable headers={heads} data={rows} styles={custom} />;
+```
+
+`PDFTable` also supports `cellStyles` and `columnAlignments` for fine grained
+cell styling and text alignment.

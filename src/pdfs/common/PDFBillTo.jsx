@@ -7,19 +7,20 @@ export default function PDFBillToSection({
   title = 'Bill To',
   billToDetails = [],
   metaDetails = [],
+  styles = PDFStyles,
 }) {
   return (
-    <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
+    <View style={[styles.border, styles.p8, styles.mb8]}>
       {/* Grid Container */}
-      <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
+      <View style={[styles.gridContainer, styles.alignStart]}>
         {/* Bill To Section - 70% width */}
-        <View style={[PDFStyles.col8, PDFStyles.pr8]}>
-          <Text style={[PDFStyles.subtitle1, PDFStyles.mb4]}>{title}</Text>
+        <View style={[styles.col8, styles.pr8]}>
+          <Text style={[styles.subtitle1, styles.mb4]}>{title}</Text>
 
           {billToDetails.map(
             (value, index) =>
               value && (
-                <Text key={index} style={[PDFStyles.body2, PDFStyles.mb2]}>
+                <Text key={index} style={[styles.body2, styles.mb2]}>
                   {value}
                 </Text>
               )
@@ -27,14 +28,14 @@ export default function PDFBillToSection({
         </View>
 
         {/* Meta Info Section - 30% width */}
-        <View style={[PDFStyles.col4, PDFStyles.borderLeft, PDFStyles.contactSection]}>
-          <View style={[PDFStyles.flexColumn,]}>
+        <View style={[styles.col4, styles.borderLeft, styles.contactSection]}>
+          <View style={[styles.flexColumn]}>
             {metaDetails.map(
               ([label, value], index) =>
                 value && (
-                  <View key={index} style={[PDFStyles.flexRow, PDFStyles.mb4]}>
-                    <Text style={[PDFStyles.contactLabel, PDFStyles.col5]}>{label}</Text>
-                    <Text style={[PDFStyles.contactValue, PDFStyles.col7]}>{value}</Text>
+                  <View key={index} style={[styles.flexRow, styles.mb4]}>
+                    <Text style={[styles.contactLabel, styles.col5]}>{label}</Text>
+                    <Text style={[styles.contactValue, styles.col7]}>{value}</Text>
                   </View>
                 )
             )}

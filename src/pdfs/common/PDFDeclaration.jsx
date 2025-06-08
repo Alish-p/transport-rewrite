@@ -3,19 +3,19 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
-export default function PDFDeclaration({ title = 'Declaration:', content }) {
+export default function PDFDeclaration({ title = 'Declaration:', content, styles = PDFStyles }) {
   return (
-    <View style={[PDFStyles.border, PDFStyles.p16, PDFStyles.mb16, PDFStyles.flexColumn]}>
-      <Text style={[PDFStyles.subtitle1, PDFStyles.mb8]}>{title}</Text>
+    <View style={[styles.border, styles.p16, styles.mb16, styles.flexColumn]}>
+      <Text style={[styles.subtitle1, styles.mb8]}>{title}</Text>
 
       {Array.isArray(content) ? (
         content.map((line, index) => (
-          <Text key={index} style={[PDFStyles.body2, PDFStyles.mb4]}>
+          <Text key={index} style={[styles.body2, styles.mb4]}>
             {line}
           </Text>
         ))
       ) : (
-        <Text style={[PDFStyles.body2]}>{content}</Text>
+        <Text style={[styles.body2]}>{content}</Text>
       )}
     </View>
   );

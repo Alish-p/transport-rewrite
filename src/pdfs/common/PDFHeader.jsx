@@ -9,15 +9,16 @@ export default function PDFHeader({
   logoPath = '/logo/company-logo-main.png',
   company = CONFIG.company,
   logoSize = 55,
+  styles = PDFStyles,
 }) {
   const { name, tagline, address, email, website, contacts } = company;
 
   return (
-    <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
+    <View style={[styles.border, styles.p8, styles.mb8]}>
       {/* Grid Container */}
-      <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
+      <View style={[styles.gridContainer, styles.alignStart]}>
         {/* Logo Section */}
-        <View style={[PDFStyles.col2, PDFStyles.alignCenter]}>
+        <View style={[styles.col2, styles.alignCenter]}>
           <Image
             src={logoPath}
             style={{ width: logoSize, height: logoSize, objectFit: 'contain' }}
@@ -25,21 +26,21 @@ export default function PDFHeader({
         </View>
 
         {/* Company Info */}
-        <View style={[PDFStyles.col6]}>
-          <Text style={[PDFStyles.companyName]}>{name}</Text>
-          <Text style={[PDFStyles.companyTagline, PDFStyles.mb4]}>{tagline}</Text>
-          <Text style={[PDFStyles.companyAddress]}>{address.line1}</Text>
-          <Text style={[PDFStyles.companyAddress]}>
+        <View style={[styles.col6]}>
+          <Text style={[styles.companyName]}>{name}</Text>
+          <Text style={[styles.companyTagline, styles.mb4]}>{tagline}</Text>
+          <Text style={[styles.companyAddress]}>{address.line1}</Text>
+          <Text style={[styles.companyAddress]}>
             {address.line2}, {address.state}
           </Text>
         </View>
 
         {/* Contact Info */}
-        <View style={[PDFStyles.col4, PDFStyles.contactSection, PDFStyles.borderLeft]}>
-          <View style={[PDFStyles.flexColumn]}>
-            <ContactRow label="Mobile" value={contacts?.[0]} />
-            <ContactRow label="Email" value={email} />
-            <ContactRow label="Website" value={website} />
+        <View style={[styles.col4, styles.contactSection, styles.borderLeft]}>
+          <View style={[styles.flexColumn]}>
+            <ContactRow styles={styles} label="Mobile" value={contacts?.[0]} />
+            <ContactRow styles={styles} label="Email" value={email} />
+            <ContactRow styles={styles} label="Website" value={website} />
           </View>
         </View>
       </View>
@@ -47,11 +48,11 @@ export default function PDFHeader({
   );
 }
 
-function ContactRow({ label, value }) {
+function ContactRow({ styles = PDFStyles, label, value }) {
   return (
-    <View style={[PDFStyles.flexRow, PDFStyles.mb4]}>
-      <Text style={[PDFStyles.contactLabel, PDFStyles.col5]}>{label}</Text>
-      <Text style={[PDFStyles.contactValue, PDFStyles.col7]}>{value}</Text>
+    <View style={[styles.flexRow, styles.mb4]}>
+      <Text style={[styles.contactLabel, styles.col5]}>{label}</Text>
+      <Text style={[styles.contactValue, styles.col7]}>{value}</Text>
     </View>
   );
 }

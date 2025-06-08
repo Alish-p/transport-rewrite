@@ -3,10 +3,10 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
-export default function PDFTitle({ title }) {
+export default function PDFTitle({ title, styles = PDFStyles }) {
   return (
-    <View style={[PDFStyles.gridContainer]}>
-      <Text style={[PDFStyles.h2, PDFStyles.mb4]}>{title}</Text>
+    <View style={[styles.gridContainer]}>
+      <Text style={[styles.h2, styles.mb4]}>{title}</Text>
     </View>
   );
 }

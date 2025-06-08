@@ -3,6 +3,10 @@ import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
 
+// PDFTable renders tabular data inside PDF documents. The `styles` prop allows
+// consumers to provide a custom StyleSheet created with `@react-pdf/renderer`.
+// When not supplied the default style sheet from `./styles` is used.
+
 export default function PDFTable({
   headers,
   data,
@@ -10,26 +14,47 @@ export default function PDFTable({
   showBorders = true,
   hideHeader = false,
   tableFooter,
+  styles = PDFStyles,
+  cellStyles,
+  columnAlignments = [],
 }) {
   const getColumnWidth = (index) => {
     if (columnWidths && columnWidths[index]) {
-      return PDFStyles[`col${columnWidths[index]}`] || {};
+      return styles[`col${columnWidths[index]}`] || {};
     }
-    return PDFStyles[`col${Math.floor(12 / headers.length)}`];
+    return styles[`col${Math.floor(12 / headers.length)}`];
+  };
+
+  const getCellStyle = (rowIdx, colIdx) => {
+    if (typeof cellStyles === 'function') {
+      return cellStyles(rowIdx, colIdx);
+    }
+    if (Array.isArray(cellStyles) && cellStyles[rowIdx]) {
+      return cellStyles[rowIdx][colIdx];
+    }
+    return undefined;
+  };
+
+  const getAlignStyle = (colIdx) => {
+    const align = columnAlignments[colIdx];
+    if (align === 'center') return styles.textCenter;
+    if (align === 'right') return styles.textRight;
+    if (align === 'left') return styles.textLeft;
+    return undefined;
   };
 
   const renderHeader = () => (
-    <View style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight]}>
+    <View style={[styles.gridContainer, styles.border, styles.bgLight]}>
       {headers.map((header, index) => (
         <View
           key={index}
           style={[
-            PDFStyles.horizontalCell,
+            styles.horizontalCell,
             getColumnWidth(index),
-            index !== headers.length - 1 && PDFStyles.borderRight,
+            index !== headers.length - 1 && styles.borderRight,
           ]}
         >
-          <Text style={[PDFStyles.horizontalCellTitle]}>{header}</Text>
+          <Text style={[styles.horizontalCellTitle, getAlignStyle(index)]}>{header}</Text>
         </View>
       ))}
     </View>
@@ -39,22 +64,30 @@ export default function PDFTable({
     <View
       key={rowIndex}
       style={[
-        PDFStyles.gridContainer,
-        PDFStyles.border,
-        PDFStyles.noBorderTop,
-        !showBorders && PDFStyles.noBorder,
+        styles.gridContainer,
+        styles.border,
+        styles.noBorderTop,
+        !showBorders && styles.noBorder,
       ]}
     >
       {rowData.map((cell, cellIndex) => (
         <View
           key={cellIndex}
           style={[
-            PDFStyles.horizontalCell,
+            styles.horizontalCell,
             getColumnWidth(cellIndex),
-            cellIndex !== headers.length - 1 && PDFStyles.borderRight,
+            cellIndex !== headers.length - 1 && styles.borderRight,
           ]}
         >
-          <Text style={[PDFStyles.horizontalCellContent]}>{cell}</Text>
+          <Text
+            style={[
+              styles.horizontalCellContent,
+              getAlignStyle(cellIndex),
+              getCellStyle(rowIndex, cellIndex),
+            ]}
+          >
+            {cell}
+          </Text>
         </View>
       ))}
     </View>
@@ -62,19 +95,19 @@ export default function PDFTable({
 
   const renderFooter = () =>
     tableFooter ? (
-      <View
-        style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.noBorderTop, PDFStyles.bgDark]}
-      >
+      <View style={[styles.gridContainer, styles.border, styles.noBorderTop, styles.bgDark]}>
         {tableFooter.map((footerCell, index) => (
           <View
             key={index}
             style={[
-              PDFStyles.horizontalCell,
+              styles.horizontalCell,
               getColumnWidth(index),
-              index !== headers.length - 1 && PDFStyles.borderRight,
+              index !== headers.length - 1 && styles.borderRight,
             ]}
           >
-            <Text style={[PDFStyles.horizontalCellTitle, PDFStyles.textWhite]}>{footerCell}</Text>
+            <Text style={[styles.horizontalCellTitle, styles.textWhite, getAlignStyle(index)]}>
+              {footerCell}
+            </Text>
           </View>
         ))}
       </View>

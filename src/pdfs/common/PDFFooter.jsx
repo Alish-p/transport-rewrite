@@ -5,28 +5,28 @@ import { fDate } from 'src/utils/format-time';
 
 import PDFStyles from './styles';
 
-export default function PDFFooter({ additionalInfo = [] }) {
+export default function PDFFooter({ additionalInfo = [], styles = PDFStyles }) {
   const infoLines = Array.isArray(additionalInfo) ? additionalInfo : [additionalInfo];
 
   return (
-    <View style={[PDFStyles.footer, PDFStyles.borderTop, PDFStyles.p8]}>
+    <View style={[styles.footer, styles.borderTop, styles.p8]}>
       {/* Date + Additional Info Lines */}
-      <View style={[PDFStyles.flexColumn, PDFStyles.alignCenter, PDFStyles.mb4]}>
-        <Text style={[PDFStyles.body2, PDFStyles.mb2]}>Generated on {fDate(new Date())}</Text>
+      <View style={[styles.flexColumn, styles.alignCenter, styles.mb4]}>
+        <Text style={[styles.body2, styles.mb2]}>Generated on {fDate(new Date())}</Text>
 
         {infoLines.map((line, index) => (
-          <Text key={index} style={[PDFStyles.body2]}>
+          <Text key={index} style={[styles.body2]}>
             {line}
           </Text>
         ))}
       </View>
 
       {/* Branding Line */}
-      <Text style={[PDFStyles.caption, PDFStyles.textCenter]}>
+      <Text style={[styles.caption, styles.textCenter]}>
         Powered by{' '}
         <Link
           src="https://transport-rewrite.onrender.com/"
-          style={[PDFStyles.caption, PDFStyles.textPrimary, PDFStyles.underline]}
+          style={[styles.caption, styles.textPrimary, styles.underline]}
         >
           Transport++
         </Link>
