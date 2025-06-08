@@ -1,14 +1,10 @@
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useTheme } from '@emotion/react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Select from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import { useTheme } from '@mui/material/styles';
-import CardHeader from '@mui/material/CardHeader';
-import FormControl from '@mui/material/FormControl';
+import { Select, Divider, MenuItem, CardHeader, FormControl } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -17,11 +13,12 @@ import { useMonthlyExpenseSummary } from 'src/query/use-dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
-import { subtripExpenseTypes } from 'src/sections/expense/expense-config';
+import { subtripExpenseTypes, SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
 // ----------------------------------------------------------------------
 
 export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
+
     const theme = useTheme();
 
     // build list of months similar to customer freight table
@@ -39,34 +36,60 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
 
     const { data: summary = [] } = useMonthlyExpenseSummary(selectedMonth);
 
-    const mapped = useMemo(() => summary.map((item) => {
-        const cfg = subtripExpenseTypes.find((t) => t.value === item.expenseType);
-        return {
-            label: cfg?.label || item.expenseType,
-            value: item.totalAmount,
-            icon: cfg?.icon,
-        };
-    }), [summary]);
-
-    const chartColors = mapped.map((_, idx) =>
-        [
-            theme.palette.secondary.dark,
-            theme.palette.error.main,
-            theme.palette.primary.main,
-            theme.palette.warning.main,
-            theme.palette.info.dark,
-            theme.palette.info.main,
-            theme.palette.success.main,
-            theme.palette.warning.dark,
-        ][idx % 8]
+    const mapped = useMemo(
+        () =>
+            summary.map((item) => {
+                const cfg = subtripExpenseTypes.find((t) => t.value === item.expenseType);
+                return {
+                    label: cfg?.label || item.expenseType,
+                    value: item.totalAmount,
+                    icon: cfg?.icon,
+                };
+            }),
+        [summary]
     );
 
-    const chartSeries = mapped.map((item) => item.value);
+    const chartColorsAll = mapped.map(
+        (_, idx) =>
+            [
+                theme.palette.secondary.dark,
+                theme.palette.error.main,
+                theme.palette.primary.main,
+                theme.palette.warning.main,
+                theme.palette.info.dark,
+                theme.palette.info.main,
+                theme.palette.success.main,
+                theme.palette.warning.dark,
+            ][idx % 8]
+    );
+
+    const [activeIndexes, setActiveIndexes] = useState([]);
+
+
+
+    useEffect(() => {
+        const excluded = [
+            SUBTRIP_EXPENSE_TYPES.DIESEL,
+            SUBTRIP_EXPENSE_TYPES.DRIVER_ADVANCE,
+            SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY,
+        ];
+        setActiveIndexes(
+            mapped
+                .map((item, idx) => ({ idx, type: item.expenseType }))
+                .filter(({ type }) => !excluded.includes(type))
+                .map(({ idx }) => idx)
+        );
+    }, [mapped]);
+
+
+    const filtered = mapped.filter((_, idx) => activeIndexes.includes(idx));
+    const chartColors = chartColorsAll.filter((_, idx) => activeIndexes.includes(idx));
+    const chartSeries = filtered.map((item) => item.value);
 
     const chartOptions = useChart({
         chart: { offsetY: 12 },
         colors: chartColors,
-        labels: mapped.map((item) => item.label),
+        labels: filtered.map((item) => item.label),
         stroke: { width: 1, colors: [theme.palette.background.paper] },
         fill: { opacity: 0.88 },
         tooltip: { y: { formatter: (value) => fCurrency(value) } },
@@ -114,10 +137,16 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
                 />
 
                 <ChartLegends
-                    colors={chartOptions?.colors}
-                    labels={chartOptions?.labels}
+                    colors={chartColorsAll}
+                    labels={mapped.map((item) => item.label)}
                     icons={icons}
                     sublabels={mapped.map((item) => fCurrency(item.value))}
+                    activeIndexes={activeIndexes}
+                    onToggle={(idx) =>
+                        setActiveIndexes((prev) =>
+                            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+                        )
+                    }
                     sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
                 />
             </Box>
