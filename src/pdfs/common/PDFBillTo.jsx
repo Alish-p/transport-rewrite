@@ -9,7 +9,7 @@ export default function PDFBillToSection({
   metaDetails = [],
 }) {
   return (
-    <View style={[PDFStyles.border, PDFStyles.p16, PDFStyles.mb16]}>
+    <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
       {/* Grid Container */}
       <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
         {/* Bill To Section - 70% width */}
@@ -19,7 +19,7 @@ export default function PDFBillToSection({
           {billToDetails.map(
             (value, index) =>
               value && (
-                <Text key={index} style={[PDFStyles.body1, PDFStyles.mb2]}>
+                <Text key={index} style={[PDFStyles.body2, PDFStyles.mb2]}>
                   {value}
                 </Text>
               )
@@ -28,7 +28,7 @@ export default function PDFBillToSection({
 
         {/* Meta Info Section - 30% width */}
         <View style={[PDFStyles.col4, PDFStyles.borderLeft, PDFStyles.contactSection]}>
-          <View style={[PDFStyles.flexColumn, PDFStyles.p8]}>
+          <View style={[PDFStyles.flexColumn,]}>
             {metaDetails.map(
               ([label, value], index) =>
                 value && (

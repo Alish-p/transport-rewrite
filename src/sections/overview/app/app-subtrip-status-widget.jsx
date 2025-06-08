@@ -88,7 +88,7 @@ export function AppSubtripStatusWidget({ title, subheader, summary = {}, ...othe
 
       {renderTabs}
 
-      <Scrollbar sx={{ minHeight: 384 }}>
+      <Scrollbar sx={{ minHeight: 384, maxHeight: 384 }}>
         <Box sx={{ p: 3, gap: 3, minWidth: 360, display: 'flex', flexDirection: 'column' }}>
           {list.map((item) => (
             <Item key={item.status} status={item.status} count={item.count} />

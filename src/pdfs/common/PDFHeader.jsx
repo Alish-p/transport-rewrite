@@ -8,12 +8,12 @@ import PDFStyles from './styles';
 export default function PDFHeader({
   logoPath = '/logo/company-logo-main.png',
   company = CONFIG.company,
-  logoSize = 72,
+  logoSize = 55,
 }) {
   const { name, tagline, address, email, website, contacts } = company;
 
   return (
-    <View style={[PDFStyles.border, PDFStyles.p16, PDFStyles.mb16]}>
+    <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
       {/* Grid Container */}
       <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
         {/* Logo Section */}
@@ -36,7 +36,7 @@ export default function PDFHeader({
 
         {/* Contact Info */}
         <View style={[PDFStyles.col4, PDFStyles.contactSection, PDFStyles.borderLeft]}>
-          <View style={[PDFStyles.flexColumn, PDFStyles.p8]}>
+          <View style={[PDFStyles.flexColumn]}>
             <ContactRow label="Mobile" value={contacts?.[0]} />
             <ContactRow label="Email" value={email} />
             <ContactRow label="Website" value={website} />

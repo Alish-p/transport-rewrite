@@ -109,13 +109,13 @@ const pdfStyles = {
   // Company Info Block
   // ------------------------------------------
   companyName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 700,
     marginBottom: 2,
     color: '#333333',
   },
   companyTagline: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: 500,
     color: '#555555',
   },
@@ -126,16 +126,16 @@ const pdfStyles = {
   },
   contactSection: {
     backgroundColor: '#f9f9f9',
-    padding: 8,
+    padding: 7,
     borderRadius: 2,
   },
   contactLabel: {
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 600,
     color: '#555555',
   },
   contactValue: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#333333',
   },
 

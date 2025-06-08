@@ -38,6 +38,7 @@ export default function InvoicePdf({ invoice }) {
       'Disp. Date',
       'LR No',
       'Vehicle',
+      'Material',
       'Freight Rate',
       'Dispatch Weight',
       'Freight Amount',
@@ -52,13 +53,14 @@ export default function InvoicePdf({ invoice }) {
       fDate(subtrip.startDate),
       subtrip.subtripId,
       subtrip.vehicleNo,
+      subtrip.materialType || '-',
       fCurrency(subtrip.rate),
       subtrip.loadingWeight,
       fCurrency(subtrip.freightAmount),
       fNumber(subtrip.shortageWeight),
     ]);
 
-    const columnWidths = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
+    const columnWidths = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
     return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
   };
