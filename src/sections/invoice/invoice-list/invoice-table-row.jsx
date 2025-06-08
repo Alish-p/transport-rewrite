@@ -15,6 +15,8 @@ import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useNavigate } from 'react-router';
+import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
@@ -50,6 +52,8 @@ export default function InvoiceTableRow({
 
   const popover = usePopover();
 
+  const navigate = useNavigate();
+
   return (
     <>
       <TableRow hover selected={selected}>
@@ -64,9 +68,14 @@ export default function InvoiceTableRow({
           <ListItemText
             disableTypography
             primary={
-              <Typography variant="body2" noWrap>
+              <Link
+                noWrap
+                variant="body2"
+                onClick={() => navigate(paths.dashboard.invoice.details(_id))}
+                sx={{ color: 'text.disabled', cursor: 'pointer' }}
+              >
                 {invoiceNo}
-              </Typography>
+              </Link>
             }
             secondary={
               <Link
