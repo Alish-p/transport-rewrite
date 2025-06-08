@@ -27,32 +27,53 @@ export const StyledDot = styled(Box)(() => ({
 
 // ----------------------------------------------------------------------
 
-export function ChartLegends({ labels = [], colors = [], values, sublabels, icons, ...other }) {
+export function ChartLegends({
+  labels = [],
+  colors = [],
+  values,
+  sublabels,
+  icons,
+  activeIndexes,
+  onToggle,
+  ...other
+}) {
   return (
     <Stack direction="row" flexWrap="wrap" spacing={2} {...other}>
-      {labels?.map((series, index) => (
-        <Stack key={series} spacing={1}>
-          <StyledLegend>
-            {icons?.length ? (
-              <Box
-                component="span"
-                sx={{ color: colors[index], '& svg, & img': { width: 20, height: 20 } }}
-              >
-                {icons?.[index]}
+      {labels?.map((series, index) => {
+        const isActive = !activeIndexes || activeIndexes.includes(index);
+
+        return (
+          <Stack key={series} spacing={1}>
+            <StyledLegend
+              onClick={onToggle ? () => onToggle(index) : undefined}
+              sx={{
+                cursor: onToggle ? 'pointer' : 'default',
+                opacity: isActive ? 1 : 0.48,
+              }}
+            >
+              {icons?.length ? (
+                <Box
+                  component="span"
+                  sx={{ color: colors[index], '& svg, & img': { width: 20, height: 20 } }}
+                >
+                  {icons?.[index]}
+                </Box>
+              ) : (
+                <StyledDot component="span" sx={{ color: colors[index] }} />
+              )}
+
+              <Box component="span" sx={{ flexShrink: 0 }}>
+                {series}
+                {sublabels && <> {` (${sublabels[index]})`}</>}
               </Box>
-            ) : (
-              <StyledDot component="span" sx={{ color: colors[index] }} />
+            </StyledLegend>
+
+            {values && (
+              <Box sx={{ typography: 'h6', opacity: isActive ? 1 : 0.48 }}>{values[index]}</Box>
             )}
-
-            <Box component="span" sx={{ flexShrink: 0 }}>
-              {series}
-              {sublabels && <> {` (${sublabels[index]})`}</>}
-            </Box>
-          </StyledLegend>
-
-          {values && <Box sx={{ typography: 'h6' }}>{values[index]}</Box>}
-        </Stack>
-      ))}
+          </Stack>
+        );
+      })}
     </Stack>
   );
 }
