@@ -13,7 +13,7 @@ import { useMonthlyExpenseSummary } from 'src/query/use-dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
-import { subtripExpenseTypes, SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
+import { subtripExpenseTypes } from '../../expense/expense-config';
 
 // ----------------------------------------------------------------------
 
@@ -65,22 +65,9 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
 
     const [activeIndexes, setActiveIndexes] = useState([]);
 
-
-
     useEffect(() => {
-        const excluded = [
-            SUBTRIP_EXPENSE_TYPES.DIESEL,
-            SUBTRIP_EXPENSE_TYPES.DRIVER_ADVANCE,
-            SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY,
-        ];
-        setActiveIndexes(
-            mapped
-                .map((item, idx) => ({ idx, type: item.expenseType }))
-                .filter(({ type }) => !excluded.includes(type))
-                .map(({ idx }) => idx)
-        );
+        setActiveIndexes(mapped.map((_, idx) => idx));
     }, [mapped]);
-
 
     const filtered = mapped.filter((_, idx) => activeIndexes.includes(idx));
     const chartColors = chartColorsAll.filter((_, idx) => activeIndexes.includes(idx));
