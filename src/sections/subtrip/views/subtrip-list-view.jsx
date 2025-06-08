@@ -189,7 +189,7 @@ export function SubtripListView({ subtrips }) {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.subtrip.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -246,7 +246,7 @@ export function SubtripListView({ subtrips }) {
             <Stack direction="row" spacing={2}>
               <Button
                 component={RouterLink}
-                href={paths.dashboard.subtrip.billedPaid}
+                href={paths.dashboard.subtrip.reports}
                 variant="outlined"
                 startIcon={<Iconify icon="mdi:progress-tick" />}
               >

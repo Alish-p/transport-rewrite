@@ -1,8 +1,8 @@
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+import { CONFIG } from 'src/config-global';
 
-import { CONFIG } from '../../../config-global';
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 
 export const DEFAULT_FILTERS = {
   customerId: '',

@@ -1,6 +1,4 @@
 /* eslint-disable react/prop-types */
-// @mui
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -8,11 +6,15 @@ import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
+// @mui
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { wrapText } from 'src/utils/change-case';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -72,9 +74,12 @@ export default function RouteTableRow({
             <ListItemText
               disableTypography
               primary={
-                <Typography variant="body2" noWrap>
-                  {routeName}
-                </Typography>
+                <Tooltip title={routeName}>
+                  <Typography variant="body2" noWrap>
+                    {wrapText(routeName || '-', 20)}
+                  </Typography>
+                </Tooltip>
+
               }
             />
           </TableCell>

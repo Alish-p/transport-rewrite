@@ -131,7 +131,7 @@ export const navData = [
           },
 
           { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
-          { title: 'Reports', path: paths.dashboard.subtrip.billedPaid, action: 'view' },
+          { title: 'Reports', path: paths.dashboard.subtrip.reports, action: 'view' },
         ],
       },
       {

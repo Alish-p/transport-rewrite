@@ -103,7 +103,16 @@ function Item({ status, count, sx, ...other }) {
   const color = SUBTRIP_STATUS_COLORS[status] || 'primary';
 
   return (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center', ...sx }} {...other}>
+    <Box
+      role="button"
+      sx={{
+        gap: 2,
+        display: 'flex',
+        alignItems: 'center',
+        ...sx,
+      }}
+      {...other}
+    >
       <Avatar
         variant="rounded"
         sx={{
