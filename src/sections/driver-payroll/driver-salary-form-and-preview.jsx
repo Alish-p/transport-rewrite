@@ -3,7 +3,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { Stack, Alert } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -14,8 +14,7 @@ import { useCreateDriverPayroll } from 'src/query/use-driver-payroll';
 
 import { schemaHelper } from 'src/components/hook-form';
 
-import DriverSalaryForm from './driver-salary-form';
-import DriverSalaryPreview from './driver-salary-preview';
+import DriverSalaryWizard from './driver-salary-wizard';
 
 // Zod schema for driver salary form
 const DriverSalarySchema = z.object({
@@ -95,26 +94,10 @@ export default function DriverSalaryFormAndPreview({ driverList }) {
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {errors.root && (
-          <Alert severity="error" sx={{ my: 2 }}>
-            {errors.root.message}
-          </Alert>
-        )}
-        <DriverSalaryForm driverList={driverList} />
-        <DriverSalaryPreview driverList={driverList} />
-        <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
-          <LoadingButton
-            type="submit"
-            variant="contained"
-            disabled={!isValid}
-            loading={isSubmitting}
-          >
-            Create Salary
-          </LoadingButton>
-        </Stack>
-      </form>
-    </FormProvider>
+    <DriverSalaryWizard
+      formMethods={methods}
+      driverList={driverList}
+      onSubmit={onSubmit}
+    />
   );
 }
