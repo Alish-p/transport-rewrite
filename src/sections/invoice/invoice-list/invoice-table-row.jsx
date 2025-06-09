@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router';
 
 // @mui
 import Link from '@mui/material/Link';
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -13,6 +12,7 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
+import { MenuList, Typography } from '@mui/material';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
@@ -79,14 +79,9 @@ export default function InvoiceTableRow({
               </Link>
             }
             secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={() => { }}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
+              <Typography>
                 {customerId?.customerName}
-              </Link>
+              </Typography>
             }
           />
         </TableCell>

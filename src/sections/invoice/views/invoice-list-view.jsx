@@ -64,7 +64,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  customer: '',
+  customerId: '',
   subtrip: '',
   invoiceStatus: 'all',
   fromDate: null,
@@ -103,7 +103,7 @@ export function InvoiceListView({ invoices }) {
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
-    !!filters.customer ||
+    !!filters.customerId ||
     !!filters.subtrip ||
     filters.invoiceStatus !== 'all' ||
     (!!filters.fromDate && !!filters.endDate);
@@ -116,7 +116,7 @@ export function InvoiceListView({ invoices }) {
   const getTotalAmount = (invoiceStatus) =>
     sumBy(
       tableData.filter((item) => item.invoiceStatus === invoiceStatus),
-      'totalAmount'
+      (i) => i.totalAmount ?? i.totalAfterTax ?? 0
     );
 
   const getPercentByInvoiceStatus = (invoiceStatus) =>
@@ -428,10 +428,9 @@ export function InvoiceListView({ invoices }) {
 }
 
 // ----------------------------------------------------------------------
-
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { customer, subtrip, invoiceStatus, fromDate, endDate } = filters;
+  const { customerId, subtrip, invoiceStatus, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -443,17 +442,19 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (customer) {
+  if (customerId) {
     inputData = inputData.filter(
-      (record) =>
-        record.customerId &&
-        record.customerId.customerName.toLowerCase().indexOf(customer.toLowerCase()) !== -1
+      (record) => record.customerId && record.customerId._id === customerId
     );
   }
   if (subtrip) {
-    inputData = inputData.filter(
-      (record) => record.subtripIds && record.subtripIds.some((st) => st._id === subtrip)
-    );
+    inputData = inputData.filter((record) => {
+
+      const fromInvoiced = Array.isArray(record.invoicedSubTrips) ? record.invoicedSubTrips : [];
+
+      const allIds = [...fromInvoiced,];
+      return allIds.includes(subtrip);
+    });
   }
 
   if (invoiceStatus !== 'all') {
@@ -463,8 +464,8 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
     if (fromDate && endDate) {
       inputData = inputData.filter(
         (Invoice) =>
-          fTimestamp(Invoice.date) >= fTimestamp(fromDate) &&
-          fTimestamp(Invoice.date) <= fTimestamp(endDate)
+          fTimestamp(Invoice.issueDate) >= fTimestamp(fromDate) &&
+          fTimestamp(Invoice.issueDate) <= fTimestamp(endDate)
       );
     }
   }

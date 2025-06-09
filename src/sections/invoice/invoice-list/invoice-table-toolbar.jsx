@@ -2,29 +2,38 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
+import { MenuList } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 // @mui
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// components
 
-import { MenuList } from '@mui/material';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { useCustomersSummary } from 'src/query/use-customer';
+
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
 // ----------------------------------------------------------------------
 
 export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
+  const customerDialog = useBoolean();
+  const { data: customers = [] } = useCustomersSummary();
 
-  const handleFilterCustomerName = useCallback(
-    (event) => {
-      onFilters('customer', event.target.value);
+  const selectedCustomer = customers.find((c) => c._id === filters.customerId);
+
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      onFilters('customerId', customer._id);
     },
     [onFilters]
   );
@@ -64,18 +73,12 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.customer}
-          onChange={handleFilterCustomerName}
-          placeholder="Search customer ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={customerDialog.onTrue}
+          placeholder="Search customer"
+          selected={selectedCustomer?.customerName}
+          iconName="mdi:office-building"
+          sx={{ borderColor: '#DFE3E8' }}
         />
 
         <TextField
@@ -153,6 +156,13 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleSelectCustomer}
+      />
     </>
   );
 }

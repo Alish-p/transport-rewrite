@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 // @mui
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -7,6 +6,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
+
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 // types
@@ -20,12 +21,13 @@ export default function DriverTableFiltersResult({
   results,
   ...other
 }) {
+  const { data: customers = [] } = useCustomersSummary();
   const handleRemoveInvoiceStatus = () => {
     onFilters('invoiceStatus', 'all');
   };
 
   const handleRemoveCustomer = () => {
-    onFilters('customer', '');
+    onFilters('customerId', '');
   };
 
   const handleRemoveSubtrip = () => {
@@ -35,6 +37,11 @@ export default function DriverTableFiltersResult({
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('endDate', null);
+  };
+
+  const getCustomerName = (id) => {
+    const customer = customers.find((c) => c._id === id);
+    return customer?.customerName || id;
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
@@ -55,9 +62,13 @@ export default function DriverTableFiltersResult({
           </Block>
         )}
 
-        {filters.customer && (
+        {filters.customerId && (
           <Block label="Customer">
-            <Chip size="small" label={filters.customer} onDelete={handleRemoveCustomer} />
+            <Chip
+              size="small"
+              label={getCustomerName(filters.customerId)}
+              onDelete={handleRemoveCustomer}
+            />
           </Block>
         )}
 
