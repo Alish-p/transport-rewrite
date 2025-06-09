@@ -35,15 +35,28 @@ const ICONS = {
   transporter: icon('ic_transporter'),
   subtrip: icon('ic_subtrip'),
   invoice: icon('ic-invoice'),
-}
+};
 
-
-export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, subtripStatusSummary }) {
+export function OverviewAppView({
+  dashboardData,
+  counts,
+  subtripMonthlyData,
+  subtripStatusSummary,
+}) {
   const { user } = useAuthContext();
 
   const theme = useTheme();
 
-  const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
+  const {
+    invoices,
+    vehicles,
+    transporters,
+    customers,
+    drivers,
+    subtrips,
+    totalPendingTransporterPayment,
+    totalPendingSalary,
+  } = counts;
 
   return (
     <DashboardContent maxWidth="xl">
@@ -85,7 +98,6 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
             />
           </Grid>
 
-
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Customers"
@@ -95,7 +107,6 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
             />
           </Grid>
 
-
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Total Transporters"
@@ -104,7 +115,6 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
               icon={ICONS.transporter}
             />
           </Grid>
-
 
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
@@ -123,9 +133,7 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
               icon={ICONS.subtrip}
             />
           </Grid>
-
         </>
-
 
         {invoices && (
           <Grid xs={12} md={6} lg={4}>
@@ -201,25 +209,18 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
           />
         </Grid>
 
-
-
         <Grid xs={12} md={6} lg={4}>
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{ series: 48 }}
+              title="Pending Transporter Payment"
+              total={totalPendingTransporterPayment}
+              icon="ri:money-rupee-circle-line"
             />
 
             <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              chart={{
-                series: 75,
-                colors: [theme.vars.palette.info.light, theme.vars.palette.info.main],
-              }}
+              title="Pending Driver Salary"
+              total={totalPendingSalary}
+              icon="healthicons:truck-driver"
               sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
             />
           </Box>
@@ -232,10 +233,6 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
         <Grid xs={12} lg={8}>
           <FinancialMonthlyChart title="Financial overview" />
         </Grid>
-
-
-
-
       </Grid>
     </DashboardContent>
   );
