@@ -63,6 +63,7 @@ export const CONFIG = {
     { label: 'Maida', value: 'Maida' },
     { label: 'Rava', value: 'Rava' },
     { label: 'Tiles', value: 'Tiles' },
+    { label: 'Steam coal', value: 'Steam Coal' },
     { label: 'Other', value: 'Other' },
   ],
 

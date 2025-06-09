@@ -17,6 +17,7 @@ import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
+import { FinancialMonthlyChart } from '../app-finance-charts';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
@@ -227,6 +228,12 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
         <Grid xs={12} lg={8}>
           <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
+
+        <Grid xs={12} lg={8}>
+          <FinancialMonthlyChart title="Financial overview" />
+        </Grid>
+
+
 
 
       </Grid>

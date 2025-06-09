@@ -97,3 +97,15 @@ const getSubtripStatusSummary = async () => {
 export function useSubtripStatusSummary() {
   return useQuery({ queryKey: ['subtripStatusSummary'], queryFn: getSubtripStatusSummary });
 }
+
+// ----------------------------------------------------------------------
+// Financial = summary
+
+const getFinancialMonthlyData = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/financial-monthly-data`);
+  return data;
+};
+
+export function useFinancialMonthlyData() {
+  return useQuery({ queryKey: ['financialMonthlyData'], queryFn: getFinancialMonthlyData });
+}
