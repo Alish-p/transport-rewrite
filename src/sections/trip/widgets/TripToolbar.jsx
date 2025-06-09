@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { Box, Dialog, MenuList, DialogActions } from '@mui/material';
+import { Box, Dialog, Tooltip, MenuList, DialogActions } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components/router-link';
 
@@ -124,15 +124,24 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              viewPopover.onClose();
-              viewTripSummary.onTrue();
-            }}
-            disabled={!tripData.vehicleId.isOwn}
+          <Tooltip
+            title="Trip Summary is only available for Own vehicles"
+            disableHoverListener={tripData.vehicleId.isOwn}
+            disableFocusListener={tripData.vehicleId.isOwn}
+            disableTouchListener={tripData.vehicleId.isOwn}
           >
-            Trip Summary
-          </MenuItem>
+            <span>
+              <MenuItem
+                onClick={() => {
+                  viewPopover.onClose();
+                  viewTripSummary.onTrue();
+                }}
+                disabled={!tripData.vehicleId.isOwn}
+              >
+                Trip Summary
+              </MenuItem>
+            </span>
+          </Tooltip>
         </MenuList>
       </CustomPopover>
 

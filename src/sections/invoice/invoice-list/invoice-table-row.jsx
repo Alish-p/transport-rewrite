@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
 
+import { useNavigate } from 'react-router';
+
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -11,12 +13,11 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
@@ -81,7 +82,7 @@ export default function InvoiceTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => {}}
+                onClick={() => { }}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {customerId?.customerName}

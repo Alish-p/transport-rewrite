@@ -1,8 +1,8 @@
 import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
 import { wrapText } from 'src/utils/change-case';
-import { fDate, fDateTime } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fDate, fDateTime, fDaysDuration } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
 
@@ -41,7 +41,11 @@ export default function TripSummaryPdf({ trip }) {
       st.routeCd?.routeName || '-',
       fDate(st?.startDate),
       fDate(st?.endDate),
+      fDaysDuration(st?.startDate, st?.endDate),
       `${st.endKm - st.startKm || 0} km`,
+      st.materialType,
+      st.loadingWeight,
+      st.rate,
       fCurrency(income || 0),
       fCurrency(expenseTotal || 0),
       fCurrency(net || 0),
@@ -55,7 +59,11 @@ export default function TripSummaryPdf({ trip }) {
     'Route',
     'Start Date',
     'Received Date',
+    'Time Taken(Days)',
     'Distance',
+    'Material',
+    'Weight(T)',
+    'Freight Rate',
     'Income',
     'Expenses',
     'Net Amount',
@@ -96,9 +104,9 @@ export default function TripSummaryPdf({ trip }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-            0
-          )
+          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+          0
+        )
         : 0),
     0
   );
@@ -137,7 +145,7 @@ export default function TripSummaryPdf({ trip }) {
         <PDFTable
           headers={subtripHeaders}
           data={subtripData}
-          columnWidths={[1, 1, 2, 2, 1, 1, 1, 1, 1, 1]}
+          columnWidths={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
         />
 
         {/* Expense Table */}
