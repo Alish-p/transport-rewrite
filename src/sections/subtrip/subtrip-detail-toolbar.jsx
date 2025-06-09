@@ -139,12 +139,6 @@ export default function SubtripToolbar({
         action: onResolve,
         disabled: status !== SUBTRIP_STATUS.ERROR,
       },
-      {
-        label: 'Close',
-        icon: 'mdi:close-circle',
-        action: onSubtripClose,
-        disabled: status !== SUBTRIP_STATUS.RECEIVED,
-      },
     ];
   };
 

@@ -187,18 +187,11 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
             </Box>
 
             {/* Close Previous Trips */}
-            {!currentTrip && selectedVehicle && (
+            {!currentTrip && selectedVehicle && selectedVehicle.isOwn && (
               <Box sx={{ mt: 3 }}>
                 <Field.Checkbox
                   name="closePreviousTrips"
-                  label="Close all previous trips"
-                  // Disable whenever no vehicle OR vehicle.isOwn===false:
-                  disabled={!selectedVehicle.isOwn}
-                  helperText={
-                    selectedVehicle.isOwn === false
-                      ? 'Market vehicles will always close previous trips.'
-                      : ''
-                  }
+                  label="Close Previous Trip ?"
                 />
               </Box>
             )}
