@@ -12,7 +12,7 @@ import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart
 
 // ----------------------------------------------------------------------
 
-export function AppAreaInstalled({ title, subheader, chart, ...other }) {
+export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
   const currentYear = dayjs().format('YYYY');

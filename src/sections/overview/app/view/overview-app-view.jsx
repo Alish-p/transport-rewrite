@@ -15,13 +15,13 @@ import { useAuthContext } from 'src/auth/hooks';
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
-import { AppAreaInstalled } from '../app-area-installed';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripStatusWidget } from '../app-subtrip-status-widget';
+import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 
 // ----------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ export function OverviewAppView({ dashboardData, counts, subtripMonthlyData, sub
         )}
 
         <Grid xs={12} md={6} lg={8}>
-          <AppAreaInstalled
+          <AppSubtripCompletedChart
             title="Subtrips Completed"
             subheader="(+23%) than last year"
             chart={{
