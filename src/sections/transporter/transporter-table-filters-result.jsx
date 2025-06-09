@@ -22,8 +22,8 @@ export default function TransportTableFiltersResult({
     onFilters('transportName', '');
   };
 
-  const handleRemovePlace = () => {
-    onFilters('place', '');
+  const handleRemoveAddress = () => {
+    onFilters('address', '');
   };
 
   return (
@@ -46,9 +46,9 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
-        {filters.place && (
-          <Block label="Place:">
-            <Chip size="small" label={filters.place} onDelete={handleRemovePlace} />
+        {filters.address && (
+          <Block label="Address:">
+            <Chip size="small" label={filters.address} onDelete={handleRemoveAddress} />
           </Block>
         )}
 

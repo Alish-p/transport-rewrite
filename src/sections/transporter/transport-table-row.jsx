@@ -1,7 +1,4 @@
 /* eslint-disable react/prop-types */
-// @mui
-import Link from '@mui/material/Link';
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -9,6 +6,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
+// @mui
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
@@ -18,6 +17,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { wrapText } from '../../utils/change-case';
 
 // ----------------------------------------------------------------------
 
@@ -30,20 +31,20 @@ export default function TransporterTableRow({
   onDeleteRow,
   visibleColumns = {
     transportName: true,
-    place: true,
+    address: true,
     cellNo: true,
     ownerName: true,
     emailId: true,
   },
   disabledColumns = {
     transportName: true,
-    place: false,
+    address: false,
     cellNo: false,
     ownerName: false,
     emailId: false,
   },
 }) {
-  const { transportName, place, cellNo, ownerName, emailId } = row;
+  const { transportName, address, cellNo, ownerName, emailId } = row;
 
   const confirm = useBoolean();
 
@@ -69,26 +70,17 @@ export default function TransporterTableRow({
                   {transportName}
                 </Typography>
               }
-              secondary={
-                <Link
-                  noWrap
-                  variant="body2"
-                  onClick={() => {}}
-                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
-                >
-                  {transportName}
-                </Link>
-              }
             />
           </TableCell>
         )}
 
-        {(visibleColumns.place || disabledColumns.place) && (
+        {(visibleColumns.address || disabledColumns.address) && (
           <TableCell>
-            <ListItemText
-              primary={place}
-              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            />
+            <Tooltip title={address}>
+              <Typography variant="body2" noWrap>
+                {wrapText(address, 20)}
+              </Typography>
+            </Tooltip>
           </TableCell>
         )}
 

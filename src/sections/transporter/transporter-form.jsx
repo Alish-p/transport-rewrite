@@ -43,7 +43,7 @@ export const NewTransporterSchema = zod
     }),
     ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
     emailId: zod.string().email({ message: 'Email ID must be a valid email' }).or(zod.literal('')),
-    paymentMode: zod.string().min(1, { message: 'Payment Mode is required' }),
+    paymentMode: zod.string().optional(),
     panNo: zod.string(),
     gstEnabled: zod.boolean(),
     gstNo: zod.string().optional(),
@@ -211,8 +211,8 @@ export default function TransporterForm({ currentTransporter, bankList }) {
       <Divider />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="paymentMode" label="Payment Mode" />
-        <Field.Text name="panNo" label="PAN No (Optional)" />
+        <Field.Text name="paymentMode" label="Payment Mode (Optional)" placeholder="Cash, UPI, NEFT, Cheque" />
+        <Field.Text name="panNo" label="PAN No (Optional)" placeholder="ABCDE1234F" />
 
         <Field.Text
           name="tdsPercentage"
@@ -231,7 +231,7 @@ export default function TransporterForm({ currentTransporter, bankList }) {
         <Field.Switch name="gstEnabled" label="GST Enabled" />
 
         {values.gstEnabled && (
-          <Field.Text name="gstNo" label="GST No" helperText="Enter only if GST is enabled" />
+          <Field.Text name="gstNo" label="GST No" helperText="Enter only if GST is enabled" placeholder="22ABCDE1234F1Z5" />
         )}
       </Stack>
     </Card>

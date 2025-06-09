@@ -14,10 +14,10 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import TransporterListPdf from 'src/pdfs/transport-list-pdf';
+
 import { Iconify } from 'src/components/iconify/';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import TransporterListPdf from '../../pdfs/transport-list-pdf';
 
 // ----------------------------------------------------------------------
 
@@ -39,9 +39,9 @@ export default function TransporterTableToolbar({
     [onFilters]
   );
 
-  const handleFilterPlace = useCallback(
+  const handleFilterAddress = useCallback(
     (event) => {
-      onFilters('place', event.target.value);
+      onFilters('address', event.target.value);
     },
     [onFilters]
   );
@@ -76,8 +76,8 @@ export default function TransporterTableToolbar({
 
         <TextField
           fullWidth
-          value={filters.place}
-          onChange={handleFilterPlace}
+          value={filters.address}
+          onChange={handleFilterAddress}
           placeholder="Search Address..."
           InputProps={{
             startAdornment: (

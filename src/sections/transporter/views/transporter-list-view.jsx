@@ -49,8 +49,8 @@ import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
 const TABLE_HEAD = [
   { id: 'transportName', name: 'transportName', label: 'Transport Name', type: 'text' },
-  { id: 'place', name: 'place', label: 'Place', type: 'text' },
-  { id: 'cellNo', name: 'cellNo', label: 'Cell Number', type: 'text' },
+  { id: 'address', name: 'address', label: 'Address', type: 'text' },
+  { id: 'cellNo', name: 'cellNo', label: 'Phone Number', type: 'text' },
   { id: 'ownerName', name: 'ownerName', label: 'Owner Name', type: 'text' },
   { id: 'emailId', name: 'emailId', label: 'Email ID', type: 'text' },
   { id: '' },
@@ -58,7 +58,7 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   transportName: '',
-  place: '',
+  address: '',
 };
 
 // ----------------------------------------------------------------------
@@ -76,7 +76,7 @@ export function TransporterListView({ transporters }) {
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
     transportName: true,
-    place: true,
+    address: true,
     cellNo: true,
     ownerName: true,
     emailId: true,
@@ -86,7 +86,7 @@ export function TransporterListView({ transporters }) {
   const disabledColumns = useMemo(
     () => ({
       transportName: true, // Transport name should always be visible
-      place: false,
+      address: false,
       cellNo: false,
       ownerName: false,
       emailId: false,
@@ -129,7 +129,7 @@ export function TransporterListView({ transporters }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.transportName || !!filters.place;
+  const canReset = !!filters.transportName || !!filters.address;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -148,7 +148,7 @@ export function TransporterListView({ transporters }) {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -354,7 +354,7 @@ export function TransporterListView({ transporters }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters }) {
-  const { transportName, place } = filters;
+  const { transportName, address } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -374,9 +374,9 @@ function applyFilter({ inputData, comparator, filters }) {
     );
   }
 
-  if (place) {
+  if (address) {
     inputData = inputData.filter(
-      (record) => record.place && record.place.toLowerCase().indexOf(place.toLowerCase()) !== -1
+      (record) => record.address && record.address.toLowerCase().indexOf(address.toLowerCase()) !== -1
     );
   }
 
