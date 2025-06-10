@@ -18,6 +18,7 @@ import { subtripExpenseTypes } from '../../expense/expense-config';
 
 const EVENT_ICONS = {
     CREATED: 'eva:plus-fill',
+    MATERIAL_ADDED: 'mdi:package-variant',
     EXPENSE_ADDED: 'mdi:cash-plus',
     EXPENSE_DELETED: 'mdi:cash-minus',
     RECEIVED: 'material-symbols:call-received',
@@ -29,6 +30,7 @@ const EVENT_ICONS = {
 
 const EVENT_COLORS = {
     CREATED: 'primary',
+    MATERIAL_ADDED: 'info',
     EXPENSE_ADDED: 'success',
     EXPENSE_DELETED: 'error',
     RECEIVED: 'info',
@@ -45,6 +47,21 @@ function getExpenseLabel(value) {
 function formatEventMessage(event) {
     const { details = {}, eventType, user } = event;
     const userPrefix = user?.name ? `${user.name}: ` : '';
+
+    // Handle subtrip updates with changed fields
+    if (eventType === 'UPDATED') {
+        const baseMessage = userPrefix + (details.note || details.message || 'Updated');
+        const changed = details.changedFields || {};
+        const changeLines = Object.entries(changed)
+            .map(([field, change]) => {
+                if (change && typeof change === 'object' && 'from' in change && 'to' in change) {
+                    return `${field}: ${change.from} → ${change.to}`;
+                }
+                return `${field}: ${change}`;
+            })
+            .join('\n');
+        return changeLines ? `${baseMessage}\n${changeLines}` : baseMessage;
+    }
 
     // 1. Explicit “note” or “message” fields always win
     if (details.note || details.message) {
@@ -69,12 +86,24 @@ function formatEventMessage(event) {
         return `${userPrefix}Deleted invoice ${details.invoiceNo}`;
     }
 
-    // 4. Received event
+    // 4. Material added event
+    if (eventType === 'MATERIAL_ADDED') {
+        const { materialType, quantity, loadingWeight, rate } = details;
+        const parts = [];
+        if (materialType) parts.push(materialType);
+        if (typeof quantity !== 'undefined') parts.push(`qty ${quantity}`);
+        if (typeof loadingWeight !== 'undefined') parts.push(`weight ${loadingWeight}`);
+        if (typeof rate !== 'undefined') parts.push(`rate ₹${rate}`);
+        const detail = parts.join(', ');
+        return `${userPrefix}Added material${detail ? ` ${detail}` : ''}`;
+    }
+
+    // 5. Received event
     if (eventType === 'RECEIVED' && typeof details.unloadingWeight === 'number') {
         return `${userPrefix}Recorded unloading weight of ${details.unloadingWeight} kg`;
     }
 
-    // 5. Any other details just JSON-dumped (or empty)
+    // 6. Any other details just JSON-dumped (or empty)
     const detailString = JSON.stringify(details);
     return userPrefix + (detailString === '{}' ? '' : detailString);
 }
