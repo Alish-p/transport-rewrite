@@ -429,7 +429,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
                         label="Shortage Weight"
                         type="number"
                         InputProps={{
-                          endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <>{loadingWeightUnit[vehicleType]}</>
+                            </InputAdornment>
+                          ),
                         }}
                       />
                       <Field.Text
