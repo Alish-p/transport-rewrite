@@ -16,12 +16,14 @@ import { SUBTRIP_STATUS } from '../constants';
 import LRInfo from '../widgets/subtrip-info-widget';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import InsightsWidget from '../widgets/insights-widget';
+import { SubtripTimeline } from '../widgets/subtrip-timeline';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
+import { useSubtripEvents } from '../../../query/use-subtrip-events';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
@@ -50,6 +52,8 @@ export function SubtripDetailView({ subtrip }) {
     ];
     return !restrictedStatuses.includes(subtrip.subtripStatus);
   };
+
+  const { data: events = [] } = useSubtripEvents(subtrip._id);
 
   const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
   const totalDieselLtr = subtrip?.expenses?.reduce(
@@ -183,7 +187,8 @@ export function SubtripDetailView({ subtrip }) {
 
           <Grid item xs={12} md={4} gap={2}>
             <LRInfo subtrip={subtrip} />
-            {/* <SubtripTimeline events={subtrip?.events || []} /> */}
+
+            <SubtripTimeline events={events} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} />
