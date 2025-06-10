@@ -120,3 +120,21 @@ export function useDeleteInvoice() {
   });
   return mutate;
 }
+
+
+
+const getInvoiceReadySubtrips = async ({ queryKey }) => {
+  const [, customerId] = queryKey;
+  const { data } = await axios.get(
+    `/api/subtrips/ready-subtrips/${customerId}`
+  );
+  return data;
+};
+
+export function useInvoiceReadySubtrips(customerId) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'ready-subtrips', customerId],
+    queryFn: getInvoiceReadySubtrips,
+    enabled: !!customerId,
+  });
+}
