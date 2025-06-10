@@ -4,7 +4,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import InvoiceFormAndPreview from '../invoice-form-and-preview';
+import SimplerNewInvoiceForm from '../invoice-simple-form';
 
 export function InvoiceCreateView({ customerList }) {
   return (
@@ -18,7 +18,7 @@ export function InvoiceCreateView({ customerList }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <InvoiceFormAndPreview customerList={customerList} />
+      <SimplerNewInvoiceForm customerList={customerList} />
     </DashboardContent>
   );
 }
