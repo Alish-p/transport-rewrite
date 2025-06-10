@@ -11,6 +11,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  IconButton,
   Typography,
   TableContainer,
 } from '@mui/material';
@@ -19,6 +20,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+
+import { Iconify } from 'src/components/iconify';
 
 import {
   calculateTransporterPayment,
@@ -32,6 +35,7 @@ export default function TransporterPaymentPreviewUI({
   transporter,
   subtrips,
   additionalCharges = [],
+  onRemoveSubtrip,
 }) {
   const {
     taxBreakup,
@@ -122,6 +126,7 @@ export default function TransporterPaymentPreviewUI({
               ].map((h) => (
                 <StyledTableCell key={h}>{h}</StyledTableCell>
               ))}
+              {onRemoveSubtrip && <StyledTableCell />}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -157,6 +162,13 @@ export default function TransporterPaymentPreviewUI({
                   <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
                   <TableCell align="right">{fCurrency(expense)}</TableCell>
                   <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
+                  {onRemoveSubtrip && (
+                    <TableCell align="center">
+                      <IconButton color="error" onClick={() => onRemoveSubtrip(st._id)}>
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -178,6 +190,7 @@ export default function TransporterPaymentPreviewUI({
               <TableCell align="right" sx={{ color: 'info.main' }}>
                 {fCurrency(totalTripWiseIncome)}
               </TableCell>
+              {onRemoveSubtrip && <TableCell />}
             </TableRow>
 
             {taxBreakup?.tds?.rate > 0 && (
@@ -188,6 +201,7 @@ export default function TransporterPaymentPreviewUI({
                 <TableCell sx={{ color: 'error.main' }} align="right">
                   -{fCurrency(taxBreakup.tds.amount)}
                 </TableCell>
+                {onRemoveSubtrip && <TableCell />}
               </TableRow>
             )}
 
@@ -199,6 +213,7 @@ export default function TransporterPaymentPreviewUI({
                 <TableCell align="right" sx={{ color: 'error.main' }}>
                   - {fCurrency(amount)}
                 </TableCell>
+                {onRemoveSubtrip && <TableCell />}
               </TableRow>
             ))}
 
@@ -210,6 +225,7 @@ export default function TransporterPaymentPreviewUI({
               <TableCell align="right" sx={{ color: 'success.main' }}>
                 {fCurrency(netIncome)}
               </TableCell>
+              {onRemoveSubtrip && <TableCell />}
             </TableRow>
 
             {/* tax & extra charges */}
@@ -221,6 +237,7 @@ export default function TransporterPaymentPreviewUI({
                       {['CGST', 'SGST', 'IGST', 'TDS'][idx]} ({rate}%)
                     </TableCell>
                     <TableCell align="right">{fCurrency(amount)}</TableCell>
+                    {onRemoveSubtrip && <TableCell />}
                   </TableRow>
                 )
             )}

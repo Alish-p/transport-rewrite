@@ -15,7 +15,6 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
-import KanbanSubtripMultiSelectDialog from '../kanban/components/kanban-subtrip-multi-select-dialog';
 
 /** Reusable Field Wrapper */
 const FieldWrapper = ({ children, error, md = 3 }) => (
@@ -41,7 +40,6 @@ export default function TransporterPaymentForm({ transporterList }) {
 
   // Dialog states
   const transporterDialog = useBoolean();
-  const subtripsDialog = useBoolean();
   const dateRangeDialog = useBoolean();
 
   // Fetch subtrips
@@ -60,9 +58,21 @@ export default function TransporterPaymentForm({ transporterList }) {
   useEffect(() => {
     if (transporterId && billingPeriod?.start && billingPeriod?.end) {
       fetchSubtrips();
+    }
+  }, [transporterId, billingPeriod?.start, billingPeriod?.end, fetchSubtrips]);
+
+  // When subtrips load, auto select them if transporter/date changed
+  useEffect(() => {
+    if (availableSubtrips.length) {
+      setValue(
+        'associatedSubtrips',
+        availableSubtrips.map((st) => st._id),
+        { shouldValidate: true }
+      );
+    } else if (transporterId || billingPeriod?.start || billingPeriod?.end) {
       setValue('associatedSubtrips', [], { shouldValidate: true });
     }
-  }, [transporterId, billingPeriod?.start, billingPeriod?.end, fetchSubtrips, setValue]);
+  }, [availableSubtrips, transporterId, billingPeriod?.start, billingPeriod?.end, setValue]);
 
   const handleReset = () => {
     reset({
@@ -92,7 +102,8 @@ export default function TransporterPaymentForm({ transporterList }) {
                   selected={selectedTransporter?.transportName}
                   onClick={transporterDialog.onTrue}
                   error={!!field.error}
-                  iconName="mdi:truck"
+                  iconName="mingcute:add-line"
+                  iconNameSelected="mdi:truck"
                   disabled={isLoadingSubtrips}
                 />
                 <KanbanTransporterDialog
@@ -138,49 +149,6 @@ export default function TransporterPaymentForm({ transporterList }) {
           />
         </FieldWrapper>
 
-        {/* Subtrip Selector */}
-        <FieldWrapper md={6} error={!!control._formState?.errors?.associatedSubtrips}>
-          <Controller
-            name="associatedSubtrips"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                  }}
-                  onClick={subtripsDialog.onTrue}
-                  disabled={availableSubtrips.length === 0 || isLoadingSubtrips}
-                  startIcon={
-                    <Iconify
-                      icon={field.value.length > 0 ? 'mdi:check' : 'mdi:check-outline'}
-                      sx={{ color: field.value.length > 0 ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {field.value.length > 0
-                    ? `${field.value.length} subtrips selected`
-                    : availableSubtrips.length > 0
-                      ? 'Select Subtrips'
-                      : 'No subtrips available'}
-                </Button>
-
-                <KanbanSubtripMultiSelectDialog
-                  open={subtripsDialog.value}
-                  onClose={subtripsDialog.onFalse}
-                  subtrips={availableSubtrips}
-                  selectedSubtrips={field.value}
-                  onChange={(selected) => field.onChange(selected)}
-                  title="Select Subtrips for Payment"
-                />
-              </>
-            )}
-          />
-        </FieldWrapper>
 
         {/* Reset Button */}
         {isDirty && (
