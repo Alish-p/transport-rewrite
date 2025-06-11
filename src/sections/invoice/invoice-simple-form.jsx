@@ -260,6 +260,52 @@ export default function SimplerNewInvoiceForm() {
                             </StyledTableRow>
                         )}
 
+
+                        {additionalItems.map((item, idx) => (
+                            <StyledTableRow key={idx}>
+                                <TableCell colSpan={8} />
+                                <TableCell>
+                                    <TextField
+                                        size="small"
+                                        label="Label"
+                                        value={item.label}
+                                        onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        size="small"
+                                        label="Amount"
+                                        type="number"
+                                        value={item.amount}
+                                        onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
+                                    />
+                                </TableCell>
+
+                                <TableCell>
+                                    <IconButton color="error" onClick={() => handleRemoveItem(idx)}>
+                                        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                                    </IconButton>
+                                </TableCell>
+                            </StyledTableRow>
+                        ))}
+
+                        <StyledTableRow>
+                            <TableCell colSpan={8} />
+                            <TableCell >
+                                <Button
+                                    size="small"
+                                    color="primary"
+                                    startIcon={<Iconify icon="mingcute:add-line" />}
+                                    onClick={handleAddItem}
+                                    sx={{ width: { sm: 'auto', xs: 1 } }}
+                                >
+                                    Add Extra Payment
+                                </Button>
+                            </TableCell>
+                        </StyledTableRow>
+
+
                         <StyledTableRow>
                             <TableCell colSpan={8} />
                             <StyledTableCell>Net Total</StyledTableCell>
@@ -271,39 +317,7 @@ export default function SimplerNewInvoiceForm() {
 
             <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
-            <Stack spacing={2} sx={{ mb: 2 }}>
-                {additionalItems.map((item, idx) => (
-                    <Stack key={idx} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                        <TextField
-                            size="small"
-                            label="Label"
-                            value={item.label}
-                            onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
-                            sx={{ flexGrow: 1 }}
-                        />
-                        <TextField
-                            size="small"
-                            label="Amount"
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
-                            sx={{ width: 120 }}
-                        />
-                        <IconButton color="error" onClick={() => handleRemoveItem(idx)}>
-                            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                        </IconButton>
-                    </Stack>
-                ))}
-                <Button
-                    size="small"
-                    color="primary"
-                    startIcon={<Iconify icon="mingcute:add-line" />}
-                    onClick={handleAddItem}
-                    sx={{ width: { sm: 'auto', xs: 1 } }}
-                >
-                    Add Item
-                </Button>
-            </Stack>
+
 
             <Stack direction="row" justifyContent="flex-end" spacing={2}>
                 <Button variant="outlined" onClick={handleReset}>Reset</Button>
