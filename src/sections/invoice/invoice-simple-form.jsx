@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import { Label } from 'src/components/label';
 import { Card, Stack, Table, Divider, TableRow, TableHead, TableBody, TableCell, Typography, IconButton, TableContainer } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -34,9 +36,11 @@ export default function SimplerNewInvoiceForm() {
     const selectedCustomer = watch('customer');
 
     const {
-        data: subtrips = [],
+        data: fetchedSubtrips = [],
         refetch,
     } = useClosedTripsByCustomerAndDate(selectedCustomer?._id, null, null);
+
+    const [subtrips, setSubtrips] = useState([]);
 
     useEffect(() => {
         if (selectedCustomer?._id) {
@@ -44,11 +48,39 @@ export default function SimplerNewInvoiceForm() {
         }
     }, [selectedCustomer, refetch]);
 
+    useEffect(() => {
+        setSubtrips(fetchedSubtrips);
+    }, [fetchedSubtrips]);
+
+    const handleRemove = (id) => {
+        setSubtrips((prev) => prev.filter((st) => st._id !== id));
+    };
+
     const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
     const summary = calculateInvoiceSummary({ subtripIds: subtrips });
 
     return (
         <Card sx={{ p: 3 }}>
+            <Box
+                rowGap={3}
+                display="grid"
+                alignItems="center"
+                gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
+                sx={{ mb: 3 }}
+            >
+                <Box
+                    component="img"
+                    alt="logo"
+                    src="/logo/company-logo-main.png"
+                    sx={{ width: 60, height: 60 }}
+                />
+                <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
+                    <Label variant="soft" color="warning">
+                        Draft
+                    </Label>
+                    <Typography variant="h6">INV - XXX</Typography>
+                </Stack>
+            </Box>
             <Stack
                 spacing={{ xs: 3, md: 5 }}
                 direction={{ xs: 'column', md: 'row' }}
@@ -111,6 +143,7 @@ export default function SimplerNewInvoiceForm() {
                             <StyledTableCell>Quantity</StyledTableCell>
                             <StyledTableCell>Total Amount</StyledTableCell>
                             <StyledTableCell>Shortage Weight</StyledTableCell>
+                            <StyledTableCell />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -132,19 +165,24 @@ export default function SimplerNewInvoiceForm() {
                                     <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
                                         {fNumber(st.shortageWeight)}
                                     </TableCell>
+                                    <TableCell width={40}>
+                                        <IconButton color="error" onClick={() => handleRemove(st._id)}>
+                                            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             );
                         })}
 
                         <StyledTableRow>
-                            <TableCell colSpan={7} />
+                            <TableCell colSpan={8} />
                             <StyledTableCell>Subtotal</StyledTableCell>
                             <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
                         </StyledTableRow>
 
                         {cgst > 0 && (
                             <StyledTableRow>
-                                <TableCell colSpan={7} />
+                                <TableCell colSpan={8} />
                                 <StyledTableCell>CGST ({cgst}%)</StyledTableCell>
                                 <TableCell>{fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
                             </StyledTableRow>
@@ -152,7 +190,7 @@ export default function SimplerNewInvoiceForm() {
 
                         {sgst > 0 && (
                             <StyledTableRow>
-                                <TableCell colSpan={7} />
+                                <TableCell colSpan={8} />
                                 <StyledTableCell>SGST ({sgst}%)</StyledTableCell>
                                 <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
                             </StyledTableRow>
@@ -160,14 +198,14 @@ export default function SimplerNewInvoiceForm() {
 
                         {igst > 0 && (
                             <StyledTableRow>
-                                <TableCell colSpan={7} />
+                                <TableCell colSpan={8} />
                                 <StyledTableCell>IGST ({igst}%)</StyledTableCell>
                                 <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
                             </StyledTableRow>
                         )}
 
                         <StyledTableRow>
-                            <TableCell colSpan={7} />
+                            <TableCell colSpan={8} />
                             <StyledTableCell>Net Total</StyledTableCell>
                             <TableCell sx={{ color: 'error.main' }}>{fCurrency(summary.totalAfterTax)}</TableCell>
                         </StyledTableRow>
