@@ -94,7 +94,14 @@ function RenderDateInfo({ issueDate, dueDate }) {
 }
 
 function RenderTable({ invoice }) {
-  const { taxBreakup, totalAfterTax, totalAmountBeforeTax, subtripSnapshot = [] } = invoice || {};
+  const {
+    taxBreakup,
+    totalAfterTax,
+    totalAmountBeforeTax,
+    subtripSnapshot = [],
+    netTotal,
+    additionalCharges,
+  } = invoice || {};
   const { cgst, sgst, igst } = taxBreakup || {};
   const navigate = useNavigate();
 
@@ -166,10 +173,28 @@ function RenderTable({ invoice }) {
             </StyledTableRow>
           )}
 
+          {igst?.rate > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={7} />
+              <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
+              <TableCell>{fCurrency(igst.amount)}</TableCell>
+            </StyledTableRow>
+          )}
+
+          {
+            additionalCharges?.map(({ label, amount }, index) => (
+              <StyledTableRow key={index}>
+                <TableCell colSpan={7} />
+                <StyledTableCell>{label}</StyledTableCell>
+                <TableCell sx={{ color: amount < 0 ? 'error.main' : 'default' }} >{fCurrency(amount)}</TableCell>
+              </StyledTableRow>
+            ))
+          }
+
           <StyledTableRow>
             <TableCell colSpan={7} />
             <StyledTableCell>Net Total</StyledTableCell>
-            <TableCell sx={{ color: 'error.main' }}>{fCurrency(totalAfterTax)}</TableCell>
+            <TableCell sx={{ color: 'error.main' }}>{fCurrency(netTotal)}</TableCell>
           </StyledTableRow>
         </TableBody>
       </Table>
