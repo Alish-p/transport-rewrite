@@ -20,7 +20,7 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
+import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -47,6 +47,7 @@ export default function InvoiceTableRow({
     dueDate,
     subtripIds,
     totalAfterTax,
+    netTotal
   } = row;
 
   const confirm = useBoolean();
@@ -99,15 +100,7 @@ export default function InvoiceTableRow({
             {invoiceStatus}
           </Label>
         </TableCell>
-        <TableCell>
-          <ListItemText
-            primary={fDateRangeShortLabel(
-              new Date(billingPeriod.start),
-              new Date(billingPeriod.end)
-            )}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
+
         <TableCell>
           <ListItemText
             primary={fDate(new Date(issueDate))}
@@ -123,7 +116,16 @@ export default function InvoiceTableRow({
 
         <TableCell>
           <ListItemText
-            primary={fCurrency(totalAfterTax)}
+            primary={fDate(
+              new Date(dueDate),
+            )}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </TableCell>
+
+        <TableCell>
+          <ListItemText
+            primary={fCurrency(netTotal)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
