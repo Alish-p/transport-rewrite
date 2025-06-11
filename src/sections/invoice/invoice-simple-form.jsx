@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import { LoadingButton } from '@mui/lab';
@@ -40,7 +40,12 @@ export default function SimplerNewInvoiceForm({ customerList }) {
 
     const customerId = watch('customerId');
 
-    const selectedCustomer = customerList.find((c) => c._id === customerId);
+
+    const selectedCustomer = useMemo(
+        () => customerList.find((c) => String(c._id) === String(customerId)),
+        [customerList, customerId]
+    );
+
 
     const {
         data: fetchedSubtrips,
@@ -123,215 +128,219 @@ export default function SimplerNewInvoiceForm({ customerList }) {
     });
 
     return (
-        <Card sx={{ p: 3 }}>
-            <Box
-                rowGap={3}
-                display="grid"
-                alignItems="center"
-                gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
-                sx={{ mb: 3 }}
-            >
+        <>
+            <Card sx={{ p: 3 }}>
                 <Box
-                    component="img"
-                    alt="logo"
-                    src="/logo/company-logo-main.png"
-                    sx={{ width: 60, height: 60 }}
-                />
-                <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-                    <Label variant="soft" color="warning">
-                        Draft
-                    </Label>
-                    <Typography variant="h6">INV - XXX</Typography>
-                </Stack>
-            </Box>
-            <Stack
-                spacing={{ xs: 3, md: 5 }}
-                direction={{ xs: 'column', md: 'row' }}
-                divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
-            >
-                <Stack sx={{ width: 1 }}>
-                    <Typography variant="h6" sx={{ color: 'text.disabled', mb: 1 }}>
-                        From:
-                    </Typography>
-                    <Stack spacing={1}>
-                        <Typography variant="subtitle2">{CONFIG.company.name}</Typography>
-                        <Typography variant="body2">{CONFIG.company.address.line1}</Typography>
-                        <Typography variant="body2">{CONFIG.company.address.line2}</Typography>
-                        <Typography variant="body2">{CONFIG.company.address.state}</Typography>
-                        <Typography variant="body2">Phone: {CONFIG.company.contacts[0]}</Typography>
+                    rowGap={3}
+                    display="grid"
+                    alignItems="center"
+                    gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
+                    sx={{ mb: 3 }}
+                >
+                    <Box
+                        component="img"
+                        alt="logo"
+                        src="/logo/company-logo-main.png"
+                        sx={{ width: 60, height: 60 }}
+                    />
+                    <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
+                        <Label variant="soft" color="warning">
+                            Draft
+                        </Label>
+                        <Typography variant="h6">INV - XXX</Typography>
                     </Stack>
-                </Stack>
-
-                <Stack sx={{ width: 1 }}>
-                    <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-                        <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-                            To:
+                </Box>
+                <Stack
+                    spacing={{ xs: 3, md: 5 }}
+                    direction={{ xs: 'column', md: 'row' }}
+                    divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+                >
+                    <Stack sx={{ width: 1 }}>
+                        <Typography variant="h6" sx={{ color: 'text.disabled', mb: 1 }}>
+                            From:
                         </Typography>
-                        <IconButton onClick={customerDialog.onTrue}>
-                            <Iconify icon={selectedCustomer ? 'solar:pen-bold' : 'mingcute:add-line'} />
-                        </IconButton>
-                    </Stack>
-                    {selectedCustomer ? (
                         <Stack spacing={1}>
-                            <Typography variant="subtitle2">{selectedCustomer.customerName}</Typography>
-                            <Typography variant="body2">{selectedCustomer.address}</Typography>
-                            <Typography variant="body2">{selectedCustomer.cellNo}</Typography>
+                            <Typography variant="subtitle2">{CONFIG.company.name}</Typography>
+                            <Typography variant="body2">{CONFIG.company.address.line1}</Typography>
+                            <Typography variant="body2">{CONFIG.company.address.line2}</Typography>
+                            <Typography variant="body2">{CONFIG.company.address.state}</Typography>
+                            <Typography variant="body2">Phone: {CONFIG.company.contacts[0]}</Typography>
                         </Stack>
-                    ) : (
-                        <Typography typography="caption" sx={{ color: 'error.main' }}>
-                            Select a customer
-                        </Typography>
-                    )}
+                    </Stack>
+
+                    <Stack sx={{ width: 1 }}>
+                        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+                            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                                To:
+                            </Typography>
+                            <IconButton onClick={customerDialog.onTrue}>
+                                <Iconify icon={selectedCustomer ? 'solar:pen-bold' : 'mingcute:add-line'} />
+                            </IconButton>
+                        </Stack>
+                        {selectedCustomer ? (
+                            <Stack spacing={1}>
+                                <Typography variant="subtitle2">{selectedCustomer.customerName}</Typography>
+                                <Typography variant="body2">{selectedCustomer.address}</Typography>
+                                <Typography variant="body2">{selectedCustomer.cellNo}</Typography>
+                            </Stack>
+                        ) : (
+                            <Typography typography="caption" sx={{ color: 'error.main' }}>
+                                Select a customer
+                            </Typography>
+                        )}
+                    </Stack>
                 </Stack>
-            </Stack>
 
-            <KanbanCustomerDialog
-                open={customerDialog.value}
-                onClose={customerDialog.onFalse}
-                selectedCustomer={selectedCustomer}
-                onCustomerChange={(customer) => setValue('customerId', customer?._id)}
-            />
+                <KanbanCustomerDialog
+                    open={customerDialog.value}
+                    onClose={customerDialog.onFalse}
+                    selectedCustomer={selectedCustomer}
+                    onCustomerChange={(customer) => setValue('customerId', customer?._id)}
+                />
 
-            <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
-                <Table sx={{ minWidth: 960 }}>
-                    <TableHead>
-                        <TableRow>
-                            <StyledTableCell>#</StyledTableCell>
-                            <StyledTableCell>Vehicle No</StyledTableCell>
-                            <StyledTableCell>Consignee</StyledTableCell>
-                            <StyledTableCell>Destination</StyledTableCell>
-                            <StyledTableCell>Subtrip ID</StyledTableCell>
-                            <StyledTableCell>Dispatch Date</StyledTableCell>
-                            <StyledTableCell>Freight Rate</StyledTableCell>
-                            <StyledTableCell>Quantity</StyledTableCell>
-                            <StyledTableCell>Total Amount</StyledTableCell>
-                            <StyledTableCell>Shortage Weight</StyledTableCell>
-                            <StyledTableCell />
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {subtrips.map((st, idx) => {
-                            const { totalAmount } = calculateInvoicePerSubtrip(st);
-                            return (
-                                <TableRow key={st._id}>
-                                    <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
-                                    <TableCell>{st.consignee}</TableCell>
-                                    <TableCell>{st.unloadingPoint}</TableCell>
-                                    <TableCell>{st._id}</TableCell>
-                                    <TableCell>{fDate(st.startDate)}</TableCell>
-                                    <TableCell>{fCurrency(st.rate)}</TableCell>
+                <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
+                    <Table sx={{ minWidth: 960 }}>
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell>#</StyledTableCell>
+                                <StyledTableCell>Vehicle No</StyledTableCell>
+                                <StyledTableCell>Consignee</StyledTableCell>
+                                <StyledTableCell>Destination</StyledTableCell>
+                                <StyledTableCell>Subtrip ID</StyledTableCell>
+                                <StyledTableCell>Dispatch Date</StyledTableCell>
+                                <StyledTableCell>Freight Rate</StyledTableCell>
+                                <StyledTableCell>Quantity</StyledTableCell>
+                                <StyledTableCell>Shortage Weight</StyledTableCell>
+                                <StyledTableCell>Total Amount</StyledTableCell>
+                                <StyledTableCell />
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {subtrips.map((st, idx) => {
+                                const { totalAmount } = calculateInvoicePerSubtrip(st);
+                                return (
+                                    <TableRow key={st._id}>
+                                        <TableCell>{idx + 1}</TableCell>
+                                        <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                                        <TableCell>{st.consignee}</TableCell>
+                                        <TableCell>{st.unloadingPoint}</TableCell>
+                                        <TableCell>{st._id}</TableCell>
+                                        <TableCell>{fDate(st.startDate)}</TableCell>
+                                        <TableCell>{fCurrency(st.rate)}</TableCell>
+                                        <TableCell>
+                                            {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                                        </TableCell>
+                                        <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
+                                            {fNumber(st.shortageWeight)} Kg
+                                        </TableCell>
+                                        <TableCell>{fCurrency(totalAmount)}</TableCell>
+                                        <TableCell width={40}>
+                                            <IconButton color="error" onClick={() => handleRemove(st._id)}>
+                                                <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+
+                            <StyledTableRow>
+                                <TableCell colSpan={7} />
+                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align='center'>Subtotal</StyledTableCell>
+                                <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
+                            </StyledTableRow>
+
+                            {cgst > 0 && (
+                                <StyledTableRow>
+                                    <TableCell colSpan={7} />
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center' >CGST ({cgst}%)</StyledTableCell>
+                                    <TableCell> {fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
+                                </StyledTableRow>
+                            )}
+
+                            {sgst > 0 && (
+                                <StyledTableRow>
+                                    <TableCell colSpan={7} />
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center'>SGST ({sgst}%)</StyledTableCell>
+                                    <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
+                                </StyledTableRow>
+                            )}
+
+                            {igst > 0 && (
+                                <StyledTableRow>
+                                    <TableCell colSpan={7} />
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center'>IGST ({igst}%)</StyledTableCell>
+                                    <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
+                                </StyledTableRow>
+                            )}
+
+
+                            {additionalItems.map((item, idx) => (
+                                <StyledTableRow key={idx}>
+                                    <TableCell colSpan={7} />
+                                    <TableCell colSpan={2} align='center'>
+                                        <TextField
+                                            variant='filled'
+                                            size="small"
+                                            label="Label"
+                                            value={item.label}
+                                            onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
+                                            sx={{ width: 150 }}
+                                        />
+                                    </TableCell>
                                     <TableCell>
-                                        {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                                        <TextField
+                                            variant='filled'
+                                            size="small"
+                                            label="Amount"
+                                            type="number"
+                                            value={item.amount}
+                                            onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
+                                            sx={{ width: 100 }}
+                                        />
                                     </TableCell>
-                                    <TableCell>{fCurrency(totalAmount)}</TableCell>
-                                    <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
-                                        {fNumber(st.shortageWeight)}
-                                    </TableCell>
-                                    <TableCell width={40}>
-                                        <IconButton color="error" onClick={() => handleRemove(st._id)}>
+
+                                    <TableCell>
+                                        <IconButton color="error" onClick={() => handleRemoveItem(idx)}>
                                             <Iconify icon="solar:trash-bin-trash-bold" width={16} />
                                         </IconButton>
                                     </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                                </StyledTableRow>
+                            ))}
 
-                        <StyledTableRow>
-                            <TableCell colSpan={8} />
-                            <StyledTableCell>Subtotal</StyledTableCell>
-                            <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
-                        </StyledTableRow>
-
-                        {cgst > 0 && (
                             <StyledTableRow>
-                                <TableCell colSpan={8} />
-                                <StyledTableCell>CGST ({cgst}%)</StyledTableCell>
-                                <TableCell>{fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
-                            </StyledTableRow>
-                        )}
-
-                        {sgst > 0 && (
-                            <StyledTableRow>
-                                <TableCell colSpan={8} />
-                                <StyledTableCell>SGST ({sgst}%)</StyledTableCell>
-                                <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
-                            </StyledTableRow>
-                        )}
-
-                        {igst > 0 && (
-                            <StyledTableRow>
-                                <TableCell colSpan={8} />
-                                <StyledTableCell>IGST ({igst}%)</StyledTableCell>
-                                <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
-                            </StyledTableRow>
-                        )}
-
-
-                        {additionalItems.map((item, idx) => (
-                            <StyledTableRow key={idx}>
-                                <TableCell colSpan={8} />
-                                <TableCell>
-                                    <TextField
+                                {/* <TableCell colSpan={7} /> */}
+                                <TableCell colSpan={9} >
+                                    <Button
                                         size="small"
-                                        label="Label"
-                                        value={item.label}
-                                        onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <TextField
-                                        size="small"
-                                        label="Amount"
-                                        type="number"
-                                        value={item.amount}
-                                        onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
-                                    />
-                                </TableCell>
-
-                                <TableCell>
-                                    <IconButton color="error" onClick={() => handleRemoveItem(idx)}>
-                                        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                                    </IconButton>
+                                        color="primary"
+                                        startIcon={<Iconify icon="mingcute:add-line" />}
+                                        onClick={handleAddItem}
+                                        sx={{ width: { sm: 'auto', xs: 1 } }}
+                                    >
+                                        Add Extra Payment
+                                    </Button>
                                 </TableCell>
                             </StyledTableRow>
-                        ))}
-
-                        <StyledTableRow>
-                            <TableCell colSpan={8} />
-                            <TableCell >
-                                <Button
-                                    size="small"
-                                    color="primary"
-                                    startIcon={<Iconify icon="mingcute:add-line" />}
-                                    onClick={handleAddItem}
-                                    sx={{ width: { sm: 'auto', xs: 1 } }}
-                                >
-                                    Add Extra Payment
-                                </Button>
-                            </TableCell>
-                        </StyledTableRow>
 
 
-                        <StyledTableRow>
-                            <TableCell colSpan={8} />
-                            <StyledTableCell>Net Total</StyledTableCell>
-                            <TableCell sx={{ color: 'error.main' }}>{fCurrency(summary.totalAfterTax)}</TableCell>
-                        </StyledTableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
+                            <StyledTableRow>
+                                <TableCell colSpan={7} />
+                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align='center'>Net Total</StyledTableCell>
+                                <TableCell sx={{ color: 'error.main' }}>{fCurrency(summary.totalAfterTax)}</TableCell>
+                            </StyledTableRow>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
 
 
+            </Card>
 
-            <Stack direction="row" justifyContent="flex-end" spacing={2}>
-                <Button variant="outlined" onClick={handleReset}>Reset</Button>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
+                <Button variant="outlined" onClick={handleReset}>Cancel</Button>
                 <LoadingButton variant="contained" onClick={handleCreate} loading={isSubmitting}>
                     Create Invoice
                 </LoadingButton>
             </Stack>
-        </Card>
+        </>
     );
 }
