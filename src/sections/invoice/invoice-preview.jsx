@@ -74,7 +74,10 @@ function RenderAddress({ title, details }) {
 
 function RenderTable({ subtrips, selectedCustomer }) {
   const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
-  const summary = calculateInvoiceSummary({ subtripIds: subtrips });
+  const summary = calculateInvoiceSummary({
+    subtripIds: subtrips,
+    customer: selectedCustomer,
+  });
 
   return (
     <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>

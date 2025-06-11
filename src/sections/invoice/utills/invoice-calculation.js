@@ -39,21 +39,27 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
   };
 };
 
-export const calculateInvoiceSummary = (invoice) => {
-  if (!invoice?.subtripIds || !Array.isArray(invoice.subtripIds)) {
+export const calculateInvoiceSummary = ({
+  subtripIds = [],
+  customer = null,
+  additionalItems = [],
+} = {}) => {
+  if (!Array.isArray(subtripIds) || subtripIds.length === 0) {
     return {
       freightAmount: 0,
       shortageAmount: 0,
       totalAmount: 0,
       freightWeight: 0,
       shortageWeight: 0,
+      totalAdditionalCharges: 0,
+      totalAfterTax: 0,
     };
   }
 
-  const { customerInvoiceTax = 0 } = CONFIG;
+  const taxBreakupRates = calculateTaxBreakup(customer);
 
   // Calculate totals for each subtrip
-  const subtripTotals = invoice.subtripIds.map((subtrip) => {
+  const subtripTotals = subtripIds.map((subtrip) => {
     const { freightAmount, shortageAmount, totalAmount } = calculateInvoicePerSubtrip(subtrip);
     const shortageWeight = subtrip.shortageWeight || 0;
 
@@ -73,9 +79,17 @@ export const calculateInvoiceSummary = (invoice) => {
   const totalFreightWt = subtripTotals.reduce((sum, st) => sum + st.freightWeight, 0);
   const totalShortageWt = subtripTotals.reduce((sum, st) => sum + st.shortageWeight, 0);
 
-  // Calculate tax and final amount
-  const taxAmount = (totalAmountBeforeTax * 2 * customerInvoiceTax) / 100;
-  const totalAfterTax = totalAmountBeforeTax + taxAmount;
+  // Additional items total
+  const totalAdditionalCharges = additionalItems.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
+
+  // Calculate tax and final amount based on customer
+  const totalTaxRate =
+    (taxBreakupRates.cgst || 0) + (taxBreakupRates.sgst || 0) + (taxBreakupRates.igst || 0);
+  const taxAmount = (totalAmountBeforeTax * totalTaxRate) / 100;
+  const totalAfterTax = totalAmountBeforeTax + taxAmount + totalAdditionalCharges;
 
   return {
     totalAmountBeforeTax,
@@ -83,6 +97,7 @@ export const calculateInvoiceSummary = (invoice) => {
     totalShortageAmount,
     totalFreightWt,
     totalShortageWt,
+    totalAdditionalCharges,
     totalAfterTax,
   };
 };
