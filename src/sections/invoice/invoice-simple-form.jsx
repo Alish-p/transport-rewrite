@@ -1,11 +1,26 @@
-import { useForm } from 'react-hook-form';
+import { z as zod } from 'zod';
 import { useNavigate } from 'react-router';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useFieldArray } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import { LoadingButton } from '@mui/lab';
 import { styled } from '@mui/material/styles';
-import { Card, Stack, Table, Button, Divider, TableRow, TableHead, TableBody, TableCell, TextField, Typography, IconButton, TableContainer } from '@mui/material';
+import {
+    Card,
+    Stack,
+    Table,
+    Button,
+    Divider,
+    TableRow,
+    TableHead,
+    TableBody,
+    TableCell,
+    Typography,
+    IconButton,
+    TableContainer,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -21,9 +36,15 @@ import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+import { TableSkeleton } from '../../components/table';
+import { Form, Field } from '../../components/hook-form';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
-import { calculateTaxBreakup, calculateInvoiceSummary, calculateInvoicePerSubtrip } from './utills/invoice-calculation';
+import {
+    calculateTaxBreakup,
+    calculateInvoiceSummary,
+    calculateInvoicePerSubtrip,
+} from './utills/invoice-calculation';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '& td': { borderBottom: 'none', paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) },
@@ -33,29 +54,66 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: 'bold',
 }));
 
+const InvoiceSchema = zod.object({
+    customerId: zod.string().min(1, 'Customer is required'),
+    subtrips: zod.array(zod.any()).min(1, 'Select at least one subtrip'),
+    additionalItems: zod
+        .array(
+            zod.object({
+                label: zod.string().min(1, 'Label is required'),
+                amount: zod
+                    .preprocess((val) => Number(val), zod.number())
+                    .refine((val) => val !== 0, 'Amount cannot be zero'),
+            })
+        )
+        .default([]),
+});
+
 export default function SimplerNewInvoiceForm({ customerList }) {
     const customerDialog = useBoolean();
 
-    const { watch, setValue } = useForm({ defaultValues: { customerId: '' } });
+    const methods = useForm({
+        resolver: zodResolver(InvoiceSchema),
+        defaultValues: { customerId: '', subtrips: [], additionalItems: [] },
+    });
 
-    const customerId = watch('customerId');
+    const {
+        watch,
+        setValue,
+        reset,
+        handleSubmit,
+        control,
+        formState: { isSubmitting, errors },
+    } = methods;
 
+    const {
+        fields: subtripFields,
+        remove: removeSubtrip,
+        replace,
+    } = useFieldArray({
+        control,
+        name: 'subtrips',
+    });
+
+    const {
+        fields: additionalFields,
+        append: appendItem,
+        remove: removeItem,
+    } = useFieldArray({ name: 'additionalItems', control });
+
+    const { customerId, subtrips, additionalItems } = watch();
 
     const selectedCustomer = useMemo(
         () => customerList.find((c) => String(c._id) === String(customerId)),
         [customerList, customerId]
     );
 
-
     const {
         data: fetchedSubtrips,
         isSuccess,
+        isLoading,
         refetch,
     } = useClosedTripsByCustomerAndDate(customerId, null, null);
-
-    const [subtrips, setSubtrips] = useState([]);
-    const [additionalItems, setAdditionalItems] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const createInvoice = useCreateInvoice();
     const navigate = useNavigate();
@@ -66,48 +124,35 @@ export default function SimplerNewInvoiceForm({ customerList }) {
         }
     }, [customerId, refetch]);
 
-
     useEffect(() => {
-        // only overwrite when we’ve successfully fetched a new list
         if (isSuccess && fetchedSubtrips) {
-            setSubtrips(fetchedSubtrips);
+            replace(fetchedSubtrips);
         }
-    }, [isSuccess, fetchedSubtrips]);
+    }, [isSuccess, fetchedSubtrips, replace]);
 
-    const handleRemove = (id) => {
-        setSubtrips((prev) => prev.filter((st) => st._id !== id));
+    const handleRemove = (index) => {
+        removeSubtrip(index);
     };
 
     const handleAddItem = () => {
-        setAdditionalItems((prev) => [...prev, { label: '', amount: '' }]);
+        appendItem({ label: '', amount: '' });
     };
 
     const handleRemoveItem = (index) => {
-        setAdditionalItems((prev) => prev.filter((_, i) => i !== index));
-    };
-
-    const handleItemChange = (index, field, value) => {
-        setAdditionalItems((prev) =>
-            prev.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item
-            )
-        );
+        removeItem(index);
     };
 
     const handleReset = () => {
-        setValue('customerId', '');
-        setSubtrips([]);
-        setAdditionalItems([]);
+        reset({ customerId: '', subtrips: [], additionalItems: [] });
     };
 
-    const handleCreate = async () => {
-        if (!customerId || subtrips.length === 0) return;
-        setIsSubmitting(true);
+    const onSubmit = async (data) => {
+        const { customerId: custId, subtrips: subtripData, additionalItems: addItems } = data;
         try {
             const invoice = await createInvoice({
-                customerId,
-                subtripIds: subtrips.map((st) => st._id),
-                additionalCharges: additionalItems.map((it) => ({
+                customerId: custId,
+                subtripIds: subtripData.map((st) => st._id),
+                additionalCharges: addItems.map((it) => ({
                     label: it.label,
                     amount: Number(it.amount) || 0,
                 })),
@@ -115,8 +160,6 @@ export default function SimplerNewInvoiceForm({ customerList }) {
             navigate(paths.dashboard.invoice.details(invoice._id));
         } catch (error) {
             console.error('Failed to create invoice', error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
@@ -128,7 +171,7 @@ export default function SimplerNewInvoiceForm({ customerList }) {
     });
 
     return (
-        <>
+        <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Card sx={{ p: 3 }}>
                 <Box
                     rowGap={3}
@@ -215,8 +258,9 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                                 <StyledTableCell />
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {subtrips.map((st, idx) => {
+
+                        {isLoading ? <TableSkeleton /> : <TableBody>
+                            {subtripFields.map((st, idx) => {
                                 const { totalAmount } = calculateInvoicePerSubtrip(st);
                                 return (
                                     <TableRow key={st._id}>
@@ -235,7 +279,7 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                                         </TableCell>
                                         <TableCell>{fCurrency(totalAmount)}</TableCell>
                                         <TableCell width={40}>
-                                            <IconButton color="error" onClick={() => handleRemove(st._id)}>
+                                            <IconButton color="error" onClick={() => handleRemove(idx)}>
                                                 <Iconify icon="solar:trash-bin-trash-bold" width={16} />
                                             </IconButton>
                                         </TableCell>
@@ -245,14 +289,18 @@ export default function SimplerNewInvoiceForm({ customerList }) {
 
                             <StyledTableRow>
                                 <TableCell colSpan={7} />
-                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align='center'>Subtotal</StyledTableCell>
+                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
+                                    Subtotal
+                                </StyledTableCell>
                                 <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
                             </StyledTableRow>
 
                             {cgst > 0 && (
                                 <StyledTableRow>
                                     <TableCell colSpan={7} />
-                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center' >CGST ({cgst}%)</StyledTableCell>
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                                        CGST ({cgst}%)
+                                    </StyledTableCell>
                                     <TableCell> {fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
                                 </StyledTableRow>
                             )}
@@ -260,7 +308,9 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                             {sgst > 0 && (
                                 <StyledTableRow>
                                     <TableCell colSpan={7} />
-                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center'>SGST ({sgst}%)</StyledTableCell>
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                                        SGST ({sgst}%)
+                                    </StyledTableCell>
                                     <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
                                 </StyledTableRow>
                             )}
@@ -268,34 +318,36 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                             {igst > 0 && (
                                 <StyledTableRow>
                                     <TableCell colSpan={7} />
-                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align='center'>IGST ({igst}%)</StyledTableCell>
+                                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                                        IGST ({igst}%)
+                                    </StyledTableCell>
                                     <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
                                 </StyledTableRow>
                             )}
 
-
-                            {additionalItems.map((item, idx) => (
+                            {additionalFields.map((item, idx) => (
                                 <StyledTableRow key={idx}>
                                     <TableCell colSpan={7} />
-                                    <TableCell colSpan={2} align='center'>
-                                        <TextField
-                                            variant='filled'
+                                    <TableCell colSpan={2} align="center">
+                                        <Field.Text
                                             size="small"
+                                            name={`additionalItems[${idx}].label`}
                                             label="Label"
-                                            value={item.label}
-                                            onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
+                                            placeholder="Credit Note, Additional Payment..."
+                                            required
+                                            variant="filled"
                                             sx={{ width: 150 }}
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <TextField
-                                            variant='filled'
+                                        <Field.Text
                                             size="small"
+                                            name={`additionalItems[${idx}].amount`}
                                             label="Amount"
-                                            type="number"
-                                            value={item.amount}
-                                            onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
+                                            required
+                                            placeholder="+100, -200"
                                             sx={{ width: 100 }}
+                                            variant="filled"
                                         />
                                     </TableCell>
 
@@ -309,7 +361,7 @@ export default function SimplerNewInvoiceForm({ customerList }) {
 
                             <StyledTableRow>
                                 {/* <TableCell colSpan={7} /> */}
-                                <TableCell colSpan={9} >
+                                <TableCell colSpan={9}>
                                     <Button
                                         size="small"
                                         color="primary"
@@ -322,25 +374,29 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                                 </TableCell>
                             </StyledTableRow>
 
-
                             <StyledTableRow>
                                 <TableCell colSpan={7} />
-                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align='center'>Net Total</StyledTableCell>
-                                <TableCell sx={{ color: 'error.main' }}>{fCurrency(summary.totalAfterTax)}</TableCell>
+                                <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
+                                    Net Total
+                                </StyledTableCell>
+                                <TableCell sx={{ color: 'error.main' }}>
+                                    {fCurrency(summary.totalAfterTax)}
+                                </TableCell>
                             </StyledTableRow>
-                        </TableBody>
+                        </TableBody>}
+
                     </Table>
                 </TableContainer>
-
-
             </Card>
 
             <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
-                <Button variant="outlined" onClick={handleReset}>Cancel</Button>
-                <LoadingButton variant="contained" onClick={handleCreate} loading={isSubmitting}>
+                <Button variant="outlined" onClick={handleReset}>
+                    Cancel
+                </Button>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     Create Invoice
                 </LoadingButton>
             </Stack>
-        </>
+        </Form>
     );
 }
