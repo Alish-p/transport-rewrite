@@ -25,7 +25,8 @@ export default function InvoicePdf({ invoice }) {
     invoiceNo,
     subtripSnapshot,
     totalAmountBeforeTax,
-    totalAfterTax,
+    netTotal,
+    additionalCharges = [],
     taxBreakup,
   } = invoice || {};
 
@@ -83,7 +84,13 @@ export default function InvoicePdf({ invoice }) {
       data.push([' ', `IGST-${taxBreakup.igst.rate}%`, fCurrency(taxBreakup.igst.amount), ' ']);
     }
 
-    data.push([' ', 'Net Total', fCurrency(totalAfterTax), ' ']);
+    if (additionalCharges.length > 0) {
+      additionalCharges.forEach(({ label, amount }) => {
+        data.push([' ', label, fCurrency(amount), ' ']);
+      });
+    }
+
+    data.push([' ', 'Net Total', fCurrency(netTotal), ' ']);
 
     return <PDFTable headers={headers} data={data} columnWidths={[10, 1, 1, 1]} hideHeader />;
   };
