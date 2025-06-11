@@ -18,7 +18,7 @@ export function InvoiceCreateView({ customerList }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <SimplerNewInvoiceForm />
+      <SimplerNewInvoiceForm customerList={customerList} />
     </DashboardContent>
   );
 }

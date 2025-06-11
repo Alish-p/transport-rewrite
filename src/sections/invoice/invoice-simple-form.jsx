@@ -33,17 +33,20 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: 'bold',
 }));
 
-export default function SimplerNewInvoiceForm() {
+export default function SimplerNewInvoiceForm({ customerList }) {
     const customerDialog = useBoolean();
 
-    const { watch, setValue } = useForm({ defaultValues: { customer: null } });
+    const { watch, setValue } = useForm({ defaultValues: { customerId: '' } });
 
-    const selectedCustomer = watch('customer');
+    const customerId = watch('customerId');
+
+    const selectedCustomer = customerList.find((c) => c._id === customerId);
 
     const {
-        data: fetchedSubtrips = [],
+        data: fetchedSubtrips,
+        isSuccess,
         refetch,
-    } = useClosedTripsByCustomerAndDate(selectedCustomer?._id, null, null);
+    } = useClosedTripsByCustomerAndDate(customerId, null, null);
 
     const [subtrips, setSubtrips] = useState([]);
     const [additionalItems, setAdditionalItems] = useState([]);
@@ -53,14 +56,18 @@ export default function SimplerNewInvoiceForm() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (selectedCustomer?._id) {
+        if (customerId) {
             refetch();
         }
-    }, [selectedCustomer, refetch]);
+    }, [customerId, refetch]);
+
 
     useEffect(() => {
-        setSubtrips(fetchedSubtrips);
-    }, [fetchedSubtrips]);
+        // only overwrite when we’ve successfully fetched a new list
+        if (isSuccess && fetchedSubtrips) {
+            setSubtrips(fetchedSubtrips);
+        }
+    }, [isSuccess, fetchedSubtrips]);
 
     const handleRemove = (id) => {
         setSubtrips((prev) => prev.filter((st) => st._id !== id));
@@ -83,17 +90,17 @@ export default function SimplerNewInvoiceForm() {
     };
 
     const handleReset = () => {
-        setValue('customer', null);
+        setValue('customerId', '');
         setSubtrips([]);
         setAdditionalItems([]);
     };
 
     const handleCreate = async () => {
-        if (!selectedCustomer || subtrips.length === 0) return;
+        if (!customerId || subtrips.length === 0) return;
         setIsSubmitting(true);
         try {
             const invoice = await createInvoice({
-                customerId: selectedCustomer._id,
+                customerId,
                 subtripIds: subtrips.map((st) => st._id),
                 additionalCharges: additionalItems.map((it) => ({
                     label: it.label,
@@ -182,7 +189,7 @@ export default function SimplerNewInvoiceForm() {
                 open={customerDialog.value}
                 onClose={customerDialog.onFalse}
                 selectedCustomer={selectedCustomer}
-                onCustomerChange={(customer) => setValue('customer', customer)}
+                onCustomerChange={(customer) => setValue('customerId', customer?._id)}
             />
 
             <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
