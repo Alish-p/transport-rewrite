@@ -1,9 +1,13 @@
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+import { LoadingButton } from '@mui/lab';
 import { styled } from '@mui/material/styles';
-import { Card, Stack, Table, Divider, TableRow, TableHead, TableBody, TableCell, Typography, IconButton, TableContainer } from '@mui/material';
+import { Card, Stack, Table, Button, Divider, TableRow, TableHead, TableBody, TableCell, TextField, Typography, IconButton, TableContainer } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -11,6 +15,7 @@ import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
+import { useCreateInvoice } from 'src/query/use-invoice';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
@@ -41,6 +46,11 @@ export default function SimplerNewInvoiceForm() {
     } = useClosedTripsByCustomerAndDate(selectedCustomer?._id, null, null);
 
     const [subtrips, setSubtrips] = useState([]);
+    const [additionalItems, setAdditionalItems] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const createInvoice = useCreateInvoice();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (selectedCustomer?._id) {
@@ -56,8 +66,54 @@ export default function SimplerNewInvoiceForm() {
         setSubtrips((prev) => prev.filter((st) => st._id !== id));
     };
 
+    const handleAddItem = () => {
+        setAdditionalItems((prev) => [...prev, { label: '', amount: '' }]);
+    };
+
+    const handleRemoveItem = (index) => {
+        setAdditionalItems((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const handleItemChange = (index, field, value) => {
+        setAdditionalItems((prev) =>
+            prev.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item
+            )
+        );
+    };
+
+    const handleReset = () => {
+        setValue('customer', null);
+        setSubtrips([]);
+        setAdditionalItems([]);
+    };
+
+    const handleCreate = async () => {
+        if (!selectedCustomer || subtrips.length === 0) return;
+        setIsSubmitting(true);
+        try {
+            const invoice = await createInvoice({
+                customerId: selectedCustomer._id,
+                subtripIds: subtrips.map((st) => st._id),
+                additionalCharges: additionalItems.map((it) => ({
+                    label: it.label,
+                    amount: Number(it.amount) || 0,
+                })),
+            });
+            navigate(paths.dashboard.invoice.details(invoice._id));
+        } catch (error) {
+            console.error('Failed to create invoice', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
-    const summary = calculateInvoiceSummary({ subtripIds: subtrips });
+    const summary = calculateInvoiceSummary({
+        subtripIds: subtrips,
+        customer: selectedCustomer,
+        additionalItems,
+    });
 
     return (
         <Card sx={{ p: 3 }}>
@@ -212,6 +268,49 @@ export default function SimplerNewInvoiceForm() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
+
+            <Stack spacing={2} sx={{ mb: 2 }}>
+                {additionalItems.map((item, idx) => (
+                    <Stack key={idx} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
+                        <TextField
+                            size="small"
+                            label="Label"
+                            value={item.label}
+                            onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
+                            sx={{ flexGrow: 1 }}
+                        />
+                        <TextField
+                            size="small"
+                            label="Amount"
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
+                            sx={{ width: 120 }}
+                        />
+                        <IconButton color="error" onClick={() => handleRemoveItem(idx)}>
+                            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                        </IconButton>
+                    </Stack>
+                ))}
+                <Button
+                    size="small"
+                    color="primary"
+                    startIcon={<Iconify icon="mingcute:add-line" />}
+                    onClick={handleAddItem}
+                    sx={{ width: { sm: 'auto', xs: 1 } }}
+                >
+                    Add Item
+                </Button>
+            </Stack>
+
+            <Stack direction="row" justifyContent="flex-end" spacing={2}>
+                <Button variant="outlined" onClick={handleReset}>Reset</Button>
+                <LoadingButton variant="contained" onClick={handleCreate} loading={isSubmitting}>
+                    Create Invoice
+                </LoadingButton>
+            </Stack>
         </Card>
     );
 }
