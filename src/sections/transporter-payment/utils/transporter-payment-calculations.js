@@ -95,7 +95,7 @@ export const calculateTransporterPaymentSummary = (
   const taxBreakup = calculateTaxBreakup(transporter, totalFreightAmount);
   const totalTax = taxBreakup.totalTax || 0;
   const totalAdditionalCharges = additionalCharges.reduce((acc, ch) => acc + ch.amount, 0);
-  const netIncome = preTaxIncome - totalTax - totalAdditionalCharges;
+  const netIncome = preTaxIncome - totalTax + totalAdditionalCharges;
 
   return {
     totalFreightAmount,

@@ -54,7 +54,6 @@ const TABLE_HEAD = [
   { id: 'status', label: 'Status' },
   { id: 'createdDate', label: 'Created Date' },
   { id: 'amount', label: 'Amount' },
-  { id: 'duration', label: 'Duration' },
   { id: '', label: '' },
 ];
 

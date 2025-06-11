@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Page, Font, Document } from '@react-pdf/renderer';
 
+import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
@@ -84,7 +84,6 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
       });
     }
 
-    data.push([' ', 'Net Total', fCurrency(summary.netIncome)]);
 
     if (taxBreakup?.cgst?.rate > 0) {
       data.push([
@@ -105,6 +104,9 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
         fCurrency(taxBreakup.igst.amount),
       ]);
     }
+
+    data.push([' ', 'Net Total', fCurrency(summary.netIncome)]);
+
 
     return <PDFTable headers={['', '', '']} data={data} columnWidths={[12, 1, 1]} hideHeader />;
   };
@@ -130,7 +132,6 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
           metaDetails={[
             ['Payment No.', paymentId],
             ['Date', fDate(issueDate)],
-            ['Billing Period', fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)],
             ['Status', status?.toUpperCase()],
           ]}
         />

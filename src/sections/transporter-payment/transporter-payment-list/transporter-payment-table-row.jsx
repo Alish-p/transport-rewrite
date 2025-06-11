@@ -20,7 +20,7 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fNumber } from 'src/utils/format-number';
-import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
+import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -37,7 +37,7 @@ export default function TransporterPaymentTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, paymentId, transporterId, issueDate, billingPeriod, status, summary } = row;
+  const { _id, paymentId, transporterId, issueDate, status, summary } = row;
 
   const confirm = useBoolean();
 
@@ -77,7 +77,7 @@ export default function TransporterPaymentTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => {}}
+                onClick={() => { }}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {transporterId?.cellNo}
@@ -107,15 +107,6 @@ export default function TransporterPaymentTableRow({
           <ListItemText
             primary={fNumber(summary?.netIncome)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
-            primary={fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)}
-            primaryTypographyProps={{
-              color: 'text.disabled',
-            }}
           />
         </TableCell>
 

@@ -179,10 +179,42 @@ function RenderTable({ transporterPayment }) {
 
           {tds?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12} />
-              <StyledTableCell>TDS({tds?.rate || 0}%)</StyledTableCell>
+              <TableCell colSpan={11} />
+              <StyledTableCell colSpan={2} align='right'>TDS({tds?.rate || 0}%)</StyledTableCell>
               <TableCell align="right" sx={{ color: 'error.main' }}>
                 {fCurrency(tds?.amount || 0)}
+              </TableCell>
+            </StyledTableRow>
+          )}
+
+          {cgst?.rate > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={11}>
+                I/we have taken registration under the CGST Act, 2017 and have exercised the option
+                to pay tax on services of GTA in relation to transport of goods supplied by us.
+              </TableCell>
+              <StyledTableCell colSpan={2} align='right'>CGST {cgst.rate}%</StyledTableCell>
+              <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
+            </StyledTableRow>
+          )}
+
+          {sgst?.rate > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={11} />
+              <StyledTableCell colSpan={2} align='right'>SGST {sgst.rate}%</StyledTableCell>
+              <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
+            </StyledTableRow>
+          )}
+
+          {igst?.rate > 0 && (
+            <StyledTableRow>
+              <TableCell colSpan={11}>
+                I/we have taken registration under the CGST Act, 2017 and have exercised the option
+                to pay tax on services of GTA in relation to transport of goods supplied by us.
+              </TableCell>
+              <StyledTableCell colSpan={2} align='right'>IGST {igst.rate}%</StyledTableCell>
+              <TableCell align="right" title="GST under RCM Mechnism">
+                {fCurrency(igst.amount)}
               </TableCell>
             </StyledTableRow>
           )}
@@ -190,8 +222,8 @@ function RenderTable({ transporterPayment }) {
           {additionalCharges?.length > 0 &&
             additionalCharges.map(({ label, amount }) => (
               <StyledTableRow>
-                <TableCell colSpan={12} />
-                <StyledTableCell>{label}</StyledTableCell>
+                <TableCell colSpan={11} />
+                <StyledTableCell colSpan={2} align='right'>{label}</StyledTableCell>
                 <TableCell align="right" sx={{ color: 'error.main' }}>
                   {fCurrency(amount || 0)}
                 </TableCell>
@@ -199,44 +231,14 @@ function RenderTable({ transporterPayment }) {
             ))}
 
           <StyledTableRow>
-            <TableCell colSpan={12} />
-            <StyledTableCell>Net-Payable</StyledTableCell>
+            <TableCell colSpan={11} />
+            <StyledTableCell colSpan={2} align='right'>Net-Payable</StyledTableCell>
             <TableCell align="right" sx={{ color: 'success.main' }}>
               {fCurrency(netIncome)}
             </TableCell>
           </StyledTableRow>
 
-          {cgst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12}>
-                I/we have taken registration under the CGST Act, 2017 and have exercised the option
-                to pay tax on services of GTA in relation to transport of goods supplied by us.
-              </TableCell>
-              <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
-              <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
-            </StyledTableRow>
-          )}
 
-          {sgst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12} />
-              <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
-              <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
-            </StyledTableRow>
-          )}
-
-          {igst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={12}>
-                I/we have taken registration under the CGST Act, 2017 and have exercised the option
-                to pay tax on services of GTA in relation to transport of goods supplied by us.
-              </TableCell>
-              <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
-              <TableCell align="right" title="GST under RCM Mechnism">
-                {fCurrency(igst.amount)}
-              </TableCell>
-            </StyledTableRow>
-          )}
         </TableBody>
       </Table>
     </TableContainer>
