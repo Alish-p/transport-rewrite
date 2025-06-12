@@ -32,10 +32,11 @@ import { CONFIG } from 'src/config-global';
 import { useSubtripsByTransporter } from 'src/query/use-subtrip';
 import { useCreateBulkTransporterPayment } from 'src/query/use-transporter-payment';
 
-import { Iconify } from '../../components/iconify';
-import { TableSkeleton } from '../../components/table';
-import { DialogSelectButton } from '../../components/dialog-select-button';
-import { CustomDateRangePicker } from '../../components/custom-date-range-picker';
+import { Iconify } from 'src/components/iconify';
+import { TableSkeleton } from 'src/components/table';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
 import {
   calculateTransporterPayment,
   calculateTransporterPaymentSummary,
