@@ -2,7 +2,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import DriverSalaryFormAndPreview from '../driver-salary-form-and-preview';
+import DriverSalarySimpleForm from '../driver-salary-simple-form';
 
 export function DriverPayrollCreateView({ driverList }) {
   return (
@@ -17,7 +17,7 @@ export function DriverPayrollCreateView({ driverList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DriverSalaryFormAndPreview driverList={driverList} />
+      <DriverSalarySimpleForm driverList={driverList} />
     </DashboardContent>
   );
 }
