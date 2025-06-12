@@ -38,7 +38,6 @@ const ICONS = {
 };
 
 export function OverviewAppView({
-  dashboardData,
   counts,
   subtripMonthlyData,
   subtripStatusSummary,

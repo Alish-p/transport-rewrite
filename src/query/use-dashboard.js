@@ -39,10 +39,6 @@ const getCounts = async () => {
 
 
 // Queries & Mutations
-export function useDashboard() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getDashboard });
-}
-
 export function useCustomerMonthlyFreight(month) {
   return useQuery(
     {
@@ -52,16 +48,12 @@ export function useCustomerMonthlyFreight(month) {
     }
   );
 }
-
-
 export function useSubtripsExpiry() {
   return useQuery({ queryKey: ['subtripsExpiry'], queryFn: getSubtripsExpiry });
 }
-
 export function useSubtripMonthlyData() {
   return useQuery({ queryKey: ['subtripMonthlyData'], queryFn: getSubtripMonthlyData });
 }
-
 export function useDashboardCounts() {
   return useQuery({ queryKey: ['counts'], queryFn: getCounts });
 }
