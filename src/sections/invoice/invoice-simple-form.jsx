@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useNavigate } from 'react-router';
 import { useMemo, useEffect } from 'react';
@@ -26,8 +27,8 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import { useCreateInvoice } from 'src/query/use-invoice';
@@ -37,9 +38,10 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { TableSkeleton } from '../../components/table';
-import { Form, Field } from '../../components/hook-form';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
+import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
 import {
     calculateTaxBreakup,
     calculateInvoiceSummary,
@@ -56,6 +58,18 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const InvoiceSchema = zod.object({
     customerId: zod.string().min(1, 'Customer is required'),
+    billingPeriod: zod
+        .object({
+            start: schemaHelper.date({ required_error: 'Start date is required' }),
+            end: schemaHelper.date({ required_error: 'End date is required' }),
+        })
+        .refine(
+            (data) => {
+                if (!data.start || !data.end) return true;
+                return dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start));
+            },
+            { message: 'End date must be after or equal to start date', path: ['end'] }
+        ),
     subtrips: zod.array(zod.any()).min(1, 'Select at least one subtrip'),
     additionalItems: zod
         .array(
@@ -71,10 +85,16 @@ const InvoiceSchema = zod.object({
 
 export default function SimplerNewInvoiceForm({ customerList }) {
     const customerDialog = useBoolean();
+    const dateDialog = useBoolean();
 
     const methods = useForm({
         resolver: zodResolver(InvoiceSchema),
-        defaultValues: { customerId: '', subtrips: [], additionalItems: [] },
+        defaultValues: {
+            customerId: '',
+            billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+            subtrips: [],
+            additionalItems: [],
+        },
     });
 
     const {
@@ -101,7 +121,7 @@ export default function SimplerNewInvoiceForm({ customerList }) {
         remove: removeItem,
     } = useFieldArray({ name: 'additionalItems', control });
 
-    const { customerId, subtrips, additionalItems } = watch();
+    const { customerId, billingPeriod, subtrips, additionalItems } = watch();
 
     const selectedCustomer = useMemo(
         () => customerList.find((c) => String(c._id) === String(customerId)),
@@ -113,16 +133,20 @@ export default function SimplerNewInvoiceForm({ customerList }) {
         isSuccess,
         isLoading,
         refetch,
-    } = useClosedTripsByCustomerAndDate(customerId, null, null);
+    } = useClosedTripsByCustomerAndDate(
+        customerId,
+        billingPeriod?.start,
+        billingPeriod?.end
+    );
 
     const createInvoice = useCreateInvoice();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (customerId) {
+        if (customerId && billingPeriod?.start && billingPeriod?.end) {
             refetch();
         }
-    }, [customerId, refetch]);
+    }, [customerId, billingPeriod?.start, billingPeriod?.end, refetch]);
 
     useEffect(() => {
         if (isSuccess && fetchedSubtrips) {
@@ -143,14 +167,25 @@ export default function SimplerNewInvoiceForm({ customerList }) {
     };
 
     const handleReset = () => {
-        reset({ customerId: '', subtrips: [], additionalItems: [] });
+        reset({
+            customerId: '',
+            billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+            subtrips: [],
+            additionalItems: [],
+        });
     };
 
     const onSubmit = async (data) => {
-        const { customerId: custId, subtrips: subtripData, additionalItems: addItems } = data;
+        const {
+            customerId: custId,
+            billingPeriod: period,
+            subtrips: subtripData,
+            additionalItems: addItems,
+        } = data;
         try {
             const invoice = await createInvoice({
                 customerId: custId,
+                billingPeriod: period,
                 subtripIds: subtripData.map((st) => st._id),
                 additionalCharges: addItems.map((it) => ({
                     label: it.label,
@@ -217,7 +252,7 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                                 To:
                             </Typography>
                             <IconButton onClick={customerDialog.onTrue}>
-                                <Iconify icon={selectedCustomer ? 'solar:pen-bold' : 'mingcute:add-line'} />
+                                <Iconify icon={selectedCustomer ? 'solar:pen-bold' : 'mingcute:add-line'} color='green' />
                             </IconButton>
                         </Stack>
                         {selectedCustomer ? (
@@ -234,11 +269,57 @@ export default function SimplerNewInvoiceForm({ customerList }) {
                     </Stack>
                 </Stack>
 
+                <Stack
+                    mt={5}
+                    spacing={{ xs: 3, md: 5 }}
+                    direction={{ xs: 'column', md: 'row' }}
+                    divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+                >
+                    <Stack sx={{ width: 1 }}>
+                        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+                            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                                Billing Period:
+                            </Typography>
+                            <IconButton onClick={dateDialog.onTrue}>
+                                <Iconify icon="mingcute:calendar-line" color='green' />
+                            </IconButton>
+                        </Stack>
+                        {billingPeriod?.start && billingPeriod?.end ? (
+                            <Typography variant="body2">
+                                {fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}
+                            </Typography>
+                        ) : (
+                            <Typography typography="caption" sx={{ color: 'error.main' }}>
+                                Select date range
+                            </Typography>
+                        )}
+                    </Stack>
+
+                    <Stack sx={{ width: 1 }}>
+                        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+                            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                                Issue Date:
+                            </Typography>
+                        </Stack>
+                        <Typography variant="body2">{fDate(new Date())}</Typography>
+                    </Stack>
+                </Stack>
+
                 <KanbanCustomerDialog
                     open={customerDialog.value}
                     onClose={customerDialog.onFalse}
                     selectedCustomer={selectedCustomer}
                     onCustomerChange={(customer) => setValue('customerId', customer?._id)}
+                />
+
+                <CustomDateRangePicker
+                    variant='calendar'
+                    open={dateDialog.value}
+                    onClose={dateDialog.onFalse}
+                    startDate={billingPeriod?.start}
+                    endDate={billingPeriod?.end}
+                    onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
+                    onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
                 />
 
                 <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>

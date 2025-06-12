@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useNavigate } from 'react-router';
 import { useMemo, useEffect } from 'react';
@@ -26,8 +27,8 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import { useFetchSubtripsForTransporterBilling } from 'src/query/use-subtrip';
@@ -37,8 +38,9 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { TableSkeleton } from '../../components/table';
-import { Form, Field } from '../../components/hook-form';
+import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
+import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
 import {
   calculateTransporterPayment,
   calculateTransporterPaymentSummary,
@@ -54,6 +56,18 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const PaymentSchema = zod.object({
   transporterId: zod.string().min(1, 'Transporter is required'),
+  billingPeriod: zod
+    .object({
+      start: schemaHelper.date({ required_error: 'Start date is required' }),
+      end: schemaHelper.date({ required_error: 'End date is required' }),
+    })
+    .refine(
+      (data) => {
+        if (!data.start || !data.end) return true;
+        return dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start));
+      },
+      { message: 'End date must be after or equal to start date', path: ['end'] }
+    ),
   subtrips: zod.array(zod.any()).min(1, 'Select at least one subtrip'),
   additionalCharges: zod
     .array(
@@ -70,10 +84,16 @@ const PaymentSchema = zod.object({
 export default function TransporterPaymentSimpleForm({ transporterList }) {
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
+  const dateDialog = useBoolean();
 
   const methods = useForm({
     resolver: zodResolver(PaymentSchema),
-    defaultValues: { transporterId: '', subtrips: [], additionalCharges: [] },
+    defaultValues: {
+      transporterId: '',
+      billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+      subtrips: [],
+      additionalCharges: [],
+    },
   });
 
   const {
@@ -97,7 +117,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     remove: removeCharge,
   } = useFieldArray({ name: 'additionalCharges', control });
 
-  const { transporterId, subtrips, additionalCharges } = watch();
+  const { transporterId, billingPeriod, subtrips, additionalCharges } = watch();
 
   const selectedTransporter = useMemo(
     () => transporterList.find((t) => String(t._id) === String(transporterId)),
@@ -105,16 +125,20 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
   );
 
   const { data: fetchedSubtrips, isSuccess, isLoading, refetch } =
-    useFetchSubtripsForTransporterBilling(transporterId, null, null);
+    useFetchSubtripsForTransporterBilling(
+      transporterId,
+      billingPeriod?.start,
+      billingPeriod?.end
+    );
 
   const createPayment = useCreateTransporterPayment();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (transporterId) {
+    if (transporterId && billingPeriod?.start && billingPeriod?.end) {
       refetch();
     }
-  }, [transporterId, refetch]);
+  }, [transporterId, billingPeriod?.start, billingPeriod?.end, refetch]);
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
@@ -135,14 +159,25 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
   };
 
   const handleReset = () => {
-    reset({ transporterId: '', subtrips: [], additionalCharges: [] });
+    reset({
+      transporterId: '',
+      billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+      subtrips: [],
+      additionalCharges: [],
+    });
   };
 
   const onSubmit = async (data) => {
-    const { transporterId: tid, subtrips: subtripData, additionalCharges: addCharges } = data;
+    const {
+      transporterId: tid,
+      billingPeriod: period,
+      subtrips: subtripData,
+      additionalCharges: addCharges,
+    } = data;
     try {
       const payment = await createPayment({
         transporterId: tid,
+        billingPeriod: period,
         associatedSubtrips: subtripData.map((st) => st._id),
         additionalCharges: [
           {
@@ -214,7 +249,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                 To:
               </Typography>
               <IconButton onClick={transporterDialog.onTrue}>
-                <Iconify icon={selectedTransporter ? 'solar:pen-bold' : 'mingcute:add-line'} />
+                <Iconify icon={selectedTransporter ? 'solar:pen-bold' : 'mingcute:add-line'} color="green" />
               </IconButton>
             </Stack>
             {selectedTransporter ? (
@@ -231,11 +266,57 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
           </Stack>
         </Stack>
 
+        <Stack
+          mt={5}
+          spacing={{ xs: 3, md: 5 }}
+          direction={{ xs: 'column', md: 'row' }}
+          divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+        >
+          <Stack sx={{ width: 1 }}>
+            <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+              <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                Billing Period:
+              </Typography>
+              <IconButton onClick={dateDialog.onTrue}>
+                <Iconify icon="mingcute:calendar-line" color='green' />
+              </IconButton>
+            </Stack>
+            {billingPeriod?.start && billingPeriod?.end ? (
+              <Typography variant="body2">
+                {fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}
+              </Typography>
+            ) : (
+              <Typography typography="caption" sx={{ color: 'error.main' }}>
+                Select date range
+              </Typography>
+            )}
+          </Stack>
+
+          <Stack sx={{ width: 1 }}>
+            <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+              <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                Issue Date:
+              </Typography>
+            </Stack>
+            <Typography variant="body2">{fDate(new Date())}</Typography>
+          </Stack>
+        </Stack>
+
         <KanbanTransporterDialog
           open={transporterDialog.value}
           onClose={transporterDialog.onFalse}
           selectedTransporter={selectedTransporter}
           onTransporterChange={(transporter) => setValue('transporterId', transporter?._id)}
+        />
+
+        <CustomDateRangePicker
+          variant='calendar'
+          open={dateDialog.value}
+          onClose={dateDialog.onFalse}
+          startDate={billingPeriod?.start}
+          endDate={billingPeriod?.end}
+          onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
+          onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
         />
 
         <TableContainer sx={{ overflowX: 'auto', mt: 3 }}>
