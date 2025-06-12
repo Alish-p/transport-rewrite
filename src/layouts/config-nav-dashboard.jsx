@@ -268,6 +268,21 @@ export const navData = [
           { title: 'Create', path: paths.dashboard.invoice.new, action: 'create' },
         ],
       },
+      {
+        title: 'Transporter Payment',
+        path: paths.dashboard.transporterPayment.root,
+        icon: ICONS.transporterPayment,
+        resource: 'transporterPayment',
+        children: [
+          { title: 'List', path: paths.dashboard.transporterPayment.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.transporterPayment.new, action: 'create' },
+          {
+            title: 'Bulk Create',
+            path: paths.dashboard.transporterPayment.bulkCreate,
+            action: 'create',
+          },
+        ],
+      },
 
       {
         title: 'Driver Payroll',
@@ -292,22 +307,6 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.loan.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.loan.new, action: 'create' },
-        ],
-      },
-
-      {
-        title: 'Transporter Payment',
-        path: paths.dashboard.transporterPayment.root,
-        icon: ICONS.transporterPayment,
-        resource: 'transporterPayment',
-        children: [
-          { title: 'List', path: paths.dashboard.transporterPayment.root, action: 'view' },
-          { title: 'Create', path: paths.dashboard.transporterPayment.new, action: 'create' },
-          {
-            title: 'Bulk Create',
-            path: paths.dashboard.transporterPayment.bulkCreate,
-            action: 'create',
-          },
         ],
       },
     ],
