@@ -20,6 +20,7 @@ import {
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useGps } from 'src/query/use-gps';
 import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
@@ -221,12 +222,16 @@ export function SubtripReceiveForm() {
   const {
     reset,
     watch,
+    getValues,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
   const { unloadingWeight, endKm, commissionRate } = watch();
   const { isOwn } = selectedSubtripData?.tripId?.vehicleId || {};
+  const vehicleNo = selectedSubtripData?.tripId?.vehicleId?.vehicleNo;
+  const { data: gpsData } = useGps(vehicleNo, { enabled: selectedSubtripData?.tripId?.vehicleId?.isOwn });
   const handleSubtripChange = useCallback(
     (subtrip) => {
       setSelectedSubtripId(subtrip._id);
@@ -257,6 +262,15 @@ export function SubtripReceiveForm() {
       handleSubtripChange({ _id: currentSubtripId });
     }
   }, [currentSubtripId, handleSubtripChange]);
+
+  useEffect(() => {
+    if (gpsData?.totalOdometer) {
+      const current = getValues('endKm');
+      if (!current) {
+        setValue('endKm', Math.round(gpsData.totalOdometer));
+      }
+    }
+  }, [gpsData, setValue, getValues]);
 
   return (
     <>

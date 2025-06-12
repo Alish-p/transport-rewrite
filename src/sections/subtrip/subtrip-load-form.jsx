@@ -33,6 +33,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // Utils
 import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
+import { useGps } from 'src/query/use-gps';
 // Queries & Mutations
 import { useRoute, useRoutes } from 'src/query/use-route';
 import {
@@ -208,6 +209,7 @@ export function SubtripLoadForm() {
     handleSubmit,
     reset,
     watch,
+    getValues,
     setValue,
     trigger,
     formState: { isSubmitting, errors, isValid },
@@ -219,6 +221,8 @@ export function SubtripLoadForm() {
   // Derived data
   const vehicleData = selectedSubtrip?.tripId?.vehicleId;
   const { isOwn, vehicleType, trackingLink } = vehicleData || {};
+
+  const { data: gpsData } = useGps(vehicleData?.vehicleNo, { enabled: vehicleData?.isOwn });
 
   const consignees = useMemo(
     () => selectedSubtrip?.customerId?.consignees || [],
@@ -396,13 +400,22 @@ export function SubtripLoadForm() {
   }, [driverAdvanceGivenBy, initialAdvanceDiesel, trigger]);
 
   useEffect(() => {
+    if (gpsData?.totalOdometer) {
+      const current = getValues('startKm');
+      if (!current) {
+        setValue('startKm', Math.round(gpsData.totalOdometer));
+      }
+    }
+  }, [gpsData, setValue, getValues]);
+
+  useEffect(() => {
     if (isOwn && detailedRoute && vehicleData) {
       try {
         const expenses = getFixedExpensesByVehicleType(detailedRoute, vehicleData);
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -813,7 +826,7 @@ export function SubtripLoadForm() {
       <InvoiceScanner
         open={scannerDialog.value}
         onClose={scannerDialog.onFalse}
-        onScanComplete={() => {}}
+        onScanComplete={() => { }}
       />
     </Container>
   );
