@@ -4,7 +4,15 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
-import { Button } from '@mui/material';
+import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
+// @mui
+import { styled } from '@mui/material/styles';
+import TableRow from '@mui/material/TableRow';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -41,12 +49,40 @@ const VEHICLE_SUMMARY = [
 
 // ----------------------------------------------------------------------
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  fontWeight: 'bold',
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '& td': {
+    borderBottom: 'none',
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+}));
+
+const SUBTRIP_HEADS = [
+  'Subtrip ID',
+  'Driver',
+  'Start Date',
+  'Status',
+  'Loading Point',
+  'Unloading Point',
+];
+
+const EXPENSE_HEADS = ['Date', 'Type', 'Amount', 'Slip No'];
+
+// ----------------------------------------------------------------------
+
 export function VehicleDetailView({ vehicle }) {
   const [tabValue, setTabValue] = useState('description');
 
   const handleTabChange = (_, newValue) => {
     setTabValue(newValue);
   };
+
+  // The API returns { vehicle: { ...fields }, subtrips: [], expenses: [] }
+  const { vehicle: vehicleInfo = {}, subtrips = [], expenses = [] } = vehicle || {};
 
   const {
     vehicleNo,
@@ -63,7 +99,7 @@ export function VehicleDetailView({ vehicle }) {
     fromDate,
     toDate,
     transporter,
-  } = vehicle || {};
+  } = vehicleInfo;
 
   const description = `
 [](/)
@@ -95,24 +131,6 @@ export function VehicleDetailView({ vehicle }) {
 
 
 
-`;
-
-  const expensesMarkdown = `
-  [](/)
-### Vehicle Expenses
-Below is a summary of recent expenses for this vehicle.
-
-| Date          | Expense Type   | Description             | Amount   | Paid Through | Slip Number |
-| :------------ | :-------------| :----------------------- | :------- | :----------- | :---------- |
-| 01-Nov-2023   | Fuel           | Diesel - 100 Liters     | $500     | Online       | SL-001      |
-| 05-Nov-2023   | Maintenance    | Oil Change              | $150     | Cash         | SL-002      |
-| 10-Nov-2023   | Toll           | Toll Charges            | $50      | Online       | SL-003      |
-| 15-Nov-2023   | Repair         | Brake Pad Replacement   | $300     | Bank Transfer| SL-004      |
-| 20-Nov-2023   | Fuel           | Diesel - 150 Liters     | $750     | Online       | SL-005      |
-
----
-
-For further details, please refer to the expense logs.
 `;
 
   return (
@@ -192,9 +210,8 @@ For further details, please refer to the expense logs.
         >
           {[
             { value: 'description', label: 'Vehicle Details', icon: 'mdi:truck-info' },
+            { value: 'subtrips', label: 'Subtrip List', icon: 'mdi:route' },
             { value: 'expenses', label: 'Expense Details', icon: 'mdi:currency-usd' },
-            { value: 'maintenance', label: 'Maintenance', icon: 'mdi:tools' },
-            { value: 'documents', label: 'Documents', icon: 'mdi:file-document' },
           ].map((tab) => (
             <Tab
               key={tab.value}
@@ -213,10 +230,68 @@ For further details, please refer to the expense logs.
             </Box>
           )}
 
+          {tabValue === 'subtrips' && (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {SUBTRIP_HEADS.map((head) => (
+                      <StyledTableCell key={head}>{head}</StyledTableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {subtrips.map((st) => (
+                    <StyledTableRow key={st._id}>
+                      <TableCell>{st._id}</TableCell>
+                      <TableCell>{st.tripId?.driverId?.driverName}</TableCell>
+                      <TableCell>{fDate(st.startDate)}</TableCell>
+                      <TableCell>{st.subtripStatus}</TableCell>
+                      <TableCell>{st.loadingPoint}</TableCell>
+                      <TableCell>{st.unloadingPoint}</TableCell>
+                    </StyledTableRow>
+                  ))}
+                  {subtrips.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={SUBTRIP_HEADS.length} align="center">
+                        No subtrips found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
           {tabValue === 'expenses' && (
-            <Box>
-              <Markdown children={expensesMarkdown} />
-            </Box>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {EXPENSE_HEADS.map((head) => (
+                      <StyledTableCell key={head}>{head}</StyledTableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {expenses.map((exp) => (
+                    <StyledTableRow key={exp._id}>
+                      <TableCell>{fDate(exp.date)}</TableCell>
+                      <TableCell>{exp.expenseType}</TableCell>
+                      <TableCell>{exp.amount}</TableCell>
+                      <TableCell>{exp.slipNo}</TableCell>
+                    </StyledTableRow>
+                  ))}
+                  {expenses.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={EXPENSE_HEADS.length} align="center">
+                        No expenses found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </Box>
       </Card>
