@@ -29,24 +29,23 @@ const getSubtripMonthlyData = async () => {
   return data;
 };
 
-
 const getCounts = async () => {
   const { data } = await axios.get(`${ENDPOINT}/counts`);
   return data;
 };
 
-
-
+const getInvoiceStatusSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/invoice-status-summary`);
+  return data;
+};
 
 // Queries & Mutations
 export function useCustomerMonthlyFreight(month) {
-  return useQuery(
-    {
-      queryKey: ['customerMonthlyFreight', month],
-      queryFn: () => getCustomerMonthlyFreight(month),
-      enabled: Boolean(month),
-    }
-  );
+  return useQuery({
+    queryKey: ['customerMonthlyFreight', month],
+    queryFn: () => getCustomerMonthlyFreight(month),
+    enabled: Boolean(month),
+  });
 }
 export function useSubtripsExpiry() {
   return useQuery({ queryKey: ['subtripsExpiry'], queryFn: getSubtripsExpiry });
@@ -57,8 +56,6 @@ export function useSubtripMonthlyData() {
 export function useDashboardCounts() {
   return useQuery({ queryKey: ['counts'], queryFn: getCounts });
 }
-
-
 
 // ----------------------------------------------------------------------
 // Monthly expense summary
@@ -77,7 +74,6 @@ export function useMonthlyExpenseSummary(month) {
   });
 }
 
-
 // ----------------------------------------------------------------------
 // Subtrip status summary
 
@@ -88,6 +84,13 @@ const getSubtripStatusSummary = async () => {
 
 export function useSubtripStatusSummary() {
   return useQuery({ queryKey: ['subtripStatusSummary'], queryFn: getSubtripStatusSummary });
+}
+
+// ----------------------------------------------------------------------
+// Invoice status summary
+
+export function useInvoiceStatusSummary() {
+  return useQuery({ queryKey: ['invoiceStatusSummary'], queryFn: getInvoiceStatusSummary });
 }
 
 // ----------------------------------------------------------------------

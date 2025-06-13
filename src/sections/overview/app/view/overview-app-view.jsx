@@ -41,6 +41,7 @@ export function OverviewAppView({
   counts,
   subtripMonthlyData,
   subtripStatusSummary,
+  invoiceStatusSummary,
 }) {
   const { user } = useAuthContext();
 
@@ -140,11 +141,7 @@ export function OverviewAppView({
               title="Invoices"
               subheader="Invoice generated through the dashboard"
               chart={{
-                series: [
-                  { label: 'Pending', value: 100 },
-                  { label: 'Paid', value: 899 },
-                  { label: 'OverDue', value: 19 },
-                ],
+                series: invoiceStatusSummary?.series || [],
               }}
             />
           </Grid>
@@ -172,19 +169,19 @@ export function OverviewAppView({
               series: [
                 subtripMonthlyData
                   ? {
-                    name: String(subtripMonthlyData.year),
-                    data: [
-                      { name: 'Own', data: subtripMonthlyData.own },
-                      { name: 'Market', data: subtripMonthlyData.market },
-                    ],
-                  }
+                      name: String(subtripMonthlyData.year),
+                      data: [
+                        { name: 'Own', data: subtripMonthlyData.own },
+                        { name: 'Market', data: subtripMonthlyData.market },
+                      ],
+                    }
                   : {
-                    name: 'Year',
-                    data: [
-                      { name: 'Own', data: Array(12).fill(0) },
-                      { name: 'Market', data: Array(12).fill(0) },
-                    ],
-                  },
+                      name: 'Year',
+                      data: [
+                        { name: 'Own', data: Array(12).fill(0) },
+                        { name: 'Market', data: Array(12).fill(0) },
+                      ],
+                    },
               ],
             }}
           />
