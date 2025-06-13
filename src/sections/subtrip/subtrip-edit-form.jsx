@@ -62,7 +62,7 @@ const loadedSchema = inQueueSchema.extend({
   invoiceNo: z.string().max(100),
   shipmentNo: z.string().max(100).optional(),
   orderNo: z.string().max(100).optional(),
-  materialType: z.string().max(100).optional(),
+  materialType: z.string().max(100),
   grade: z.string().max(100).optional(),
   driverAdvance: z.number().min(0, 'Advance must be non-negative').optional(),
   driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']),

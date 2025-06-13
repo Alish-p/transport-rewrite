@@ -96,7 +96,7 @@ const LoadSubtripSchema = zod
     ewayExpiryDate: schemaHelper.date({
       message: { required_error: 'Eway Expiry date is required!' },
     }),
-    materialType: zod.string().optional(),
+    materialType: zod.string(),
     quantity: zod.number().optional(),
     grade: zod.string().optional(),
     tds: zod.number().optional(),
