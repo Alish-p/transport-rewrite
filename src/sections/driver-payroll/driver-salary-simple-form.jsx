@@ -15,6 +15,7 @@ import {
   Button,
   Divider,
   TableRow,
+  Checkbox,
   TableHead,
   TableBody,
   TableCell,
@@ -64,7 +65,9 @@ const SalarySchema = zod.object({
     .refine(
       (data) => {
         if (!data.start || !data.end) return true;
-        return dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start));
+        return (
+          dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start))
+        );
       },
       { message: 'End date must be after or equal to start date', path: ['end'] }
     ),
@@ -104,11 +107,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
     formState: { isSubmitting },
   } = methods;
 
-  const {
-    fields: subtripFields,
-    remove: removeSubtrip,
-    replace,
-  } = useFieldArray({ control, name: 'associatedSubtrips' });
+  const { replace } = useFieldArray({ control, name: 'associatedSubtrips' });
 
   const {
     fields: additionalFields,
@@ -123,8 +122,12 @@ export default function DriverSalarySimpleForm({ driverList }) {
     [driverList, driverId]
   );
 
-  const { data: fetchedSubtrips, isSuccess, isLoading, refetch } =
-    useTripsCompletedByDriverAndDate(driverId, billingPeriod?.start, billingPeriod?.end);
+  const {
+    data: fetchedSubtrips,
+    isSuccess,
+    isLoading,
+    refetch,
+  } = useTripsCompletedByDriverAndDate(driverId, billingPeriod?.start, billingPeriod?.end);
 
   const createSalary = useCreateDriverPayroll();
   const navigate = useNavigate();
@@ -137,12 +140,13 @@ export default function DriverSalarySimpleForm({ driverList }) {
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
-      replace(fetchedSubtrips);
+      const withSelection = fetchedSubtrips.map((st) => ({ ...st, selected: false }));
+      replace(withSelection);
     }
   }, [isSuccess, fetchedSubtrips, replace]);
 
-  const handleRemove = (index) => {
-    removeSubtrip(index);
+  const handleToggleSelect = (index, value) => {
+    setValue(`associatedSubtrips.${index}.selected`, value);
   };
 
   const handleAddCharge = () => {
@@ -163,7 +167,13 @@ export default function DriverSalarySimpleForm({ driverList }) {
   };
 
   const onSubmit = async (data) => {
-    const { driverId: did, billingPeriod: period, associatedSubtrips: subtripData, additionalCharges: charges } = data;
+    const {
+      driverId: did,
+      billingPeriod: period,
+      associatedSubtrips: subtripData,
+      additionalCharges: charges,
+    } = data;
+    const selected = subtripData.filter((st) => st.selected);
     try {
       const payments = charges
         .filter((c) => Number(c.amount) > 0)
@@ -174,7 +184,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
       const payroll = await createSalary({
         driverId: did,
         billingPeriod: period,
-        associatedSubtrips: subtripData.map((st) => st._id),
+        associatedSubtrips: selected.map((st) => st._id),
         additionalPayments: payments,
         additionalDeductions: deductions,
       });
@@ -184,11 +194,17 @@ export default function DriverSalarySimpleForm({ driverList }) {
     }
   };
 
+  const selectedSubtrips = associatedSubtrips.filter((st) => st.selected);
+
   const summary = calculateDriverSalarySummary(
-    { associatedSubtrips },
+    { associatedSubtrips: selectedSubtrips },
     selectedDriver,
-    additionalCharges.filter((c) => Number(c.amount) > 0).map((c) => ({ label: c.label, amount: Number(c.amount) })),
-    additionalCharges.filter((c) => Number(c.amount) < 0).map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) }))
+    additionalCharges
+      .filter((c) => Number(c.amount) > 0)
+      .map((c) => ({ label: c.label, amount: Number(c.amount) })),
+    additionalCharges
+      .filter((c) => Number(c.amount) < 0)
+      .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) }))
   );
 
   const { totalTripWiseIncome, netIncome } = summary;
@@ -203,7 +219,12 @@ export default function DriverSalarySimpleForm({ driverList }) {
           gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
           sx={{ mb: 3 }}
         >
-          <Box component="img" alt="logo" src="/logo/company-logo-main.png" sx={{ width: 60, height: 60 }} />
+          <Box
+            component="img"
+            alt="logo"
+            src="/logo/company-logo-main.png"
+            sx={{ width: 60, height: 60 }}
+          />
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
             <Label variant="soft" color="warning">
               Draft
@@ -237,7 +258,10 @@ export default function DriverSalarySimpleForm({ driverList }) {
                 To:
               </Typography>
               <IconButton onClick={driverDialog.onTrue}>
-                <Iconify icon={selectedDriver ? 'solar:pen-bold' : 'mingcute:add-line'} color='green' />
+                <Iconify
+                  icon={selectedDriver ? 'solar:pen-bold' : 'mingcute:add-line'}
+                  color="green"
+                />
               </IconButton>
             </Stack>
             {selectedDriver ? (
@@ -265,7 +289,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
                 Billing Period:
               </Typography>
               <IconButton onClick={dateDialog.onTrue}>
-                <Iconify icon="mingcute:calendar-line" color='green' />
+                <Iconify icon="mingcute:calendar-line" color="green" />
               </IconButton>
             </Stack>
             {billingPeriod?.start && billingPeriod?.end ? (
@@ -285,13 +309,9 @@ export default function DriverSalarySimpleForm({ driverList }) {
                 Issue Date:
               </Typography>
             </Stack>
-            <Typography variant="body2">
-              {fDate(new Date())}
-            </Typography>
+            <Typography variant="body2">{fDate(new Date())}</Typography>
           </Stack>
         </Stack>
-
-
 
         <KanbanDriverDialog
           open={driverDialog.value}
@@ -301,7 +321,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
         />
 
         <CustomDateRangePicker
-          variant='calendar'
+          variant="calendar"
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={billingPeriod?.start}
@@ -314,17 +334,18 @@ export default function DriverSalarySimpleForm({ driverList }) {
           <Table sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow>
-                {['#', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary'].map((h) => (
-                  <StyledTableCell key={h}>{h}</StyledTableCell>
-                ))}
-                <StyledTableCell />
+                {['#', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary', 'Select'].map(
+                  (h) => (
+                    <StyledTableCell key={h}>{h}</StyledTableCell>
+                  )
+                )}
               </TableRow>
             </TableHead>
             {isLoading ? (
               <TableSkeleton />
             ) : (
               <TableBody>
-                {subtripFields.map((st, idx) => {
+                {associatedSubtrips.map((st, idx) => {
                   const tripSalary = calculateDriverSalary(st);
                   return (
                     <TableRow key={st._id}>
@@ -335,9 +356,10 @@ export default function DriverSalarySimpleForm({ driverList }) {
                       <TableCell>{st.unloadingPoint}</TableCell>
                       <TableCell align="right">{fCurrency(tripSalary)}</TableCell>
                       <TableCell width={40}>
-                        <IconButton color="error" onClick={() => handleRemove(idx)}>
-                          <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                        </IconButton>
+                        <Checkbox
+                          checked={st.selected || false}
+                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
+                        />
                       </TableCell>
                     </TableRow>
                   );

@@ -15,6 +15,7 @@ import {
   Button,
   Divider,
   TableRow,
+  Checkbox,
   TableHead,
   TableBody,
   TableCell,
@@ -64,7 +65,9 @@ const PaymentSchema = zod.object({
     .refine(
       (data) => {
         if (!data.start || !data.end) return true;
-        return dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start));
+        return (
+          dayjs(data.end).isAfter(dayjs(data.start)) || dayjs(data.end).isSame(dayjs(data.start))
+        );
       },
       { message: 'End date must be after or equal to start date', path: ['end'] }
     ),
@@ -105,11 +108,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     formState: { isSubmitting },
   } = methods;
 
-  const {
-    fields: subtripFields,
-    remove: removeSubtrip,
-    replace,
-  } = useFieldArray({ control, name: 'subtrips' });
+  const { replace } = useFieldArray({ control, name: 'subtrips' });
 
   const {
     fields: additionalFields,
@@ -124,12 +123,16 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     [transporterList, transporterId]
   );
 
-  const { data: fetchedSubtrips, isSuccess, isLoading, refetch } =
-    useFetchSubtripsForTransporterBilling(
-      transporterId,
-      billingPeriod?.start,
-      billingPeriod?.end
-    );
+  const {
+    data: fetchedSubtrips,
+    isSuccess,
+    isLoading,
+    refetch,
+  } = useFetchSubtripsForTransporterBilling(
+    transporterId,
+    billingPeriod?.start,
+    billingPeriod?.end
+  );
 
   const createPayment = useCreateTransporterPayment();
   const navigate = useNavigate();
@@ -142,12 +145,13 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
-      replace(fetchedSubtrips);
+      const withSelection = fetchedSubtrips.map((st) => ({ ...st, selected: false }));
+      replace(withSelection);
     }
   }, [isSuccess, fetchedSubtrips, replace]);
 
-  const handleRemove = (index) => {
-    removeSubtrip(index);
+  const handleToggleSelect = (index, value) => {
+    setValue(`subtrips.${index}.selected`, value);
   };
 
   const handleAddCharge = () => {
@@ -174,15 +178,16 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
       subtrips: subtripData,
       additionalCharges: addCharges,
     } = data;
+    const selected = subtripData.filter((st) => st.selected);
     try {
       const payment = await createPayment({
         transporterId: tid,
         billingPeriod: period,
-        associatedSubtrips: subtripData.map((st) => st._id),
+        associatedSubtrips: selected.map((st) => st._id),
         additionalCharges: [
           {
             label: 'POD Charges',
-            amount: subtripData.length * (selectedTransporter?.podCharges || 0) * -1, // pod charges will be negative
+            amount: selected.length * (selectedTransporter?.podCharges || 0) * -1,
           },
           ...addCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
         ],
@@ -193,19 +198,22 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     }
   };
 
-  const podCharge = subtrips.length * (selectedTransporter?.podCharges || 0);
+  const selectedSubtrips = subtrips.filter((st) => st.selected);
+  const podCharge = selectedSubtrips.length * (selectedTransporter?.podCharges || 0);
 
-  const summary = calculateTransporterPaymentSummary(
-    subtrips,
-    selectedTransporter,
-    [
-      { label: 'POD Charges', amount: -podCharge },
-      ...additionalCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
-    ]
-  );
+  const summary = calculateTransporterPaymentSummary(selectedSubtrips, selectedTransporter, [
+    { label: 'POD Charges', amount: -podCharge },
+    ...additionalCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
+  ]);
 
-  const { taxBreakup, totalFreightAmount, totalExpense, totalShortageAmount, totalTripWiseIncome, netIncome } =
-    summary;
+  const {
+    taxBreakup,
+    totalFreightAmount,
+    totalExpense,
+    totalShortageAmount,
+    totalTripWiseIncome,
+    netIncome,
+  } = summary;
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -217,7 +225,12 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
           gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
           sx={{ mb: 3 }}
         >
-          <Box component="img" alt="logo" src="/logo/company-logo-main.png" sx={{ width: 60, height: 60 }} />
+          <Box
+            component="img"
+            alt="logo"
+            src="/logo/company-logo-main.png"
+            sx={{ width: 60, height: 60 }}
+          />
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
             <Label variant="soft" color="warning">
               Draft
@@ -249,7 +262,10 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                 To:
               </Typography>
               <IconButton onClick={transporterDialog.onTrue}>
-                <Iconify icon={selectedTransporter ? 'solar:pen-bold' : 'mingcute:add-line'} color="green" />
+                <Iconify
+                  icon={selectedTransporter ? 'solar:pen-bold' : 'mingcute:add-line'}
+                  color="green"
+                />
               </IconButton>
             </Stack>
             {selectedTransporter ? (
@@ -278,7 +294,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                 Billing Period:
               </Typography>
               <IconButton onClick={dateDialog.onTrue}>
-                <Iconify icon="mingcute:calendar-line" color='green' />
+                <Iconify icon="mingcute:calendar-line" color="green" />
               </IconButton>
             </Stack>
             {billingPeriod?.start && billingPeriod?.end ? (
@@ -310,7 +326,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
         />
 
         <CustomDateRangePicker
-          variant='calendar'
+          variant="calendar"
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={billingPeriod?.start}
@@ -338,17 +354,19 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                   'FRT-AMT',
                   'Expense',
                   'Total Payable',
+                  'Select',
                 ].map((h, idx) => (
-                  <StyledTableCell key={h} align={idx < 7 ? 'center' : 'right'}>{h}</StyledTableCell>
+                  <StyledTableCell key={h} align={idx < 7 ? 'center' : 'right'}>
+                    {h}
+                  </StyledTableCell>
                 ))}
-                <StyledTableCell />
               </TableRow>
             </TableHead>
             {isLoading ? (
               <TableSkeleton />
             ) : (
               <TableBody>
-                {subtripFields.map((st, idx) => {
+                {subtrips.map((st, idx) => {
                   const {
                     effectiveFreightRate,
                     totalFreightAmount: freightAmount,
@@ -374,9 +392,10 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                       <TableCell align="right">{fCurrency(expense)}</TableCell>
                       <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
                       <TableCell width={40}>
-                        <IconButton color="error" onClick={() => handleRemove(idx)}>
-                          <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                        </IconButton>
+                        <Checkbox
+                          checked={st.selected || false}
+                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
+                        />
                       </TableCell>
                     </TableRow>
                   );
@@ -450,7 +469,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
                         sx={{ width: 150 }}
                       />
                     </TableCell>
-                    <TableCell align='right'>
+                    <TableCell align="right">
                       <Field.Text
                         size="small"
                         name={`additionalCharges[${idx}].amount`}
