@@ -17,7 +17,7 @@ export const TABLE_COLUMNS = [
     label: 'LR No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?.subtripId?._id || '-',
+    getter: (row) => row?.subtripId || '-',
     align: 'center',
     render: (value) => (
       <RouterLink
@@ -32,37 +32,11 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
-    id: 'tripId',
-    label: 'Trip No',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row?.tripId?._id || '-',
-    render: (value) => (
-      <RouterLink
-        to={`${paths.dashboard.trip.details(value)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
-      >
-        <ListItemText
-          primary={value}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
-    ),
-  },
-  {
     id: 'vehicleNo',
     label: 'Vehicle No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row.vehicleId?.vehicleNo || '-',
-    align: 'center',
-  },
-  {
-    id: 'driver',
-    label: 'Driver',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row?.tripId?.driverId?.driverName || '-',
+    getter: (row) => row?.vehicleNo || '-',
     align: 'center',
   },
 
@@ -83,39 +57,6 @@ export const TABLE_COLUMNS = [
         </Typography>
       </Stack>
     ),
-  },
-  {
-    id: 'amount',
-    label: 'Amount',
-    defaultVisible: true,
-    type: 'number',
-    disabled: true,
-    getter: (row) => (row?.amount ? fCurrency(row?.amount) : '-'),
-    align: 'center',
-  },
-  {
-    id: 'remarks',
-    label: 'Remarks',
-    defaultVisible: true,
-    disabled: false,
-    align: 'center',
-    getter: (row) => row?.remarks || '-',
-  },
-  {
-    id: 'dieselLtr',
-    label: 'Diesel (Ltr)',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row?.dieselLtr || '-',
-    align: 'center',
-  },
-  {
-    id: 'paidThrough',
-    label: 'Paid Through',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row?.paidThrough || '-',
-    align: 'center',
   },
   {
     id: 'date',
@@ -139,6 +80,40 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'amount',
+    label: 'Amount',
+    defaultVisible: true,
+    type: 'number',
+    disabled: true,
+    getter: (row) => (row?.amount ? fCurrency(row?.amount) : '-'),
+    align: 'right',
+  },
+  {
+    id: 'remarks',
+    label: 'Remarks',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row?.remarks || '-',
+  },
+  {
+    id: 'dieselLtr',
+    label: 'Diesel (Ltr)',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.dieselLtr || '-',
+    align: 'center',
+  },
+  {
+    id: 'paidThrough',
+    label: 'Paid Through',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.paidThrough || '-',
+    align: 'center',
+  },
+
+  {
     id: 'expenseCategory',
     label: 'Expense Category',
     defaultVisible: false,
@@ -158,6 +133,22 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row?.pumpCd?.pumpName || '-',
+  },
+  {
+    id: 'slipNo',
+    label: 'Slip No',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row?.slipNo || '-',
+  },
+  {
+    id: 'authorisedBy',
+    label: 'Authorised By',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row?.authorisedBy || '-',
   },
 ];
 

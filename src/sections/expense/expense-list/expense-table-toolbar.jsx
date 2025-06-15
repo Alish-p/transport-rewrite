@@ -25,6 +25,8 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { TABLE_COLUMNS } from '../config/table-columns';
+
 // ----------------------------------------------------------------------
 
 export default function ExpenseTableToolbar({
@@ -223,22 +225,16 @@ export default function ExpenseTableToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
+          {TABLE_COLUMNS.map((column) => (
             <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
+              key={column.id}
+              onClick={() => !disabledColumns[column.id] && onToggleColumn(column.id)}
+              disabled={disabledColumns[column.id]}
+              sx={disabledColumns[column.id] ? { opacity: 0.7 } : {}}
             >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
+              <Checkbox checked={visibleColumns[column.id]} disabled={disabledColumns[column.id]} />
               <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
+                primary={column.label}
               />
             </MenuItem>
           ))}
@@ -254,7 +250,12 @@ export default function ExpenseTableToolbar({
         <MenuList>
           <MenuItem>
             <PDFDownloadLink
-              document={<ExpenseListPdf expenses={tableData} />}
+              document={
+                <ExpenseListPdf
+                  expenses={tableData}
+                  visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                />
+              }
               fileName="Expense-list.pdf"
               style={{
                 textDecoration: 'none',

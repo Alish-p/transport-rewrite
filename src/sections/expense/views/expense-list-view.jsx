@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -42,8 +42,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { TABLE_COLUMNS } from '../config/table-columns';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
+import { useVisibleColumns } from '../hooks/use-visible-columns';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
 import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense-config';
 import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
@@ -51,17 +53,12 @@ import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-res
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Vehicle', type: 'string' },
-  { id: 'subtripId', label: 'Subtrip', type: 'string' },
-  { id: 'date', label: 'Date', type: 'date' },
-  { id: 'expenseType', label: 'Expense Type', type: 'string' },
-  { id: 'amount', label: 'Amount', type: 'number', align: 'right' },
-  { id: 'slipNo', label: 'Slip No', type: 'string' },
-  { id: 'pumpCd', label: 'Pump Code', type: 'string' },
-  { id: 'remarks', label: 'Remarks', type: 'string' },
-  { id: 'dieselLtr', label: 'Diesel (Ltr)', type: 'number' },
-  { id: 'paidThrough', label: 'Paid Through', type: 'string' },
-  { id: 'authorisedBy', label: 'Authorised By', type: 'string' },
+  ...TABLE_COLUMNS.map(({ id, label, type, align }) => ({
+    id,
+    label,
+    type,
+    align,
+  })),
   { id: '' },
 ];
 
@@ -89,38 +86,8 @@ export function ExpenseListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    subtripId: true,
-    date: true,
-    expenseType: true,
-    amount: true,
-    slipNo: false,
-    pumpCd: false,
-    remarks: false,
-    dieselLtr: false,
-    paidThrough: false,
-    authorisedBy: false,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      vehicleNo: true,
-      subtripId: false,
-      date: false,
-      expenseType: false,
-      amount: false,
-      slipNo: false,
-      pumpCd: false,
-      remarks: false,
-      dieselLtr: false,
-      paidThrough: false,
-      authorisedBy: false,
-    }),
-    []
-  );
+  // Column visibility state handled via custom hook
+  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
@@ -223,15 +190,9 @@ export function ExpenseListView() {
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumn(columnName);
     },
-    [disabledColumns]
+    [toggleColumn]
   );
 
   // Filter the table head based on visible columns
