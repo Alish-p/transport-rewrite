@@ -71,6 +71,8 @@ const TABLE_HEAD = [
 const defaultFilters = {
   vehicleNo: '',
   pump: '',
+  transporter: '',
+  tripId: '',
   expenseCategory: 'all',
   expenseType: 'all',
   fromDate: null,
@@ -128,6 +130,8 @@ export function ExpenseListView() {
   const { data, isLoading } = usePaginatedExpenses({
     vehicleNo: filters.vehicleNo || undefined,
     pump: filters.pump || undefined,
+    transporter: filters.transporter || undefined,
+    tripId: filters.tripId || undefined,
     expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
     expenseType: filters.expenseType !== 'all' ? filters.expenseType : undefined,
     startDate: filters.fromDate || undefined,
@@ -159,6 +163,8 @@ export function ExpenseListView() {
   const canReset =
     !!filters.vehicleNo ||
     !!filters.pump ||
+    !!filters.transporter ||
+    !!filters.tripId ||
     filters.expenseType !== 'all' ||
     (!!filters.fromDate && !!filters.endDate);
 
@@ -437,14 +443,14 @@ export function ExpenseListView() {
                 }
               />
               <TableBody>
-                {isLoading ? (<>
-                  <TableSkeleton />
-                  <TableSkeleton />
-                  <TableSkeleton />
-                  <TableSkeleton />
-                  <TableSkeleton />
-                </>
-
+                {isLoading ? (
+                  <>
+                    <TableSkeleton />
+                    <TableSkeleton />
+                    <TableSkeleton />
+                    <TableSkeleton />
+                    <TableSkeleton />
+                  </>
                 ) : (
                   <>
                     {dataFiltered.map((row) => (
@@ -493,7 +499,8 @@ export function ExpenseListView() {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, pump, expenseCategory, expenseType, fromDate, endDate } = filters;
+  const { vehicleNo, pump, transporter, tripId, expenseCategory, expenseType, fromDate, endDate } =
+    filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -520,6 +527,28 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
         record.pumpCd &&
         record.pumpCd.pumpName &&
         record.pumpCd.pumpName.toLowerCase().indexOf(pump.toLowerCase()) !== -1
+    );
+  }
+
+  if (transporter) {
+    inputData = inputData.filter(
+      (record) =>
+        record.tripId &&
+        record.tripId.vehicleId &&
+        record.tripId.vehicleId.transporter &&
+        record.tripId.vehicleId.transporter.transportName &&
+        record.tripId.vehicleId.transporter.transportName
+          .toLowerCase()
+          .indexOf(transporter.toLowerCase()) !== -1
+    );
+  }
+
+  if (tripId) {
+    inputData = inputData.filter(
+      (record) =>
+        record.tripId &&
+        record.tripId._id &&
+        record.tripId._id.toLowerCase().indexOf(tripId.toLowerCase()) !== -1
     );
   }
 

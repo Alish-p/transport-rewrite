@@ -56,6 +56,20 @@ export default function ExpenseTableToolbar({
     [onFilters]
   );
 
+  const handleFilterTransporter = useCallback(
+    (event) => {
+      onFilters('transporter', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterTripId = useCallback(
+    (event) => {
+      onFilters('tripId', event.target.value);
+    },
+    [onFilters]
+  );
+
   const handleFilterFromDate = useCallback(
     (newValue) => {
       onFilters('fromDate', newValue);
@@ -84,8 +98,6 @@ export default function ExpenseTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-
-
         <TextField
           fullWidth
           value={filters.vehicleNo}
@@ -108,6 +120,40 @@ export default function ExpenseTableToolbar({
           value={filters.pump}
           onChange={handleFilterPumpName}
           placeholder="Search Pump ..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            maxWidth: { md: 250 },
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.transporter}
+          onChange={handleFilterTransporter}
+          placeholder="Search Transporter"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            maxWidth: { md: 250 },
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.tripId}
+          onChange={handleFilterTripId}
+          placeholder="Search Trip ID"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

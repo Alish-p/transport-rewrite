@@ -28,6 +28,14 @@ export default function DriverTableFiltersResult({
     onFilters('pump', '');
   };
 
+  const handleRemoveTransporter = () => {
+    onFilters('transporter', '');
+  };
+
+  const handleRemoveTripId = () => {
+    onFilters('tripId', '');
+  };
+
   const handleRemoveVehicleNo = () => {
     onFilters('vehicleNo', '');
   };
@@ -58,6 +66,18 @@ export default function DriverTableFiltersResult({
         {filters.pump && (
           <Block label="Pump">
             <Chip size="small" label={filters.pump} onDelete={handleRemovePump} />
+          </Block>
+        )}
+
+        {filters.transporter && (
+          <Block label="Transporter">
+            <Chip size="small" label={filters.transporter} onDelete={handleRemoveTransporter} />
+          </Block>
+        )}
+
+        {filters.tripId && (
+          <Block label="Trip ID">
+            <Chip size="small" label={filters.tripId} onDelete={handleRemoveTripId} />
           </Block>
         )}
 
