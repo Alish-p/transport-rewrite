@@ -27,7 +27,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteExpense } from 'src/query/use-expense';
+import { useDeleteExpense, usePaginatedExpenses } from 'src/query/use-expense';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -78,7 +78,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function ExpenseListView({ expenses }) {
+export function ExpenseListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc' });
@@ -124,13 +124,27 @@ export function ExpenseListView({ expenses }) {
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
-  useEffect(() => {
-    if (expenses.length) {
-      setTableData(expenses);
-    }
-  }, [expenses]);
+  const { data, isLoading } = usePaginatedExpenses({
+    vehicleNo: filters.vehicleNo || undefined,
+    pump: filters.pump || undefined,
+    expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
+    expenseType: filters.expenseType !== 'all' ? filters.expenseType : undefined,
+    startDate: filters.fromDate || undefined,
+    endDate: filters.endDate || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
   const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    if (data?.expenses) {
+      setTableData(data.expenses);
+    }
+  }, [data]);
+
+  const totalCount = data?.totalCount || 0;
+  const categoryCounts = data?.categoryCounts || {};
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -147,7 +161,7 @@ export function ExpenseListView({ expenses }) {
     filters.expenseType !== 'all' ||
     (!!filters.fromDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const getExpenseLength = (expenseType) =>
     tableData.filter((item) => item.expenseType === expenseType).length;
@@ -168,18 +182,18 @@ export function ExpenseListView({ expenses }) {
     sumBy(getExpensesByCategory(category), 'totalAmount');
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     {
       value: 'subtrip',
       label: 'Subtrip Expenses',
       color: 'primary',
-      count: tableData.filter((item) => item.expenseCategory === 'subtrip').length,
+      count: categoryCounts.subtrip || 0,
     },
     {
       value: 'vehicle',
       label: 'Vehicle Expenses',
       color: 'secondary',
-      count: tableData.filter((item) => item.expenseCategory === 'vehicle').length,
+      count: categoryCounts.vehicle || 0,
     },
   ];
 
@@ -367,7 +381,7 @@ export function ExpenseListView({ expenses }) {
           <TableSelectedAction
             dense={table.dense}
             numSelected={table.selected.length}
-            rowCount={dataFiltered.length}
+            rowCount={tableData.length}
             onSelectAllRows={(checked) =>
               table.onSelectAllRows(
                 checked,
@@ -411,39 +425,34 @@ export function ExpenseListView({ expenses }) {
                 order={table.order}
                 orderBy={table.orderBy}
                 headLabel={visibleTableHead}
-                rowCount={dataFiltered.length}
+                rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    dataFiltered.map((row) => row._id)
+                    tableData.map((row) => row._id)
                   )
                 }
               />
               <TableBody>
-                {dataFiltered
-                  .slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                  .map((row) => (
-                    <ExpenseTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteExpense(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                {dataFiltered.map((row) => (
+                  <ExpenseTableRow
+                    key={row._id}
+                    row={row}
+                    selected={table.selected.includes(row._id)}
+                    onSelectRow={() => table.onSelectRow(row._id)}
+                    onViewRow={() => handleViewRow(row._id)}
+                    onEditRow={() => handleEditRow(row._id)}
+                    onDeleteRow={() => deleteExpense(row._id)}
+                    visibleColumns={visibleColumns}
+                    disabledColumns={disabledColumns}
+                  />
+                ))}
 
                 <TableEmptyRows
                   height={denseHeight}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
                 />
 
                 <TableNoData notFound={notFound} />
@@ -453,7 +462,7 @@ export function ExpenseListView({ expenses }) {
         </TableContainer>
 
         <TablePaginationCustom
-          count={dataFiltered.length}
+          count={totalCount}
           page={table.page}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}

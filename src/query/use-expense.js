@@ -22,6 +22,11 @@ const getPastFilteredExpenses = async (params) => {
   return data;
 };
 
+const getPaginatedExpenses = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  return data;
+};
+
 const getExpense = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -52,6 +57,16 @@ export function useFilteredExpenses(params) {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPastFilteredExpenses(params),
     enabled: !!params,
+  });
+}
+
+export function usePaginatedExpenses(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedExpenses(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 
