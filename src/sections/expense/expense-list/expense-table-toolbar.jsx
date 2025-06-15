@@ -16,10 +16,10 @@ import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
+
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import ExpenseListPdf from '../../../pdfs/expense-list-pdf';
 
 // ----------------------------------------------------------------------
 
