@@ -35,11 +35,9 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
   getComparator,
   TableSkeleton,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -58,7 +56,7 @@ const TABLE_HEAD = [
   { id: 'subtripId', label: 'Subtrip', type: 'string' },
   { id: 'date', label: 'Date', type: 'date' },
   { id: 'expenseType', label: 'Expense Type', type: 'string' },
-  { id: 'amount', label: 'Amount', type: 'number' },
+  { id: 'amount', label: 'Amount', type: 'number', align: 'right' },
   { id: 'slipNo', label: 'Slip No', type: 'string' },
   { id: 'pumpCd', label: 'Pump Code', type: 'string' },
   { id: 'remarks', label: 'Remarks', type: 'string' },
@@ -84,7 +82,7 @@ const defaultFilters = {
 export function ExpenseListView() {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc' });
+  const table = useTable({});
   const confirm = useBoolean();
 
   const navigate = useNavigate();
@@ -101,10 +99,10 @@ export function ExpenseListView() {
     amount: true,
     slipNo: false,
     pumpCd: false,
-    remarks: true,
+    remarks: false,
     dieselLtr: false,
-    paidThrough: true,
-    authorisedBy: true,
+    paidThrough: false,
+    authorisedBy: false,
   });
 
   // Define which columns should be disabled (always visible)
@@ -427,14 +425,11 @@ export function ExpenseListView() {
           />
 
           <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }} stickyHeader>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }} >
               <TableHeadCustom
-                order={table.order}
-                orderBy={table.orderBy}
                 headLabel={visibleTableHead}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -466,11 +461,6 @@ export function ExpenseListView() {
                         disabledColumns={disabledColumns}
                       />
                     ))}
-
-                    <TableEmptyRows
-                      height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
-                    />
 
                     <TableNoData notFound={notFound} />
                   </>

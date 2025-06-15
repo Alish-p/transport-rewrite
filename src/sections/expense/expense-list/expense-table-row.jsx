@@ -18,14 +18,13 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { fCurrency } from '../../../utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -62,9 +61,8 @@ export default function ExpenseTableRow({
   },
 }) {
   const {
-    tripId,
     subtripId,
-    vehicleId,
+    vehicleNo,
     date,
     expenseType,
     expenseCategory,
@@ -77,10 +75,6 @@ export default function ExpenseTableRow({
     authorisedBy,
   } = row;
 
-  // if expensecateory is vehicle then vehicleNo is vehicleId.vehicleNo
-  // if expensecateory is trip then vehicleNo is tripId.vehicleId.vehicleNo
-  const vehicleNo = vehicleId?.vehicleNo;
-  // expenseCategory === 'vehicle' ? vehicleId?.vehicleNo : tripId?.vehicleId?.vehicleNo;
 
   const navigate = useNavigate();
 
@@ -109,10 +103,10 @@ export default function ExpenseTableRow({
             <Link
               noWrap
               variant="body2"
-              onClick={() => navigate(paths.dashboard.subtrip.details(subtripId?._id))}
+              onClick={() => navigate(paths.dashboard.subtrip.details(subtripId))}
               sx={{ color: 'text.success', cursor: 'pointer' }}
             >
-              {subtripId?._id || '-'}
+              {subtripId || '-'}
             </Link>
           </TableCell>
         )}
@@ -134,14 +128,14 @@ export default function ExpenseTableRow({
 
         {(visibleColumns.expenseType || disabledColumns.expenseType) && (
           <TableCell>
-            <Label variant="soft" color={expenseType >= 20 ? 'success' : 'error'}>
+            <Label variant="soft" >
               {expenseType}
             </Label>
           </TableCell>
         )}
 
         {(visibleColumns.amount || disabledColumns.amount) && (
-          <TableCell>
+          <TableCell align="right">
             <ListItemText
               primary={fCurrency(amount)}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
@@ -161,7 +155,7 @@ export default function ExpenseTableRow({
         {(visibleColumns.pumpCd || disabledColumns.pumpCd) && (
           <TableCell>
             <ListItemText
-              primary={pumpCd?.pumpName || '-'}
+              primary={pumpCd || '-'}
               primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             />
           </TableCell>
