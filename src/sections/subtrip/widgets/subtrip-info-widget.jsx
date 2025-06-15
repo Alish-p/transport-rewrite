@@ -25,19 +25,24 @@ export default function LRInfoCard({ subtrip }) {
     materialType,
     quantity,
     grade,
-    tripId: { _id },
+    tripId: { _id } = {},
     startDate,
     endDate,
     rate = '-',
+    commissionRate = '-',
     subtripStatus = '-',
     loadingWeight = '-',
     unloadingWeight = '-',
+    shortageWeight = '-',
+    shortageAmount = '-',
     startKm = '-',
     endKm = '-',
     tds = '-',
     invoiceNo = '-',
     orderNo = '-',
     shipmentNo = '-',
+    diNumber = '-',
+    consignee = '-',
   } = subtrip;
 
   const routeName = routeCd?.routeName || '-';
@@ -87,6 +92,36 @@ export default function LRInfoCard({ subtrip }) {
               Trip No:{' '}
               <Box component="span" sx={{ color: 'text.secondary' }}>
                 {_id}
+              </Box>
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:calendar-start" width={20} />
+            <Typography>
+              Start:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {fDate(startDate)}
+              </Box>
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:calendar-end" width={20} />
+            <Typography>
+              End:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {endDate ? fDate(endDate) : '-'}
+              </Box>
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:account-tie" width={20} />
+            <Typography>
+              Consignee:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {consignee}
               </Box>
             </Typography>
           </Stack>
@@ -196,6 +231,17 @@ export default function LRInfoCard({ subtrip }) {
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:cash-check" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Commission Rate
+          </Box>
+          <Typography>
+            {commissionRate}
+            {commissionRate !== '-' && <span>&nbsp;₹</span>}
+          </Typography>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:percent" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             TDS
@@ -205,7 +251,21 @@ export default function LRInfoCard({ subtrip }) {
             {tds !== '-' && <span>&nbsp;%</span>}
           </Typography>
         </Stack>
+      </Stack>
+    </>
+  );
 
+  const renderDocs = (
+    <>
+      <CardHeader
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:file-document" width={24} />
+            <Typography variant="h6">Documents</Typography>
+          </Stack>
+        }
+      />
+      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:truck-delivery" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
@@ -215,11 +275,27 @@ export default function LRInfoCard({ subtrip }) {
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:file-document" width={20} />
+          <Iconify icon="mdi:file-document-outline" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Invoice
           </Box>
           <Typography>{invoiceNo}</Typography>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:numeric" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Order No
+          </Box>
+          <Typography>{orderNo}</Typography>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:ticket" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            DI No
+          </Box>
+          <Typography>{diNumber}</Typography>
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
@@ -267,6 +343,22 @@ export default function LRInfoCard({ subtrip }) {
           </Box>
           <Typography>{unloadingWeight}</Typography>
         </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:scale-unbalanced" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Shortage Weight
+          </Box>
+          <Typography>{shortageWeight}</Typography>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:currency-inr" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Shortage Amount
+          </Box>
+          <Typography>{shortageAmount}</Typography>
+        </Stack>
       </Stack>
     </>
   );
@@ -282,6 +374,10 @@ export default function LRInfoCard({ subtrip }) {
       <Divider sx={{ borderStyle: 'dashed' }} />
 
       {renderMaterial}
+
+      <Divider sx={{ borderStyle: 'dashed' }} />
+
+      {renderDocs}
 
       <Divider sx={{ borderStyle: 'dashed' }} />
 
