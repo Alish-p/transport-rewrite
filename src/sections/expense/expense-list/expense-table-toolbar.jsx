@@ -84,11 +84,13 @@ export default function ExpenseTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
+
+
         <TextField
           fullWidth
-          value={filters.pump}
-          onChange={handleFilterPumpName}
-          placeholder="Search Pump ..."
+          value={filters.vehicleNo}
+          onChange={handleFilterVehicle}
+          placeholder="Search vehicle..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -103,9 +105,9 @@ export default function ExpenseTableToolbar({
 
         <TextField
           fullWidth
-          value={filters.vehicleNo}
-          onChange={handleFilterVehicle}
-          placeholder="Search vehicle..."
+          value={filters.pump}
+          onChange={handleFilterPumpName}
+          placeholder="Search Pump ..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -150,19 +152,11 @@ export default function ExpenseTableToolbar({
         >
           <MenuItem value="">None</MenuItem>
 
-          {filters.expenseCategory === 'subtrip' &&
-            subtripExpenseTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-
-          {filters.expenseCategory === 'vehicle' &&
-            vehicleExpenseTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
+          {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
         </TextField>
 
         <Tooltip title="Column Settings">

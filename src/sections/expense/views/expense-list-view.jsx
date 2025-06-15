@@ -373,7 +373,7 @@ export function ExpenseListView() {
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
-            results={dataFiltered.length}
+            results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
         )}
