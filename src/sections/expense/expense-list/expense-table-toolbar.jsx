@@ -7,19 +7,23 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 // @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // components
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { exportToExcel } from 'src/utils/export-to-excel';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +39,8 @@ export default function ExpenseTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const dateDialog = useBoolean();
+  const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
 
   const handleFilterPumpName = useCallback(
     (event) => {
@@ -112,24 +118,25 @@ export default function ExpenseTableToolbar({
           }}
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 200 },
-          }}
+        <DialogSelectButton
+          sx={{ maxWidth: { md: 200 } }}
+          placeholder="Date Range"
+          selected={
+            filters.fromDate && filters.endDate
+              ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
+              : 'Date Range'
+          }
+          onClick={dateDialog.onTrue}
+          iconName="mdi:calendar"
         />
-
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 200 },
-          }}
+        <CustomDateRangePicker
+          variant="calendar"
+          open={dateDialog.value}
+          onClose={dateDialog.onFalse}
+          startDate={filters.fromDate}
+          endDate={filters.endDate}
+          onChangeStartDate={handleFilterFromDate}
+          onChangeEndDate={handleFilterEndDate}
         />
 
         <TextField
