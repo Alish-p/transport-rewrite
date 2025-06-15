@@ -38,6 +38,7 @@ import {
   emptyRows,
   TableNoData,
   getComparator,
+  TableSkeleton,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -436,26 +437,38 @@ export function ExpenseListView() {
                 }
               />
               <TableBody>
-                {dataFiltered.map((row) => (
-                  <ExpenseTableRow
-                    key={row._id}
-                    row={row}
-                    selected={table.selected.includes(row._id)}
-                    onSelectRow={() => table.onSelectRow(row._id)}
-                    onViewRow={() => handleViewRow(row._id)}
-                    onEditRow={() => handleEditRow(row._id)}
-                    onDeleteRow={() => deleteExpense(row._id)}
-                    visibleColumns={visibleColumns}
-                    disabledColumns={disabledColumns}
-                  />
-                ))}
+                {isLoading ? (<>
+                  <TableSkeleton />
+                  <TableSkeleton />
+                  <TableSkeleton />
+                  <TableSkeleton />
+                  <TableSkeleton />
+                </>
 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
-                />
+                ) : (
+                  <>
+                    {dataFiltered.map((row) => (
+                      <ExpenseTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteExpense(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                      />
+                    ))}
 
-                <TableNoData notFound={notFound} />
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </>
+                )}
               </TableBody>
             </Table>
           </Scrollbar>
