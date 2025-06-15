@@ -1,4 +1,3 @@
-import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
@@ -146,8 +145,8 @@ export function ExpenseListView() {
     }
   }, [data]);
 
-  const totalCount = data?.totalCount || 0;
-  const categoryCounts = data?.categoryCounts || {};
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || 0;
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -168,23 +167,8 @@ export function ExpenseListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
-  const getExpenseLength = (expenseType) =>
-    tableData.filter((item) => item.expenseType === expenseType).length;
-
-  const getTotalAmount = (expenseType) =>
-    sumBy(
-      tableData.filter((item) => item.expenseType === expenseType),
-      'totalAmount'
-    );
-
-  const getPercentByExpenseType = (expenseType) =>
-    (getExpenseLength(expenseType) / tableData.length) * 100;
-
-  const getExpensesByCategory = (category) =>
-    tableData.filter((item) => item.expenseCategory === category);
-
-  const getTotalAmountByCategory = (category) =>
-    sumBy(getExpensesByCategory(category), 'totalAmount');
+  const getPercentByCategory = (category) =>
+    totalCount ? ((totals[category]?.count || 0) / totalCount) * 100 : 0;
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
@@ -192,13 +176,13 @@ export function ExpenseListView() {
       value: 'subtrip',
       label: 'Subtrip Expenses',
       color: 'primary',
-      count: categoryCounts.subtrip || 0,
+      count: totals.subtrip?.count || 0,
     },
     {
       value: 'vehicle',
       label: 'Vehicle Expenses',
       color: 'secondary',
-      count: categoryCounts.vehicle || 0,
+      count: totals.vehicle?.count || 0,
     },
   ];
 
@@ -301,27 +285,27 @@ export function ExpenseListView() {
           >
             <ExpenseAnalytic
               title="All Expenses"
-              total={tableData.length}
+              total={totalCount}
               percent={100}
-              price={sumBy(tableData, 'totalAmount')}
+              price={totals.all?.amount || 0}
               icon="solar:bill-list-bold-duotone"
               color={theme.palette.info.main}
             />
 
             <ExpenseAnalytic
               title="Subtrip Expenses"
-              total={getExpensesByCategory('subtrip').length}
-              percent={(getExpensesByCategory('subtrip').length / tableData.length) * 100}
-              price={getTotalAmountByCategory('subtrip')}
+              total={totals.subtrip?.count || 0}
+              percent={getPercentByCategory('subtrip')}
+              price={totals.subtrip?.amount || 0}
               icon="material-symbols:route"
               color={theme.palette.primary.main}
             />
 
             <ExpenseAnalytic
               title="Vehicle Expenses"
-              total={getExpensesByCategory('vehicle').length}
-              percent={(getExpensesByCategory('vehicle').length / tableData.length) * 100}
-              price={getTotalAmountByCategory('vehicle')}
+              total={totals.vehicle?.count || 0}
+              percent={getPercentByCategory('vehicle')}
+              price={totals.vehicle?.amount || 0}
               icon="mdi:truck"
               color={theme.palette.secondary.main}
             />
@@ -425,7 +409,7 @@ export function ExpenseListView() {
           />
 
           <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }} >
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
               <TableHeadCustom
                 headLabel={visibleTableHead}
                 rowCount={tableData.length}
