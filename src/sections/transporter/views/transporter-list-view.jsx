@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
@@ -11,8 +10,8 @@ import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 // @mui
 import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
 import { alpha, useTheme } from '@mui/material/styles';
+import TableContainer from '@mui/material/TableContainer';
 
 // _mock
 
@@ -28,9 +27,10 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteTransporter, usePaginatedTransporters } from 'src/query/use-transporter';
 
-import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -42,12 +42,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { TABLE_COLUMNS } from '../config/table-columns';
 import TransporterTableRow from '../transport-table-row';
 import TransporterTableToolbar from '../transport-table-toolbar';
-import TransporterTableFiltersResult from '../transporter-table-filters-result';
-import { useDeleteTransporter, usePaginatedTransporters } from '../../../query/use-transporter';
-import { TABLE_COLUMNS } from '../config/table-columns';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
+import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -124,7 +123,7 @@ export function TransporterListView() {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

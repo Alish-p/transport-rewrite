@@ -14,11 +14,11 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { wrapText } from 'src/utils/change-case';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { wrapText } from '../../utils/change-case';
 
 // ----------------------------------------------------------------------
 
