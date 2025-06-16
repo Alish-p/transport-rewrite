@@ -77,7 +77,7 @@ export const NewVehicleSchema = zod
 
 // ----------------------------------------------------------------------
 
-export default function VehicleForm({ currentVehicle, transporters }) {
+export default function VehicleForm({ currentVehicle }) {
   const router = useRouter();
   const [selectedTransporter, setSelectedTransporter] = useState(
     currentVehicle?.transporter || null

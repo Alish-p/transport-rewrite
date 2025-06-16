@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -56,7 +56,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const PaymentSchema = zod.object({
-  transporterId: zod.string().min(1, 'Transporter is required'),
+  transporter: zod
+    .any()
+    .nullable()
+    .refine((val) => !!val, 'Transporter is required'),
   billingPeriod: zod
     .object({
       start: schemaHelper.date({ required_error: 'Start date is required' }),
@@ -84,7 +87,7 @@ const PaymentSchema = zod.object({
     .default([]),
 });
 
-export default function TransporterPaymentSimpleForm({ transporterList }) {
+export default function TransporterPaymentSimpleForm() {
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -92,7 +95,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
   const methods = useForm({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
-      transporterId: '',
+      transporter: null,
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       subtrips: [],
       additionalCharges: [],
@@ -116,12 +119,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     remove: removeCharge,
   } = useFieldArray({ name: 'additionalCharges', control });
 
-  const { transporterId, billingPeriod, subtrips, additionalCharges } = watch();
-
-  const selectedTransporter = useMemo(
-    () => transporterList.find((t) => String(t._id) === String(transporterId)),
-    [transporterList, transporterId]
-  );
+  const { transporter, billingPeriod, subtrips, additionalCharges } = watch();
 
   const {
     data: fetchedSubtrips,
@@ -129,7 +127,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     isLoading,
     refetch,
   } = useFetchSubtripsForTransporterBilling(
-    transporterId,
+    transporter?._id,
     billingPeriod?.start,
     billingPeriod?.end
   );
@@ -138,10 +136,10 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (transporterId && billingPeriod?.start && billingPeriod?.end) {
+    if (transporter?._id && billingPeriod?.start && billingPeriod?.end) {
       refetch();
     }
-  }, [transporterId, billingPeriod?.start, billingPeriod?.end, refetch]);
+  }, [transporter?._id, billingPeriod?.start, billingPeriod?.end, refetch]);
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
@@ -164,7 +162,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
 
   const handleReset = () => {
     reset({
-      transporterId: '',
+      transporter: null,
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       subtrips: [],
       additionalCharges: [],
@@ -173,7 +171,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
 
   const onSubmit = async (data) => {
     const {
-      transporterId: tid,
+      transporter: selectedTransporter,
       billingPeriod: period,
       subtrips: subtripData,
       additionalCharges: addCharges,
@@ -181,7 +179,7 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
     const selected = subtripData.filter((st) => st.selected);
     try {
       const payment = await createPayment({
-        transporterId: tid,
+        transporterId: selectedTransporter._id,
         billingPeriod: period,
         associatedSubtrips: selected.map((st) => st._id),
         additionalCharges: [
@@ -199,9 +197,9 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
   };
 
   const selectedSubtrips = subtrips.filter((st) => st.selected);
-  const podCharge = selectedSubtrips.length * (selectedTransporter?.podCharges || 0);
+  const podCharge = selectedSubtrips.length * (transporter?.podCharges || 0);
 
-  const summary = calculateTransporterPaymentSummary(selectedSubtrips, selectedTransporter, [
+  const summary = calculateTransporterPaymentSummary(selectedSubtrips, transporter, [
     { label: 'POD Charges', amount: -podCharge },
     ...additionalCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
   ]);
@@ -263,16 +261,16 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
               </Typography>
               <IconButton onClick={transporterDialog.onTrue}>
                 <Iconify
-                  icon={selectedTransporter ? 'solar:pen-bold' : 'mingcute:add-line'}
+                  icon={transporter ? 'solar:pen-bold' : 'mingcute:add-line'}
                   color="green"
                 />
               </IconButton>
             </Stack>
-            {selectedTransporter ? (
+            {transporter ? (
               <Stack spacing={1}>
-                <Typography variant="subtitle2">{selectedTransporter.transportName}</Typography>
-                <Typography variant="body2">{selectedTransporter.address}</Typography>
-                <Typography variant="body2">{selectedTransporter.cellNo}</Typography>
+                <Typography variant="subtitle2">{transporter.transportName}</Typography>
+                <Typography variant="body2">{transporter.address}</Typography>
+                <Typography variant="body2">{transporter.cellNo}</Typography>
               </Stack>
             ) : (
               <Typography typography="caption" sx={{ color: 'error.main' }}>
@@ -321,8 +319,10 @@ export default function TransporterPaymentSimpleForm({ transporterList }) {
         <KanbanTransporterDialog
           open={transporterDialog.value}
           onClose={transporterDialog.onFalse}
-          selectedTransporter={selectedTransporter}
-          onTransporterChange={(transporter) => setValue('transporterId', transporter?._id)}
+          selectedTransporter={transporter}
+          onTransporterChange={(value) => {
+            setValue('transporter', value);
+          }}
         />
 
         <CustomDateRangePicker

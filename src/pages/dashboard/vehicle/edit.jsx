@@ -10,8 +10,6 @@ import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleEditView } from 'src/sections/vehicle/views';
 
-import { useAuthContext } from '../../../auth/hooks';
-import { useTransporters } from '../../../query/use-transporter';
 
 // ----------------------------------------------------------------------
 
@@ -22,19 +20,12 @@ export default function Page() {
 
   const { data: vehicle, isLoading: vehicleLoading, isError: vehicleError } = useVehicle(id);
 
-  const { user } = useAuthContext();
 
-  const {
-    data: transporters,
-    isLoading: transporterLoading,
-    isError: transportersError,
-  } = useTransporters();
-
-  if (vehicleLoading || transporterLoading) {
+  if (vehicleLoading) {
     return <LoadingScreen />;
   }
 
-  if (vehicleError || transportersError) {
+  if (vehicleError) {
     return <EmptyContent />;
   }
 
@@ -44,7 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleEditView vehicle={vehicle} transporters={transporters} />
+      <VehicleEditView vehicle={vehicle} />
     </>
   );
 }

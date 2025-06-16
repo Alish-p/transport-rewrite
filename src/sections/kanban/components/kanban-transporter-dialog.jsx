@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,10 +11,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useTransporters } from 'src/query/use-transporter';
+import { useInfiniteTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
 // ----------------------------------------------------------------------
@@ -28,8 +30,21 @@ export function KanbanTransporterDialog({
   onClose,
   onTransporterChange,
 }) {
-  const { data: transporters } = useTransporters();
+  const scrollRef = useRef(null);
   const [searchTransporter, setSearchTransporter] = useState('');
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteTransporters(
+    { search: searchTransporter || undefined, rowsPerPage: 50 },
+    { enabled: open }
+  );
+
+  const transporters = data ? data.pages.flatMap((p) => p.transporters) : [];
 
   const handleSearchTransporters = useCallback((event) => {
     setSearchTransporter(event.target.value);
@@ -43,14 +58,21 @@ export function KanbanTransporterDialog({
     [onTransporterChange, onClose]
   );
 
-  const dataFiltered = applyFilter({ inputData: transporters || [], query: searchTransporter });
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
 
-  const notFound = !dataFiltered.length && !!searchTransporter;
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const notFound = !transporters.length && !!searchTransporter && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Transporters <Typography component="span">({transporters?.length})</Typography>
+        Transporters{' '}
+        <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
@@ -70,12 +92,14 @@ export function KanbanTransporterDialog({
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
+        {isLoading ? (
+          <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
+        ) : notFound ? (
           <SearchNotFound query={searchTransporter} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
+          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
-              {dataFiltered.map((transporter) => {
+              {transporters.map((transporter) => {
                 const isSelected = selectedTransporter?._id === transporter._id;
 
                 return (
@@ -117,31 +141,21 @@ export function KanbanTransporterDialog({
                   </Box>
                 );
               })}
+              <Box
+                ref={loadMoreRef}
+                sx={{
+                  height: ITEM_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {isFetchingNextPage && <LoadingSpinner />}
+              </Box>
             </Box>
           </Scrollbar>
         )}
       </DialogContent>
     </Dialog>
   );
-}
-
-function applyFilter({ inputData, query }) {
-  if (query) {
-    inputData = inputData.filter((transporter) => {
-      const searchQuery = query.toLowerCase();
-
-      // Helper function to safely check if a field exists and contains the query
-      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
-
-      return (
-        matchesField(transporter.transportName) ||
-        matchesField(transporter.ownerName) ||
-        matchesField(transporter.place) ||
-        matchesField(transporter.cellNo) ||
-        matchesField(transporter.gstNo)
-      );
-    });
-  }
-
-  return inputData;
 }

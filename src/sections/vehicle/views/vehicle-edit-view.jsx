@@ -8,7 +8,7 @@ import VehicleNewForm from '../vehicle-form';
 
 // ----------------------------------------------------------------------
 
-export function VehicleEditView({ vehicle, transporters }) {
+export function VehicleEditView({ vehicle }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function VehicleEditView({ vehicle, transporters }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <VehicleNewForm currentVehicle={vehicle} transporters={transporters} />
+      <VehicleNewForm currentVehicle={vehicle} />
     </DashboardContent>
   );
 }
