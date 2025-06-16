@@ -21,6 +21,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteCustomer, usePaginatedCustomers } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -36,7 +37,6 @@ import {
 
 import CustomerTableRow from '../customer-table-row';
 import CustomerTableToolbar from '../customer-table-toolbar';
-import { useDeleteCustomer, usePaginatedCustomers } from '../../../query/use-customer';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -145,7 +145,7 @@ export function CustomerListView() {
     navigate(paths.dashboard.customer.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -213,16 +213,16 @@ export function CustomerListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-          <TableSelectedAction
-            dense={table.dense}
-            numSelected={table.selected.length}
-            rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
-              table.onSelectAllRows(
-                checked,
-                tableData.map((row) => row._id)
-              )
-            }
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={tableData.length}
+              onSelectAllRows={(checked) =>
+                table.onSelectAllRows(
+                  checked,
+                  tableData.map((row) => row._id)
+                )
+              }
               action={
                 <Stack direction="row">
                   <Tooltip title="Sent">
