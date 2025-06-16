@@ -1,4 +1,4 @@
-import { throttle } from 'lodash';
+import { useInView } from 'react-intersection-observer';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -58,28 +58,13 @@ export function KanbanTransporterDialog({
     [onTransporterChange, onClose]
   );
 
-  // wrap your handler:
-  const handleScroll = useCallback(
-    throttle(() => {
-      const el = scrollRef.current;
-      if (!el || !hasNextPage || isFetchingNextPage) return;
-      if (el.scrollHeight - el.scrollTop - el.clientHeight < ITEM_HEIGHT * 20) {
-        fetchNextPage();
-      }
-    }, 300),
-    [fetchNextPage, hasNextPage, isFetchingNextPage]
-  );
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return undefined;
-    el.addEventListener('scroll', handleScroll);
-    return () => {
-      el.removeEventListener('scroll', handleScroll);
-      // cancel any pending throttled calls on unmount
-      handleScroll.cancel();
-    };
-  }, [handleScroll]);
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const notFound = !transporters.length && !!searchTransporter && !isLoading;
 
@@ -156,7 +141,17 @@ export function KanbanTransporterDialog({
                   </Box>
                 );
               })}
-              {isFetchingNextPage && <LoadingSpinner />}
+              <Box
+                ref={loadMoreRef}
+                sx={{
+                  height: ITEM_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {isFetchingNextPage && <LoadingSpinner />}
+              </Box>
             </Box>
           </Scrollbar>
         )}
