@@ -54,8 +54,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  transportName: '',
-  cellNo: '',
+  search: '',
 };
 
 // ----------------------------------------------------------------------
@@ -111,8 +110,7 @@ export function TransporterListView() {
   );
 
   const { data, isLoading } = usePaginatedTransporters({
-    transportName: filters.transportName || undefined,
-    cellNo: filters.cellNo || undefined,
+    search: filters.search || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -129,7 +127,7 @@ export function TransporterListView() {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.transportName || !!filters.cellNo;
+  const canReset = !!filters.search;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 

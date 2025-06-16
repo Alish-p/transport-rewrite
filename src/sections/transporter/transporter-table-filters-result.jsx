@@ -18,12 +18,8 @@ export default function TransportTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveTransporterName = () => {
-    onFilters('transportName', '');
-  };
-
-  const handleRemoveCellNo = () => {
-    onFilters('cellNo', '');
+  const handleRemoveSearch = () => {
+    onFilters('search', '');
   };
 
   return (
@@ -36,19 +32,9 @@ export default function TransportTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.transportName && (
-          <Block label="Transport Name :">
-            <Chip
-              size="small"
-              label={filters.transportName}
-              onDelete={handleRemoveTransporterName}
-            />
-          </Block>
-        )}
-
-        {filters.cellNo && (
-          <Block label="Phone:">
-            <Chip size="small" label={filters.cellNo} onDelete={handleRemoveCellNo} />
+        {filters.search && (
+          <Block label="Search:">
+            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
           </Block>
         )}
 

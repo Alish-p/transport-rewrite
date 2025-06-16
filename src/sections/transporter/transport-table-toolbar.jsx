@@ -32,16 +32,9 @@ export default function TransporterTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
 
-  const handleFilterTransportName = useCallback(
+  const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('transportName', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterCellNo = useCallback(
-    (event) => {
-      onFilters('cellNo', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
@@ -62,23 +55,9 @@ export default function TransporterTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.transportName}
-          onChange={handleFilterTransportName}
-          placeholder="Search Transport Name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.cellNo}
-          onChange={handleFilterCellNo}
-          placeholder="Search Phone Number..."
+          value={filters.search}
+          onChange={handleFilterSearch}
+          placeholder="Search by Name or Mobile No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
