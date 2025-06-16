@@ -8,7 +8,6 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -42,7 +41,6 @@ import {
 
 import DriverTableRow from '../driver-table-row';
 import DriverTableToolbar from '../driver-table-toolbar';
-import DriverAnalytics from '../widgets/driver-analytic';
 import DriverTableFiltersResult from '../driver-table-filters-result';
 import { useDeleteDriver, usePaginatedDrivers } from '../../../query/use-driver';
 
@@ -100,9 +98,7 @@ export function DriverListView() {
 
   const [tableData, setTableData] = useState([]);
 
-  const totalCount = data?.total || 0;
-
-
+  const totalCount = data?.totals?.all?.count || 0;
 
   const denseHeight = table.dense ? 56 : 76;
 
@@ -121,9 +117,26 @@ export function DriverListView() {
   const getPercentByStatus = (status) => (getDriverLength(status) / tableData.length) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: totalCount },
-    { value: 'valid', label: 'Valid', color: 'success', count: getDriverLength('valid') },
-    { value: 'expired', label: 'Expired', color: 'error', count: getDriverLength('expired') },
+    {
+      value: 'all',
+      label: 'All',
+      color: 'default',
+      count: totalCount,
+    },
+    {
+      value: 'valid',
+      label: 'Valid',
+      color: 'success',
+      count:
+        (data?.totals && data.totals.valid?.count) || getDriverLength('valid'),
+    },
+    {
+      value: 'expired',
+      label: 'Expired',
+      color: 'error',
+      count:
+        (data?.totals && data.totals.expired?.count) || getDriverLength('expired'),
+    },
   ];
 
   const handleFilters = useCallback(
@@ -237,47 +250,7 @@ export function DriverListView() {
           }}
         />
 
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <DriverAnalytics
-                title="Total"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
 
-              <DriverAnalytics
-                title="Valid"
-                total={getDriverLength('valid')}
-                percent={getPercentByStatus('valid')}
-                price={getTotalAmount('valid')}
-                icon="solar:file-check-bold-duotone"
-                color={theme.palette.success.main}
-              />
-
-              <DriverAnalytics
-                title="Expired"
-                total={getDriverLength('expired')}
-                percent={getPercentByStatus('expired')}
-                price={getTotalAmount('expired')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
 
         {/* Table Section */}
         <Card>
