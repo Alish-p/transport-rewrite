@@ -83,11 +83,12 @@ const NewTripSchema = zod
     }
   );
 
-export default function SubtripCreateForm({ currentTrip, trips, customers, onSuccess }) {
+export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('loaded');
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedTripId, setSelectedTripId] = useState(currentTrip || null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const addSubtrip = useCreateSubtrip();
   const addEmptySubtrip = useCreateEmptySubtrip();
@@ -133,6 +134,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
       // Switching to “empty” tab → clear loaded‐trip fields
       setValue('customerId', null);
       setValue('diNumber', '');
+      setSelectedCustomer(null);
     } else {
       // Switching to “loaded” tab → clear empty‐trip fields
       setValue('routeCd', '');
@@ -143,6 +145,7 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
   };
 
   const handleCustomerChange = (customer) => {
+    setSelectedCustomer(customer);
     setValue('customerId', { label: customer.customerName, value: customer._id });
   };
 
@@ -197,7 +200,6 @@ export default function SubtripCreateForm({ currentTrip, trips, customers, onSuc
     }
   };
 
-  const selectedCustomer = customers.find((c) => c._id === methods.watch('customerId')?.value);
   const selectedTrip = trips.find((t) => t._id === methods.watch('tripId')?.value);
 
   return (

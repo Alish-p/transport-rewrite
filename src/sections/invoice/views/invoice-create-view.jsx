@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import SimplerNewInvoiceForm from '../invoice-simple-form';
 
-export function InvoiceCreateView({ customerList }) {
+export function InvoiceCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -18,7 +18,7 @@ export function InvoiceCreateView({ customerList }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <SimplerNewInvoiceForm customerList={customerList} />
+      <SimplerNewInvoiceForm />
     </DashboardContent>
   );
 }

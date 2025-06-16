@@ -57,12 +57,13 @@ export const NewRouteSchema = zod
     path: ['customer'],
   });
 
-export default function RouteForm({ currentRoute, customers }) {
+export default function RouteForm({ currentRoute }) {
   const navigate = useNavigate();
   const customerDialog = useBoolean(false);
 
   const [vehicleConfigs, setVehicleConfigs] = useState(currentRoute?.vehicleConfiguration || []);
   const [editingConfig, setEditingConfig] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(currentRoute?.customer || null);
 
   const createRoute = useCreateRoute();
   const updateRoute = useUpdateRoute();
@@ -94,7 +95,6 @@ export default function RouteForm({ currentRoute, customers }) {
   } = methods;
 
   const values = watch();
-  const selectedCustomer = customers.find((c) => c._id === values.customer);
 
   const onSubmit = async (data) => {
     try {
@@ -116,6 +116,7 @@ export default function RouteForm({ currentRoute, customers }) {
   };
 
   const handleCustomerChange = (customer) => {
+    setSelectedCustomer(customer);
     setValue('customer', customer._id);
   };
 

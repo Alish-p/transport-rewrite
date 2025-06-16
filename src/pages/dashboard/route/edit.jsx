@@ -4,7 +4,6 @@ import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useRoute } from 'src/query/use-route';
-import { useCustomersSummary } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -19,17 +18,11 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: route, isLoading: routeLoading, isError: routeError } = useRoute(id);
-  const {
-    data: customers,
-    isLoading: customersLoading,
-    isError: customersError,
-  } = useCustomersSummary();
-
-  if (routeLoading || customersLoading) {
+  if (routeLoading) {
     return <LoadingScreen />;
   }
 
-  if (routeError || customersError) {
+  if (routeError) {
     return (
       <EmptyContent
         filled
@@ -45,7 +38,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <RouteEditView route={route} customers={customers} />
+      <RouteEditView route={route} />
     </>
   );
 }

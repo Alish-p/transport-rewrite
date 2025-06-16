@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useNavigate } from 'react-router';
-import { useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -86,9 +86,10 @@ const InvoiceSchema = zod.object({
     .default([]),
 });
 
-export default function SimplerNewInvoiceForm({ customerList }) {
+export default function SimplerNewInvoiceForm() {
   const customerDialog = useBoolean();
   const dateDialog = useBoolean();
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const methods = useForm({
     resolver: zodResolver(InvoiceSchema),
@@ -121,11 +122,6 @@ export default function SimplerNewInvoiceForm({ customerList }) {
   } = useFieldArray({ name: 'additionalItems', control });
 
   const { customerId, billingPeriod, subtrips, additionalItems } = watch();
-
-  const selectedCustomer = useMemo(
-    () => customerList.find((c) => String(c._id) === String(customerId)),
-    [customerList, customerId]
-  );
 
   const {
     data: fetchedSubtrips,
@@ -310,7 +306,10 @@ export default function SimplerNewInvoiceForm({ customerList }) {
           open={customerDialog.value}
           onClose={customerDialog.onFalse}
           selectedCustomer={selectedCustomer}
-          onCustomerChange={(customer) => setValue('customerId', customer?._id)}
+          onCustomerChange={(customer) => {
+            setSelectedCustomer(customer);
+            setValue('customerId', customer?._id);
+          }}
         />
 
         <CustomDateRangePicker

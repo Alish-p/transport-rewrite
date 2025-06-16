@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import RouteForm from '../route-form';
 
-export function RouteEditView({ route, customers }) {
+export function RouteEditView({ route }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function RouteEditView({ route, customers }) {
         }}
       />
 
-      <RouteForm currentRoute={route} customers={customers} />
+      <RouteForm currentRoute={route} />
     </DashboardContent>
   );
 }
