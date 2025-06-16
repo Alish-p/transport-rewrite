@@ -4,15 +4,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-// @mui
-import { styled } from '@mui/material/styles';
-import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -49,31 +41,6 @@ const VEHICLE_SUMMARY = [
 
 // ----------------------------------------------------------------------
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '& td': {
-    borderBottom: 'none',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-}));
-
-const SUBTRIP_HEADS = [
-  'Subtrip ID',
-  'Driver',
-  'Start Date',
-  'Status',
-  'Loading Point',
-  'Unloading Point',
-];
-
-const EXPENSE_HEADS = ['Date', 'Type', 'Amount', 'Slip No'];
-
-// ----------------------------------------------------------------------
-
 export function VehicleDetailView({ vehicle }) {
   const [tabValue, setTabValue] = useState('description');
 
@@ -81,8 +48,8 @@ export function VehicleDetailView({ vehicle }) {
     setTabValue(newValue);
   };
 
-  // The API returns { vehicle: { ...fields }, subtrips: [], expenses: [] }
-  const { vehicle: vehicleInfo = {}, subtrips = [], expenses = [] } = vehicle || {};
+  // API now returns only the vehicle object
+  const vehicleInfo = vehicle || {};
 
   const {
     vehicleNo,
@@ -208,19 +175,17 @@ export function VehicleDetailView({ vehicle }) {
             boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.vars.palette.grey['500Channel']}`,
           }}
         >
-          {[
-            { value: 'description', label: 'Vehicle Details', icon: 'mdi:truck-info' },
-            { value: 'subtrips', label: 'Subtrip List', icon: 'mdi:route' },
-            { value: 'expenses', label: 'Expense Details', icon: 'mdi:currency-usd' },
-          ].map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              label={tab.label}
-              icon={<Iconify icon={tab.icon} />}
-              iconPosition="start"
-            />
-          ))}
+          {[{ value: 'description', label: 'Vehicle Details', icon: 'mdi:truck-info' }].map(
+            (tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                icon={<Iconify icon={tab.icon} />}
+                iconPosition="start"
+              />
+            )
+          )}
         </Tabs>
 
         <Box sx={{ p: 3, minHeight: 400 }}>
@@ -228,70 +193,6 @@ export function VehicleDetailView({ vehicle }) {
             <Box>
               <Markdown children={description} />
             </Box>
-          )}
-
-          {tabValue === 'subtrips' && (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {SUBTRIP_HEADS.map((head) => (
-                      <StyledTableCell key={head}>{head}</StyledTableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {subtrips.map((st) => (
-                    <StyledTableRow key={st._id}>
-                      <TableCell>{st._id}</TableCell>
-                      <TableCell>{st.tripId?.driverId?.driverName}</TableCell>
-                      <TableCell>{fDate(st.startDate)}</TableCell>
-                      <TableCell>{st.subtripStatus}</TableCell>
-                      <TableCell>{st.loadingPoint}</TableCell>
-                      <TableCell>{st.unloadingPoint}</TableCell>
-                    </StyledTableRow>
-                  ))}
-                  {subtrips.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={SUBTRIP_HEADS.length} align="center">
-                        No subtrips found
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-
-          {tabValue === 'expenses' && (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {EXPENSE_HEADS.map((head) => (
-                      <StyledTableCell key={head}>{head}</StyledTableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {expenses.map((exp) => (
-                    <StyledTableRow key={exp._id}>
-                      <TableCell>{fDate(exp.date)}</TableCell>
-                      <TableCell>{exp.expenseType}</TableCell>
-                      <TableCell>{exp.amount}</TableCell>
-                      <TableCell>{exp.slipNo}</TableCell>
-                    </StyledTableRow>
-                  ))}
-                  {expenses.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={EXPENSE_HEADS.length} align="center">
-                        No expenses found
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
           )}
         </Box>
       </Card>
