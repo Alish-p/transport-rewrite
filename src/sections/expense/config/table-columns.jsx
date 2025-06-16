@@ -18,7 +18,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row?.subtripId || '-',
-    align: 'center',
+    align: 'left',
     render: (value) => (
       <RouterLink
         to={`${paths.dashboard.subtrip.details(value)}`}
@@ -37,7 +37,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row?.vehicleNo || '-',
-    align: 'center',
+    align: 'left',
   },
 
   {
@@ -47,7 +47,7 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.expenseType || '-',
     render: (value) => (
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" alignItems="left" spacing={1}>
         <Iconify
           icon={subtripExpenseTypes.find((type) => type.value === value)?.icon}
           sx={{ color: 'secondary.main' }}
@@ -65,7 +65,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => fDate(row?.date) || '-',
     type: 'date',
-    align: 'center',
+    align: 'left',
     render: (value, row) => (
       <ListItemText
         primary={fDate(new Date(row?.date))}
@@ -93,7 +93,7 @@ export const TABLE_COLUMNS = [
     label: 'Remarks',
     defaultVisible: false,
     disabled: false,
-    align: 'center',
+    align: 'left',
     getter: (row) => row?.remarks || '-',
   },
   {
@@ -110,7 +110,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.paidThrough || '-',
-    align: 'center',
+    align: 'left',
   },
 
   {
@@ -118,7 +118,7 @@ export const TABLE_COLUMNS = [
     label: 'Expense Category',
     defaultVisible: false,
     disabled: false,
-    align: 'center',
+    align: 'left',
     getter: (row) => row?.expenseCategory || '-',
     render: (value) => (
       <Label variant="soft" color={EXPENSE_CATEGORY_COLORS[value] || 'default'}>
@@ -131,7 +131,7 @@ export const TABLE_COLUMNS = [
     label: 'Pump Code',
     defaultVisible: false,
     disabled: false,
-    align: 'center',
+    align: 'left',
     getter: (row) => row?.pumpCd?.pumpName || '-',
   },
   {
@@ -139,7 +139,7 @@ export const TABLE_COLUMNS = [
     label: 'Slip No',
     defaultVisible: false,
     disabled: false,
-    align: 'center',
+    align: 'left',
     getter: (row) => row?.slipNo || '-',
   },
   {
@@ -147,7 +147,7 @@ export const TABLE_COLUMNS = [
     label: 'Authorised By',
     defaultVisible: false,
     disabled: false,
-    align: 'center',
+    align: 'left',
     getter: (row) => row?.authorisedBy || '-',
   },
 ];

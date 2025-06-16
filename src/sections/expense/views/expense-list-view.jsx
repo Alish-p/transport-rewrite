@@ -35,7 +35,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
-  getComparator,
   TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
@@ -115,12 +114,7 @@ export function ExpenseListView() {
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || 0;
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
-  });
+
 
   const denseHeight = table.dense ? 56 : 76;
 
@@ -309,7 +303,7 @@ export function ExpenseListView() {
         <ExpenseTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={dataFiltered}
+          tableData={tableData}
           subtripExpenseTypes={subtripExpenseTypes}
           vehicleExpenseTypes={vehicleExpenseTypes}
           visibleColumns={visibleColumns}
@@ -335,7 +329,7 @@ export function ExpenseListView() {
             onSelectAllRows={(checked) =>
               table.onSelectAllRows(
                 checked,
-                dataFiltered.map((row) => row._id)
+                tableData.map((row) => row._id)
               )
             }
             action={
@@ -393,7 +387,7 @@ export function ExpenseListView() {
                   </>
                 ) : (
                   <>
-                    {dataFiltered.map((row) => (
+                    {tableData.map((row) => (
                       <ExpenseTableRow
                         key={row._id}
                         row={row}
@@ -448,12 +442,12 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (vehicleNo) {
-    inputData = inputData.filter(
-      (record) =>
-        record.vehicleId &&
-        record.vehicleId.vehicleNo &&
-        record.vehicleId.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
-    );
+    const vehicleNoLower = vehicleNo.toLowerCase();
+    inputData = inputData.filter((record) => {
+      const recordVehicleNo =
+        record.vehicleId?.vehicleNo || record.vehicleNo || '';
+      return recordVehicleNo.toLowerCase().includes(vehicleNoLower);
+    });
   }
 
   if (pump) {
