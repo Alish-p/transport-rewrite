@@ -3,10 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useTrip, useTrips } from 'src/query/use-trip';
+import { useTrip } from 'src/query/use-trip';
 import { useDriversSummary } from 'src/query/use-driver';
 import { useVehiclesSummary } from 'src/query/use-vehicle';
-import { useCustomersSummary } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -27,18 +26,13 @@ export default function Page() {
     isLoading: vehiclesLoading,
     isError: vehiclesError,
   } = useVehiclesSummary();
-  const { data: trips, isLoading: tripsLoading, isError: tripsError } = useTrips();
-  const {
-    data: customers,
-    isLoading: customersLoading,
-    isError: customersError,
-  } = useCustomersSummary();
 
-  if (tripLoading || driversLoading || vehiclesLoading || tripsLoading || customersLoading) {
+
+  if (tripLoading || driversLoading || vehiclesLoading) {
     return <LoadingScreen />;
   }
 
-  if (tripError || driversError || vehiclesError || tripsError || customersError) {
+  if (tripError || driversError || vehiclesError) {
     return <EmptyContent />;
   }
 
@@ -52,8 +46,7 @@ export default function Page() {
         trip={trip}
         vehicles={vehicles}
         drivers={drivers}
-        trips={trips}
-        customers={customers}
+
       />
     </>
   );

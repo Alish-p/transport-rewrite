@@ -8,7 +8,7 @@ import TripForm from '../trip-form';
 
 // ----------------------------------------------------------------------
 
-export function TripEditView({ trip, drivers, vehicles, trips, customers }) {
+export function TripEditView({ trip, drivers, vehicles, }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -31,8 +31,6 @@ export function TripEditView({ trip, drivers, vehicles, trips, customers }) {
         currentTrip={trip}
         drivers={drivers}
         vehicles={vehicles}
-        trips={trips}
-        customers={customers}
       />
     </DashboardContent>
   );
