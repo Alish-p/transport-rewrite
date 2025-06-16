@@ -1,5 +1,10 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -9,6 +14,11 @@ const QUERY_KEY = 'drivers';
 // Fetchers
 const getDrivers = async () => {
   const { data } = await axios.get(ENDPOINT);
+  return data;
+};
+
+const getPaginatedDrivers = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
 };
 
@@ -43,6 +53,34 @@ export function useDrivers(options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY],
     queryFn: getDrivers,
+    ...options,
+  });
+}
+
+export function usePaginatedDrivers(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedDrivers(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteDrivers(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPaginatedDrivers({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + page.drivers.length,
+        0
+      );
+      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
     ...options,
   });
 }

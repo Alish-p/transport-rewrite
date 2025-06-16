@@ -34,10 +34,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -46,8 +43,8 @@ import {
 import DriverTableRow from '../driver-table-row';
 import DriverTableToolbar from '../driver-table-toolbar';
 import DriverAnalytics from '../widgets/driver-analytic';
-import { useDeleteDriver } from '../../../query/use-driver';
 import DriverTableFiltersResult from '../driver-table-filters-result';
+import { useDeleteDriver, usePaginatedDrivers } from '../../../query/use-driver';
 
 // ----------------------------------------------------------------------
 
@@ -63,15 +60,13 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  driverName: '',
-  driverLicenceNo: '',
-  driverCellNo: '',
+  search: '',
   status: 'all',
 };
 
 // ----------------------------------------------------------------------
 
-export function DriverListView({ drivers }) {
+export function DriverListView() {
   const theme = useTheme();
   const router = useRouter();
   const confirm = useBoolean();
@@ -82,42 +77,38 @@ export function DriverListView({ drivers }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const today = new Date();
+  const { data, isLoading } = usePaginatedDrivers({
+    search: filters.search || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
   useEffect(() => {
-    if (drivers.length) {
-      const statusMappedDrivers = drivers.map((driver) => {
+    if (data?.drivers) {
+      const statusMappedDrivers = data.drivers.map((driver) => {
         const licenseToDate = new Date(driver.licenseTo);
-        const status = licenseToDate > today ? 'valid' : 'expired';
+        const status = licenseToDate > new Date() ? 'valid' : 'expired';
 
         return {
           ...driver,
           status,
         };
       });
-
       setTableData(statusMappedDrivers);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drivers]);
+  }, [data]);
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  const totalCount = data?.total || 0;
+
+
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset =
-    !!filters.driverName ||
-    !!filters.driverLicenceNo ||
-    !!filters.driverCellNo ||
-    filters.status !== 'all';
+  const canReset = !!filters.search || filters.status !== 'all';
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const getDriverLength = (status) => tableData.filter((item) => item.status === status).length;
 
@@ -130,7 +121,7 @@ export function DriverListView({ drivers }) {
   const getPercentByStatus = (status) => (getDriverLength(status) / tableData.length) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     { value: 'valid', label: 'Valid', color: 'success', count: getDriverLength('valid') },
     { value: 'expired', label: 'Expired', color: 'error', count: getDriverLength('expired') },
   ];
@@ -149,7 +140,7 @@ export function DriverListView({ drivers }) {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.driver.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -322,7 +313,7 @@ export function DriverListView({ drivers }) {
           <DriverTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
@@ -332,10 +323,8 @@ export function DriverListView({ drivers }) {
             <DriverTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
+              results={tableData.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -344,11 +333,11 @@ export function DriverListView({ drivers }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
@@ -394,40 +383,30 @@ export function DriverListView({ drivers }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <DriverTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteDriver(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {tableData.map((row) => (
+                    <DriverTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteDriver(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -436,7 +415,7 @@ export function DriverListView({ drivers }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -473,51 +452,4 @@ export function DriverListView({ drivers }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { driverName, driverLicenceNo, driverCellNo, status } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (driverName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.driverName &&
-        record.driverName.toLowerCase().indexOf(driverName.toLowerCase()) !== -1
-    );
-  }
-
-  if (driverLicenceNo) {
-    inputData = inputData.filter(
-      (record) =>
-        record.driverLicenceNo &&
-        record.driverLicenceNo.toLowerCase().indexOf(driverLicenceNo.toLowerCase()) !== -1
-    );
-  }
-
-  if (driverCellNo) {
-    inputData = inputData.filter(
-      (record) =>
-        record.driverCellNo &&
-        record.driverCellNo.toLowerCase().indexOf(driverCellNo.toLowerCase()) !== -1
-    );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((record) => record.status === status);
-  }
-
-  return inputData;
 }

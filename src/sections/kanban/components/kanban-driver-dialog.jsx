@@ -1,8 +1,8 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { FixedSizeList as List } from 'react-window';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect, useCallback } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,17 +15,17 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useDriversSummary, useCreateQuickDriver } from 'src/query/use-driver';
+import { useInfiniteDrivers, useCreateQuickDriver } from 'src/query/use-driver';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 64;
-const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // Quick driver creation schema with only name and cell number
 const QuickDriverSchema = zod.object({
@@ -59,63 +59,66 @@ const SearchInput = ({ value, onChange }) => (
   </Box>
 );
 
-// Driver list item component for react-window
-const DriverItem = ({ data: { drivers, selectedDriver, onSelect }, index, style }) => {
-  const driver = drivers[index];
-  const isSelected = selectedDriver?._id === driver._id;
-
-  return (
-    <Box
-      component="li"
-      style={style}
-      sx={{
-        gap: 2,
-        display: 'flex',
-        height: ITEM_HEIGHT,
-        alignItems: 'center',
-      }}
-    >
-      <ListItemText
-        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-        secondaryTypographyProps={{ typography: 'caption' }}
-        primary={driver.driverName}
-        secondary={driver.driverCellNo}
-      />
-
-      <Button
-        size="small"
-        color={isSelected ? 'primary' : 'inherit'}
-        onClick={() => onSelect(driver)}
-        startIcon={
-          <Iconify
-            width={16}
-            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-            sx={{ mr: -0.5 }}
-          />
-        }
-      >
-        {isSelected ? 'Selected' : 'Select'}
-      </Button>
-    </Box>
-  );
-};
-
-DriverItem.displayName = 'DriverItem';
 
 // Driver list component
-const DriverList = ({ drivers, selectedDriver, onSelectDriver }) => (
-  <Scrollbar sx={{ height: LIST_HEIGHT }}>
-    <Box sx={{ px: 2.5 }}>
-      <List
-        height={LIST_HEIGHT}
-        width="100%"
-        itemCount={drivers.length}
-        itemSize={ITEM_HEIGHT}
-        itemData={{ drivers, selectedDriver, onSelect: onSelectDriver }}
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+const DriverList = ({
+  drivers,
+  selectedDriver,
+  onSelectDriver,
+  loadMoreRef,
+  isFetchingNextPage,
+}) => (
+  <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
+    <Box component="ul">
+      {drivers.map((driver) => {
+        const isSelected = selectedDriver?._id === driver._id;
+
+        return (
+          <Box
+            component="li"
+            key={driver._id}
+            sx={{
+              gap: 2,
+              display: 'flex',
+              height: ITEM_HEIGHT,
+              alignItems: 'center',
+            }}
+          >
+            <ListItemText
+              primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
+              secondaryTypographyProps={{ typography: 'caption' }}
+              primary={driver.driverName}
+              secondary={driver.driverCellNo}
+            />
+
+            <Button
+              size="small"
+              color={isSelected ? 'primary' : 'inherit'}
+              onClick={() => onSelectDriver(driver)}
+              startIcon={
+                <Iconify
+                  width={16}
+                  icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+                  sx={{ mr: -0.5 }}
+                />
+              }
+            >
+              {isSelected ? 'Selected' : 'Select'}
+            </Button>
+          </Box>
+        );
+      })}
+      <Box
+        ref={loadMoreRef}
+        sx={{
+          height: ITEM_HEIGHT,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        {DriverItem}
-      </List>
+        {isFetchingNextPage && <LoadingSpinner />}
+      </Box>
     </Box>
   </Scrollbar>
 );
@@ -206,22 +209,6 @@ const NotFoundWithQuickCreate = ({
   </Box>
 );
 
-// Filter function
-function applyFilter({ inputData, query }) {
-  if (query) {
-    inputData = inputData.filter((driver) => {
-      const searchQuery = query.toLowerCase();
-
-      // Helper function to safely check if a field exists and contains the query
-      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
-
-      return matchesField(driver.driverName) || matchesField(driver.driverCellNo);
-    });
-  }
-
-  return inputData;
-}
-
 // ----------------------------------------------------------------------
 
 export function KanbanDriverDialog({
@@ -231,16 +218,27 @@ export function KanbanDriverDialog({
   onDriverChange,
   allowQuickCreate,
 }) {
-  const { data: drivers, refetch } = useDriversSummary();
+  const scrollRef = useRef(null);
+  const [searchDriver, setSearchDriver] = useState('');
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [error, setError] = useState(null);
+  const [newlyCreatedDriver, setNewlyCreatedDriver] = useState(null);
   const {
     mutate: createDriver,
     isLoading: isSubmitting,
     error: mutationError,
   } = useCreateQuickDriver();
-  const [searchDriver, setSearchDriver] = useState('');
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [error, setError] = useState(null);
-  const [newlyCreatedDriver, setNewlyCreatedDriver] = useState(null);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteDrivers(
+    { search: searchDriver || undefined, rowsPerPage: 50 },
+    { enabled: open }
+  );
+  const drivers = data ? data.pages.flatMap((p) => p.drivers) : [];
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -266,13 +264,13 @@ export function KanbanDriverDialog({
     [onDriverChange, onClose]
   );
 
-  const handleQuickCreate = async (data) => {
+  const handleQuickCreate = async (formData) => {
     try {
       setError(null);
 
       // Create a minimal driver object with required fields
       const newDriver = {
-        ...data,
+        ...formData,
         // Add default values for required fields
         driverLicenceNo: 'XX0000000000000', // Placeholder
         driverPresentAddress: 'Temporary Address',
@@ -313,20 +311,31 @@ export function KanbanDriverDialog({
     }
   };
 
-  const dataFiltered = applyFilter({ inputData: drivers || [], query: searchDriver });
-  const notFound = !dataFiltered.length && !!searchDriver;
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const notFound = !drivers.length && !!searchDriver && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
         {showQuickCreate ? 'Create New Driver' : 'Drivers'}
-        {!showQuickCreate && <Typography component="span">({drivers?.length})</Typography>}
+        {!showQuickCreate && (
+          <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
+        )}
       </DialogTitle>
 
       {!showQuickCreate && <SearchInput value={searchDriver} onChange={handleSearchDrivers} />}
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
+        {isLoading ? (
+          <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
+        ) : notFound ? (
           <NotFoundWithQuickCreate
             searchQuery={searchDriver}
             showQuickCreate={showQuickCreate}
@@ -338,9 +347,11 @@ export function KanbanDriverDialog({
           />
         ) : (
           <DriverList
-            drivers={dataFiltered}
+            drivers={drivers}
             selectedDriver={selectedDriver}
             onSelectDriver={handleSelectDriver}
+            loadMoreRef={loadMoreRef}
+            isFetchingNextPage={isFetchingNextPage}
           />
         )}
       </DialogContent>

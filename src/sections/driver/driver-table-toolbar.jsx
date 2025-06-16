@@ -31,23 +31,9 @@ export default function DriverTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
 
-  const handleFilterDriverName = useCallback(
+  const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('driverName', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterCellNo = useCallback(
-    (event) => {
-      onFilters('driverCellNo', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterLicenseNo = useCallback(
-    (event) => {
-      onFilters('driverLicenceNo', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
@@ -68,37 +54,9 @@ export default function DriverTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.driverName}
-          onChange={handleFilterDriverName}
-          placeholder="Search Driver Name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.driverLicenceNo}
-          onChange={handleFilterLicenseNo}
-          placeholder="Search License No..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.driverCellNo}
-          onChange={handleFilterCellNo}
-          placeholder="Search Cell No..."
+          value={filters.search}
+          onChange={handleFilterSearch}
+          placeholder="Search by Name or Mobile No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

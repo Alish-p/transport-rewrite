@@ -22,16 +22,8 @@ export default function DriverTableFiltersResult({
     onFilters('status', 'all');
   };
 
-  const handleRemoveDriverName = () => {
-    onFilters('driverName', '');
-  };
-
-  const handleRemoveDriverLicenceNo = () => {
-    onFilters('driverLicenceNo', '');
-  };
-
-  const handleRemoveDriverCellNo = () => {
-    onFilters('driverCellNo', '');
+  const handleRemoveSearch = () => {
+    onFilters('search', '');
   };
 
   return (
@@ -50,25 +42,9 @@ export default function DriverTableFiltersResult({
           </Block>
         )}
 
-        {filters.driverName && (
-          <Block label="Driver Name:">
-            <Chip size="small" label={filters.driverName} onDelete={handleRemoveDriverName} />
-          </Block>
-        )}
-
-        {filters.driverLicenceNo && (
-          <Block label="Driver Licence No:">
-            <Chip
-              size="small"
-              label={filters.driverLicenceNo}
-              onDelete={handleRemoveDriverLicenceNo}
-            />
-          </Block>
-        )}
-
-        {filters.driverCellNo && (
-          <Block label="Driver Cell No:">
-            <Chip size="small" label={filters.driverCellNo} onDelete={handleRemoveDriverCellNo} />
+        {filters.search && (
+          <Block label="Search:">
+            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
           </Block>
         )}
 
