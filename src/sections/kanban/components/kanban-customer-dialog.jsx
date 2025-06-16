@@ -40,7 +40,7 @@ export function KanbanCustomerDialog({
     isFetchingNextPage,
     isLoading,
   } = useInfiniteCustomers(
-    { search: searchCustomer || undefined, rowsPerPage: 10 },
+    { search: searchCustomer || undefined, rowsPerPage: 50 },
     { enabled: open }
   );
 
