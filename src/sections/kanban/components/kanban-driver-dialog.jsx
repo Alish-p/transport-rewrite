@@ -59,7 +59,6 @@ const SearchInput = ({ value, onChange }) => (
   </Box>
 );
 
-
 // Driver list component
 const DriverList = ({
   drivers,
@@ -228,13 +227,7 @@ export function KanbanDriverDialog({
     isLoading: isSubmitting,
     error: mutationError,
   } = useCreateQuickDriver();
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteDrivers(
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteDrivers(
     { search: searchDriver || undefined, rowsPerPage: 50 },
     { enabled: open }
   );
@@ -326,7 +319,9 @@ export function KanbanDriverDialog({
       <DialogTitle sx={{ pb: 0 }}>
         {showQuickCreate ? 'Create New Driver' : 'Drivers'}
         {!showQuickCreate && (
-          <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
+          <Typography component="span">
+            ({data?.pages?.[0]?.totals?.all?.count || 0})
+          </Typography>
         )}
       </DialogTitle>
 

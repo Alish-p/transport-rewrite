@@ -24,7 +24,6 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { CONFIG } from 'src/config-global';
 import { useDriversSummary } from 'src/query/use-driver';
 import { useVehiclesSummary } from 'src/query/use-vehicle';
-import { useTransporters } from 'src/query/use-transporter';
 import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
@@ -36,7 +35,6 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
-import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +50,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
 
   const { data: customers = [] } = useCustomersSummary();
   const { data: vehicles = [] } = useVehiclesSummary();
-  const { data: transporters = [] } = useTransporters();
   const { data: drivers = [] } = useDriversSummary();
 
   const vehicleDialog = useBoolean();
@@ -157,7 +154,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
   const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleNo);
   const selectedDriver = drivers.find((d) => d._id === filters.driverId);
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
-  const selectedTransporter = transporters.find((t) => t._id === filters.transportName);
 
   const startDateRangeSelected = !!filters.startFromDate && !!filters.startEndDate;
   const ewayDateRangeSelected = !!filters.ewayExpiryFromDate && !!filters.ewayExpiryEndDate;
@@ -217,14 +213,7 @@ export default function SubtripTableFilters({ filters, onFilters }) {
       isSelected: !!selectedCustomer,
       icon: <Iconify icon="mdi:office-building" />,
     },
-    {
-      id: 'transporter',
-      label: selectedTransporter ? selectedTransporter.transportName : 'Transporter',
-      tooltip: 'Filter by transporter',
-      onClick: transporterDialog.onTrue,
-      isSelected: !!selectedTransporter,
-      icon: <Iconify icon="mdi:truck-delivery" />,
-    },
+
     {
       id: 'vehicle',
       label: selectedVehicle ? selectedVehicle.vehicleNo : 'Vehicle',
@@ -355,12 +344,6 @@ export default function SubtripTableFilters({ filters, onFilters }) {
         onCustomerChange={handleFilterCustomer}
       />
 
-      <KanbanTransporterDialog
-        open={transporterDialog.value}
-        onClose={transporterDialog.onFalse}
-        selectedTransporter={selectedTransporter}
-        onTransporterChange={handleFilterTransporter}
-      />
 
       <CustomDateRangePicker
         variant="calendar"

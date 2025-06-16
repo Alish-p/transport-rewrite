@@ -20,7 +20,6 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
-import { useTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -39,7 +38,6 @@ export default function VehicleTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
-  const { data: transporters = [] } = useTransporters();
 
   const handleFilterVehicleNo = useCallback(
     (event) => {
@@ -130,23 +128,6 @@ export default function VehicleTableToolbar({
           </Select>
         </FormControl>
 
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
-          <InputLabel id="transporter-select-label">Transport Company</InputLabel>
-          <Select
-            value={filters.transporter || ''}
-            onChange={handleFilterTransporter}
-            input={<OutlinedInput label="Transport Company" />}
-            labelId="transporter-select-label"
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="">All</MenuItem>
-            {transporters.map((transporter) => (
-              <MenuItem key={transporter._id} value={transporter._id}>
-                {transporter.transportName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
           <InputLabel id="is-own-select-label">Vehicle Ownership</InputLabel>

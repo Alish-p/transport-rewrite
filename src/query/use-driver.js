@@ -1,10 +1,5 @@
 import { toast } from 'sonner';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -70,14 +65,11 @@ export function usePaginatedDrivers(params, options = {}) {
 export function useInfiniteDrivers(params, options = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEY, 'infinite', params],
-    queryFn: ({ pageParam = 1 }) =>
-      getPaginatedDrivers({ ...(params || {}), page: pageParam }),
+    queryFn: ({ pageParam = 1 }) => getPaginatedDrivers({ ...(params || {}), page: pageParam }),
     getNextPageParam: (lastPage, allPages) => {
-      const totalFetched = allPages.reduce(
-        (acc, page) => acc + page.drivers.length,
-        0
-      );
-      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+      const totalFetched = allPages.reduce((acc, page) => acc + page.drivers.length, 0);
+      const totalCount = (lastPage.totals && lastPage.totals.all?.count) ?? lastPage.total ?? 0;
+      return totalFetched < totalCount ? allPages.length + 1 : undefined;
     },
     keepPreviousData: true,
     enabled: !!params,
