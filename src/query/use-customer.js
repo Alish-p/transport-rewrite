@@ -1,5 +1,10 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -9,6 +14,11 @@ const QUERY_KEY = 'customers';
 // Fetchers
 const getCustomers = async () => {
   const { data } = await axios.get(ENDPOINT);
+  return data;
+};
+
+const getPaginatedCustomers = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
 };
 
@@ -41,6 +51,34 @@ const deleteCustomer = async (id) => {
 // Queries & Mutations
 export function useCustomers() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getCustomers });
+}
+
+export function usePaginatedCustomers(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedCustomers(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteCustomers(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPaginatedCustomers({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + page.customers.length,
+        0
+      );
+      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useCustomersSummary() {

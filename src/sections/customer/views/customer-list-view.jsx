@@ -28,10 +28,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -39,7 +36,7 @@ import {
 
 import CustomerTableRow from '../customer-table-row';
 import CustomerTableToolbar from '../customer-table-toolbar';
-import { useDeleteCustomer } from '../../../query/use-customer';
+import { useDeleteCustomer, usePaginatedCustomers } from '../../../query/use-customer';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -54,14 +51,12 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  customerName: '',
-  GSTNo: '',
-  PANNo: '',
+  search: '',
 };
 
 // ----------------------------------------------------------------------
 
-export function CustomerListView({ customers }) {
+export function CustomerListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -113,25 +108,27 @@ export function CustomerListView({ customers }) {
     (column) => column.id === '' || visibleColumns[column.id]
   );
 
+  const { data, isLoading } = usePaginatedCustomers({
+    search: filters.search || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
+
   useEffect(() => {
-    if (customers.length) {
-      setTableData(customers);
+    if (data?.customers) {
+      setTableData(data.customers);
     }
-  }, [customers]);
+  }, [data]);
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  const totalCount = data?.total || 0;
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.customerName || !!filters.GSTNo || !!filters.PANNo;
+  const canReset = !!filters.search;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     (name, value) => {
@@ -210,22 +207,22 @@ export function CustomerListView({ customers }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row._id)
-                )
-              }
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
               action={
                 <Stack direction="row">
                   <Tooltip title="Sent">
@@ -269,40 +266,30 @@ export function CustomerListView({ customers }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <CustomerTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteCustomer(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {tableData.map((row) => (
+                    <CustomerTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteCustomer(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -311,12 +298,11 @@ export function CustomerListView({ customers }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
@@ -348,43 +334,4 @@ export function CustomerListView({ customers }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { customerName, GSTNo, PANNo } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (customerName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.customerName &&
-        record.customerName.toLowerCase().indexOf(customerName.toLowerCase()) !== -1
-    );
-  }
-
-  if (GSTNo) {
-    inputData = inputData.filter(
-      (record) => record.GSTNo && record.GSTNo.toLowerCase().indexOf(GSTNo.toLowerCase()) !== -1
-    );
-  }
-
-  if (PANNo) {
-    inputData = inputData.filter(
-      (record) => record.PANNo && record.PANNo.toLowerCase().indexOf(PANNo.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
 }

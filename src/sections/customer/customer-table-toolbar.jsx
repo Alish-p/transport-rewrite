@@ -32,23 +32,9 @@ export default function CustomerTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
 
-  const handleFilterCustomerName = useCallback(
+  const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('customerName', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterGSTNo = useCallback(
-    (event) => {
-      onFilters('GSTNo', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterPANNo = useCallback(
-    (event) => {
-      onFilters('PANNo', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
@@ -69,37 +55,9 @@ export default function CustomerTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.customerName}
-          onChange={handleFilterCustomerName}
-          placeholder="Search Customer Name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.GSTNo}
-          onChange={handleFilterGSTNo}
-          placeholder="Search GST No..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.PANNo}
-          onChange={handleFilterPANNo}
-          placeholder="Search PAN No..."
+          value={filters.search}
+          onChange={handleFilterSearch}
+          placeholder="Search by Name or Mobile No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
