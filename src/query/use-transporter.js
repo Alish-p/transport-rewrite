@@ -18,7 +18,7 @@ const getTransporters = async () => {
 };
 
 const getPaginatedTransporters = async (params) => {
-  const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
 };
 
