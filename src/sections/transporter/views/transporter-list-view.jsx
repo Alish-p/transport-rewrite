@@ -1,4 +1,7 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -9,6 +12,7 @@ import TableBody from '@mui/material/TableBody';
 // @mui
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import { alpha, useTheme } from '@mui/material/styles';
 
 // _mock
 
@@ -26,6 +30,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
+import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -41,17 +46,12 @@ import TransporterTableRow from '../transport-table-row';
 import TransporterTableToolbar from '../transport-table-toolbar';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 import { useDeleteTransporter, usePaginatedTransporters } from '../../../query/use-transporter';
+import { TABLE_COLUMNS } from '../config/table-columns';
+import { useVisibleColumns } from '../hooks/use-visible-columns';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'transportName', name: 'transportName', label: 'Transport Name', type: 'text' },
-  { id: 'address', name: 'address', label: 'Address', type: 'text' },
-  { id: 'cellNo', name: 'cellNo', label: 'Phone Number', type: 'text' },
-  { id: 'ownerName', name: 'ownerName', label: 'Owner Name', type: 'text' },
-  { id: 'emailId', name: 'emailId', label: 'Email ID', type: 'text' },
-  { id: '' },
-];
+const TABLE_HEAD = [...TABLE_COLUMNS.map(({ id, label }) => ({ id, label })), { id: '' }];
 
 const defaultFilters = {
   search: '',
@@ -60,6 +60,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function TransporterListView() {
+  const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -69,39 +70,14 @@ export function TransporterListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    transportName: true,
-    address: true,
-    cellNo: true,
-    ownerName: true,
-    emailId: true,
-  });
+  // Column visibility logic handled via custom hook
+  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
 
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      transportName: true, // Transport name should always be visible
-      address: false,
-      cellNo: false,
-      ownerName: false,
-      emailId: false,
-    }),
-    []
-  );
-
-  // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumn(columnName);
     },
-    [disabledColumns]
+    [toggleColumn]
   );
 
   // Filter the table head based on visible columns
@@ -125,6 +101,8 @@ export function TransporterListView() {
 
   const totalCount = data?.total || 0;
 
+  const TABS = [{ value: 'all', label: 'All', color: 'default', count: totalCount }];
+
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset = !!filters.search;
@@ -146,7 +124,7 @@ export function TransporterListView() {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -194,6 +172,27 @@ export function TransporterListView() {
 
         {/* Table Section */}
         <Card>
+          <Tabs
+            value="all"
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label variant="filled" color={tab.color}>
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
           <TransporterTableToolbar
             filters={filters}
             onFilters={handleFilters}
