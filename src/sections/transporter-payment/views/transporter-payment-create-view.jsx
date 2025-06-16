@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TransporterPaymentSimpleForm from '../transporter-payment-simple-form';
 
-export function TransporterPaymentCreateView({ transporterList }) {
+export function TransporterPaymentCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -18,7 +18,7 @@ export function TransporterPaymentCreateView({ transporterList }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <TransporterPaymentSimpleForm transporterList={transporterList} />
+      <TransporterPaymentSimpleForm />
     </DashboardContent>
   );
 }
