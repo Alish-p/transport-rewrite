@@ -8,7 +8,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import SubtripEditForm from '../subtrip-edit-form';
 
-export function SubtripEditView({ subtrip, routesList, customersList, pumpsList }) {
+export function SubtripEditView({ subtrip }) {
   return (
     <>
       <Helmet>
@@ -36,9 +36,6 @@ export function SubtripEditView({ subtrip, routesList, customersList, pumpsList 
 
         <SubtripEditForm
           currentSubtrip={subtrip}
-          routesList={routesList}
-          customersList={customersList}
-          pumpsList={pumpsList}
         />
       </Container>
     </>
