@@ -39,9 +39,9 @@ export default function TransporterTableToolbar({
     [onFilters]
   );
 
-  const handleFilterAddress = useCallback(
+  const handleFilterCellNo = useCallback(
     (event) => {
-      onFilters('address', event.target.value);
+      onFilters('cellNo', event.target.value);
     },
     [onFilters]
   );
@@ -76,9 +76,9 @@ export default function TransporterTableToolbar({
 
         <TextField
           fullWidth
-          value={filters.address}
-          onChange={handleFilterAddress}
-          placeholder="Search Address..."
+          value={filters.cellNo}
+          onChange={handleFilterCellNo}
+          placeholder="Search Phone Number..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

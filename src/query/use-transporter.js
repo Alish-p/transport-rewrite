@@ -12,6 +12,11 @@ const getTransporters = async () => {
   return data;
 };
 
+const getPaginatedTransporters = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  return data;
+};
+
 const getTransporter = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -36,6 +41,16 @@ const deleteTransporter = async (id) => {
 // Queries & Mutations
 export function useTransporters(options = {}) {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTransporters, ...options });
+}
+
+export function usePaginatedTransporters(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedTransporters(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useTransporter(id) {
