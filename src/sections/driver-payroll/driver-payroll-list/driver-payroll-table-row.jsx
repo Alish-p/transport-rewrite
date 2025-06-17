@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 
-import { useMemo } from 'react';
 
 // @mui
 import Link from '@mui/material/Link';
@@ -17,7 +16,6 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { calculatePayslipSummary } from 'src/utils/utils';
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -35,8 +33,7 @@ export default function DriverPayrollTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { _id, driverId, createdDate, periodStartDate, periodEndDate } = row;
-  const { netSalary } = useMemo(() => calculatePayslipSummary(row), [row]);
+  const { _id, paymentId, driverId, issueDate, billingPeriod, summary } = row;
 
   const confirm = useBoolean();
 
@@ -49,7 +46,7 @@ export default function DriverPayrollTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
         <TableCell>
-          <Label variant="soft">{_id}</Label>
+          <Label variant="soft">{paymentId}</Label>
         </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <ListItemText
@@ -63,7 +60,7 @@ export default function DriverPayrollTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => {}}
+                onClick={() => { }}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {driverId?.driverCellNo}
@@ -73,8 +70,8 @@ export default function DriverPayrollTableRow({
         </TableCell>
         <TableCell>
           <ListItemText
-            primary={fDate(new Date(createdDate))}
-            secondary={fTime(new Date(createdDate))}
+            primary={fDate(new Date(issueDate))}
+            secondary={fTime(new Date(issueDate))}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
@@ -86,14 +83,14 @@ export default function DriverPayrollTableRow({
 
         <TableCell>
           <ListItemText
-            primary={netSalary}
+            primary={summary?.netIncome}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
         </TableCell>
 
         <TableCell>
           <ListItemText
-            primary={fDateRangeShortLabel(periodStartDate, periodEndDate)}
+            primary={fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)}
             primaryTypographyProps={{
               mt: 0.5,
               component: 'span',

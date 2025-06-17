@@ -4,7 +4,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import DriverSalarySimpleForm from '../driver-salary-simple-form';
 
-export function DriverPayrollCreateView({ driverList }) {
+export function DriverPayrollCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -17,7 +17,7 @@ export function DriverPayrollCreateView({ driverList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DriverSalarySimpleForm driverList={driverList} />
+      <DriverSalarySimpleForm />
     </DashboardContent>
   );
 }

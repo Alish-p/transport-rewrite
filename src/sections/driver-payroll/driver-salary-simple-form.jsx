@@ -88,7 +88,7 @@ const SalarySchema = zod.object({
     .default([]),
 });
 
-export default function DriverSalarySimpleForm({ driverList }) {
+export default function DriverSalarySimpleForm() {
   const driverDialog = useBoolean();
   const dateDialog = useBoolean();
 
