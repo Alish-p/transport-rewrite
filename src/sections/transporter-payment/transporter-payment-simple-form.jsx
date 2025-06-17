@@ -322,6 +322,7 @@ export default function TransporterPaymentSimpleForm() {
           selectedTransporter={transporter}
           onTransporterChange={(value) => {
             setValue('transporter', value);
+            replace([]);
           }}
         />
 

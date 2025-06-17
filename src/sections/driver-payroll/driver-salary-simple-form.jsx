@@ -317,7 +317,10 @@ export default function DriverSalarySimpleForm({ driverList }) {
           open={driverDialog.value}
           onClose={driverDialog.onFalse}
           selectedDriver={selectedDriver}
-          onDriverChange={(driver) => setValue('driverId', driver?._id)}
+          onDriverChange={(driver) => {
+            setValue('driverId', driver?._id)
+            replace([]);
+          }}
         />
 
         <CustomDateRangePicker
