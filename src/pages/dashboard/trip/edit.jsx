@@ -4,7 +4,6 @@ import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useTrip } from 'src/query/use-trip';
-import { useDriversSummary } from 'src/query/use-driver';
 import { useVehiclesSummary } from 'src/query/use-vehicle';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -20,7 +19,6 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTrip(id);
-  const { data: drivers, isLoading: driversLoading, isError: driversError } = useDriversSummary();
   const {
     data: vehicles,
     isLoading: vehiclesLoading,
@@ -28,11 +26,11 @@ export default function Page() {
   } = useVehiclesSummary();
 
 
-  if (tripLoading || driversLoading || vehiclesLoading) {
+  if (tripLoading || vehiclesLoading) {
     return <LoadingScreen />;
   }
 
-  if (tripError || driversError || vehiclesError) {
+  if (tripError || vehiclesError) {
     return <EmptyContent />;
   }
 
@@ -42,12 +40,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TripEditView
-        trip={trip}
-        vehicles={vehicles}
-        drivers={drivers}
-
-      />
+      <TripEditView trip={trip} vehicles={vehicles} />
     </>
   );
 }

@@ -28,7 +28,7 @@ import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog'
 //    – We don’t need a refine here, since it’s just a toggle.
 // --------------------------------------------------------------------------------------
 const NewTripSchema = zod.object({
-  driverId: zod
+  driver: zod
     .any()
     .nullable()
     .refine((val) => val !== null, { message: 'Driver is required' }),
@@ -41,7 +41,7 @@ const NewTripSchema = zod.object({
   closePreviousTrips: zod.boolean().default(true),
 });
 
-export default function TripForm({ currentTrip, drivers, vehicles }) {
+export default function TripForm({ currentTrip, vehicles }) {
   const navigate = useNavigate();
 
   const createTrip = useCreateTrip();
@@ -56,7 +56,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   // ------------------------------------------------------------------------------------
   const defaultValues = useMemo(
     () => ({
-      driverId: currentTrip?.driverId || null,
+      driver: currentTrip?.driver || currentTrip?.driverId || null,
       vehicleId: currentTrip?.vehicleId || null,
       fromDate: currentTrip?.fromDate ? new Date(currentTrip.fromDate) : new Date(),
       remarks: currentTrip?.remarks || '',
@@ -69,9 +69,6 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   const [selectedVehicle, setSelectedVehicle] = useState(
     currentTrip?.vehicleId ? vehicles.find((v) => v._id === currentTrip.vehicleId._id) : null
   );
-  const [selectedDriver, setSelectedDriver] = useState(
-    currentTrip?.driverId ? drivers.find((d) => d._id === currentTrip.driverId._id) : null
-  );
 
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
@@ -80,6 +77,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   });
 
   const {
+    watch,
     reset,
     setValue,
     handleSubmit,
@@ -115,9 +113,8 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
   };
 
   const handleDriverChange = (driver) => {
-    setSelectedDriver(driver);
-    setValue('driverId', driver._id);
-    clearErrors('driverId');
+    setValue('driver', driver);
+    clearErrors('driver');
   };
 
   // ------------------------------------------------------------------------------------
@@ -128,11 +125,14 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
       if (currentTrip) {
         await updateTrip({
           id: currentTrip._id,
-          data,
+          data: {
+            ...data,
+            driverId: data.driver._id,
+          },
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
-        const createdTrip = await createTrip(data);
+        const createdTrip = await createTrip({ ...data, driverId: data.driver._id, });
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();
@@ -176,8 +176,8 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
                 <DialogSelectButton
                   onClick={driverDialog.onTrue}
                   placeholder="Select Driver"
-                  selected={selectedDriver?.driverName}
-                  error={!!errors.driverId?.message}
+                  selected={watch('driver')?.driverName || ''}
+                  error={!!errors.driver?.message}
                   iconName="mdi:account"
                 />
               </Box>
@@ -218,7 +218,7 @@ export default function TripForm({ currentTrip, drivers, vehicles }) {
       <KanbanDriverDialog
         open={driverDialog.value}
         onClose={driverDialog.onFalse}
-        selectedDriver={selectedDriver}
+        selectedDriver={watch('driver')}
         onDriverChange={handleDriverChange}
         allowQuickCreate={!currentTrip}
       />
