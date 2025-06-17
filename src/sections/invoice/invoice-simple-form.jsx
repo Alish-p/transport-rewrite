@@ -309,6 +309,7 @@ export default function SimplerNewInvoiceForm() {
           onCustomerChange={(customer) => {
             setSelectedCustomer(customer);
             setValue('customerId', customer?._id);
+            replace([]);
           }}
         />
 
