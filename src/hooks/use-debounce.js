@@ -1,25 +1,17 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
-
-// ----------------------------------------------------------------------
+import { useState, useEffect } from 'react';
 
 export function useDebounce(value, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
-  const debounceHandler = useCallback(() => {
+  useEffect(() => {
+    // schedule a single timeout for this value change
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    return () => {
-      clearTimeout(handler);
-    };
+    // cleanup WILL cancel the previous timeout whenever `value` or `delay` changes
+    return () => clearTimeout(handler);
   }, [value, delay]);
 
-  useEffect(() => {
-    debounceHandler();
-  }, [debounceHandler]);
-
-  const memoizedValue = useMemo(() => debouncedValue, [debouncedValue]);
-
-  return memoizedValue;
+  return debouncedValue;
 }

@@ -1,5 +1,5 @@
 import { useInView } from 'react-intersection-observer';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -11,6 +11,8 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useDebounce } from 'src/hooks/use-debounce';
+
 import { useInfiniteCustomers } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
@@ -18,11 +20,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
-// ----------------------------------------------------------------------
-
 const ITEM_HEIGHT = 64;
-
-// ----------------------------------------------------------------------
 
 export function KanbanCustomerDialog({
   selectedCustomer = null,
@@ -32,6 +30,16 @@ export function KanbanCustomerDialog({
 }) {
   const scrollRef = useRef(null);
   const [searchCustomer, setSearchCustomer] = useState('');
+  const debouncedSearch = useDebounce(searchCustomer);
+
+  // track any prefix that returned zero results
+  const [blockedPrefixes, setBlockedPrefixes] = useState([]);
+
+  // decide whether to fire the query
+  const shouldFetch =
+    open &&
+    (debouncedSearch === '' ||
+      !blockedPrefixes.some((prefix) => debouncedSearch.startsWith(prefix)));
 
   const {
     data,
@@ -40,14 +48,37 @@ export function KanbanCustomerDialog({
     isFetchingNextPage,
     isLoading,
   } = useInfiniteCustomers(
-    { search: searchCustomer || undefined, rowsPerPage: 50 },
-    { enabled: open }
+    { search: debouncedSearch || undefined, rowsPerPage: 50 },
+    { enabled: shouldFetch }
   );
 
-  const customers = data ? data.pages.flatMap((p) => p.customers) : [];
+  const customers = useMemo(
+    () => data?.pages.flatMap((p) => p.customers) || [],
+    [data]
+  );
 
-  const handleSearchCustomers = useCallback((event) => {
-    setSearchCustomer(event.target.value);
+  // if a debounced term returned no results, block it
+  useEffect(() => {
+    if (
+      !isLoading &&
+      debouncedSearch &&
+      customers.length === 0 &&
+      !blockedPrefixes.includes(debouncedSearch)
+    ) {
+      setBlockedPrefixes((prev) => [...prev, debouncedSearch]);
+    }
+  }, [debouncedSearch, customers, isLoading, blockedPrefixes]);
+
+  // reset when closed
+  useEffect(() => {
+    if (!open) {
+      setSearchCustomer('');
+      setBlockedPrefixes([]);
+    }
+  }, [open]);
+
+  const handleSearchCustomers = useCallback((e) => {
+    setSearchCustomer(e.target.value);
   }, []);
 
   const handleSelectCustomer = useCallback(
@@ -66,13 +97,12 @@ export function KanbanCustomerDialog({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const notFound = !customers.length && !!searchCustomer && !isLoading;
+  const notFound = !customers.length && !!debouncedSearch && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Customers{' '}
-        <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
+        Customers <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
@@ -95,13 +125,12 @@ export function KanbanCustomerDialog({
         {isLoading ? (
           <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
         ) : notFound ? (
-          <SearchNotFound query={searchCustomer} sx={{ mt: 3, mb: 10 }} />
+          <SearchNotFound query={debouncedSearch} sx={{ mt: 3, mb: 10 }} />
         ) : (
           <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
               {customers.map((customer) => {
                 const isSelected = selectedCustomer?._id === customer._id;
-
                 return (
                   <Box
                     component="li"
@@ -117,13 +146,8 @@ export function KanbanCustomerDialog({
                       primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                       secondaryTypographyProps={{ typography: 'caption' }}
                       primary={customer.customerName}
-                      secondary={
-                        <>
-                          {customer.state} • {customer.cellNo}
-                        </>
-                      }
+                      secondary={`${customer.state} • ${customer.cellNo}`}
                     />
-
                     <Button
                       size="small"
                       color={isSelected ? 'primary' : 'inherit'}

@@ -32,6 +32,12 @@ const createDriver = async (driver) => {
   return data;
 };
 
+// New API for quick driver creation with minimal fields
+const createQuickDriverApi = async (driver) => {
+  const { data } = await axios.post(`${ENDPOINT}/quick`, driver);
+  return data;
+};
+
 const updateDriver = async (id, driverData) => {
   console.log({ driverDataInAPICAll: driverData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, driverData);
@@ -98,7 +104,7 @@ export function useCreateQuickDriver() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createDriver,
+    mutationFn: createQuickDriverApi,
     onSuccess: (newDriver) => {
       // Update the drivers list in the cache
       queryClient.setQueryData([QUERY_KEY], (oldData) => {

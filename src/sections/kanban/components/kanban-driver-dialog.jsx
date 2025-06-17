@@ -15,6 +15,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useDebounce } from 'src/hooks/use-debounce';
+
 import { useInfiniteDrivers, useCreateQuickDriver } from 'src/query/use-driver';
 
 import { Iconify } from 'src/components/iconify';
@@ -219,6 +221,8 @@ export function KanbanDriverDialog({
 }) {
   const scrollRef = useRef(null);
   const [searchDriver, setSearchDriver] = useState('');
+  const debouncedSearchDriver = useDebounce(searchDriver, 500);
+  const [noResultsFor, setNoResultsFor] = useState(null);
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [error, setError] = useState(null);
   const [newlyCreatedDriver, setNewlyCreatedDriver] = useState(null);
@@ -227,9 +231,10 @@ export function KanbanDriverDialog({
     isLoading: isSubmitting,
     error: mutationError,
   } = useCreateQuickDriver();
+  const shouldFetch = open && (!noResultsFor || !debouncedSearchDriver.startsWith(noResultsFor));
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteDrivers(
-    { search: searchDriver || undefined, rowsPerPage: 50 },
-    { enabled: open }
+    { search: debouncedSearchDriver || undefined, rowsPerPage: 50 },
+    { enabled: shouldFetch }
   );
   const drivers = data ? data.pages.flatMap((p) => p.drivers) : [];
 
@@ -240,14 +245,22 @@ export function KanbanDriverDialog({
       setShowQuickCreate(false);
       setError(null);
       setNewlyCreatedDriver(null);
+      setNoResultsFor(null);
     }
   }, [open]);
 
-  const handleSearchDrivers = useCallback((event) => {
-    setSearchDriver(event.target.value);
-    setShowQuickCreate(false);
-    setError(null);
-  }, []);
+  const handleSearchDrivers = useCallback(
+    (event) => {
+      const { value } = event.target;
+      setSearchDriver(value);
+      setShowQuickCreate(false);
+      setError(null);
+      if (noResultsFor && !value.startsWith(noResultsFor)) {
+        setNoResultsFor(null);
+      }
+    },
+    [noResultsFor]
+  );
 
   const handleSelectDriver = useCallback(
     (driver) => {
@@ -261,28 +274,7 @@ export function KanbanDriverDialog({
     try {
       setError(null);
 
-      // Create a minimal driver object with required fields
-      const newDriver = {
-        ...formData,
-        // Add default values for required fields
-        driverLicenceNo: 'XX0000000000000', // Placeholder
-        driverPresentAddress: 'Temporary Address',
-        licenseFrom: new Date(),
-        licenseTo: new Date(new Date().setFullYear(new Date().getFullYear() + 2)),
-        aadharNo: '000000000000',
-        experience: 0,
-        permanentAddress: 'Temporary Address',
-        isActive: true,
-        bankDetails: {
-          name: 'Temporary Bank',
-          branch: 'Temporary Branch',
-          ifsc: 'TEMP0000',
-          place: 'Temporary Place',
-          accNo: '000000000000000000',
-        },
-      };
-
-      createDriver(newDriver, {
+      createDriver(formData, {
         onSuccess: (createdDriver) => {
           // Store the newly created driver
           setNewlyCreatedDriver(createdDriver);
@@ -312,16 +304,20 @@ export function KanbanDriverDialog({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const notFound = !drivers.length && !!searchDriver && !isLoading;
+  const notFound = !drivers.length && !!debouncedSearchDriver && !isLoading;
+
+  useEffect(() => {
+    if (notFound) {
+      setNoResultsFor(debouncedSearchDriver);
+    }
+  }, [notFound, debouncedSearchDriver]);
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
         {showQuickCreate ? 'Create New Driver' : 'Drivers'}
         {!showQuickCreate && (
-          <Typography component="span">
-            ({data?.pages?.[0]?.totals?.all?.count || 0})
-          </Typography>
+          <Typography component="span">({data?.pages?.[0]?.totals?.all?.count || 0})</Typography>
         )}
       </DialogTitle>
 
