@@ -327,6 +327,7 @@ export default function SimplerNewInvoiceForm() {
           <Table sx={{ minWidth: 960 }}>
             <TableHead>
               <TableRow>
+                <StyledTableCell>Select</StyledTableCell>
                 <StyledTableCell>#</StyledTableCell>
                 <StyledTableCell>Vehicle No</StyledTableCell>
                 <StyledTableCell>Consignee</StyledTableCell>
@@ -337,7 +338,6 @@ export default function SimplerNewInvoiceForm() {
                 <StyledTableCell>Quantity</StyledTableCell>
                 <StyledTableCell>Shortage Weight</StyledTableCell>
                 <StyledTableCell>Total Amount</StyledTableCell>
-                <StyledTableCell>Select</StyledTableCell>
               </TableRow>
             </TableHead>
 
@@ -349,6 +349,12 @@ export default function SimplerNewInvoiceForm() {
                   const { totalAmount } = calculateInvoicePerSubtrip(st);
                   return (
                     <TableRow key={st._id}>
+                      <TableCell width={40}>
+                        <Checkbox
+                          checked={st.selected || false}
+                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
+                        />
+                      </TableCell>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.consignee}</TableCell>
@@ -363,18 +369,12 @@ export default function SimplerNewInvoiceForm() {
                         {fNumber(st.shortageWeight)} Kg
                       </TableCell>
                       <TableCell>{fCurrency(totalAmount)}</TableCell>
-                      <TableCell width={40}>
-                        <Checkbox
-                          checked={st.selected || false}
-                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
-                        />
-                      </TableCell>
                     </TableRow>
                   );
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={7} />
+                  <TableCell colSpan={8} />
                   <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
                     Subtotal
                   </StyledTableCell>
@@ -383,7 +383,7 @@ export default function SimplerNewInvoiceForm() {
 
                 {cgst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={7} />
+                    <TableCell colSpan={8} />
                     <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
                       CGST ({cgst}%)
                     </StyledTableCell>
@@ -393,7 +393,7 @@ export default function SimplerNewInvoiceForm() {
 
                 {sgst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={7} />
+                    <TableCell colSpan={8} />
                     <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
                       SGST ({sgst}%)
                     </StyledTableCell>
@@ -403,7 +403,7 @@ export default function SimplerNewInvoiceForm() {
 
                 {igst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={7} />
+                    <TableCell colSpan={8} />
                     <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
                       IGST ({igst}%)
                     </StyledTableCell>
@@ -413,7 +413,7 @@ export default function SimplerNewInvoiceForm() {
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={7} />
+                    <TableCell colSpan={8} />
                     <TableCell colSpan={2} align="center">
                       <Field.Text
                         size="small"
@@ -461,7 +461,7 @@ export default function SimplerNewInvoiceForm() {
                 </StyledTableRow>
 
                 <StyledTableRow>
-                  <TableCell colSpan={7} />
+                  <TableCell colSpan={8} />
                   <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
                     Net Total
                   </StyledTableCell>

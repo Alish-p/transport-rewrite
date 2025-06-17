@@ -341,6 +341,7 @@ export default function TransporterPaymentSimpleForm() {
             <TableHead>
               <TableRow>
                 {[
+                  'Select',
                   '#',
                   'Dispatch Date',
                   'LR No.',
@@ -355,7 +356,6 @@ export default function TransporterPaymentSimpleForm() {
                   'FRT-AMT',
                   'Expense',
                   'Total Payable',
-                  'Select',
                 ].map((h, idx) => (
                   <StyledTableCell key={h} align={idx < 7 ? 'center' : 'right'}>
                     {h}
@@ -378,6 +378,12 @@ export default function TransporterPaymentSimpleForm() {
 
                   return (
                     <TableRow key={st._id}>
+                      <TableCell width={40}>
+                        <Checkbox
+                          checked={st.selected || false}
+                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
+                        />
+                      </TableCell>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>{st._id}</TableCell>
@@ -392,18 +398,12 @@ export default function TransporterPaymentSimpleForm() {
                       <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
                       <TableCell align="right">{fCurrency(expense)}</TableCell>
                       <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
-                      <TableCell width={40}>
-                        <Checkbox
-                          checked={st.selected || false}
-                          onChange={(e) => handleToggleSelect(idx, e.target.checked)}
-                        />
-                      </TableCell>
                     </TableRow>
                   );
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={8} />
+                  <TableCell colSpan={9} />
                   <StyledTableCell sx={{ color: 'info.main' }}>Total</StyledTableCell>
                   <TableCell align="right" sx={{ color: 'info.main' }}>
                     {fCurrency(totalShortageAmount)}
@@ -423,7 +423,7 @@ export default function TransporterPaymentSimpleForm() {
 
                 {taxBreakup?.tds?.rate > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={13} align="right">
+                    <TableCell colSpan={14} align="right">
                       TDS ({taxBreakup.tds.rate}%)
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
@@ -436,7 +436,7 @@ export default function TransporterPaymentSimpleForm() {
                 {[taxBreakup.cgst, taxBreakup.sgst, taxBreakup.igst].map(({ rate, amount }, idx) =>
                   rate > 0 ? (
                     <StyledTableRow key={idx}>
-                      <TableCell colSpan={13} align="right">
+                      <TableCell colSpan={14} align="right">
                         {['CGST', 'SGST', 'IGST'][idx]} ({rate}%)
                       </TableCell>
                       <TableCell align="right">{fCurrency(amount)}</TableCell>
@@ -447,7 +447,7 @@ export default function TransporterPaymentSimpleForm() {
 
                 {podCharge > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={13} align="right">
+                    <TableCell colSpan={14} align="right">
                       POD Charges
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
@@ -459,7 +459,7 @@ export default function TransporterPaymentSimpleForm() {
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={13} align="right">
+                    <TableCell colSpan={14} align="right">
                       <Field.Text
                         size="small"
                         name={`additionalCharges[${idx}].label`}
@@ -504,7 +504,7 @@ export default function TransporterPaymentSimpleForm() {
                 </StyledTableRow>
 
                 <StyledTableRow>
-                  <TableCell colSpan={13} align="right">
+                  <TableCell colSpan={14} align="right">
                     <strong>Net Total</strong>
                   </TableCell>
                   <TableCell align="right" sx={{ color: 'success.main' }}>

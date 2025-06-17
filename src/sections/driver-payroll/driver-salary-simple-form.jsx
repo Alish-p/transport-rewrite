@@ -337,7 +337,7 @@ export default function DriverSalarySimpleForm() {
           <Table sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow>
-                {['#', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary', 'Select'].map(
+                {['Select', '#', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary'].map(
                   (h) => (
                     <StyledTableCell key={h}>{h}</StyledTableCell>
                   )
@@ -352,24 +352,24 @@ export default function DriverSalarySimpleForm() {
                   const tripSalary = calculateDriverSalary(st);
                   return (
                     <TableRow key={st._id}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{fDate(st.startDate)}</TableCell>
-                      <TableCell>{st._id}</TableCell>
-                      <TableCell>{st.loadingPoint}</TableCell>
-                      <TableCell>{st.unloadingPoint}</TableCell>
-                      <TableCell align="right">{fCurrency(tripSalary)}</TableCell>
                       <TableCell width={40}>
                         <Checkbox
                           checked={st.selected || false}
                           onChange={(e) => handleToggleSelect(idx, e.target.checked)}
                         />
                       </TableCell>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{fDate(st.startDate)}</TableCell>
+                      <TableCell>{st._id}</TableCell>
+                      <TableCell>{st.loadingPoint}</TableCell>
+                      <TableCell>{st.unloadingPoint}</TableCell>
+                      <TableCell align="right">{fCurrency(tripSalary)}</TableCell>
                     </TableRow>
                   );
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={5} align="right">
+                  <TableCell colSpan={6} align="right">
                     Trips Total
                   </TableCell>
                   <TableCell align="right" sx={{ color: 'info.main' }}>
@@ -380,7 +380,7 @@ export default function DriverSalarySimpleForm() {
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={5} align="right">
+                    <TableCell colSpan={6} align="right">
                       <Field.Text
                         size="small"
                         name={`additionalCharges[${idx}].label`}
@@ -425,7 +425,7 @@ export default function DriverSalarySimpleForm() {
                 </StyledTableRow>
 
                 <StyledTableRow>
-                  <TableCell colSpan={5} align="right">
+                  <TableCell colSpan={6} align="right">
                     <strong>Net Total</strong>
                   </TableCell>
                   <TableCell align="right" sx={{ color: 'success.main' }}>
