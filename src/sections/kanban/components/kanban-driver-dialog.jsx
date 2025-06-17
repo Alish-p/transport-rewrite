@@ -1,8 +1,5 @@
-import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,7 +7,6 @@ import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
-import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -23,280 +19,26 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-// ----------------------------------------------------------------------
 
 const ITEM_HEIGHT = 64;
 
-// Quick driver creation schema with only name and cell number
-const QuickDriverSchema = zod.object({
-  driverName: zod.string().min(1, { message: 'Driver Name is required' }),
-  driverCellNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Driver Cell No is required',
-      invalid_error: 'Driver Cell No must be exactly 10 digits',
-    },
-  }),
-});
+// Custom hook for debounced search + infinite scroll
+function useDriverSearch(searchText, enabled) {
+  const debounced = useDebounce(searchText, 500);
+  const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
 
-// ----------------------------------------------------------------------
-
-// Search input component
-const SearchInput = ({ value, onChange }) => (
-  <Box sx={{ px: 3, py: 2.5 }}>
-    <TextField
-      fullWidth
-      value={value}
-      onChange={onChange}
-      placeholder="Search..."
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-          </InputAdornment>
-        ),
-      }}
-    />
-  </Box>
-);
-
-// Driver list component
-const DriverList = ({
-  drivers,
-  selectedDriver,
-  onSelectDriver,
-  loadMoreRef,
-  isFetchingNextPage,
-}) => (
-  <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
-    <Box component="ul">
-      {drivers.map((driver) => {
-        const isSelected = selectedDriver?._id === driver._id;
-
-        return (
-          <Box
-            component="li"
-            key={driver._id}
-            sx={{
-              gap: 2,
-              display: 'flex',
-              height: ITEM_HEIGHT,
-              alignItems: 'center',
-            }}
-          >
-            <ListItemText
-              primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-              secondaryTypographyProps={{ typography: 'caption' }}
-              primary={driver.driverName}
-              secondary={driver.driverCellNo}
-            />
-
-            <Button
-              size="small"
-              color={isSelected ? 'primary' : 'inherit'}
-              onClick={() => onSelectDriver(driver)}
-              startIcon={
-                <Iconify
-                  width={16}
-                  icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
-                  sx={{ mr: -0.5 }}
-                />
-              }
-            >
-              {isSelected ? 'Selected' : 'Select'}
-            </Button>
-          </Box>
-        );
-      })}
-      <Box
-        ref={loadMoreRef}
-        sx={{
-          height: ITEM_HEIGHT,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {isFetchingNextPage && <LoadingSpinner />}
-      </Box>
-    </Box>
-  </Scrollbar>
-);
-
-// Quick create form component
-const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error }) => {
-  const methods = useForm({
-    resolver: zodResolver(QuickDriverSchema),
-    defaultValues: {
-      driverName: searchQuery || '',
-      driverCellNo: '',
-    },
-  });
-
-  return (
-    <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="body2" sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Iconify icon="material-symbols:info-outline" sx={{ color: 'primary.main' }} />
-            Create a new driver with minimal information. You can update the full details later.
-          </Box>
-        </Typography>
-
-        {error && (
-          <Typography variant="body2" color="error" sx={{ mb: 2 }}>
-            {error}
-          </Typography>
-        )}
-
-        <Field.Text name="driverName" label="Driver Name" required sx={{ mb: 2 }} />
-        <Field.Text
-          name="driverCellNo"
-          label="Driver Cell No"
-          required
-          InputProps={{
-            startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
-          }}
-          sx={{ mb: 2 }}
-        />
-      </Box>
-      <DialogActions>
-        <Button onClick={onCancel}>Cancel</Button>
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create'}
-        </Button>
-      </DialogActions>
-    </Form>
-  );
-};
-
-// Not found with quick create component
-const NotFoundWithQuickCreate = ({
-  searchQuery,
-  showQuickCreate,
-  onShowQuickCreate,
-  onQuickCreate,
-  isSubmitting,
-  error,
-  allowQuickCreate,
-}) => (
-  <Box sx={{ p: 3 }}>
-    {!showQuickCreate ? (
-      <>
-        <SearchNotFound query={searchQuery} sx={{ mt: 3, mb: 3 }} />
-        {allowQuickCreate && (
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={onShowQuickCreate}
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            Create New Driver
-          </Button>
-        )}
-      </>
-    ) : (
-      allowQuickCreate && (
-        <QuickCreateForm
-          onSubmit={onQuickCreate}
-          onCancel={() => onShowQuickCreate(false)}
-          isSubmitting={isSubmitting}
-          searchQuery={searchQuery}
-          error={error}
-        />
-      )
-    )}
-  </Box>
-);
-
-// ----------------------------------------------------------------------
-
-export function KanbanDriverDialog({
-  selectedDriver = null,
-  open,
-  onClose,
-  onDriverChange,
-  allowQuickCreate,
-}) {
-  const scrollRef = useRef(null);
-  const [searchDriver, setSearchDriver] = useState('');
-  const debouncedSearchDriver = useDebounce(searchDriver, 500);
-  const [noResultsFor, setNoResultsFor] = useState(null);
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [error, setError] = useState(null);
-  const [newlyCreatedDriver, setNewlyCreatedDriver] = useState(null);
   const {
-    mutate: createDriver,
-    isLoading: isSubmitting,
-    error: mutationError,
-  } = useCreateQuickDriver();
-  const shouldFetch = open && (!noResultsFor || !debouncedSearchDriver.startsWith(noResultsFor));
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteDrivers(
-    { search: debouncedSearchDriver || undefined, rowsPerPage: 50 },
-    { enabled: shouldFetch }
-  );
-  const drivers = data ? data.pages.flatMap((p) => p.drivers) : [];
-
-  // Reset state when dialog opens
-  useEffect(() => {
-    if (open) {
-      setSearchDriver('');
-      setShowQuickCreate(false);
-      setError(null);
-      setNewlyCreatedDriver(null);
-      setNoResultsFor(null);
-    }
-  }, [open]);
-
-  const handleSearchDrivers = useCallback(
-    (event) => {
-      const { value } = event.target;
-      setSearchDriver(value);
-      setShowQuickCreate(false);
-      setError(null);
-      if (noResultsFor && !value.startsWith(noResultsFor)) {
-        setNoResultsFor(null);
-      }
-    },
-    [noResultsFor]
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteDrivers(
+    { search: debounced || undefined, rowsPerPage: 50 },
+    { enabled }
   );
 
-  const handleSelectDriver = useCallback(
-    (driver) => {
-      onDriverChange(driver);
-      onClose();
-    },
-    [onDriverChange, onClose]
-  );
-
-  const handleQuickCreate = async (formData) => {
-    try {
-      setError(null);
-
-      createDriver(formData, {
-        onSuccess: (createdDriver) => {
-          // Store the newly created driver
-          setNewlyCreatedDriver(createdDriver);
-
-          // Select the newly created driver
-          onDriverChange(createdDriver);
-
-          // Close the dialog
-          onClose();
-        },
-        onError: (err) => {
-          console.error('Error creating driver:', err);
-          setError(err.message || 'Failed to create driver. Please try again.');
-        },
-      });
-    } catch (err) {
-      console.error('Error creating driver:', err);
-      setError(err.message || 'Failed to create driver. Please try again.');
-    }
-  };
-
-  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
+  const drivers = data ? data.pages.flatMap(page => page.drivers) : [];
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -304,48 +46,194 @@ export function KanbanDriverDialog({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const notFound = !drivers.length && !!debouncedSearchDriver && !isLoading;
+  return {
+    drivers,
+    isLoading,
+    isFetchingNext: isFetchingNextPage,
+    hasNextPage,
+    loadMoreRef,
+  };
+}
 
+export function KanbanDriverDialog({
+  selectedDriver = null,
+  open,
+  onClose,
+  onDriverChange,
+  allowQuickCreate = false,
+}) {
+  // Search + pagination state
+  const [search, setSearch] = useState('');
+  const {
+    drivers,
+    isLoading,
+    isFetchingNext,
+    hasNextPage,
+    loadMoreRef,
+  } = useDriverSearch(search, open);
+
+  // Quick-create form state
+  const [isQuickMode, setQuickMode] = useState(false);
+  const [driverName, setDriverName] = useState('');
+  const [driverCellNo, setDriverCellNo] = useState('');
+  const [error, setError] = useState('');
+  const {
+    mutateAsync: createDriver,
+    isLoading: isCreating,
+  } = useCreateQuickDriver();
+
+  // Reset when dialog opens
   useEffect(() => {
-    if (notFound) {
-      setNoResultsFor(debouncedSearchDriver);
+    if (open) {
+      setSearch('');
+      setQuickMode(false);
+      setDriverName('');
+      setDriverCellNo('');
+      setError('');
     }
-  }, [notFound, debouncedSearchDriver]);
+  }, [open]);
+
+  const handleSelectDriver = (driver) => {
+    onDriverChange(driver);
+    onClose();
+  };
+
+  const handleQuickSubmit = async () => {
+    setError('');
+    if (!driverName.trim()) {
+      return setError('Driver Name is required');
+    }
+    if (!/^\d{10}$/.test(driverCellNo)) {
+      return setError('Driver Cell No must be exactly 10 digits');
+    }
+
+    try {
+      const newDriver = await createDriver({ driverName, driverCellNo });
+      onDriverChange(newDriver);
+      onClose();
+    } catch (e) {
+      setError(e.message || 'Failed to create driver. Please try again.');
+    }
+  };
+
+  // Determine no-results
+  const noResults = !drivers.length && search.trim().length > 0 && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        {showQuickCreate ? 'Create New Driver' : 'Drivers'}
-        {!showQuickCreate && (
-          <Typography component="span">({data?.pages?.[0]?.totals?.all?.count || 0})</Typography>
-        )}
+        {isQuickMode ? 'Create New Driver' : 'Select Driver'}
       </DialogTitle>
 
-      {!showQuickCreate && <SearchInput value={searchDriver} onChange={handleSearchDrivers} />}
+      {!isQuickMode && (
+        <Box sx={{ px: 3, py: 2 }}>
+          <TextField
+            fullWidth
+            placeholder="Search…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+      )}
 
       <DialogContent sx={{ p: 0 }}>
-        {isLoading ? (
+        {isQuickMode ? (
+          <Box sx={{ px: 3, py: 2 }}>
+            {error && (
+              <Typography color="error" sx={{ mb: 2 }}>
+                {error}
+              </Typography>
+            )}
+            <TextField
+              fullWidth
+              label="Driver Name"
+              value={driverName}
+              onChange={e => setDriverName(e.target.value)}
+              margin="dense"
+            />
+            <TextField
+              fullWidth
+              label="Driver Cell No"
+              value={driverCellNo}
+              onChange={e => setDriverCellNo(e.target.value)}
+              margin="dense"
+              InputProps={{ startAdornment: <InputAdornment position="start">+91 - </InputAdornment> }}
+            />
+          </Box>
+        ) : isLoading ? (
           <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
-        ) : notFound ? (
-          <NotFoundWithQuickCreate
-            searchQuery={searchDriver}
-            showQuickCreate={showQuickCreate}
-            onShowQuickCreate={setShowQuickCreate}
-            onQuickCreate={handleQuickCreate}
-            isSubmitting={isSubmitting}
-            error={error || (mutationError ? mutationError.message : null)}
-            allowQuickCreate={allowQuickCreate}
-          />
+        ) : noResults ? (
+          <Box sx={{ p: 3 }}>
+            <SearchNotFound query={search} />
+            {allowQuickCreate && (
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => setQuickMode(true)}
+                startIcon={<Iconify icon="eva:plus-fill" />}
+                sx={{ mt: 2 }}
+              >
+                Create New Driver
+              </Button>
+            )}
+          </Box>
         ) : (
-          <DriverList
-            drivers={drivers}
-            selectedDriver={selectedDriver}
-            onSelectDriver={handleSelectDriver}
-            loadMoreRef={loadMoreRef}
-            isFetchingNextPage={isFetchingNextPage}
-          />
+          <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
+            <Box component="ul">
+              {drivers.map(driver => (
+                <Box
+                  component="li"
+                  key={driver._id}
+                  sx={{ display: 'flex', alignItems: 'center', height: ITEM_HEIGHT, gap: 2 }}
+                >
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="subtitle2">{driver.driverName}</Typography>
+                    <Typography variant="caption">{driver.driverCellNo}</Typography>
+                  </Box>
+                  <Button
+                    size="small"
+                    color={selectedDriver?._id === driver._id ? 'primary' : 'inherit'}
+                    onClick={() => handleSelectDriver(driver)}
+                    startIcon={
+                      <Iconify
+                        icon={selectedDriver?._id === driver._id ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+                        width={16}
+                        sx={{ mr: -0.5 }}
+                      />
+                    }
+                  >
+                    {selectedDriver?._id === driver._id ? 'Selected' : 'Select'}
+                  </Button>
+                </Box>
+              ))}
+              <Box
+                ref={loadMoreRef}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: ITEM_HEIGHT }}
+              >
+                {isFetchingNext && <LoadingSpinner />}
+              </Box>
+            </Box>
+          </Scrollbar>
         )}
       </DialogContent>
+
+      <DialogActions>
+        {isQuickMode && (
+          <>
+            <Button onClick={() => setQuickMode(false)}>Cancel</Button>
+            <Button onClick={handleQuickSubmit} disabled={isCreating} variant="contained">
+              {isCreating ? 'Creating…' : 'Create'}
+            </Button>
+          </>
+        )}
+      </DialogActions>
     </Dialog>
   );
 }
