@@ -1,7 +1,8 @@
+/* eslint-disable no-shadow */
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -37,11 +38,11 @@ import { useTripsCompletedByDriverAndDate } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { TableSkeleton } from 'src/components/table';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
 
-import { TableSkeleton } from '../../components/table';
-import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
-import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
 import {
   calculateDriverSalary,
   calculateDriverSalarySummary,
@@ -56,7 +57,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const SalarySchema = zod.object({
-  driverId: zod.string().min(1, 'Driver is required'),
+  driver: zod
+    .any()
+    .nullable()
+    .refine((val) => val !== null, { message: 'Driver is required' }),
   billingPeriod: zod
     .object({
       start: schemaHelper.date({ required_error: 'Start date is required' }),
@@ -91,7 +95,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
   const methods = useForm({
     resolver: zodResolver(SalarySchema),
     defaultValues: {
-      driverId: '',
+      driver: null,
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       associatedSubtrips: [],
       additionalCharges: [],
@@ -115,28 +119,24 @@ export default function DriverSalarySimpleForm({ driverList }) {
     remove: removeCharge,
   } = useFieldArray({ name: 'additionalCharges', control });
 
-  const { driverId, billingPeriod, associatedSubtrips, additionalCharges } = watch();
+  const { driver, billingPeriod, associatedSubtrips, additionalCharges } = watch();
 
-  const selectedDriver = useMemo(
-    () => driverList.find((d) => String(d._id) === String(driverId)),
-    [driverList, driverId]
-  );
 
   const {
     data: fetchedSubtrips,
     isSuccess,
     isLoading,
     refetch,
-  } = useTripsCompletedByDriverAndDate(driverId, billingPeriod?.start, billingPeriod?.end);
+  } = useTripsCompletedByDriverAndDate(driver?._id, billingPeriod?.start, billingPeriod?.end);
 
   const createSalary = useCreateDriverPayroll();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (driverId && billingPeriod?.start && billingPeriod?.end) {
+    if (driver?._id && billingPeriod?.start && billingPeriod?.end) {
       refetch();
     }
-  }, [driverId, billingPeriod?.start, billingPeriod?.end, refetch]);
+  }, [driver?._id, billingPeriod?.start, billingPeriod?.end, refetch]);
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
@@ -159,7 +159,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
 
   const handleReset = () => {
     reset({
-      driverId: '',
+      driver: null,
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       associatedSubtrips: [],
       additionalCharges: [],
@@ -168,7 +168,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
 
   const onSubmit = async (data) => {
     const {
-      driverId: did,
+      driver: { _id: did } = {},
       billingPeriod: period,
       associatedSubtrips: subtripData,
       additionalCharges: charges,
@@ -198,7 +198,7 @@ export default function DriverSalarySimpleForm({ driverList }) {
 
   const summary = calculateDriverSalarySummary(
     { associatedSubtrips: selectedSubtrips },
-    selectedDriver,
+    driver,
     additionalCharges
       .filter((c) => Number(c.amount) > 0)
       .map((c) => ({ label: c.label, amount: Number(c.amount) })),
@@ -259,16 +259,16 @@ export default function DriverSalarySimpleForm({ driverList }) {
               </Typography>
               <IconButton onClick={driverDialog.onTrue}>
                 <Iconify
-                  icon={selectedDriver ? 'solar:pen-bold' : 'mingcute:add-line'}
+                  icon={driver ? 'solar:pen-bold' : 'mingcute:add-line'}
                   color="green"
                 />
               </IconButton>
             </Stack>
-            {selectedDriver ? (
+            {driver ? (
               <Stack spacing={1}>
-                <Typography variant="subtitle2">{selectedDriver.driverName}</Typography>
-                <Typography variant="body2">{selectedDriver.driverPresentAddress}</Typography>
-                <Typography variant="body2">{selectedDriver.driverCellNo}</Typography>
+                <Typography variant="subtitle2">{driver.driverName}</Typography>
+                <Typography variant="body2">{driver.driverPresentAddress}</Typography>
+                <Typography variant="body2">{driver.driverCellNo}</Typography>
               </Stack>
             ) : (
               <Typography typography="caption" sx={{ color: 'error.main' }}>
@@ -316,9 +316,9 @@ export default function DriverSalarySimpleForm({ driverList }) {
         <KanbanDriverDialog
           open={driverDialog.value}
           onClose={driverDialog.onFalse}
-          selectedDriver={selectedDriver}
+          selectedDriver={driver}
           onDriverChange={(driver) => {
-            setValue('driverId', driver?._id)
+            setValue('driver', driver)
             replace([]);
           }}
         />
