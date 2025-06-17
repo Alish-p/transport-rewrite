@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable consistent-return */
 import { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
