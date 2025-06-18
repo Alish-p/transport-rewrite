@@ -28,24 +28,8 @@ export default function VehicleTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
-  visibleColumns = {
-    vehicleNo: true,
-    isOwn: true,
-    noOfTyres: true,
-    manufacturingYear: true,
-    loadingCapacity: true,
-    fuelTankCapacity: true,
-    transporter: true,
-  },
-  disabledColumns = {
-    vehicleNo: true, // Vehicle number should always be visible
-    isOwn: false,
-    noOfTyres: false,
-    manufacturingYear: false,
-    loadingCapacity: false,
-    fuelTankCapacity: false,
-    transporter: false,
-  },
+  visibleColumns,
+  disabledColumns,
 }) {
   const {
     _id,

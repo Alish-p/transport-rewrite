@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -42,35 +42,15 @@ import {
 } from 'src/components/table';
 
 import VehicleTableRow from '../vehicle-table-row';
+import { TABLE_COLUMNS } from '../config/table-columns';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
+import { useVisibleColumns } from '../hooks/use-visible-columns';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Vehicle No' },
-  {
-    id: 'isOwn',
-    label: 'Ownership',
-  },
-  {
-    id: 'transporter',
-    label: 'Transport Company',
-    align: 'center',
-  },
-  { id: 'noOfTyres', label: 'No Of Tyres' },
-  {
-    id: 'manufacturingYear',
-    label: 'Manufacturing Year',
-  },
-  { id: 'loadingCapacity', label: 'Loading Capacity' },
-  { id: 'fuelTankCapacity', label: 'Fuel Tank Capacity' },
-  { id: 'vehicleCompany', label: 'Vehicle Company' },
-  { id: 'modelType', label: 'Vehicle Model' },
-  { id: 'chasisNo', label: 'Chasis No' },
-  { id: 'engineNo', label: 'Engine No' },
-  { id: 'engineType', label: 'Engine Type' },
-
+  ...TABLE_COLUMNS.map(({ id, label, align }) => ({ id, label, align })),
   { id: '' },
 ];
 
@@ -96,40 +76,8 @@ export function VehicleListView() {
   const [filters, setFilters] = useState(defaultFilters);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    isOwn: true,
-    noOfTyres: true,
-    manufacturingYear: true,
-    loadingCapacity: true,
-    fuelTankCapacity: true,
-    transporter: true,
-    vehicleCompany: false,
-    modelType: false,
-    chasisNo: false,
-    engineNo: false,
-    engineType: false,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      vehicleNo: true, // Vehicle number should always be visible
-      isOwn: false,
-      noOfTyres: false,
-      manufacturingYear: false,
-      loadingCapacity: false,
-      fuelTankCapacity: false,
-      transporter: false,
-      vehicleCompany: false,
-      modelType: false,
-      chasisNo: false,
-      engineNo: false,
-      engineType: false,
-    }),
-    []
-  );
+  // Column visibility state handled via custom hook
+  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
 
   const { data, isLoading } = usePaginatedVehicles({
     page: table.page + 1,
@@ -182,7 +130,7 @@ export function VehicleListView() {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.vehicle.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -219,15 +167,9 @@ export function VehicleListView() {
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumn(columnName);
     },
-    [disabledColumns]
+    [toggleColumn]
   );
 
   // Filter the table head based on visible columns
