@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TripNewForm from '../trip-form';
 
-export function TripCreateView({ vehicles }) {
+export function TripCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function TripCreateView({ vehicles }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <TripNewForm vehicles={vehicles} />
+      <TripNewForm />
     </DashboardContent>
   );
 }

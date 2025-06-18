@@ -39,12 +39,10 @@ export const ExpenseSchema = zod.object({
 });
 // ------------------------------------------------------------------------
 
-export default function VehicleExpenseForm({ currentExpense, vehicles = [] }) {
+export default function VehicleExpenseForm({ currentExpense }) {
   const navigate = useNavigate();
   const vehicleDialog = useBoolean(false);
-  const [selectedVehicle, setSelectedVehicle] = useState(
-    currentExpense?.vehicleId ? vehicles.find((v) => v._id === currentExpense.vehicleId._id) : null
-  );
+  const [selectedVehicle, setSelectedVehicle] = useState(currentExpense?.vehicleId || null);
 
   const createExpense = useCreateExpense();
   const updateExpense = useCreateExpense();
