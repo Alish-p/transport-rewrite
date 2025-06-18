@@ -8,10 +8,11 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
+// @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // _mock
 
@@ -37,6 +38,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -185,9 +187,13 @@ export function TransporterListView() {
                 label={tab.label}
                 iconPosition="end"
                 icon={
-                  <Label variant="filled" color={tab.color}>
-                    {tab.count}
-                  </Label>
+                  isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label variant="filled" color={tab.color}>
+                      {tab.count}
+                    </Label>
+                  )
                 }
               />
             ))}
@@ -276,21 +282,29 @@ export function TransporterListView() {
                   }
                 />
                 <TableBody>
-                  {tableData.map((row) => (
-                    <TransporterTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteTransporter(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                  {isLoading ? (
+                    Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                      <TableSkeleton key={index} />
+                    ))
+                  ) : (
+                    <>
+                      {tableData.map((row) => (
+                        <TransporterTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteTransporter(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                        />
+                      ))}
 
-                  <TableNoData notFound={notFound} />
+                      <TableNoData notFound={notFound} />
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </Scrollbar>
