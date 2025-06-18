@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
@@ -41,18 +41,21 @@ export default function VehicleTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  selectedTransporter,
+  onSelectTransporter,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
   const transporterDialog = useBoolean();
-  const [selectedTransporter, setSelectedTransporter] = useState(null);
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
-      setSelectedTransporter(transporter);
+      if (onSelectTransporter) {
+        onSelectTransporter(transporter);
+      }
       onFilters('transporter', transporter._id);
     },
-    [onFilters]
+    [onFilters, onSelectTransporter]
   );
 
   const handleFilterVehicleNo = useCallback(
@@ -98,7 +101,7 @@ export default function VehicleTableToolbar({
           }}
         />
 
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 300 } }}>
           <InputLabel id="vehicle-type-select-label">Vehicle Type</InputLabel>
           <Select
             value={filters.vehicleType || ''}
@@ -122,7 +125,7 @@ export default function VehicleTableToolbar({
           placeholder="Search transporter"
           selected={selectedTransporter?.transportName}
           iconName="mdi:truck"
-          sx={{ borderColor: '#DFE3E8', width: { xs: 1, md: 250 } }}
+          sx={{ borderColor: '#DFE3E8', width: { xs: 1, md: 450 } }}
         />
 
         <Tooltip title="Column Settings">

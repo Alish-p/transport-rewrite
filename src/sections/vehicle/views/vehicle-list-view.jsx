@@ -92,6 +92,7 @@ export function VehicleListView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
 
   const [filters, setFilters] = useState(defaultFilters);
+  const [selectedTransporter, setSelectedTransporter] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -161,9 +162,9 @@ export function VehicleListView() {
     tableData.filter((item) => item.isOwn === own).length;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: data?.total || tableData.length },
-    { value: 'own', label: 'Own', color: 'success', count: getOwnershipLength(true) },
-    { value: 'market', label: 'Market', color: 'warning', count: getOwnershipLength(false) },
+    { value: 'all', label: 'All', color: 'default', count: data?.total },
+    { value: 'own', label: 'Own', color: 'success', count: data?.totalOwnVehicle },
+    { value: 'market', label: 'Market', color: 'warning', count: data?.totalMarketVehicle },
   ];
 
   const handleFilters = useCallback(
@@ -196,8 +197,22 @@ export function VehicleListView() {
     [handleFilters]
   );
 
+  const handleSelectTransporter = useCallback(
+    (transporter) => {
+      setSelectedTransporter(transporter);
+      handleFilters('transporter', transporter._id);
+    },
+    [handleFilters]
+  );
+
+  const handleClearTransporter = useCallback(() => {
+    setSelectedTransporter(null);
+    handleFilters('transporter', '');
+  }, [handleFilters]);
+
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
+    setSelectedTransporter(null);
   }, []);
 
   // Add handler for toggling column visibility
@@ -288,6 +303,8 @@ export function VehicleListView() {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            selectedTransporter={selectedTransporter}
+            onSelectTransporter={handleSelectTransporter}
           />
 
           {canReset && (
@@ -295,6 +312,8 @@ export function VehicleListView() {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
+              selectedTransporterName={selectedTransporter?.transportName}
+              onRemoveTransporter={handleClearTransporter}
               results={data?.total}
               sx={{ p: 2.5, pt: 0 }}
             />
