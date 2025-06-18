@@ -4,7 +4,6 @@ import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useTrip } from 'src/query/use-trip';
-import { useVehiclesSummary } from 'src/query/use-vehicle';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -19,18 +18,11 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTrip(id);
-  const {
-    data: vehicles,
-    isLoading: vehiclesLoading,
-    isError: vehiclesError,
-  } = useVehiclesSummary();
-
-
-  if (tripLoading || vehiclesLoading) {
+  if (tripLoading) {
     return <LoadingScreen />;
   }
 
-  if (tripError || vehiclesError) {
+  if (tripError) {
     return <EmptyContent />;
   }
 
@@ -40,7 +32,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TripEditView trip={trip} vehicles={vehicles} />
+      <TripEditView trip={trip} />
     </>
   );
 }

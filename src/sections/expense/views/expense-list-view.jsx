@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -245,6 +246,7 @@ export function ExpenseListView() {
               price={totals.all?.amount || 0}
               icon="solar:bill-list-bold-duotone"
               color={theme.palette.info.main}
+              loading={isLoading}
             />
 
             <ExpenseAnalytic
@@ -254,6 +256,7 @@ export function ExpenseListView() {
               price={totals.subtrip?.amount || 0}
               icon="material-symbols:route"
               color={theme.palette.primary.main}
+              loading={isLoading}
             />
 
             <ExpenseAnalytic
@@ -263,6 +266,7 @@ export function ExpenseListView() {
               price={totals.vehicle?.amount || 0}
               icon="mdi:truck"
               color={theme.palette.secondary.main}
+              loading={isLoading}
             />
           </Stack>
         </Scrollbar>
@@ -286,15 +290,19 @@ export function ExpenseListView() {
               label={tab.label}
               iconPosition="end"
               icon={
-                <Label
-                  variant={
-                    ((tab.value === 'all' || tab.value === filters.expenseCategory) && 'filled') ||
-                    'soft'
-                  }
-                  color={tab.color}
-                >
-                  {tab.count}
-                </Label>
+                isLoading ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.expenseCategory) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                )
               }
             />
           ))}
@@ -378,13 +386,9 @@ export function ExpenseListView() {
               />
               <TableBody>
                 {isLoading ? (
-                  <>
-                    <TableSkeleton />
-                    <TableSkeleton />
-                    <TableSkeleton />
-                    <TableSkeleton />
-                    <TableSkeleton />
-                  </>
+                  Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                    <TableSkeleton key={index} />
+                  ))
                 ) : (
                   <>
                     {tableData.map((row) => (

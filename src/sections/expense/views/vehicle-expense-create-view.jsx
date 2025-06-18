@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import ExpenseNewForm from '../vehicle-expense-form';
 
-export function VehicleExpenseCreateView({ vehicles }) {
+export function VehicleExpenseCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function VehicleExpenseCreateView({ vehicles }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseNewForm vehicles={vehicles} />
+      <ExpenseNewForm />
     </DashboardContent>
   );
 }
