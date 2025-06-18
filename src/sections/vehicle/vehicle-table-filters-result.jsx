@@ -14,14 +14,20 @@ export default function DriverTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedTransporterName,
+  onRemoveTransporter,
   ...other
 }) {
   const handleRemoveVehicleType = () => {
-    onFilters('vehicleType', 'all');
+    onFilters('vehicleType', '');
   };
 
   const handleRemoveTransorter = () => {
-    onFilters('transorter', '');
+    if (onRemoveTransporter) {
+      onRemoveTransporter();
+    } else {
+      onFilters('transporter', '');
+    }
   };
 
   const handleRemoveVehicleNo = () => {
@@ -42,7 +48,7 @@ export default function DriverTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.vehicleType && filters.vehicleType !== 'all' && (
+        {filters.vehicleType && (
           <Block label="Vehicle Type :">
             <Chip size="small" label={filters.vehicleType} onDelete={handleRemoveVehicleType} />
           </Block>
@@ -50,7 +56,11 @@ export default function DriverTableFiltersResult({
 
         {filters.transporter && (
           <Block label="Transporter Company:">
-            <Chip size="small" label={filters.transporter} onDelete={handleRemoveTransorter} />
+            <Chip
+              size="small"
+              label={selectedTransporterName || filters.transporter}
+              onDelete={handleRemoveTransorter}
+            />
           </Block>
         )}
 

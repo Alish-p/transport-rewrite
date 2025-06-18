@@ -11,9 +11,9 @@ export const allLangs = [
   {
     value: 'en',
     label: 'English',
-    countryCode: 'GB',
+    countryCode: 'IN',
     adapterLocale: 'en',
-    numberFormat: { code: 'en-US', currency: 'USD' },
+    numberFormat: { code: 'en-IN', currency: 'INR' },
     systemValue: {
       components: { ...enUSDate.components, ...enUSDataGrid.components },
     },

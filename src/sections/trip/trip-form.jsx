@@ -41,7 +41,7 @@ const NewTripSchema = zod.object({
   closePreviousTrips: zod.boolean().default(true),
 });
 
-export default function TripForm({ currentTrip, vehicles }) {
+export default function TripForm({ currentTrip }) {
   const navigate = useNavigate();
 
   const createTrip = useCreateTrip();
@@ -66,9 +66,7 @@ export default function TripForm({ currentTrip, vehicles }) {
   );
 
   // Keep local copies of “selected” driver/vehicle so we can disable/enable the toggle
-  const [selectedVehicle, setSelectedVehicle] = useState(
-    currentTrip?.vehicleId ? vehicles.find((v) => v._id === currentTrip.vehicleId._id) : null
-  );
+  const [selectedVehicle, setSelectedVehicle] = useState(currentTrip?.vehicleId || null);
 
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
@@ -132,7 +130,7 @@ export default function TripForm({ currentTrip, vehicles }) {
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
-        const createdTrip = await createTrip({ ...data, driverId: data.driver._id, });
+        const createdTrip = await createTrip({ ...data, driverId: data.driver._id });
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();
@@ -189,10 +187,7 @@ export default function TripForm({ currentTrip, vehicles }) {
             {/* Close Previous Trips */}
             {!currentTrip && selectedVehicle && selectedVehicle.isOwn && (
               <Box sx={{ mt: 3 }}>
-                <Field.Checkbox
-                  name="closePreviousTrips"
-                  label="Close Previous Trip ?"
-                />
+                <Field.Checkbox name="closePreviousTrips" label="Close Previous Trip ?" />
               </Box>
             )}
           </Card>
