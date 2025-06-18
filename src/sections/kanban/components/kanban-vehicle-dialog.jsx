@@ -246,15 +246,15 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        {showQuickCreate ? 'Create New Vehicle' : 'Select Vehicle'}{' '}
-        {!showQuickCreate && <Typography component="span">({total})</Typography>}
+        {showQuickCreate ? 'Create New Vehicle' : 'Vehicles'}{' '}
+        {!showQuickCreate && <Typography component="span" sx={{ color: 'text.secondary' }}>({total})</Typography>}
       </DialogTitle>
 
       {!showQuickCreate && (
         <Box sx={{ px: 3, py: 2 }}>
           <TextField
             fullWidth
-            placeholder="Search…"
+            placeholder="KA01AB0001, 1234"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -306,7 +306,7 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
                           {vehicle.isOwn ? 'Own' : 'Market'}
                         </Label>
                       </Typography>
-                      <Typography variant="caption">
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}
                       </Typography>
                     </Box>
