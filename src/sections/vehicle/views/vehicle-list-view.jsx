@@ -13,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -34,6 +35,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -158,8 +160,7 @@ export function VehicleListView() {
 
   const totalCount = data?.total || 0;
 
-  const getOwnershipLength = (own) =>
-    tableData.filter((item) => item.isOwn === own).length;
+  const getOwnershipLength = (own) => tableData.filter((item) => item.isOwn === own).length;
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: data?.total },
@@ -181,7 +182,7 @@ export function VehicleListView() {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.vehicle.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -285,12 +286,16 @@ export function VehicleListView() {
                 label={tab.label}
                 iconPosition="end"
                 icon={
-                  <Label
-                    variant={tab.value === filters.isOwn ? 'filled' : 'soft'}
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
+                  isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label
+                      variant={tab.value === filters.isOwn ? 'filled' : 'soft'}
+                      color={tab.color}
+                    >
+                      {tab.count}
+                    </Label>
+                  )
                 }
               />
             ))}
@@ -384,21 +389,29 @@ export function VehicleListView() {
                   }
                 />
                 <TableBody>
-                  {tableData.map((row) => (
-                    <VehicleTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteVehicle(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                  {isLoading ? (
+                    Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                      <TableSkeleton key={index} />
+                    ))
+                  ) : (
+                    <>
+                      {tableData.map((row) => (
+                        <VehicleTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteVehicle(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                        />
+                      ))}
 
-                  <TableNoData notFound={notFound} />
+                      <TableNoData notFound={notFound} />
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </Scrollbar>
@@ -445,4 +458,3 @@ export function VehicleListView() {
 }
 
 // ----------------------------------------------------------------------
-
