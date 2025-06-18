@@ -14,7 +14,29 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function ExpenseAnalytic({ title, total, icon, color, percent, price }) {
+export default function ExpenseAnalytic({
+  title,
+  total,
+  icon,
+  color,
+  percent,
+  price,
+  loading = false,
+}) {
+  if (loading) {
+    return (
+      <Stack
+        spacing={2.5}
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ width: 1, minWidth: 200 }}
+      >
+        <CircularProgress />
+      </Stack>
+    );
+  }
+
   return (
     <Stack
       spacing={2.5}
