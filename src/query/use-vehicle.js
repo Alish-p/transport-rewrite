@@ -12,6 +12,11 @@ const getVehicles = async () => {
   return data;
 };
 
+const getPaginatedVehicles = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 const getVehiclesSummary = async () => {
   const { data } = await axios.get(`${ENDPOINT}/summary`);
   return data;
@@ -41,6 +46,16 @@ const deleteVehicle = async (id) => {
 // Queries & Mutations
 export function useVehicles() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getVehicles });
+}
+
+export function usePaginatedVehicles(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedVehicles(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useVehiclesSummary() {

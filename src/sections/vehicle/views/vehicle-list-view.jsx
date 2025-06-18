@@ -1,4 +1,3 @@
-import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
@@ -8,7 +7,6 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -26,6 +24,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -34,20 +33,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
 import VehicleTableRow from '../vehicle-table-row';
-import { vehicleTypeIcon } from '../vehicle-config';
-import VehicleAnalytic from '../widgets/vehicle-analytic';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
-import { useDeleteVehicle } from '../../../query/use-vehicle';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -82,13 +75,13 @@ const TABLE_HEAD = [
 const defaultFilters = {
   vehicleNo: '',
   transporter: '',
-  vehicleTypes: [],
+  vehicleType: '',
   isOwn: 'all',
 };
 
 // ----------------------------------------------------------------------
 
-export function VehicleListView({ vehicles }) {
+export function VehicleListView() {
   const theme = useTheme();
 
   const router = useRouter();
@@ -135,48 +128,42 @@ export function VehicleListView({ vehicles }) {
     []
   );
 
+  const { data, isLoading } = usePaginatedVehicles({
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+    vehicleNo: filters.vehicleNo || undefined,
+    vehicleType: filters.vehicleType || undefined,
+    transporter: filters.transporter || undefined,
+    isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
+  });
+
   useEffect(() => {
-    if (vehicles.length) {
-      setTableData(vehicles);
+    if (data?.results) {
+      setTableData(data.results);
     }
-  }, [vehicles]);
+  }, [data]);
 
   const [tableData, setTableData] = useState([]);
-
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
 
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
     !!filters.vehicleNo ||
     !!filters.transporter ||
-    filters.vehicleTypes.length > 0 ||
+    !!filters.vehicleType ||
     filters.isOwn !== 'all';
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
-  const getVehicleLength = (vehicleType) =>
-    tableData.filter((item) => item.vehicleType === vehicleType).length;
+  const totalCount = data?.total || 0;
 
-  const getTotalAmount = (vehicleType) =>
-    sumBy(
-      tableData.filter((item) => item.vehicleType === vehicleType),
-      'totalAmount'
-    );
-
-  const getPercentByvehicleType = (vehicleType) =>
-    (getVehicleLength(vehicleType) / tableData.length) * 100;
+  const getOwnershipLength = (own) =>
+    tableData.filter((item) => item.isOwn === own).length;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'body', label: 'Body', color: 'default', count: getVehicleLength('body') },
-    { value: 'trailer', label: 'Trailer', color: 'success', count: getVehicleLength('trailer') },
-    { value: 'bulker', label: 'Bulker', color: 'warning', count: getVehicleLength('bulker') },
-    { value: 'tanker', label: 'Tanker', color: 'default', count: getVehicleLength('tanker') },
+    { value: 'all', label: 'All', color: 'default', count: data?.total || tableData.length },
+    { value: 'own', label: 'Own', color: 'success', count: getOwnershipLength(true) },
+    { value: 'market', label: 'Market', color: 'warning', count: getOwnershipLength(false) },
   ];
 
   const handleFilters = useCallback(
@@ -193,7 +180,7 @@ export function VehicleListView({ vehicles }) {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.vehicle.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -202,13 +189,9 @@ export function VehicleListView({ vehicles }) {
     [router]
   );
 
-  const handleFiltervehicleType = useCallback(
+  const handleFilterOwnership = useCallback(
     (event, newValue) => {
-      if (newValue === 'all') {
-        handleFilters('vehicleTypes', []);
-      } else {
-        handleFilters('vehicleTypes', [newValue]);
-      }
+      handleFilters('isOwn', newValue);
     },
     [handleFilters]
   );
@@ -269,72 +252,12 @@ export function VehicleListView({ vehicles }) {
           }}
         />
 
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <VehicleAnalytic
-                title="All"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <VehicleAnalytic
-                title="Body"
-                total={getVehicleLength('body')}
-                percent={getPercentByvehicleType('body')}
-                price={getTotalAmount('body')}
-                icon={vehicleTypeIcon.body}
-                color={theme.palette.success.main}
-              />
-
-              <VehicleAnalytic
-                title="Trailer"
-                total={getVehicleLength('trailer')}
-                percent={getPercentByvehicleType('trailer')}
-                price={getTotalAmount('trailer')}
-                icon={vehicleTypeIcon.trailer}
-                color={theme.palette.warning.main}
-              />
-
-              <VehicleAnalytic
-                title="Bulker"
-                total={getVehicleLength('bulker')}
-                percent={getPercentByvehicleType('bulker')}
-                price={getTotalAmount('bulker')}
-                icon={vehicleTypeIcon.bulker}
-                color={theme.palette.error.main}
-              />
-
-              <VehicleAnalytic
-                title="Tanker"
-                total={getVehicleLength('tanker')}
-                percent={getPercentByvehicleType('tanker')}
-                price={getTotalAmount('tanker')}
-                icon={vehicleTypeIcon.tanker}
-                color={theme.palette.primary.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
-
         {/* Table Section */}
         <Card>
           {/* filtering Tabs */}
           <Tabs
-            value={filters.vehicleTypes.length === 1 ? filters.vehicleTypes[0] : 'all'}
-            onChange={handleFiltervehicleType}
+            value={filters.isOwn}
+            onChange={handleFilterOwnership}
             sx={{
               px: 2.5,
               boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
@@ -348,12 +271,7 @@ export function VehicleListView({ vehicles }) {
                 iconPosition="end"
                 icon={
                   <Label
-                    variant={
-                      (tab.value === 'all' && filters.vehicleTypes.length === 0) ||
-                      (filters.vehicleTypes.length === 1 && filters.vehicleTypes[0] === tab.value)
-                        ? 'filled'
-                        : 'soft'
-                    }
+                    variant={tab.value === filters.isOwn ? 'filled' : 'soft'}
                     color={tab.color}
                   >
                     {tab.count}
@@ -366,7 +284,7 @@ export function VehicleListView({ vehicles }) {
           <VehicleTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
@@ -377,7 +295,7 @@ export function VehicleListView({ vehicles }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={data?.total}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -386,11 +304,11 @@ export function VehicleListView({ vehicles }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
@@ -436,40 +354,30 @@ export function VehicleListView({ vehicles }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <VehicleTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteVehicle(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {tableData.map((row) => (
+                    <VehicleTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteVehicle(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -478,7 +386,7 @@ export function VehicleListView({ vehicles }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -519,49 +427,3 @@ export function VehicleListView({ vehicles }) {
 
 // ----------------------------------------------------------------------
 
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { vehicleNo, transporter, vehicleTypes, isOwn } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (vehicleNo) {
-    inputData = inputData.filter(
-      (record) =>
-        record.vehicleNo && record.vehicleNo.toLowerCase().indexOf(vehicleNo.toLowerCase()) !== -1
-    );
-  }
-
-  if (transporter) {
-    inputData = inputData.filter(
-      (record) => record.transporter && record.transporter._id === transporter
-    );
-  }
-
-  if (vehicleTypes && vehicleTypes.length > 0) {
-    inputData = inputData.filter((record) => vehicleTypes.includes(record.vehicleType));
-  }
-
-  // Filter by isOwn property (market/old vehicles)
-  if (isOwn !== 'all') {
-    inputData = inputData.filter((record) => {
-      if (isOwn === 'market') {
-        return record.isOwn === false; // Market vehicles
-      }
-      if (isOwn === 'old') {
-        return record.isOwn === true; // Old vehicles
-      }
-      return true;
-    });
-  }
-
-  return inputData;
-}

@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
@@ -17,12 +18,17 @@ import { Tooltip, MenuList, ListItemText } from '@mui/material';
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { vehicleTypes } from './vehicle-config';
 
@@ -38,6 +44,16 @@ export default function VehicleTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const transporterDialog = useBoolean();
+  const [selectedTransporter, setSelectedTransporter] = useState(null);
+
+  const handleSelectTransporter = useCallback(
+    (transporter) => {
+      setSelectedTransporter(transporter);
+      onFilters('transporter', transporter._id);
+    },
+    [onFilters]
+  );
 
   const handleFilterVehicleNo = useCallback(
     (event) => {
@@ -46,28 +62,13 @@ export default function VehicleTableToolbar({
     [onFilters]
   );
 
-  const handleFilterVehicleTypes = useCallback(
+  const handleFilterVehicleType = useCallback(
     (event) => {
-      const newValue =
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
-      onFilters('vehicleTypes', newValue);
+      onFilters('vehicleType', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterTransporter = useCallback(
-    (event) => {
-      onFilters('transporter', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterIsOwn = useCallback(
-    (event) => {
-      onFilters('isOwn', event.target.value);
-    },
-    [onFilters]
-  );
 
   return (
     <>
@@ -98,51 +99,31 @@ export default function VehicleTableToolbar({
         />
 
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
-          <InputLabel id="vehicle-type-select-label">Vehicle Types</InputLabel>
+          <InputLabel id="vehicle-type-select-label">Vehicle Type</InputLabel>
           <Select
-            multiple
-            value={filters.vehicleTypes || []}
-            onChange={handleFilterVehicleTypes}
-            input={<OutlinedInput label="Vehicle Types" />}
-            renderValue={(selected) =>
-              selected
-                .map((value) => {
-                  const type = vehicleTypes.find((t) => t.key === value);
-                  return type ? type.value : value;
-                })
-                .join(', ')
-            }
+            value={filters.vehicleType || ''}
+            onChange={handleFilterVehicleType}
+            input={<OutlinedInput label="Vehicle Type" />}
             labelId="vehicle-type-select-label"
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
+            <MenuItem value="">All</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
             {vehicleTypes.map((option) => (
               <MenuItem key={option.key} value={option.key}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={filters.vehicleTypes ? filters.vehicleTypes.includes(option.key) : false}
-                />
                 {option.value}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 250 } }}>
-          <InputLabel id="is-own-select-label">Vehicle Ownership</InputLabel>
-          <Select
-            value={filters.isOwn || 'all'}
-            onChange={handleFilterIsOwn}
-            input={<OutlinedInput label="Vehicle Ownership" />}
-            labelId="is-own-select-label"
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="all">All Vehicles</MenuItem>
-            <MenuItem value="market">Market Vehicles</MenuItem>
-            <MenuItem value="old">Own Vehicles</MenuItem>
-          </Select>
-        </FormControl>
+        <DialogSelectButton
+          onClick={transporterDialog.onTrue}
+          placeholder="Search transporter"
+          selected={selectedTransporter?.transportName}
+          iconName="mdi:truck"
+          sx={{ borderColor: '#DFE3E8', width: { xs: 1, md: 250 } }}
+        />
 
         <Tooltip title="Column Settings">
           <IconButton onClick={columnsPopover.onOpen}>
@@ -234,6 +215,13 @@ export default function VehicleTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        selectedTransporter={selectedTransporter}
+        onTransporterChange={handleSelectTransporter}
+      />
     </>
   );
 }
