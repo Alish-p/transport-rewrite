@@ -46,6 +46,11 @@ const getFilteredSubtrips = async ({ queryKey }) => {
   }
 };
 
+const getPaginatedSubtrips = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  return data;
+};
+
 const createSubtrip = async (subtrip) => {
   const { data } = await axios.post(ENDPOINT, subtrip);
   return data;
@@ -187,6 +192,16 @@ export function useFilteredSubtrips(params) {
     queryFn: getFilteredSubtrips,
     enabled: Object.keys(params).length > 0,
     retry: 0,
+  });
+}
+
+export function usePaginatedSubtrips(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedSubtrips(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 

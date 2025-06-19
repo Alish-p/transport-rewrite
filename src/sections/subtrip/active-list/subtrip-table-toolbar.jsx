@@ -6,8 +6,11 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 // @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+// components
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 // components
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -16,10 +19,20 @@ import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
+import { useDriversSummary } from 'src/query/use-driver';
+import { useVehiclesSummary } from 'src/query/use-vehicle';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
+import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -33,27 +46,63 @@ export default function SubtripTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const materialPopover = usePopover();
 
-  const handleFilterCustomer = useCallback(
-    (event) => {
-      onFilters('customer', event.target.value);
+  const startRange = useBoolean();
+  const endRange = useBoolean();
+
+  const transporterDialog = useBoolean();
+  const customerDialog = useBoolean();
+  const vehicleDialog = useBoolean();
+  const driverDialog = useBoolean();
+
+  const { data: customers = [] } = useCustomersSummary();
+  const { data: vehicles = [] } = useVehiclesSummary();
+  const { data: drivers = [] } = useDriversSummary();
+
+  const selectedCustomer = customers.find((c) => c._id === filters.customerId);
+  const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleNo);
+  const selectedDriver = drivers.find((d) => d._id === filters.driverId);
+
+  const handleSelectTransporter = useCallback(
+    (transporter) => {
+      onFilters('transportName', transporter._id);
     },
     [onFilters]
   );
 
-  const handleFilterTransporter = useCallback(
-    (event) => {
-      onFilters('transportName', event.target.value);
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      onFilters('customerId', customer._id);
     },
     [onFilters]
   );
 
-  const handleFilterVehicle = useCallback(
-    (event) => {
-      onFilters('vehicleNo', event.target.value);
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      onFilters('vehicleNo', vehicle._id);
     },
     [onFilters]
   );
+
+  const handleSelectDriver = useCallback(
+    (driver) => {
+      onFilters('driverId', driver._id);
+    },
+    [onFilters]
+  );
+
+  const handleToggleMaterial = useCallback(
+    (value) => {
+      const current = Array.isArray(filters.materials) ? [...filters.materials] : [];
+      const newValues = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      onFilters('materials', newValues);
+    },
+    [filters.materials, onFilters]
+  );
+
 
   const handleFilterSubtripId = useCallback(
     (event) => {
@@ -62,33 +111,14 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
-  const handleFilterFromDate = useCallback(
-    (newValue) => {
-      onFilters('fromDate', newValue);
-    },
-    [onFilters]
-  );
-
-  const handleFilterEndDate = useCallback(
-    (newValue) => {
-      onFilters('endDate', newValue);
-    },
-    [onFilters]
-  );
 
   return (
     <>
       <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
-        sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
-        }}
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
         <TextField
           fullWidth
@@ -104,66 +134,65 @@ export default function SubtripTableToolbar({
           }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.customer}
-          onChange={handleFilterCustomer}
-          placeholder="Search Customer ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={transporterDialog.onTrue}
+          selected={filters.transportName ? 'Selected' : undefined}
+          placeholder="Transporter"
+          iconName="mdi:truck-delivery"
         />
 
-        <TextField
-          fullWidth
-          value={filters.transportName}
-          onChange={handleFilterTransporter}
-          placeholder="Search Transporter ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={customerDialog.onTrue}
+          selected={selectedCustomer?.customerName}
+          placeholder="Customer"
+          iconName="mdi:office-building"
         />
 
-        <TextField
-          fullWidth
-          value={filters.vehicleNo}
-          onChange={handleFilterVehicle}
-          placeholder="Search Vehicle..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          selected={selectedVehicle?.vehicleNo}
+          placeholder="Vehicle"
+          iconName="mdi:truck"
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={driverDialog.onTrue}
+          selected={selectedDriver?.driverName}
+          placeholder="Driver"
+          iconName="mdi:account"
         />
 
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={startRange.onTrue}
+          selected={
+            filters.fromDate && filters.toDate
+              ? `${filters.fromDate} to ${filters.toDate}`
+              : undefined
+          }
+          placeholder="Start Date"
+          iconName="mdi:calendar"
+        />
+
+        <DialogSelectButton
+          onClick={endRange.onTrue}
+          selected={
+            filters.subtripEndFromDate && filters.subtripEndToDate
+              ? `${filters.subtripEndFromDate} to ${filters.subtripEndToDate}`
+              : undefined
+          }
+          placeholder="End Date"
+          iconName="mdi:calendar"
+        />
+
+        <DialogSelectButton
+          onClick={materialPopover.onOpen}
+          selected={
+            filters.materials.length > 0
+              ? `${filters.materials.length} materials`
+              : undefined
+          }
+          placeholder="Materials"
+          iconName="mdi:filter-variant"
         />
 
         <Tooltip title="Column Settings">
@@ -256,6 +285,68 @@ export default function SubtripTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <CustomPopover
+        open={materialPopover.open}
+        onClose={materialPopover.onClose}
+        anchorEl={materialPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList sx={{ width: 200 }}>
+          {CONFIG.materialOptions.map(({ value }) => (
+            <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
+              <Checkbox checked={filters.materials.includes(value)} />
+              <ListItemText primary={value} />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </CustomPopover>
+
+      <CustomDateRangePicker
+        open={startRange.value}
+        onClose={startRange.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.toDate}
+        onChangeStartDate={(date) => onFilters('fromDate', date)}
+        onChangeEndDate={(date) => onFilters('toDate', date)}
+      />
+
+      <CustomDateRangePicker
+        open={endRange.value}
+        onClose={endRange.onFalse}
+        startDate={filters.subtripEndFromDate}
+        endDate={filters.subtripEndToDate}
+        onChangeStartDate={(date) => onFilters('subtripEndFromDate', date)}
+        onChangeEndDate={(date) => onFilters('subtripEndToDate', date)}
+      />
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        selectedTransporter={null}
+        onTransporterChange={handleSelectTransporter}
+      />
+
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleSelectCustomer}
+      />
+
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleSelectVehicle}
+      />
+
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleSelectDriver}
+      />
     </>
   );
 }
