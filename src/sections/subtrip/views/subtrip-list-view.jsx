@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -8,16 +8,10 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import { TableContainer } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
-// @mui
 import { alpha, useTheme } from '@mui/material/styles';
-
-// _mock
-
-import { useNavigate } from 'react-router';
-
-import { TableContainer } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
@@ -26,7 +20,6 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -46,23 +39,18 @@ import {
 } from 'src/components/table';
 
 import SubtripAnalytic from '../widgets/subtrip-analytic';
-import SubtripTableRow from '../active-list/subtrip-table-row';
+import SubtripTableRow from '../reports/subtrip-table-row';
+import { usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
-import { useDeleteSubtrip, usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
+import {
+  TABLE_COLUMNS,
+  getDisabledColumns,
+  getDefaultVisibleColumns,
+} from '../config/table-columns';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Details', align: 'center' },
-  { id: 'customerId', label: 'Customer', align: 'center' },
-  { id: 'routeName', label: 'Route', align: 'center', type: 'string' },
-  { id: 'invoiceNo', label: 'Invoice No', align: 'center', type: 'string' },
-  { id: 'startDate', label: 'Start Date', align: 'center' },
-  { id: 'transport', label: 'Transporter', align: 'center', type: 'string' },
-  { id: 'subtripStatus', label: 'Subtrip Status', align: 'cen', type: 'string' },
-  { id: '' },
-];
 
 const defaultFilters = {
   customerId: '',
@@ -86,39 +74,17 @@ export function SubtripListView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
 
-  const navigate = useNavigate();
-  const deleteSubtrip = useDeleteSubtrip();
-
   const [filters, setFilters] = useState(defaultFilters);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    customerId: true,
-    routeName: true,
-    invoiceNo: true,
-    startDate: true,
-    subtripStatus: true,
-    transport: true,
-  });
+  // Add state for column visibility based on table config
+  const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
 
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      vehicleNo: true, // Vehicle number should always be visible
-      customerId: false,
-      routeName: false,
-      invoiceNo: false,
-      startDate: false,
-      subtripStatus: false,
-      transport: false,
-    }),
-    []
-  );
+  // Columns that are always visible
+  const disabledColumns = getDisabledColumns();
 
   const [tableData, setTableData] = useState([]);
 
@@ -267,10 +233,7 @@ export function SubtripListView() {
     [table]
   );
 
-  const handleEditRow = (id) => {
-    navigate(paths.dashboard.subtrip.edit(paramCase(id)));
-  };
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -340,8 +303,17 @@ export function SubtripListView() {
     [disabledColumns]
   );
 
+  const handleToggleAllColumns = (checked) => {
+    setVisibleColumns((prev) =>
+      TABLE_COLUMNS.reduce((acc, column) => {
+        acc[column.id] = disabledColumns[column.id] ? prev[column.id] : checked;
+        return acc;
+      }, {})
+    );
+  };
+
   // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
+  const visibleTableHead = TABLE_COLUMNS.filter(
     (column) => column.id === '' || visibleColumns[column.id]
   );
 
@@ -465,6 +437,7 @@ export function SubtripListView() {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            onToggleAllColumns={handleToggleAllColumns}
             selectedTransporter={selectedTransporter}
             onSelectTransporter={handleSelectTransporter}
             selectedCustomer={selectedCustomer}
@@ -567,10 +540,7 @@ export function SubtripListView() {
                           selected={table.selected.includes(row._id)}
                           onSelectRow={() => table.onSelectRow(row._id)}
                           onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deleteSubtrip(row._id)}
                           visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
                         />
                       ))}
 

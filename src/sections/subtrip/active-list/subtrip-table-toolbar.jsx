@@ -24,6 +24,7 @@ import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
@@ -31,6 +32,8 @@ import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+
+import { TABLE_COLUMNS } from '../config/table-columns';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +44,7 @@ export default function SubtripTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
   selectedTransporter,
   onSelectTransporter,
   selectedCustomer,
@@ -218,27 +222,13 @@ export default function SubtripTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
