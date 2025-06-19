@@ -20,6 +20,7 @@ export default function SubtripTableFiltersResult({
   selectedCustomerName,
   selectedVehicleNo,
   selectedDriverName,
+  selectedTransporterName,
   ...other
 }) {
   const handleRemoveSubtripStatus = () => {
@@ -81,25 +82,41 @@ export default function SubtripTableFiltersResult({
 
         {filters.customerId && (
           <Block label="Customer">
-            <Chip size="small" label={selectedCustomerName || filters.customerId} onDelete={handleRemoveCustomer} />
+            <Chip
+              size="small"
+              label={selectedCustomerName || filters.customerId}
+              onDelete={handleRemoveCustomer}
+            />
           </Block>
         )}
 
         {filters.transportName && (
           <Block label="Transporter">
-            <Chip size="small" label={filters.transportName} onDelete={handleRemoveTransport} />
+            <Chip
+              size="small"
+              label={selectedTransporterName || filters.transportName}
+              onDelete={handleRemoveTransport}
+            />
           </Block>
         )}
 
         {filters.vehicleNo && (
           <Block label="Vehicle:">
-            <Chip size="small" label={selectedVehicleNo || filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleNo}
+              onDelete={handleRemoveVehicleNo}
+            />
           </Block>
         )}
 
         {filters.driverId && (
           <Block label="Driver:">
-            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
+            <Chip
+              size="small"
+              label={selectedDriverName || filters.driverId}
+              onDelete={handleRemoveDriver}
+            />
           </Block>
         )}
 

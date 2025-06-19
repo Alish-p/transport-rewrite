@@ -41,6 +41,8 @@ export default function SubtripTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  selectedTransporter,
+  onSelectTransporter,
   selectedCustomer,
   onSelectCustomer,
   selectedVehicle,
@@ -60,12 +62,14 @@ export default function SubtripTableToolbar({
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
 
-
   const handleSelectTransporter = useCallback(
     (transporter) => {
       onFilters('transportName', transporter._id);
+      if (onSelectTransporter) {
+        onSelectTransporter(transporter);
+      }
     },
-    [onFilters]
+    [onFilters, onSelectTransporter]
   );
 
   const handleSelectCustomer = useCallback(
@@ -109,14 +113,12 @@ export default function SubtripTableToolbar({
     [filters.materials, onFilters]
   );
 
-
   const handleFilterSubtripId = useCallback(
     (event) => {
       onFilters('subtripId', event.target.value);
     },
     [onFilters]
   );
-
 
   return (
     <>
@@ -142,7 +144,7 @@ export default function SubtripTableToolbar({
 
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
-          selected={filters.transportName ? 'Selected' : undefined}
+          selected={selectedTransporter?.transportName}
           placeholder="Transporter"
           iconName="mdi:truck-delivery"
         />
@@ -193,9 +195,7 @@ export default function SubtripTableToolbar({
         <DialogSelectButton
           onClick={materialPopover.onOpen}
           selected={
-            filters.materials.length > 0
-              ? `${filters.materials.length} materials`
-              : undefined
+            filters.materials.length > 0 ? `${filters.materials.length} materials` : undefined
           }
           placeholder="Materials"
           iconName="mdi:filter-variant"
@@ -309,7 +309,7 @@ export default function SubtripTableToolbar({
       </CustomPopover>
 
       <CustomDateRangePicker
-        variant='calendar'
+        variant="calendar"
         open={startRange.value}
         onClose={startRange.onFalse}
         startDate={filters.fromDate}
@@ -319,7 +319,7 @@ export default function SubtripTableToolbar({
       />
 
       <CustomDateRangePicker
-        variant='calendar'
+        variant="calendar"
         open={endRange.value}
         onClose={endRange.onFalse}
         startDate={filters.subtripEndFromDate}
@@ -331,7 +331,7 @@ export default function SubtripTableToolbar({
       <KanbanTransporterDialog
         open={transporterDialog.value}
         onClose={transporterDialog.onFalse}
-        selectedTransporter={null}
+        selectedTransporter={selectedTransporter}
         onTransporterChange={handleSelectTransporter}
       />
 

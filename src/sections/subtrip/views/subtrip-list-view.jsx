@@ -93,6 +93,7 @@ export function SubtripListView() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedTransporter, setSelectedTransporter] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -124,8 +125,7 @@ export function SubtripListView() {
   const { data, isLoading, isFetching } = usePaginatedSubtrips({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
-    subtripStatus:
-      filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
+    subtripStatus: filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
     subtripId: filters.subtripId || undefined,
     transporterId: filters.transportName || undefined,
     customerId: filters.customerId || undefined,
@@ -173,7 +173,6 @@ export function SubtripListView() {
   };
 
   const getSubtripLength = (subtripStatus) => statusCounts[subtripStatus] || 0;
-
 
   const getPercentBySubtripStatus = (subtripStatus) =>
     (getSubtripLength(subtripStatus) / totalCount) * 100;
@@ -261,6 +260,9 @@ export function SubtripListView() {
       if (name === 'driverId' && !value) {
         setSelectedDriver(null);
       }
+      if (name === 'transportName' && !value) {
+        setSelectedTransporter(null);
+      }
     },
     [table]
   );
@@ -268,7 +270,7 @@ export function SubtripListView() {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.subtrip.edit(paramCase(id)));
   };
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -308,11 +310,20 @@ export function SubtripListView() {
     [handleFilters]
   );
 
+  const handleSelectTransporter = useCallback(
+    (transporter) => {
+      setSelectedTransporter(transporter);
+      handleFilters('transportName', transporter._id);
+    },
+    [handleFilters]
+  );
+
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
     setSelectedCustomer(null);
     setSelectedVehicle(null);
     setSelectedDriver(null);
+    setSelectedTransporter(null);
   }, []);
 
   // Add handler for toggling column visibility
@@ -385,7 +396,7 @@ export function SubtripListView() {
               divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
               sx={{ py: 2 }}
             >
-              {TABS.map((tab) => (
+              {TABS.map((tab) =>
                 isCountLoading ? (
                   <Stack
                     key={tab.value}
@@ -400,14 +411,12 @@ export function SubtripListView() {
                     key={tab.value}
                     title={tab.label}
                     total={tab.count}
-                    percent={
-                      tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)
-                    }
+                    percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
                     icon={tab.icon}
                     color={tab.analyticsColor}
                   />
                 )
-              ))}
+              )}
             </Stack>
           </Scrollbar>
         </Card>
@@ -435,7 +444,8 @@ export function SubtripListView() {
                   ) : (
                     <Label
                       variant={
-                        ((tab.value === 'all' || tab.value === filters.subtripStatus) && 'filled') ||
+                        ((tab.value === 'all' || tab.value === filters.subtripStatus) &&
+                          'filled') ||
                         'soft'
                       }
                       color={tab.color}
@@ -455,6 +465,8 @@ export function SubtripListView() {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            selectedTransporter={selectedTransporter}
+            onSelectTransporter={handleSelectTransporter}
             selectedCustomer={selectedCustomer}
             onSelectCustomer={handleSelectCustomer}
             selectedVehicle={selectedVehicle}
@@ -468,6 +480,7 @@ export function SubtripListView() {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
+              selectedTransporterName={selectedTransporter?.transportName}
               selectedCustomerName={selectedCustomer?.customerName}
               selectedVehicleNo={selectedVehicle?.vehicleNo}
               selectedDriverName={selectedDriver?.driverName}
@@ -610,4 +623,3 @@ export function SubtripListView() {
 }
 
 // ----------------------------------------------------------------------
-
