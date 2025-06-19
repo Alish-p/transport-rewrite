@@ -1,5 +1,7 @@
 import { Button } from '@mui/material';
 
+import { varAlpha } from 'src/theme/styles';
+
 import { Iconify } from '../iconify';
 
 export function DialogSelectButton({
@@ -26,7 +28,13 @@ export function DialogSelectButton({
         height: 56,
         justifyContent: 'flex-start',
         typography: 'body2',
-        borderColor: error ? 'error.main' : 'text.disabled',
+        color: selected ? 'text.primary' : 'text.disabled',
+        borderColor: (theme) =>
+          error
+            ? theme.vars.palette.error.main
+            : disabled
+              ? theme.vars.palette.action.disabledBackground
+              : varAlpha(theme.vars.palette.grey['500Channel'], 0.2),
         ...sx,
       }}
       startIcon={

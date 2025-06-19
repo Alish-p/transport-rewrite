@@ -18,6 +18,7 @@ import { alpha, useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
 
 import { TableContainer } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -38,6 +39,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -116,7 +118,7 @@ export function SubtripListView() {
 
   const [tableData, setTableData] = useState([]);
 
-  const { data, isLoading } = usePaginatedSubtrips({
+  const { data, isLoading, isFetching } = usePaginatedSubtrips({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     subtripStatus:
@@ -140,6 +142,7 @@ export function SubtripListView() {
   }, [data]);
 
   const totalCount = data?.total || 0;
+  const isCountLoading = isFetching;
 
   const denseHeight = table.dense ? 56 : 76;
 
@@ -344,14 +347,27 @@ export function SubtripListView() {
               sx={{ py: 2 }}
             >
               {TABS.map((tab) => (
-                <SubtripAnalytic
-                  key={tab.value}
-                  title={tab.label}
-                  total={tab.count}
-                  percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
-                  icon={tab.icon}
-                  color={tab.analyticsColor}
-                />
+                isCountLoading ? (
+                  <Stack
+                    key={tab.value}
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{ width: 1, minWidth: 200 }}
+                  >
+                    <CircularProgress />
+                  </Stack>
+                ) : (
+                  <SubtripAnalytic
+                    key={tab.value}
+                    title={tab.label}
+                    total={tab.count}
+                    percent={
+                      tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)
+                    }
+                    icon={tab.icon}
+                    color={tab.analyticsColor}
+                  />
+                )
               ))}
             </Stack>
           </Scrollbar>
@@ -375,15 +391,19 @@ export function SubtripListView() {
                 label={tab.label}
                 iconPosition="end"
                 icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.subtripStatus) && 'filled') ||
-                      'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
+                  isCountLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label
+                      variant={
+                        ((tab.value === 'all' || tab.value === filters.subtripStatus) && 'filled') ||
+                        'soft'
+                      }
+                      color={tab.color}
+                    >
+                      {tab.count}
+                    </Label>
+                  )
                 }
               />
             ))}
@@ -473,23 +493,29 @@ export function SubtripListView() {
                   }
                 />
                 <TableBody>
-                  {(isLoading ? [] : tableData).map((row) => (
-                    <SubtripTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteSubtrip(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                  {isLoading ? (
+                    Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                      <TableSkeleton key={index} />
+                    ))
+                  ) : (
+                    <>
+                      {tableData.map((row) => (
+                        <SubtripTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteSubtrip(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                        />
+                      ))}
 
-
-
-                  <TableNoData notFound={notFound} />
+                      <TableNoData notFound={notFound} />
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </Scrollbar>
