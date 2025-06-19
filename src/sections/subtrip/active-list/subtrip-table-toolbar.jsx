@@ -22,9 +22,6 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
-import { useDriversSummary } from 'src/query/use-driver';
-import { useVehiclesSummary } from 'src/query/use-vehicle';
-import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -44,6 +41,12 @@ export default function SubtripTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  selectedCustomer,
+  onSelectCustomer,
+  selectedVehicle,
+  onSelectVehicle,
+  selectedDriver,
+  onSelectDriver,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -57,13 +60,6 @@ export default function SubtripTableToolbar({
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
 
-  const { data: customers = [] } = useCustomersSummary();
-  const { data: vehicles = [] } = useVehiclesSummary();
-  const { data: drivers = [] } = useDriversSummary();
-
-  const selectedCustomer = customers.find((c) => c._id === filters.customerId);
-  const selectedVehicle = vehicles.find((v) => v._id === filters.vehicleNo);
-  const selectedDriver = drivers.find((d) => d._id === filters.driverId);
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -75,22 +71,31 @@ export default function SubtripTableToolbar({
   const handleSelectCustomer = useCallback(
     (customer) => {
       onFilters('customerId', customer._id);
+      if (onSelectCustomer) {
+        onSelectCustomer(customer);
+      }
     },
-    [onFilters]
+    [onFilters, onSelectCustomer]
   );
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
       onFilters('vehicleNo', vehicle._id);
+      if (onSelectVehicle) {
+        onSelectVehicle(vehicle);
+      }
     },
-    [onFilters]
+    [onFilters, onSelectVehicle]
   );
 
   const handleSelectDriver = useCallback(
     (driver) => {
       onFilters('driverId', driver._id);
+      if (onSelectDriver) {
+        onSelectDriver(driver);
+      }
     },
-    [onFilters]
+    [onFilters, onSelectDriver]
   );
 
   const handleToggleMaterial = useCallback(

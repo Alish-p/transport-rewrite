@@ -90,6 +90,9 @@ export function SubtripListView() {
   const deleteSubtrip = useDeleteSubtrip();
 
   const [filters, setFilters] = useState(defaultFilters);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -249,6 +252,15 @@ export function SubtripListView() {
         ...prevState,
         [name]: value,
       }));
+      if (name === 'customerId' && !value) {
+        setSelectedCustomer(null);
+      }
+      if (name === 'vehicleNo' && !value) {
+        setSelectedVehicle(null);
+      }
+      if (name === 'driverId' && !value) {
+        setSelectedDriver(null);
+      }
     },
     [table]
   );
@@ -272,8 +284,35 @@ export function SubtripListView() {
     [handleFilters]
   );
 
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      setSelectedCustomer(customer);
+      handleFilters('customerId', customer._id);
+    },
+    [handleFilters]
+  );
+
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      setSelectedVehicle(vehicle);
+      handleFilters('vehicleNo', vehicle._id);
+    },
+    [handleFilters]
+  );
+
+  const handleSelectDriver = useCallback(
+    (driver) => {
+      setSelectedDriver(driver);
+      handleFilters('driverId', driver._id);
+    },
+    [handleFilters]
+  );
+
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
+    setSelectedCustomer(null);
+    setSelectedVehicle(null);
+    setSelectedDriver(null);
   }, []);
 
   // Add handler for toggling column visibility
@@ -416,6 +455,12 @@ export function SubtripListView() {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            selectedCustomer={selectedCustomer}
+            onSelectCustomer={handleSelectCustomer}
+            selectedVehicle={selectedVehicle}
+            onSelectVehicle={handleSelectVehicle}
+            selectedDriver={selectedDriver}
+            onSelectDriver={handleSelectDriver}
           />
 
           {canReset && (
@@ -423,6 +468,9 @@ export function SubtripListView() {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
+              selectedCustomerName={selectedCustomer?.customerName}
+              selectedVehicleNo={selectedVehicle?.vehicleNo}
+              selectedDriverName={selectedDriver?.driverName}
               results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />

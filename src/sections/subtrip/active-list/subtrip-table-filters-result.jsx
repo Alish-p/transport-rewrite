@@ -8,10 +8,6 @@ import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { useDriversSummary } from 'src/query/use-driver';
-import { useVehiclesSummary } from 'src/query/use-vehicle';
-import { useCustomersSummary } from 'src/query/use-customer';
-
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -21,11 +17,11 @@ export default function SubtripTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedCustomerName,
+  selectedVehicleNo,
+  selectedDriverName,
   ...other
 }) {
-  const { data: customers = [] } = useCustomersSummary();
-  const { data: vehicles = [] } = useVehiclesSummary();
-  const { data: drivers = [] } = useDriversSummary();
   const handleRemoveSubtripStatus = () => {
     onFilters('subtripStatus', 'all');
   };
@@ -85,7 +81,7 @@ export default function SubtripTableFiltersResult({
 
         {filters.customerId && (
           <Block label="Customer">
-            <Chip size="small" label={customers.find((c) => c._id === filters.customerId)?.customerName || filters.customerId} onDelete={handleRemoveCustomer} />
+            <Chip size="small" label={selectedCustomerName || filters.customerId} onDelete={handleRemoveCustomer} />
           </Block>
         )}
 
@@ -97,13 +93,13 @@ export default function SubtripTableFiltersResult({
 
         {filters.vehicleNo && (
           <Block label="Vehicle:">
-            <Chip size="small" label={vehicles.find((v) => v._id === filters.vehicleNo)?.vehicleNo || filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+            <Chip size="small" label={selectedVehicleNo || filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
           </Block>
         )}
 
         {filters.driverId && (
           <Block label="Driver:">
-            <Chip size="small" label={drivers.find((d) => d._id === filters.driverId)?.driverName || filters.driverId} onDelete={handleRemoveDriver} />
+            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
           </Block>
         )}
 
