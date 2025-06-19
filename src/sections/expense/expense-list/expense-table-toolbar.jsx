@@ -174,10 +174,11 @@ export default function ExpenseTableToolbar({
           selected={
             filters.fromDate && filters.endDate
               ? fDateRangeShortLabel(filters.fromDate, filters.endDate)
-              : 'Date Range'
+              : undefined
           }
           onClick={dateDialog.onTrue}
           iconName="mdi:calendar"
+
         />
         <CustomDateRangePicker
           variant="calendar"

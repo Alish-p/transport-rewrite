@@ -18,6 +18,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
@@ -166,7 +167,7 @@ export default function SubtripTableToolbar({
           onClick={startRange.onTrue}
           selected={
             filters.fromDate && filters.toDate
-              ? `${filters.fromDate} to ${filters.toDate}`
+              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
               : undefined
           }
           placeholder="Start Date"
@@ -177,7 +178,7 @@ export default function SubtripTableToolbar({
           onClick={endRange.onTrue}
           selected={
             filters.subtripEndFromDate && filters.subtripEndToDate
-              ? `${filters.subtripEndFromDate} to ${filters.subtripEndToDate}`
+              ? fDateRangeShortLabel(filters.subtripEndFromDate, filters.subtripEndToDate)
               : undefined
           }
           placeholder="End Date"
@@ -303,6 +304,7 @@ export default function SubtripTableToolbar({
       </CustomPopover>
 
       <CustomDateRangePicker
+        variant='calendar'
         open={startRange.value}
         onClose={startRange.onFalse}
         startDate={filters.fromDate}
@@ -312,6 +314,7 @@ export default function SubtripTableToolbar({
       />
 
       <CustomDateRangePicker
+        variant='calendar'
         open={endRange.value}
         onClose={endRange.onFalse}
         startDate={filters.subtripEndFromDate}
