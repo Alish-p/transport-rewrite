@@ -7,14 +7,14 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // utils
-import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 // components
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripAnalytic({ title, total, icon, color, percent, price }) {
+export default function SubtripAnalytic({ title, total, icon, color, percent }) {
   return (
     <Stack
       spacing={2.5}
@@ -56,7 +56,6 @@ export default function SubtripAnalytic({ title, total, icon, color, percent, pr
           {fShortenNumber(total) || 0} Subtrips
         </Box>
 
-        <Typography variant="subtitle2">{fCurrency(price)}</Typography>
       </Stack>
     </Stack>
   );

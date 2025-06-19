@@ -1,4 +1,3 @@
-import sumBy from 'lodash/sumBy';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -169,58 +168,74 @@ export function SubtripListView() {
 
   const getSubtripLength = (subtripStatus) => statusCounts[subtripStatus] || 0;
 
-  const getTotalAmount = (subtripStatus) =>
-    sumBy(
-      tableData.filter((item) => item.subtripStatus === subtripStatus),
-      'totalAmount'
-    );
 
   const getPercentBySubtripStatus = (subtripStatus) =>
     (getSubtripLength(subtripStatus) / totalCount) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: totalCount },
+    {
+      value: 'all',
+      label: 'All',
+      color: 'default',
+      count: totalCount,
+      icon: 'solar:bill-list-bold-duotone',
+      analyticsColor: theme.palette.info.main,
+    },
     {
       value: 'in-queue',
       label: 'In-queue',
       color: 'error',
       count: statusCounts['in-queue'],
+      icon: 'solar:sort-by-time-bold-duotone',
+      analyticsColor: theme.palette.warning.main,
     },
     {
       value: 'loaded',
       label: 'Loaded',
       color: 'success',
       count: statusCounts.loaded,
+      icon: 'mdi:truck',
+      analyticsColor: theme.palette.success.main,
     },
     {
       value: 'received',
       label: 'Recieved',
       color: 'success',
       count: statusCounts.received,
+      icon: 'material-symbols:call-received',
+      analyticsColor: theme.palette.primary.main,
     },
     {
       value: 'error',
       label: 'Error',
       color: 'error',
       count: statusCounts.error,
+      icon: 'material-symbols:error-outline',
+      analyticsColor: theme.palette.error.main,
     },
     {
       value: 'billed-pending',
       label: 'Billed Pending',
       color: 'warning',
       count: statusCounts['billed-pending'],
+      icon: 'mdi:file-document-alert',
+      analyticsColor: theme.palette.warning.main,
     },
     {
       value: 'billed-overdue',
       label: 'Billed Overdue',
       color: 'error',
       count: statusCounts['billed-overdue'],
+      icon: 'mdi:file-document-alert-outline',
+      analyticsColor: theme.palette.error.main,
     },
     {
       value: 'billed-paid',
       label: 'Billed Paid',
       color: 'success',
       count: statusCounts['billed-paid'],
+      icon: 'mdi:check-bold',
+      analyticsColor: theme.palette.success.main,
     },
   ];
 
@@ -328,76 +343,16 @@ export function SubtripListView() {
               divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
               sx={{ py: 2 }}
             >
-              <SubtripAnalytic
-                title="All"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <SubtripAnalytic
-                title="In-queue"
-                total={getSubtripLength('in-queue')}
-                percent={getPercentBySubtripStatus('in-queue')}
-                price={getTotalAmount('in-queue')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-
-              <SubtripAnalytic
-                title="Loaded"
-                total={getSubtripLength('loaded')}
-                percent={getPercentBySubtripStatus('loaded')}
-                price={getTotalAmount('loaded')}
-                icon="mdi:truck"
-                color={theme.palette.success.main}
-              />
-
-              <SubtripAnalytic
-                title="Recieved"
-                total={getSubtripLength('received')}
-                percent={getPercentBySubtripStatus('received')}
-                price={getTotalAmount('received')}
-                icon="material-symbols:call-received"
-                color={theme.palette.primary.main}
-              />
-
-              <SubtripAnalytic
-                title="Error"
-                total={getSubtripLength('error')}
-                percent={getPercentBySubtripStatus('error')}
-                price={getTotalAmount('error')}
-                icon="material-symbols:error-outline"
-                color={theme.palette.error.main}
-              />
-
-              <SubtripAnalytic
-                title="Billed Pending"
-                total={getSubtripLength('billed-pending')}
-                percent={getPercentBySubtripStatus('billed-pending')}
-                price={getTotalAmount('billed-pending')}
-                icon="mdi:file-document-alert"
-                color={theme.palette.warning.main}
-              />
-              <SubtripAnalytic
-                title="Billed Overdue"
-                total={getSubtripLength('billed-overdue')}
-                percent={getPercentBySubtripStatus('billed-overdue')}
-                price={getTotalAmount('billed-overdue')}
-                icon="mdi:file-document-alert-outline"
-                color={theme.palette.error.main}
-              />
-
-              <SubtripAnalytic
-                title="Billed Paid"
-                total={getSubtripLength('billed-paid')}
-                percent={getPercentBySubtripStatus('billed-paid')}
-                price={getTotalAmount('billed-paid')}
-                icon="mdi:check-bold"
-                color={theme.palette.success.main}
-              />
+              {TABS.map((tab) => (
+                <SubtripAnalytic
+                  key={tab.value}
+                  title={tab.label}
+                  total={tab.count}
+                  percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
+                  icon={tab.icon}
+                  color={tab.analyticsColor}
+                />
+              ))}
             </Stack>
           </Scrollbar>
         </Card>
