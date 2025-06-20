@@ -24,6 +24,7 @@ import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -288,14 +289,16 @@ export default function SubtripTableToolbar({
         anchorEl={materialPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {CONFIG.materialOptions.map(({ value }) => (
-            <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
-              <Checkbox checked={filters.materials.includes(value)} />
-              <ListItemText primary={value} />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
+          <MenuList>
+            {CONFIG.materialOptions.map(({ value }) => (
+              <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
+                <Checkbox checked={filters.materials.includes(value)} />
+                <ListItemText primary={value} />
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Scrollbar>
       </CustomPopover>
 
       <CustomDateRangePicker
