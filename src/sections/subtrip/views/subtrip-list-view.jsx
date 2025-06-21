@@ -38,6 +38,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { transformSubtripsForExcel } from '../utils';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableRow from '../reports/subtrip-table-row';
 import { usePaginatedSubtrips } from '../../../query/use-subtrip';
@@ -317,6 +318,9 @@ export function SubtripListView() {
     (column) => column.id === '' || visibleColumns[column.id]
   );
 
+  const getVisibleColumnsForExport = () =>
+    TABLE_COLUMNS.filter((column) => visibleColumns[column.id]).map((column) => column.id);
+
   return (
     <>
       <DashboardContent>
@@ -475,35 +479,39 @@ export function SubtripListView() {
               }
               action={
                 <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download">
+                  <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
                       onClick={() => {
                         const selectedRows = tableData.filter(({ _id }) =>
                           table.selected.includes(_id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const selectedVisibleColumns = getVisibleColumnsForExport();
+                        exportToExcel(
+                          transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
+                          'filtered'
+                        );
+                      }}
+                    >
+                      <Iconify icon="vscode-icons:file-type-excel" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download PDF">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const selectedVisibleColumns = getVisibleColumnsForExport();
+                        exportToExcel(
+                          transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
+                          'filtered'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Tooltip>
                 </Stack>
