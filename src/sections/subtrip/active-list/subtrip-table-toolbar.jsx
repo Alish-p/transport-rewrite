@@ -13,13 +13,15 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 // components
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
-import { PDFDownloadButton } from 'src/pdfs/common';
+import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -238,15 +240,30 @@ export default function SubtripTableToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem disableGutters onClick={popover.onClose}>
-            <PDFDownloadButton
-              fileName="Subtrip-list.pdf"
-              getDocument={async () => {
-                const { default: SubtripListPdf } = await import('src/pdfs/subtrip-list-pdf');
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={(() => {
                 const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-                return () => <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+                return <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+              })()}
+              fileName="Subtrip-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
               }}
-            />
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
 
           <MenuItem
@@ -261,10 +278,7 @@ export default function SubtripTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                transformSubtripsForExcel(tableData, visibleCols),
-                'subtrip-list'
-              );
+              exportToExcel(transformSubtripsForExcel(tableData, visibleCols), 'subtrip-list');
               popover.onClose();
             }}
           >

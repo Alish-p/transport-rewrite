@@ -1,3 +1,4 @@
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -22,6 +23,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -51,7 +53,6 @@ import {
 } from '../config/table-columns';
 
 // ----------------------------------------------------------------------
-
 
 const defaultFilters = {
   customerId: '',
@@ -498,21 +499,30 @@ export function SubtripListView() {
                   </Tooltip>
 
                   <Tooltip title="Download PDF">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
+                    <PDFDownloadLink
+                      document={(() => {
                         const selectedRows = tableData.filter(({ _id }) =>
                           table.selected.includes(_id)
                         );
                         const selectedVisibleColumns = getVisibleColumnsForExport();
-                        exportToExcel(
-                          transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
-                          'filtered'
+                        return (
+                          <SubtripListPdf
+                            subtrips={selectedRows}
+                            visibleColumns={selectedVisibleColumns}
+                          />
                         );
-                      }}
+                      })()}
+                      fileName="Subtrip-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'}
+                          />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
                   </Tooltip>
                 </Stack>
               }
