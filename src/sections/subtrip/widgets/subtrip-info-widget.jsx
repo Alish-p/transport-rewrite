@@ -25,7 +25,7 @@ export default function LRInfoCard({ subtrip }) {
     materialType,
     quantity,
     grade,
-    tripId: { _id } = {},
+    tripId: { _id, vehicleId, driverId } = {},
     startDate,
     endDate,
     rate = '-',
@@ -47,6 +47,8 @@ export default function LRInfoCard({ subtrip }) {
 
   const routeName = routeCd?.routeName || '-';
   const customerName = customerId?.customerName || '-';
+  const vehicleNo = vehicleId?.vehicleNo || '-';
+  const driverName = driverId?.driverName || '-';
 
   const renderCustomer = (
     <>
@@ -122,6 +124,26 @@ export default function LRInfoCard({ subtrip }) {
               Consignee:{' '}
               <Box component="span" sx={{ color: 'text.secondary' }}>
                 {consignee}
+              </Box>
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:truck-outline" width={20} />
+            <Typography>
+              Vehicle:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {vehicleNo}
+              </Box>
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="healthicons:truck-driver" width={20} />
+            <Typography>
+              Driver:{' '}
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {driverName}
               </Box>
             </Typography>
           </Stack>
