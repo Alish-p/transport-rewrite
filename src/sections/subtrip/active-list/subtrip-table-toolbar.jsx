@@ -182,7 +182,7 @@ export default function SubtripTableToolbar({
               ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
               : undefined
           }
-          placeholder="Start Date"
+          placeholder="Dispatch Date Range"
           iconName="mdi:calendar"
         />
 
@@ -193,7 +193,7 @@ export default function SubtripTableToolbar({
               ? fDateRangeShortLabel(filters.subtripEndFromDate, filters.subtripEndToDate)
               : undefined
           }
-          placeholder="End Date"
+          placeholder="Receive Date Range"
           iconName="mdi:calendar"
         />
 
