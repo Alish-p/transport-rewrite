@@ -166,7 +166,6 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/expense/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/expense/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/expense/${id}`,
-      reports: `${ROOTS.DASHBOARD}/expense/reports`,
     },
     subtrip: {
       root: `${ROOTS.DASHBOARD}/subtrip`,

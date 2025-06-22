@@ -46,11 +46,10 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { CONFIG } from '../../config-global';
 // Config & Constants
-import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
-import { SUBTRIP_STATUS } from './constants';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
+import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
 // ----------------------------------------------------------------------
@@ -400,7 +399,7 @@ export function SubtripLoadForm() {
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -810,7 +809,7 @@ export function SubtripLoadForm() {
       <InvoiceScanner
         open={scannerDialog.value}
         onClose={scannerDialog.onFalse}
-        onScanComplete={() => {}}
+        onScanComplete={() => { }}
       />
     </Container>
   );

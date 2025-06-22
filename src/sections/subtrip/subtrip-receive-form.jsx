@@ -27,9 +27,9 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { SUBTRIP_STATUS } from './constants';
 import { receiveSchema } from './subtrip-schemas';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
-import { SUBTRIP_STATUS } from './constants';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
