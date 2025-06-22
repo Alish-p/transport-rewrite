@@ -47,14 +47,8 @@ export function JwtSignInView() {
 
   const password = useBoolean();
 
-  const defaultValues = {
-    email: 'demo@transport.cc',
-    password: 'demo@123',
-  };
-
   const methods = useForm({
     resolver: zodResolver(SignInSchema),
-    defaultValues,
   });
 
   const {
@@ -70,7 +64,15 @@ export function JwtSignInView() {
       router.refresh();
     } catch (error) {
       console.error(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
+      let message = 'An error occurred';
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        message = error.message;
+      }
+      setErrorMsg(message);
     }
   });
 
@@ -140,12 +142,6 @@ export function JwtSignInView() {
   return (
     <>
       {renderHead}
-
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Use <strong>{defaultValues.email}</strong>
-        {' with password '}
-        <strong>{defaultValues.password}</strong>
-      </Alert>
 
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
