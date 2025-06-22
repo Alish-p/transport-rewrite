@@ -12,7 +12,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
 import { useCreateExpense, useDeleteExpense } from 'src/query/use-expense';
-import { useSubtrip, useLoadedInQueueSubtrips } from 'src/query/use-subtrip';
+import { useSubtrip } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -25,6 +25,7 @@ import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
 import { subtripExpenseTypes, SUBTRIP_EXPENSE_TYPES } from './expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
+import { SUBTRIP_STATUS } from '../subtrip/constants';
 
 function ExpenseCoreForm({ currentSubtrip }) {
   const [selectedPump, setSelectedPump] = useState(null);
@@ -38,9 +39,6 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const createExpense = useCreateExpense();
   const deleteExpense = useDeleteExpense();
-
-  const { data: inqueueAndLoadedSubtrips, isLoading: isInqueueAndLoadedSubtripsLoading } =
-    useLoadedInQueueSubtrips();
 
   const {
     data: subtripData,
@@ -304,8 +302,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={subtripData}
         onSubtripChange={handleSubtripChange}
-        subtrips={inqueueAndLoadedSubtrips}
-        isLoading={isInqueueAndLoadedSubtripsLoading}
+        statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
       />
 
       <ConfirmDialog

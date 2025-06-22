@@ -36,11 +36,7 @@ import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 import { useGps } from 'src/query/use-gps';
 // Queries & Mutations
 import { useRoute, useRoutes } from 'src/query/use-route';
-import {
-  useSubtrip,
-  useInQueueSubtrips,
-  useUpdateSubtripMaterialInfo,
-} from 'src/query/use-subtrip';
+import { useSubtrip, useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
 // Components
 import { Iconify } from 'src/components/iconify';
@@ -52,6 +48,7 @@ import { CONFIG } from '../../config-global';
 // Config & Constants
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { SUBTRIP_STATUS } from './constants';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
@@ -173,7 +170,6 @@ export function SubtripLoadForm() {
   const scannerDialog = useBoolean(false);
 
   // Data fetching
-  const { data: inqueueSubtrips = [], isLoading: loadingInqueueSubtrips } = useInQueueSubtrips();
 
   // Fetch FULL details of the selected subtrip ID
   const {
@@ -328,21 +324,10 @@ export function SubtripLoadForm() {
   // ----------------------------------------------------------------------
 
   useEffect(() => {
-    if (
-      currentSubtripId &&
-      !selectedSubtripId &&
-      !loadingInqueueSubtrips &&
-      inqueueSubtrips.length > 0
-    ) {
-      const subtripExists = inqueueSubtrips.some((s) => s._id === currentSubtripId);
-      if (subtripExists) {
-        console.log('Setting Subtrip ID from URL Param:', currentSubtripId);
-        setSelectedSubtripId(currentSubtripId);
-      } else {
-        console.warn(`Subtrip ID ${currentSubtripId} from URL not found.`);
-      }
+    if (currentSubtripId && !selectedSubtripId) {
+      setSelectedSubtripId(currentSubtripId);
     }
-  }, [currentSubtripId, inqueueSubtrips, selectedSubtripId, loadingInqueueSubtrips]);
+  }, [currentSubtripId, selectedSubtripId]);
 
   useEffect(() => {
     if (detailedSubtrip && detailedSubtrip._id === selectedSubtripId) {
@@ -415,7 +400,7 @@ export function SubtripLoadForm() {
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -450,7 +435,7 @@ export function SubtripLoadForm() {
         selected={selectedSubtripId}
         error={!!errors.subtripId}
         iconName="mdi:truck"
-        disabled={loadingInqueueSubtrips || isLoadingSubtripDetails || !!currentSubtripId}
+        disabled={isLoadingSubtripDetails || !!currentSubtripId}
         selectedText={
           selectedSubtrip
             ? `Subtrip: ${selectedSubtrip?.displayIdentifier || selectedSubtrip?._id}`
@@ -802,8 +787,7 @@ export function SubtripLoadForm() {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
-        subtrips={inqueueSubtrips}
-        isLoading={loadingInqueueSubtrips}
+        statusList={[SUBTRIP_STATUS.IN_QUEUE]}
         dialogTitle="Select Subtrip to Load"
       />
 
@@ -826,7 +810,7 @@ export function SubtripLoadForm() {
       <InvoiceScanner
         open={scannerDialog.value}
         onClose={scannerDialog.onFalse}
-        onScanComplete={() => { }}
+        onScanComplete={() => {}}
       />
     </Container>
   );

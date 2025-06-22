@@ -21,7 +21,7 @@ import {
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGps } from 'src/query/use-gps';
-import { useSubtrip, useLoadedSubtrips, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
+import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -29,6 +29,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { receiveSchema } from './subtrip-schemas';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { SUBTRIP_STATUS } from './constants';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
@@ -203,8 +204,6 @@ export function SubtripReceiveForm() {
   const subtripDialog = useBoolean();
   const [selectedSubtripId, setSelectedSubtripId] = useState(() => currentSubtripId || null);
 
-  const { data: loadedSubtrips = [], isLoading: loadingLoadedSubtrips } = useLoadedSubtrips();
-
   const {
     data: selectedSubtripData,
     isLoading: isLoadingSelectedSubtrip,
@@ -231,7 +230,9 @@ export function SubtripReceiveForm() {
   const { unloadingWeight, endKm, commissionRate } = watch();
   const { isOwn } = selectedSubtripData?.tripId?.vehicleId || {};
   const vehicleNo = selectedSubtripData?.tripId?.vehicleId?.vehicleNo;
-  const { data: gpsData } = useGps(vehicleNo, { enabled: selectedSubtripData?.tripId?.vehicleId?.isOwn });
+  const { data: gpsData } = useGps(vehicleNo, {
+    enabled: selectedSubtripData?.tripId?.vehicleId?.isOwn,
+  });
   const handleSubtripChange = useCallback(
     (subtrip) => {
       setSelectedSubtripId(subtrip._id);
@@ -363,8 +364,7 @@ export function SubtripReceiveForm() {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtripData}
         onSubtripChange={handleSubtripChange}
-        subtrips={loadedSubtrips}
-        isLoading={loadingLoadedSubtrips}
+        statusList={[SUBTRIP_STATUS.LOADED]}
         dialogTitle="Select Subtrip to Receive"
       />
     </>

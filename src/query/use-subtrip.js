@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -48,6 +48,11 @@ const getFilteredSubtrips = async ({ queryKey }) => {
 
 const getPaginatedSubtrips = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  return data;
+};
+
+const getSubtripsByStatus = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/status`, { params });
   return data;
 };
 
@@ -199,6 +204,20 @@ export function usePaginatedSubtrips(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],
     queryFn: () => getPaginatedSubtrips(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteSubtripsByStatus(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'status', params],
+    queryFn: ({ pageParam = 1 }) => getSubtripsByStatus({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce((acc, page) => acc + page.results.length, 0);
+      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+    },
     keepPreviousData: true,
     enabled: !!params,
     ...options,
