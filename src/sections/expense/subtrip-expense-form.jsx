@@ -10,9 +10,9 @@ import { LoadingButton } from '@mui/lab';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useSubtrip } from 'src/query/use-subtrip';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
 import { useCreateExpense, useDeleteExpense } from 'src/query/use-expense';
-import { useSubtrip, useLoadedInQueueSubtrips } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -20,6 +20,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import ExpenseInsights from './expense-insights';
+import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { SubtripExpenseSchema } from './expense-schemas';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
@@ -38,9 +39,6 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const createExpense = useCreateExpense();
   const deleteExpense = useDeleteExpense();
-
-  const { data: inqueueAndLoadedSubtrips, isLoading: isInqueueAndLoadedSubtripsLoading } =
-    useLoadedInQueueSubtrips();
 
   const {
     data: subtripData,
@@ -304,8 +302,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={subtripData}
         onSubtripChange={handleSubtripChange}
-        subtrips={inqueueAndLoadedSubtrips}
-        isLoading={isInqueueAndLoadedSubtripsLoading}
+        statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
       />
 
       <ConfirmDialog

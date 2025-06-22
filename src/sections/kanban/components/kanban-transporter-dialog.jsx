@@ -39,6 +39,7 @@ export function KanbanTransporterDialog({
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isFetching,
   } = useInfiniteTransporters(
     { search: searchTransporter || undefined, rowsPerPage: 50 },
     { enabled: open }
@@ -97,7 +98,7 @@ export function KanbanTransporterDialog({
         ) : notFound ? (
           <SearchNotFound query={searchTransporter} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
+          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 1, }}>
             <Box component="ul">
               {transporters.map((transporter) => {
                 const isSelected = selectedTransporter?._id === transporter._id;
@@ -145,12 +146,9 @@ export function KanbanTransporterDialog({
                 ref={loadMoreRef}
                 sx={{
                   height: ITEM_HEIGHT,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
                 }}
               >
-                {isFetchingNextPage && <LoadingSpinner />}
+                {isFetching && <LoadingSpinner />}
               </Box>
             </Box>
           </Scrollbar>

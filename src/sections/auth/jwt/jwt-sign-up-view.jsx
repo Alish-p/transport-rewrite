@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import { z as zod } from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -79,7 +80,15 @@ export function JwtSignUpView() {
       router.refresh();
     } catch (error) {
       console.error(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
+      let message = 'An error occurred';
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        message = error.message;
+      }
+      setErrorMsg(message);
     }
   });
 

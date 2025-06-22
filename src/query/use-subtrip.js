@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -11,20 +11,6 @@ const QUERY_KEY = 'subtrips';
 // Fetchers
 const getSubtrips = async () => {
   const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-const getLoadedSubtrips = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/loaded`);
-  return data;
-};
-
-const getInQueueSubtrips = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/inqueue`);
-  return data;
-};
-
-const getLoadedInQueueSubtrips = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/loaded-in-queue`);
   return data;
 };
 
@@ -44,6 +30,16 @@ const getFilteredSubtrips = async ({ queryKey }) => {
     toast.error(errorMessage);
     throw error;
   }
+};
+
+const getPaginatedSubtrips = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
+  return data;
+};
+
+const getSubtripsByStatus = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/status`, { params });
+  return data;
 };
 
 const createSubtrip = async (subtrip) => {
@@ -94,17 +90,6 @@ const closeEmptySubtrip = async (id, subtripData) => {
 // Queries & Mutations
 export function useSubtrips() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getSubtrips });
-}
-
-export function useLoadedSubtrips() {
-  return useQuery({ queryKey: [QUERY_KEY, 'loaded'], queryFn: getLoadedSubtrips });
-}
-export function useLoadedInQueueSubtrips() {
-  return useQuery({ queryKey: [QUERY_KEY, 'loaded-in-queue'], queryFn: getLoadedInQueueSubtrips });
-}
-
-export function useInQueueSubtrips() {
-  return useQuery({ queryKey: [QUERY_KEY, 'in-queue'], queryFn: getInQueueSubtrips });
 }
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
@@ -187,6 +172,30 @@ export function useFilteredSubtrips(params) {
     queryFn: getFilteredSubtrips,
     enabled: Object.keys(params).length > 0,
     retry: 0,
+  });
+}
+
+export function usePaginatedSubtrips(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedSubtrips(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteSubtripsByStatus(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'status', params],
+    queryFn: ({ pageParam = 1 }) => getSubtripsByStatus({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce((acc, page) => acc + page.results.length, 0);
+      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 

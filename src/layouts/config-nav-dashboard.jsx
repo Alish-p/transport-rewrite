@@ -141,7 +141,6 @@ export const navData = [
         resource: 'expense',
         children: [
           { title: 'List', path: paths.dashboard.expense.root, action: 'view' },
-          { title: 'Reports', path: paths.dashboard.expense.reports, action: 'view' },
           {
             title: 'Add Expense to Subtrip',
             path: paths.dashboard.expense.new,

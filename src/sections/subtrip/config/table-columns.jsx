@@ -32,7 +32,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'tripId',
     label: 'Trip No',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.tripId?._id,
     align: 'center',
@@ -59,7 +59,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'driver',
     label: 'Driver',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.tripId?.driverId?.driverName || '-',
     align: 'center',
@@ -83,7 +83,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'invoiceNo',
     label: 'Invoice No',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.invoiceNo || '-',
     align: 'center',
@@ -114,7 +114,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'materialType',
     label: 'Material',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.materialType || '-',
     align: 'center',
@@ -180,7 +180,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'ewayExpiryDate',
     label: 'E-Way Bill Expiry Date',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => fDate(row?.ewayExpiryDate) || '-',
     type: 'date',
@@ -216,7 +216,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'loadingWeight',
     label: 'Loading Weight',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.loadingWeight || '-',
     align: 'center',
@@ -264,7 +264,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'transport',
     label: 'Transporter',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row?.tripId?.vehicleId?.transporter?.transportName || '-',
     align: 'center',

@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import { useInView } from 'react-intersection-observer';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import { Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Skeleton from '@mui/material/Skeleton';
@@ -10,8 +9,13 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import ListItemText from '@mui/material/ListItemText';
+import { Stack, CircularProgress } from '@mui/material';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
+
+import { useDebounce } from 'src/hooks/use-debounce';
+
+import { useInfiniteSubtripsByStatus } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -27,14 +31,12 @@ const LIST_HEIGHT = ITEM_HEIGHT * 6;
 
 // ----------------------------------------------------------------------
 
-const SubtripItem = ({ data: { subtrips, selectedSubtrip, onSelect }, index, style }) => {
-  const subtrip = subtrips[index];
+const SubtripItem = ({ subtrip, selectedSubtrip, onSelect }) => {
   const isSelected = selectedSubtrip?._id === subtrip._id;
 
   return (
     <Box
       component="li"
-      style={style}
       sx={{
         gap: 2,
         display: 'flex',
@@ -74,7 +76,7 @@ const SubtripItem = ({ data: { subtrips, selectedSubtrip, onSelect }, index, sty
 
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography variant="caption">
-                {`${subtrip.tripId?.vehicleId?.vehicleNo || 'N/A'} | ${subtrip.tripId?.driverId?.driverName || 'N/A'} | ${subtrip.startDate ? new Date(subtrip.startDate).toLocaleDateString() : 'N/A'}`}
+                {`${subtrip.vehicleNo || 'N/A'} | ${subtrip.driverName || 'N/A'} | ${subtrip.startDate ? new Date(subtrip.startDate).toLocaleDateString() : 'N/A'}`}
               </Typography>
             </Stack>
           </Stack>
@@ -126,14 +128,43 @@ const LoadingSkeleton = () => (
 );
 
 export function KanbanSubtripDialog({
-  subtrips = [],
+  statusList = [],
   selectedSubtrip = null,
   open,
   onClose,
   onSubtripChange,
-  isLoading = false,
 }) {
+  const scrollRef = useRef(null);
   const [searchSubtrip, setSearchSubtrip] = useState('');
+  const debouncedSearch = useDebounce(searchSubtrip);
+
+  const shouldFetch = open && statusList.length > 0;
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteSubtripsByStatus(
+      {
+        subtripStatus: statusList,
+        rowsPerPage: 50,
+        search: debouncedSearch || undefined,
+      },
+      { enabled: shouldFetch }
+    );
+
+  const subtrips = useMemo(() => data?.pages.flatMap((p) => p.results) || [], [data]);
+
+  useEffect(() => {
+    if (!open) {
+      setSearchSubtrip('');
+    }
+  }, [open]);
+
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSearchSubtrips = useCallback((event) => {
     setSearchSubtrip(event.target.value);
@@ -147,14 +178,12 @@ export function KanbanSubtripDialog({
     [onSubtripChange, onClose]
   );
 
-  const dataFiltered = applyFilter({ inputData: subtrips || [], query: searchSubtrip });
-
-  const notFound = !dataFiltered.length && !!searchSubtrip;
+  const notFound = !subtrips.length && !!debouncedSearch && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Subtrips <Typography component="span">({subtrips?.length || 0})</Typography>
+        Subtrips <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
@@ -177,55 +206,33 @@ export function KanbanSubtripDialog({
         {isLoading ? (
           <LoadingSkeleton />
         ) : notFound ? (
-          <SearchNotFound query={searchSubtrip} sx={{ mt: 3, mb: 10 }} />
+          <SearchNotFound query={debouncedSearch} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar sx={{ height: LIST_HEIGHT }}>
-            <Box sx={{ px: 2.5 }}>
-              <List
-                height={LIST_HEIGHT}
-                width="100%"
-                itemCount={dataFiltered.length}
-                itemSize={ITEM_HEIGHT}
-                itemData={{
-                  subtrips: dataFiltered,
-                  selectedSubtrip,
-                  onSelect: handleSelectSubtrip,
-                }}
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
-                  },
+          <Scrollbar ref={scrollRef} sx={{ height: LIST_HEIGHT, px: 2.5 }}>
+            <Box component="ul">
+              {subtrips.map((subtrip) => (
+                <SubtripItem
+                  key={subtrip._id}
+                  subtrip={subtrip}
+                  selectedSubtrip={selectedSubtrip}
+                  onSelect={handleSelectSubtrip}
+                />
+              ))}
+              <Box
+                ref={loadMoreRef}
+                sx={{
+                  height: ITEM_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                {SubtripItem}
-              </List>
+                {isFetchingNextPage && <CircularProgress size={24} />}
+              </Box>
             </Box>
           </Scrollbar>
         )}
       </DialogContent>
     </Dialog>
   );
-}
-
-function applyFilter({ inputData, query }) {
-  if (query) {
-    inputData = inputData.filter((subtrip) => {
-      const searchQuery = query.toLowerCase();
-
-      // Helper function to safely check if a field exists and contains the query
-      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
-
-      return (
-        matchesField(subtrip._id) ||
-        matchesField(subtrip.tripId?.vehicleId?.vehicleNo) ||
-        matchesField(subtrip.tripId?.driverId?.driverName) ||
-        matchesField(subtrip.loadingPoint) ||
-        matchesField(subtrip.unloadingPoint)
-      );
-    });
-  }
-
-  return inputData;
 }

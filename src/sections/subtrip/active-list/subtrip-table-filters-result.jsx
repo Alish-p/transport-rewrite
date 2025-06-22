@@ -17,6 +17,10 @@ export default function SubtripTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedCustomerName,
+  selectedVehicleNo,
+  selectedDriverName,
+  selectedTransporterName,
   ...other
 }) {
   const handleRemoveSubtripStatus = () => {
@@ -24,7 +28,7 @@ export default function SubtripTableFiltersResult({
   };
 
   const handleRemoveCustomer = () => {
-    onFilters('customer', '');
+    onFilters('customerId', '');
   };
 
   const handleRemoveTransport = () => {
@@ -41,10 +45,24 @@ export default function SubtripTableFiltersResult({
 
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters('toDate', null);
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const handleRemoveEndDate = () => {
+    onFilters('subtripEndFromDate', null);
+    onFilters('subtripEndToDate', null);
+  };
+
+  const handleRemoveDriver = () => {
+    onFilters('driverId', '');
+  };
+
+  const handleRemoveMaterials = (value) => {
+    const newValues = filters.materials.filter((v) => v !== value);
+    onFilters('materials', newValues);
+  };
+
+  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -62,21 +80,43 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
-        {filters.customer && (
+        {filters.customerId && (
           <Block label="Customer">
-            <Chip size="small" label={filters.customer} onDelete={handleRemoveCustomer} />
+            <Chip
+              size="small"
+              label={selectedCustomerName || filters.customerId}
+              onDelete={handleRemoveCustomer}
+            />
           </Block>
         )}
 
         {filters.transportName && (
           <Block label="Transporter">
-            <Chip size="small" label={filters.transportName} onDelete={handleRemoveTransport} />
+            <Chip
+              size="small"
+              label={selectedTransporterName || filters.transportName}
+              onDelete={handleRemoveTransport}
+            />
           </Block>
         )}
 
         {filters.vehicleNo && (
-          <Block label="Vehicle No:">
-            <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+          <Block label="Vehicle:">
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleNo}
+              onDelete={handleRemoveVehicleNo}
+            />
+          </Block>
+        )}
+
+        {filters.driverId && (
+          <Block label="Driver:">
+            <Chip
+              size="small"
+              label={selectedDriverName || filters.driverId}
+              onDelete={handleRemoveDriver}
+            />
           </Block>
         )}
 
@@ -86,9 +126,27 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
-        {filters.fromDate && filters.endDate && (
+        {filters.fromDate && filters.toDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+          </Block>
+        )}
+
+        {filters.subtripEndFromDate && filters.subtripEndToDate && (
+          <Block label="End Date:">
+            <Chip
+              size="small"
+              label={fDateRangeShortLabel(filters.subtripEndFromDate, filters.subtripEndToDate)}
+              onDelete={handleRemoveEndDate}
+            />
+          </Block>
+        )}
+
+        {filters.materials && filters.materials.length > 0 && (
+          <Block label="Materials:">
+            {filters.materials.map((m) => (
+              <Chip key={m} size="small" label={m} onDelete={() => handleRemoveMaterials(m)} />
+            ))}
           </Block>
         )}
 
