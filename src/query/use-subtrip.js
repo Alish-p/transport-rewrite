@@ -9,11 +9,6 @@ const ENDPOINT = '/api/subtrips';
 const QUERY_KEY = 'subtrips';
 
 // Fetchers
-const getSubtrips = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-
 const getSubtrip = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -86,11 +81,6 @@ const closeEmptySubtrip = async (id, subtripData) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}/close-empty`, subtripData);
   return data;
 };
-
-// Queries & Mutations
-export function useSubtrips() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getSubtrips });
-}
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
