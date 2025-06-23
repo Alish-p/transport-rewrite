@@ -1,7 +1,6 @@
 import axios, { endpoints } from 'src/utils/axios';
 
 import { setSession } from './utils';
-import { STORAGE_KEY } from './constant';
 
 /** **************************************
  * Sign in
@@ -45,7 +44,7 @@ export const signUp = async ({ email, password, firstName, lastName }) => {
       throw new Error('Access token not found in response');
     }
 
-    sessionStorage.setItem(STORAGE_KEY, accessToken);
+    setSession(accessToken);
   } catch (error) {
     console.error('Error during sign up:', error);
     throw error;
