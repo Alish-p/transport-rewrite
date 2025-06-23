@@ -4,15 +4,21 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 
-import { fDate } from 'src/utils/format-time';
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
+import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useVehicleBillingSummary } from 'src/query/use-vehicle';
 
@@ -24,15 +30,16 @@ import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom
 import { AppWidget } from 'src/sections/overview/app/app-widget';
 
 const TABLE_HEAD = [
+  { id: 'index', label: '#' },
   { id: '_id', label: 'ID' },
   { id: 'customerName', label: 'Customer' },
   { id: 'routeName', label: 'Route' },
-  { id: 'startDate', label: 'Start' },
-  { id: 'endDate', label: 'End' },
+  { id: 'date', label: 'Date' },
   { id: 'loadingWeight', label: 'Weight' },
   { id: 'rate', label: 'Rate' },
   { id: 'amt', label: 'Amount' },
   { id: 'totalExpense', label: 'Expense' },
+  { id: 'netProfit', label: 'Net Profit' },
 ];
 
 export function VehicleBillingSummary({ vehicleId }) {
@@ -100,19 +107,45 @@ export function VehicleBillingSummary({ vehicleId }) {
               {isLoading ? (
                 <TableSkeleton />
               ) : (
-                subtrips.map((row) => (
-                  <TableRow key={row._id}>
-                    <TableCell>{row._id}</TableCell>
-                    <TableCell>{row.customerName}</TableCell>
-                    <TableCell>{row.routeName}</TableCell>
-                    <TableCell>{fDate(row.startDate)}</TableCell>
-                    <TableCell>{fDate(row.endDate)}</TableCell>
-                    <TableCell>{row.loadingWeight}</TableCell>
-                    <TableCell>{row.rate}</TableCell>
-                    <TableCell>{fCurrency(row.amt)}</TableCell>
-                    <TableCell>{fCurrency(row.totalExpense)}</TableCell>
-                  </TableRow>
-                ))
+                subtrips.map((row, index) => {
+                  const netProfit = row.amt - row.totalExpense;
+
+                  return (
+                    <TableRow key={row._id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <RouterLink
+                          to={paths.dashboard.subtrip.details(row._id)}
+                          style={{ color: 'green', textDecoration: 'underline' }}
+                        >
+                          {row._id}
+                        </RouterLink>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title={row.customerName}>
+                          <Typography variant="body2" noWrap>
+                            {wrapText(row.customerName || '-', 20)}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title={row.routeName}>
+                          <Typography variant="body2" noWrap>
+                            {wrapText(row.routeName || '-', 20)}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
+                      <TableCell>{row.loadingWeight}</TableCell>
+                      <TableCell>{row.rate}</TableCell>
+                      <TableCell>{fCurrency(row.amt)}</TableCell>
+                      <TableCell>{fCurrency(row.totalExpense)}</TableCell>
+                      <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>
+                        {fCurrency(netProfit)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
               <TableNoData notFound={!isLoading && subtrips.length === 0} />
             </TableBody>
