@@ -1,4 +1,3 @@
-import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -7,47 +6,22 @@ import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
 import { VehicleLocationMap } from '../widgets/vehicle-location-map';
 import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
-
-// Example component
-
-// ----------------------------------------------------------------------
-
-const VEHICLE_SUMMARY = [
-  {
-    title: 'High Capacity',
-    description: 'Loading capacity of 32 tons, suitable for heavy-duty transport.',
-    icon: 'solar:truck-outline',
-  },
-  {
-    title: 'Fuel Efficiency',
-    description: 'Equipped with a 322-liter BS4 engine for optimal performance.',
-    icon: 'solar:gas-station-bold',
-  },
-  {
-    title: 'Warranty',
-    description: 'Vehicle covered under warranty until November 2025.',
-    icon: 'solar:shield-check-bold',
-  },
-];
+import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
 
 // ----------------------------------------------------------------------
 
 export function VehicleDetailView({ vehicle }) {
-  const [tabValue, setTabValue] = useState('description');
 
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-  };
 
-  // API now returns only the vehicle object
-  const vehicleInfo = vehicle || {};
 
   const {
     vehicleNo,
@@ -65,7 +39,11 @@ export function VehicleDetailView({ vehicle }) {
     toDate,
     transporter,
     trackingLink,
-  } = vehicleInfo;
+  } = vehicle;
+
+  const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
+  const odometer = gpsData?.totalOdometer || 0;
+  const fuelValue = parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, '')) || 0;
 
   const renderDetails = (
     <Card>
@@ -225,13 +203,23 @@ export function VehicleDetailView({ vehicle }) {
         }
       />
 
+
       <Grid container spacing={3}>
+
+        <Grid xs={12} sm={6} md={4} item>
+          <VehicleOdometerWidget total={Math.round(odometer)} />
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4} item>
+          <VehicleFuelWidget value={fuelValue} total={400} />
+        </Grid>
+
         <Grid xs={12} md={5} item>
           {renderDetails}
         </Grid>
 
         <Grid xs={12} md={7} item>
-          <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicleInfo.isOwn} />
+          <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
         </Grid>
 
         <Grid xs={12} item>
