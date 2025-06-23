@@ -1,4 +1,6 @@
+/* eslint-disable import/no-unresolved */
 import 'src/global.css';
+import 'leaflet/dist/leaflet.css';
 
 // ----------------------------------------------------------------------
 
