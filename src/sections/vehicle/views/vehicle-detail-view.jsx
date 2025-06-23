@@ -17,6 +17,8 @@ import { Iconify } from 'src/components/iconify';
 import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
+
 // Example component
 
 // ----------------------------------------------------------------------
@@ -196,6 +198,8 @@ export function VehicleDetailView({ vehicle }) {
           )}
         </Box>
       </Card>
+
+      <VehicleBillingSummary vehicleId={vehicle._id} />
     </DashboardContent>
   );
 }
