@@ -9,6 +9,7 @@ import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
+import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -189,16 +190,19 @@ export function KanbanDriverDialog({
         ) : (
           <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
-              {drivers.map(driver => (
+              {drivers.map((driver) => (
                 <Box
                   component="li"
                   key={driver._id}
                   sx={{ display: 'flex', alignItems: 'center', height: ITEM_HEIGHT, gap: 2 }}
                 >
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle2">{driver.driverName}</Typography>
-                    <Typography variant="caption">{driver.driverCellNo}</Typography>
-                  </Box>
+                  <ListItemText
+                    primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
+                    secondaryTypographyProps={{ typography: 'caption' }}
+                    primary={driver.driverName}
+                    secondary={driver.driverCellNo}
+                  />
+
                   <Button
                     size="small"
                     color={selectedDriver?._id === driver._id ? 'primary' : 'inherit'}

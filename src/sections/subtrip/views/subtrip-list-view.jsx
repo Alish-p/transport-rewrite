@@ -42,7 +42,7 @@ import {
 
 import { transformSubtripsForExcel } from '../utils';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
-import SubtripTableRow from '../reports/subtrip-table-row';
+import SubtripTableRow from '../active-list/subtrip-table-row';
 import { usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
 import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
@@ -338,14 +338,6 @@ export function SubtripListView() {
           ]}
           action={
             <Stack direction="row" spacing={2}>
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.subtrip.reports}
-                variant="outlined"
-                startIcon={<Iconify icon="mdi:progress-tick" />}
-              >
-                Reports
-              </Button>
               <Button
                 component={RouterLink}
                 href={paths.dashboard.subtrip.new}

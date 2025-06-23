@@ -98,7 +98,7 @@ export function KanbanTransporterDialog({
         ) : notFound ? (
           <SearchNotFound query={searchTransporter} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 1, }}>
+          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
               {transporters.map((transporter) => {
                 const isSelected = selectedTransporter?._id === transporter._id;

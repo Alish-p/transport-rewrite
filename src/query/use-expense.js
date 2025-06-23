@@ -7,21 +7,6 @@ const ENDPOINT = '/api/expenses';
 const QUERY_KEY = 'expenses';
 
 // Fetchers
-const getExpenses = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-
-const getAllExpensesOfSubtrip = async (subtripId) => {
-  const { data } = await axios.get(`${ENDPOINT}/subtrip/${subtripId}`);
-  return data;
-};
-
-const getPastFilteredExpenses = async (params) => {
-  const { data } = await axios.get(`${ENDPOINT}`, { params });
-  return data;
-};
-
 const getPaginatedExpenses = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}/pagination`, { params });
   return data;
@@ -47,19 +32,7 @@ const deleteExpense = async (id) => {
   return data;
 };
 
-// Queries & Mutations
-export function useExpenses() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getExpenses });
-}
-
-export function useFilteredExpenses(params) {
-  return useQuery({
-    queryKey: [QUERY_KEY, params],
-    queryFn: () => getPastFilteredExpenses(params),
-    enabled: !!params,
-  });
-}
-
+// Hooks
 export function usePaginatedExpenses(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],
@@ -67,14 +40,6 @@ export function usePaginatedExpenses(params, options = {}) {
     keepPreviousData: true,
     enabled: !!params,
     ...options,
-  });
-}
-
-export function useAllExpensesOfSubtrip(subtripId) {
-  return useQuery({
-    queryKey: [QUERY_KEY, 'subtrip', subtripId],
-    queryFn: () => getAllExpensesOfSubtrip(subtripId),
-    enabled: !!subtripId,
   });
 }
 
