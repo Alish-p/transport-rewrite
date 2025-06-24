@@ -6,15 +6,15 @@ import { useGps } from 'src/query/use-gps';
 
 import { MapWithMarker } from 'src/components/map';
 
-export function VehicleLocationMap({ vehicleNo, isOwn }) {
+export function VehicleLocationMap({ vehicleNo, isOwn, }) {
   const { data, isLoading } = useGps(vehicleNo, { enabled: !!vehicleNo && isOwn });
   const lat = data?.latitude;
   const lng = data?.longitude;
 
   return (
     <Card>
-      <CardHeader title="Vehicle Location" />
-      <Box sx={{ height: 500, p: 2 }}>
+      <CardHeader title="Vehicle Location" subheader={data?.address ? data?.address : ''} />
+      <Box sx={{ height: 400, p: 2 }}>
         {lat && lng ? (
           <MapWithMarker lat={lat} lng={lng} zoom={15} />
         ) : (

@@ -1,9 +1,9 @@
 /* eslint-disable import/no-unresolved */
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import React from 'react';
 import markerIconPng from 'leaflet/dist/images/marker-icon.png';
 import markerShadowPng from 'leaflet/dist/images/marker-shadow.png';
+import { Popup, Marker, TileLayer, MapContainer } from 'react-leaflet';
 
 const DefaultIcon = L.icon({
   iconUrl: markerIconPng,

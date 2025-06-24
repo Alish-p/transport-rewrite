@@ -57,18 +57,33 @@ export function VehicleBillingSummary({ vehicleId }) {
   const subtrips = data?.subtrips || [];
   const totals = data?.totals || {};
 
+  const handleDownload = () => {
+    // TODO: replace with actual download logic
+    console.log('Download clicked');
+  };
+
   return (
     <Card sx={{ mt: 5 }}>
       <CardHeader
         title="Profit and Expense Reports"
+        subheader="Only subtrips with completed billing are listed below. Subtrips still in receive or loaded status are not included."
         action={
-          <Button
-            variant="outlined"
-            onClick={rangePicker.onOpen}
-            startIcon={<Iconify icon="solar:calendar-date-bold" />}
-          >
-            {rangePicker.shortLabel}
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              onClick={rangePicker.onOpen}
+              startIcon={<Iconify icon="solar:calendar-date-bold" />}
+            >
+              {rangePicker.shortLabel}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleDownload}
+              startIcon={<Iconify icon="eva:download-fill" />}
+            >
+              Download
+            </Button>
+          </Stack>
         }
       />
 

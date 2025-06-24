@@ -1,4 +1,3 @@
-
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
@@ -20,9 +19,6 @@ import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
 // ----------------------------------------------------------------------
 
 export function VehicleDetailView({ vehicle }) {
-
-
-
   const {
     vehicleNo,
     vehicleType,
@@ -182,7 +178,7 @@ export function VehicleDetailView({ vehicle }) {
   );
 
   return (
-    <DashboardContent>
+    <DashboardContent >
       <CustomBreadcrumbs
         heading={`Vehicle Details - ${vehicleNo}`}
         links={[
@@ -203,23 +199,21 @@ export function VehicleDetailView({ vehicle }) {
         }
       />
 
-
-      <Grid container spacing={3}>
-
-        <Grid xs={12} sm={6} md={4} item>
-          <VehicleOdometerWidget total={Math.round(odometer)} />
-        </Grid>
-
-        <Grid xs={12} sm={6} md={4} item>
-          <VehicleFuelWidget value={fuelValue} total={400} />
+      <Grid container spacing={3} mt={3}>
+        <Grid xs={12} sm={7} container spacing={3}>
+          <Grid sm={6} item>
+            <VehicleOdometerWidget total={Math.round(odometer)} />
+          </Grid>
+          <Grid sm={6} item>
+            <VehicleFuelWidget value={fuelValue} total={400} />
+          </Grid>
+          <Grid sm={12} item>
+            <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+          </Grid>
         </Grid>
 
         <Grid xs={12} md={5} item>
           {renderDetails}
-        </Grid>
-
-        <Grid xs={12} md={7} item>
-          <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
         </Grid>
 
         <Grid xs={12} item>
