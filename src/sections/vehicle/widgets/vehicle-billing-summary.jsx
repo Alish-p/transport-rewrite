@@ -69,12 +69,12 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   };
 
   return (
-    <Card sx={{ mt: 5 }}>
+    <Card >
       <CardHeader
-        title="Profit and Expense Reports"
+        title="P&L Report"
         subheader="Only subtrips with completed billing are listed below. Subtrips still in receive or loaded status are not included."
         action={
-          <Stack direction="row" spacing={1}>
+          <Stack direction={{ sm: 'column', md: 'row' }} spacing={1}>
             <Button
               variant="outlined"
               onClick={rangePicker.onOpen}
