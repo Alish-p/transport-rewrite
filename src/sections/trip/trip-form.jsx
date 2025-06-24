@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -180,7 +181,7 @@ export default function TripForm({ currentTrip }) {
                 />
               </Box>
 
-              <Field.DatePicker name="fromDate" label="From Date" />
+              <Field.DatePicker name="fromDate" label="From Date" maxDate={dayjs()} />
               <Field.Text name="remarks" label="Remarks (Optional)" />
             </Box>
 

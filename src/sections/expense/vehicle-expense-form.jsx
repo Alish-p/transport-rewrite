@@ -1,4 +1,5 @@
 // ------------------------------------------------------------------------
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -140,7 +141,7 @@ export default function VehicleExpenseForm({ currentExpense }) {
                 </Button>
               </Box>
 
-              <Field.DatePicker name="date" label="Date" />
+              <Field.DatePicker name="date" label="Date" maxDate={dayjs()} />
               <Field.Select name="expenseType" label="Expense Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
