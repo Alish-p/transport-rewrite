@@ -1,56 +1,24 @@
-import { useState } from 'react';
-
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
+import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate } from 'src/utils/format-time';
-
+import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-// Example component
-
-// ----------------------------------------------------------------------
-
-const VEHICLE_SUMMARY = [
-  {
-    title: 'High Capacity',
-    description: 'Loading capacity of 32 tons, suitable for heavy-duty transport.',
-    icon: 'solar:truck-outline',
-  },
-  {
-    title: 'Fuel Efficiency',
-    description: 'Equipped with a 322-liter BS4 engine for optimal performance.',
-    icon: 'solar:gas-station-bold',
-  },
-  {
-    title: 'Warranty',
-    description: 'Vehicle covered under warranty until November 2025.',
-    icon: 'solar:shield-check-bold',
-  },
-];
+import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
+import { VehicleLocationMap } from '../widgets/vehicle-location-map';
+import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
+import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
 
 // ----------------------------------------------------------------------
 
 export function VehicleDetailView({ vehicle }) {
-  const [tabValue, setTabValue] = useState('description');
-
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-  };
-
-  // API now returns only the vehicle object
-  const vehicleInfo = vehicle || {};
-
   const {
     vehicleNo,
     vehicleType,
@@ -66,44 +34,157 @@ export function VehicleDetailView({ vehicle }) {
     fromDate,
     toDate,
     transporter,
-  } = vehicleInfo;
+    trackingLink,
+  } = vehicle;
 
-  const description = `
-[](/)
-**Vehicle Number:** ${vehicleNo}  
-**Vehicle Type:** ${vehicleType}  
-**Model Type:** ${modelType}  
-**Manufacturer:** ${vehicleCompany} 
+  const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
+  const odometer = gpsData?.totalOdometer || 0;
+  const fuelValue = parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, '')) || 0;
 
+  const renderDetails = (
+    <Card>
+      <CardHeader
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:information-outline" width={24} />
+            <Typography variant="h6">Details</Typography>
+          </Stack>
+        }
+      />
 
+      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+        {/* Vehicle Number */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:road-variant" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Vehicle Number
+          </Box>
+          <Typography>{vehicleNo || '-'}</Typography>
+        </Stack>
 
-###### Specifications
--  Number of Tyres: ${noOfTyres}
--  Chassis Number: ${chasisNo}
--  Engine Number: ${engineNo}
--  Engine Type: ${engineType}
--  Fuel Tank Capacity: ${fuelTankCapacity} Liters
+        {/* Vehicle Type */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:car" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Type
+          </Box>
+          <Typography>{vehicleType || '-'}</Typography>
+        </Stack>
 
----
+        {/* Model Type */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:car-estate" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Model
+          </Box>
+          <Typography>{modelType || '-'}</Typography>
+        </Stack>
 
-###### Insurance Details:
+        {/* Company */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:domain" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Make
+          </Box>
+          <Typography>{vehicleCompany || '-'}</Typography>
+        </Stack>
 
-| Attribute            | Details                |
-| :------------------- | :--------------------- |
-| Valid From           | ${fDate(fromDate)}     |
-| Valid Until          | ${fDate(toDate)}       |
-| Manufacturing Year   | ${manufacturingYear}   |
-| Loading Capacity     | ${loadingCapacity}     |
-| Transporter          | ${transporter?.transportName} |
+        {/* Number of Tyres */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:car-tire-alert" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Tyres
+          </Box>
+          <Typography>{noOfTyres ? `${noOfTyres} Tyres` : '-'}</Typography>
+        </Stack>
 
+        {/* Chasis No. */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:hexagon-outline" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Chasis No.
+          </Box>
+          <Typography>{chasisNo || '-'}</Typography>
+        </Stack>
 
+        {/* Engine No. */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:engine" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Engine No.
+          </Box>
+          <Typography>{engineNo || '-'}</Typography>
+        </Stack>
 
-`;
+        {/* Manufacturing Year */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:calendar-range" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Year
+          </Box>
+          <Typography>{manufacturingYear || '-'}</Typography>
+        </Stack>
+
+        {/* Loading Capacity */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:weight-lifter" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Loading Capacity
+          </Box>
+          <Typography>{loadingCapacity ? `${loadingCapacity} kg` : '-'}</Typography>
+        </Stack>
+
+        {/* Engine Type */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:engine-outline" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Engine Type
+          </Box>
+          <Typography>{engineType || '-'}</Typography>
+        </Stack>
+
+        {/* Fuel Tank Capacity */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:gas-station" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Fuel Tank
+          </Box>
+          <Typography>{fuelTankCapacity ? `${fuelTankCapacity} L` : '-'}</Typography>
+        </Stack>
+
+        {/* Tracking Link */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:map-marker-path" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Tracking URL
+          </Box>
+          <Typography>
+            {trackingLink ? (
+              <Link href={trackingLink} target="_blank" rel="noopener">
+                View Tracker
+              </Link>
+            ) : (
+              '-'
+            )}
+          </Typography>
+        </Stack>
+
+        {/* Transporter */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:account" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Transporter
+          </Box>
+          <Typography>{transporter?.transportName || '-'}</Typography>
+        </Stack>
+      </Stack>
+    </Card>
+  );
 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Vehicle Info"
+        heading={`Vehicle Details - ${vehicleNo}`}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Vehicles List', href: paths.dashboard.vehicle.root },
@@ -122,80 +203,27 @@ export function VehicleDetailView({ vehicle }) {
         }
       />
 
-      <Box
-        sx={{
-          mb: 5,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 3,
-        }}
-      >
-        {VEHICLE_SUMMARY.map((item) => (
-          <Card key={item.title} sx={{ p: 3, height: '100%' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main', mr: 2 }} />
-              <Box sx={{ typography: 'h6' }}>{item.title}</Box>
-            </Box>
-            <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{item.description}</Box>
-          </Card>
-        ))}
-      </Box>
+      <Grid container spacing={3} mt={3}>
+        <Grid xs={12} sm={7} container spacing={3}>
+          <Grid sm={6} item>
+            <VehicleOdometerWidget total={Math.round(odometer)} />
+          </Grid>
+          <Grid sm={6} item>
+            <VehicleFuelWidget value={fuelValue} total={400} />
+          </Grid>
+          <Grid sm={12} item>
+            <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+          </Grid>
+        </Grid>
 
-      <Card>
-        <Box
-          sx={{
-            p: 3,
-            display: 'flex',
-            justifyContent: 'space-between',
-            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-          }}
-        >
-          <Box>
-            <Box sx={{ typography: 'h4', mb: 1 }}>{vehicleNo}</Box>
-            <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
-              {vehicleCompany} {modelType}
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-              variant="outlined"
-              startIcon={<Iconify icon="eva:file-text-fill" />}
-              sx={{ mr: 1 }}
-            >
-              Download Report
-            </Button>
-          </Box>
-        </Box>
+        <Grid xs={12} md={5} item>
+          {renderDetails}
+        </Grid>
 
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.vars.palette.grey['500Channel']}`,
-          }}
-        >
-          {[{ value: 'description', label: 'Vehicle Details', icon: 'mdi:truck-info' }].map(
-            (tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                icon={<Iconify icon={tab.icon} />}
-                iconPosition="start"
-              />
-            )
-          )}
-        </Tabs>
-
-        <Box sx={{ p: 3, minHeight: 400 }}>
-          {tabValue === 'description' && (
-            <Box>
-              <Markdown children={description} />
-            </Box>
-          )}
-        </Box>
-      </Card>
+        <Grid xs={12} item>
+          <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+        </Grid>
+      </Grid>
     </DashboardContent>
   );
 }

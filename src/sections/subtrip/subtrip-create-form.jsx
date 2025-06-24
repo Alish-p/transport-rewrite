@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useMemo, useState } from 'react';
@@ -285,7 +286,11 @@ export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
                     helperText="Please Enter the reading of the odometer at the start of the trip"
                     required
                   />
-                  <Field.DatePicker name="startDate" label="Subtrip Start Date *" />
+                  <Field.DatePicker
+                    name="startDate"
+                    label="Subtrip Start Date *"
+                    maxDate={dayjs()}
+                  />
                 </>
               ) : (
                 <>
@@ -294,7 +299,11 @@ export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
                     label="DI/DO No"
                     helperText="Please Enter DI/DO Number to Generate Entry Pass"
                   />
-                  <Field.DatePicker name="startDate" label="Subtrip Start Date *" />
+                  <Field.DatePicker
+                    name="startDate"
+                    label="Subtrip Start Date *"
+                    maxDate={dayjs()}
+                  />
                 </>
               )}
             </Box>

@@ -58,7 +58,7 @@ const SubtripItem = ({ subtrip, selectedSubtrip, onSelect }) => {
               {subtrip.subtripStatus.replace('-', ' ')}
             </Label>
 
-            {!subtrip.tripId?.vehicleId?.isOwn && (
+            {!subtrip.isOwn && (
               <Label variant="soft" color="default" size="small">
                 Market
               </Label>

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -177,7 +178,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
               />
             </Box>
 
-            <Field.DatePicker name="date" label="Date *" required />
+            <Field.DatePicker name="date" label="Date *" required maxDate={dayjs()} />
 
             <Field.Select name="expenseType" label="Expense Type" required>
               <MenuItem value="">None</MenuItem>
