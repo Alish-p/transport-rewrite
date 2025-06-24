@@ -20,13 +20,13 @@ import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { PDFDownloadButton } from 'src/pdfs/common';
 import { useVehicleBillingSummary } from 'src/query/use-vehicle';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
-
 
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
@@ -41,7 +41,7 @@ const TABLE_HEAD = [
   { id: 'netProfit', label: 'Net Profit' },
 ];
 
-export function VehicleBillingSummary({ vehicleId }) {
+export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
 
   const { data, isLoading } = useVehicleBillingSummary(
@@ -56,9 +56,15 @@ export function VehicleBillingSummary({ vehicleId }) {
   const subtrips = data?.subtrips || [];
   const totals = data?.totals || {};
 
-  const handleDownload = () => {
-    // TODO: replace with actual download logic
-    console.log('Download clicked');
+  const getDocument = async () => {
+    const { default: VehiclePnlPdf } = await import('src/pdfs/vehicle-pnl-pdf');
+
+    const start = rangePicker.startDate?.format('YYYY-MM-DD');
+    const end = rangePicker.endDate?.format('YYYY-MM-DD');
+
+    return () => (
+      <VehiclePnlPdf vehicleNo={vehicleNo} startDate={start} endDate={end} subtrips={subtrips} />
+    );
   };
 
   return (
@@ -75,18 +81,16 @@ export function VehicleBillingSummary({ vehicleId }) {
             >
               {rangePicker.shortLabel}
             </Button>
-            <Button
-              variant="contained"
-              onClick={handleDownload}
-              startIcon={<Iconify icon="eva:download-fill" />}
-            >
-              Download
-            </Button>
+            <PDFDownloadButton
+              buttonText="Download"
+              fileName={`vehicle-pnl-${vehicleNo}.pdf`}
+              getDocument={getDocument}
+            />
           </Stack>
         }
       />
 
-      <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 3 }} >
+      <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 3 }}>
         <Scrollbar>
           <Table size="small">
             <TableHead>
@@ -152,10 +156,7 @@ export function VehicleBillingSummary({ vehicleId }) {
                     {fCurrency(subtrips.reduce((sum, r) => sum + r.totalExpense, 0))}
                   </TableCell>
                   {(() => {
-                    const totalNet = subtrips.reduce(
-                      (sum, r) => sum + r.amt - r.totalExpense,
-                      0
-                    );
+                    const totalNet = subtrips.reduce((sum, r) => sum + r.amt - r.totalExpense, 0);
                     return (
                       <TableCell
                         sx={{

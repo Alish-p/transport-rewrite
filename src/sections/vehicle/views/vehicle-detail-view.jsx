@@ -59,7 +59,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Vehicle Number
           </Box>
-          <Typography>{vehicleNo}</Typography>
+          <Typography>{vehicleNo || '-'}</Typography>
         </Stack>
 
         {/* Vehicle Type */}
@@ -68,7 +68,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Type
           </Box>
-          <Typography>{vehicleType}</Typography>
+          <Typography>{vehicleType || '-'}</Typography>
         </Stack>
 
         {/* Model Type */}
@@ -77,7 +77,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Model
           </Box>
-          <Typography>{modelType}</Typography>
+          <Typography>{modelType || '-'}</Typography>
         </Stack>
 
         {/* Company */}
@@ -86,7 +86,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Make
           </Box>
-          <Typography>{vehicleCompany}</Typography>
+          <Typography>{vehicleCompany || '-'}</Typography>
         </Stack>
 
         {/* Number of Tyres */}
@@ -95,7 +95,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Tyres
           </Box>
-          <Typography>{noOfTyres} Tyres</Typography>
+          <Typography>{noOfTyres ? `${noOfTyres} Tyres` : '-'}</Typography>
         </Stack>
 
         {/* Chasis No. */}
@@ -104,7 +104,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Chasis No.
           </Box>
-          <Typography>{chasisNo}</Typography>
+          <Typography>{chasisNo || '-'}</Typography>
         </Stack>
 
         {/* Engine No. */}
@@ -113,7 +113,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Engine No.
           </Box>
-          <Typography>{engineNo}</Typography>
+          <Typography>{engineNo || '-'}</Typography>
         </Stack>
 
         {/* Manufacturing Year */}
@@ -122,7 +122,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Year
           </Box>
-          <Typography>{manufacturingYear}</Typography>
+          <Typography>{manufacturingYear || '-'}</Typography>
         </Stack>
 
         {/* Loading Capacity */}
@@ -131,7 +131,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Loading Capacity
           </Box>
-          <Typography>{loadingCapacity} kg</Typography>
+          <Typography>{loadingCapacity ? `${loadingCapacity} kg` : '-'}</Typography>
         </Stack>
 
         {/* Engine Type */}
@@ -140,7 +140,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Engine Type
           </Box>
-          <Typography>{engineType}</Typography>
+          <Typography>{engineType || '-'}</Typography>
         </Stack>
 
         {/* Fuel Tank Capacity */}
@@ -149,7 +149,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Fuel Tank
           </Box>
-          <Typography>{fuelTankCapacity} L</Typography>
+          <Typography>{fuelTankCapacity ? `${fuelTankCapacity} L` : '-'}</Typography>
         </Stack>
 
         {/* Tracking Link */}
@@ -159,9 +159,13 @@ export function VehicleDetailView({ vehicle }) {
             Tracking URL
           </Box>
           <Typography>
-            <Link href={trackingLink} target="_blank" rel="noopener">
-              View Tracker
-            </Link>
+            {trackingLink ? (
+              <Link href={trackingLink} target="_blank" rel="noopener">
+                View Tracker
+              </Link>
+            ) : (
+              '-'
+            )}
           </Typography>
         </Stack>
 
@@ -171,14 +175,14 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Transporter
           </Box>
-          <Typography>{transporter?.transportName}</Typography>
+          <Typography>{transporter?.transportName || '-'}</Typography>
         </Stack>
       </Stack>
     </Card>
   );
 
   return (
-    <DashboardContent >
+    <DashboardContent>
       <CustomBreadcrumbs
         heading={`Vehicle Details - ${vehicleNo}`}
         links={[
@@ -217,7 +221,7 @@ export function VehicleDetailView({ vehicle }) {
         </Grid>
 
         <Grid xs={12} item>
-          <VehicleBillingSummary vehicleId={vehicle._id} />
+          <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
         </Grid>
       </Grid>
     </DashboardContent>
