@@ -27,7 +27,6 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { AppWidget } from 'src/sections/overview/app/app-widget';
 
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
@@ -87,28 +86,7 @@ export function VehicleBillingSummary({ vehicleId }) {
         }
       />
 
-      <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ p: 3 }}>
-        <AppWidget
-          title="Subtrip Expense"
-          total={totals.subtripExpense || 0}
-          icon="ri:money-rupee-circle-line"
-          sx={{ flexGrow: 1 }}
-        />
-        <AppWidget
-          title="Vehicle Expense"
-          total={totals.vehicleExpense || 0}
-          icon="mdi:truck"
-          sx={{ flexGrow: 1, bgcolor: 'warning.dark' }}
-        />
-        <AppWidget
-          title="Total Profit"
-          total={totals.totalProfit || 0}
-          icon="solar:chart-bold"
-          sx={{ flexGrow: 1, bgcolor: 'success.dark' }}
-        />
-      </Stack>
-
-      <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+      <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 3 }} >
         <Scrollbar>
           <Table size="small">
             <TableHead>
@@ -161,6 +139,35 @@ export function VehicleBillingSummary({ vehicleId }) {
                     </TableRow>
                   );
                 })
+              )}
+              {subtrips.length > 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ fontWeight: 'fontWeightBold' }}>
+                    Total
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                    {fCurrency(subtrips.reduce((sum, r) => sum + r.amt, 0))}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                    {fCurrency(subtrips.reduce((sum, r) => sum + r.totalExpense, 0))}
+                  </TableCell>
+                  {(() => {
+                    const totalNet = subtrips.reduce(
+                      (sum, r) => sum + r.amt - r.totalExpense,
+                      0
+                    );
+                    return (
+                      <TableCell
+                        sx={{
+                          fontWeight: 'fontWeightBold',
+                          color: totalNet > 0 ? 'success.main' : 'error.main',
+                        }}
+                      >
+                        {fCurrency(totalNet)}
+                      </TableCell>
+                    );
+                  })()}
+                </TableRow>
               )}
               <TableNoData notFound={!isLoading && subtrips.length === 0} />
             </TableBody>
