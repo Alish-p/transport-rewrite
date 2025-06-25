@@ -25,6 +25,7 @@ const EVENT_ICONS = {
     INVOICE_GENERATED: 'mdi:file-document-edit',
     INVOICE_DELETED: 'mdi:file-document-remove',
     INVOICE_PAID: 'mdi:file-document-check',
+    TRANSPORTER_PAYMENT_GENERATED: 'ri:money-rupee-circle-line',
     UPDATED: 'mdi:refresh',
 };
 
@@ -37,6 +38,7 @@ const EVENT_COLORS = {
     INVOICE_GENERATED: 'warning',
     INVOICE_DELETED: 'error',
     INVOICE_PAID: 'success',
+    TRANSPORTER_PAYMENT_GENERATED: 'warning',
     UPDATED: 'secondary',
 };
 
