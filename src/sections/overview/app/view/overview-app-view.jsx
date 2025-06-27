@@ -21,7 +21,6 @@ import { FinancialMonthlyChart } from '../app-finance-charts';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
-import { AppSubtripStatusWidget } from '../app-subtrip-status-widget';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 
 // ----------------------------------------------------------------------
@@ -169,19 +168,19 @@ export function OverviewAppView({
               series: [
                 subtripMonthlyData
                   ? {
-                      name: String(subtripMonthlyData.year),
-                      data: [
-                        { name: 'Own', data: subtripMonthlyData.own },
-                        { name: 'Market', data: subtripMonthlyData.market },
-                      ],
-                    }
+                    name: String(subtripMonthlyData.year),
+                    data: [
+                      { name: 'Own', data: subtripMonthlyData.own },
+                      { name: 'Market', data: subtripMonthlyData.market },
+                    ],
+                  }
                   : {
-                      name: 'Year',
-                      data: [
-                        { name: 'Own', data: Array(12).fill(0) },
-                        { name: 'Market', data: Array(12).fill(0) },
-                      ],
-                    },
+                    name: 'Year',
+                    data: [
+                      { name: 'Own', data: Array(12).fill(0) },
+                      { name: 'Market', data: Array(12).fill(0) },
+                    ],
+                  },
               ],
             }}
           />
@@ -195,17 +194,7 @@ export function OverviewAppView({
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
-          <AppSubtripStatusWidget title="Subtrip Status" summary={subtripStatusSummary} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <CustomerFreightTable
-            title="📦 Customer-wise Summary"
-            subheader="Shows total weight transferred and freight amount for each customer."
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
+          {/* <AppSubtripStatusWidget title="Subtrip Status" summary={subtripStatusSummary} /> */}
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <AppWidget
               title="Pending Transporter Payment"
@@ -222,11 +211,18 @@ export function OverviewAppView({
           </Box>
         </Grid>
 
-        <Grid xs={12} lg={8}>
+        <Grid xs={12} md={12}>
+          <CustomerFreightTable
+            title="📦 Customer-wise Summary"
+            subheader="Shows total weight transferred and freight amount for each customer."
+          />
+        </Grid>
+
+        <Grid sm={12} lg={6}>
           <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
 
-        <Grid xs={12} lg={8}>
+        <Grid sm={12} lg={6}>
           <FinancialMonthlyChart title="Financial overview" />
         </Grid>
       </Grid>
