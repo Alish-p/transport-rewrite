@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // utils
-import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 // components
 import { Iconify } from 'src/components/iconify';
@@ -78,7 +78,7 @@ export default function ExpenseAnalytic({
           {fShortenNumber(total) || 0} Expenses
         </Box>
 
-        <Typography variant="subtitle2">{fCurrency(price)}</Typography>
+        <Typography variant="subtitle2">₹ {fShortenNumber(price)}</Typography>
       </Stack>
     </Stack>
   );
