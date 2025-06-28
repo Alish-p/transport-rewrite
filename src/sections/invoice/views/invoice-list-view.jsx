@@ -1,4 +1,3 @@
-import sumBy from 'lodash/sumBy';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -25,11 +24,11 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fIsAfter } from 'src/utils/format-time';
 import { exportToExcel } from 'src/utils/export-to-excel';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteInvoice } from 'src/query/use-invoice';
+import { useDeleteInvoice, usePaginatedInvoices } from 'src/query/use-invoice';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -38,10 +37,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -65,7 +61,8 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   customerId: '',
-  subtrip: '',
+  subtripId: '',
+  invoiceNo: '',
   invoiceStatus: 'all',
   fromDate: null,
   endDate: null,
@@ -73,7 +70,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function InvoiceListView({ invoices }) {
+export function InvoiceListView() {
   const theme = useTheme();
   const router = useRouter();
   const confirm = useBoolean();
@@ -87,43 +84,46 @@ export function InvoiceListView({ invoices }) {
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
-  useEffect(() => {
-    if (invoices.length) {
-      setTableData(invoices);
-    }
-  }, [invoices]);
-
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
+  const { data, isLoading } = usePaginatedInvoices({
+    customerId: filters.customerId || undefined,
+    subtripId: filters.subtripId || undefined,
+    invoiceStatus: filters.invoiceStatus !== 'all' ? filters.invoiceStatus : undefined,
+    issueFromDate: filters.fromDate || undefined,
+    issueToDate: filters.endDate || undefined,
+    invoiceNo: filters.invoiceNo || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
   });
+
+  useEffect(() => {
+    if (data?.invoices) {
+      setTableData(data.invoices);
+    }
+  }, [data]);
 
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
     !!filters.customerId ||
-    !!filters.subtrip ||
+    !!filters.subtripId ||
+    !!filters.invoiceNo ||
     filters.invoiceStatus !== 'all' ||
     (!!filters.fromDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !isLoading && !tableData.length;
 
-  const getInvoiceLength = (invoiceStatus) =>
-    tableData.filter((item) => item.invoiceStatus === invoiceStatus).length;
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || 0;
 
-  const getTotalAmount = (invoiceStatus) =>
-    sumBy(
-      tableData.filter((item) => item.invoiceStatus === invoiceStatus),
-      (i) => i.totalAmount ?? i.totalAfterTax ?? 0
-    );
+  const getInvoiceLength = (invoiceStatus) => totals[invoiceStatus]?.count || 0;
+
+  const getTotalAmount = (invoiceStatus) => totals[invoiceStatus]?.amount || 0;
 
   const getPercentByInvoiceStatus = (invoiceStatus) =>
-    (getInvoiceLength(invoiceStatus) / tableData.length) * 100;
+    totalCount ? (getInvoiceLength(invoiceStatus) / totalCount) * 100 : 0;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     { value: 'pending', label: 'Pending', color: 'warning', count: getInvoiceLength('pending') },
     { value: 'overdue', label: 'Over-due', color: 'error', count: getInvoiceLength('overdue') },
     { value: 'paid', label: 'Paid', color: 'success', count: getInvoiceLength('paid') },
@@ -209,9 +209,9 @@ export function InvoiceListView({ invoices }) {
             >
               <InvoiceAnalytic
                 title="All"
-                total={tableData.length}
+                total={totalCount}
                 percent={100}
-                price={sumBy(tableData, 'totalAmount')}
+                price={totals.all?.amount || 0}
                 icon="mdi:clipboard-list-outline"
                 color={theme.palette.info.main}
               />
@@ -278,18 +278,14 @@ export function InvoiceListView({ invoices }) {
             ))}
           </Tabs>
 
-          <InvoiceTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={dataFiltered}
-          />
+          <InvoiceTableToolbar filters={filters} onFilters={handleFilters} tableData={tableData} />
 
           {canReset && (
             <InvoiceTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -298,11 +294,11 @@ export function InvoiceListView({ invoices }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
@@ -348,38 +344,28 @@ export function InvoiceListView({ invoices }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <InvoiceTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteInvoice(row._id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {tableData.map((row) => (
+                    <InvoiceTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteInvoice(row._id)}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -388,7 +374,7 @@ export function InvoiceListView({ invoices }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -425,50 +411,4 @@ export function InvoiceListView({ invoices }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-// filtering logic
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { customerId, subtrip, invoiceStatus, fromDate, endDate } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (customerId) {
-    inputData = inputData.filter(
-      (record) => record.customerId && record.customerId._id === customerId
-    );
-  }
-  if (subtrip) {
-    inputData = inputData.filter((record) => {
-
-      const fromInvoiced = Array.isArray(record.invoicedSubTrips) ? record.invoicedSubTrips : [];
-
-      const allIds = [...fromInvoiced,];
-      return allIds.includes(subtrip);
-    });
-  }
-
-  if (invoiceStatus !== 'all') {
-    inputData = inputData.filter((record) => record.invoiceStatus === invoiceStatus);
-  }
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (Invoice) =>
-          fTimestamp(Invoice.issueDate) >= fTimestamp(fromDate) &&
-          fTimestamp(Invoice.issueDate) <= fTimestamp(endDate)
-      );
-    }
-  }
-
-  return inputData;
 }

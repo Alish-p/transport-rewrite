@@ -12,6 +12,11 @@ const getInvoices = async () => {
   return data;
 };
 
+const getPaginatedInvoices = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 const getInvoice = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -40,6 +45,16 @@ const deleteInvoice = async (id) => {
 // Queries & Mutations
 export function useInvoices() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getInvoices });
+}
+
+export function usePaginatedInvoices(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedInvoices(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useInvoice(id) {
@@ -121,13 +136,9 @@ export function useDeleteInvoice() {
   return mutate;
 }
 
-
-
 const getInvoiceReadySubtrips = async ({ queryKey }) => {
   const [, customerId] = queryKey;
-  const { data } = await axios.get(
-    `/api/subtrips/ready-subtrips/${customerId}`
-  );
+  const { data } = await axios.get(`/api/subtrips/ready-subtrips/${customerId}`);
   return data;
 };
 

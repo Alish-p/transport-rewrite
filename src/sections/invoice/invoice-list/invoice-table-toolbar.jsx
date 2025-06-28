@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { MenuList } from '@mui/material';
@@ -7,8 +7,6 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-// @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -19,15 +17,24 @@ import { useCustomersSummary } from 'src/query/use-customer';
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+// @mui
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
+
+import { fDateRangeShortLabel } from '../../../utils/format-time';
 
 // ----------------------------------------------------------------------
 
 export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
   const popover = usePopover();
   const customerDialog = useBoolean();
+  const subtripDialog = useBoolean();
+  const dateDialog = useBoolean();
   const { data: customers = [] } = useCustomersSummary();
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
 
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
 
@@ -38,23 +45,31 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
     [onFilters]
   );
 
-  const handleFilterSubtrip = useCallback(
+  const handleSelectSubtrip = useCallback(
+    (subtrip) => {
+      setSelectedSubtrip(subtrip);
+      onFilters('subtripId', subtrip._id);
+    },
+    [onFilters]
+  );
+
+  const handleFilterInvoiceNo = useCallback(
     (event) => {
-      onFilters('subtrip', event.target.value);
+      onFilters('invoiceNo', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterFromDate = useCallback(
-    (newValue) => {
-      onFilters('fromDate', newValue);
+  const handleChangeStartDate = useCallback(
+    (date) => {
+      onFilters('fromDate', date);
     },
     [onFilters]
   );
 
-  const handleFilterEndDate = useCallback(
-    (newValue) => {
-      onFilters('endDate', newValue);
+  const handleChangeEndDate = useCallback(
+    (date) => {
+      onFilters('endDate', date);
     },
     [onFilters]
   );
@@ -78,14 +93,20 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           placeholder="Search customer"
           selected={selectedCustomer?.customerName}
           iconName="mdi:office-building"
-          sx={{ borderColor: '#DFE3E8' }}
+        />
+
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          placeholder="Search subtrip"
+          selected={selectedSubtrip?._id}
+          iconName="mdi:bookmark"
         />
 
         <TextField
           fullWidth
-          value={filters.subtrip}
-          onChange={handleFilterSubtrip}
-          placeholder="Search subtrip..."
+          value={filters.invoiceNo}
+          onChange={handleFilterInvoiceNo}
+          placeholder="Invoice No"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -95,24 +116,15 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           }}
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
-        />
-
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={dateDialog.onTrue}
+          placeholder="Issue date range"
+          selected={
+            filters.fromDate && filters.endDate
+              ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
+              : undefined
+          }
+          iconName="mdi:calendar"
         />
 
         <IconButton onClick={popover.onOpen}>
@@ -162,6 +174,28 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
         onClose={customerDialog.onFalse}
         selectedCustomer={selectedCustomer}
         onCustomerChange={handleSelectCustomer}
+      />
+
+      <KanbanSubtripDialog
+        open={subtripDialog.value}
+        onClose={subtripDialog.onFalse}
+        selectedSubtrip={selectedSubtrip}
+        onSubtripChange={handleSelectSubtrip}
+        statusList={[
+          SUBTRIP_STATUS.BILLED_PENDING,
+          SUBTRIP_STATUS.BILLED_OVERDUE,
+          SUBTRIP_STATUS.BILLED_PAID,
+        ]}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateDialog.value}
+        onClose={dateDialog.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.endDate}
+        onChangeStartDate={handleChangeStartDate}
+        onChangeEndDate={handleChangeEndDate}
       />
     </>
   );
