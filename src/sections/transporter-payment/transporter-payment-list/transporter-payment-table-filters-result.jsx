@@ -7,6 +7,9 @@ import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { useSubtrip } from 'src/query/use-subtrip';
+import { useTransporter } from 'src/query/use-transporter';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -18,20 +21,23 @@ export default function TransporterPayrollTableFiltersResult({
   results,
   ...other
 }) {
+  const { data: transporter } = useTransporter(filters.transporterId);
+  const { data: subtrip } = useSubtrip(filters.subtripId);
+
   const handleRemoveTransporter = () => {
-    onFilters('transporter', '');
+    onFilters('transporterId', '');
   };
 
   const handleRemoveSubtrip = () => {
-    onFilters('subtrip', '');
+    onFilters('subtripId', '');
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters('issueFromDate', null);
+    onFilters('issueToDate', null);
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const shortLabel = fDateRangeShortLabel(filters.issueFromDate, filters.issueToDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -43,19 +49,23 @@ export default function TransporterPayrollTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.transporter && (
+        {filters.transporterId && (
           <Block label="Transporter">
-            <Chip size="small" label={filters.transporter} onDelete={handleRemoveTransporter} />
+            <Chip
+              size="small"
+              label={transporter?.transportName || filters.transporterId}
+              onDelete={handleRemoveTransporter}
+            />
           </Block>
         )}
 
-        {filters.subtrip && (
+        {filters.subtripId && (
           <Block label="Subtrip:">
-            <Chip size="small" label={filters.subtrip} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={subtrip?._id || filters.subtripId} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 
-        {filters.fromDate && filters.endDate && (
+        {filters.issueFromDate && filters.issueToDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>

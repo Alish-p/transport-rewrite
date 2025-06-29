@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { MenuList } from '@mui/material';
@@ -13,6 +13,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
+
+import { useSubtrip } from 'src/query/use-subtrip';
+import { useTransporter } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -32,12 +35,11 @@ export default function TransporterPaymentTableToolbar({ filters, onFilters, tab
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
-  const [selectedTransporter, setSelectedTransporter] = useState(null);
-  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  const { data: selectedTransporter } = useTransporter(filters.transporterId);
+  const { data: selectedSubtrip } = useSubtrip(filters.subtripId);
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
-      setSelectedTransporter(transporter);
       onFilters('transporterId', transporter._id);
     },
     [onFilters]
@@ -45,7 +47,6 @@ export default function TransporterPaymentTableToolbar({ filters, onFilters, tab
 
   const handleSelectSubtrip = useCallback(
     (subtrip) => {
-      setSelectedSubtrip(subtrip);
       onFilters('subtripId', subtrip._id);
     },
     [onFilters]
@@ -185,6 +186,7 @@ export default function TransporterPaymentTableToolbar({ filters, onFilters, tab
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
         statusList={[
+          SUBTRIP_STATUS.RECEIVED,
           SUBTRIP_STATUS.BILLED_PENDING,
           SUBTRIP_STATUS.BILLED_OVERDUE,
           SUBTRIP_STATUS.BILLED_PAID,
