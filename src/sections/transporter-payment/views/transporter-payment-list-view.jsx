@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
+import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
-import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
 // _mock
@@ -21,27 +22,28 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fIsAfter } from 'src/utils/format-time';
 import { exportToExcel } from 'src/utils/export-to-excel';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import {
+  useDeleteTransporterPayment,
+  usePaginatedTransporterPayments,
+} from 'src/query/use-transporter-payment';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { useDeleteTransporterPayment } from '../../../query/use-transporter-payment';
 import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
 import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
 import TransporterPaymentTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
@@ -58,15 +60,18 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  transporter: '',
-  subtrip: '',
-  fromDate: null,
-  endDate: null,
+  transporterId: '',
+  subtripId: '',
+  paymentId: '',
+  status: 'all',
+  issueFromDate: null,
+  issueToDate: null,
+  hasTds: false,
 };
 
 // ----------------------------------------------------------------------
 
-export function TransporterPaymentListView({ payments }) {
+export function TransporterPaymentListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -77,29 +82,53 @@ export function TransporterPaymentListView({ payments }) {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const dateError = fIsAfter(filters.fromDate, filters.endDate);
+  const dateError = fIsAfter(filters.issueFromDate, filters.issueToDate);
 
-  useEffect(() => {
-    if (payments.length) {
-      setTableData(payments);
-    }
-  }, [payments]);
+  const { data, isLoading } = usePaginatedTransporterPayments({
+    transporterId: filters.transporterId || undefined,
+    subtripId: filters.subtripId || undefined,
+    paymentId: filters.paymentId || undefined,
+    status: filters.status !== 'all' ? filters.status : undefined,
+    hasTds: filters.hasTds || undefined,
+    issueFromDate: filters.issueFromDate || undefined,
+    issueToDate: filters.issueToDate || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
-  });
+  useEffect(() => {
+    if (data?.receipts) {
+      setTableData(data.receipts);
+    }
+  }, [data]);
+
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || 0;
+
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
+    { value: 'paid', label: 'Paid', color: 'success', count: totals.paid?.count || 0 },
+    {
+      value: 'generated',
+      label: 'Generated',
+      color: 'warning',
+      count: totals.generated?.count || 0,
+    },
+  ];
 
   const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
-    !!filters.transporter || !!filters.subtrip || (!!filters.fromDate && !!filters.endDate);
+    !!filters.transporterId ||
+    !!filters.subtripId ||
+    !!filters.paymentId ||
+    filters.status !== 'all' ||
+    (!!filters.issueFromDate && !!filters.issueToDate) ||
+    filters.hasTds;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !isLoading && !tableData.length;
 
   const handleFilters = useCallback(
     (name, value) => {
@@ -173,10 +202,40 @@ export function TransporterPaymentListView({ payments }) {
 
         {/* Table Section */}
         <Card>
+          {/* filtering Tabs */}
+          <Tabs
+            value={filters.status}
+            onChange={(e, value) => handleFilters('status', value)}
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
           <TransporterPaymentTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
           />
 
           {canReset && (
@@ -184,7 +243,7 @@ export function TransporterPaymentListView({ payments }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -193,11 +252,11 @@ export function TransporterPaymentListView({ payments }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={totalCount}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
@@ -243,22 +302,18 @@ export function TransporterPaymentListView({ payments }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  rowCount={totalCount}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
+                  {tableData
                     .map((row) => (
                       <TransporterPaymentTableRow
                         key={row._id}
@@ -271,10 +326,6 @@ export function TransporterPaymentListView({ payments }) {
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -283,7 +334,7 @@ export function TransporterPaymentListView({ payments }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -322,48 +373,3 @@ export function TransporterPaymentListView({ payments }) {
   );
 }
 
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { transporter, subtrip, invoiceStatus, fromDate, endDate } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (transporter) {
-    inputData = inputData.filter(
-      (record) =>
-        record.transporterId &&
-        record.transporterId.transportName.toLowerCase().indexOf(transporter.toLowerCase()) !== -1
-    );
-  }
-  if (subtrip) {
-    inputData = inputData.filter(
-      (record) =>
-        record.associatedSubtrips && record.associatedSubtrips.some((st) => st._id === subtrip)
-    );
-  }
-
-  if (invoiceStatus !== 'all') {
-    inputData = inputData.filter((record) => record.invoiceStatus === invoiceStatus);
-  }
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (Invoice) =>
-          fTimestamp(Invoice.date) >= fTimestamp(fromDate) &&
-          fTimestamp(Invoice.date) <= fTimestamp(endDate)
-      );
-    }
-  }
-
-  return inputData;
-}

@@ -12,6 +12,11 @@ const getTransporterPayments = async () => {
   return data;
 };
 
+const getPaginatedTransporterPayments = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 const getTransporterPayment = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -46,6 +51,16 @@ const deleteTransporterPayment = async (id) => {
 // Queries & Mutations
 export function useTransporterPayments() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTransporterPayments });
+}
+
+export function usePaginatedTransporterPayments(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedTransporterPayments(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useTransporterPayment(id) {
@@ -148,3 +163,4 @@ export function useDeleteTransporterPayment() {
   });
   return mutate;
 }
+

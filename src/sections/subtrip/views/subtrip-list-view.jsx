@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -21,6 +22,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
@@ -43,8 +45,8 @@ import {
 import { transformSubtripsForExcel } from '../utils';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableRow from '../active-list/subtrip-table-row';
-import { usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
+import { useDeleteSubtrip, usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
 import {
   TABLE_COLUMNS,
@@ -73,8 +75,10 @@ const defaultFilters = {
 export function SubtripListView() {
   const theme = useTheme();
   const router = useRouter();
+  const navigate = useNavigate();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+  const deleteSubtrip = useDeleteSubtrip();
 
   const [filters, setFilters] = useState(defaultFilters);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -235,7 +239,11 @@ export function SubtripListView() {
     [table]
   );
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
+
+  const handleEditRow = (id) => {
+    navigate(paths.dashboard.subtrip.edit(paramCase(id)));
+  };
 
   const handleViewRow = useCallback(
     (id) => {
@@ -550,6 +558,8 @@ export function SubtripListView() {
                           selected={table.selected.includes(row._id)}
                           onSelectRow={() => table.onSelectRow(row._id)}
                           onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteSubtrip(row._id)}
                           visibleColumns={visibleColumns}
                         />
                       ))}
