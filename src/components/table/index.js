@@ -10,6 +10,8 @@ export * from './table-empty-rows';
 
 export * from './table-head-custom';
 
+export * from './generic-table-row';
+
 export * from './column-selector-list';
 
 export * from './table-selected-action';
