@@ -31,7 +31,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -43,16 +42,13 @@ import {
 } from 'src/components/table';
 
 import { transformSubtripsForExcel } from '../utils';
+import { TABLE_COLUMNS } from '../config/table-columns';
 import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableRow from '../active-list/subtrip-table-row';
+import { useVisibleColumns } from '../hooks/use-visible-columns';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
 import { useDeleteSubtrip, usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
-import {
-  TABLE_COLUMNS,
-  getDisabledColumns,
-  getDefaultVisibleColumns,
-} from '../config/table-columns';
 
 // ----------------------------------------------------------------------
 
@@ -86,11 +82,8 @@ export function SubtripListView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
-  // Add state for column visibility based on table config
-  const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
-
-  // Columns that are always visible
-  const disabledColumns = getDisabledColumns();
+  // Column visibility logic handled via custom hook
+  const { visibleColumns, disabledColumns, toggleColumn, toggleAllColumns } = useVisibleColumns();
 
   const [tableData, setTableData] = useState([]);
 
@@ -239,7 +232,6 @@ export function SubtripListView() {
     [table]
   );
 
-  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.subtrip.edit(paramCase(id)));
@@ -302,24 +294,13 @@ export function SubtripListView() {
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumn(columnName);
     },
-    [disabledColumns]
+    [toggleColumn]
   );
 
   const handleToggleAllColumns = (checked) => {
-    setVisibleColumns((prev) =>
-      TABLE_COLUMNS.reduce((acc, column) => {
-        acc[column.id] = disabledColumns[column.id] ? prev[column.id] : checked;
-        return acc;
-      }, {})
-    );
+    toggleAllColumns(checked);
   };
 
   // Filter the table head based on visible columns
@@ -331,285 +312,256 @@ export function SubtripListView() {
     TABLE_COLUMNS.filter((column) => visibleColumns[column.id]).map((column) => column.id);
 
   return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Subtrip List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Subtrip List',
-            },
-          ]}
-          action={
-            <Stack direction="row" spacing={2}>
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.subtrip.new}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                New Subtrip
-              </Button>
-            </Stack>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Subtrip List"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Subtrip List',
+          },
+        ]}
+        action={
+          <Stack direction="row" spacing={2}>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.subtrip.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Subtrip
+            </Button>
+          </Stack>
+        }
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
 
-        {/* Analytics Section */}
-        <Card
+      {/* Analytics Section */}
+      <Card
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Scrollbar>
+          <Stack
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+            sx={{ py: 2 }}
+          >
+            {TABS.map((tab) =>
+              isCountLoading ? (
+                <Stack
+                  key={tab.value}
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{ width: 1, minWidth: 200 }}
+                >
+                  <CircularProgress />
+                </Stack>
+              ) : (
+                <SubtripAnalytic
+                  key={tab.value}
+                  title={tab.label}
+                  total={tab.count}
+                  percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
+                  icon={tab.icon}
+                  color={tab.analyticsColor}
+                />
+              )
+            )}
+          </Stack>
+        </Scrollbar>
+      </Card>
+
+
+      <Card>
+        {/* filtering Tabs */}
+        <Tabs
+          value={filters.subtripStatus}
+          onChange={handleFilterSubtripStatus}
           sx={{
-            mb: { xs: 3, md: 5 },
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
         >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              {TABS.map((tab) =>
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
                 isCountLoading ? (
-                  <Stack
-                    key={tab.value}
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{ width: 1, minWidth: 200 }}
-                  >
-                    <CircularProgress />
-                  </Stack>
+                  <CircularProgress size={16} />
                 ) : (
-                  <SubtripAnalytic
-                    key={tab.value}
-                    title={tab.label}
-                    total={tab.count}
-                    percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
-                    icon={tab.icon}
-                    color={tab.analyticsColor}
-                  />
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.subtripStatus) &&
+                        'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
                 )
-              )}
-            </Stack>
-          </Scrollbar>
-        </Card>
+              }
+            />
+          ))}
+        </Tabs>
 
-        {/* Table Section */}
-        <Card>
-          {/* filtering Tabs */}
-          <Tabs
-            value={filters.subtripStatus}
-            onChange={handleFilterSubtripStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  isCountLoading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <Label
-                      variant={
-                        ((tab.value === 'all' || tab.value === filters.subtripStatus) &&
-                          'filled') ||
-                        'soft'
-                      }
-                      color={tab.color}
-                    >
-                      {tab.count}
-                    </Label>
+        <SubtripTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={handleToggleAllColumns}
+          selectedTransporter={selectedTransporter}
+          onSelectTransporter={handleSelectTransporter}
+          selectedCustomer={selectedCustomer}
+          onSelectCustomer={handleSelectCustomer}
+          selectedVehicle={selectedVehicle}
+          onSelectVehicle={handleSelectVehicle}
+          selectedDriver={selectedDriver}
+          onSelectDriver={handleSelectDriver}
+        />
+
+        {canReset && (
+          <SubtripTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            selectedTransporterName={selectedTransporter?.transportName}
+            selectedCustomerName={selectedCustomer?.customerName}
+            selectedVehicleNo={selectedVehicle?.vehicleNo}
+            selectedDriverName={selectedDriver?.driverName}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const selectedVisibleColumns = getVisibleColumnsForExport();
+                      exportToExcel(
+                        transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
+                        'filtered'
+                      );
+                    }}
+                  >
+                    <Iconify icon="vscode-icons:file-type-excel" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const selectedVisibleColumns = getVisibleColumnsForExport();
+                      return (
+                        <SubtripListPdf
+                          subtrips={selectedRows}
+                          visibleColumns={selectedVisibleColumns}
+                        />
+                      );
+                    })()}
+                    fileName="Subtrip-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify
+                          icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'}
+                        />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
+                </Tooltip>
+              </Stack>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleTableHead}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
                   )
                 }
               />
-            ))}
-          </Tabs>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                    <TableSkeleton key={index} />
+                  ))
+                ) : (
+                  <>
+                    {tableData.map((row) => (
+                      <SubtripTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteSubtrip(row._id)}
+                        visibleColumns={visibleColumns}
+                      />
+                    ))}
 
-          <SubtripTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-            onToggleAllColumns={handleToggleAllColumns}
-            selectedTransporter={selectedTransporter}
-            onSelectTransporter={handleSelectTransporter}
-            selectedCustomer={selectedCustomer}
-            onSelectCustomer={handleSelectCustomer}
-            selectedVehicle={selectedVehicle}
-            onSelectVehicle={handleSelectVehicle}
-            selectedDriver={selectedDriver}
-            onSelectDriver={handleSelectDriver}
-          />
+                    <TableNoData notFound={notFound} />
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
 
-          {canReset && (
-            <SubtripTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              selectedTransporterName={selectedTransporter?.transportName}
-              selectedCustomerName={selectedCustomer?.customerName}
-              selectedVehicleNo={selectedVehicle?.vehicleNo}
-              selectedDriverName={selectedDriver?.driverName}
-              results={totalCount}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                )
-              }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Download Excel">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        const selectedVisibleColumns = getVisibleColumnsForExport();
-                        exportToExcel(
-                          transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
-                          'filtered'
-                        );
-                      }}
-                    >
-                      <Iconify icon="vscode-icons:file-type-excel" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download PDF">
-                    <PDFDownloadLink
-                      document={(() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        const selectedVisibleColumns = getVisibleColumnsForExport();
-                        return (
-                          <SubtripListPdf
-                            subtrips={selectedRows}
-                            visibleColumns={selectedVisibleColumns}
-                          />
-                        );
-                      })()}
-                      fileName="Subtrip-list.pdf"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      {({ loading }) => (
-                        <IconButton color="primary">
-                          <Iconify
-                            icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'}
-                          />
-                        </IconButton>
-                      )}
-                    </PDFDownloadLink>
-                  </Tooltip>
-                </Stack>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                      <TableSkeleton key={index} />
-                    ))
-                  ) : (
-                    <>
-                      {tableData.map((row) => (
-                        <SubtripTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deleteSubtrip(row._id)}
-                          visibleColumns={visibleColumns}
-                        />
-                      ))}
-
-                      <TableNoData notFound={notFound} />
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
-
-// ----------------------------------------------------------------------
