@@ -24,7 +24,7 @@ export default function SubtripTableRow({
       columns={TABLE_COLUMNS}
       selected={selected}
       onSelectRow={onSelectRow}
-      onViewRow={handleView} x
+      onViewRow={handleView}
       onEditRow={handleEdit}
       onDeleteRow={handleDelete}
       visibleColumns={visibleColumns}
