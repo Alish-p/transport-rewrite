@@ -75,3 +75,17 @@ export const exportToExcel = (data, fileName) => {
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   saveAs(blob, `${fileName}.xlsx`);
 };
+
+
+// Formats a list of items for export, including only the user - selected columns.
+export function prepareDataForExport(data, columnConfig, visibleColumns = []) {
+  const columns = columnConfig.filter((col) => visibleColumns.includes(col.id));
+
+  return data.map((vehicle) => {
+    const row = {};
+    columns.forEach((col) => {
+      row[col.label] = col.getter(vehicle);
+    });
+    return row;
+  });
+}

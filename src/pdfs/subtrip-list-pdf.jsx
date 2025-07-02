@@ -1,6 +1,6 @@
-import GenericListPdf from './generic-list-pdf';
-
 import { TABLE_COLUMNS } from 'src/sections/subtrip/config/table-columns';
+
+import GenericListPdf from './generic-list-pdf';
 
 // ----------------------------------------------------------------------
 

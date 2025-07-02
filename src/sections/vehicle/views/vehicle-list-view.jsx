@@ -23,7 +23,6 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
@@ -45,6 +44,7 @@ import VehicleTableRow from '../vehicle-table-row';
 import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
+import { exportToExcel, prepareDataForExport } from '../../../utils/export-to-excel';
 
 const defaultFilters = {
   vehicleNo: '',
@@ -116,7 +116,7 @@ export function VehicleListView() {
     setSelectedTransporter(null);
   }, [resetFilters]);
 
-  // Render tabs 
+  // Render tabs
   const renderTabs = () => {
     const TABS = [
       { value: 'all', label: 'All', color: 'default', count: data?.total },
@@ -219,12 +219,15 @@ export function VehicleListView() {
                 <Tooltip title="Download">
                   <IconButton
                     color="primary"
-                    onClick={() =>
+                    onClick={() => {
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+
                       exportToExcel(
-                        tableData.filter((r) => table.selected.includes(r._id)),
-                        'filtered'
-                      )
-                    }
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        'Vehcles-selected-list'
+                      );
+                    }}
                   >
                     <Iconify icon="eva:download-outline" />
                   </IconButton>
