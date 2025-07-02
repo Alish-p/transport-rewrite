@@ -56,7 +56,7 @@ module.exports = {
     // unused imports
     'unused-imports/no-unused-imports': 1,
     'unused-imports/no-unused-vars': [
-      0,
+      1,
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
     ],
     // perfectionist

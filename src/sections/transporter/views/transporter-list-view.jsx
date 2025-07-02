@@ -72,13 +72,13 @@ export function TransporterListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   // Column visibility logic handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
+  const { visibleColumns, disabledColumns, toggleColumnVisibility } = useVisibleColumns();
 
   const handleToggleColumn = useCallback(
     (columnName) => {
-      toggleColumn(columnName);
+      toggleColumnVisibility(columnName);
     },
-    [toggleColumn]
+    [toggleColumnVisibility]
   );
 
   // Filter the table head based on visible columns
@@ -125,7 +125,7 @@ export function TransporterListView() {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {

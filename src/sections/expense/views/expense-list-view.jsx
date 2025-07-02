@@ -87,7 +87,7 @@ export function ExpenseListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   // Column visibility state handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
+  const { visibleColumns, disabledColumns, toggleColumnVisibility } = useVisibleColumns();
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
@@ -114,8 +114,6 @@ export function ExpenseListView() {
 
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || 0;
-
-
 
   const denseHeight = table.dense ? 56 : 76;
 
@@ -185,9 +183,9 @@ export function ExpenseListView() {
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      toggleColumn(columnName);
+      toggleColumnVisibility(columnName);
     },
-    [toggleColumn]
+    [toggleColumnVisibility]
   );
 
   // Filter the table head based on visible columns
@@ -295,7 +293,8 @@ export function ExpenseListView() {
                 ) : (
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.expenseCategory) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.expenseCategory) &&
+                        'filled') ||
                       'soft'
                     }
                     color={tab.color}
@@ -448,8 +447,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (vehicleNo) {
     const vehicleNoLower = vehicleNo.toLowerCase();
     inputData = inputData.filter((record) => {
-      const recordVehicleNo =
-        record.vehicleId?.vehicleNo || record.vehicleNo || '';
+      const recordVehicleNo = record.vehicleId?.vehicleNo || record.vehicleNo || '';
       return recordVehicleNo.toLowerCase().includes(vehicleNoLower);
     });
   }

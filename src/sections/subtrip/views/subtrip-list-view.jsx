@@ -83,7 +83,8 @@ export function SubtripListView() {
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
   // Column visibility logic handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumn, toggleAllColumns } = useVisibleColumns();
+  const { visibleColumns, disabledColumns, toggleColumnVisibility, toggleAllColumnsVisibility } =
+    useVisibleColumns();
 
   const [tableData, setTableData] = useState([]);
 
@@ -232,7 +233,6 @@ export function SubtripListView() {
     [table]
   );
 
-
   const handleEditRow = (id) => {
     navigate(paths.dashboard.subtrip.edit(paramCase(id)));
   };
@@ -294,13 +294,13 @@ export function SubtripListView() {
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      toggleColumn(columnName);
+      toggleColumnVisibility(columnName);
     },
-    [toggleColumn]
+    [toggleColumnVisibility]
   );
 
   const handleToggleAllColumns = (checked) => {
-    toggleAllColumns(checked);
+    toggleAllColumnsVisibility(checked);
   };
 
   // Filter the table head based on visible columns
@@ -378,7 +378,6 @@ export function SubtripListView() {
         </Scrollbar>
       </Card>
 
-
       <Card>
         {/* filtering Tabs */}
         <Tabs
@@ -401,8 +400,7 @@ export function SubtripListView() {
                 ) : (
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.subtripStatus) &&
-                        'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.subtripStatus) && 'filled') ||
                       'soft'
                     }
                     color={tab.color}
@@ -497,9 +495,7 @@ export function SubtripListView() {
                   >
                     {({ loading }) => (
                       <IconButton color="primary">
-                        <Iconify
-                          icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'}
-                        />
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
                       </IconButton>
                     )}
                   </PDFDownloadLink>
