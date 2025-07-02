@@ -2,13 +2,14 @@ import React from 'react';
 
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { Label } from 'src/components/label';
+
+import { titleCase } from '../../utils/change-case';
 
 export const TABLE_COLUMNS = [
   {
@@ -35,14 +36,19 @@ export const TABLE_COLUMNS = [
               {value}
             </Link>
           }
-          secondary={
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {row.vehicleType}
-            </Typography>
-          }
+
         />
       </div>
     ),
+  },
+
+  {
+    id: 'vehicleType',
+    label: 'Vehicle Type',
+    defaultVisible: true,
+    disabled: true,
+    align: 'center',
+    getter: (row) => titleCase(row.vehicleType),
   },
   {
     id: 'isOwn',
@@ -50,10 +56,10 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'center',
-    getter: (row) => row.isOwn,
+    getter: (row) => row.isOwn ? 'Own' : 'Market',
     render: (value) => (
-      <Label variant="soft" color={value ? 'secondary' : 'warning'}>
-        {value ? 'Own' : 'Market'}
+      <Label variant="soft" color={value === "Own" ? 'secondary' : 'warning'}>
+        {value}
       </Label>
     ),
   },

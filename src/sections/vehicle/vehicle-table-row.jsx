@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { GenericTableRow } from 'src/components/table';
-import { TABLE_COLUMNS } from './config/table-columns';
+import { TABLE_COLUMNS } from './vehicle-table-config';
 
 export default function VehicleTableRow({
   row,

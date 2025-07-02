@@ -20,6 +20,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
@@ -41,8 +42,8 @@ import {
 } from 'src/components/table';
 
 import VehicleTableRow from '../vehicle-table-row';
+import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
-import { useVisibleColumns } from '../hooks/use-visible-columns';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
 const defaultFilters = {
@@ -57,7 +58,7 @@ export function VehicleListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const deleteVehicle = useDeleteVehicle();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable();
 
   // Use custom filters hook
   const {
@@ -75,7 +76,7 @@ export function VehicleListView() {
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useVisibleColumns();
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedVehicles({
     page: table.page + 1,
@@ -99,7 +100,6 @@ export function VehicleListView() {
     (event, newValue) => handleFilters('isOwn', newValue),
     [handleFilters]
   );
-
   const handleSelectTransporter = useCallback(
     (transporter) => {
       setSelectedTransporter(transporter);
@@ -107,18 +107,16 @@ export function VehicleListView() {
     },
     [handleFilters]
   );
-
   const handleClearTransporter = useCallback(() => {
     setSelectedTransporter(null);
     handleFilters('transporter', '');
   }, [handleFilters]);
-
   const handleResetAll = useCallback(() => {
     resetFilters();
     setSelectedTransporter(null);
   }, [resetFilters]);
 
-  // Render tabs separately
+  // Render tabs 
   const renderTabs = () => {
     const TABS = [
       { value: 'all', label: 'All', color: 'default', count: data?.total },
@@ -254,21 +252,21 @@ export function VehicleListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                    <TableSkeleton key={i} />
+                  ))
                   : tableData.map((row) => (
-                      <VehicleTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
-                        onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
-                        onDeleteRow={() => deleteVehicle(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+                    <VehicleTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
+                      onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
+                      onDeleteRow={() => deleteVehicle(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
                 <TableNoData notFound={!tableData.length && canReset} />
               </TableBody>
             </Table>

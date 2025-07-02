@@ -79,5 +79,3 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     isColumnVisible,
   };
 }
-
-export default useColumnVisibility;

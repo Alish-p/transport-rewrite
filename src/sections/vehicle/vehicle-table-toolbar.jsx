@@ -31,7 +31,7 @@ import { ColumnSelectorList } from 'src/components/table';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { vehicleTypes } from './vehicle-config';
-import { TABLE_COLUMNS } from './config/table-columns';
+import { TABLE_COLUMNS } from './vehicle-table-config';
 
 // ----------------------------------------------------------------------
 
