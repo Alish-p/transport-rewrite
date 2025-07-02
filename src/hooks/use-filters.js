@@ -32,5 +32,3 @@ export function useFilters(initialFilters, options = {}) {
     canReset,
   };
 }
-
-export default useFilters;

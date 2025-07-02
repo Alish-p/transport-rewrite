@@ -1,23 +1,24 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import { Tooltip, MenuList } from '@mui/material';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
-// components
 
-import { PDFDownloadLink } from '@react-pdf/renderer';
-
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import TransporterListPdf from 'src/pdfs/transport-list-pdf';
 
 import { Iconify } from 'src/components/iconify/';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { TABLE_COLUMNS } from './transporter-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ export default function TransporterTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -84,27 +86,13 @@ export default function TransporterTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -139,21 +127,17 @@ export default function TransporterTableToolbar({
 
           <MenuItem
             onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Transporters-list'
+              );
 
-          <MenuItem
-            onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Transporters-list');
             }}
           >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
