@@ -5,7 +5,6 @@ import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
@@ -13,7 +12,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList, ListItemText } from '@mui/material';
+import { Tooltip, MenuList } from '@mui/material';
 // components
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -27,10 +26,12 @@ import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 import { Iconify } from 'src/components/iconify';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { ColumnSelectorList } from 'src/components/table';
 
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { vehicleTypes } from './vehicle-config';
+import { TABLE_COLUMNS } from './config/table-columns';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ export default function VehicleTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
   selectedTransporter,
   onSelectTransporter,
 }) {
@@ -71,7 +73,6 @@ export default function VehicleTableToolbar({
     },
     [onFilters]
   );
-
 
   return (
     <>
@@ -145,27 +146,13 @@ export default function VehicleTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover

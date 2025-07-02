@@ -31,14 +31,19 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { useTable, TableNoData, TableSkeleton, TableHeadCustom, TableSelectedAction, TablePaginationCustom } from 'src/components/table';
+import {
+  useTable,
+  TableNoData,
+  TableSkeleton,
+  TableHeadCustom,
+  TableSelectedAction,
+  TablePaginationCustom,
+} from 'src/components/table';
 
 import VehicleTableRow from '../vehicle-table-row';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
-
-
 
 const defaultFilters = {
   vehicleNo: '',
@@ -64,7 +69,13 @@ export function VehicleListView() {
 
   const [selectedTransporter, setSelectedTransporter] = useState(null);
 
-  const { visibleColumns, visibleHeaders, disabledColumns, toggleColumnVisibility } = useVisibleColumns();
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useVisibleColumns();
 
   const { data, isLoading } = usePaginatedVehicles({
     page: table.page + 1,
@@ -109,43 +120,41 @@ export function VehicleListView() {
 
   // Render tabs separately
   const renderTabs = () => {
-
     const TABS = [
       { value: 'all', label: 'All', color: 'default', count: data?.total },
       { value: 'own', label: 'Own', color: 'success', count: data?.totalOwnVehicle },
       { value: 'market', label: 'Market', color: 'warning', count: data?.totalMarketVehicle },
     ];
 
-    return (<Tabs
-      value={filters.isOwn}
-      onChange={handleFilterOwnership}
-      sx={{
-        px: 2.5,
-        boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-      }}
-    >
-      {TABS.map((tab) => (
-        <Tab
-          key={tab.value}
-          value={tab.value}
-          label={tab.label}
-          iconPosition="end"
-          icon={
-            isLoading ? (
-              <CircularProgress size={16} />
-            ) : (
-              <Label variant={tab.value === filters.isOwn ? 'filled' : 'soft'} color={tab.color}>
-                {tab.count}
-              </Label>
-            )
-          }
-        />
-      ))}
-    </Tabs>)
-  }
-
-
-
+    return (
+      <Tabs
+        value={filters.isOwn}
+        onChange={handleFilterOwnership}
+        sx={{
+          px: 2.5,
+          boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+        }}
+      >
+        {TABS.map((tab) => (
+          <Tab
+            key={tab.value}
+            value={tab.value}
+            label={tab.label}
+            iconPosition="end"
+            icon={
+              isLoading ? (
+                <CircularProgress size={16} />
+              ) : (
+                <Label variant={tab.value === filters.isOwn ? 'filled' : 'soft'} color={tab.color}>
+                  {tab.count}
+                </Label>
+              )
+            }
+          />
+        ))}
+      </Tabs>
+    );
+  };
 
   return (
     <DashboardContent>
@@ -161,7 +170,8 @@ export function VehicleListView() {
             component={RouterLink}
             href={paths.dashboard.vehicle.new}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}>
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
             New Vehicle
           </Button>
         }
@@ -169,7 +179,6 @@ export function VehicleListView() {
       />
 
       <Card>
-
         {renderTabs()}
 
         <VehicleTableToolbar
@@ -179,6 +188,7 @@ export function VehicleListView() {
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
+          onToggleAllColumns={toggleAllColumnsVisibility}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
         />
@@ -211,10 +221,13 @@ export function VehicleListView() {
                 <Tooltip title="Download">
                   <IconButton
                     color="primary"
-                    onClick={() => exportToExcel(
-                      tableData.filter((r) => table.selected.includes(r._id)),
-                      'filtered'
-                    )}>
+                    onClick={() =>
+                      exportToExcel(
+                        tableData.filter((r) => table.selected.includes(r._id)),
+                        'filtered'
+                      )
+                    }
+                  >
                     <Iconify icon="eva:download-outline" />
                   </IconButton>
                 </Tooltip>
@@ -239,23 +252,23 @@ export function VehicleListView() {
                 }
               />
               <TableBody>
-                {isLoading ? (
-                  Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
-                ) : (
-                  tableData.map((row) => (
-                    <VehicleTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
-                      onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
-                      onDeleteRow={() => deleteVehicle(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))
-                )}
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                      <TableSkeleton key={i} />
+                    ))
+                  : tableData.map((row) => (
+                      <VehicleTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
+                        onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
+                        onDeleteRow={() => deleteVehicle(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                      />
+                    ))}
                 <TableNoData notFound={!tableData.length && canReset} />
               </TableBody>
             </Table>
