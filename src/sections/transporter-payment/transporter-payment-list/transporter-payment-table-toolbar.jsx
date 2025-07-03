@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import { MenuList } from '@mui/material';
@@ -12,12 +13,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useTransporter } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
@@ -27,11 +29,22 @@ import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtr
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { fDateRangeShortLabel } from '../../../utils/format-time';
+import { TABLE_COLUMNS } from '../transporter-payment-table-config';
+import TransporterPaymentListPdf from '../../../pdfs/transporter-payment-list-pdf';
 
 // ----------------------------------------------------------------------
 
-export default function TransporterPaymentTableToolbar({ filters, onFilters, tableData }) {
+export default function TransporterPaymentTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -131,10 +144,29 @@ export default function TransporterPaymentTableToolbar({ filters, onFilters, tab
           }
         />
 
+        <IconButton onClick={columnsPopover.onOpen}>
+          <Iconify icon="mdi:table-column-plus-after" />
+        </IconButton>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}
@@ -143,32 +175,36 @@ export default function TransporterPaymentTableToolbar({ filters, onFilters, tab
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={<TransporterPaymentListPdf payments={tableData} />}
+              fileName="Transporter-payment-list.pdf"
+              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
 
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Transporter-payment-list'
+              );
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Transporter-list');
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
