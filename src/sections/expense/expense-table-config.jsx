@@ -98,6 +98,14 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'dieselLtr',
+    label: 'Diesel Rate (₹/Ltr)',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.dieselPrice || '-',
+    align: 'right',
+  },
+  {
+    id: 'dieselLtr',
     label: 'Diesel (Ltr)',
     defaultVisible: false,
     disabled: false,
@@ -133,6 +141,14 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row?.pumpCd?.pumpName || '-',
+  },
+  {
+    id: 'transporter',
+    label: 'Transporter',
+    defaultVisible: false,
+    disabled: false,
+    align: 'left',
+    getter: (row) => row?.vehicleId?.transporter?.transportName || '-',
   },
   {
     id: 'slipNo',
