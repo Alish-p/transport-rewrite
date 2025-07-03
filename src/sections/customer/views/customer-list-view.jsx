@@ -32,16 +32,16 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
-  TableSkeleton,
 } from 'src/components/table';
 
 import CustomerTableRow from '../customer-table-row';
+import { TABLE_COLUMNS } from '../customer-table-config';
 import CustomerTableToolbar from '../customer-table-toolbar';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
-import { TABLE_COLUMNS } from '../customer-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ export function CustomerListView() {
     navigate(paths.dashboard.customer.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -213,21 +213,21 @@ export function CustomerListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
-                        <CustomerTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deleteCustomer(row._id)}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
-                        />
-                      ))}
+                      <CustomerTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteCustomer(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                      />
+                    ))}
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
