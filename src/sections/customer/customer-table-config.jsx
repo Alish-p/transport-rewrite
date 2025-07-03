@@ -35,11 +35,6 @@ export const TABLE_COLUMNS = [
               {value}
             </Link>
           }
-          secondary={
-            <Link noWrap variant="body2" sx={{ color: 'text.disabled' }}>
-              {row.place}
-            </Link>
-          }
         />
       </div>
     ),
