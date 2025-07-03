@@ -237,9 +237,8 @@ export function useDeleteSubtrip() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteSubtrip(id),
     onSuccess: (_, id) => {
-      queryClient.setQueryData([QUERY_KEY], (prevSubtrips) =>
-        prevSubtrips.filter((subtrip) => subtrip._id !== id)
-      );
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.removeQueries([QUERY_KEY, id]);
       toast.success('Subtrip deleted successfully!');
     },
     onError: (error) => {
