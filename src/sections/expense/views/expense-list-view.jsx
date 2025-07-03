@@ -52,10 +52,11 @@ import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-res
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
-  vehicleNo: '',
-  pump: '',
-  transporter: '',
-  tripId: '',
+  vehicle: null,
+  subtrip: null,
+  pump: null,
+  transporter: null,
+  trip: null,
   expenseCategory: 'all',
   expenseType: 'all',
   fromDate: null,
@@ -88,12 +89,15 @@ export function ExpenseListView() {
 
 
   const { data, isLoading } = usePaginatedExpenses({
-    vehicleNo: filters.vehicleNo || undefined,
-    pump: filters.pump || undefined,
-    transporter: filters.transporter || undefined,
-    tripId: filters.tripId || undefined,
-    expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
-    expenseType: filters.expenseType !== 'all' ? filters.expenseType : undefined,
+    vehicleId: filters.vehicle?._id || undefined,
+    subtripId: filters.subtrip?._id || undefined,
+    pumpId: filters.pump?._id || undefined,
+    transporterId: filters.transporter?._id || undefined,
+    tripId: filters.trip?._id || undefined,
+    expenseCategory:
+      filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
+    expenseType:
+      filters.expenseType !== 'all' ? filters.expenseType : undefined,
     startDate: filters.fromDate || undefined,
     endDate: filters.endDate || undefined,
     page: table.page + 1,
@@ -111,7 +115,8 @@ export function ExpenseListView() {
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || 0;
 
-  const notFound = !tableData.length && canReset;
+
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const getPercentByCategory = (category) =>
     totalCount ? ((totals[category]?.count || 0) / totalCount) * 100 : 0;
@@ -405,3 +410,4 @@ export function ExpenseListView() {
 }
 
 // ----------------------------------------------------------------------
+

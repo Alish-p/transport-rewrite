@@ -20,6 +20,8 @@ export default function ExpenseTableRow({
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
   const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
 
+  console.log({ row })
+
   return (
     <GenericTableRow
       row={row}

@@ -5,7 +5,6 @@ import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 // @mui
 // components
 
@@ -18,6 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import { useTrips } from 'src/query/use-trip';
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
@@ -26,7 +26,14 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { TABLE_COLUMNS } from '../expense-table-config';
+import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
+import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
+import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+
+import { TABLE_COLUMNS } from '../config/table-columns';
+import { SUBTRIP_STATUS } from '../../subtrip/constants';
 
 // ----------------------------------------------------------------------
 
@@ -46,30 +53,45 @@ export default function ExpenseTableToolbar({
   const dateDialog = useBoolean();
   const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
 
-  const handleFilterPumpName = useCallback(
-    (event) => {
-      onFilters('pump', event.target.value);
+  const vehicleDialog = useBoolean();
+  const pumpDialog = useBoolean();
+  const transporterDialog = useBoolean();
+  const tripDialog = useBoolean();
+  const subtripDialog = useBoolean();
+
+  const { data: trips } = useTrips();
+
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      onFilters('vehicle', vehicle);
     },
     [onFilters]
   );
 
-  const handleFilterVehicle = useCallback(
-    (event) => {
-      onFilters('vehicleNo', event.target.value);
+  const handleSelectPump = useCallback(
+    (pump) => {
+      onFilters('pump', pump);
     },
     [onFilters]
   );
 
-  const handleFilterTransporter = useCallback(
-    (event) => {
-      onFilters('transporter', event.target.value);
+  const handleSelectTransporter = useCallback(
+    (transporter) => {
+      onFilters('transporter', transporter);
     },
     [onFilters]
   );
 
-  const handleFilterTripId = useCallback(
-    (event) => {
-      onFilters('tripId', event.target.value);
+  const handleSelectTrip = useCallback(
+    (trip) => {
+      onFilters('trip', trip);
+    },
+    [onFilters]
+  );
+
+  const handleSelectSubtrip = useCallback(
+    (subtrip) => {
+      onFilters('subtrip', subtrip);
     },
     [onFilters]
   );
@@ -102,72 +124,44 @@ export default function ExpenseTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.vehicleNo}
-          onChange={handleFilterVehicle}
-          placeholder="Search vehicle..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            maxWidth: { md: 250 },
-          }}
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          selected={filters.vehicle?.vehicleNo}
+          placeholder="Vehicle"
+          iconName="mdi:truck"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.pump}
-          onChange={handleFilterPumpName}
-          placeholder="Search Pump ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            maxWidth: { md: 250 },
-          }}
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          selected={filters.subtrip?._id}
+          placeholder="Subtrip"
+          iconName="mdi:map-marker-path"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.transporter}
-          onChange={handleFilterTransporter}
-          placeholder="Search Transporter"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            maxWidth: { md: 250 },
-          }}
+        <DialogSelectButton
+          onClick={pumpDialog.onTrue}
+          selected={filters.pump?.pumpName}
+          placeholder="Pump"
+          iconName="mdi:gas-station"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.tripId}
-          onChange={handleFilterTripId}
-          placeholder="Search Trip ID"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            maxWidth: { md: 250 },
-          }}
+        <DialogSelectButton
+          onClick={transporterDialog.onTrue}
+          selected={filters.transporter?.transportName}
+          placeholder="Transporter"
+          iconName="mdi:truck-delivery"
+          sx={{ maxWidth: { md: 200 } }}
+        />
+
+        <DialogSelectButton
+          onClick={tripDialog.onTrue}
+          selected={filters.trip?._id}
+          placeholder="Trip"
+          iconName="mdi:truck-fast"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
         <DialogSelectButton
@@ -286,6 +280,51 @@ export default function ExpenseTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={filters.vehicle}
+        onVehicleChange={handleSelectVehicle}
+      />
+
+      <KanbanSubtripDialog
+        open={subtripDialog.value}
+        onClose={subtripDialog.onFalse}
+        selectedSubtrip={filters.subtrip}
+        onSubtripChange={handleSelectSubtrip}
+        statusList={[
+          SUBTRIP_STATUS.IN_QUEUE,
+          SUBTRIP_STATUS.LOADED,
+          SUBTRIP_STATUS.RECEIVED,
+          SUBTRIP_STATUS.ERROR,
+          SUBTRIP_STATUS.BILLED_PENDING,
+          SUBTRIP_STATUS.BILLED_PAID,
+          SUBTRIP_STATUS.BILLED_OVERDUE,
+        ]}
+      />
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={filters.pump}
+        onPumpChange={handleSelectPump}
+      />
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        selectedTransporter={filters.transporter}
+        onTransporterChange={handleSelectTransporter}
+      />
+
+      <KanbanTripDialog
+        open={tripDialog.value}
+        onClose={tripDialog.onFalse}
+        selectedTrip={filters.trip}
+        onTripChange={handleSelectTrip}
+        trips={trips}
+      />
     </>
   );
 }

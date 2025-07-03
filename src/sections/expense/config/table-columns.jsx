@@ -34,9 +34,27 @@ export const TABLE_COLUMNS = [
   {
     id: 'vehicleNo',
     label: 'Vehicle No',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: true,
-    getter: (row) => row?.vehicleNo || '-',
+    getter: (row) => row?.vehicleId?.vehicleNo || '-',
+    align: 'left',
+  },
+
+  {
+    id: 'customerName',
+    label: 'Customer',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.subtripId?.customerId?.customerName || '-',
+    align: 'left',
+  },
+
+  {
+    id: 'routeName',
+    label: 'Route',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.subtripId?.routeCd?.routeName || '-',
     align: 'left',
   },
 
@@ -128,11 +146,21 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'pumpCd',
-    label: 'Pump Code',
+    label: 'Pump',
     defaultVisible: false,
     disabled: false,
     align: 'left',
     getter: (row) => row?.pumpCd?.pumpName || '-',
+  },
+
+  {
+    id: 'transporterName',
+    label: 'Transporter',
+    defaultVisible: false,
+    disabled: false,
+    align: 'left',
+    getter: (row) =>
+      row?.vehicleId?.transporter?.transportName || '-',
   },
   {
     id: 'slipNo',

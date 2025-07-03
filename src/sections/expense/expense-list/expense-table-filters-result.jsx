@@ -25,19 +25,23 @@ export default function DriverTableFiltersResult({
   };
 
   const handleRemovePump = () => {
-    onFilters('pump', '');
+    onFilters('pump', null);
   };
 
   const handleRemoveTransporter = () => {
-    onFilters('transporter', '');
+    onFilters('transporter', null);
   };
 
   const handleRemoveTripId = () => {
-    onFilters('tripId', '');
+    onFilters('trip', null);
   };
 
   const handleRemoveVehicleNo = () => {
-    onFilters('vehicleNo', '');
+    onFilters('vehicle', null);
+  };
+
+  const handleRemoveSubtrip = () => {
+    onFilters('subtrip', null);
   };
 
   const handleRemoveDate = () => {
@@ -65,25 +69,39 @@ export default function DriverTableFiltersResult({
 
         {filters.pump && (
           <Block label="Pump">
-            <Chip size="small" label={filters.pump} onDelete={handleRemovePump} />
+            <Chip
+              size="small"
+              label={filters.pump.pumpName}
+              onDelete={handleRemovePump}
+            />
           </Block>
         )}
 
         {filters.transporter && (
           <Block label="Transporter">
-            <Chip size="small" label={filters.transporter} onDelete={handleRemoveTransporter} />
+            <Chip
+              size="small"
+              label={filters.transporter.transportName}
+              onDelete={handleRemoveTransporter}
+            />
           </Block>
         )}
 
-        {filters.tripId && (
-          <Block label="Trip ID">
-            <Chip size="small" label={filters.tripId} onDelete={handleRemoveTripId} />
+        {filters.trip && (
+          <Block label="Trip">
+            <Chip size="small" label={filters.trip._id} onDelete={handleRemoveTripId} />
           </Block>
         )}
 
-        {filters.vehicleNo && (
-          <Block label="Vehicle No:">
-            <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+        {filters.vehicle && (
+          <Block label="Vehicle:">
+            <Chip size="small" label={filters.vehicle.vehicleNo} onDelete={handleRemoveVehicleNo} />
+          </Block>
+        )}
+
+        {filters.subtrip && (
+          <Block label="Subtrip">
+            <Chip size="small" label={filters.subtrip._id} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 
