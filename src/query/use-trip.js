@@ -64,7 +64,7 @@ export function useCreateTrip() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createTrip,
-    onSuccess: (newTrip) => {
+    onSuccess: () => {
       toast.success('Trip added successfully!');
       queryClient.invalidateQueries([QUERY_KEY]);
     },
@@ -118,7 +118,7 @@ export function useDeleteTrip() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTrip(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Trip deleted successfully!');
     },

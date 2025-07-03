@@ -21,7 +21,6 @@ import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/tabl
 export function CustomerFreightTable({ title, subheader, ...other }) {
     // get current year/month
     const today = dayjs();
-    const currentYear = today.year();
     const currentMonthIndex = today.month(); // 0-based
 
     // build list of { label: 'Jan-2025', value: '2025-01' } up to current month

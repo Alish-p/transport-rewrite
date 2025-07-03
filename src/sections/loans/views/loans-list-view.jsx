@@ -7,7 +7,6 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -69,7 +68,6 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function LoansListView({ loans }) {
-  const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -122,13 +120,6 @@ export function LoansListView({ loans }) {
       router.push(paths.dashboard.loan.details(id));
     },
     [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {

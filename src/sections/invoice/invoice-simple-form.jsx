@@ -53,7 +53,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': { borderBottom: 'none', paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) },
 }));
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
 }));
 
@@ -107,7 +107,7 @@ export default function SimplerNewInvoiceForm() {
     reset,
     handleSubmit,
     control,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
   const { replace } = useFieldArray({

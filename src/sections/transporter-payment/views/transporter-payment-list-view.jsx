@@ -17,7 +17,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
@@ -62,7 +61,6 @@ export function TransporterPaymentListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const table = useTable({ defaultOrderBy: 'createDate' });
-  const confirm = useBoolean();
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
   const {

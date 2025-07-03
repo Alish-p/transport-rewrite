@@ -15,15 +15,12 @@ export function DashboardTotalWidget({
     icon,
     title,
     total,
-    chart,
-    percent,
     color = 'primary',
     sx,
     ...other
 }) {
     const theme = useTheme();
 
-    const chartColors = [theme.palette[color].dark];
 
     return (
         <Card

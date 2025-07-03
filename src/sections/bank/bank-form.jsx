@@ -49,7 +49,6 @@ export default function BankForm({ currentBank }) {
   const {
     reset,
     handleSubmit,
-    control,
     formState: { isSubmitting },
   } = methods;
 

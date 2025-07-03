@@ -19,7 +19,6 @@ Font.register({
 export default function TripSummaryPdf({ trip }) {
   const {
     _id: tripId,
-    tripStatus,
     fromDate,
     endDate,
     vehicleId,

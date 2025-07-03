@@ -37,9 +37,6 @@ export function DriverDetailView({ driver }) {
     experience,
     dob,
     permanentAddress,
-    dlImage,
-    photoImage,
-    aadharImage,
     bankCd,
     accNo,
   } = driver || {};

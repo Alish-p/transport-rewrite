@@ -15,7 +15,6 @@ export default function IncomeWidgetSummary({
   type,
   total,
   icon,
-  percent,
   color = 'primary',
   chart,
   sx,

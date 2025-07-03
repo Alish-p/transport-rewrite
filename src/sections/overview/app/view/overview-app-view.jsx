@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { _appFeatured } from 'src/_mock';
@@ -39,12 +38,10 @@ const ICONS = {
 export function OverviewAppView({
   counts,
   subtripMonthlyData,
-  subtripStatusSummary,
   invoiceStatusSummary,
 }) {
   const { user } = useAuthContext();
 
-  const theme = useTheme();
 
   const {
     invoices,

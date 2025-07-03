@@ -35,7 +35,7 @@ export const DieselPriceSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function DieselPriceForm({ currentDieselPrice, pumpsList }) {
+export default function DieselPriceForm({ currentDieselPrice }) {
   const navigate = useNavigate();
   const createDieselPrice = useCreateDieselPrice();
   const updateDieselPrice = useUpdateDieselPrice();

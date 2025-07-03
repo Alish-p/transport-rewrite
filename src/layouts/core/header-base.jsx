@@ -60,12 +60,10 @@ export function HeaderBase({
     helpLink = true,
     settings = true,
     purchase = true,
-    contacts = true,
     searchbar = true,
     workspaces = true,
     menuButton = true,
     localization = true,
-    notifications = true,
   } = {},
 
   ...other

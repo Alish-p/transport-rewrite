@@ -82,7 +82,6 @@ export default function TripForm({ currentTrip }) {
     handleSubmit,
     formState: { isSubmitting, errors },
     clearErrors,
-    control,
   } = methods;
 
   // Whenever defaultValues change (e.g. when switching from “create” to “edit”),

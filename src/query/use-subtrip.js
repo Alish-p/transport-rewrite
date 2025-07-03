@@ -201,7 +201,7 @@ export function useCreateSubtrip() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createSubtrip,
-    onSuccess: (newSubtrip) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Subtrip added successfully!');
     },
@@ -330,7 +330,7 @@ export function useCreateEmptySubtrip() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createEmptySubtrip,
-    onSuccess: (newSubtrip) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Empty subtrip added successfully!');
     },

@@ -24,16 +24,14 @@ const COMPANY = CONFIG.company;
 export default function TransporterPaymentPdf({ subtrip }) {
   const {
     _id,
-    diNumber,
     customerId,
     startDate,
     expenses,
     invoiceNo,
-    initialAdvanceDiesel,
     rate,
     loadingWeight,
     unloadingWeight,
-    tripId: { driverId, vehicleId },
+    tripId: { vehicleId },
     loadingPoint,
     unloadingPoint,
   } = subtrip;
@@ -105,14 +103,6 @@ export default function TransporterPaymentPdf({ subtrip }) {
           The total payment amount for the transporter associated with this subtrip {_id} is as
           follows:
         </Text>
-      </View>
-    </View>
-  );
-
-  const renderEmptyLine = () => (
-    <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
-      <View style={[styles.col12]}>
-        <Text style={{ textAlign: 'center', padding: 4 }}> </Text>
       </View>
     </View>
   );
@@ -306,7 +296,7 @@ export default function TransporterPaymentPdf({ subtrip }) {
 
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col10, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{}</Text>
+          <Text style={[styles.horizontalCellContent]}>{ }</Text>
         </View>
 
         <View style={[styles.col2, styles.horizontalCell]}>

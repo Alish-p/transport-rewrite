@@ -20,7 +20,6 @@ Font.register({
 export default function InvoicePdf({ invoice }) {
   const {
     customerId,
-    invoiceStatus,
     issueDate,
     invoiceNo,
     subtripSnapshot,

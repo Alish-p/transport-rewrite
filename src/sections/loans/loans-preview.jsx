@@ -136,7 +136,7 @@ function RenderInstallments({ loan }) {
 }
 
 export default function LoansPreview({ loan }) {
-  const { borrowerId: borrower, createdAt, emi } = loan;
+  const { borrowerId: borrower, createdAt } = loan;
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>

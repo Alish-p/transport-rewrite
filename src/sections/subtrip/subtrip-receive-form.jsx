@@ -207,7 +207,6 @@ export function SubtripReceiveForm() {
   const {
     data: selectedSubtripData,
     isLoading: isLoadingSelectedSubtrip,
-    error: selectedSubtripError,
   } = useSubtrip(selectedSubtripId);
 
   const receiveSubtrip = useUpdateSubtripReceiveInfo();

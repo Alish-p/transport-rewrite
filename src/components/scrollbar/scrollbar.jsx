@@ -8,7 +8,7 @@ import { scrollbarClasses } from './classes';
 // ----------------------------------------------------------------------
 
 export const Scrollbar = forwardRef(
-  ({ slotProps, children, fillContent, naturalScroll, sx, ...other }, ref) => (
+  ({ slotProps, children, fillContent, sx, ...other }, ref) => (
     <Box
       component={SimpleBar}
       scrollableNodeProps={{ ref }}

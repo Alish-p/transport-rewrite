@@ -72,7 +72,6 @@ export default function VehicleExpenseForm({ currentExpense }) {
 
   const {
     reset,
-    watch,
     setValue,
     handleSubmit,
     formState: { isSubmitting },

@@ -1,4 +1,5 @@
 import { TABLE_COLUMNS } from 'src/sections/invoice/invoice-table-config';
+
 import GenericListPdf from './generic-list-pdf';
 
 export default function InvoiceListPdf({ invoices, visibleColumns = [] }) {

@@ -40,7 +40,6 @@ export default function LoansTableRow({
     totalAmount,
     remainingBalance,
     remarks,
-    status,
     createdAt,
   } = row;
 
@@ -82,7 +81,7 @@ export default function LoansTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => {}}
+                onClick={() => { }}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {getBorrowerDetails(borrowerType, borrowerId).cellNo}

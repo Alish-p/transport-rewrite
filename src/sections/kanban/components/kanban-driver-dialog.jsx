@@ -71,7 +71,6 @@ export function KanbanDriverDialog({
     drivers,
     isLoading,
     isFetchingNext,
-    hasNextPage,
     loadMoreRef,
   } = useDriverSearch(search, open);
 

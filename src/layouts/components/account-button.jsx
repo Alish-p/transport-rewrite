@@ -10,7 +10,7 @@ import { varHover, AnimateAvatar } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
 
-export function AccountButton({ open, photoURL, displayName, sx, ...other }) {
+export function AccountButton({ photoURL, displayName, sx, ...other }) {
   const theme = useTheme();
 
   const renderFallback = (

@@ -42,7 +42,7 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
   const {
     handleSubmit,
     reset,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
     watch,
   } = methods;
 
@@ -50,7 +50,7 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
     reset(defaultValues);
   }, [reset]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     try {
       await closeSubtrip(subtripId);
       handleReset();

@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
@@ -68,7 +67,7 @@ const PDFDownloadMenuItem = ({ document, fileName, label, onClose, disabled }) =
 );
 
 // Action Button Component
-const ActionButton = ({ label, icon, onClick, disabled, startIcon, endIcon }) => (
+const ActionButton = ({ label, onClick, disabled, startIcon, endIcon }) => (
   <Button
     color="primary"
     variant="outlined"
@@ -91,21 +90,13 @@ export default function SubtripToolbar({
   onRecieve,
   onEdit,
   onResolve,
-  onSubtripClose,
   onCloseEmpty,
   isEditDisabled,
   isEmpty,
 }) {
-  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
-  const handleAction = (action) => {
-    handleClose();
-    action();
-  };
+
 
   const getActions = () => {
     if (isEmpty) {
@@ -229,7 +220,6 @@ export default function SubtripToolbar({
           {getActions().map((action) => (
             <MenuItem
               key={action.label}
-              onClick={() => handleAction(action.action)}
               disabled={action.disabled}
             >
               <Iconify icon={action.icon} />

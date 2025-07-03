@@ -27,7 +27,7 @@ import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
 }));
 const StyledTableRow = styled(TableRow)(({ theme }) => ({

@@ -6,7 +6,7 @@ import axios from 'src/utils/axios';
 const ENDPOINT = '/api/diesel-prices';
 const QUERY_KEY = 'diesel-prices';
 
-const getDieselPrices = async ({ queryKey }) => {
+const getDieselPrices = async () => {
   const { data } = await axios.get(`${ENDPOINT}`);
   return data;
 };
@@ -78,7 +78,7 @@ export function useCreateDieselPrice() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createDieselPrice,
-    onSuccess: (newDieselPrice) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DieselPrice added successfully!');
     },
@@ -113,7 +113,7 @@ export function useDeleteDieselPrice() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDieselPrice(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DieselPrice deleted successfully!');
     },

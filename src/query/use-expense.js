@@ -55,7 +55,7 @@ export function useCreateExpense() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createExpense,
-    onSuccess: (newExpense) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Expense added successfully!');
     },
@@ -90,7 +90,7 @@ export function useDeleteExpense() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteExpense(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Expense deleted successfully!');
     },

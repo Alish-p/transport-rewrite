@@ -70,7 +70,7 @@ export function useCreateTask() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: ({ column, task }) => createTask(column, task),
-    onSuccess: (newTask) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Task added successfully!');
     },
@@ -124,7 +124,7 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTask(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Task deleted successfully!');
     },

@@ -98,7 +98,7 @@ export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
   const routeDialog = useBoolean(false);
 
   // Fetch trip details including subtrips when a trip is selected
-  const { data: selectedTripDetails, isLoading: isLoadingTripDetails } = useTrip(selectedTripId);
+  const { data: selectedTripDetails } = useTrip(selectedTripId);
 
   const defaultValues = useMemo(
     () => ({
@@ -169,21 +169,21 @@ export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
       const submitData =
         currentTab === 'loaded'
           ? {
-              tripId: data?.tripId,
-              customerId: data?.customerId?.value,
-              startDate: data?.startDate,
-              diNumber: data?.diNumber,
-              isEmpty: false,
-            }
+            tripId: data?.tripId,
+            customerId: data?.customerId?.value,
+            startDate: data?.startDate,
+            diNumber: data?.diNumber,
+            isEmpty: false,
+          }
           : {
-              tripId: data?.tripId,
-              routeCd: data?.routeCd,
-              loadingPoint: data?.loadingPoint,
-              unloadingPoint: data?.unloadingPoint,
-              startKm: data?.startKm,
-              startDate: data?.startDate,
-              isEmpty: true,
-            };
+            tripId: data?.tripId,
+            routeCd: data?.routeCd,
+            loadingPoint: data?.loadingPoint,
+            unloadingPoint: data?.unloadingPoint,
+            startKm: data?.startKm,
+            startDate: data?.startDate,
+            isEmpty: true,
+          };
 
       const createdSubtrip =
         currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);

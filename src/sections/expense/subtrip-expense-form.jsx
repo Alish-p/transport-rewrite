@@ -12,8 +12,8 @@ import { LoadingButton } from '@mui/lab';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useSubtrip } from 'src/query/use-subtrip';
+import { useCreateExpense } from 'src/query/use-expense';
 import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
-import { useCreateExpense, useDeleteExpense } from 'src/query/use-expense';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -32,19 +32,15 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const [selectedPump, setSelectedPump] = useState(null);
 
   const [selectedSubtripId, setSelectedSubtripId] = useState(() => currentSubtrip || null);
-  const [expenseId, setExpenseId] = useState(null);
 
   const pumpDialog = useBoolean(false);
   const subtripDialog = useBoolean(false);
   const confirm = useBoolean(false);
 
   const createExpense = useCreateExpense();
-  const deleteExpense = useDeleteExpense();
 
   const {
     data: subtripData,
-    isLoading: isSubtripLoading,
-    isError: isSubtripError,
   } = useSubtrip(selectedSubtripId);
 
   const defaultValues = useMemo(
@@ -317,7 +313,6 @@ function ExpenseCoreForm({ currentSubtrip }) {
             color="error"
             onClick={() => {
               confirm.onFalse();
-              deleteExpense(expenseId);
             }}
           >
             Delete

@@ -33,7 +33,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
 }));
 
@@ -96,7 +96,6 @@ function RenderDateInfo({ issueDate, dueDate }) {
 function RenderTable({ invoice }) {
   const {
     taxBreakup,
-    totalAfterTax,
     totalAmountBeforeTax,
     subtripSnapshot = [],
     netTotal,

@@ -97,7 +97,7 @@ export function useCreateCustomer() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createCustomer,
-    onSuccess: (newCustomer) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Customer added successfully!');
     },
@@ -140,7 +140,7 @@ export function useDeleteCustomer() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteCustomer(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Customer deleted successfully!');
     },

@@ -25,7 +25,6 @@ export default function LoansPdf({ loan }) {
     borrowerId: b,
     createdAt,
     disbursementDate,
-    emi,
     installments = [],
     totalAmount,
     outstandingBalance,

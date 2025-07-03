@@ -44,7 +44,7 @@ export function Markdown({ children, sx, ...other }) {
 const rehypePlugins = [rehypeRaw, rehypeHighlight, [remarkGfm, { singleTilde: false }]];
 
 const components = {
-  img: ({ node, ...other }) => (
+  img: ({ ...other }) => (
     <Image
       ratio="16/9"
       className={markdownClasses.content.image}
@@ -52,7 +52,7 @@ const components = {
       {...other}
     />
   ),
-  a: ({ href, children, node, ...other }) => {
+  a: ({ href, children, ...other }) => {
     const linkProps = isExternalLink(href)
       ? { target: '_blank', rel: 'noopener' }
       : { component: RouterLink };
@@ -68,7 +68,7 @@ const components = {
       <pre>{children}</pre>
     </div>
   ),
-  code({ className, children, node, ...other }) {
+  code({ className, children, ...other }) {
     const language = /language-(\w+)/.exec(className || '');
 
     return language ? (

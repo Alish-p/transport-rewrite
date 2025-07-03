@@ -88,7 +88,7 @@ export function useCreateTransporter() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createTransporter,
-    onSuccess: (newTransporter) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Transporter added successfully!');
     },
@@ -122,7 +122,7 @@ export function useDeleteTransporter() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporter(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Transporter deleted successfully!');
     },

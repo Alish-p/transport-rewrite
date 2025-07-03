@@ -83,7 +83,7 @@ export function useCreateLoan() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createLoan,
-    onSuccess: (newLoan) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Loan added successfully!');
     },
@@ -118,7 +118,7 @@ export function useDeleteLoan() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteLoan(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Loan deleted successfully!');
     },

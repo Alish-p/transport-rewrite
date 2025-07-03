@@ -91,7 +91,7 @@ export function useCreateVehicle() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createVehicle,
-    onSuccess: (newVehicle) => {
+    onSuccess: () => {
       toast.success('Vehicle added successfully!');
       queryClient.invalidateQueries([QUERY_KEY]);
     },
@@ -125,7 +125,7 @@ export function useDeleteVehicle() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteVehicle(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Vehicle deleted successfully!');
     },

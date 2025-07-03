@@ -51,7 +51,7 @@ export default function RouteTableRow({
     validFromDate: false,
   },
 }) {
-  const { routeName, tollAmt, fromPlace, toPlace, noOfDays, distance, validFromDate, customer } =
+  const { routeName, fromPlace, toPlace, noOfDays, distance, customer } =
     row;
 
   const confirm = useBoolean();

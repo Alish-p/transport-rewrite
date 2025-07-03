@@ -20,8 +20,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
@@ -73,7 +71,6 @@ export function SubtripListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const table = useTable({ defaultOrderBy: 'createDate' });
-  const confirm = useBoolean();
   const deleteSubtrip = useDeleteSubtrip();
 
   const [filters, setFilters] = useState(defaultFilters);
@@ -112,8 +109,6 @@ export function SubtripListView() {
 
   const totalCount = data?.total || 0;
   const isCountLoading = isFetching;
-
-  const denseHeight = table.dense ? 56 : 76;
 
   const canReset =
     !!filters.vehicleNo ||

@@ -25,8 +25,6 @@ export default function EntryPassPdf({ subtrip }) {
     diNumber,
     customerId,
     startDate,
-    expenses,
-    initialAdvanceDiesel,
     tripId: { driverId, vehicleId },
   } = subtrip;
 

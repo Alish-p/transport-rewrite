@@ -24,7 +24,6 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
     summary = {},
     transporterId: transporter,
     issueDate,
-    billingPeriod,
     paymentId,
     status,
     taxBreakup = {},

@@ -37,7 +37,6 @@ export function SubtripDetailView({ subtrip }) {
   const navigate = useNavigate();
 
   // State for dialog visibility
-  const [showRecieveDialog, setShowRecieveDialog] = useState(false);
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showCloseEmptyDialog, setShowCloseEmptyDialog] = useState(false);
@@ -61,11 +60,7 @@ export function SubtripDetailView({ subtrip }) {
       sum + (expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? expense.dieselLtr : 0),
     0
   );
-  const totalAdblueLtr = subtrip?.expenses?.reduce(
-    (sum, expense) =>
-      sum + (expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? expense.dieselLtr : 0),
-    0
-  );
+
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
 
   const insights = generateInsightsForSubtrip(subtrip);

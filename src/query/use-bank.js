@@ -49,7 +49,7 @@ export function useCreateBank() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createBank,
-    onSuccess: (newBank) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bank added successfully!');
     },
@@ -84,7 +84,7 @@ export function useDeleteBank() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteBank(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bank deleted successfully!');
     },

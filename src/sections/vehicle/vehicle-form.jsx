@@ -116,7 +116,6 @@ export default function VehicleForm({ currentVehicle }) {
   });
 
   const {
-    control,
     reset,
     watch,
     setValue,

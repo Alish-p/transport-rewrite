@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   useSensor,
   DndContext,
@@ -36,7 +36,6 @@ import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 
 // ----------------------------------------------------------------------
 
-const PLACEHOLDER_ID = 'placeholder';
 
 const cssVars = {
   '--item-gap': '24px',
@@ -50,7 +49,6 @@ const cssVars = {
 // ----------------------------------------------------------------------
 
 export function KanbanView({ tasks }) {
-  const [columnFixed, setColumnFixed] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   const updateTaskStatus = useUpdateTaskStatus();
@@ -87,7 +85,7 @@ export function KanbanView({ tasks }) {
       const intersections =
         pointerIntersections.length > 0
           ? // If there are droppables intersecting with the pointer, return those
-            pointerIntersections
+          pointerIntersections
           : rectIntersection(args);
       let overId = getFirstCollision(intersections, 'id');
 
@@ -235,11 +233,6 @@ export function KanbanView({ tasks }) {
       const overIndex = overContainerTaskIds.indexOf(overId);
 
       if (activeIndex !== overIndex) {
-        const updateTasks = {
-          ...tasks,
-          [overColumn]: arrayMove(tasks[overColumn], activeIndex, overIndex),
-        };
-
         updateTaskStatus({ id: activeId, status: overColumn });
       }
     }
@@ -278,14 +271,14 @@ export function KanbanView({ tasks }) {
           sx={{
             pb: 3,
             display: 'unset',
-            ...(columnFixed && { minHeight: 0, display: 'flex', flex: '1 1 auto' }),
+            ...({ minHeight: 0, display: 'flex', flex: '1 1 auto' }),
           }}
         >
           <Stack
             direction="row"
             sx={{
               gap: 'var(--column-gap)',
-              ...(columnFixed && {
+              ...({
                 minHeight: 0,
                 flex: '1 1 auto',
                 [`& .${kanbanClasses.columnList}`]: { ...hideScrollY, flex: '1 1 auto' },

@@ -13,12 +13,7 @@ import { carouselClasses } from '../classes';
 export function CarouselArrowBasicButtons({
   options,
   slotProps,
-  totalSlides,
-  selectedIndex,
-
-  //
   onClickPrev,
-
   onClickNext,
   disablePrev,
   disableNext,

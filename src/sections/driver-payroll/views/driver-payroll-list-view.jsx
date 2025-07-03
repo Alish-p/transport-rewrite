@@ -7,7 +7,6 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -68,7 +67,6 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function DriverPayrollListView({ driversPayrolls }) {
-  const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -125,12 +123,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
     [router]
   );
 
-  const handleFilterInvoiceStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('invoiceStatus', newValue);
-    },
-    [handleFilters]
-  );
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);

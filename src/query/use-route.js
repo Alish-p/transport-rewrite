@@ -72,7 +72,7 @@ export function useCreateRoute() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createRoute,
-    onSuccess: (newRoute) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route added successfully!');
     },
@@ -107,7 +107,7 @@ export function useDeleteRoute() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteRoute(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route deleted successfully!');
     },

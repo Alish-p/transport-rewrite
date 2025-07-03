@@ -50,7 +50,7 @@ export function useCreateUser() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createUser,
-    onSuccess: (newUser) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('User added successfully!');
     },
@@ -85,7 +85,7 @@ export function useDeleteUser() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteUser(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('User deleted successfully!');
     },

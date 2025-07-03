@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import LoanForm from '../loans-form';
 
-export function LoanEditView({ driverList, loan }) {
+export function LoanEditView({ loan }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs

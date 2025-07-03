@@ -19,7 +19,7 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: banks, isLoading: bankLoading, isError: bankError } = useBanks();
-  const { data: pump, isLoading: pumpLoading, isError: pumpError } = usePump(id);
+  const { data: pump, isLoading: pumpLoading } = usePump(id);
 
   if (bankLoading || pumpLoading) {
     return <LoadingScreen />;

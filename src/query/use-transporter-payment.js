@@ -75,7 +75,7 @@ export function useCreateTransporterPayment() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createTransporterPayment,
-    onSuccess: (newTransporterPayment) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment added successfully!');
     },
@@ -91,7 +91,7 @@ export function useCreateBulkTransporterPayment() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createBulkTransporterPayment,
-    onSuccess: (newTransporterPayment) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bulk Transporters Payment generated successfully!');
     },
@@ -151,7 +151,7 @@ export function useDeleteTransporterPayment() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporterPayment(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment deleted successfully!');
     },

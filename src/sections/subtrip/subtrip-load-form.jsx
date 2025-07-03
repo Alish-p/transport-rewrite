@@ -180,8 +180,6 @@ export function SubtripLoadForm() {
   // fetch full details of the selected route ID
   const {
     data: detailedRoute,
-    isLoading: isLoadingRouteDetails,
-    error: routeDetailError,
   } = useRoute(selectedRoute?._id);
 
   // Get routes based on selected customer
@@ -211,7 +209,7 @@ export function SubtripLoadForm() {
   } = methods;
 
   // Watch form values
-  const { routeCd, driverAdvanceGivenBy, initialAdvanceDiesel } = watch();
+  const { driverAdvanceGivenBy, initialAdvanceDiesel } = watch();
 
   // Derived data
   const vehicleData = selectedSubtrip?.tripId?.vehicleId;

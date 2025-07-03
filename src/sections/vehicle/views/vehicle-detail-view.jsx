@@ -31,8 +31,6 @@ export function VehicleDetailView({ vehicle }) {
     loadingCapacity,
     engineType,
     fuelTankCapacity,
-    fromDate,
-    toDate,
     transporter,
     trackingLink,
   } = vehicle;

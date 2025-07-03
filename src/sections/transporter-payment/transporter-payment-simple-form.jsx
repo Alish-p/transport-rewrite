@@ -51,7 +51,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': { borderBottom: 'none', paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) },
 }));
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
 }));
 
@@ -89,7 +89,6 @@ const PaymentSchema = zod.object({
 
 export default function TransporterPaymentSimpleForm() {
   const transporterDialog = useBoolean();
-  const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
 
   const methods = useForm({

@@ -82,17 +82,16 @@ export default function LoanForm({ currentLoan }) {
   const {
     watch,
     handleSubmit,
-    formState: { isSubmitting, errors },
-    setValue,
+    formState: { isSubmitting, },
   } = methods;
 
   const { borrowerType, interestRate, principalAmount, tenureMonths } = watch();
 
-  const { data: drivers, isLoading: driversLoading } = useDrivers({
+  const { data: drivers, } = useDrivers({
     enabled: borrowerType === 'Driver',
   });
 
-  const { data: transporters, isLoading: transportersLoading } = useTransporters({
+  const { data: transporters, } = useTransporters({
     enabled: borrowerType === 'Transporter',
   });
 

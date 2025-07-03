@@ -54,7 +54,7 @@ export function useCreatePump() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createPump,
-    onSuccess: (newPump) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Pump added successfully!');
     },
@@ -89,7 +89,7 @@ export function useDeletePump() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deletePump(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Pump deleted successfully!');
     },

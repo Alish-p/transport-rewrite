@@ -69,7 +69,7 @@ export function useCreateInvoice() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createInvoice,
-    onSuccess: (newInvoice) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Invoice added successfully!');
     },
@@ -123,7 +123,7 @@ export function useDeleteInvoice() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteInvoice(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Invoice deleted successfully!');
     },

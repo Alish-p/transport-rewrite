@@ -34,7 +34,7 @@ export default function DriverSalaryPreviewCard({
   additionalPayments = [],
   additionalDeductions = [],
 }) {
-  const { totalTripWiseIncome, totalAdditionalPayments, totalDeductions, netIncome } =
+  const { totalTripWiseIncome, netIncome } =
     calculateDriverSalarySummary(
       { associatedSubtrips },
       driver,

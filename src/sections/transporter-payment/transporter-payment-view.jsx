@@ -31,7 +31,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
 }));
 
@@ -95,17 +95,15 @@ function RenderDateInfo({ issueDate, billingPeriod }) {
 }
 
 function RenderTable({ transporterPayment }) {
-  const { subtripSnapshot, transporterId, taxBreakup, summary, additionalCharges } =
+  const { subtripSnapshot, taxBreakup, summary, additionalCharges } =
     transporterPayment;
 
   const navigate = useNavigate();
   const { cgst, sgst, igst, tds } = taxBreakup || {};
   const {
-    totalAfterTax,
     netIncome,
     totalExpense,
     totalShortageAmount,
-    totalTax,
     totalFreightAmount,
     totalTripWiseIncome,
   } = summary || {};

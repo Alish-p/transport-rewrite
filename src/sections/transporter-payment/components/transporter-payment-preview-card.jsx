@@ -35,7 +35,6 @@ export default function TransporterPaymentPreviewUI({
 }) {
   const {
     taxBreakup,
-    totalTax,
     netIncome,
     totalFreightAmount,
     totalExpense,

@@ -5,7 +5,7 @@ import { usePumps } from 'src/query/use-pump';
 import ExpenseCoreForm from '../expense/subtrip-expense-form';
 
 export function AddExpenseDialog({ showDialog, setShowDialog, subtripData }) {
-  const { data: pumps, isLoading: pumpLoading } = usePumps(showDialog);
+  const { data: pumps, } = usePumps(showDialog);
 
   return (
     <Dialog

@@ -5,7 +5,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 // ----------------------------------------------------------------------
 
-export function RHFAutocomplete({ name, label, helperText, hiddenLabel, placeholder, ...other }) {
+export function RHFAutocomplete({ name, label, helperText, placeholder, ...other }) {
   const { control, setValue } = useFormContext();
 
   return (

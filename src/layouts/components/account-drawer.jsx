@@ -9,7 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import { useRouter, usePathname } from 'src/routes/hooks';
+import { useRouter } from 'src/routes/hooks';
 
 import { varAlpha } from 'src/theme/styles';
 
@@ -26,12 +26,11 @@ import { SignOutButton } from './sign-out-button';
 
 // ----------------------------------------------------------------------
 
-export function AccountDrawer({ data = [], sx, ...other }) {
+export function AccountDrawer({ sx, ...other }) {
   const theme = useTheme();
 
   const router = useRouter();
 
-  const pathname = usePathname();
 
   const { user } = useAuthContext();
 

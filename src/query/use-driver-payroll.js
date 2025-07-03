@@ -111,7 +111,7 @@ export function useDeleteDriverPayroll() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDriverPayroll(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_,) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('DriverPayroll deleted successfully!');
     },

@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import { useTheme } from '@mui/material/styles';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -11,7 +10,6 @@ import { SvgColor } from 'src/components/svg-color';
 // ----------------------------------------------------------------------
 
 export function AppWidget({ title, total, icon, sx, ...other }) {
-  const theme = useTheme();
 
   return (
     <Box
