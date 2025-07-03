@@ -173,14 +173,6 @@ function RenderTable({ invoice }) {
             </StyledTableRow>
           )}
 
-          {igst?.rate > 0 && (
-            <StyledTableRow>
-              <TableCell colSpan={7} />
-              <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
-              <TableCell>{fCurrency(igst.amount)}</TableCell>
-            </StyledTableRow>
-          )}
-
           {
             additionalCharges?.map(({ label, amount }, index) => (
               <StyledTableRow key={index}>

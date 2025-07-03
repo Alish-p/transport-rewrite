@@ -1,0 +1,147 @@
+import React from 'react';
+
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import ListItemText from '@mui/material/ListItemText';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
+import { fDate } from 'src/utils/format-time';
+import { fNumber } from 'src/utils/format-number';
+
+import { Label } from 'src/components/label';
+
+export const TABLE_COLUMNS = [
+  {
+    id: 'paymentId',
+    label: 'Payment ID',
+    defaultVisible: true,
+    disabled: true,
+    getter: (row) => row.paymentId,
+    render: (value, row) => (
+      <Label variant="soft">
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.transporterPayment.details(row._id)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'text.disabled' }}
+        >
+          {value}
+        </Link>
+      </Label>
+    ),
+  },
+  {
+    id: 'transporter',
+    label: 'Transporter',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.transporterId?.transportName || '-',
+    render: (value, row) => (
+      <ListItemText
+        disableTypography
+        primary={<Typography variant="body2" noWrap>{row.transporterId?.transportName}</Typography>}
+        secondary={
+          <Link
+            noWrap
+            variant="body2"
+            sx={{ color: 'text.disabled', cursor: 'pointer' }}
+          >
+            {row.transporterId?.cellNo}
+          </Link>
+        }
+      />
+    ),
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.status,
+    render: (value) => (
+      <Label variant="soft" color={value === 'paid' ? 'success' : 'error'}>
+        {value}
+      </Label>
+    ),
+  },
+  {
+    id: 'issueDate',
+    label: 'Issue Date',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => fDate(row.issueDate),
+    render: (value, row) => (
+      <ListItemText
+        primary={fDate(new Date(row.issueDate))}
+        secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+      />
+    ),
+  },
+  {
+    id: 'amount',
+    label: 'Amount',
+    defaultVisible: true,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.summary?.netIncome),
+  },
+  {
+    id: 'totalShortageAmount',
+    label: 'Total Shortage Amount',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.summary?.totalShortageAmount),
+  },
+  {
+    id: 'cgst',
+    label: 'CGST(Tax)',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.taxBreakup?.cgst?.amount),
+  },
+  {
+    id: 'sgst',
+    label: 'SGST(Tax)',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.taxBreakup?.sgst?.amount),
+  },
+  {
+    id: 'igst',
+    label: 'IGST(Tax)',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.taxBreakup?.igst?.amount),
+  },
+  {
+    id: 'tds',
+    label: 'TDS',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.taxBreakup?.tds?.amount),
+  },
+
+];
+
+export const getDefaultVisibleColumns = () =>
+  TABLE_COLUMNS.reduce((acc, column) => {
+    acc[column.id] = column.defaultVisible;
+    return acc;
+  }, {});
+
+export const getDisabledColumns = () =>
+  TABLE_COLUMNS.reduce((acc, column) => {
+    acc[column.id] = column.disabled;
+    return acc;
+  }, {});

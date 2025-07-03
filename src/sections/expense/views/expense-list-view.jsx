@@ -20,11 +20,11 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteExpense, usePaginatedExpenses } from 'src/query/use-expense';
@@ -42,25 +42,14 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
+import { TABLE_COLUMNS } from '../expense-table-config';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
-import { useVisibleColumns } from '../hooks/use-visible-columns';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
 import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense-config';
 import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  ...TABLE_COLUMNS.map(({ id, label, type, align }) => ({
-    id,
-    label,
-    type,
-    align,
-  })),
-  { id: '' },
-];
 
 const defaultFilters = {
   vehicleNo: '',
@@ -79,17 +68,24 @@ export function ExpenseListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({});
-  const confirm = useBoolean();
-
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters,
+    canReset,
+  } = useFilters(defaultFilters);
 
-  // Column visibility state handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
-  const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
   const { data, isLoading } = usePaginatedExpenses({
     vehicleNo: filters.vehicleNo || undefined,
@@ -115,19 +111,7 @@ export function ExpenseListView() {
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || 0;
 
-
-
-  const denseHeight = table.dense ? 56 : 76;
-
-  const canReset =
-    !!filters.vehicleNo ||
-    !!filters.pump ||
-    !!filters.transporter ||
-    !!filters.tripId ||
-    filters.expenseType !== 'all' ||
-    (!!filters.fromDate && !!filters.endDate);
-
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = !tableData.length && canReset;
 
   const getPercentByCategory = (category) =>
     totalCount ? ((totals[category]?.count || 0) / totalCount) * 100 : 0;
@@ -148,16 +132,6 @@ export function ExpenseListView() {
     },
   ];
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.expense.edit(paramCase(id)));
@@ -178,22 +152,22 @@ export function ExpenseListView() {
     [handleFilters]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      toggleColumn(columnName);
+      toggleColumnVisibility(columnName);
     },
-    [toggleColumn]
+    [toggleColumnVisibility]
   );
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
+  const handleToggleAllColumns = useCallback(
+    (checked) => {
+      toggleAllColumnsVisibility(checked);
+    },
+    [toggleAllColumnsVisibility]
   );
+
 
   return (
     <DashboardContent>
@@ -295,7 +269,8 @@ export function ExpenseListView() {
                 ) : (
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.expenseCategory) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.expenseCategory) &&
+                        'filled') ||
                       'soft'
                     }
                     color={tab.color}
@@ -317,6 +292,7 @@ export function ExpenseListView() {
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={handleToggleAllColumns}
         />
 
         {canReset && (
@@ -331,7 +307,6 @@ export function ExpenseListView() {
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <TableSelectedAction
-            dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
             onSelectAllRows={(checked) =>
@@ -355,7 +330,11 @@ export function ExpenseListView() {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      exportToExcel(selectedRows, 'filtered');
+                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+                      exportToExcel(
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        'Expense-selected-list'
+                      );
                     }}
                   >
                     <Iconify icon="eva:download-outline" />
@@ -374,7 +353,7 @@ export function ExpenseListView() {
           <Scrollbar>
             <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
               <TableHeadCustom
-                headLabel={visibleTableHead}
+                headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSelectAllRows={(checked) =>
@@ -419,9 +398,6 @@ export function ExpenseListView() {
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           onRowsPerPageChange={table.onChangeRowsPerPage}
-          //
-          dense={table.dense}
-          onChangeDense={table.onChangeDense}
         />
       </Card>
     </DashboardContent>
@@ -429,75 +405,3 @@ export function ExpenseListView() {
 }
 
 // ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { vehicleNo, pump, transporter, tripId, expenseCategory, expenseType, fromDate, endDate } =
-    filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (vehicleNo) {
-    const vehicleNoLower = vehicleNo.toLowerCase();
-    inputData = inputData.filter((record) => {
-      const recordVehicleNo =
-        record.vehicleId?.vehicleNo || record.vehicleNo || '';
-      return recordVehicleNo.toLowerCase().includes(vehicleNoLower);
-    });
-  }
-
-  if (pump) {
-    inputData = inputData.filter(
-      (record) =>
-        record.pumpCd &&
-        record.pumpCd.pumpName &&
-        record.pumpCd.pumpName.toLowerCase().indexOf(pump.toLowerCase()) !== -1
-    );
-  }
-
-  if (transporter) {
-    inputData = inputData.filter(
-      (record) =>
-        record.tripId &&
-        record.tripId.vehicleId &&
-        record.tripId.vehicleId.transporter &&
-        record.tripId.vehicleId.transporter.transportName &&
-        record.tripId.vehicleId.transporter.transportName
-          .toLowerCase()
-          .indexOf(transporter.toLowerCase()) !== -1
-    );
-  }
-
-  if (tripId) {
-    inputData = inputData.filter(
-      (record) =>
-        record.tripId &&
-        record.tripId._id &&
-        record.tripId._id.toLowerCase().indexOf(tripId.toLowerCase()) !== -1
-    );
-  }
-
-  if (expenseCategory !== 'all') {
-    inputData = inputData.filter((record) => record.expenseCategory === expenseCategory);
-  }
-
-  if (expenseType !== 'all') {
-    inputData = inputData.filter((record) => record.expenseType === expenseType);
-  }
-
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter((expense) => fIsBetween(expense.date, fromDate, endDate));
-    }
-  }
-
-  return inputData;
-}

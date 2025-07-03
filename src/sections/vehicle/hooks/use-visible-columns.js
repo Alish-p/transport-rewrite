@@ -1,37 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import {
-  TABLE_COLUMNS,
-  getDisabledColumns,
-  getDefaultVisibleColumns,
-} from '../config/table-columns';
+import { TABLE_COLUMNS } from '../vehicle-table-config';
 
 export function useVisibleColumns() {
-  const [visibleColumns, setVisibleColumns] = useState(getDefaultVisibleColumns());
-  const disabledColumns = getDisabledColumns();
-
-  const toggleColumn = useCallback(
-    (columnName) => {
-      if (disabledColumns[columnName]) return;
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
-    },
-    [disabledColumns]
-  );
-
-  const toggleAllColumns = useCallback(
-    (checked) => {
-      setVisibleColumns((prev) =>
-        TABLE_COLUMNS.reduce((acc, column) => {
-          acc[column.id] = disabledColumns[column.id] ? prev[column.id] : checked;
-          return acc;
-        }, {})
-      );
-    },
-    [disabledColumns]
-  );
-
-  return { visibleColumns, disabledColumns, toggleColumn, toggleAllColumns };
+  return useColumnVisibility(TABLE_COLUMNS);
 }

@@ -22,10 +22,11 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteTransporter, usePaginatedTransporters } from 'src/query/use-transporter';
@@ -33,7 +34,6 @@ import { useDeleteTransporter, usePaginatedTransporters } from 'src/query/use-tr
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -44,15 +44,12 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
 import TransporterTableRow from '../transport-table-row';
+import { TABLE_COLUMNS } from '../transporter-table-config';
 import TransporterTableToolbar from '../transport-table-toolbar';
-import { useVisibleColumns } from '../hooks/use-visible-columns';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [...TABLE_COLUMNS.map(({ id, label }) => ({ id, label })), { id: '' }];
 
 const defaultFilters = {
   search: '',
@@ -64,27 +61,32 @@ export function TransporterListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
-  const confirm = useBoolean();
 
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters,
+    canReset,
+  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
 
-  // Column visibility logic handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumn } = useVisibleColumns();
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   const handleToggleColumn = useCallback(
     (columnName) => {
-      toggleColumn(columnName);
+      toggleColumnVisibility(columnName);
     },
-    [toggleColumn]
+    [toggleColumnVisibility]
   );
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
 
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
@@ -104,28 +106,12 @@ export function TransporterListView() {
 
   const TABS = [{ value: 'all', label: 'All', color: 'default', count: totalCount }];
 
-  const denseHeight = table.dense ? 56 : 76;
-
-  const canReset = !!filters.search;
-
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
-
-  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -134,217 +120,179 @@ export function TransporterListView() {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Transporters List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Transporters',
-              href: paths.dashboard.transporter.root,
-            },
-            {
-              name: 'Transporters List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.transporter.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Transporter
-            </Button>
-          }
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Transporters List"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Transporters',
+            href: paths.dashboard.transporter.root,
+          },
+          {
+            name: 'Transporters List',
+          },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.transporter.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            New Transporter
+          </Button>
+        }
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
+
+      {/* Table Section */}
+      <Card>
+        <Tabs
+          value="all"
           sx={{
-            mb: { xs: 3, md: 5 },
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
+        >
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                isLoading ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <Label variant="filled" color={tab.color}>
+                    {tab.count}
+                  </Label>
+                )
+              }
+            />
+          ))}
+        </Tabs>
+        <TransporterTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={toggleAllColumnsVisibility}
         />
 
-        {/* Table Section */}
-        <Card>
-          <Tabs
-            value="all"
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  isLoading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <Label variant="filled" color={tab.color}>
-                      {tab.count}
-                    </Label>
+        {canReset && (
+          <TransporterTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
+                      exportToExcel(
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols
+                        ),
+                        'Transporters-selected'
+                      );
+                    }}
+                  >
+                    <Iconify icon="eva:download-outline" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
                   )
                 }
               />
-            ))}
-          </Tabs>
-          <TransporterTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                    <TableSkeleton key={index} />
+                  ))
+                ) : (
+                  <>
+                    {tableData.map((row) => (
+                      <TransporterTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteTransporter(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                      />
+                    ))}
 
-          {canReset && (
-            <TransporterTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={totalCount}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+                    <TableNoData notFound={notFound} />
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                )
-              }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'filtered');
-                      }}
-                    >
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                      <TableSkeleton key={index} />
-                    ))
-                  ) : (
-                    <>
-                      {tableData.map((row) => (
-                        <TransporterTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deleteTransporter(row._id)}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
-                        />
-                      ))}
-
-                      <TableNoData notFound={notFound} />
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }

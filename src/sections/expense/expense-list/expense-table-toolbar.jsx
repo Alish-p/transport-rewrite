@@ -11,21 +11,22 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
+import { Tooltip, MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
+import { TABLE_COLUMNS } from '../expense-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +39,7 @@ export default function ExpenseTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -225,21 +227,13 @@ export default function ExpenseTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {TABLE_COLUMNS.map((column) => (
-            <MenuItem
-              key={column.id}
-              onClick={() => !disabledColumns[column.id] && onToggleColumn(column.id)}
-              disabled={disabledColumns[column.id]}
-              sx={disabledColumns[column.id] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column.id]} disabled={disabledColumns[column.id]} />
-              <ListItemText
-                primary={column.label}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -278,21 +272,17 @@ export default function ExpenseTableToolbar({
           </MenuItem>
           <MenuItem
             onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Expense-list'
+              );
 
-          <MenuItem
-            onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Expense-list');
             }}
           >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
