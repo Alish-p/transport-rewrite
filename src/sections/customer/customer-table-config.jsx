@@ -1,0 +1,106 @@
+import React from 'react';
+
+import Link from '@mui/material/Link';
+import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
+import ListItemText from '@mui/material/ListItemText';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
+import { wrapText } from 'src/utils/change-case';
+
+export const TABLE_COLUMNS = [
+  {
+    id: 'customerName',
+    label: 'Customer Name',
+    defaultVisible: true,
+    disabled: true,
+    getter: (row) => row.customerName,
+    render: (value, row) => (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Avatar alt={value} sx={{ mr: 2 }}>
+          {value.slice(0, 2).toUpperCase()}
+        </Avatar>
+        <ListItemText
+          disableTypography
+          primary={
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.customer.details(row._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {value}
+            </Link>
+          }
+          secondary={
+            <Link noWrap variant="body2" sx={{ color: 'text.disabled' }}>
+              {row.place}
+            </Link>
+          }
+        />
+      </div>
+    ),
+  },
+  {
+    id: 'GSTNo',
+    label: 'GST No',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.GSTNo || '-',
+  },
+  {
+    id: 'PANNo',
+    label: 'PAN No',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.PANNo || '-',
+  },
+  {
+    id: 'cellNo',
+    label: 'Cell No',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cellNo || '-',
+  },
+  {
+    id: 'address',
+    label: 'Address',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.address,
+    render: (value) => (
+      <Tooltip title={value}>
+        <ListItemText
+          primary={wrapText(value, 20)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      </Tooltip>
+    ),
+  },
+  {
+    id: 'place',
+    label: 'Place',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.place || '-',
+  },
+];
+
+export const getDefaultVisibleColumns = () =>
+  TABLE_COLUMNS.reduce((acc, column) => {
+    acc[column.id] = column.defaultVisible;
+    return acc;
+  }, {});
+
+export const getDisabledColumns = () =>
+  TABLE_COLUMNS.reduce((acc, column) => {
+    acc[column.id] = column.disabled;
+    return acc;
+  }, {});

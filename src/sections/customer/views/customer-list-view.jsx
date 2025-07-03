@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // @mui
 import Card from '@mui/material/Card';
@@ -16,9 +16,11 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteCustomer, usePaginatedCustomers } from 'src/query/use-customer';
@@ -33,22 +35,15 @@ import {
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
+  TableSkeleton,
 } from 'src/components/table';
 
 import CustomerTableRow from '../customer-table-row';
 import CustomerTableToolbar from '../customer-table-toolbar';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
+import { TABLE_COLUMNS } from '../customer-table-config';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'customerName', label: 'Customer Name' },
-  { id: 'GSTNo', label: 'GST No' },
-  { id: 'PANNo', label: 'PAN No' },
-  { id: 'cellNo', label: 'Cell No' },
-  { id: 'address', label: 'Address' },
-  { id: '' },
-];
 
 const defaultFilters = {
   search: '',
@@ -64,49 +59,20 @@ export function CustomerListView() {
   const navigate = useNavigate();
   const deleteCustomer = useDeleteCustomer();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters,
+    canReset,
+  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    customerName: true,
-    GSTNo: true,
-    PANNo: true,
-    cellNo: true,
-    address: true,
-    place: true,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      customerName: true, // Customer name should always be visible
-      GSTNo: false,
-      PANNo: false,
-      cellNo: false,
-      address: false,
-      place: false,
-    }),
-    []
-  );
-
-  // Add handler for toggling column visibility
-  const handleToggleColumn = useCallback(
-    (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
-    },
-    [disabledColumns]
-  );
-
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedCustomers({
     search: filters.search || undefined,
@@ -114,38 +80,23 @@ export function CustomerListView() {
     rowsPerPage: table.rowsPerPage,
   });
 
+  const [tableData, setTableData] = useState([]);
+
   useEffect(() => {
     if (data?.customers) {
       setTableData(data.customers);
     }
   }, [data]);
 
-  const [tableData, setTableData] = useState([]);
-
   const totalCount = data?.total || 0;
 
-  const denseHeight = table.dense ? 56 : 76;
-
-  const canReset = !!filters.search;
-
   const notFound = (!tableData.length && canReset) || !tableData.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.customer.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -153,10 +104,6 @@ export function CustomerListView() {
     },
     [router]
   );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   return (
     <>
@@ -186,9 +133,7 @@ export function CustomerListView() {
               New Customer
             </Button>
           }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         {/* Table Section */}
@@ -199,7 +144,8 @@ export function CustomerListView() {
             tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
           />
 
           {canReset && (
@@ -225,35 +171,23 @@ export function CustomerListView() {
               }
               action={
                 <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
                   <Tooltip title="Download">
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = Object.keys(visibleColumns).filter(
+                          (c) => visibleColumns[c]
+                        );
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          'Customers-selected'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Tooltip>
                 </Stack>
@@ -265,7 +199,7 @@ export function CustomerListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
+                  headLabel={visibleHeaders}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -277,20 +211,23 @@ export function CustomerListView() {
                   }
                 />
                 <TableBody>
-                  {tableData.map((row) => (
-                    <CustomerTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteCustomer(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
-
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                        <TableSkeleton key={i} />
+                      ))
+                    : tableData.map((row) => (
+                        <CustomerTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteCustomer(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                        />
+                      ))}
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
@@ -303,8 +240,6 @@ export function CustomerListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </DashboardContent>
@@ -316,7 +251,8 @@ export function CustomerListView() {
         title="Delete"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Are you sure want to delete <strong> {table.selected.length} </strong>
+            items?
           </>
         }
         action={

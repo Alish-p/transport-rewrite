@@ -1,23 +1,23 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-
-// @mui
-import Stack from '@mui/material/Stack';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
-// components
-
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import { Tooltip, MenuList } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
+
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+
+import CustomerListPdf from 'src/pdfs/customer-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import CustomerListPdf from '../../pdfs/customer-list-pdf';
+import { TABLE_COLUMNS } from './customer-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +28,7 @@ export default function CustomerTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -44,14 +45,8 @@ export default function CustomerTableToolbar({
       <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
-        sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
-        }}
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
         <TextField
           fullWidth
@@ -84,27 +79,13 @@ export default function CustomerTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -139,21 +120,16 @@ export default function CustomerTableToolbar({
 
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Customers-list'
+              );
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Customers-list');
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
