@@ -27,6 +27,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { useDeleteRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -48,7 +49,6 @@ import {
 import RouteTableRow from '../route-table-row';
 import RouteTableToolbar from '../route-table-toolbar';
 import RouteAnalytics from '../widgets/route-analytic';
-import { useDeleteRoute } from '../../../query/use-route';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -118,7 +118,7 @@ export function RouteListView({ routes }) {
     navigate(paths.dashboard.route.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

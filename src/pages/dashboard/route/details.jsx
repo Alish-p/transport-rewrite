@@ -3,12 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { useRoute } from 'src/query/use-route';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { RouteDetailView } from 'src/sections/route/views';
-
-import { useRoute } from '../../../query/use-route';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 

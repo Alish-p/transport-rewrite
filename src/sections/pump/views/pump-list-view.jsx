@@ -23,6 +23,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { useDeletePump } from 'src/query/use-pump';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -42,7 +43,6 @@ import {
 
 import PumpTableRow from '../pump-table-row';
 import PumpTableToolbar from '../pump-table-toolbar';
-import { useDeletePump } from '../../../query/use-pump';
 import PumpTableFiltersResult from '../pump-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -139,7 +139,7 @@ export function PumpListView({ pumps }) {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

@@ -3,12 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { useExpense } from 'src/query/use-expense';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { ExpenseDetailView } from 'src/sections/expense/views';
-
-import { useExpense } from '../../../query/use-expense';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 

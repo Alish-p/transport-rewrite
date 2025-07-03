@@ -3,12 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { useDriver } from 'src/query/use-driver';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DriverDetailView } from 'src/sections/driver/views';
-
-import { useDriver } from '../../../query/use-driver';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 

@@ -3,12 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
+import { usePump } from 'src/query/use-pump';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { PumpDetailView } from 'src/sections/pump/views';
-
-import { usePump } from '../../../query/use-pump';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 

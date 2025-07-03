@@ -22,16 +22,16 @@ import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 
+import { useUsers } from 'src/query/use-user';
 import { hideScrollY } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useUpdateTaskStatus } from 'src/query/use-task';
 
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
-import { useUsers } from '../../../query/use-user';
 import { KanbanColumn } from '../column/kanban-column';
 import { KanbanTaskItem } from '../item/kanban-task-item';
-import { useUpdateTaskStatus } from '../../../query/use-task';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 
 // ----------------------------------------------------------------------

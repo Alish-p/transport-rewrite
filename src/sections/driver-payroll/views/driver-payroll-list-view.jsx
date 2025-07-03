@@ -25,6 +25,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteDriverPayroll } from 'src/query/use-driver-payroll';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -41,7 +42,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { useDeleteDriverPayroll } from '../../../query/use-driver-payroll';
 import DriverPayrollTableRow from '../driver-payroll-list/driver-payroll-table-row';
 import DriverPayrollTableToolbar from '../driver-payroll-list/driver-payroll-table-toolbar';
 import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payroll-table-filters-result';

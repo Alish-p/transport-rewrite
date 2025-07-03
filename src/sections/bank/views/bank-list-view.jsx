@@ -23,6 +23,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
+import { useDeleteBank } from 'src/query/use-bank';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -42,7 +43,6 @@ import {
 
 import BankTableRow from '../bank-table-row';
 import BankTableToolbar from '../bank-table-toolbar';
-import { useDeleteBank } from '../../../query/use-bank';
 import BankTableFiltersResult from '../bank-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -127,7 +127,7 @@ export function BankListView({ banks }) {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

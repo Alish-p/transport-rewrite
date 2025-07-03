@@ -1,6 +1,7 @@
 import { Tooltip } from '@mui/material';
 
-import { Iconify } from '../../../components/iconify';
+import { Iconify } from 'src/components/iconify';
+
 import { SimpleStepper } from './subtrip-completion-stepper';
 
 export function SubtripStatusStepper({ status }) {

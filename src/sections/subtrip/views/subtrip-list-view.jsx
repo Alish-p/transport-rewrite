@@ -25,6 +25,7 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteSubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -45,7 +46,6 @@ import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
-import { useDeleteSubtrip, usePaginatedSubtrips } from '../../../query/use-subtrip';
 import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-result';
 
 // ----------------------------------------------------------------------

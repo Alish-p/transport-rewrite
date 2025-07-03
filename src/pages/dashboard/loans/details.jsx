@@ -5,10 +5,10 @@ import { useParams } from 'src/routes/hooks';
 import { CONFIG } from 'src/config-global';
 import { useLoan } from 'src/query/use-loan';
 
-import { LoanDetailView } from 'src/sections/loans/views';
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
+import { LoanDetailView } from 'src/sections/loans/views';
 
 // ----------------------------------------------------------------------
 

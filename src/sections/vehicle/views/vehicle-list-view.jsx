@@ -23,6 +23,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
@@ -44,7 +45,6 @@ import VehicleTableRow from '../vehicle-table-row';
 import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
-import { exportToExcel, prepareDataForExport } from '../../../utils/export-to-excel';
 
 const defaultFilters = {
   vehicleNo: '',

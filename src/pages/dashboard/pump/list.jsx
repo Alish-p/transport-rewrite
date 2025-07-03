@@ -1,12 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+import { usePumps } from 'src/query/use-pump';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { PumpListView } from 'src/sections/pump/views';
-
-import { usePumps } from '../../../query/use-pump';
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Pump list | Dashboard - ${CONFIG.site.name}` };

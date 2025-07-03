@@ -9,6 +9,7 @@ import { Grid, Stack } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -23,7 +24,6 @@ import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
-import { useSubtripEvents } from '../../../query/use-subtrip-events';
 import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';

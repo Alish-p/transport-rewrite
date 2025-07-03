@@ -15,6 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { useDeleteUser } from 'src/query/use-user';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
@@ -35,7 +36,6 @@ import {
 } from 'src/components/table';
 
 import { UserTableRow } from '../user-table-row';
-import { useDeleteUser } from '../../../query/use-user';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
 

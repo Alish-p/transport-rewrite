@@ -13,12 +13,12 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { fDate } from 'src/utils/format-time';
+
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
-
-import { Label } from '../../../components/label';
-import { fDate } from '../../../utils/format-time';
 
 // ----------------------------------------------------------------------
 

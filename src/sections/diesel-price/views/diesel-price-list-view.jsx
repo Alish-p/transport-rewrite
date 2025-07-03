@@ -19,8 +19,10 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
+import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteDieselPrice } from 'src/query/use-diesel-prices';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -38,9 +40,7 @@ import {
 } from 'src/components/table';
 
 import DieselPriceTableRow from '../diesel-price-table-row';
-import { fIsAfter, fTimestamp } from '../../../utils/format-time';
 import DieselPriceTableToolbar from '../diesel-price-table-toolbar';
-import { useDeleteDieselPrice } from '../../../query/use-diesel-prices';
 import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -106,7 +106,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
     navigate(paths.dashboard.diesel.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

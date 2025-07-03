@@ -1,12 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+import { useDriverPayrolls } from 'src/query/use-driver-payroll';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DriverPayrollListView } from 'src/sections/driver-payroll/views';
-
-import { EmptyContent } from '../../../components/empty-content';
-import { LoadingScreen } from '../../../components/loading-screen';
-import { useDriverPayrolls } from '../../../query/use-driver-payroll';
 
 // ----------------------------------------------------------------------
 

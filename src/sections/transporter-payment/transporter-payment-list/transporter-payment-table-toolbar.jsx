@@ -13,10 +13,12 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useTransporter } from 'src/query/use-transporter';
+import TransporterPaymentListPdf from 'src/pdfs/transporter-payment-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
@@ -28,9 +30,7 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { fDateRangeShortLabel } from '../../../utils/format-time';
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
-import TransporterPaymentListPdf from '../../../pdfs/transporter-payment-list-pdf';
 
 // ----------------------------------------------------------------------
 

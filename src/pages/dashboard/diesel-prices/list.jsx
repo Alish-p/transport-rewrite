@@ -1,13 +1,13 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+import { usePumps } from 'src/query/use-pump';
+import { useDieselPrices } from 'src/query/use-diesel-prices';
+
+import { EmptyContent } from 'src/components/empty-content';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { DieselPriceListView } from 'src/sections/diesel-price/views';
-
-import { usePumps } from '../../../query/use-pump';
-import { EmptyContent } from '../../../components/empty-content';
-import { useDieselPrices } from '../../../query/use-diesel-prices';
-import { LoadingScreen } from '../../../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
