@@ -32,7 +32,7 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
+import { TABLE_COLUMNS } from '../expense-table-config';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
 
 // ----------------------------------------------------------------------
@@ -51,7 +51,6 @@ export default function ExpenseTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
-  const dateRangeSelected = !!filters.fromDate && !!filters.endDate;
 
   const vehicleDialog = useBoolean();
   const pumpDialog = useBoolean();

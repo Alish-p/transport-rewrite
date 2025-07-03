@@ -12,7 +12,7 @@ import {
   PDFDeclaration,
 } from 'src/pdfs/common';
 
-import { TABLE_COLUMNS } from 'src/sections/expense/config/table-columns';
+import { TABLE_COLUMNS } from 'src/sections/expense/expense-table-config';
 
 // ----------------------------------------------------------------------
 

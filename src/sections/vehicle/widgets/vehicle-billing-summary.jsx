@@ -55,7 +55,6 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   );
 
   const subtrips = data?.subtrips || [];
-  const totals = data?.totals || {};
 
   const getDocument = async () => {
     const { default: VehiclePnlPdf } = await import('src/pdfs/vehicle-pnl-pdf');

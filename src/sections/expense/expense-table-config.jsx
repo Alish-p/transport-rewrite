@@ -36,7 +36,7 @@ export const TABLE_COLUMNS = [
     label: 'Vehicle No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?.vehicleNo || '-',
+    getter: (row) => row?.vehicleId?.vehicleNo || row?.vehicleNo || '-',
     align: 'left',
   },
 
