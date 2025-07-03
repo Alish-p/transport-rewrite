@@ -1,20 +1,24 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
-import { MenuList } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import InvoiceListPdf from 'src/pdfs/invoice-list-pdf';
 import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 // @mui
@@ -24,12 +28,21 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
-import { fDateRangeShortLabel } from '../../../utils/format-time';
+import { TABLE_COLUMNS } from '../invoice-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
+export default function InvoiceTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
   const customerDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -88,19 +101,6 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <DialogSelectButton
-          onClick={customerDialog.onTrue}
-          placeholder="Search customer"
-          selected={selectedCustomer?.customerName}
-          iconName="mdi:office-building"
-        />
-
-        <DialogSelectButton
-          onClick={subtripDialog.onTrue}
-          placeholder="Search subtrip"
-          selected={selectedSubtrip?._id}
-          iconName="mdi:bookmark"
-        />
 
         <TextField
           fullWidth
@@ -117,6 +117,22 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
         />
 
         <DialogSelectButton
+          onClick={customerDialog.onTrue}
+          placeholder="Search customer"
+          selected={selectedCustomer?.customerName}
+          iconName="mdi:office-building"
+        />
+
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          placeholder="Search subtrip"
+          selected={selectedSubtrip?._id}
+          iconName="mdi:bookmark"
+        />
+
+
+
+        <DialogSelectButton
           onClick={dateDialog.onTrue}
           placeholder="Issue date range"
           selected={
@@ -127,10 +143,31 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
           iconName="mdi:calendar"
         />
 
+        <Tooltip title="Column Settings">
+          <IconButton onClick={columnsPopover.onOpen}>
+            <Iconify icon="mdi:table-column-plus-after" />
+          </IconButton>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}
@@ -139,32 +176,47 @@ export default function InvoiceTableToolbar({ filters, onFilters, tableData }) {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={
+                <InvoiceListPdf
+                  invoices={tableData}
+                  visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                />
+              }
+              fileName="Invoice-list.pdf"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
 
           <MenuItem
             onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Invoice-list'
+              );
 
-          <MenuItem
-            onClick={() => {
               popover.onClose();
-              exportToExcel(tableData, 'Invoice-list');
             }}
           >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>

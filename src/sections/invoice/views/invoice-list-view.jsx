@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -14,18 +15,15 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
-// _mock
-
-import { useNavigate } from 'react-router';
-
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { fIsAfter } from 'src/utils/format-time';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteInvoice, usePaginatedInvoices } from 'src/query/use-invoice';
@@ -43,21 +41,13 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { TABLE_COLUMNS } from '../invoice-table-config';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
 import InvoiceTableFiltersResult from '../invoice-list/invoice-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: '_id', label: 'Invoice' },
-  { id: 'invoiceStatus', label: 'Invoice Status' },
-  { id: 'issueDate', label: 'Issue Date' },
-  { id: 'dueDate', label: 'Due Date' },
-  { id: 'amount', label: 'Amount' },
-  { id: '', label: '' },
-];
 
 const defaultFilters = {
   customerId: '',
@@ -79,10 +69,19 @@ export function InvoiceListView() {
   const deleteInvoice = useDeleteInvoice();
   const table = useTable({ defaultOrderBy: 'createDate' });
 
-  const [filters, setFilters] = useState(defaultFilters);
-  const [tableData, setTableData] = useState([]);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
-  const dateError = fIsAfter(filters.fromDate, filters.endDate);
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
+
+  const [tableData, setTableData] = useState([]);
 
   const { data, isLoading } = usePaginatedInvoices({
     customerId: filters.customerId || undefined,
@@ -100,15 +99,6 @@ export function InvoiceListView() {
       setTableData(data.invoices);
     }
   }, [data]);
-
-  const denseHeight = table.dense ? 56 : 76;
-
-  const canReset =
-    !!filters.customerId ||
-    !!filters.subtripId ||
-    !!filters.invoiceNo ||
-    filters.invoiceStatus !== 'all' ||
-    (!!filters.fromDate && !!filters.endDate);
 
   const notFound = !isLoading && !tableData.length;
 
@@ -129,17 +119,6 @@ export function InvoiceListView() {
     { value: 'paid', label: 'Paid', color: 'success', count: getInvoiceLength('paid') },
   ];
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
-
   const handleEditRow = (id) => {
     navigate(paths.dashboard.invoice.edit(id));
   };
@@ -157,10 +136,6 @@ export function InvoiceListView() {
     },
     [handleFilters]
   );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   return (
     <>
@@ -278,7 +253,15 @@ export function InvoiceListView() {
             ))}
           </Tabs>
 
-          <InvoiceTableToolbar filters={filters} onFilters={handleFilters} tableData={tableData} />
+          <InvoiceTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
+          />
 
           {canReset && (
             <InvoiceTableFiltersResult
@@ -313,10 +296,16 @@ export function InvoiceListView() {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = Object.keys(visibleColumns).filter(
+                          (c) => visibleColumns[c]
+                        );
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          'Invoices-selected-list'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
@@ -343,7 +332,7 @@ export function InvoiceListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleHeaders}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -364,6 +353,8 @@ export function InvoiceListView() {
                       onViewRow={() => handleViewRow(row._id)}
                       onEditRow={() => handleEditRow(row._id)}
                       onDeleteRow={() => deleteInvoice(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
                     />
                   ))}
 
@@ -379,9 +370,6 @@ export function InvoiceListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </DashboardContent>
