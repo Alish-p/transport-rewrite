@@ -14,6 +14,9 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { Label } from 'src/components/label';
+import { fIsBetween } from 'src/utils/format-time';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -35,6 +38,8 @@ export default function DieselPriceTableRow({
   const popover = usePopover();
 
   const pumpName = pump?.pumpName || '-';
+
+  const isLive = fIsBetween(new Date(), new Date(startDate), new Date(endDate));
 
   return (
     <>
@@ -87,6 +92,12 @@ export default function DieselPriceTableRow({
             primary={new Date(endDate).toLocaleDateString()}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           />
+        </TableCell>
+
+        <TableCell>
+          <Label variant="soft" color={isLive ? 'success' : 'default'}>
+            {isLive ? 'Live' : 'Past'}
+          </Label>
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1 }}>
