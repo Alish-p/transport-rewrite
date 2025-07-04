@@ -3,7 +3,7 @@ import { z as zod } from 'zod';
 // form
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
@@ -167,6 +167,14 @@ export default function VehicleForm({ currentVehicle }) {
     setSelectedTransporter(transporter);
     setValue('transporter', transporter._id);
   };
+
+  // Clear transporter when the vehicle is marked as company owned
+  useEffect(() => {
+    if (values.isOwn) {
+      setSelectedTransporter(null);
+      setValue('transporter', '', { shouldValidate: true });
+    }
+  }, [values.isOwn, setValue]);
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
