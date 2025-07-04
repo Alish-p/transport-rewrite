@@ -58,7 +58,7 @@ export function DieselPriceDetailView({ dieselPrice }) {
             component={RouterLink}
             href={paths.dashboard.diesel.edit(dieselPrice._id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Diesel Price
           </Button>
