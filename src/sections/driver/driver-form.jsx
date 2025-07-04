@@ -184,20 +184,19 @@ export default function DriverForm({ currentDriver, bankList }) {
           }}
           gap={3}
         >
-          <Field.Text name="driverName" label="Driver Name" required />
-          <Field.Text name="driverLicenceNo" label="Driver Licence No" required />
+          <Field.Text name="driverName" label="Driver Name" />
+          <Field.Text name="driverLicenceNo" label="Driver Licence No" />
           <Field.Text
             name="driverCellNo"
             label="Driver Cell No"
-            required
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.Text name="driverPresentAddress" label="Driver Present Address" required />
-          <Field.Text name="permanentAddress" label="Permanent Address" required />
+          <Field.Text name="driverPresentAddress" label="Driver Present Address" />
+          <Field.Text name="permanentAddress" label="Permanent Address" />
 
-          <Field.Text name="aadharNo" label="Aadhar No" required />
+          <Field.Text name="aadharNo" label="Aadhar No" />
           <Field.Text
             name="experience"
             label="Experience"
@@ -205,22 +204,21 @@ export default function DriverForm({ currentDriver, bankList }) {
             InputProps={{
               endAdornment: <InputAdornment position="end">years</InputAdornment>,
             }}
-            required
           />
 
-          <Field.Text name="guarantorName" label="Guarantor Name" />
+          <Field.Text name="guarantorName" label="Guarantor Name (Optional)" />
           <Field.Text
             name="guarantorCellNo"
-            label="Guarantor Cell No"
+            label="Guarantor Cell No (Optional)"
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
 
-          <Field.DatePicker name="dob" label="Date of Birth" />
+          <Field.DatePicker name="dob" label="Date of Birth (Optional)" />
 
-          <Field.DatePicker name="licenseFrom" label="License From *" required />
-          <Field.DatePicker name="licenseTo" label="License To *" required />
+          <Field.DatePicker name="licenseFrom" label="License From" />
+          <Field.DatePicker name="licenseTo" label="License To" />
         </Box>
       </Card>
     </>
@@ -257,10 +255,10 @@ export default function DriverForm({ currentDriver, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank *'}
+            {bankDetails?.name || 'Select Bank'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" required />
+          <Field.Text name="bankDetails.accNo" label="Account No" />
         </Box>
       </Card>
     </>
