@@ -3,8 +3,12 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Select from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 // components
 
@@ -109,6 +113,13 @@ export default function ExpenseTableToolbar({
     [onFilters]
   );
 
+  const handleFilterExpenseType = useCallback(
+    (event) => {
+      onFilters('expenseType', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -173,7 +184,6 @@ export default function ExpenseTableToolbar({
           }
           onClick={dateDialog.onTrue}
           iconName="mdi:calendar"
-
         />
         <CustomDateRangePicker
           variant="calendar"
@@ -185,23 +195,24 @@ export default function ExpenseTableToolbar({
           onChangeEndDate={handleFilterEndDate}
         />
 
-        <TextField
-          select
-          label="Expense Type"
-          value={filters.expenseType}
-          onChange={(event) => onFilters('expenseType', event.target.value)}
-          sx={{
-            width: { md: 200 },
-          }}
-        >
-          <MenuItem value="">None</MenuItem>
-
-          {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 300 } }}>
+          <InputLabel id="expense-type-select-label">Expense Type</InputLabel>
+          <Select
+            value={filters.expenseType}
+            onChange={handleFilterExpenseType}
+            input={<OutlinedInput label="Expense Type" />}
+            labelId="expense-type-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="all">All</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <Tooltip title="Column Settings">
           <IconButton onClick={columnsPopover.onOpen}>
