@@ -50,6 +50,7 @@ const TABLE_HEAD = [
   { id: 'price', label: 'Price', type: 'number' },
   { id: 'startDate', label: 'Start Date', type: 'date' },
   { id: 'endDate', label: 'End Date', type: 'date' },
+  { id: 'status', label: 'Status', type: 'string' },
   { id: '' },
 ];
 
@@ -106,7 +107,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
     navigate(paths.dashboard.diesel.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
