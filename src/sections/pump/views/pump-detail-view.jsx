@@ -77,7 +77,7 @@ export function PumpDetailView({ pump }) {
             component={RouterLink}
             href={paths.dashboard.pump.edit(pump._id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Pump
           </Button>

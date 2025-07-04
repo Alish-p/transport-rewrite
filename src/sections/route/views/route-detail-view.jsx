@@ -91,7 +91,7 @@ ${vehicleConfiguration
             component={RouterLink}
             href={paths.dashboard.route.edit(_id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Route
           </Button>

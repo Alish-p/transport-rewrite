@@ -107,7 +107,7 @@ export function ExpenseDetailView({ expense }) {
             component={RouterLink}
             href={paths.dashboard.expense.edit(expense._id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Expense
           </Button>

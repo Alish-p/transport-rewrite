@@ -57,7 +57,7 @@ export function BankDetailView({ bank }) {
             component={RouterLink}
             href={paths.dashboard.bank.edit(_id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Bank
           </Button>

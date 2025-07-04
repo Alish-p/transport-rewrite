@@ -89,7 +89,7 @@ For further details, please contact support.
             component={RouterLink}
             href={paths.dashboard.customer.edit(_id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Customer
           </Button>

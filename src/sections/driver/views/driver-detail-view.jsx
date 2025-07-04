@@ -117,7 +117,7 @@ For further details, please contact HR.
             component={RouterLink}
             href={paths.dashboard.driver.edit(driver._id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Driver
           </Button>

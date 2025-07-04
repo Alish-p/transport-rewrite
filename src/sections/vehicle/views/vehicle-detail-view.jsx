@@ -194,7 +194,7 @@ export function VehicleDetailView({ vehicle }) {
             component={RouterLink}
             href={paths.dashboard.vehicle.edit(vehicle._id)}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
+            startIcon={<Iconify icon="solar:pen-bold" />}
           >
             Edit Vehicle
           </Button>
