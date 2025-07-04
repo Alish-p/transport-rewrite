@@ -94,10 +94,6 @@ export default function SubtripToolbar({
   isEditDisabled,
   isEmpty,
 }) {
-
-
-
-
   const getActions = () => {
     if (isEmpty) {
       return [
@@ -221,6 +217,10 @@ export default function SubtripToolbar({
             <MenuItem
               key={action.label}
               disabled={action.disabled}
+              onClick={() => {
+                actionPopover.onClose();
+                action.action();
+              }}
             >
               <Iconify icon={action.icon} />
               {action.label}
