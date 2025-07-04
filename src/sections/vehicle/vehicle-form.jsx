@@ -254,8 +254,8 @@ export default function VehicleForm({ currentVehicle }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <Field.Text name="vehicleNo" label="Vehicle No" required />
-              <Field.Select name="vehicleType" label="Vehicle Type" required>
+              <Field.Text name="vehicleNo" label="Vehicle No" />
+              <Field.Select name="vehicleType" label="Vehicle Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleTypes.map(({ key, value }) => (
@@ -266,7 +266,7 @@ export default function VehicleForm({ currentVehicle }) {
                 ))}
               </Field.Select>
 
-              <Field.Select name="modelType" label="Model Type" required>
+              <Field.Select name="modelType" label="Model Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {modelType.map(({ key, value }) => (
@@ -275,7 +275,7 @@ export default function VehicleForm({ currentVehicle }) {
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Select name="vehicleCompany" label="Vehicle Company" required>
+              <Field.Select name="vehicleCompany" label="Vehicle Company">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleCompany.map(({ key, value }) => (
@@ -284,30 +284,23 @@ export default function VehicleForm({ currentVehicle }) {
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Text name="noOfTyres" label="No Of Tyres" type="number" required />
-              <Field.Text name="chasisNo" label="Chasis No" />
-              <Field.Text name="engineNo" label="Engine No" />
-              <Field.Text
-                name="manufacturingYear"
-                label="Manufacturing Year"
-                type="number"
-                required
-              />
+              <Field.Text name="noOfTyres" label="No Of Tyres" type="number" />
+              <Field.Text name="chasisNo" label="Chasis No (Optional)" />
+              <Field.Text name="engineNo" label="Engine No (Optional)" />
+              <Field.Text name="manufacturingYear" label="Manufacturing Year" type="number" />
               <Field.Text
                 name="loadingCapacity"
                 label="Loading Capacity"
                 type="number"
-                required
                 InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
               />
               <Field.Text
                 name="fuelTankCapacity"
                 label="Fuel Tank Capacity"
                 type="number"
-                required
                 InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
               />
-              <Field.Select name="engineType" label="Engine Type" required>
+              <Field.Select name="engineType" label="Engine Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {engineType.map(({ key, value }) => (
@@ -336,11 +329,11 @@ export default function VehicleForm({ currentVehicle }) {
                   >
                     {selectedTransporter
                       ? selectedTransporter.transportName
-                      : 'Select Transport Company *'}
+                      : `Select Transport Company${values.isOwn ? ' (Optional)' : ''}`}
                   </Button>
                 </Box>
               )}
-              <Field.Text name="trackingLink" label="Tracking Link" />
+              <Field.Text name="trackingLink" label="Tracking Link (Optional)" />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
