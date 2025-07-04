@@ -131,8 +131,6 @@ export function SubtripListView() {
     'billed-paid': data?.totalBilledPaid || 0,
   };
 
-  const getSubtripLength = (subtripStatus) => statusCounts[subtripStatus] || 0;
-
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },

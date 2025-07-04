@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
@@ -58,11 +57,6 @@ export default function LRInfoCard({ subtrip }) {
             <Iconify icon="mdi:information-outline" width={24} />
             <Typography variant="h6">Subtrip Info</Typography>
           </Stack>
-        }
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
         }
       />
       <Stack direction="row" sx={{ p: 3 }}>
