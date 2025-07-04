@@ -24,6 +24,10 @@ export default function TransporterPayrollTableFiltersResult({
   const { data: transporter } = useTransporter(filters.transporterId);
   const { data: subtrip } = useSubtrip(filters.subtripId);
 
+  const handleRemovePaymentId = () => {
+    onFilters('paymentId', '');
+  };
+
   const handleRemoveTransporter = () => {
     onFilters('transporterId', '');
   };
@@ -62,6 +66,12 @@ export default function TransporterPayrollTableFiltersResult({
         {filters.subtripId && (
           <Block label="Subtrip:">
             <Chip size="small" label={subtrip?._id || filters.subtripId} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {filters.paymentId && (
+          <Block label="Payment ID:">
+            <Chip size="small" label={filters.paymentId} onDelete={handleRemovePaymentId} />
           </Block>
         )}
 
