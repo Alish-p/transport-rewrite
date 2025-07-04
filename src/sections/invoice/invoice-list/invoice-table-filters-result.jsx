@@ -31,7 +31,11 @@ export default function DriverTableFiltersResult({
   };
 
   const handleRemoveSubtrip = () => {
-    onFilters('subtrip', '');
+    onFilters('subtripId', '');
+  };
+
+  const handleRemoveInvoiceNo = () => {
+    onFilters('invoiceNo', '');
   };
 
   const handleRemoveDate = () => {
@@ -72,9 +76,15 @@ export default function DriverTableFiltersResult({
           </Block>
         )}
 
-        {filters.subtrip && (
+        {filters.invoiceNo && (
+          <Block label="Invoice No:">
+            <Chip size="small" label={filters.invoiceNo} onDelete={handleRemoveInvoiceNo} />
+          </Block>
+        )}
+
+        {filters.subtripId && (
           <Block label="Subtrip:">
-            <Chip size="small" label={filters.subtrip} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 

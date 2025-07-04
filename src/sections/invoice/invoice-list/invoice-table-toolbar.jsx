@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
@@ -48,6 +48,12 @@ export default function InvoiceTableToolbar({
   const dateDialog = useBoolean();
   const { data: customers = [] } = useCustomersSummary();
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+
+  useEffect(() => {
+    if (!filters.subtripId) {
+      setSelectedSubtrip(null);
+    }
+  }, [filters.subtripId]);
 
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
 
