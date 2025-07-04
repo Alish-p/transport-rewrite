@@ -268,22 +268,13 @@ export default function SubtripTableToolbar({
 
           <MenuItem
             onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(transformSubtripsForExcel(tableData, visibleCols), 'subtrip-list');
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
