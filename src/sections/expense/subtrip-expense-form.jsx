@@ -167,16 +167,16 @@ function ExpenseCoreForm({ currentSubtrip }) {
             <Box>
               <DialogSelectButton
                 onClick={subtripDialog.onTrue}
-                placeholder="Select Subtrip *"
+                placeholder="Select Subtrip"
                 selected={subtripData?._id}
                 error={!!errors.subtripId?.message}
                 iconName="mdi:truck-fast"
               />
             </Box>
 
-            <Field.DatePicker name="date" label="Date *" required maxDate={dayjs()} />
+            <Field.DatePicker name="date" label="Date" maxDate={dayjs()} />
 
-            <Field.Select name="expenseType" label="Expense Type" required>
+            <Field.Select name="expenseType" label="Expense Type">
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
               {subtripExpenseTypes.map((type) => (
@@ -192,7 +192,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 <Box>
                   <DialogSelectButton
                     onClick={pumpDialog.onTrue}
-                    placeholder="Select Pump *"
+                    placeholder="Select Pump"
                     selected={selectedPump?.pumpName}
                     error={!!errors.tripId?.message}
                     iconName="mdi:gas-station"
@@ -200,7 +200,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 </Box>
                 <Field.Text
                   name="dieselLtr"
-                  label="Diesel Liters"
+                  label="Diesel Liters (Optional)"
                   type="number"
                   InputProps={{
                     endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
@@ -208,7 +208,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 />
                 <Field.Text
                   name="dieselPrice"
-                  label="Per Litre Diesel Price"
+                  label="Per Litre Diesel Price (Optional)"
                   type="number"
                   InputProps={{
                     endAdornment: <InputAdornment position="end">₹</InputAdornment>,
@@ -219,10 +219,10 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
             {expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY && (
               <>
-                <Field.Text name="fixedSalary" label="Fixed Salary" type="number" placeholder="0" />
+                <Field.Text name="fixedSalary" label="Fixed Salary (Optional)" type="number" placeholder="0" />
                 <Field.Text
                   name="variableSalary"
-                  label="Variable Salary"
+                  label="Variable Salary (Optional)"
                   type="number"
                   placeholder="0"
                   InputProps={{
@@ -231,7 +231,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 />
                 <Field.Text
                   name="performanceSalary"
-                  label="Performance Salary"
+                  label="Performance Salary (Optional)"
                   type="number"
                   placeholder="0"
                   InputProps={{
@@ -253,8 +253,8 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 endAdornment: <InputAdornment position="end">₹</InputAdornment>,
               }}
             />
-            <Field.Text name="remarks" label="Remarks" />
-            <Field.Text name="paidThrough" label="Paid Through" />
+            <Field.Text name="remarks" label="Remarks (Optional)" />
+            <Field.Text name="paidThrough" label="Paid Through (Optional)" />
           </Box>
         </Card>
         <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
