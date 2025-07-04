@@ -1,4 +1,3 @@
-import sumBy from 'lodash/sumBy';
 import { useNavigate } from 'react-router';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
@@ -8,7 +7,6 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -46,7 +44,6 @@ import {
 } from 'src/components/table';
 
 import TripTableRow from '../trip-table-row';
-import TripAnalytic from '../widgets/trip-analytic';
 import TripTableToolbar from '../trip-table-toolbar';
 import TripTableFiltersResult from '../trip-table-filters-result';
 
@@ -138,14 +135,6 @@ export function TripListView({ trips }) {
   const getTripLength = (tripStatus) =>
     tableData.filter((item) => item.tripStatus === tripStatus).length;
 
-  const getTotalAmount = (tripStatus) =>
-    sumBy(
-      tableData.filter((item) => item.tripStatus === tripStatus),
-      'totalAmount'
-    );
-
-  const getPercentByTripStatus = (tripStatus) =>
-    (getTripLength(tripStatus) / tableData.length) * 100;
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: tableData.length },
@@ -238,48 +227,6 @@ export function TripListView({ trips }) {
             mb: { xs: 3, md: 5 },
           }}
         />
-
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <TripAnalytic
-                title="All"
-                total={tableData.length}
-                percent={100}
-                price={sumBy(tableData, 'totalAmount')}
-                icon="solar:bill-list-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <TripAnalytic
-                title="Open"
-                total={getTripLength('open')}
-                percent={getPercentByTripStatus('open')}
-                price={getTotalAmount('open')}
-                icon="solar:sort-by-time-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-
-              <TripAnalytic
-                title="Closed"
-                total={getTripLength('closed')}
-                percent={getPercentByTripStatus('closed')}
-                price={getTotalAmount('closed')}
-                icon="solar:file-check-bold-duotone"
-                color={theme.palette.success.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
 
         {/* Table Section */}
         <Card>
