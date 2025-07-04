@@ -138,15 +138,15 @@ export default function PumpForm({ currentPump, bankList }) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="pumpName" label="Pump Name" required />
-          <Field.Text name="placeName" label="Place Name" required />
-          <Field.Text name="ownerName" label="Owner Name" required />
-          <Field.Text name="ownerCellNo" label="Owner Cell No" required />
-          <Field.Text name="pumpPhoneNo" label="Pump Phone No" required />
-          <Field.Text name="taluk" label="Taluk" required />
-          <Field.Text name="district" label="District" required />
-          <Field.Text name="contactPerson" label="Contact Person" required />
-          <Field.Text name="address" label="Address" required />
+          <Field.Text name="pumpName" label="Pump Name" />
+          <Field.Text name="placeName" label="Place Name" />
+          <Field.Text name="ownerName" label="Owner Name" />
+          <Field.Text name="ownerCellNo" label="Owner Cell No" />
+          <Field.Text name="pumpPhoneNo" label="Pump Phone No" />
+          <Field.Text name="taluk" label="Taluk" />
+          <Field.Text name="district" label="District" />
+          <Field.Text name="contactPerson" label="Contact Person" />
+          <Field.Text name="address" label="Address" />
         </Box>
       </Card>
     </>
@@ -183,10 +183,10 @@ export default function PumpForm({ currentPump, bankList }) {
               />
             }
           >
-            {bankDetails?.name || 'Select Bank *'}
+            {bankDetails?.name || 'Select Bank'}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" required />
+          <Field.Text name="bankDetails.accNo" label="Account No" />
         </Box>
       </Card>
     </>
