@@ -8,7 +8,6 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import { TableContainer } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
@@ -42,7 +41,6 @@ import {
 
 import { transformSubtripsForExcel } from '../utils';
 import { TABLE_COLUMNS } from '../config/table-columns';
-import SubtripAnalytic from '../widgets/subtrip-analytic';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
@@ -135,73 +133,50 @@ export function SubtripListView() {
 
   const getSubtripLength = (subtripStatus) => statusCounts[subtripStatus] || 0;
 
-  const getPercentBySubtripStatus = (subtripStatus) =>
-    (getSubtripLength(subtripStatus) / totalCount) * 100;
 
   const TABS = [
-    {
-      value: 'all',
-      label: 'All',
-      color: 'default',
-      count: totalCount,
-      icon: 'solar:bill-list-bold-duotone',
-      analyticsColor: theme.palette.info.main,
-    },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     {
       value: 'in-queue',
       label: 'In-queue',
       color: 'error',
       count: statusCounts['in-queue'],
-      icon: 'solar:sort-by-time-bold-duotone',
-      analyticsColor: theme.palette.warning.main,
     },
     {
       value: 'loaded',
       label: 'Loaded',
       color: 'success',
       count: statusCounts.loaded,
-      icon: 'mdi:truck',
-      analyticsColor: theme.palette.success.main,
     },
     {
       value: 'received',
       label: 'Recieved',
       color: 'success',
       count: statusCounts.received,
-      icon: 'material-symbols:call-received',
-      analyticsColor: theme.palette.primary.main,
     },
     {
       value: 'error',
       label: 'Error',
       color: 'error',
       count: statusCounts.error,
-      icon: 'material-symbols:error-outline',
-      analyticsColor: theme.palette.error.main,
     },
     {
       value: 'billed-pending',
       label: 'Billed Pending',
       color: 'warning',
       count: statusCounts['billed-pending'],
-      icon: 'mdi:file-document-alert',
-      analyticsColor: theme.palette.warning.main,
     },
     {
       value: 'billed-overdue',
       label: 'Billed Overdue',
       color: 'error',
       count: statusCounts['billed-overdue'],
-      icon: 'mdi:file-document-alert-outline',
-      analyticsColor: theme.palette.error.main,
     },
     {
       value: 'billed-paid',
       label: 'Billed Paid',
       color: 'success',
       count: statusCounts['billed-paid'],
-      icon: 'mdi:check-bold',
-      analyticsColor: theme.palette.success.main,
     },
   ];
 
@@ -335,43 +310,6 @@ export function SubtripListView() {
           mb: { xs: 3, md: 5 },
         }}
       />
-
-      {/* Analytics Section */}
-      <Card
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      >
-        <Scrollbar>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-            sx={{ py: 2 }}
-          >
-            {TABS.map((tab) =>
-              isCountLoading ? (
-                <Stack
-                  key={tab.value}
-                  alignItems="center"
-                  justifyContent="center"
-                  sx={{ width: 1, minWidth: 200 }}
-                >
-                  <CircularProgress />
-                </Stack>
-              ) : (
-                <SubtripAnalytic
-                  key={tab.value}
-                  title={tab.label}
-                  total={tab.count}
-                  percent={tab.value === 'all' ? 100 : getPercentBySubtripStatus(tab.value)}
-                  icon={tab.icon}
-                  color={tab.analyticsColor}
-                />
-              )
-            )}
-          </Stack>
-        </Scrollbar>
-      </Card>
 
       <Card>
         {/* filtering Tabs */}
