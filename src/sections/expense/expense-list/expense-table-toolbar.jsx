@@ -32,10 +32,10 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dialog';
+import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
-import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 
 import { TABLE_COLUMNS } from '../expense-table-config';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';

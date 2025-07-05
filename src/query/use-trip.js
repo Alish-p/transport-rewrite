@@ -12,6 +12,11 @@ const getTrips = async () => {
   return data;
 };
 
+const getPaginatedTrips = async (params) => {
+  const { data } = await axios.get(ENDPOINT, { params });
+  return data;
+};
+
 const getOpenTrips = async () => {
   const { data } = await axios.get(`${ENDPOINT}/open`);
   return data;
@@ -46,6 +51,16 @@ const deleteTrip = async (id) => {
 // Queries & Mutations
 export function useTrips() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTrips });
+}
+
+export function usePaginatedTrips(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedTrips(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useOpenTrips() {

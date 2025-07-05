@@ -7,15 +7,23 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 // @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // components
 
 import { Tooltip, Checkbox, MenuList, ListItemText } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
+import { fDateRangeShortLabel } from '../../utils/format-time';
+import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
+import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
+import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -26,29 +34,49 @@ export default function TripTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  selectedVehicle,
+  onSelectVehicle,
+  selectedDriver,
+  onSelectDriver,
+  selectedSubtrip,
+  onSelectSubtrip,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const vehicleDialog = useBoolean();
+  const driverDialog = useBoolean();
+  const subtripDialog = useBoolean();
+  const dateDialog = useBoolean();
 
   const handleFilterTripNo = useCallback(
     (event) => {
-      onFilters('tripNo', event.target.value);
+      onFilters('tripId', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterDriver = useCallback(
-    (event) => {
-      onFilters('driver', event.target.value);
+  const handleSelectDriver = useCallback(
+    (driver) => {
+      if (onSelectDriver) onSelectDriver(driver);
+      onFilters('driverId', driver ? driver._id : '');
     },
-    [onFilters]
+    [onFilters, onSelectDriver]
   );
 
-  const handleFilterVehicle = useCallback(
-    (event) => {
-      onFilters('vehicleNo', event.target.value);
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      if (onSelectVehicle) onSelectVehicle(vehicle);
+      onFilters('vehicleId', vehicle ? vehicle._id : '');
     },
-    [onFilters]
+    [onFilters, onSelectVehicle]
+  );
+
+  const handleSelectSubtrip = useCallback(
+    (subtrip) => {
+      if (onSelectSubtrip) onSelectSubtrip(subtrip);
+      onFilters('subtripId', subtrip ? subtrip._id : '');
+    },
+    [onFilters, onSelectSubtrip]
   );
 
   const handleFilterFromDate = useCallback(
@@ -60,7 +88,7 @@ export default function TripTableToolbar({
 
   const handleFilterEndDate = useCallback(
     (newValue) => {
-      onFilters('endDate', newValue);
+      onFilters('toDate', newValue);
     },
     [onFilters]
   );
@@ -81,9 +109,9 @@ export default function TripTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.tripNo}
+          value={filters.tripId}
           onChange={handleFilterTripNo}
-          placeholder="Search TripNo..."
+          placeholder="Search TripId..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -92,52 +120,40 @@ export default function TripTableToolbar({
             ),
           }}
         />
-        <TextField
-          fullWidth
-          value={filters.driver}
-          onChange={handleFilterDriver}
-          placeholder="Search Driver ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={driverDialog.onTrue}
+          placeholder="Driver"
+          selected={selectedDriver?.driverName}
+          iconName="mdi:account"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <TextField
-          fullWidth
-          value={filters.vehicleNo}
-          onChange={handleFilterVehicle}
-          placeholder="Search vehicle..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          placeholder="Vehicle"
+          selected={selectedVehicle?.vehicleNo}
+          iconName="mdi:truck"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <DatePicker
-          label="From date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          placeholder="Subtrip"
+          selected={selectedSubtrip?._id}
+          iconName="mdi:bookmark"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={dateDialog.onTrue}
+          placeholder="Date Range"
+          selected={
+            filters.fromDate && filters.toDate
+              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+              : undefined
+          }
+          iconName="mdi:calendar"
+          sx={{ maxWidth: { md: 200 } }}
         />
 
         <Tooltip title="Column Settings">
@@ -224,6 +240,47 @@ export default function TripTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleSelectDriver}
+      />
+
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleSelectVehicle}
+      />
+
+      <KanbanSubtripDialog
+        open={subtripDialog.value}
+        onClose={subtripDialog.onFalse}
+        selectedSubtrip={selectedSubtrip}
+        onSubtripChange={handleSelectSubtrip}
+        statusList={[
+          'in-queue',
+          'loaded',
+          'received',
+          'error',
+          'billed-pending',
+          'billed-overdue',
+          'billed-paid',
+          'closed',
+        ]}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateDialog.value}
+        onClose={dateDialog.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.toDate}
+        onChangeStartDate={handleFilterFromDate}
+        onChangeEndDate={handleFilterEndDate}
+      />
     </>
   );
 }
