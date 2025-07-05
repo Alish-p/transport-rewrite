@@ -61,7 +61,9 @@ export default function KanbanSubtripMultiSelectDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>
+        {title} <Typography component="span">({subtrips.length})</Typography>
+      </DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }} my={1}>
           <Button

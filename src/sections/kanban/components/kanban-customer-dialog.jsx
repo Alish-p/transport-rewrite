@@ -22,12 +22,7 @@ import { SearchNotFound } from 'src/components/search-not-found';
 
 const ITEM_HEIGHT = 64;
 
-export function KanbanCustomerDialog({
-  selectedCustomer = null,
-  open,
-  onClose,
-  onCustomerChange,
-}) {
+export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, onCustomerChange }) {
   const scrollRef = useRef(null);
   const [searchCustomer, setSearchCustomer] = useState('');
   const debouncedSearch = useDebounce(searchCustomer);
@@ -41,21 +36,12 @@ export function KanbanCustomerDialog({
     (debouncedSearch === '' ||
       !blockedPrefixes.some((prefix) => debouncedSearch.startsWith(prefix)));
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteCustomers(
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteCustomers(
     { search: debouncedSearch || undefined, rowsPerPage: 50 },
     { enabled: shouldFetch }
   );
 
-  const customers = useMemo(
-    () => data?.pages.flatMap((p) => p.customers) || [],
-    [data]
-  );
+  const customers = useMemo(() => data?.pages.flatMap((p) => p.customers) || [], [data]);
 
   // if a debounced term returned no results, block it
   useEffect(() => {
@@ -102,7 +88,7 @@ export function KanbanCustomerDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Customers <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
+        Customers <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
