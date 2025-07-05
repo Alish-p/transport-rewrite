@@ -56,6 +56,7 @@ const defaultFilters = {
   subtrip: null,
   pump: null,
   transporter: null,
+  route: null,
   trip: null,
   expenseCategory: 'all',
   expenseType: 'all',
@@ -93,6 +94,7 @@ export function ExpenseListView() {
     subtripId: filters.subtrip?._id || undefined,
     pumpId: filters.pump?._id || undefined,
     transporterId: filters.transporter?._id || undefined,
+    routeId: filters.route?._id || undefined,
     tripId: filters.trip?._id || undefined,
     expenseCategory:
       filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,

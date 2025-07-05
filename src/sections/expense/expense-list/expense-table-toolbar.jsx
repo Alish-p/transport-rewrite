@@ -35,6 +35,7 @@ import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dia
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 
 import { TABLE_COLUMNS } from '../expense-table-config';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
@@ -61,6 +62,7 @@ export default function ExpenseTableToolbar({
   const transporterDialog = useBoolean();
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
+  const routeDialog = useBoolean();
 
   const { data: trips } = useTrips();
 
@@ -95,6 +97,13 @@ export default function ExpenseTableToolbar({
   const handleSelectSubtrip = useCallback(
     (subtrip) => {
       onFilters('subtrip', subtrip);
+    },
+    [onFilters]
+  );
+
+  const handleSelectRoute = useCallback(
+    (route) => {
+      onFilters('route', route);
     },
     [onFilters]
   );
@@ -171,6 +180,18 @@ export default function ExpenseTableToolbar({
           selected={filters.trip?._id}
           placeholder="Trip"
           iconName="mdi:truck-fast"
+          sx={{ maxWidth: { md: 200 } }}
+        />
+
+        <DialogSelectButton
+          onClick={routeDialog.onTrue}
+          selected={
+            filters.route
+              ? `${filters.route.fromPlace} → ${filters.route.toPlace}`
+              : undefined
+          }
+          placeholder="Route"
+          iconName="mdi:map-marker-path"
           sx={{ maxWidth: { md: 200 } }}
         />
 
@@ -326,6 +347,14 @@ export default function ExpenseTableToolbar({
         onClose={transporterDialog.onFalse}
         selectedTransporter={filters.transporter}
         onTransporterChange={handleSelectTransporter}
+      />
+
+      <KanbanRouteDialog
+        open={routeDialog.value}
+        onClose={routeDialog.onFalse}
+        selectedRoute={filters.route}
+        onRouteChange={handleSelectRoute}
+        mode="all"
       />
 
       <KanbanTripDialog

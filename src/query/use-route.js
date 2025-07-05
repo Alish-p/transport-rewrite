@@ -12,29 +12,6 @@ const ENDPOINT = '/api/routes';
 const QUERY_KEY = 'routes';
 
 // Fetchers
-const getRoutes = async ({ queryKey }) => {
-  const [, customerId, genericRoutes] = queryKey;
-  let url = ENDPOINT;
-  const params = new URLSearchParams();
-
-  // If we have a customerId, append it as a query parameter
-  if (customerId) {
-    params.append('customerId', customerId);
-  }
-
-  // If genericRoutes is true, append it as a query parameter
-  if (genericRoutes) {
-    params.append('genericRoutes', 'true');
-  }
-
-  // Append params to URL if they exist
-  if (params.toString()) {
-    url += `?${params.toString()}`;
-  }
-
-  const { data } = await axios.get(url);
-  return data;
-};
 
 const getRoute = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
@@ -62,13 +39,6 @@ const getPaginatedRoutes = async (params) => {
   return data;
 };
 
-// Queries & Mutations
-export function useRoutes(customerId, genericRoutes) {
-  return useQuery({
-    queryKey: [QUERY_KEY, customerId, genericRoutes],
-    queryFn: getRoutes,
-  });
-}
 
 export function usePaginatedRoutes(params, options = {}) {
   return useQuery({
@@ -92,8 +62,8 @@ export function useInfiniteRoutes(params, options = {}) {
           (page.routes
             ? page.routes.length
             : page.results
-            ? page.results.length
-            : 0),
+              ? page.results.length
+              : 0),
         0
       );
       const totalCount =

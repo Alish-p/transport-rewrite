@@ -35,7 +35,7 @@ import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
 import { useGps } from 'src/query/use-gps';
 // Queries & Mutations
-import { useRoute, useRoutes } from 'src/query/use-route';
+import { useRoute } from 'src/query/use-route';
 import { useSubtrip, useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip';
 
 // Components
@@ -182,11 +182,8 @@ export function SubtripLoadForm() {
     data: detailedRoute,
   } = useRoute(selectedRoute?._id);
 
-  // Get routes based on selected customer
+  // Extract customerId from selected subtrip
   const customerId = selectedSubtrip?.customerId?._id;
-  const { data: routes = [], isLoading: isLoadingRoutes } = useRoutes(customerId, {
-    enabled: !!customerId,
-  });
 
   // Mutation hook
   const updateMaterialInfo = useUpdateSubtripMaterialInfo();
@@ -347,12 +344,8 @@ export function SubtripLoadForm() {
         { keepErrors: false, keepDirty: true }
       );
 
-      if (detailedSubtrip.routeCd && routes.length > 0) {
-        const initialRoute = routes.find((r) => r._id === detailedSubtrip.routeCd);
-        if (initialRoute) {
-          console.log('Pre-selecting route:', initialRoute);
-          setSelectedRoute(initialRoute);
-        }
+      if (detailedSubtrip.routeCd) {
+        handleRouteChange(detailedSubtrip.routeCd);
       }
 
       setTimeout(() => trigger(STEP_FIELDS[0]), 100);
@@ -366,7 +359,7 @@ export function SubtripLoadForm() {
     selectedSubtripId,
     reset,
     setValue,
-    routes,
+    handleRouteChange,
     trigger,
     handleReset,
     subtripDetailError,
@@ -480,7 +473,7 @@ export function SubtripLoadForm() {
               sx={{ color: selectedRoute ? 'primary.main' : 'text.disabled' }}
             />
           }
-          disabled={isLoadingRoutes || !customerId}
+          disabled={!customerId}
         >
           {selectedRoute
             ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
@@ -795,7 +788,6 @@ export function SubtripLoadForm() {
         onRouteChange={handleRouteChange}
         mode='genericAndCustomer'
         customerId={customerId}
-        disabled={isLoadingRoutes}
       />
 
       <KanbanPumpDialog

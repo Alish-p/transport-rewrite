@@ -44,6 +44,10 @@ export default function DriverTableFiltersResult({
     onFilters('subtrip', null);
   };
 
+  const handleRemoveRoute = () => {
+    onFilters('route', null);
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('endDate', null);
@@ -102,6 +106,16 @@ export default function DriverTableFiltersResult({
         {filters.subtrip && (
           <Block label="Subtrip">
             <Chip size="small" label={filters.subtrip._id} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {filters.route && (
+          <Block label="Route">
+            <Chip
+              size="small"
+              label={`${filters.route.fromPlace} → ${filters.route.toPlace}`}
+              onDelete={handleRemoveRoute}
+            />
           </Block>
         )}
 
