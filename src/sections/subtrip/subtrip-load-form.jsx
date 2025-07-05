@@ -793,6 +793,7 @@ export function SubtripLoadForm() {
         onClose={routeDialog.onFalse}
         selectedRoute={selectedRoute}
         onRouteChange={handleRouteChange}
+        mode='genericAndCustomer'
         customerId={customerId}
         disabled={isLoadingRoutes}
       />
