@@ -29,6 +29,7 @@ import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
@@ -55,6 +56,8 @@ export default function SubtripTableToolbar({
   onSelectVehicle,
   selectedDriver,
   onSelectDriver,
+  selectedRoute,
+  onSelectRoute,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -67,6 +70,7 @@ export default function SubtripTableToolbar({
   const customerDialog = useBoolean();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
+  const routeDialog = useBoolean();
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -106,6 +110,16 @@ export default function SubtripTableToolbar({
       }
     },
     [onFilters, onSelectDriver]
+  );
+
+  const handleSelectRoute = useCallback(
+    (route) => {
+      onFilters('routeId', route._id);
+      if (onSelectRoute) {
+        onSelectRoute(route);
+      }
+    },
+    [onFilters, onSelectRoute]
   );
 
   const handleToggleMaterial = useCallback(
@@ -174,6 +188,15 @@ export default function SubtripTableToolbar({
           selected={selectedDriver?.driverName}
           placeholder="Driver"
           iconName="mdi:account"
+        />
+
+        <DialogSelectButton
+          onClick={routeDialog.onTrue}
+          selected={
+            selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
+          }
+          placeholder="Route"
+          iconName="mdi:map-marker-path"
         />
 
         <DialogSelectButton
@@ -336,6 +359,14 @@ export default function SubtripTableToolbar({
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
+      />
+
+      <KanbanRouteDialog
+        open={routeDialog.value}
+        onClose={routeDialog.onFalse}
+        selectedRoute={selectedRoute}
+        onRouteChange={handleSelectRoute}
+        mode="all"
       />
 
       <KanbanDriverDialog
