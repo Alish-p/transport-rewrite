@@ -30,18 +30,13 @@ function useDriverSearch(searchText, enabled) {
   const debounced = useDebounce(searchText, 500);
   const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteDrivers(
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteDrivers(
     { search: debounced || undefined, rowsPerPage: 50 },
     { enabled }
   );
 
-  const drivers = data ? data.pages.flatMap(page => page.drivers) : [];
+  const drivers = data ? data.pages.flatMap((page) => page.drivers) : [];
+  const total = data?.pages?.[0]?.totals?.all?.count ?? data?.pages?.[0]?.total ?? 0;
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -55,6 +50,7 @@ function useDriverSearch(searchText, enabled) {
     isFetchingNext: isFetchingNextPage,
     hasNextPage,
     loadMoreRef,
+    total,
   };
 }
 
@@ -67,22 +63,14 @@ export function KanbanDriverDialog({
 }) {
   // Search + pagination state
   const [search, setSearch] = useState('');
-  const {
-    drivers,
-    isLoading,
-    isFetchingNext,
-    loadMoreRef,
-  } = useDriverSearch(search, open);
+  const { drivers, isLoading, isFetchingNext, loadMoreRef, total } = useDriverSearch(search, open);
 
   // Quick-create form state
   const [isQuickMode, setQuickMode] = useState(false);
   const [driverName, setDriverName] = useState('');
   const [driverCellNo, setDriverCellNo] = useState('');
   const [error, setError] = useState('');
-  const {
-    mutateAsync: createDriver,
-    isLoading: isCreating,
-  } = useCreateQuickDriver();
+  const { mutateAsync: createDriver, isLoading: isCreating } = useCreateQuickDriver();
 
   // Reset when dialog opens
   useEffect(() => {
@@ -124,7 +112,13 @@ export function KanbanDriverDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        {isQuickMode ? 'Create New Driver' : 'Select Driver'}
+        {isQuickMode ? (
+          'Create New Driver'
+        ) : (
+          <>
+            Select Driver <Typography component="span">({total})</Typography>
+          </>
+        )}
       </DialogTitle>
 
       {!isQuickMode && (
@@ -133,7 +127,7 @@ export function KanbanDriverDialog({
             fullWidth
             placeholder="Search…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -157,16 +151,18 @@ export function KanbanDriverDialog({
               fullWidth
               label="Driver Name"
               value={driverName}
-              onChange={e => setDriverName(e.target.value)}
+              onChange={(e) => setDriverName(e.target.value)}
               margin="dense"
             />
             <TextField
               fullWidth
               label="Driver Cell No"
               value={driverCellNo}
-              onChange={e => setDriverCellNo(e.target.value)}
+              onChange={(e) => setDriverCellNo(e.target.value)}
               margin="dense"
-              InputProps={{ startAdornment: <InputAdornment position="start">+91 - </InputAdornment> }}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+              }}
             />
           </Box>
         ) : isLoading ? (
@@ -208,7 +204,11 @@ export function KanbanDriverDialog({
                     onClick={() => handleSelectDriver(driver)}
                     startIcon={
                       <Iconify
-                        icon={selectedDriver?._id === driver._id ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+                        icon={
+                          selectedDriver?._id === driver._id
+                            ? 'eva:checkmark-fill'
+                            : 'mingcute:add-line'
+                        }
                         width={16}
                         sx={{ mr: -0.5 }}
                       />
@@ -220,7 +220,12 @@ export function KanbanDriverDialog({
               ))}
               <Box
                 ref={loadMoreRef}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: ITEM_HEIGHT }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: ITEM_HEIGHT,
+                }}
               >
                 {isFetchingNext && <LoadingSpinner />}
               </Box>

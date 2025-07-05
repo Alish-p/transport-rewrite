@@ -49,7 +49,8 @@ function TripItem({ trip, selectedTrip, onSelect }) {
         primary={`Trip ${trip._id}`}
         secondary={
           <>
-            {trip.vehicleId?.vehicleNo || '—'} | {trip.driverId?.driverName || '—'} | {fDate(trip.fromDate)}
+            {trip.vehicleId?.vehicleNo || '—'} | {trip.driverId?.driverName || '—'} |{' '}
+            {fDate(trip.fromDate)}
           </>
         }
       />
@@ -71,7 +72,6 @@ function TripItem({ trip, selectedTrip, onSelect }) {
     </Box>
   );
 }
-
 
 function LoadingSkeleton() {
   return (
@@ -147,7 +147,7 @@ export function KanbanTripDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Trips <Typography component="span">{data?.pages?.[0]?.total || 0}</Typography>
+        Trips <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
