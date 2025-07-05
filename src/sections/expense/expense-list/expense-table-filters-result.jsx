@@ -13,7 +13,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverTableFiltersResult({
+export default function ExpenseTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
@@ -22,6 +22,10 @@ export default function DriverTableFiltersResult({
 }) {
   const handleRemoveExpenseType = () => {
     onFilters('expenseType', 'all');
+  };
+
+  const handleRemoveExpenseCategory = () => {
+    onFilters('expenseCategory', 'all');
   };
 
   const handleRemovePump = () => {
@@ -65,6 +69,17 @@ export default function DriverTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.expenseCategory !== 'all' && (
+          <Block label="Category :">
+            <Chip
+              size="small"
+              label={
+                filters.expenseCategory === 'subtrip' ? 'Subtrip Expense' : 'Vehicle Expense'
+              }
+              onDelete={handleRemoveExpenseCategory}
+            />
+          </Block>
+        )}
         {filters.expenseType !== 'all' && (
           <Block label="Expense Type :">
             <Chip size="small" label={filters.expenseType} onDelete={handleRemoveExpenseType} />

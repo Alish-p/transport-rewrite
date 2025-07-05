@@ -38,6 +38,10 @@ export default function TripTableFiltersResult({
     onFilters('vehicleId', '');
   };
 
+  const handleRemoveSubtrip = () => {
+    onFilters('subtripId', '');
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('toDate', null);
@@ -76,6 +80,12 @@ export default function TripTableFiltersResult({
         {filters.vehicleId && (
           <Block label="Vehicle No:">
             <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+          </Block>
+        )}
+
+        {filters.subtripId && (
+          <Block label="Subtrip:">
+            <Chip size="small" label={selectedSubtripId || filters.subtripId} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 

@@ -9,7 +9,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverTableFiltersResult({
+export default function InvoiceTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
