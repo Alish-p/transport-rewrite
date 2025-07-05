@@ -12,35 +12,38 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverTableFiltersResult({
+export default function TripTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
+  selectedDriverName,
+  selectedVehicleNo,
+  selectedSubtripId,
   ...other
 }) {
   const handleRemoveTripStatus = () => {
     onFilters('tripStatus', 'all');
   };
 
-  const handleRemoveTripNo = () => {
-    onFilters('TripNo', '');
+  const handleRemoveTripId = () => {
+    onFilters('tripId', '');
   };
 
   const handleRemoveDriver = () => {
-    onFilters('driver', '');
+    onFilters('driverId', '');
   };
 
-  const handleRemoveVehicleNo = () => {
-    onFilters('vehicleNo', '');
+  const handleRemoveVehicle = () => {
+    onFilters('vehicleId', '');
   };
 
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters('toDate', null);
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -58,25 +61,25 @@ export default function DriverTableFiltersResult({
           </Block>
         )}
 
-        {filters.tripNo && (
+        {filters.tripId && (
           <Block label="Trip:">
-            <Chip size="small" label={filters.tripNo} onDelete={handleRemoveTripNo} />
+            <Chip size="small" label={filters.tripId} onDelete={handleRemoveTripId} />
           </Block>
         )}
 
-        {filters.driver && (
+        {filters.driverId && (
           <Block label="driver">
-            <Chip size="small" label={filters.driver} onDelete={handleRemoveDriver} />
+            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
           </Block>
         )}
 
-        {filters.vehicleNo && (
+        {filters.vehicleId && (
           <Block label="Vehicle No:">
-            <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
           </Block>
         )}
 
-        {filters.fromDate && filters.endDate && (
+        {filters.fromDate && filters.toDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>
