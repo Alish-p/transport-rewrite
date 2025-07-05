@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMemo, useState, useEffect, useCallback } from 'react';
+import dayjs from 'dayjs';
 
 import { LoadingButton } from '@mui/lab';
 import {
@@ -551,7 +552,11 @@ export function SubtripLoadForm() {
       />
 
       <Field.Text name="ewayBill" label="Eway Bill" />
-      <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" />
+      <Field.DatePicker
+        name="ewayExpiryDate"
+        label="Eway Expiry Date *"
+        minDate={dayjs()}
+      />
 
       <Box sx={{ position: 'relative' }}>
         <Field.Text name="invoiceNo" label="Invoice No *" />
