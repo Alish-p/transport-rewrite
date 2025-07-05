@@ -88,8 +88,10 @@ export function RouteListView() {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (data?.routes || data?.results) {
-      setTableData(data.routes || data.results);
+    if (data) {
+      setTableData(data.routes || data.results || []);
+    } else {
+      setTableData([]);
     }
   }, [data]);
 
