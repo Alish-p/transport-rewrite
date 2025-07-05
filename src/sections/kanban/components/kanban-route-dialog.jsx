@@ -2,6 +2,7 @@ import { useInView } from 'react-intersection-observer';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -12,6 +13,8 @@ import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useDebounce } from 'src/hooks/use-debounce';
+
+import { wrapText } from 'src/utils/change-case';
 
 import { useInfiniteRoutes } from 'src/query/use-route';
 
@@ -151,7 +154,13 @@ function renderRouteItem(route, selectedRoute, handleSelectRoute) {
         secondaryTypographyProps={{ typography: 'caption' }}
         primary={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="subtitle2">{route.routeName}</Typography>
+            <Tooltip title={route.routeName}>
+              <ListItemText
+                primary={wrapText(route.routeName, 30)}
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              />
+            </Tooltip>
+
             {!route.isCustomerSpecific && (
               <Label variant="soft" color="default" size="small">
                 Generic
