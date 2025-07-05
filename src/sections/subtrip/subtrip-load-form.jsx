@@ -40,7 +40,6 @@ import { useSubtrip, useUpdateSubtripMaterialInfo } from 'src/query/use-subtrip'
 
 // Components
 import { Iconify } from 'src/components/iconify';
-import { InvoiceScanner } from 'src/components/invoice-scanner';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -166,7 +165,6 @@ export function SubtripLoadForm() {
   const subtripDialog = useBoolean(false);
   const routeDialog = useBoolean(false);
   const pumpDialog = useBoolean(false);
-  const scannerDialog = useBoolean(false);
 
   // Data fetching
 
@@ -266,20 +264,17 @@ export function SubtripLoadForm() {
     [selectedSubtripId, reset, handleReset, subtripDialog, trigger]
   );
 
-  const handleRouteChange = (route) => {
-    if (route) {
+  const handleRouteChange = useCallback(
+    (route) => {
       setSelectedRoute(route);
       setValue('routeCd', route._id, { shouldValidate: true });
       setValue('loadingPoint', route.fromPlace, { shouldValidate: true });
       setValue('unloadingPoint', route.toPlace, { shouldValidate: true });
-    } else {
-      setSelectedRoute(null);
-      setValue('routeCd', '', { shouldValidate: true });
-      setValue('loadingPoint', '', { shouldValidate: true });
-      setValue('unloadingPoint', '', { shouldValidate: true });
-    }
-    routeDialog.onFalse();
-  };
+
+      routeDialog.onFalse();
+    },
+    [routeDialog, setValue]
+  );
 
   const handlePumpChange = (pump) => {
     setSelectedPump(pump);
@@ -344,10 +339,6 @@ export function SubtripLoadForm() {
         { keepErrors: false, keepDirty: true }
       );
 
-      if (detailedSubtrip.routeCd) {
-        handleRouteChange(detailedSubtrip.routeCd);
-      }
-
       setTimeout(() => trigger(STEP_FIELDS[0]), 100);
     } else if (subtripDetailError) {
       console.error('Error fetching subtrip details:', subtripDetailError);
@@ -359,7 +350,6 @@ export function SubtripLoadForm() {
     selectedSubtripId,
     reset,
     setValue,
-    handleRouteChange,
     trigger,
     handleReset,
     subtripDetailError,
@@ -565,15 +555,6 @@ export function SubtripLoadForm() {
 
       <Box sx={{ position: 'relative' }}>
         <Field.Text name="invoiceNo" label="Invoice No *" />
-        <Tooltip title="Scan Invoice">
-          <IconButton
-            size="small"
-            onClick={scannerDialog.onTrue}
-            sx={{ position: 'absolute', right: 8, top: 13, color: 'primary.main' }}
-          >
-            <Iconify icon="mdi:camera" />
-          </IconButton>
-        </Tooltip>
       </Box>
 
       <Field.Text name="shipmentNo" label="Shipment No" />
@@ -778,7 +759,6 @@ export function SubtripLoadForm() {
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSubtripChange}
         statusList={[SUBTRIP_STATUS.IN_QUEUE]}
-        dialogTitle="Select Subtrip to Load"
       />
 
       <KanbanRouteDialog
@@ -797,11 +777,6 @@ export function SubtripLoadForm() {
         onPumpChange={handlePumpChange}
       />
 
-      <InvoiceScanner
-        open={scannerDialog.value}
-        onClose={scannerDialog.onFalse}
-        onScanComplete={() => { }}
-      />
     </Container>
   );
 }
