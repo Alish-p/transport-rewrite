@@ -52,11 +52,26 @@ const deleteRoute = async (id) => {
   return data;
 };
 
+const getPaginatedRoutes = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 // Queries & Mutations
 export function useRoutes(customerId, genericRoutes) {
   return useQuery({
     queryKey: [QUERY_KEY, customerId, genericRoutes],
     queryFn: getRoutes,
+  });
+}
+
+export function usePaginatedRoutes(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedRoutes(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 
@@ -107,7 +122,7 @@ export function useDeleteRoute() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteRoute(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route deleted successfully!');
     },

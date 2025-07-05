@@ -7,7 +7,6 @@ import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
 // @mui
 import IconButton from '@mui/material/IconButton';
@@ -23,12 +22,13 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel } from 'src/utils/export-to-excel';
 
-import { useDeleteRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteRoute, usePaginatedRoutes } from 'src/query/use-route';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -37,10 +37,8 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -48,7 +46,6 @@ import {
 
 import RouteTableRow from '../route-table-row';
 import RouteTableToolbar from '../route-table-toolbar';
-import RouteAnalytics from '../widgets/route-analytic';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -72,7 +69,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function RouteListView({ routes }) {
+export function RouteListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -81,38 +78,30 @@ export function RouteListView({ routes }) {
   const navigate = useNavigate();
   const deleteRoute = useDeleteRoute();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
-  useEffect(() => {
-    if (routes?.length) {
-      setTableData(routes);
-    }
-  }, [routes]);
+  const { data, isLoading } = usePaginatedRoutes({
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+    routeName: filters.routeName || undefined,
+    fromPlace: filters.fromPlace || undefined,
+    toPlace: filters.toPlace || undefined,
+    isCustomerSpecific: filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
+  });
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  useEffect(() => {
+    if (data?.routes || data?.results) {
+      setTableData(data.routes || data.results);
+    }
+  }, [data]);
 
-  const denseHeight = table.dense ? 56 : 76;
+  const { total, totalGeneric, totalCustomerSpecific } = data || {};
 
-  const canReset = !!filters.routeName || !!filters.fromPlace || !!filters.toPlace;
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
+  const notFound = !tableData.length && canReset;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.route.edit(paramCase(id)));
@@ -126,10 +115,6 @@ export function RouteListView({ routes }) {
     },
     [router]
   );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   // Add state for column visibility
   const [visibleColumns, setVisibleColumns] = useState({
@@ -177,26 +162,16 @@ export function RouteListView({ routes }) {
     (column) => column.id === '' || visibleColumns[column.id]
   );
 
-  const getRouteLength = (type) => {
-    if (type === 'all') return tableData.length;
-    if (type === 'customer') return tableData.filter((item) => item.isCustomerSpecific).length;
-    return tableData.filter((item) => !item.isCustomerSpecific).length;
-  };
-
-  const getPercentByType = (type) => {
-    const length = getRouteLength(type);
-    return (length / tableData.length) * 100;
-  };
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: getRouteLength('all') },
+    { value: 'all', label: 'All', color: 'default', count: total },
     {
       value: 'customer',
       label: 'Customer Specific',
       color: 'info',
-      count: getRouteLength('customer'),
+      count: totalCustomerSpecific,
     },
-    { value: 'general', label: 'General', color: 'success', count: getRouteLength('general') },
+    { value: 'general', label: 'General', color: 'success', count: totalGeneric },
   ];
 
   const handleFilterRouteType = useCallback(
@@ -239,40 +214,6 @@ export function RouteListView({ routes }) {
           }}
         />
 
-        {/* Add Analytics Section */}
-        <Card sx={{ mb: { xs: 3, md: 5 } }}>
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <RouteAnalytics
-                title="Total"
-                total={getRouteLength('all')}
-                percent={100}
-                icon="solar:route-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <RouteAnalytics
-                title="Customer Specific"
-                total={getRouteLength('customer')}
-                percent={getPercentByType('customer')}
-                icon="solar:users-group-rounded-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-
-              <RouteAnalytics
-                title="General"
-                total={getRouteLength('general')}
-                percent={getPercentByType('general')}
-                icon="solar:road-bold-duotone"
-                color={theme.palette.success.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
 
         {/* Table Section */}
         <Card>
@@ -320,7 +261,7 @@ export function RouteListView({ routes }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={total}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -329,11 +270,11 @@ export function RouteListView({ routes }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
@@ -379,23 +320,22 @@ export function RouteListView({ routes }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                      <TableSkeleton key={i} />
+                    ))
+                    : tableData.map((row) => (
                       <RouteTableRow
                         key={row._id}
                         row={row}
@@ -409,11 +349,6 @@ export function RouteListView({ routes }) {
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
@@ -421,7 +356,7 @@ export function RouteListView({ routes }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -458,50 +393,4 @@ export function RouteListView({ routes }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { routeName, fromPlace, toPlace, routeType } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (routeName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.routeName && record.routeName.toLowerCase().indexOf(routeName.toLowerCase()) !== -1
-    );
-  }
-
-  if (fromPlace) {
-    inputData = inputData.filter(
-      (record) =>
-        record.fromPlace && record.fromPlace.toLowerCase().indexOf(fromPlace.toLowerCase()) !== -1
-    );
-  }
-
-  if (toPlace) {
-    inputData = inputData.filter(
-      (record) =>
-        record.toPlace && record.toPlace.toLowerCase().indexOf(toPlace.toLowerCase()) !== -1
-    );
-  }
-
-  if (routeType !== 'all') {
-    inputData = inputData.filter((record) =>
-      routeType === 'customer' ? record.isCustomerSpecific : !record.isCustomerSpecific
-    );
-  }
-
-  return inputData;
 }
