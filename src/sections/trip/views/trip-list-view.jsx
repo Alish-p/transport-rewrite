@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -19,9 +19,11 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteTrip, usePaginatedTrips } from 'src/query/use-trip';
@@ -33,6 +35,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -40,19 +43,11 @@ import {
 
 import TripTableRow from '../trip-table-row';
 import TripTableToolbar from '../trip-table-toolbar';
+import { TABLE_COLUMNS } from '../trip-table-config';
 import TripTableFiltersResult from '../trip-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'vehicleNo', label: 'Vehicle Number & ID' },
-  { id: 'driverName', label: 'Driver Name' },
-  { id: 'tripStatus', label: 'Trip Status' },
-  { id: 'fromDate', label: 'From Date' },
-  { id: 'toDate', label: 'To Date' },
-  { id: 'remarks', label: 'Remarks' },
-  { id: '' },
-];
 
 const defaultFilters = {
   tripId: '',
@@ -75,36 +70,27 @@ export function TripListView() {
 
   const navigate = useNavigate();
 
-  const [filters, setFilters] = useState(defaultFilters);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    vehicleNo: true,
-    driverName: true,
-    tripStatus: true,
-    fromDate: true,
-    toDate: true,
-    remarks: true,
-  });
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters,
+    canReset,
+  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
 
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      vehicleNo: true, // Vehicle number should always be visible
-      driverName: false,
-      tripStatus: false,
-      fromDate: false,
-      toDate: false,
-      remarks: false,
-    }),
-    []
-  );
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
 
-  const { data, isLoading, isFetching } = usePaginatedTrips({
+  const { data, isLoading } = usePaginatedTrips({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     tripId: filters.tripId || undefined,
@@ -126,15 +112,7 @@ export function TripListView() {
 
   const totalCount = data?.total || 0;
 
-  const canReset =
-    !!filters.vehicleId ||
-    !!filters.tripId ||
-    !!filters.driverId ||
-    !!filters.subtripId ||
-    filters.tripStatus !== 'all' ||
-    (!!filters.fromDate && !!filters.toDate);
-
-  const notFound = !isLoading && !tableData.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
 
   const TABS = [
@@ -143,19 +121,6 @@ export function TripListView() {
     { value: 'closed', label: 'Closed', color: 'success', count: data?.totalClosed },
   ];
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-      if (name === 'vehicleId' && !value) setSelectedVehicle(null);
-      if (name === 'driverId' && !value) setSelectedDriver(null);
-      if (name === 'subtripId' && !value) setSelectedSubtrip(null);
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.trip.edit(paramCase(id)));
@@ -175,31 +140,21 @@ export function TripListView() {
     [handleFilters]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
+  const handleResetAll = useCallback(() => {
+    handleResetFilters();
     setSelectedVehicle(null);
     setSelectedDriver(null);
     setSelectedSubtrip(null);
-  }, []);
+  }, [handleResetFilters]);
 
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumnVisibility(columnName);
     },
-    [disabledColumns]
+    [toggleColumnVisibility]
   );
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
 
   return (
     <DashboardContent>
@@ -272,6 +227,7 @@ export function TripListView() {
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={toggleAllColumnsVisibility}
           selectedVehicle={selectedVehicle}
           onSelectVehicle={setSelectedVehicle}
           selectedDriver={selectedDriver}
@@ -284,7 +240,7 @@ export function TripListView() {
           <TripTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
+            onResetFilters={handleResetAll}
             results={totalCount}
             selectedDriverName={selectedDriver?.driverName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
@@ -295,7 +251,6 @@ export function TripListView() {
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <TableSelectedAction
-            dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
             onSelectAllRows={(checked) =>
@@ -319,7 +274,11 @@ export function TripListView() {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      exportToExcel(selectedRows, 'filtered');
+                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+                      exportToExcel(
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        'Trips-selected'
+                      );
                     }}
                   >
                     <Iconify icon="eva:download-outline" />
@@ -346,7 +305,7 @@ export function TripListView() {
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                headLabel={visibleTableHead}
+                headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
@@ -358,19 +317,23 @@ export function TripListView() {
                 }
               />
               <TableBody>
-                {tableData.map((row) => (
-                  <TripTableRow
-                    key={row._id}
-                    row={row}
-                    selected={table.selected.includes(row._id)}
-                    onSelectRow={() => table.onSelectRow(row._id)}
-                    onViewRow={() => handleViewRow(row._id)}
-                    onEditRow={() => handleEditRow(row._id)}
-                    onDeleteRow={() => deleteTrip(row._id)}
-                    visibleColumns={visibleColumns}
-                    disabledColumns={disabledColumns}
-                  />
-                ))}
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
+                    <TableSkeleton key={index} />
+                  ))
+                  : tableData.map((row) => (
+                    <TripTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteTrip(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>
@@ -384,8 +347,6 @@ export function TripListView() {
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           onRowsPerPageChange={table.onChangeRowsPerPage}
-          dense={table.dense}
-          onChangeDense={table.onChangeDense}
         />
       </Card>
     </DashboardContent>

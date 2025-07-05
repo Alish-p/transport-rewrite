@@ -21,7 +21,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useTrips } from 'src/query/use-trip';
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
@@ -63,8 +62,6 @@ export default function ExpenseTableToolbar({
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
   const routeDialog = useBoolean();
-
-  const { data: trips } = useTrips();
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
@@ -186,9 +183,7 @@ export default function ExpenseTableToolbar({
         <DialogSelectButton
           onClick={routeDialog.onTrue}
           selected={
-            filters.route
-              ? `${filters.route.fromPlace} → ${filters.route.toPlace}`
-              : undefined
+            filters.route ? `${filters.route.fromPlace} → ${filters.route.toPlace}` : undefined
           }
           placeholder="Route"
           iconName="mdi:map-marker-path"
@@ -362,7 +357,7 @@ export default function ExpenseTableToolbar({
         onClose={tripDialog.onFalse}
         selectedTrip={filters.trip}
         onTripChange={handleSelectTrip}
-        trips={trips}
+        status={['open', 'closed']}
       />
     </>
   );

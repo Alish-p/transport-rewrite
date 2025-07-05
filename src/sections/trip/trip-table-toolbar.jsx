@@ -9,18 +9,23 @@ import InputAdornment from '@mui/material/InputAdornment';
 // @mui
 // components
 
-import { Tooltip, Checkbox, MenuList, ListItemText } from '@mui/material';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
+import { Tooltip, MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { fDateRangeShortLabel } from '../../utils/format-time';
+import TripListPdf from 'src/pdfs/trip-list-pdf';
+import { TABLE_COLUMNS } from './trip-table-config';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
@@ -34,6 +39,7 @@ export default function TripTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
   selectedVehicle,
   onSelectVehicle,
   selectedDriver,
@@ -173,27 +179,13 @@ export default function TripTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -203,40 +195,34 @@ export default function TripTableToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
+          <MenuItem onClick={popover.onClose}>
+            <PDFDownloadLink
+              document={
+                <TripListPdf
+                  trips={tableData}
+                  visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                />
+              }
+              fileName="Trip-list.pdf"
+              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+            >
+              {({ loading }) => (
+                <>
+                  <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                  PDF
+                </>
+              )}
+            </PDFDownloadLink>
           </MenuItem>
-
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols), 'Trips-list');
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(
-                tableData.map((data) => ({
-                  ...data,
-                  driverId: data?.driverId?.driverName,
-                  vehicleId: data?.vehicleId?.vehicleNo,
-                  subtrips: data?.subtrips?.map((st) => st._id).join(','),
-                })),
-                'Trips-list'
-              );
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>

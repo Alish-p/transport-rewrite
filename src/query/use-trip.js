@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -7,18 +7,14 @@ const ENDPOINT = '/api/trips';
 const QUERY_KEY = 'trips';
 
 // Fetchers
-const getTrips = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
 
 const getPaginatedTrips = async (params) => {
   const { data } = await axios.get(ENDPOINT, { params });
   return data;
 };
 
-const getOpenTrips = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/open`);
+const getTripsPreview = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/preview`, { params });
   return data;
 };
 
@@ -33,7 +29,6 @@ const createTrip = async (trip) => {
 };
 
 const updateTrip = async (id, tripData) => {
-  console.log({ tripDataInAPICAll: tripData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, tripData);
   return data;
 };
@@ -49,10 +44,6 @@ const deleteTrip = async (id) => {
 };
 
 // Queries & Mutations
-export function useTrips() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getTrips });
-}
-
 export function usePaginatedTrips(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],
@@ -63,8 +54,18 @@ export function usePaginatedTrips(params, options = {}) {
   });
 }
 
-export function useOpenTrips() {
-  return useQuery({ queryKey: [QUERY_KEY, 'open'], queryFn: getOpenTrips });
+export function useInfiniteTripsPreview(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'preview', params],
+    queryFn: ({ pageParam = 1 }) => getTripsPreview({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce((acc, page) => acc + page.trips.length, 0);
+      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useTrip(id) {
@@ -133,7 +134,7 @@ export function useDeleteTrip() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTrip(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Trip deleted successfully!');
     },

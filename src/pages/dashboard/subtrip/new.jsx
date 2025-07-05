@@ -3,10 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useOpenTrips } from 'src/query/use-trip';
-
-import { EmptyContent } from 'src/components/empty-content';
-import { LoadingScreen } from 'src/components/loading-screen';
 
 import { SubtripCreateView } from 'src/sections/subtrip/views';
 
@@ -18,28 +14,13 @@ export default function Page() {
   const searchParams = useSearchParams();
   const currentTrip = searchParams.get('id');
 
-  const { data: trips, isLoading: tripLoading, isError: tripError } = useOpenTrips();
-  if (tripLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (tripError) {
-    return (
-      <EmptyContent
-        filled
-        title="Something went wrong!"
-        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
-      />
-    );
-  }
-
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripCreateView trips={trips} currentTrip={currentTrip} />
+      <SubtripCreateView currentTrip={currentTrip} />
     </>
   );
 }
