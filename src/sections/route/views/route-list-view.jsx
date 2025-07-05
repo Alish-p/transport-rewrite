@@ -1,4 +1,5 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -7,118 +8,101 @@ import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
-
-// _mock
-
-import { useNavigate } from 'react-router';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeleteRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteRoute, usePaginatedRoutes } from 'src/query/use-route';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
 import RouteTableRow from '../route-table-row';
+import { TABLE_COLUMNS } from '../route-table-config';
 import RouteTableToolbar from '../route-table-toolbar';
-import RouteAnalytics from '../widgets/route-analytic';
 import RouteTableFiltersResult from '../route-table-filters-result';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'routeName', label: 'Route Name', align: 'left' },
-  { id: 'fromPlace', label: 'From Place', align: 'center' },
-  { id: 'toPlace', label: 'To Place', align: 'center' },
-  { id: 'customer', label: 'Customer', align: 'center' },
-  { id: 'noOfDays', label: 'Number of Days', align: 'center' },
-  { id: 'distance', label: 'Distance', align: 'center' },
-  { id: '' },
-];
 
 const defaultFilters = {
   routeName: '',
   fromPlace: '',
   toPlace: '',
+  customer: '',
   routeType: 'all',
 };
 
-// ----------------------------------------------------------------------
-
-export function RouteListView({ routes }) {
+export function RouteListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
-  const confirm = useBoolean();
   const theme = useTheme();
-
   const navigate = useNavigate();
   const deleteRoute = useDeleteRoute();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
-  useEffect(() => {
-    if (routes?.length) {
-      setTableData(routes);
-    }
-  }, [routes]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
+
+  const { data, isLoading } = usePaginatedRoutes({
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+    routeName: filters.routeName || undefined,
+    fromPlace: filters.fromPlace || undefined,
+    toPlace: filters.toPlace || undefined,
+    customer: filters.customer || undefined,
+    isCustomerSpecific:
+      filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
+  });
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  useEffect(() => {
+    if (data) {
+      setTableData(data.routes || data.results || []);
+    } else {
+      setTableData([]);
+    }
+  }, [data]);
 
-  const denseHeight = table.dense ? 56 : 76;
-
-  const canReset = !!filters.routeName || !!filters.fromPlace || !!filters.toPlace;
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
+  const { total, totalGeneric, totalCustomerSpecific } = data || {};
+  const totalCount = total || 0;
+  const notFound = !tableData.length && canReset;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.route.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -127,76 +111,28 @@ export function RouteListView({ routes }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    routeName: true,
-    fromPlace: true,
-    toPlace: true,
-    customer: true,
-    tollAmt: true,
-    noOfDays: true,
-    distance: true,
-    validFromDate: true,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      routeName: true, // Route name should always be visible
-      fromPlace: false,
-      toPlace: false,
-      customer: false,
-      tollAmt: false,
-      noOfDays: false,
-      distance: false,
-      validFromDate: false,
-    }),
-    []
-  );
-
-  // Add handler for toggling column visibility
-  const handleToggleColumn = useCallback(
-    (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      setSelectedCustomer(customer);
+      handleFilters('customer', customer._id);
     },
-    [disabledColumns]
+    [handleFilters]
   );
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
-
-  const getRouteLength = (type) => {
-    if (type === 'all') return tableData.length;
-    if (type === 'customer') return tableData.filter((item) => item.isCustomerSpecific).length;
-    return tableData.filter((item) => !item.isCustomerSpecific).length;
-  };
-
-  const getPercentByType = (type) => {
-    const length = getRouteLength(type);
-    return (length / tableData.length) * 100;
-  };
+  const handleClearCustomer = useCallback(() => {
+    setSelectedCustomer(null);
+    handleFilters('customer', '');
+  }, [handleFilters]);
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: getRouteLength('all') },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     {
       value: 'customer',
       label: 'Customer Specific',
       color: 'info',
-      count: getRouteLength('customer'),
+      count: totalCustomerSpecific,
     },
-    { value: 'general', label: 'General', color: 'success', count: getRouteLength('general') },
+    { value: 'general', label: 'General', color: 'success', count: totalGeneric },
   ];
 
   const handleFilterRouteType = useCallback(
@@ -207,301 +143,172 @@ export function RouteListView({ routes }) {
   );
 
   return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Route List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Route',
-              href: paths.dashboard.route.root,
-            },
-            {
-              name: 'Route List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.route.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Route
-            </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
-
-        {/* Add Analytics Section */}
-        <Card sx={{ mb: { xs: 3, md: 5 } }}>
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <RouteAnalytics
-                title="Total"
-                total={getRouteLength('all')}
-                percent={100}
-                icon="solar:route-bold-duotone"
-                color={theme.palette.info.main}
-              />
-
-              <RouteAnalytics
-                title="Customer Specific"
-                total={getRouteLength('customer')}
-                percent={getPercentByType('customer')}
-                icon="solar:users-group-rounded-bold-duotone"
-                color={theme.palette.warning.main}
-              />
-
-              <RouteAnalytics
-                title="General"
-                total={getRouteLength('general')}
-                percent={getPercentByType('general')}
-                icon="solar:road-bold-duotone"
-                color={theme.palette.success.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
-
-        {/* Table Section */}
-        <Card>
-          {/* Add Tabs */}
-          <Tabs
-            value={filters.routeType}
-            onChange={handleFilterRouteType}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Route List"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Route', href: paths.dashboard.route.root },
+          { name: 'Route List' },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.route.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
+            New Route
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      <Card>
+        <Tabs
+          value={filters.routeType}
+          onChange={handleFilterRouteType}
+          sx={{
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+          }}
+        >
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                isLoading ? (
+                  <CircularProgress size={16} />
+                ) : (
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.routeType) && 'filled') ||
-                      'soft'
+                      (tab.value === 'all' || tab.value === filters.routeType) &&
+                      'filled'
                     }
                     color={tab.color}
                   >
                     {tab.count}
                   </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <RouteTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
-
-          {canReset && (
-            <RouteTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row._id)
                 )
               }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'filtered');
-                      }}
-                    >
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
             />
+          ))}
+        </Tabs>
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <RouteTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteRoute(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+        <RouteTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={toggleColumnVisibility}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          selectedCustomer={selectedCustomer}
+          onSelectCustomer={handleSelectCustomer}
+        />
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
+        {canReset && (
+          <RouteTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={() => {
+              handleResetFilters()
+              setSelectedCustomer(null)
             }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+            selectedCustomerName={selectedCustomer?.customerName}
+            onRemoveCustomer={handleClearCustomer}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
+                      exportToExcel(
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        'filtered'
+                      );
+                    }}
+                  >
+                    <Iconify icon="eva:download-outline" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  )
+                }
+              />
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                    <TableSkeleton key={i} />
+                  ))
+                  : tableData.map((row) => (
+                    <RouteTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteRoute(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { routeName, fromPlace, toPlace, routeType } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (routeName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.routeName && record.routeName.toLowerCase().indexOf(routeName.toLowerCase()) !== -1
-    );
-  }
-
-  if (fromPlace) {
-    inputData = inputData.filter(
-      (record) =>
-        record.fromPlace && record.fromPlace.toLowerCase().indexOf(fromPlace.toLowerCase()) !== -1
-    );
-  }
-
-  if (toPlace) {
-    inputData = inputData.filter(
-      (record) =>
-        record.toPlace && record.toPlace.toLowerCase().indexOf(toPlace.toLowerCase()) !== -1
-    );
-  }
-
-  if (routeType !== 'all') {
-    inputData = inputData.filter((record) =>
-      routeType === 'customer' ? record.isCustomerSpecific : !record.isCustomerSpecific
-    );
-  }
-
-  return inputData;
 }

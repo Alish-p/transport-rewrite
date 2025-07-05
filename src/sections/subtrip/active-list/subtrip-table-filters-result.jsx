@@ -21,6 +21,7 @@ export default function SubtripTableFiltersResult({
   selectedVehicleNo,
   selectedDriverName,
   selectedTransporterName,
+  selectedRouteName,
   ...other
 }) {
   const handleRemoveSubtripStatus = () => {
@@ -55,6 +56,10 @@ export default function SubtripTableFiltersResult({
 
   const handleRemoveDriver = () => {
     onFilters('driverId', '');
+  };
+
+  const handleRemoveRoute = () => {
+    onFilters('routeId', '');
   };
 
   const handleRemoveMaterials = (value) => {
@@ -116,6 +121,16 @@ export default function SubtripTableFiltersResult({
               size="small"
               label={selectedDriverName || filters.driverId}
               onDelete={handleRemoveDriver}
+            />
+          </Block>
+        )}
+
+        {filters.routeId && (
+          <Block label="Route:">
+            <Chip
+              size="small"
+              label={selectedRouteName || filters.routeId}
+              onDelete={handleRemoveRoute}
             />
           </Block>
         )}

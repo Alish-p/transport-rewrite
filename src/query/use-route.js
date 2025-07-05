@@ -1,5 +1,10 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -52,11 +57,54 @@ const deleteRoute = async (id) => {
   return data;
 };
 
+const getPaginatedRoutes = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 // Queries & Mutations
 export function useRoutes(customerId, genericRoutes) {
   return useQuery({
     queryKey: [QUERY_KEY, customerId, genericRoutes],
     queryFn: getRoutes,
+  });
+}
+
+export function usePaginatedRoutes(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedRoutes(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteRoutes(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPaginatedRoutes({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) =>
+          acc +
+          (page.routes
+            ? page.routes.length
+            : page.results
+            ? page.results.length
+            : 0),
+        0
+      );
+      const totalCount =
+        lastPage.total ??
+        (lastPage.totals ? lastPage.totals.all?.count : undefined) ??
+        0;
+      return totalFetched < totalCount ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 
@@ -107,7 +155,7 @@ export function useDeleteRoute() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteRoute(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Route deleted successfully!');
     },

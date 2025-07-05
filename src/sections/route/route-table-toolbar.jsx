@@ -1,26 +1,28 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
+// @mui
 import Stack from '@mui/material/Stack';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
-// @mui
+import { Tooltip, MenuList, MenuItem } from '@mui/material';
 
-// components
+import { useBoolean } from 'src/hooks/use-boolean';
 
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import RouteListPdf from 'src/pdfs/route-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import RouteListPdf from '../../pdfs/route-list-pdf';
+import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
-// ----------------------------------------------------------------------
+import { TABLE_COLUMNS } from './route-table-config';
 
 export default function RouteTableToolbar({
   filters,
@@ -29,9 +31,13 @@ export default function RouteTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
+  selectedCustomer,
+  onSelectCustomer,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const customerDialog = useBoolean();
 
   const handleFilterRouteName = useCallback(
     (event) => {
@@ -54,19 +60,23 @@ export default function RouteTableToolbar({
     [onFilters]
   );
 
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      if (onSelectCustomer) {
+        onSelectCustomer(customer);
+      }
+      onFilters('customer', customer._id);
+    },
+    [onFilters, onSelectCustomer]
+  );
+
   return (
     <>
       <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
-        sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
-        }}
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
         <TextField
           fullWidth
@@ -110,6 +120,13 @@ export default function RouteTableToolbar({
           }}
         />
 
+        <DialogSelectButton
+          onClick={customerDialog.onTrue}
+          placeholder="Search customer"
+          selected={selectedCustomer?.customerName}
+          iconName="mdi:office-building"
+        />
+
         <Tooltip title="Column Settings">
           <IconButton onClick={columnsPopover.onOpen}>
             <Iconify icon="mdi:table-column-plus-after" />
@@ -127,27 +144,13 @@ export default function RouteTableToolbar({
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText
-                primary={
-                  column
-                    .replace(/([A-Z])/g, ' $1')
-                    .charAt(0)
-                    .toUpperCase() + column.replace(/([A-Z])/g, ' $1').slice(1)
-                }
-                secondary={disabledColumns[column] ? '(Always visible)' : null}
-              />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -182,24 +185,26 @@ export default function RouteTableToolbar({
 
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Routes-list'
+              );
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Routes-list');
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
+            <Iconify icon="eva:download-fill" />
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleSelectCustomer}
+      />
     </>
   );
 }

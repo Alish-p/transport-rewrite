@@ -54,6 +54,7 @@ const defaultFilters = {
   vehicleNo: '',
   transportName: '',
   driverId: '',
+  routeId: '',
   subtripStatus: 'all',
   fromDate: null,
   toDate: null,
@@ -76,6 +77,7 @@ export function SubtripListView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
 
   // Column visibility logic handled via custom hook
   const { visibleColumns, disabledColumns, toggleColumnVisibility, toggleAllColumnsVisibility } =
@@ -92,6 +94,7 @@ export function SubtripListView() {
     customerId: filters.customerId || undefined,
     vehicleId: filters.vehicleNo || undefined,
     driverId: filters.driverId || undefined,
+    routeId: filters.routeId || undefined,
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
     subtripEndFromDate: filters.subtripEndFromDate || undefined,
@@ -113,6 +116,7 @@ export function SubtripListView() {
     !!filters.subtripId ||
     !!filters.customerId ||
     !!filters.driverId ||
+    !!filters.routeId ||
     !!filters.transportName ||
     filters.materials.length > 0 ||
     filters.subtripStatus !== 'all' ||
@@ -130,7 +134,6 @@ export function SubtripListView() {
     'billed-overdue': data?.totalBilledOverdue || 0,
     'billed-paid': data?.totalBilledPaid || 0,
   };
-
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
@@ -197,6 +200,9 @@ export function SubtripListView() {
       if (name === 'transportName' && !value) {
         setSelectedTransporter(null);
       }
+      if (name === 'routeId' && !value) {
+        setSelectedRoute(null);
+      }
     },
     [table]
   );
@@ -251,12 +257,21 @@ export function SubtripListView() {
     [handleFilters]
   );
 
+  const handleSelectRoute = useCallback(
+    (route) => {
+      setSelectedRoute(route);
+      handleFilters('routeId', route._id);
+    },
+    [handleFilters]
+  );
+
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
     setSelectedCustomer(null);
     setSelectedVehicle(null);
     setSelectedDriver(null);
     setSelectedTransporter(null);
+    setSelectedRoute(null);
   }, []);
 
   // Add handler for toggling column visibility
@@ -360,6 +375,8 @@ export function SubtripListView() {
           onSelectVehicle={handleSelectVehicle}
           selectedDriver={selectedDriver}
           onSelectDriver={handleSelectDriver}
+          selectedRoute={selectedRoute}
+          onSelectRoute={handleSelectRoute}
         />
 
         {canReset && (
@@ -371,6 +388,9 @@ export function SubtripListView() {
             selectedCustomerName={selectedCustomer?.customerName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedDriverName={selectedDriver?.driverName}
+            selectedRouteName={
+              selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
+            }
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />

@@ -428,7 +428,7 @@ export default function SubtripCreateForm({ currentTrip, trips, onSuccess }) {
         open={routeDialog.value}
         onClose={routeDialog.onFalse}
         onRouteChange={handleRouteChange}
-        customerId={selectedCustomer?._id}
+        mode='generic'
       />
     </Form>
   );
