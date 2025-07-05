@@ -1,4 +1,5 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -8,24 +9,20 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
-
-// _mock
-
-import { useNavigate } from 'react-router';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteRoute, usePaginatedRoutes } from 'src/query/use-route';
@@ -33,7 +30,6 @@ import { useDeleteRoute, usePaginatedRoutes } from 'src/query/use-route';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -45,36 +41,22 @@ import {
 } from 'src/components/table';
 
 import RouteTableRow from '../route-table-row';
+import { TABLE_COLUMNS } from '../route-table-config';
 import RouteTableToolbar from '../route-table-toolbar';
 import RouteTableFiltersResult from '../route-table-filters-result';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'routeName', label: 'Route Name', align: 'left' },
-  { id: 'fromPlace', label: 'From Place', align: 'center' },
-  { id: 'toPlace', label: 'To Place', align: 'center' },
-  { id: 'customer', label: 'Customer', align: 'center' },
-  { id: 'noOfDays', label: 'Number of Days', align: 'center' },
-  { id: 'distance', label: 'Distance', align: 'center' },
-  { id: '' },
-];
 
 const defaultFilters = {
   routeName: '',
   fromPlace: '',
   toPlace: '',
+  customer: '',
   routeType: 'all',
 };
-
-// ----------------------------------------------------------------------
 
 export function RouteListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
-  const confirm = useBoolean();
   const theme = useTheme();
-
   const navigate = useNavigate();
   const deleteRoute = useDeleteRoute();
 
@@ -82,13 +64,25 @@ export function RouteListView() {
     onResetPage: table.onResetPage,
   });
 
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
+
   const { data, isLoading } = usePaginatedRoutes({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     routeName: filters.routeName || undefined,
     fromPlace: filters.fromPlace || undefined,
     toPlace: filters.toPlace || undefined,
-    isCustomerSpecific: filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
+    customer: filters.customer || undefined,
+    isCustomerSpecific:
+      filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
   });
 
   const [tableData, setTableData] = useState([]);
@@ -100,14 +94,13 @@ export function RouteListView() {
   }, [data]);
 
   const { total, totalGeneric, totalCustomerSpecific } = data || {};
-
+  const totalCount = total || 0;
   const notFound = !tableData.length && canReset;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.route.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -116,55 +109,21 @@ export function RouteListView() {
     [router]
   );
 
-  // Add state for column visibility
-  const [visibleColumns, setVisibleColumns] = useState({
-    routeName: true,
-    fromPlace: true,
-    toPlace: true,
-    customer: true,
-    tollAmt: true,
-    noOfDays: true,
-    distance: true,
-    validFromDate: true,
-  });
-
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      routeName: true, // Route name should always be visible
-      fromPlace: false,
-      toPlace: false,
-      customer: false,
-      tollAmt: false,
-      noOfDays: false,
-      distance: false,
-      validFromDate: false,
-    }),
-    []
-  );
-
-  // Add handler for toggling column visibility
-  const handleToggleColumn = useCallback(
-    (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+  const handleSelectCustomer = useCallback(
+    (customer) => {
+      setSelectedCustomer(customer);
+      handleFilters('customer', customer._id);
     },
-    [disabledColumns]
+    [handleFilters]
   );
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
-
+  const handleClearCustomer = useCallback(() => {
+    setSelectedCustomer(null);
+    handleFilters('customer', '');
+  }, [handleFilters]);
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: total },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
     {
       value: 'customer',
       label: 'Customer Specific',
@@ -182,215 +141,172 @@ export function RouteListView() {
   );
 
   return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Route List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Route',
-              href: paths.dashboard.route.root,
-            },
-            {
-              name: 'Route List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.route.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Route
-            </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
-
-
-        {/* Table Section */}
-        <Card>
-          {/* Add Tabs */}
-          <Tabs
-            value={filters.routeType}
-            onChange={handleFilterRouteType}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Route List"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Route', href: paths.dashboard.route.root },
+          { name: 'Route List' },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.route.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
+            New Route
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      <Card>
+        <Tabs
+          value={filters.routeType}
+          onChange={handleFilterRouteType}
+          sx={{
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+          }}
+        >
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                isLoading ? (
+                  <CircularProgress size={16} />
+                ) : (
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.routeType) && 'filled') ||
-                      'soft'
+                      (tab.value === 'all' || tab.value === filters.routeType) &&
+                      'filled'
                     }
                     color={tab.color}
                   >
                     {tab.count}
                   </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <RouteTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            tableData={tableData}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-          />
-
-          {canReset && (
-            <RouteTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={total}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
                 )
               }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        exportToExcel(selectedRows, 'filtered');
-                      }}
-                    >
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
             />
+          ))}
+        </Tabs>
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
-                    : tableData.map((row) => (
-                      <RouteTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteRoute(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+        <RouteTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          tableData={tableData}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={toggleColumnVisibility}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          selectedCustomer={selectedCustomer}
+          onSelectCustomer={handleSelectCustomer}
+        />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={total}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
+        {canReset && (
+          <RouteTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={() => {
+              handleResetFilters()
+              setSelectedCustomer(null)
             }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+            selectedCustomerName={selectedCustomer?.customerName}
+            onRemoveCustomer={handleClearCustomer}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
+                      exportToExcel(
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        'filtered'
+                      );
+                    }}
+                  >
+                    <Iconify icon="eva:download-outline" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  )
+                }
+              />
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                    <TableSkeleton key={i} />
+                  ))
+                  : tableData.map((row) => (
+                    <RouteTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteRoute(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }

@@ -14,9 +14,9 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Label } from 'src/components/label';
 import { fIsBetween } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -64,7 +64,7 @@ export default function DieselPriceTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => {}}
+                onClick={() => { }}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {pumpName}

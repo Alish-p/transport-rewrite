@@ -7,15 +7,14 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
-// types
-
-// ----------------------------------------------------------------------
 
 export default function RouteTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
+  selectedCustomerName,
+  onRemoveCustomer,
   ...other
 }) {
   const handleRemoveRouteName = () => {
@@ -28,6 +27,14 @@ export default function RouteTableFiltersResult({
 
   const handleRemoveToPlace = () => {
     onFilters('toPlace', '');
+  };
+
+  const handleRemoveCustomer = () => {
+    if (onRemoveCustomer) {
+      onRemoveCustomer();
+    } else {
+      onFilters('customer', '');
+    }
   };
 
   return (
@@ -58,19 +65,23 @@ export default function RouteTableFiltersResult({
           </Block>
         )}
 
-        <Button
-          color="error"
-          onClick={onResetFilters}
-          startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-        >
+        {filters.customer && (
+          <Block label="Customer:">
+            <Chip
+              size="small"
+              label={selectedCustomerName || filters.customer}
+              onDelete={handleRemoveCustomer}
+            />
+          </Block>
+        )}
+
+        <Button color="error" onClick={onResetFilters} startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}>
           Clear
         </Button>
       </Stack>
     </Stack>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function Block({ label, children, sx, ...other }) {
   return (
