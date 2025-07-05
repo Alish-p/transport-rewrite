@@ -17,15 +17,16 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import TripListPdf from 'src/pdfs/trip-list-pdf';
+
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { fDateRangeShortLabel } from '../../utils/format-time';
-import TripListPdf from 'src/pdfs/trip-list-pdf';
 import { TABLE_COLUMNS } from './trip-table-config';
+import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
