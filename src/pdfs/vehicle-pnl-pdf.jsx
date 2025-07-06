@@ -1,9 +1,9 @@
 import { Page, Font, Text, Document } from '@react-pdf/renderer';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
+import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
 Font.register({
   family: 'Roboto',
@@ -14,32 +14,61 @@ Font.register({
 });
 
 export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips = [] }) {
-  const headers = [
-    'S.No',
-    'ID',
-    'Customer',
-    'Route',
-    'Date',
-    'Weight',
-    'Rate',
-    'Amount',
-    'Expense',
-    'Net Profit',
+  const columns = [
+    { header: 'S.No', accessor: 'sno', width: '4%' },
+    { header: 'ID', accessor: 'id', width: '8%' },
+    { header: 'Customer', accessor: 'customer', width: '18%' },
+    { header: 'Route', accessor: 'route', width: '18%' },
+    { header: 'Date', accessor: 'date', width: '10%' },
+    {
+      header: 'Weight',
+      accessor: 'weight',
+      width: '8%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    { header: 'Rate', accessor: 'rate', width: '8%', align: 'right', formatter: (v) => fNumber(v) },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      width: '10%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Expense',
+      accessor: 'expense',
+      width: '8%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Net Profit',
+      accessor: 'netProfit',
+      width: '8%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
   ];
 
-  const data = subtrips.map((st, idx) => [
-    idx + 1,
-    st._id || '-',
-    st.customerName || '-',
-    st.routeName || '-',
-    fDateRangeShortLabel(st.startDate, st.endDate),
-    st.loadingWeight,
-    st.rate,
-    fCurrency(st.amt || 0),
-    fCurrency(st.totalExpense || 0),
-    fCurrency((st.amt || 0) - (st.totalExpense || 0)),
-  ]);
+  const tableData = subtrips.map((st, idx) => ({
+    sno: idx + 1,
+    id: st._id || '-',
+    customer: st.customerName || '-',
+    route: st.routeName || '-',
+    date: fDateRangeShortLabel(st.startDate, st.endDate),
+    weight: st.loadingWeight,
+    rate: st.rate,
+    amount: st.amt || 0,
+    expense: st.totalExpense || 0,
+    netProfit: (st.amt || 0) - (st.totalExpense || 0),
+  }));
 
+  const totalWeight = subtrips.reduce((sum, st) => sum + (st.loadingWeight || 0), 0);
   const totalAmt = subtrips.reduce((sum, st) => sum + (st.amt || 0), 0);
   const totalExpense = subtrips.reduce((sum, st) => sum + (st.totalExpense || 0), 0);
   const netTotal = totalAmt - totalExpense;
@@ -53,14 +82,16 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
         <PDFHeader />
 
         {/* Subtrip Table */}
-        <PDFTable headers={headers} data={data} columnWidths={[1, 2, 2, 2, 2, 1, 1, 1, 1, 1]} />
+        <NewPDFTable columns={columns} data={tableData} showTotals totalRowLabel="TOTAL" />
 
         {/* Summary Section */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
         <PDFTable
-          headers={['Total Amount', 'Total Expense', 'Net Profit']}
-          data={[[fCurrency(totalAmt), fCurrency(totalExpense), fCurrency(netTotal)]]}
-          columnWidths={[2, 2, 2]}
+          headers={['Total Weight', 'Total Amount', 'Total Expense', 'Net Profit']}
+          data={[
+            [fNumber(totalWeight), fNumber(totalAmt), fNumber(totalExpense), fNumber(netTotal)],
+          ]}
+          columnWidths={[2, 2, 2, 2]}
         />
       </Page>
     </Document>
