@@ -257,6 +257,17 @@ export const TABLE_COLUMNS = [
     align: 'center',
   },
   {
+    id: 'freightAmount',
+    label: 'Freight Amount',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) =>
+      row?.rate && row?.loadingWeight
+        ? row.rate * row.loadingWeight
+        : '-',
+    align: 'center',
+  },
+  {
     id: 'commissionRate',
     label: 'Commission Rate',
     defaultVisible: false,
