@@ -28,6 +28,9 @@ export function DialogSelectButton({
         height: 56,
         justifyContent: 'flex-start',
         typography: 'body2',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
         color: selected ? 'text.primary' : 'text.disabled',
         borderColor: (theme) =>
           error
