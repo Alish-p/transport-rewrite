@@ -4,6 +4,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
+import { fNumber } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 
@@ -254,6 +255,15 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.rate || '-',
+    align: 'center',
+  },
+  {
+    id: 'freightAmount',
+    label: 'Freight Amount',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) =>
+      row?.rate && row?.loadingWeight ? fNumber(row.rate * row.loadingWeight) : '-',
     align: 'center',
   },
   {
