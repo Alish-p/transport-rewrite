@@ -50,6 +50,7 @@ const defaultFilters = {
   vehicleNo: '',
   transporter: '',
   vehicleType: '',
+  noOfTyres: '',
   isOwn: 'all',
 };
 
@@ -83,6 +84,7 @@ export function VehicleListView() {
     rowsPerPage: table.rowsPerPage,
     vehicleNo: filters.vehicleNo || undefined,
     vehicleType: filters.vehicleType || undefined,
+    noOfTyres: filters.noOfTyres || undefined,
     transporter: filters.transporter || undefined,
     isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
   });

@@ -72,6 +72,13 @@ export default function VehicleTableToolbar({
     [onFilters]
   );
 
+  const handleFilterNoOfTyres = useCallback(
+    (event) => {
+      onFilters('noOfTyres', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -119,12 +126,27 @@ export default function VehicleTableToolbar({
           </Select>
         </FormControl>
 
+        <TextField
+          fullWidth
+          type="number"
+          value={filters.noOfTyres}
+          onChange={handleFilterNoOfTyres}
+          placeholder="Search No Of Tyres..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ maxWidth: { xs: 1, md: 300 } }}
+        />
+
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
           placeholder="Search transporter"
           selected={selectedTransporter?.transportName}
           iconName="mdi:truck"
-          sx={{ borderColor: '#DFE3E8', width: { xs: 1, md: 450 } }}
         />
 
         <Tooltip title="Column Settings">

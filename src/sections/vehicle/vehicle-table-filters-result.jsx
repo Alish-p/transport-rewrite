@@ -34,6 +34,10 @@ export default function InvoiceTableFiltersResult({
     onFilters('vehicleNo', '');
   };
 
+  const handleRemoveNoOfTyres = () => {
+    onFilters('noOfTyres', '');
+  };
+
   const handleRemoveIsOwn = () => {
     onFilters('isOwn', 'all');
   };
@@ -67,6 +71,12 @@ export default function InvoiceTableFiltersResult({
         {filters.vehicleNo && (
           <Block label="Vehicle No:">
             <Chip size="small" label={filters.vehicleNo} onDelete={handleRemoveVehicleNo} />
+          </Block>
+        )}
+
+        {filters.noOfTyres && (
+          <Block label="No Of Tyres:">
+            <Chip size="small" label={filters.noOfTyres} onDelete={handleRemoveNoOfTyres} />
           </Block>
         )}
 

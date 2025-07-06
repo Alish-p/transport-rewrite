@@ -97,7 +97,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.remarks || '-',
   },
   {
-    id: 'dieselLtr',
+    id: 'dieselRate',
     label: 'Diesel Rate (₹/Ltr)',
     defaultVisible: false,
     disabled: false,
