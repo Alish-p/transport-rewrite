@@ -1,4 +1,5 @@
 import { TABLE_COLUMNS } from 'src/sections/trip/trip-table-config';
+
 import GenericListPdf from './generic-list-pdf';
 
 export default function TripListPdf({ trips, visibleColumns = [] }) {

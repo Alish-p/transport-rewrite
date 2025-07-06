@@ -23,7 +23,6 @@ export default function InvoicePdf({ invoice }) {
     issueDate,
     invoiceNo,
     subtripSnapshot,
-    totalAmountBeforeTax,
     netTotal,
     additionalCharges = [],
     taxBreakup,

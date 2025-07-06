@@ -7,8 +7,9 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { Label } from 'src/components/label';
 import { fDate, fTime } from 'src/utils/format-time';
+
+import { Label } from 'src/components/label';
 
 export const TABLE_COLUMNS = [
   {

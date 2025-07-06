@@ -1,7 +1,8 @@
 import { View, Text } from '@react-pdf/renderer';
 
-import PDFStyles from './styles';
 import { fNumber } from 'src/utils/format-number';
+
+import PDFStyles from './styles';
 
 export default function NewPDFTable({
   columns = [],
