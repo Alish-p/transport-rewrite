@@ -4,7 +4,7 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
-import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
+import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
 import { CONFIG } from '../config-global';
 import PDFBillToSection from './common/PDFBillTo';
@@ -30,69 +30,156 @@ export default function InvoicePdf({ invoice }) {
   } = invoice || {};
 
   const renderInvoiceTable = () => {
-    const headers = [
-      'S.No',
-      'Consignee',
-      'Destination',
-      'Invoice No',
-      'Disp. Date',
-      'LR No',
-      'Vehicle',
-      'Material',
-      'Freight Rate',
-      'Dispatch Weight',
-      'Freight Amount',
-      'Shortage Weight',
+    const columns = [
+      { header: 'S.No', accessor: 'sno', width: '4%' },
+      { header: 'Consignee', accessor: 'consignee', width: '16%' },
+      { header: 'Destination', accessor: 'destination', width: '12%' },
+      { header: 'Invoice No', accessor: 'invoiceNo', width: '9%' },
+      { header: 'Disp. Date', accessor: 'dispDate', width: '10%' },
+      { header: 'LR No', accessor: 'lrNo', width: '7%' },
+      { header: 'Vehicle', accessor: 'vehicle', width: '8%' },
+      { header: 'Material', accessor: 'material', width: '8%' },
+      {
+        header: 'Freight Rate ( ₹ )',
+        accessor: 'freightRate',
+        width: '8%',
+        align: 'right',
+        formatter: (v) => fNumber(v),
+      },
+      {
+        header: 'Dispatch Weight',
+        accessor: 'dispatchWeight',
+        width: '8%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      {
+        header: 'Freight Amount ( ₹ )',
+        accessor: 'freightAmount',
+        width: '10%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      {
+        header: 'Shortage Weight',
+        accessor: 'shortageWeight',
+        width: '9%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
     ];
 
-    const data = subtripSnapshot.map((subtrip, index) => [
-      index + 1,
-      subtrip.consignee,
-      subtrip.unloadingPoint,
-      subtrip.invoiceNo,
-      fDate(subtrip.startDate),
-      subtrip.subtripId,
-      subtrip.vehicleNo,
-      subtrip.materialType || '-',
-      fCurrency(subtrip.rate),
-      subtrip.loadingWeight,
-      fCurrency(subtrip.freightAmount),
-      fNumber(subtrip.shortageWeight),
-    ]);
+    const tableData = subtripSnapshot.map((subtrip, index) => ({
+      sno: index + 1,
+      consignee: subtrip.consignee,
+      destination: subtrip.unloadingPoint,
+      invoiceNo: subtrip.invoiceNo,
+      dispDate: fDate(subtrip.startDate),
+      lrNo: subtrip.subtripId,
+      vehicle: subtrip.vehicleNo,
+      material: subtrip.materialType || '-',
+      freightRate: subtrip.rate,
+      dispatchWeight: subtrip.loadingWeight,
+      freightAmount: subtrip.freightAmount,
+      shortageWeight: subtrip.shortageWeight,
+    }));
 
-    const columnWidths = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    // Create extra rows for tax breakdown
+    const createExtraRows = () => {
+      const extraRows = [];
 
-    return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
-  };
+      // Add tax breakdown rows
+      if (taxBreakup.cgst.rate !== 0) {
+        extraRows.push({
+          cells: [
+            { startIndex: 0, colspan: 9, value: '', align: 'left' }, // Empty cell spanning first 10 columns
+            { startIndex: 9, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
+            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.cgst.amount), align: 'right' },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' }
 
-  const renderTaxBreakup = () => {
-    const totalWeight = subtripSnapshot.reduce((acc, subtrip) => acc + subtrip.loadingWeight, 0);
-    const headers = [' ', fNumber(totalWeight), fCurrency(totalAmountBeforeTax), ' '];
+          ],
+          highlight: false
+        });
+      }
 
-    const data = [headers];
+      if (taxBreakup.sgst.rate !== 0) {
+        extraRows.push({
+          cells: [
+            { startIndex: 0, colspan: 9, value: '', align: 'left' },
+            { startIndex: 9, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
+            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.sgst.amount), align: 'right' },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' }
 
-    if (taxBreakup.cgst.rate !== 0) {
-      data.push([' ', `CGST-${taxBreakup.cgst.rate}%`, fCurrency(taxBreakup.cgst.amount), ' ']);
-    }
+          ],
+          highlight: false
+        });
+      }
 
-    if (taxBreakup.sgst.rate !== 0) {
-      data.push([' ', `SGST-${taxBreakup.sgst.rate}%`, fCurrency(taxBreakup.sgst.amount), ' ']);
-    }
+      if (taxBreakup.igst.rate !== 0) {
+        extraRows.push({
+          cells: [
+            { startIndex: 0, colspan: 9, value: '', align: 'left' },
+            { startIndex: 9, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
+            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.igst.amount), align: 'right' },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' }
+          ],
+          highlight: false
+        });
+      }
 
-    if (taxBreakup.igst.rate !== 0) {
-      data.push([' ', `IGST-${taxBreakup.igst.rate}%`, fCurrency(taxBreakup.igst.amount), ' ']);
-    }
+      // Add additional charges
+      if (additionalCharges.length > 0) {
+        additionalCharges.forEach(({ label, amount }) => {
+          extraRows.push({
+            cells: [
+              { startIndex: 0, colspan: 9, value: '', align: 'left' },
+              { startIndex: 9, colspan: 1, value: label, align: 'right' },
+              { startIndex: 10, colspan: 1, value: fCurrency(amount), align: 'right' },
+              { startIndex: 11, colspan: 1, value: '', align: 'right' }
+            ],
+            highlight: false
+          });
+        });
+      }
 
-    if (additionalCharges.length > 0) {
-      additionalCharges.forEach(({ label, amount }) => {
-        data.push([' ', label, fCurrency(amount), ' ']);
+      // Add net total row
+      extraRows.push({
+        cells: [
+          { startIndex: 0, colspan: 9, value: '', align: 'left' },
+          { startIndex: 9, colspan: 1, value: 'Net Total', align: 'right' },
+          { startIndex: 10, colspan: 1, value: fCurrency(netTotal), align: 'right' },
+          { startIndex: 11, colspan: 1, value: '', align: 'right' }
+        ],
+        highlight: true
       });
-    }
 
-    data.push([' ', 'Net Total', fCurrency(netTotal), ' ']);
+      return extraRows;
+    };
 
-    return <PDFTable headers={headers} data={data} columnWidths={[10, 1, 1, 1]} hideHeader />;
+    const cellStyler = (row, column) => {
+      if (column.accessor === 'shortageWeight' && row.shortageWeight > 0) {
+        return 'textDanger';
+      }
+      return null;
+    };
+
+    return (
+      <NewPDFTable
+        columns={columns}
+        data={tableData}
+        showTotals
+        totalRowLabel="TOTAL"
+        cellStyler={cellStyler}
+        extraRows={createExtraRows()}
+      />
+    );
   };
+
+
+
 
   return (
     <Document>
@@ -123,7 +210,6 @@ export default function InvoicePdf({ invoice }) {
         />
 
         {renderInvoiceTable()}
-        {renderTaxBreakup()}
         <PDFInvoiceFooter
           declaration="I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us."
           signatory="For Shree Enterprises"
