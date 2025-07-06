@@ -8,7 +8,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -21,19 +21,19 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.invoiceNo,
-    render: (value, row) => (
+    render: ({ _id, invoiceNo }) => (
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <ListItemText
           disableTypography
           primary={
             <Link
               component={RouterLink}
-              to={paths.dashboard.invoice.details(row._id)}
+              to={paths.dashboard.invoice.details(_id)}
               variant="body2"
               noWrap
               sx={{ color: 'primary.main' }}
             >
-              {value}
+              {invoiceNo}
             </Link>
           }
         />
@@ -56,14 +56,15 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.invoicedSubTrips ? row.invoicedSubTrips.join(', ') : '',
-    render: (value) => (
-      <Tooltip title={value}>
+    render: (row) => {
+      const value = row.invoicedSubTrips ? row.invoicedSubTrips.join(', ') : '';
+      return <Tooltip title={value}>
         <ListItemText
           primary={wrapText(value, 20)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </Tooltip>
-    ),
+    }
   },
 
   {
@@ -73,12 +74,12 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.invoiceStatus,
-    render: (value) => (
+    render: ({ invoiceStatus }) => (
       <Label
         variant="soft"
-        color={value === 'paid' ? 'success' : value === 'overdue' ? 'error' : 'warning'}
+        color={invoiceStatus === 'paid' ? 'success' : invoiceStatus === 'overdue' ? 'error' : 'warning'}
       >
-        {value}
+        {invoiceStatus}
       </Label>
     ),
   },
@@ -88,11 +89,11 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'center',
-    getter: (row) => row.issueDate,
-    render: (value) => (
+    getter: (row) => fDateTime(row.issueDate),
+    render: ({ issueDate }) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={fDate(new Date(issueDate))}
+        secondary={fTime(new Date(issueDate))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
       />
@@ -104,10 +105,10 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'center',
-    getter: (row) => row.dueDate,
-    render: (value) => (
+    getter: (row) => fDateTime(row.dueDate),
+    render: ({ dueDate }) => (
       <ListItemText
-        primary={fDate(new Date(value))}
+        primary={fDate(new Date(dueDate))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
     ),
@@ -119,9 +120,9 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => row.netTotal,
-    render: (value) => (
+    render: ({ netTotal }) => (
       <ListItemText
-        primary={fCurrency(value)}
+        primary={fCurrency(netTotal)}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
     ),
@@ -133,12 +134,15 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => row.taxBreakup?.cgst?.amount || 0,
-    render: (value) => (
-      <ListItemText
+    render: (row) => {
+      const value = row.taxBreakup?.cgst?.amount || 0;
+      return < ListItemText
         primary={fCurrency(value)}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
-    ),
+    }
+
+
   },
   {
     id: 'sgst',
@@ -147,12 +151,13 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => row.taxBreakup?.sgst?.amount || 0,
-    render: (value) => (
-      <ListItemText
+    render: (row) => {
+      const value = row.taxBreakup?.sgst?.amount || 0;
+      return < ListItemText
         primary={fCurrency(value)}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
-    ),
+    }
   },
   {
     id: 'igst',
@@ -161,11 +166,12 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => row.taxBreakup?.igst?.amount || 0,
-    render: (value) => (
-      <ListItemText
+    render: (row) => {
+      const value = row.taxBreakup?.igst?.amount || 0;
+      return < ListItemText
         primary={fCurrency(value)}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
-    ),
+    }
   },
 ];

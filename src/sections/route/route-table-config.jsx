@@ -19,23 +19,23 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.routeName,
-    render: (value, row) => (
+    render: ({ routeName, _id }) => (
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={value} sx={{ mr: 2 }}>
-          {value.slice(0, 2).toUpperCase()}
+        <Avatar alt={routeName} sx={{ mr: 2 }}>
+          {routeName.slice(0, 2).toUpperCase()}
         </Avatar>
         <ListItemText
           disableTypography
           primary={
-            <Tooltip title={value}>
+            <Tooltip title={routeName}>
               <Link
                 component={RouterLink}
-                to={paths.dashboard.route.details(row._id)}
+                to={paths.dashboard.route.details(_id)}
                 variant="body2"
                 noWrap
                 sx={{ color: 'primary.main' }}
               >
-                {wrapText(value, 20)}
+                {wrapText(routeName, 40)}
               </Link>
             </Tooltip>
           }
@@ -74,9 +74,9 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.noOfDays,
-    render: (value) => (
-      <Label variant="soft" color={value >= 5 ? 'success' : 'error'}>
-        {value}
+    render: ({ noOfDays }) => (
+      <Label variant="soft" color={noOfDays >= 5 ? 'success' : 'error'}>
+        {noOfDays}
       </Label>
     ),
   },

@@ -4,7 +4,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -19,13 +19,13 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.subtripId || '-',
     align: 'left',
-    render: (value) => (
+    render: ({ subtripId = '-' }) => (
       <RouterLink
-        to={`${paths.dashboard.subtrip.details(value)}`}
+        to={`${paths.dashboard.subtrip.details(subtripId)}`}
         style={{ color: 'green', textDecoration: 'underline' }}
       >
         <ListItemText
-          primary={value}
+          primary={subtripId}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </RouterLink>
@@ -46,14 +46,14 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row?.expenseType || '-',
-    render: (value) => (
+    render: ({ expenseType = "-" }) => (
       <Stack direction="row" alignItems="left" spacing={1}>
         <Iconify
-          icon={subtripExpenseTypes.find((type) => type.value === value)?.icon}
+          icon={subtripExpenseTypes.find((type) => type.value === expenseType)?.icon}
           sx={{ color: 'secondary.main' }}
         />
         <Typography variant="body2" noWrap>
-          {value}
+          {expenseType}
         </Typography>
       </Stack>
     ),
@@ -63,13 +63,13 @@ export const TABLE_COLUMNS = [
     label: 'Date',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => fDate(row?.date) || '-',
+    getter: (row) => fDateTime(row?.date) || '-',
     type: 'date',
     align: 'left',
-    render: (value, row) => (
+    render: ({ date = "-" }) => (
       <ListItemText
-        primary={fDate(new Date(row?.date))}
-        secondary={fTime(new Date(row?.date))}
+        primary={fDate(new Date(date))}
+        secondary={fTime(new Date(date))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
@@ -128,9 +128,9 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row?.expenseCategory || '-',
-    render: (value) => (
-      <Label variant="soft" color={EXPENSE_CATEGORY_COLORS[value] || 'default'}>
-        {value}
+    render: ({ expenseCategory = "-" }) => (
+      <Label variant="soft" color={EXPENSE_CATEGORY_COLORS[expenseCategory] || 'default'}>
+        {expenseCategory}
       </Label>
     ),
   },
