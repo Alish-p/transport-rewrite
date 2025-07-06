@@ -1,10 +1,10 @@
 import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
 import { wrapText } from 'src/utils/change-case';
-import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fDateTime, fDaysDuration } from 'src/utils/format-time';
 
-import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
+import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
@@ -17,75 +17,139 @@ Font.register({
 });
 
 export default function TripSheetPdf({ trip }) {
-  const {
-    _id: tripId,
-    fromDate,
-    endDate,
-    vehicleId,
-    driverId,
-    subtrips = [],
-  } = trip || {};
+  const { _id: tripId, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
 
   // Prepare subtrip table data
+  const subtripColumns = [
+    { header: 'S.No', accessor: 'sno', width: '4%' },
+    { header: 'LR No', accessor: 'id', width: '6%' },
+    { header: 'Customer', accessor: 'customer', width: '18%' },
+    { header: 'Route', accessor: 'route', width: '18%' },
+    { header: 'Start Date', accessor: 'startDate', width: '8%' },
+    { header: 'Received Date', accessor: 'endDate', width: '8%' },
+    {
+      header: 'Time Taken (Days)',
+      accessor: 'timeTaken',
+      width: '6%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Distance',
+      accessor: 'distance',
+      width: '6%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    { header: 'Material', accessor: 'material', width: '6%' },
+    {
+      header: 'Weight (T)',
+      accessor: 'weight',
+      width: '6%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Freight Rate',
+      accessor: 'rate',
+      width: '6%',
+      align: 'right',
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Income',
+      accessor: 'income',
+      width: '7%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Expense',
+      accessor: 'expense',
+      width: '7%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'Net Amount',
+      accessor: 'net',
+      width: '7%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+  ];
+
   const subtripData = subtrips.map((st, idx) => {
     const income = st.rate * st.loadingWeight;
     const expenseTotal = Array.isArray(st.expenses)
       ? st.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
       : 0;
     const net = income - expenseTotal;
-    return [
-      idx + 1,
-      st._id || '-',
-      st.customerId?.customerName || '-',
-      st.routeCd?.routeName || '-',
-      fDate(st?.startDate),
-      fDate(st?.endDate),
-      fDaysDuration(st?.startDate, st?.endDate),
-      `${st.endKm - st.startKm || 0} km`,
-      st.materialType,
-      st.loadingWeight,
-      st.rate,
-      fCurrency(income || 0),
-      fCurrency(expenseTotal || 0),
-      fCurrency(net || 0),
-    ];
-  });
 
-  const subtripHeaders = [
-    'Sr. No',
-    'LR No',
-    'Customer',
-    'Route',
-    'Start Date',
-    'Received Date',
-    'Time Taken(Days)',
-    'Distance',
-    'Material',
-    'Weight(T)',
-    'Freight Rate',
-    'Income',
-    'Expenses',
-    'Net Amount',
-  ];
+    return {
+      sno: idx + 1,
+      id: st._id || '-',
+      customer: st.customerId?.customerName || '-',
+      route: st.routeCd?.routeName || '-',
+      startDate: fDate(st.startDate),
+      endDate: fDate(st.endDate),
+      timeTaken: fDaysDuration(st.startDate, st.endDate) || 0,
+      distance: st.endKm - st.startKm || 0,
+      material: st.materialType || '-',
+      weight: st.loadingWeight || 0,
+      rate: st.rate || 0,
+      income,
+      expense: expenseTotal,
+      net,
+    };
+  });
 
   // Prepare flat expense table with global indexing
   let expenseIndex = 0;
+  const expenseColumns = [
+    { header: 'S.No', accessor: 'sno', width: '4%' },
+    { header: 'LR No', accessor: 'lrNo', width: '6%' },
+    { header: 'Type', accessor: 'type', width: '14%' },
+    { header: 'Date', accessor: 'date', width: '10%' },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      width: '8%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    {
+      header: 'LTR',
+      accessor: 'ltr',
+      width: '8%',
+      align: 'right',
+      showTotal: true,
+      formatter: (v) => fNumber(v),
+    },
+    { header: 'Remarks', accessor: 'remarks', width: '50%' },
+  ];
+
   const allExpenses = subtrips.flatMap((st) =>
     (st.expenses || []).map((e) => {
       expenseIndex += 1;
-      return [
-        expenseIndex,
-        st._id || '-',
-        e.expenseType,
-        fDateTime(e.date),
-        fCurrency(e.amount),
-        e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? `${e.dieselLtr} LTR` : '-',
-        wrapText(e.remarks, 60),
-      ];
+      return {
+        sno: expenseIndex,
+        lrNo: st._id || '-',
+        type: e.expenseType,
+        date: fDateTime(e.date),
+        amount: e.amount || 0,
+        ltr: e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? e.dieselLtr || 0 : 0,
+        remarks: wrapText(e.remarks, 60),
+      };
     })
   );
-
-  const expenseHeaders = ['Sr. No', 'LR No', 'Type', 'Date', 'Amount', 'LTR', 'Remarks'];
 
   // Summary calculations
   const totalIncome = subtrips.reduce((sum, st) => sum + (st.rate * st.loadingWeight || 0), 0);
@@ -103,9 +167,9 @@ export default function TripSheetPdf({ trip }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-          0
-        )
+            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+            0
+          )
         : 0),
     0
   );
@@ -141,19 +205,11 @@ export default function TripSheetPdf({ trip }) {
 
         {/* Subtrip Table */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Subtrip Details</Text>
-        <PDFTable
-          headers={subtripHeaders}
-          data={subtripData}
-          columnWidths={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
-        />
+        <NewPDFTable columns={subtripColumns} data={subtripData} showTotals totalRowLabel="TOTAL" />
 
         {/* Expense Table */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Expense Details</Text>
-        <PDFTable
-          headers={expenseHeaders}
-          data={allExpenses}
-          columnWidths={[1, 1, 1, 2, 1, 1, 5]}
-        />
+        <NewPDFTable columns={expenseColumns} data={allExpenses} showTotals totalRowLabel="TOTAL" />
 
         {/* Summary Section */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
@@ -171,9 +227,9 @@ export default function TripSheetPdf({ trip }) {
               `${fNumber(totalKm)} Km`,
               `${fNumber(mileage)} Km/L`,
               `${fNumber(totalDiesel)} L`,
-              fCurrency(totalIncome),
-              fCurrency(totalExpenses),
-              fCurrency(netTotal),
+              fNumber(totalIncome),
+              fNumber(totalExpenses),
+              fNumber(netTotal),
             ],
           ]}
           columnWidths={[2, 2, 2, 2, 2, 2]}
