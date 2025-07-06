@@ -3,7 +3,7 @@ import { ListItemText } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -17,13 +17,13 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?._id,
     align: 'center',
-    render: (value) => (
+    render: ({ _id }) => (
       <RouterLink
-        to={`${paths.dashboard.subtrip.details(value)}`}
+        to={`${paths.dashboard.subtrip.details(_id)}`}
         style={{ color: 'green', textDecoration: 'underline' }}
       >
         <ListItemText
-          primary={value}
+          primary={_id}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </RouterLink>
@@ -36,17 +36,20 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.tripId?._id,
     align: 'center',
-    render: (value) => (
-      <RouterLink
-        to={`${paths.dashboard.trip.details(value)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
-      >
-        <ListItemText
-          primary={value}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
-    ),
+    render: (row) => {
+      const value = row?.tripId?._id || '-';
+      return (
+        <RouterLink
+          to={`${paths.dashboard.trip.details(value)}`}
+          style={{ color: 'green', textDecoration: 'underline' }}
+        >
+          <ListItemText
+            primary={value}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </RouterLink>
+      );
+    },
   },
   {
     id: 'vehicleNo',
@@ -140,13 +143,13 @@ export const TABLE_COLUMNS = [
     label: 'Dispatch Date',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => fDate(row?.startDate) || '-',
+    getter: (row) => fDateTime(row?.startDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value, row) => (
+    render: ({ startDate }) => (
       <ListItemText
-        primary={fDate(new Date(row?.startDate))}
-        secondary={fTime(new Date(row?.startDate))}
+        primary={fDate(new Date(startDate))}
+        secondary={fTime(new Date(startDate))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{
           mt: 0.5,
@@ -164,7 +167,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.endDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         primary={row?.endDate ? fDate(new Date(row?.endDate)) : '-'}
         secondary={row?.endDate ? fTime(new Date(row?.endDate)) : '-'}
@@ -185,7 +188,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.ewayExpiryDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         primary={row?.ewayExpiryDate ? fDate(new Date(row?.ewayExpiryDate)) : '-'}
         secondary={row?.ewayExpiryDate ? fTime(new Date(row?.ewayExpiryDate)) : '-'}
@@ -276,11 +279,14 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.subtripStatus || '-',
     align: 'center',
-    render: (value) => (
-      <Label variant="soft" color={SUBTRIP_STATUS_COLORS[value] || 'default'}>
-        {value}
-      </Label>
-    ),
+    render: (row) => {
+      const value = row?.subtripStatus || '-';
+      return (
+        <Label variant="soft" color={SUBTRIP_STATUS_COLORS[value] || 'default'}>
+          {value}
+        </Label>
+      );
+    },
   },
 ];
 

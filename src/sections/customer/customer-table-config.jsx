@@ -17,10 +17,10 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.customerName,
-    render: (value, row) => (
+    render: (row) => (
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={value} sx={{ mr: 2 }}>
-          {value.slice(0, 2).toUpperCase()}
+        <Avatar alt={row.customerName} sx={{ mr: 2 }}>
+          {row.customerName.slice(0, 2).toUpperCase()}
         </Avatar>
         <ListItemText
           disableTypography
@@ -32,7 +32,7 @@ export const TABLE_COLUMNS = [
               noWrap
               sx={{ color: 'primary.main' }}
             >
-              {value}
+              {row.customerName}
             </Link>
           }
         />
@@ -69,10 +69,10 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.address,
-    render: (value) => (
-      <Tooltip title={value}>
+    render: (row) => (
+      <Tooltip title={row.address}>
         <ListItemText
-          primary={wrapText(value, 20)}
+          primary={wrapText(row.address, 20)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </Tooltip>

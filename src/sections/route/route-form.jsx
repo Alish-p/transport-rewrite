@@ -10,17 +10,18 @@ import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
-  Grid,
   Stack,
   Table,
   Paper,
   Tooltip,
+  Divider,
   TableRow,
   TableBody,
   TableCell,
   TableHead,
   Typography,
   IconButton,
+  CardHeader,
   InputAdornment,
   TableContainer,
 } from '@mui/material';
@@ -161,54 +162,54 @@ export default function RouteForm({ currentRoute }) {
   };
 
   const renderRouteDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Route Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+    <Card>
+      <CardHeader title="Route Details" sx={{ mb: 3 }} />
+      <Divider />
+
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(2, 1fr)',
+        }}
+        spacing={3}
+        sx={{ p: 3 }}
+      >
+        <Field.Text name="routeName" label="Route Name" required />
+
+        <Field.Text name="fromPlace" label="From Place" required />
+        <Field.Text name="toPlace" label="To Place" required />
+        <Field.Text
+          name="noOfDays"
+          label="Number of Days"
+          type="number"
+          required
+          InputProps={{
+            endAdornment: <InputAdornment position="end">Days</InputAdornment>,
           }}
-        >
-          <Field.Text name="routeName" label="Route Name" required />
+        />
 
-          <Field.Text name="fromPlace" label="From Place" required />
-          <Field.Text name="toPlace" label="To Place" required />
-          <Field.Text
-            name="noOfDays"
-            label="Number of Days"
-            type="number"
-            required
-            InputProps={{
-              endAdornment: <InputAdornment position="end">Days</InputAdornment>,
-            }}
-          />
-
-          <Field.Text
-            name="distance"
-            label="Distance"
-            type="number"
-            required
-            InputProps={{
-              endAdornment: <InputAdornment position="end">KM</InputAdornment>,
-            }}
-          />
-        </Box>
-      </Card>
-    </>
+        <Field.Text
+          name="distance"
+          label="Distance"
+          type="number"
+          required
+          InputProps={{
+            endAdornment: <InputAdornment position="end">KM</InputAdornment>,
+          }}
+        />
+      </Box>
+    </Card>
   );
 
   const renderCustomerField = () => (
     <>
-      <Typography variant="h6" gutterBottom>
-        Customer Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
+      <Card>
+        <CardHeader title="Customer Details" sx={{ mb: 3 }} />
+        <Divider />
+
         <Box
           rowGap={3}
           columnGap={2}
@@ -217,6 +218,8 @@ export default function RouteForm({ currentRoute }) {
             xs: 'repeat(1, 1fr)',
             sm: 'repeat(2, 1fr)',
           }}
+          spacing={3}
+          sx={{ p: 3 }}
         >
           <Field.Switch
             name="isCustomerSpecific"
@@ -262,74 +265,76 @@ export default function RouteForm({ currentRoute }) {
   );
 
   const renderVehicleConfigs = () => (
-    <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Vehicle Configurations</Typography>
-        <RouteConfigDialogue
-          onApply={handleAddConfig}
-          editingConfig={editingConfig}
-          onUpdate={handleUpdateConfig}
-        />
-      </Box>
+    <Card >
+      <CardHeader
+        title="Vehicle Configurations"
+        sx={{ mb: 3 }}
+        action={
+          <RouteConfigDialogue
+            onApply={handleAddConfig}
+            editingConfig={editingConfig}
+            onUpdate={handleUpdateConfig}
+          />
+        }
+      />
+      <Divider />
 
-      <Card sx={{ p: 3, mb: 3 }}>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Vehicle Type & Tyres</TableCell>
-                <TableCell>Toll Amount</TableCell>
-                <TableCell>Driver Advance</TableCell>
+      <TableContainer component={Paper} sx={{ py: 3, }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Vehicle Type & Tyres</TableCell>
+              <TableCell>Toll Amount</TableCell>
+              <TableCell>Driver Advance</TableCell>
 
-                <TableCell>Fixed Salary</TableCell>
-                <TableCell>Percentage</TableCell>
-                <TableCell>Diesel</TableCell>
-                <TableCell>AdBlue</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableCell>Fixed Salary</TableCell>
+              <TableCell>Percentage</TableCell>
+              <TableCell>Diesel</TableCell>
+              <TableCell>AdBlue</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {vehicleConfigs.map((config, index) => (
+              <TableRow key={index}>
+                <TableCell>{`${config.vehicleType} [${config.noOfTyres}]`}</TableCell>
+                <TableCell>{config.tollAmt}</TableCell>
+                <TableCell>₹{config.advanceAmt}</TableCell>
+                <TableCell>₹{config.fixedSalary}</TableCell>
+                <TableCell>{config.percentageSalary}%</TableCell>
+                <TableCell>{config.diesel}L</TableCell>
+                <TableCell>{config.adBlue}L</TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <Tooltip title="Edit">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditConfig({ ...config, index })}
+                      >
+                        <Iconify icon="material-symbols:edit" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteConfig(index)}
+                      >
+                        <Iconify icon="material-symbols:delete" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {vehicleConfigs.map((config, index) => (
-                <TableRow key={index}>
-                  <TableCell>{`${config.vehicleType} [${config.noOfTyres}]`}</TableCell>
-                  <TableCell>{config.tollAmt}</TableCell>
-                  <TableCell>₹{config.advanceAmt}</TableCell>
-                  <TableCell>₹{config.fixedSalary}</TableCell>
-                  <TableCell>{config.percentageSalary}%</TableCell>
-                  <TableCell>{config.diesel}L</TableCell>
-                  <TableCell>{config.adBlue}L</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title="Edit">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditConfig({ ...config, index })}
-                        >
-                          <Iconify icon="material-symbols:edit" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteConfig(index)}
-                        >
-                          <Iconify icon="material-symbols:delete" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
-    </>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Card>
   );
 
   const renderActions = () => (
-    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+    <Stack alignItems="flex-end">
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
         {!currentRoute ? 'Create Route' : 'Save Changes'}
       </LoadingButton>
@@ -338,14 +343,12 @@ export default function RouteForm({ currentRoute }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          {renderCustomerField()}
-          {renderRouteDetails()}
-          {renderVehicleConfigs()}
-          {renderActions()}
-        </Grid>
-      </Grid>
+      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderCustomerField()}
+        {renderRouteDetails()}
+        {renderVehicleConfigs()}
+        {renderActions()}
+      </Stack>
     </Form>
   );
 }

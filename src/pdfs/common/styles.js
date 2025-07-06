@@ -71,6 +71,10 @@ const pdfStyles = {
   textPrimary: { color: '#007bff' },
   textSecondary: { color: '#6c757d' },
   textDanger: { color: '#dc3545' },
+  // Cell background helpers
+  successCell: { backgroundColor: '#d4edda' },
+  warningCell: { backgroundColor: '#f8d7da' },
+  highlightCell: { backgroundColor: '#fff3cd' },
   textWhite: { color: '#ffffff' },
   bgLight: { backgroundColor: '#f1f3f5' },
   bgDark: { backgroundColor: '#343a40' },
@@ -193,9 +197,11 @@ const pdfStyles = {
     fontSize: 7,
     fontWeight: 700,
     marginRight: 3,
+    width: '100%',
   },
   horizontalCellContent: {
     fontSize: 7,
+    width: '100%',
   },
   verticalCell: {
     padding: 2,

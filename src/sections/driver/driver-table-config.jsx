@@ -18,22 +18,22 @@ export const TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: true,
         getter: (row) => row.driverName,
-        render: (value, row) => (
+        render: ({ _id, driverName }) => (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar alt={value} sx={{ mr: 2 }}>
-                    {value.charAt(0).toUpperCase()}
+                <Avatar alt={driverName} sx={{ mr: 2 }}>
+                    {driverName.charAt(0).toUpperCase()}
                 </Avatar>
                 <ListItemText
                     disableTypography
                     primary={
                         <Link
                             component={RouterLink}
-                            to={paths.dashboard.driver.details(row._id)}
+                            to={paths.dashboard.driver.details(_id)}
                             variant="body2"
                             noWrap
                             sx={{ color: 'primary.main' }}
                         >
-                            {value}
+                            {driverName}
                         </Link>
                     }
                 />
@@ -87,9 +87,9 @@ export const TABLE_COLUMNS = [
         disabled: false,
         align: 'center',
         getter: (row) => row.status,
-        render: (value) => (
-            <Label variant="soft" color={value === 'expired' ? 'error' : 'success'}>
-                {value}
+        render: ({ status }) => (
+            <Label variant="soft" color={status === 'expired' ? 'error' : 'success'}>
+                {status}
             </Label>
         ),
     },

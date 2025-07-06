@@ -37,7 +37,7 @@ export function GenericTableRow({
     return (
       <TableCell align={column.align}>
         {column.render ? (
-          column.render(value, row)
+          column.render(row)
         ) : (
           <ListItemText
             primary={value || '-'}

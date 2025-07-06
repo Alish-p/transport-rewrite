@@ -18,28 +18,30 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.vehicleNo,
-    render: (value, row) => (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={value} sx={{ mr: 2 }}>
-          {value.slice(0, 2).toUpperCase()}
-        </Avatar>
-        <ListItemText
-          disableTypography
-          primary={
-            <Link
-              component={RouterLink}
-              to={paths.dashboard.vehicle.details(row._id)}
-              variant="body2"
-              noWrap
-              sx={{ color: 'primary.main' }}
-            >
-              {value}
-            </Link>
-          }
-
-        />
-      </div>
-    ),
+    render: (row) => {
+      const value = row.vehicleNo;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={value} sx={{ mr: 2 }}>
+            {value.slice(0, 2).toUpperCase()}
+          </Avatar>
+          <ListItemText
+            disableTypography
+            primary={
+              <Link
+                component={RouterLink}
+                to={paths.dashboard.vehicle.details(row._id)}
+                variant="body2"
+                noWrap
+                sx={{ color: 'primary.main' }}
+              >
+                {value}
+              </Link>
+            }
+          />
+        </div>
+      );
+    },
   },
 
   {
@@ -56,12 +58,15 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'center',
-    getter: (row) => row.isOwn ? 'Own' : 'Market',
-    render: (value) => (
-      <Label variant="soft" color={value === "Own" ? 'secondary' : 'warning'}>
-        {value}
-      </Label>
-    ),
+    getter: (row) => (row.isOwn ? 'Own' : 'Market'),
+    render: (row) => {
+      const value = row.isOwn ? 'Own' : 'Market';
+      return (
+        <Label variant="soft" color={value === 'Own' ? 'secondary' : 'warning'}>
+          {value}
+        </Label>
+      );
+    },
   },
   {
     id: 'transporter',
@@ -94,11 +99,14 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.loadingCapacity,
-    render: (value) => (
-      <Label variant="soft" color={value >= 20 ? 'success' : 'error'}>
-        {value || '-'}
-      </Label>
-    ),
+    render: (row) => {
+      const value = row.loadingCapacity;
+      return (
+        <Label variant="soft" color={value >= 20 ? 'success' : 'error'}>
+          {value || '-'}
+        </Label>
+      );
+    },
   },
   {
     id: 'fuelTankCapacity',
