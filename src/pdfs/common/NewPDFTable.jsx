@@ -1,6 +1,7 @@
 import { View, Text } from '@react-pdf/renderer';
 
 import PDFStyles from './styles';
+import { fNumber } from 'src/utils/format-number';
 
 export default function NewPDFTable({
   columns = [],
@@ -83,7 +84,7 @@ export default function NewPDFTable({
       if (idx === 0) return totalRowLabel;
       if (col.showTotal) {
         const sum = totals[col.accessor] || 0;
-        return col.formatter ? col.formatter(sum) : sum;
+        return col.formatter ? col.formatter(sum) : fNumber(sum);
       }
       return '';
     });
