@@ -77,22 +77,12 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle
-          title={`Vehicle P&L Report ${vehicleNo}- ${fDateRangeShortLabel(startDate, endDate)}`}
+          title={`Vehicle P&L Report ${vehicleNo}(${fDateRangeShortLabel(startDate, endDate)})`}
         />
         <PDFHeader />
 
         {/* Subtrip Table */}
         <NewPDFTable columns={columns} data={tableData} showTotals totalRowLabel="TOTAL" />
-
-        {/* Summary Section */}
-        <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
-        <PDFTable
-          headers={['Total Weight', 'Total Amount', 'Total Expense', 'Net Profit']}
-          data={[
-            [fNumber(totalWeight), fNumber(totalAmt), fNumber(totalExpense), fNumber(netTotal)],
-          ]}
-          columnWidths={[2, 2, 2, 2]}
-        />
       </Page>
     </Document>
   );
