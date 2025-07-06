@@ -38,17 +38,18 @@ export const TABLE_COLUMNS = [
     align: 'center',
     render: (row) => {
       const value = row?.tripId?._id || '-';
-      return (<RouterLink
-        to={`${paths.dashboard.trip.details(value)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
-      >
-        <ListItemText
-          primary={value}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
-      )
-    }
+      return (
+        <RouterLink
+          to={`${paths.dashboard.trip.details(value)}`}
+          style={{ color: 'green', textDecoration: 'underline' }}
+        >
+          <ListItemText
+            primary={value}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </RouterLink>
+      );
+    },
   },
   {
     id: 'vehicleNo',
@@ -166,7 +167,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.endDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         primary={row?.endDate ? fDate(new Date(row?.endDate)) : '-'}
         secondary={row?.endDate ? fTime(new Date(row?.endDate)) : '-'}
@@ -187,7 +188,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row?.ewayExpiryDate) || '-',
     type: 'date',
     align: 'center',
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         primary={row?.ewayExpiryDate ? fDate(new Date(row?.ewayExpiryDate)) : '-'}
         secondary={row?.ewayExpiryDate ? fTime(new Date(row?.ewayExpiryDate)) : '-'}
@@ -278,11 +279,14 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.subtripStatus || '-',
     align: 'center',
-    render: (value) => (
-      <Label variant="soft" color={SUBTRIP_STATUS_COLORS[value] || 'default'}>
-        {value}
-      </Label>
-    ),
+    render: (row) => {
+      const value = row?.subtripStatus || '-';
+      return (
+        <Label variant="soft" color={SUBTRIP_STATUS_COLORS[value] || 'default'}>
+          {value}
+        </Label>
+      );
+    },
   },
 ];
 

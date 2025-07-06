@@ -19,7 +19,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.paymentId,
-    render: (value, row) => (
+    render: (row) => (
       <Label variant="soft">
         <Link
           component={RouterLink}
@@ -28,7 +28,7 @@ export const TABLE_COLUMNS = [
           noWrap
           sx={{ color: 'text.disabled' }}
         >
-          {value}
+          {row.paymentId}
         </Link>
       </Label>
     ),
@@ -40,16 +40,16 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.transporterId?.transportName || '-',
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         disableTypography
-        primary={<Typography variant="body2" noWrap>{row.transporterId?.transportName}</Typography>}
+        primary={
+          <Typography variant="body2" noWrap>
+            {row.transporterId?.transportName}
+          </Typography>
+        }
         secondary={
-          <Link
-            noWrap
-            variant="body2"
-            sx={{ color: 'text.disabled', cursor: 'pointer' }}
-          >
+          <Link noWrap variant="body2" sx={{ color: 'text.disabled', cursor: 'pointer' }}>
             {row.transporterId?.cellNo}
           </Link>
         }
@@ -63,9 +63,9 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.status,
-    render: (value) => (
-      <Label variant="soft" color={value === 'paid' ? 'success' : 'error'}>
-        {value}
+    render: (row) => (
+      <Label variant="soft" color={row.status === 'paid' ? 'success' : 'error'}>
+        {row.status}
       </Label>
     ),
   },
@@ -76,7 +76,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => fDate(row.issueDate),
-    render: (value, row) => (
+    render: (row) => (
       <ListItemText
         primary={fDate(new Date(row.issueDate))}
         secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
@@ -131,7 +131,6 @@ export const TABLE_COLUMNS = [
     align: 'right',
     getter: (row) => fNumber(row.taxBreakup?.tds?.amount),
   },
-
 ];
 
 export const getDefaultVisibleColumns = () =>

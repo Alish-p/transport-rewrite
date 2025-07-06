@@ -19,9 +19,15 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row._id,
-    render: (value) => (
-      <Link component={RouterLink} to={paths.dashboard.trip.details(value)} variant="body2" noWrap sx={{ color: 'primary.main' }}>
-        {value}
+    render: (row) => (
+      <Link
+        component={RouterLink}
+        to={paths.dashboard.trip.details(row._id)}
+        variant="body2"
+        noWrap
+        sx={{ color: 'primary.main' }}
+      >
+        {row._id}
       </Link>
     ),
   },
@@ -32,14 +38,20 @@ export const TABLE_COLUMNS = [
     disabled: true,
     align: 'left',
     getter: (row) => row.vehicleId?.vehicleNo,
-    render: (value) => (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={value} sx={{ mr: 2 }}>
-          {value?.slice(0, 2).toUpperCase()}
-        </Avatar>
-        <ListItemText primary={value} primaryTypographyProps={{ typography: 'body2', noWrap: true }} />
-      </div>
-    ),
+    render: (row) => {
+      const value = row.vehicleId?.vehicleNo;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={value} sx={{ mr: 2 }}>
+            {value?.slice(0, 2).toUpperCase()}
+          </Avatar>
+          <ListItemText
+            primary={value}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </div>
+      );
+    },
   },
   {
     id: 'driverName',
@@ -56,9 +68,9 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.tripStatus,
-    render: (value) => (
-      <Label variant="soft" color={value === 'open' ? 'warning' : 'success'}>
-        {value}
+    render: (row) => (
+      <Label variant="soft" color={row.tripStatus === 'open' ? 'warning' : 'success'}>
+        {row.tripStatus}
       </Label>
     ),
   },
@@ -69,10 +81,10 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row.fromDate,
-    render: (value) => (
+    render: (row) => (
       <ListItemText
-        primary={fDate(new Date(value))}
-        secondary={fTime(new Date(value))}
+        primary={fDate(new Date(row.fromDate))}
+        secondary={fTime(new Date(row.fromDate))}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
       />
@@ -85,10 +97,10 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row.toDate,
-    render: (value) => (
+    render: (row) => (
       <ListItemText
-        primary={value ? fDate(new Date(value)) : '--'}
-        secondary={value ? fTime(new Date(value)) : '--'}
+        primary={row.toDate ? fDate(new Date(row.toDate)) : '--'}
+        secondary={row.toDate ? fTime(new Date(row.toDate)) : '--'}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
       />

@@ -17,27 +17,30 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.transportName,
-    render: (value, row) => (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={value} sx={{ mr: 2 }}>
-          {value.slice(0, 2).toUpperCase()}
-        </Avatar>
-        <ListItemText
-          disableTypography
-          primary={
-            <Link
-              component={RouterLink}
-              to={paths.dashboard.transporter.details(row._id)}
-              variant="body2"
-              noWrap
-              sx={{ color: 'primary.main' }}
-            >
-              {value}
-            </Link>
-          }
-        />
-      </div>
-    ),
+    render: (row) => {
+      const value = row.transportName;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={value} sx={{ mr: 2 }}>
+            {value.slice(0, 2).toUpperCase()}
+          </Avatar>
+          <ListItemText
+            disableTypography
+            primary={
+              <Link
+                component={RouterLink}
+                to={paths.dashboard.transporter.details(row._id)}
+                variant="body2"
+                noWrap
+                sx={{ color: 'primary.main' }}
+              >
+                {value}
+              </Link>
+            }
+          />
+        </div>
+      );
+    },
   },
   {
     id: 'address',
@@ -45,14 +48,17 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.address,
-    render: (value) => (
-      <Tooltip title={value}>
-        <ListItemText
-          primary={wrapText(value, 20)}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </Tooltip>
-    ),
+    render: (row) => {
+      const value = row.address;
+      return (
+        <Tooltip title={value}>
+          <ListItemText
+            primary={wrapText(value, 20)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'cellNo',
