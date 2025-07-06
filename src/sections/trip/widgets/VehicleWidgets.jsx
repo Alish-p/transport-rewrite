@@ -66,14 +66,7 @@ export default function VehicleCard({ vehicle, onVehicleEdit }) {
 
   const renderInfo = (
     <>
-      <CardHeader
-        title="Details"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
+      <CardHeader title="Details" />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Stack direction="row" alignItems="center">
           <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
