@@ -18,14 +18,14 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import TripSummaryPdf from '../pdfs/trip-summary-pdf';
+import TripSheetPdf from '../pdfs/trip-sheet-pdf';
 
 // ----------------------------------------------------------------------
 
 export default function TripToolbar({ status, backLink, tripData, onTripClose, onEdit }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
-  const viewTripSummary = useBoolean();
+  const viewTripSheet = useBoolean();
 
   return (
     <>
@@ -125,7 +125,7 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
       >
         <MenuList>
           <Tooltip
-            title="Trip Summary is only available for Own vehicles"
+            title="Trip Sheet is only available for Own vehicles"
             disableHoverListener={tripData.vehicleId.isOwn}
             disableFocusListener={tripData.vehicleId.isOwn}
             disableTouchListener={tripData.vehicleId.isOwn}
@@ -134,33 +134,33 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
               <MenuItem
                 onClick={() => {
                   viewPopover.onClose();
-                  viewTripSummary.onTrue();
+                  viewTripSheet.onTrue();
                 }}
                 disabled={!tripData.vehicleId.isOwn}
               >
-                Trip Summary
+                Trip Sheet
               </MenuItem>
             </span>
           </Tooltip>
         </MenuList>
       </CustomPopover>
 
-      {/* View Trip Summary Dialog */}
-      <Dialog fullScreen open={viewTripSummary.value}>
+      {/* View Trip Sheet Dialog */}
+      <Dialog fullScreen open={viewTripSheet.value}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
           <DialogActions
             sx={{
               p: 1.5,
             }}
           >
-            <Button color="primary" variant="outlined" onClick={viewTripSummary.onFalse}>
+            <Button color="primary" variant="outlined" onClick={viewTripSheet.onFalse}>
               Close
             </Button>
           </DialogActions>
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <TripSummaryPdf trip={tripData} />
+              <TripSheetPdf trip={tripData} />
             </PDFViewer>
           </Box>
         </Box>
