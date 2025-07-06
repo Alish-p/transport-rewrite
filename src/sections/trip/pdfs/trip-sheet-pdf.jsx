@@ -16,7 +16,7 @@ Font.register({
   ],
 });
 
-export default function TripSummaryPdf({ trip }) {
+export default function TripSheetPdf({ trip }) {
   const {
     _id: tripId,
     fromDate,
@@ -114,7 +114,7 @@ export default function TripSummaryPdf({ trip }) {
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
-        <PDFTitle title="Trip Summary" />
+        <PDFTitle title="Trip Sheet" />
         <PDFHeader />
 
         {/* Details Section */}
