@@ -67,13 +67,13 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                             { id: 'customer', label: 'Customer' },
                             { id: 'totalWeight', label: 'Total Weight', align: 'right' },
                             { id: 'freightAmount', label: 'Freight Amount', align: 'right' },
-                            { id: 'inQueue', label: 'In-Queue', align: 'right' },
-                            { id: 'loaded', label: 'Loaded', align: 'right' },
+                            { id: 'inQueue', label: 'Waiting to Load', align: 'right' },
+                            { id: 'loaded', label: 'POD Pending', align: 'right' },
                             { id: 'error', label: 'Error', align: 'right' },
                             { id: 'received', label: 'Received', align: 'right' },
-                            { id: 'billedPending', label: 'Billed Pending', align: 'right' },
-                            { id: 'billedOverdue', label: 'Billed Overdue', align: 'right' },
-                            { id: 'billedPaid', label: 'Billed Paid', align: 'right' },
+                            { id: 'billedPending', label: 'Invoice Generated', align: 'right' },
+                            { id: 'billedOverdue', label: 'Invoice Overdue', align: 'right' },
+                            { id: 'billedPaid', label: 'invoice paid', align: 'right' },
                         ]}
                     />
                     <TableBody>
