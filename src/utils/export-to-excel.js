@@ -79,16 +79,25 @@ export const exportToExcel = (data, fileName) => {
 // Formats a list of items for export, including only the user - selected columns.
 export function prepareDataForExport(data, columnConfig, visibleColumns = []) {
   const columns = columnConfig.filter((col) => visibleColumns.includes(col.id));
+
+  const parseNumber = (value) => {
+    if (typeof value === 'number') return value;
+    if (value == null) return 0;
+    const cleaned = `${value}`.replace(/[^0-9.-]+/g, '');
+    const parsed = parseFloat(cleaned);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
   const totals = {};
 
   const formattedRows = data.map((item) => {
     const row = {};
     columns.forEach((col) => {
-      row[col.label] = col.getter(item);
+      const value = col.getter(item);
+      row[col.label] = value;
 
       if (col.showTotal) {
-        const val = item[col.id];
-        const num = typeof val === 'number' ? val : parseFloat(val) || 0;
+        const num = parseNumber(value);
         totals[col.id] = (totals[col.id] || 0) + num;
       }
     });
@@ -101,7 +110,12 @@ export function prepareDataForExport(data, columnConfig, visibleColumns = []) {
       if (index === 0) {
         totalRow[col.label] = 'TOTAL';
       } else if (col.showTotal) {
-        const dummy = { [col.id]: totals[col.id] };
+        let dummy;
+        if (['cgst', 'sgst', 'igst', 'tds'].includes(col.id)) {
+          dummy = { taxBreakup: { [col.id]: { amount: totals[col.id] } } };
+        } else {
+          dummy = { [col.id]: totals[col.id] };
+        }
         totalRow[col.label] = col.getter(dummy);
       } else {
         totalRow[col.label] = '';

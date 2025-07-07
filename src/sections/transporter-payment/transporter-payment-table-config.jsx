@@ -83,19 +83,13 @@ export const TABLE_COLUMNS = [
       />
     ),
   },
-  {
-    id: 'amount',
-    label: 'Amount',
-    defaultVisible: true,
-    disabled: false,
-    align: 'right',
-    getter: (row) => fNumber(row.summary?.netIncome),
-  },
+
   {
     id: 'totalShortageAmount',
     label: 'Total Shortage Amount',
     defaultVisible: false,
     disabled: false,
+    showTotal: true,
     align: 'right',
     getter: (row) => fNumber(row.summary?.totalShortageAmount),
   },
@@ -106,6 +100,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => fNumber(row.taxBreakup?.cgst?.amount),
+    showTotal: true,
   },
   {
     id: 'sgst',
@@ -114,6 +109,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => fNumber(row.taxBreakup?.sgst?.amount),
+    showTotal: true,
   },
   {
     id: 'igst',
@@ -122,6 +118,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => fNumber(row.taxBreakup?.igst?.amount),
+    showTotal: true,
   },
   {
     id: 'tds',
@@ -130,6 +127,16 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => fNumber(row.taxBreakup?.tds?.amount),
+    showTotal: true,
+  },
+  {
+    id: 'amount',
+    label: 'Amount',
+    defaultVisible: true,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) => fNumber(row.summary?.netIncome),
   },
 ];
 
