@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,10 +11,11 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { usePumps } from 'src/query/use-pump';
+import { useInfinitePumps } from 'src/query/use-pump';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
 // ----------------------------------------------------------------------
@@ -23,8 +25,22 @@ const ITEM_HEIGHT = 64;
 // ----------------------------------------------------------------------
 
 export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpChange }) {
-  const { data: pumps } = usePumps();
+  const scrollRef = useRef(null);
   const [searchPump, setSearchPump] = useState('');
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useInfinitePumps(
+    { search: searchPump || undefined, rowsPerPage: 50 },
+    { enabled: open }
+  );
+
+  const pumps = data ? data.pages.flatMap((p) => p.pumps) : [];
 
   const handleSearchPumps = useCallback((event) => {
     setSearchPump(event.target.value);
@@ -38,14 +54,20 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
     [onPumpChange, onClose]
   );
 
-  const dataFiltered = applyFilter({ inputData: pumps || [], query: searchPump });
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
 
-  const notFound = !dataFiltered.length && !!searchPump;
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const notFound = !pumps.length && !!searchPump && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Pumps <Typography component="span">({pumps?.length})</Typography>
+        Pumps <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
@@ -65,12 +87,14 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
+        {isLoading ? (
+          <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
+        ) : notFound ? (
           <SearchNotFound query={searchPump} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
+          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
-              {dataFiltered.map((pump) => {
+              {pumps.map((pump) => {
                 const isSelected = selectedPump?._id === pump._id;
 
                 return (
@@ -114,27 +138,18 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
                   </Box>
                 );
               })}
+              <Box
+                ref={loadMoreRef}
+                sx={{
+                  height: ITEM_HEIGHT,
+                }}
+              >
+                {isFetching && <LoadingSpinner />}
+              </Box>
             </Box>
           </Scrollbar>
         )}
       </DialogContent>
     </Dialog>
   );
-}
-
-function applyFilter({ inputData, query }) {
-  if (query) {
-    inputData = inputData.filter((pump) => {
-      const searchQuery = query.toLowerCase();
-
-      // Helper function to safely check if a field exists and contains the query
-      const matchesField = (field) => field && field.toLowerCase().indexOf(searchQuery) !== -1;
-
-      return (
-        matchesField(pump.pumpName) || matchesField(pump.pumpPhoneNo) || matchesField(pump.address)
-      );
-    });
-  }
-
-  return inputData;
 }

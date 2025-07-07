@@ -18,12 +18,8 @@ export default function PumpTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveTransporterName = () => {
-    onFilters('pumpName', '');
-  };
-
-  const handleRemovePlaceName = () => {
-    onFilters('placeName', '');
+  const handleRemoveSearch = () => {
+    onFilters('search', '');
   };
 
   return (
@@ -36,15 +32,9 @@ export default function PumpTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.pumpName && (
-          <Block label="Pump Name :">
-            <Chip size="small" label={filters.pumpName} onDelete={handleRemoveTransporterName} />
-          </Block>
-        )}
-
-        {filters.placeName && (
-          <Block label="place :">
-            <Chip size="small" label={filters.placeName} onDelete={handleRemovePlaceName} />
+        {filters.search && (
+          <Block label="Search :">
+            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
           </Block>
         )}
 

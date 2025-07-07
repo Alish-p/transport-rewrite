@@ -25,7 +25,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeletePump } from 'src/query/use-pump';
+import { useDeletePump, usePaginatedPumps } from 'src/query/use-pump';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -34,13 +34,11 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
+  TableSkeleton,
 } from 'src/components/table';
 
 import PumpTableRow from '../pump-table-row';
@@ -51,13 +49,12 @@ import PumpTableFiltersResult from '../pump-table-filters-result';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
-  pumpName: '',
-  placeName: '',
+  search: '',
 };
 
 // ----------------------------------------------------------------------
 
-export function PumpListView({ pumps }) {
+export function PumpListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -78,23 +75,25 @@ export function PumpListView({ pumps }) {
     toggleAllColumnsVisibility,
   } = useColumnVisibility(TABLE_COLUMNS);
 
+  const { data, isLoading } = usePaginatedPumps({
+    search: filters.search || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
+
   useEffect(() => {
-    if (pumps.length) {
-      setTableData(pumps);
+    if (data?.pumps) {
+      setTableData(data.pumps);
     }
-  }, [pumps]);
+  }, [data]);
+
+  const totalCount = data?.total || 0;
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
   const denseHeight = table.dense ? 56 : 76;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
@@ -155,7 +154,7 @@ export function PumpListView({ pumps }) {
           <PumpTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
+            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
@@ -167,7 +166,7 @@ export function PumpListView({ pumps }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={tableData.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -232,23 +231,22 @@ export function PumpListView({ pumps }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleHeaders}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                        <TableSkeleton key={i} />
+                      ))
+                    : tableData.map((row) => (
                       <PumpTableRow
                         key={row._id}
                         row={row}
@@ -262,11 +260,6 @@ export function PumpListView({ pumps }) {
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
@@ -274,7 +267,7 @@ export function PumpListView({ pumps }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -311,37 +304,4 @@ export function PumpListView({ pumps }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { pumpName, placeName } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (pumpName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.pumpName && record.pumpName.toLowerCase().indexOf(pumpName.toLowerCase()) !== -1
-    );
-  }
-
-  if (placeName) {
-    inputData = inputData.filter(
-      (record) =>
-        record.placeName && record.placeName.toLowerCase().indexOf(placeName.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
 }

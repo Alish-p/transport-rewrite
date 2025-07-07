@@ -34,16 +34,9 @@ export default function PumpTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
 
-  const handleFilterPumpName = useCallback(
+  const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('pumpName', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterPlace = useCallback(
-    (event) => {
-      onFilters('placeName', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
@@ -64,23 +57,9 @@ export default function PumpTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.pumpName}
-          onChange={handleFilterPumpName}
-          placeholder="Search Pump Name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.placeName}
-          onChange={handleFilterPlace}
-          placeholder="Search place..."
+          value={filters.search}
+          onChange={handleFilterSearch}
+          placeholder="Search..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

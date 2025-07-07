@@ -1,5 +1,10 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -8,7 +13,14 @@ const QUERY_KEY = 'pumps';
 
 // Fetchers
 const getPumps = async () => {
-  const { data } = await axios.get(ENDPOINT);
+  const { data } = await axios.get(ENDPOINT, {
+    params: { page: 1, rowsPerPage: 1000 },
+  });
+  return data.pumps || data.results || [];
+};
+
+const getPaginatedPumps = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
 };
 
@@ -39,6 +51,36 @@ export function usePumps(enabled = true) {
     queryKey: [QUERY_KEY],
     queryFn: getPumps,
     enabled,
+    staleTime: 1000 * 60 * 50,
+  });
+}
+
+export function usePaginatedPumps(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedPumps(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfinitePumps(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPaginatedPumps({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + (page.pumps ? page.pumps.length : 0),
+        0
+      );
+      const totalCount = lastPage.total || 0;
+      return totalFetched < totalCount ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 
