@@ -23,44 +23,41 @@ const ITEM_HEIGHT = 90;
 
 // ----------------------------------------------------------------------
 
-const Row = ({ bank, selected, onSelect }) => {
+const Row = ({ bank, selected, onSelect }) => (
+  <ButtonBase
+    onClick={() => onSelect(bank)}
+    sx={{
+      py: 1,
+      my: 0.5,
+      px: 1.5,
+      gap: 0.5,
+      width: '100%',
+      borderRadius: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      ...(selected(`${bank.ifsc}`) && {
+        bgcolor: 'action.selected',
+      }),
+    }}
+  >
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <Typography variant="subtitle2">{bank.name}</Typography>
+    </Stack>
 
-  return (
-    <ButtonBase
-      onClick={() => onSelect(bank)}
-      sx={{
-        py: 1,
-        my: 0.5,
-        px: 1.5,
-        gap: 0.5,
-        width: '100%',
-        borderRadius: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        ...(selected(`${bank.ifsc}`) && {
-          bgcolor: 'action.selected',
-        }),
-      }}
-    >
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <Typography variant="subtitle2">{bank.name}</Typography>
-      </Stack>
+    {bank.branch && (
+      <Box
+        sx={{ color: 'primary.main', typography: 'caption' }}
+      >{`${bank.branch} , ${bank.place}`}</Box>
+    )}
 
-      {bank.branch && (
-        <Box
-          sx={{ color: 'primary.main', typography: 'caption' }}
-        >{`${bank.branch} , ${bank.place}`}</Box>
-      )}
-
-      {bank.ifsc && (
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {bank.ifsc}
-        </Typography>
-      )}
-    </ButtonBase>
-  );
-};
+    {bank.ifsc && (
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {bank.ifsc}
+      </Typography>
+    )}
+  </ButtonBase>
+);
 
 export function BankListDialog({
   selected,

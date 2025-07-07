@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -8,8 +9,6 @@ import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-
-import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -22,8 +21,8 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeleteBank, usePaginatedBanks } from 'src/query/use-bank';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteBank, usePaginatedBanks } from 'src/query/use-bank';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -90,7 +89,7 @@ export function BankListView() {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
