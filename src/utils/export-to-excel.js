@@ -106,16 +106,25 @@ export function prepareDataForExport(data, columnConfig, visibleColumns = []) {
 
   if (Object.keys(totals).length > 0) {
     const totalRow = {};
+
+    const buildDummy = (column, value) => {
+      if (['cgst', 'sgst', 'igst', 'tds'].includes(column.id)) {
+        return { taxBreakup: { [column.id]: { amount: value } } };
+      }
+      if (column.id === 'totalShortageAmount') {
+        return { summary: { totalShortageAmount: value } };
+      }
+      if (column.id === 'amount') {
+        return { summary: { netIncome: value } };
+      }
+      return { [column.id]: value };
+    };
+
     columns.forEach((col, index) => {
       if (index === 0) {
         totalRow[col.label] = 'TOTAL';
       } else if (col.showTotal) {
-        let dummy;
-        if (['cgst', 'sgst', 'igst', 'tds'].includes(col.id)) {
-          dummy = { taxBreakup: { [col.id]: { amount: totals[col.id] } } };
-        } else {
-          dummy = { [col.id]: totals[col.id] };
-        }
+        const dummy = buildDummy(col, totals[col.id]);
         totalRow[col.label] = col.getter(dummy);
       } else {
         totalRow[col.label] = '';
