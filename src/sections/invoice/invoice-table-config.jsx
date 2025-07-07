@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -123,7 +123,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'right',
-    getter: (row) => row.taxBreakup?.cgst?.amount || 0,
+    getter: (row) => fNumber(row.taxBreakup?.cgst?.amount || 0),
     render: (row) => {
       const value = row.taxBreakup?.cgst?.amount || 0;
       return (
@@ -142,7 +142,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     showTotal: true,
-    getter: (row) => row.taxBreakup?.sgst?.amount || 0,
+    getter: (row) => fNumber(row.taxBreakup?.sgst?.amount || 0),
     render: (row) => {
       const value = row.taxBreakup?.sgst?.amount || 0;
       return (
@@ -160,7 +160,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     showTotal: true,
-    getter: (row) => row.taxBreakup?.igst?.amount || 0,
+    getter: (row) => fNumber(row.taxBreakup?.igst?.amount || 0),
     render: (row) => {
       const value = row.taxBreakup?.igst?.amount || 0;
       return (
@@ -177,7 +177,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'right',
-    getter: (row) => row.netTotal,
+    getter: (row) => fNumber(row.netTotal),
     showTotal: true,
     render: ({ netTotal }) => (
       <ListItemText

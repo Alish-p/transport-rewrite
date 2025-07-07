@@ -266,10 +266,15 @@ export const TABLE_COLUMNS = [
     label: 'Freight Amount',
     defaultVisible: false,
     disabled: false,
-    getter: (row) =>
-      row?.rate && row?.loadingWeight
-        ? row.rate * row.loadingWeight
-        : '-',
+    getter: (row) => {
+      if (typeof row?.freightAmount === 'number') {
+        return row.freightAmount;
+      }
+      if (row?.rate && row?.loadingWeight) {
+        return row.rate * row.loadingWeight;
+      }
+      return '-';
+    },
     align: 'center',
     showTotal: true,
   },
