@@ -151,15 +151,6 @@ export default function TripSheetPdf({ trip }) {
     })
   );
 
-  // Summary calculations
-  const totalIncome = subtrips.reduce((sum, st) => sum + (st.rate * st.loadingWeight || 0), 0);
-  const totalExpenses = subtrips.reduce(
-    (sum, st) =>
-      sum + (Array.isArray(st.expenses) ? st.expenses.reduce((s, e) => s + (e.amount || 0), 0) : 0),
-    0
-  );
-  const netTotal = totalIncome - totalExpenses;
-
   // Calculate total distance and diesel consumption
   const totalKm = subtrips.reduce((sum, st) => sum + (st.endKm - st.startKm || 0), 0);
   const totalDiesel = subtrips.reduce(
@@ -167,9 +158,9 @@ export default function TripSheetPdf({ trip }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-            0
-          )
+          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+          0
+        )
         : 0),
     0
   );
@@ -215,24 +206,14 @@ export default function TripSheetPdf({ trip }) {
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
         <PDFTable
           headers={[
-            'Total Distance',
             'Mileage',
-            'Total Diesel',
-            'Total Income',
-            'Total Expenses',
-            'Profit',
           ]}
           data={[
             [
-              `${fNumber(totalKm)} Km`,
               `${fNumber(mileage)} Km/L`,
-              `${fNumber(totalDiesel)} L`,
-              fNumber(totalIncome),
-              fNumber(totalExpenses),
-              fNumber(netTotal),
             ],
           ]}
-          columnWidths={[2, 2, 2, 2, 2, 2]}
+          columnWidths={[12]}
         />
       </Page>
     </Document>

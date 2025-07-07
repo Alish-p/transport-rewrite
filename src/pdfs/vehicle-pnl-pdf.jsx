@@ -1,9 +1,9 @@
-import { Page, Font, Text, Document } from '@react-pdf/renderer';
+import { Page, Font, Document } from '@react-pdf/renderer';
 
 import { fNumber } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
+import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
 Font.register({
   family: 'Roboto',
@@ -68,10 +68,6 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
     netProfit: (st.amt || 0) - (st.totalExpense || 0),
   }));
 
-  const totalWeight = subtrips.reduce((sum, st) => sum + (st.loadingWeight || 0), 0);
-  const totalAmt = subtrips.reduce((sum, st) => sum + (st.amt || 0), 0);
-  const totalExpense = subtrips.reduce((sum, st) => sum + (st.totalExpense || 0), 0);
-  const netTotal = totalAmt - totalExpense;
 
   return (
     <Document>
