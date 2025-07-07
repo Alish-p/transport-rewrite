@@ -1,5 +1,9 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -44,11 +48,26 @@ const deleteDieselPrice = async (id) => {
   return data;
 };
 
+const getPaginatedDieselPrices = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
+  return data;
+};
+
 // Queries & Mutations
 export function useDieselPrices() {
   return useQuery({
     queryKey: [QUERY_KEY],
     queryFn: getDieselPrices,
+  });
+}
+
+export function usePaginatedDieselPrices(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedDieselPrices(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
   });
 }
 

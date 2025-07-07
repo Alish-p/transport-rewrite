@@ -20,11 +20,13 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteDieselPrice } from 'src/query/use-diesel-prices';
+import {
+  useDeleteDieselPrice,
+  usePaginatedDieselPrices,
+} from 'src/query/use-diesel-prices';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -32,10 +34,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -50,14 +49,14 @@ import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result'
 
 
 const defaultFilters = {
-  pump: '',
+  pump: null,
   fromDate: null,
-  endDate: null,
+  toDate: null,
 };
 
 // ----------------------------------------------------------------------
 
-export function DieselPriceListView({ pumpsList, dieselPrices }) {
+export function DieselPriceListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
@@ -80,23 +79,25 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
     toggleAllColumnsVisibility,
   } = useColumnVisibility(TABLE_COLUMNS);
 
-  useEffect(() => {
-    if (dieselPrices.length) {
-      setTableData(dieselPrices);
-    }
-  }, [dieselPrices]);
+  const { data, isLoading } = usePaginatedDieselPrices({
+    pumpId: filters.pump?._id,
+    fromDate: filters.fromDate || undefined,
+    toDate: filters.toDate || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
   const [tableData, setTableData] = useState([]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  useEffect(() => {
+    if (data?.dieselPrices) {
+      setTableData(data.dieselPrices);
+    }
+  }, [data]);
 
-  const denseHeight = table.dense ? 56 : 76;
+  const totalCount = data?.total || 0;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !isLoading && !tableData.length;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.diesel.edit(paramCase(id)));
@@ -156,8 +157,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
           <DieselPriceTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
-            pumpsList={pumpsList}
+            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
@@ -169,7 +169,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -238,40 +238,30 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleHeaders}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <DieselPriceTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteDieselPrice(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {(isLoading ? [] : tableData).map((row) => (
+                    <DieselPriceTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteDieselPrice(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -280,12 +270,11 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
@@ -319,39 +308,3 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
   );
 }
 
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters }) {
-  const { pump, fromDate, endDate } = filters;
-  console.log('filters', filters);
-  const dateError = fIsAfter(fromDate, endDate);
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (pump) {
-    inputData = inputData.filter(
-      (record) =>
-        record.pump && record.pump.pumpName.toLowerCase().indexOf(pump.toLowerCase()) !== -1
-    );
-  }
-
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (record) =>
-          fTimestamp(record.startDate) >= fTimestamp(fromDate) &&
-          fTimestamp(record.startDate) <= fTimestamp(endDate)
-      );
-    }
-  }
-
-  return inputData;
-}

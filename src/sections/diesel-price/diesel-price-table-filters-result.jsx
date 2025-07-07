@@ -26,10 +26,10 @@ export default function PumpTableFiltersResult({
 
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters('toDate', null);
   };
 
-  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -43,11 +43,15 @@ export default function PumpTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.pump && (
           <Block label="Pump :">
-            <Chip size="small" label={filters.pump} onDelete={handleRemovePump} />
+            <Chip
+              size="small"
+              label={filters.pump.pumpName}
+              onDelete={handleRemovePump}
+            />
           </Block>
         )}
 
-        {filters.fromDate && filters.endDate && (
+        {filters.fromDate && filters.toDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>

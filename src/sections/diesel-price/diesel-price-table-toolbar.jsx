@@ -3,21 +3,25 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 // @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // components
 
 import { Tooltip, MenuList } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
+import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 
 import { TABLE_COLUMNS } from './diesel-price-table-config';
 
@@ -34,10 +38,12 @@ export default function DieselPriceTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const pumpDialog = useBoolean();
+  const dateDialog = useBoolean();
 
-  const handleFilterPumpName = useCallback(
-    (event) => {
-      onFilters('pump', event.target.value);
+  const handleSelectPump = useCallback(
+    (pump) => {
+      onFilters('pump', pump);
     },
     [onFilters]
   );
@@ -49,9 +55,9 @@ export default function DieselPriceTableToolbar({
     [onFilters]
   );
 
-  const handleFilterEndDate = useCallback(
+  const handleFilterToDate = useCallback(
     (newValue) => {
-      onFilters('endDate', newValue);
+      onFilters('toDate', newValue);
     },
     [onFilters]
   );
@@ -70,38 +76,22 @@ export default function DieselPriceTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.pump}
-          onChange={handleFilterPumpName}
-          placeholder="Search pump ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={pumpDialog.onTrue}
+          selected={filters.pump?.pumpName}
+          placeholder="Pump"
+          iconName="mdi:gas-station"
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
-        />
-
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={dateDialog.onTrue}
+          selected={
+            filters.fromDate && filters.toDate
+              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+              : undefined
+          }
+          placeholder="Date Range"
+          iconName="mdi:calendar"
         />
 
         <Tooltip title="Column Settings">
@@ -139,24 +129,6 @@ export default function DieselPriceTableToolbar({
         <MenuList>
           <MenuItem
             onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter(
                 (c) => visibleColumns[c]
               );
@@ -172,6 +144,24 @@ export default function DieselPriceTableToolbar({
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={filters.pump}
+        onPumpChange={handleSelectPump}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateDialog.value}
+        onClose={dateDialog.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.toDate}
+        onChangeStartDate={handleFilterFromDate}
+        onChangeEndDate={handleFilterToDate}
+      />
     </>
   );
 }
+
