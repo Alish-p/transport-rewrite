@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -19,9 +19,11 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useDeletePump } from 'src/query/use-pump';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -44,20 +46,9 @@ import {
 import PumpTableRow from '../pump-table-row';
 import PumpTableToolbar from '../pump-table-toolbar';
 import PumpTableFiltersResult from '../pump-table-filters-result';
+import { TABLE_COLUMNS } from '../pump-table-config';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'pumpName', label: 'Pump Name', type: 'string' },
-  { id: 'placeName', label: 'Place Name', type: 'string' },
-  { id: 'ownerName', label: 'Owner Name', type: 'string' },
-  { id: 'ownerCellNo', label: 'Owner Cell No', type: 'string' },
-  { id: 'pumpPhoneNo', label: 'Pump Phone No', type: 'string' },
-  { id: 'taluk', label: 'Taluk', type: 'string' },
-  { id: 'district', label: 'District', type: 'string' },
-  { id: 'address', label: 'Address', type: 'string' },
-  { id: '' },
-];
 
 const defaultFilters = {
   pumpName: '',
@@ -75,34 +66,17 @@ export function PumpListView({ pumps }) {
 
   const navigate = useNavigate();
 
-  const [filters, setFilters] = useState(defaultFilters);
-
-  // Add state for column visibility with disabled columns
-  const [visibleColumns, setVisibleColumns] = useState({
-    pumpName: true,
-    placeName: false,
-    ownerName: true,
-    ownerCellNo: false,
-    pumpPhoneNo: false,
-    taluk: false,
-    district: true,
-    address: true,
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
   });
 
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      pumpName: true, // Pump name should always be visible
-      placeName: false,
-      ownerName: false,
-      ownerCellNo: false,
-      pumpPhoneNo: false,
-      taluk: false,
-      district: false,
-      address: false,
-    }),
-    []
-  );
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   useEffect(() => {
     if (pumps.length) {
@@ -120,26 +94,13 @@ export function PumpListView({ pumps }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.pumpName || !!filters.placeName;
-
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -148,27 +109,12 @@ export function PumpListView({ pumps }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
   // Update handler for toggling column visibility to respect disabled columns
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumnVisibility(columnName);
     },
-    [disabledColumns]
-  );
-
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
+    [toggleColumnVisibility]
   );
 
   return (
@@ -213,6 +159,7 @@ export function PumpListView({ pumps }) {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            onToggleAllColumns={toggleAllColumnsVisibility}
           />
 
           {canReset && (
@@ -248,10 +195,16 @@ export function PumpListView({ pumps }) {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = Object.keys(visibleColumns).filter(
+                          (c) => visibleColumns[c]
+                        );
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          'Pumps-selected'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
@@ -278,7 +231,7 @@ export function PumpListView({ pumps }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
+                  headLabel={visibleHeaders}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}

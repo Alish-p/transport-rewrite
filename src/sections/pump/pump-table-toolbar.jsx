@@ -1,24 +1,24 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import { Tooltip, MenuList } from '@mui/material';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
-// components
 
-import { PDFDownloadLink } from '@react-pdf/renderer';
-
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
-
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import PumpListPdf from 'src/pdfs/pump-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { TABLE_COLUMNS } from './pump-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +29,7 @@ export default function PumpTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -100,26 +101,19 @@ export default function PumpTableToolbar({
         </IconButton>
       </Stack>
 
-      {/* Column visibility popover */}
       <CustomPopover
         open={columnsPopover.open}
         onClose={columnsPopover.onClose}
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText primary={column.charAt(0).toUpperCase() + column.slice(1)} />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -163,12 +157,16 @@ export default function PumpTableToolbar({
 
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Pumps-list'
+              );
               popover.onClose();
-              exportToExcel(tableData, 'Pumps-list');
             }}
           >
             <Iconify icon="solar:export-bold" />
-            Export
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
