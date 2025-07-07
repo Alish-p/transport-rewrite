@@ -46,7 +46,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row?.expenseType || '-',
-    render: ({ expenseType = "-" }) => (
+    render: ({ expenseType = '-' }) => (
       <Stack direction="row" alignItems="left" spacing={1}>
         <Iconify
           icon={subtripExpenseTypes.find((type) => type.value === expenseType)?.icon}
@@ -66,7 +66,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDateTime(row?.date) || '-',
     type: 'date',
     align: 'left',
-    render: ({ date = "-" }) => (
+    render: ({ date = '-' }) => (
       <ListItemText
         primary={fDate(new Date(date))}
         secondary={fTime(new Date(date))}
@@ -87,6 +87,7 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => (row?.amount ? fCurrency(row?.amount) : '-'),
     align: 'right',
+    showTotal: true,
   },
   {
     id: 'remarks',
@@ -111,6 +112,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.dieselLtr || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'paidThrough',
@@ -128,7 +130,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row?.expenseCategory || '-',
-    render: ({ expenseCategory = "-" }) => (
+    render: ({ expenseCategory = '-' }) => (
       <Label variant="soft" color={EXPENSE_CATEGORY_COLORS[expenseCategory] || 'default'}>
         {expenseCategory}
       </Label>

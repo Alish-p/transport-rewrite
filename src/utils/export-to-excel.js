@@ -76,16 +76,40 @@ export const exportToExcel = (data, fileName) => {
   saveAs(blob, `${fileName}.xlsx`);
 };
 
-
 // Formats a list of items for export, including only the user - selected columns.
 export function prepareDataForExport(data, columnConfig, visibleColumns = []) {
   const columns = columnConfig.filter((col) => visibleColumns.includes(col.id));
+  const totals = {};
 
-  return data.map((vehicle) => {
+  const formattedRows = data.map((item) => {
     const row = {};
     columns.forEach((col) => {
-      row[col.label] = col.getter(vehicle);
+      row[col.label] = col.getter(item);
+
+      if (col.showTotal) {
+        const val = item[col.id];
+        const num = typeof val === 'number' ? val : parseFloat(val) || 0;
+        totals[col.id] = (totals[col.id] || 0) + num;
+      }
     });
     return row;
   });
+
+  if (Object.keys(totals).length > 0) {
+    const totalRow = {};
+    columns.forEach((col, index) => {
+      if (index === 0) {
+        totalRow[col.label] = 'TOTAL';
+      } else if (col.showTotal) {
+        const dummy = { [col.id]: totals[col.id] };
+        totalRow[col.label] = col.getter(dummy);
+      } else {
+        totalRow[col.label] = '';
+      }
+    });
+
+    formattedRows.push(totalRow);
+  }
+
+  return formattedRows;
 }
