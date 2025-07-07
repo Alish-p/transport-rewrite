@@ -1,7 +1,4 @@
-// @mui
-// mock data
 import { useState } from 'react';
-// components
 import { useNavigate } from 'react-router';
 
 import { Grid, Stack } from '@mui/material';
@@ -24,7 +21,6 @@ import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
-import { AddExpenseDialog } from '../subtrip-add-expense-dialogue-form';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
@@ -40,7 +36,6 @@ export function SubtripDetailView({ subtrip }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showCloseEmptyDialog, setShowCloseEmptyDialog] = useState(false);
-  const [showExpenseDialog, setShowExpenseDialog] = useState(false);
 
   // Function to check if editing is allowed based on status
   const isEditingAllowed = () => {
@@ -190,12 +185,6 @@ export function SubtripDetailView({ subtrip }) {
         </Grid>
       </DashboardContent>
 
-      {/* Render the RecieveSubtripDialog */}
-      {/* <RecieveSubtripDialog
-        showDialog={showRecieveDialog}
-        setShowDialog={setShowRecieveDialog}
-        subtrip={subtrip}
-      /> */}
 
       {/* Resolve Subtrip Dialogue */}
       <ResolveSubtripDialog
@@ -218,12 +207,6 @@ export function SubtripDetailView({ subtrip }) {
         subtripId={subtrip._id}
       />
 
-      {/* Add Expense Dialog */}
-      <AddExpenseDialog
-        showDialog={showExpenseDialog}
-        setShowDialog={setShowExpenseDialog}
-        subtripData={subtrip}
-      />
     </>
   );
 }
