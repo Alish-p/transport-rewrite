@@ -5,9 +5,10 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
-import ButtonBase from '@mui/material/ButtonBase';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import ListItemText from '@mui/material/ListItemText';
 import { DialogTitle, DialogContent } from '@mui/material';
 
 import { useInfiniteBanks } from 'src/query/use-bank';
@@ -23,64 +24,69 @@ const ITEM_HEIGHT = 90;
 
 // ----------------------------------------------------------------------
 
-const Row = ({ bank, selected, onSelect }) => (
-  <ButtonBase
-    onClick={() => onSelect(bank)}
-    sx={{
-      py: 1,
-      my: 0.5,
-      px: 1.5,
-      gap: 0.5,
-      width: '100%',
-      borderRadius: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      ...(selected(`${bank.ifsc}`) && {
-        bgcolor: 'action.selected',
-      }),
-    }}
-  >
-    <Stack direction="row" alignItems="center" spacing={1}>
-      <Typography variant="subtitle2">{bank.name}</Typography>
-    </Stack>
+const Row = ({ bank, selected, onSelect }) => {
+  const isSelected = selected(`${bank.ifsc}`);
+  return (
+    <Box
+      component="li"
+      sx={{
+        gap: 2,
+        my: 0.5,
+        px: 1.5,
+        py: 1,
+        display: 'flex',
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+        borderRadius: 1,
+        ...(isSelected && {
+          bgcolor: 'action.selected',
+        }),
+      }}
+    >
+      <ListItemText
+        primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
+        secondaryTypographyProps={{ typography: 'caption' }}
+        primary={bank.name}
+        secondary={
+          <Stack spacing={0.25}>
+            {bank.branch && (
+              <Typography
+                variant="caption"
+                sx={{ color: 'primary.main' }}
+              >{`${bank.branch} , ${bank.place}`}</Typography>
+            )}
+            {bank.ifsc && (
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {bank.ifsc}
+              </Typography>
+            )}
+          </Stack>
+        }
+      />
+      <Button
+        size="small"
+        color={isSelected ? 'primary' : 'inherit'}
+        onClick={() => onSelect(bank)}
+        startIcon={
+          <Iconify
+            width={16}
+            icon={isSelected ? 'eva:checkmark-fill' : 'mingcute:add-line'}
+            sx={{ mr: -0.5 }}
+          />
+        }
+      >
+        {isSelected ? 'Selected' : 'Select'}
+      </Button>
+    </Box>
+  );
+};
 
-    {bank.branch && (
-      <Box
-        sx={{ color: 'primary.main', typography: 'caption' }}
-      >{`${bank.branch} , ${bank.place}`}</Box>
-    )}
-
-    {bank.ifsc && (
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        {bank.ifsc}
-      </Typography>
-    )}
-  </ButtonBase>
-);
-
-export function BankListDialog({
-  selected,
-  open,
-  action,
-  onClose,
-  onSelect,
-  title = 'Bank List',
-}) {
+export function BankListDialog({ selected, open, action, onClose, onSelect, title = 'Bank List' }) {
   const scrollRef = useRef(null);
   const [searchBank, setSearchBank] = useState('');
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isFetching,
-  } = useInfiniteBanks(
-    { search: searchBank || undefined, rowsPerPage: 50 },
-    { enabled: open }
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
+    useInfiniteBanks({ search: searchBank || undefined, rowsPerPage: 50 }, { enabled: open });
 
   const banks = data ? data.pages.flatMap((p) => p.banks) : [];
 
@@ -111,8 +117,7 @@ export function BankListDialog({
       <DialogTitle sx={{ pb: 0 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">
-            {title}{' '}
-            <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
+            {title} <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
           </Typography>
           {action && action}
         </Stack>
@@ -152,7 +157,12 @@ export function BankListDialog({
               ))}
               <Box
                 ref={loadMoreRef}
-                sx={{ height: ITEM_HEIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                sx={{
+                  height: ITEM_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
                 {isFetching && <LoadingSpinner />}
               </Box>
