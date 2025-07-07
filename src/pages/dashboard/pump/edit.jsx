@@ -4,7 +4,6 @@ import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { usePump } from 'src/query/use-pump';
-import { useBanks } from 'src/query/use-bank';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -18,14 +17,13 @@ const metadata = { title: `Pump edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: banks, isLoading: bankLoading, isError: bankError } = useBanks();
   const { data: pump, isLoading: pumpLoading } = usePump(id);
 
-  if (bankLoading || pumpLoading) {
+  if (pumpLoading) {
     return <LoadingScreen />;
   }
 
-  if (bankError || bankError) {
+  if (!pump) {
     return <EmptyContent />;
   }
 
@@ -35,7 +33,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PumpEditView pump={pump} bankList={banks} />
+      <PumpEditView pump={pump} />
     </>
   );
 }

@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import PumpForm from '../pump-form';
 
-export function PumpCreateView({ bankList }) {
+export function PumpCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function PumpCreateView({ bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <PumpForm bankList={bankList} />
+      <PumpForm />
     </DashboardContent>
   );
 }

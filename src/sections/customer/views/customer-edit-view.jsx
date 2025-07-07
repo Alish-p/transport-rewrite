@@ -8,7 +8,7 @@ import CustomerNewForm from '../customer-form';
 
 // ----------------------------------------------------------------------
 
-export function CustomerEditView({ customer, bankList }) {
+export function CustomerEditView({ customer }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function CustomerEditView({ customer, bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <CustomerNewForm currentCustomer={customer} bankList={bankList} />
+      <CustomerNewForm currentCustomer={customer} />
     </DashboardContent>
   );
 }

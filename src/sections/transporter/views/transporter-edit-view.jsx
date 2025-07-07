@@ -8,7 +8,7 @@ import TransporterForm from '../transporter-form';
 
 // ----------------------------------------------------------------------
 
-export function TransporterEditView({ transporter, bankList }) {
+export function TransporterEditView({ transporter }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function TransporterEditView({ transporter, bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <TransporterForm currentTransporter={transporter} bankList={bankList} />
+      <TransporterForm currentTransporter={transporter} />
     </DashboardContent>
   );
 }

@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useBanks } from 'src/query/use-bank';
 import { useDriver } from 'src/query/use-driver';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -18,14 +17,13 @@ const metadata = { title: `Driver edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: banks, isLoading: banksLoading, isError: bankError } = useBanks();
   const { data: driver, isLoading: driverLoading, isError: driverError } = useDriver(id);
 
-  if (banksLoading || driverLoading) {
+  if (driverLoading) {
     return <LoadingScreen />;
   }
 
-  if (bankError || driverError) {
+  if (driverError) {
     return (
       <EmptyContent
         filled
@@ -41,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <DriverEditView driver={driver} bankList={banks} />
+      <DriverEditView driver={driver} />
     </>
   );
 }

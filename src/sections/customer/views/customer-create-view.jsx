@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import CustomerNewForm from '../customer-form';
 
-export function CustomerCreateView({ bankList }) {
+export function CustomerCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function CustomerCreateView({ bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <CustomerNewForm bankList={bankList} />
+      <CustomerNewForm />
     </DashboardContent>
   );
 }
