@@ -55,16 +55,18 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'center',
-    getter: (row) => row.invoicedSubTrips ? row.invoicedSubTrips.join(', ') : '',
+    getter: (row) => (row.invoicedSubTrips ? row.invoicedSubTrips.join(', ') : ''),
     render: (row) => {
       const value = row.invoicedSubTrips ? row.invoicedSubTrips.join(', ') : '';
-      return <Tooltip title={value}>
-        <ListItemText
-          primary={wrapText(value, 20)}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </Tooltip>
-    }
+      return (
+        <Tooltip title={value}>
+          <ListItemText
+            primary={wrapText(value, 20)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
   },
 
   {
@@ -77,7 +79,9 @@ export const TABLE_COLUMNS = [
     render: ({ invoiceStatus }) => (
       <Label
         variant="soft"
-        color={invoiceStatus === 'paid' ? 'success' : invoiceStatus === 'overdue' ? 'error' : 'warning'}
+        color={
+          invoiceStatus === 'paid' ? 'success' : invoiceStatus === 'overdue' ? 'error' : 'warning'
+        }
       >
         {invoiceStatus}
       </Label>
@@ -114,20 +118,6 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
-    id: 'netTotal',
-    label: 'Amount',
-    defaultVisible: true,
-    disabled: false,
-    align: 'right',
-    getter: (row) => row.netTotal,
-    render: ({ netTotal }) => (
-      <ListItemText
-        primary={fCurrency(netTotal)}
-        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-      />
-    ),
-  },
-  {
     id: 'cgst',
     label: 'CGST (TAX)',
     defaultVisible: false,
@@ -136,13 +126,14 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.taxBreakup?.cgst?.amount || 0,
     render: (row) => {
       const value = row.taxBreakup?.cgst?.amount || 0;
-      return < ListItemText
-        primary={fCurrency(value)}
-        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-      />
-    }
-
-
+      return (
+        <ListItemText
+          primary={fCurrency(value)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      );
+    },
+    showTotal: true,
   },
   {
     id: 'sgst',
@@ -150,14 +141,17 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'right',
+    showTotal: true,
     getter: (row) => row.taxBreakup?.sgst?.amount || 0,
     render: (row) => {
       const value = row.taxBreakup?.sgst?.amount || 0;
-      return < ListItemText
-        primary={fCurrency(value)}
-        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-      />
-    }
+      return (
+        <ListItemText
+          primary={fCurrency(value)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      );
+    },
   },
   {
     id: 'igst',
@@ -165,13 +159,31 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'right',
+    showTotal: true,
     getter: (row) => row.taxBreakup?.igst?.amount || 0,
     render: (row) => {
       const value = row.taxBreakup?.igst?.amount || 0;
-      return < ListItemText
-        primary={fCurrency(value)}
+      return (
+        <ListItemText
+          primary={fCurrency(value)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      );
+    },
+  },
+  {
+    id: 'netTotal',
+    label: 'Amount',
+    defaultVisible: true,
+    disabled: false,
+    align: 'right',
+    getter: (row) => row.netTotal,
+    showTotal: true,
+    render: ({ netTotal }) => (
+      <ListItemText
+        primary={fCurrency(netTotal)}
         primaryTypographyProps={{ typography: 'body2', noWrap: true }}
       />
-    }
+    ),
   },
 ];
