@@ -16,10 +16,12 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteDieselPrice } from 'src/query/use-diesel-prices';
@@ -40,19 +42,12 @@ import {
 } from 'src/components/table';
 
 import DieselPriceTableRow from '../diesel-price-table-row';
+import { TABLE_COLUMNS } from '../diesel-price-table-config';
 import DieselPriceTableToolbar from '../diesel-price-table-toolbar';
 import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'pumpName', label: 'Pump Name', type: 'string' },
-  { id: 'price', label: 'Price', type: 'number' },
-  { id: 'startDate', label: 'Start Date', type: 'date' },
-  { id: 'endDate', label: 'End Date', type: 'date' },
-  { id: 'status', label: 'Status', type: 'string' },
-  { id: '' },
-];
 
 const defaultFilters = {
   pump: '',
@@ -70,7 +65,20 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
   const navigate = useNavigate();
   const deleteDieselPrice = useDeleteDieselPrice();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
+
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   useEffect(() => {
     if (dieselPrices.length) {
@@ -88,26 +96,13 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.pump || (!!filters.fromDate && !!filters.endDate);
-
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.diesel.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -116,9 +111,12 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
+  const handleToggleColumn = useCallback(
+    (columnName) => {
+      toggleColumnVisibility(columnName);
+    },
+    [toggleColumnVisibility]
+  );
 
   return (
     <>
@@ -160,6 +158,10 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
             onFilters={handleFilters}
             tableData={dataFiltered}
             pumpsList={pumpsList}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={handleToggleColumn}
+            onToggleAllColumns={toggleAllColumnsVisibility}
           />
 
           {canReset && (
@@ -195,10 +197,20 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = Object.keys(visibleColumns).filter(
+                          (c) => visibleColumns[c]
+                        );
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols
+                          ),
+                          'DieselPrice-selected'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
@@ -225,7 +237,7 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleHeaders}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -251,6 +263,8 @@ export function DieselPriceListView({ pumpsList, dieselPrices }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteDieselPrice(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 

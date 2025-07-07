@@ -45,8 +45,8 @@ import {
 
 import PumpTableRow from '../pump-table-row';
 import PumpTableToolbar from '../pump-table-toolbar';
-import PumpTableFiltersResult from '../pump-table-filters-result';
 import { TABLE_COLUMNS } from '../pump-table-config';
+import PumpTableFiltersResult from '../pump-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ export function PumpListView({ pumps }) {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {

@@ -11,17 +11,29 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // components
 
-import { MenuList } from '@mui/material';
+import { Tooltip, MenuList } from '@mui/material';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { TABLE_COLUMNS } from './diesel-price-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function DieselPriceTableToolbar({ filters, onFilters, tableData }) {
+export default function DieselPriceTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
 
   const handleFilterPumpName = useCallback(
     (event) => {
@@ -92,10 +104,31 @@ export default function DieselPriceTableToolbar({ filters, onFilters, tableData 
           }}
         />
 
+        <Tooltip title="Column Settings">
+          <IconButton onClick={columnsPopover.onOpen}>
+            <Iconify icon="mdi:table-column-plus-after" />
+          </IconButton>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
+      </CustomPopover>
 
       <CustomPopover
         open={popover.open}
@@ -124,12 +157,18 @@ export default function DieselPriceTableToolbar({ filters, onFilters, tableData 
 
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter(
+                (c) => visibleColumns[c]
+              );
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'DieselPrice-list'
+              );
               popover.onClose();
-              exportToExcel(tableData, 'DieselPrice-list');
             }}
           >
             <Iconify icon="solar:export-bold" />
-            Export
+            Excel
           </MenuItem>
         </MenuList>
       </CustomPopover>
