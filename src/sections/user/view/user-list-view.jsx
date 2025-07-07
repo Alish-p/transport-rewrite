@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -61,6 +61,10 @@ export function UserListView({ users }) {
   const deleteUser = useDeleteUser();
 
   const [tableData, setTableData] = useState(users);
+
+  useEffect(() => {
+    setTableData(users);
+  }, [users]);
 
   const filters = useSetState({ name: '', designation: '' });
 
