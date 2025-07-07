@@ -244,7 +244,6 @@ export const navData = [
         icon: ICONS.user,
         resource: 'user',
         children: [
-          { title: 'Cards', path: paths.dashboard.user.cards },
           { title: 'List', path: paths.dashboard.user.list },
           { title: 'Create', path: paths.dashboard.user.new },
         ],
