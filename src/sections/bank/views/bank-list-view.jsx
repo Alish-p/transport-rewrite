@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -6,11 +6,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-
-// _mock
 
 import { useNavigate } from 'react-router';
 
@@ -19,9 +16,11 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFilters } from 'src/hooks/use-filters';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useDeleteBank } from 'src/query/use-bank';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -43,17 +42,8 @@ import {
 
 import BankTableRow from '../bank-table-row';
 import BankTableToolbar from '../bank-table-toolbar';
+import { TABLE_COLUMNS } from '../bank-table-config';
 import BankTableFiltersResult from '../bank-table-filters-result';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Bank Name', type: 'string' },
-  { id: 'branch', label: 'Bank Branch', type: 'string' },
-  { id: 'place', label: 'Bank Place', type: 'string' },
-  { id: 'ifsc', label: 'Bank IFSC', type: 'number' },
-  { id: '' },
-];
 
 const defaultFilters = {
   name: '',
@@ -61,36 +51,26 @@ const defaultFilters = {
   place: '',
 };
 
-// ----------------------------------------------------------------------
-
 export function BankListView({ banks }) {
   const router = useRouter();
+  const table = useTable({ defaultOrderBy: 'createDate' });
   const confirm = useBoolean();
+
   const deleteBank = useDeleteBank();
+
   const navigate = useNavigate();
 
-  const table = useTable({ defaultOrderBy: 'createDate' });
-
-  const [filters, setFilters] = useState(defaultFilters);
-
-  // Add state for column visibility with disabled columns
-  const [visibleColumns, setVisibleColumns] = useState({
-    name: true,
-    place: true,
-    branch: true,
-    ifsc: true,
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
   });
 
-  // Define which columns should be disabled (always visible)
-  const disabledColumns = useMemo(
-    () => ({
-      name: true, // Bank name should always be visible
-      place: false,
-      branch: false,
-      ifsc: false,
-    }),
-    []
-  );
+  const {
+    visibleColumns,
+    visibleHeaders,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+  } = useColumnVisibility(TABLE_COLUMNS);
 
   useEffect(() => {
     if (banks.length) {
@@ -108,26 +88,13 @@ export function BankListView({ banks }) {
 
   const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !!filters.name || !!filters.branch || !!filters.place;
-
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -136,27 +103,11 @@ export function BankListView({ banks }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
-  // Update handler for toggling column visibility to respect disabled columns
   const handleToggleColumn = useCallback(
     (columnName) => {
-      // Don't toggle if the column is disabled
-      if (disabledColumns[columnName]) return;
-
-      setVisibleColumns((prev) => ({
-        ...prev,
-        [columnName]: !prev[columnName],
-      }));
+      toggleColumnVisibility(columnName);
     },
-    [disabledColumns]
-  );
-
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_HEAD.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
+    [toggleColumnVisibility]
   );
 
   return (
@@ -165,17 +116,9 @@ export function BankListView({ banks }) {
         <CustomBreadcrumbs
           heading="Bank List"
           links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Bank',
-              href: paths.dashboard.bank.root,
-            },
-            {
-              name: 'Bank List',
-            },
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Bank', href: paths.dashboard.bank.root },
+            { name: 'Bank List' },
           ]}
           action={
             <Button
@@ -187,12 +130,9 @@ export function BankListView({ banks }) {
               New Bank
             </Button>
           }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
 
-        {/* Table Section */}
         <Card>
           <BankTableToolbar
             filters={filters}
@@ -201,6 +141,7 @@ export function BankListView({ banks }) {
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
+            onToggleAllColumns={toggleAllColumnsVisibility}
           />
 
           {canReset && (
@@ -217,44 +158,32 @@ export function BankListView({ banks }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  tableData.map((row) => row._id)
                 )
               }
               action={
                 <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
-
                   <Tooltip title="Download">
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'Bank-list-filtered');
+                        const visibleCols = Object.keys(visibleColumns).filter(
+                          (c) => visibleColumns[c]
+                        );
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          'Banks-selected'
+                        );
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Tooltip>
                 </Stack>
@@ -266,14 +195,14 @@ export function BankListView({ banks }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={visibleTableHead}
-                  rowCount={dataFiltered.length}
+                  headLabel={visibleHeaders}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
@@ -291,11 +220,9 @@ export function BankListView({ banks }) {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => {
-                          confirm.onFalse();
-                          deleteBank(row._id);
-                        }}
+                        onDeleteRow={() => deleteBank(row._id)}
                         visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
                       />
                     ))}
 
@@ -322,7 +249,6 @@ export function BankListView({ banks }) {
         </Card>
       </DashboardContent>
 
-      {/* Delete Confirmations dialogue */}
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -349,9 +275,6 @@ export function BankListView({ banks }) {
   );
 }
 
-// ----------------------------------------------------------------------
-
-// filtering logic
 function applyFilter({ inputData, comparator, filters }) {
   const { name, branch, place } = filters;
 

@@ -1,27 +1,23 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import { Tooltip, MenuList } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
-// @mui
 
-// components
-
-import { PDFDownloadLink } from '@react-pdf/renderer';
-
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
-
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import BankListPdf from 'src/pdfs/bank-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-// ----------------------------------------------------------------------
+import { TABLE_COLUMNS } from './bank-table-config';
 
 export default function BankTableToolbar({
   filters,
@@ -30,6 +26,7 @@ export default function BankTableToolbar({
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
+  onToggleAllColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -60,14 +57,8 @@ export default function BankTableToolbar({
       <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
-        sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
-        }}
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
         <TextField
           fullWidth
@@ -122,26 +113,19 @@ export default function BankTableToolbar({
         </IconButton>
       </Stack>
 
-      {/* Column visibility popover */}
       <CustomPopover
         open={columnsPopover.open}
         onClose={columnsPopover.onClose}
         anchorEl={columnsPopover.anchorEl}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
-        <MenuList sx={{ width: 200 }}>
-          {Object.keys(visibleColumns).map((column) => (
-            <MenuItem
-              key={column}
-              onClick={() => !disabledColumns[column] && onToggleColumn(column)}
-              disabled={disabledColumns[column]}
-              sx={disabledColumns[column] ? { opacity: 0.7 } : {}}
-            >
-              <Checkbox checked={visibleColumns[column]} disabled={disabledColumns[column]} />
-              <ListItemText primary={column.charAt(0).toUpperCase() + column.slice(1)} />
-            </MenuItem>
-          ))}
-        </MenuList>
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
       </CustomPopover>
 
       <CustomPopover
@@ -151,15 +135,6 @@ export default function BankTableToolbar({
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
               document={<BankListPdf banks={tableData} />}
@@ -183,46 +158,14 @@ export default function BankTableToolbar({
             </PDFDownloadLink>
           </MenuItem>
 
-          {/* <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <PDFDownloadLink
-              document={<BankListPdf banks={tableData} />}
-              fileName="Bank-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 1 }}
-                  />
-                  Download
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem> */}
-
           <MenuItem
             onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Banks-list'
+              );
               popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Banks-list');
             }}
           >
             <Iconify icon="solar:export-bold" />
