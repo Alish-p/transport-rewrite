@@ -25,8 +25,8 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeletePump, usePaginatedPumps } from 'src/query/use-pump';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeletePump, usePaginatedPumps } from 'src/query/use-pump';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -35,10 +35,10 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   TableNoData,
+  TableSkeleton,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
-  TableSkeleton,
 } from 'src/components/table';
 
 import PumpTableRow from '../pump-table-row';
@@ -90,8 +90,6 @@ export function PumpListView() {
   const totalCount = data?.total || 0;
 
   const [tableData, setTableData] = useState([]);
-
-  const denseHeight = table.dense ? 56 : 76;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -244,8 +242,8 @@ export function PumpListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
                       <PumpTableRow
                         key={row._id}
