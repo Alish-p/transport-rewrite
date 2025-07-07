@@ -8,7 +8,7 @@ import DriverForm from '../driver-form';
 
 // ----------------------------------------------------------------------
 
-export function DriverEditView({ driver, bankList }) {
+export function DriverEditView({ driver }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,7 +27,7 @@ export function DriverEditView({ driver, bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DriverForm currentDriver={driver} bankList={bankList} />
+      <DriverForm currentDriver={driver} />
     </DashboardContent>
   );
 }

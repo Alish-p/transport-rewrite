@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useBanks } from 'src/query/use-bank';
 import { useTransporter } from 'src/query/use-transporter';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -18,18 +17,17 @@ const metadata = { title: `Transporter edit | Dashboard - ${CONFIG.site.name}` }
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: banks, isLoading: bankLoading, isError: bankError } = useBanks();
   const {
     data: transporter,
     isLoading: transporterLoading,
     isError: transporterError,
   } = useTransporter(id);
 
-  if (bankLoading || transporterLoading) {
+  if (transporterLoading) {
     return <LoadingScreen />;
   }
 
-  if (bankError || transporterError) {
+  if (transporterError) {
     return <EmptyContent />;
   }
 
@@ -39,7 +37,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TransporterEditView transporter={transporter} bankList={banks} />
+      <TransporterEditView transporter={transporter} />
     </>
   );
 }

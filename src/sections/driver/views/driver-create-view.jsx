@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import DriverForm from '../driver-form';
 
-export function DriverCreateView({ bankList }) {
+export function DriverCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function DriverCreateView({ bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DriverForm bankList={bankList} />
+      <DriverForm />
     </DashboardContent>
   );
 }

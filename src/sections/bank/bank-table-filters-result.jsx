@@ -18,16 +18,8 @@ export default function BankTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveBankName = () => {
-    onFilters('name', '');
-  };
-
-  const handleRemovePlace = () => {
-    onFilters('place', '');
-  };
-
-  const handleRemoveBranch = () => {
-    onFilters('branch', '');
+  const handleRemoveSearch = () => {
+    onFilters('search', '');
   };
 
   return (
@@ -40,21 +32,9 @@ export default function BankTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.name && (
-          <Block label="Bank Name :">
-            <Chip size="small" label={filters.name} onDelete={handleRemoveBankName} />
-          </Block>
-        )}
-
-        {filters.place && (
-          <Block label="Place:">
-            <Chip size="small" label={filters.place} onDelete={handleRemovePlace} />
-          </Block>
-        )}
-
-        {filters.branch && (
-          <Block label="Branch :">
-            <Chip size="small" label={filters.branch} onDelete={handleRemoveBranch} />
+        {filters.search && (
+          <Block label="Search:">
+            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
           </Block>
         )}
 

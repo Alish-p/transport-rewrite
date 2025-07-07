@@ -31,23 +31,9 @@ export default function BankTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
 
-  const handleFilterBankName = useCallback(
+  const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('name', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterPlace = useCallback(
-    (event) => {
-      onFilters('place', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterBranch = useCallback(
-    (event) => {
-      onFilters('branch', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
@@ -62,37 +48,9 @@ export default function BankTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.name}
-          onChange={handleFilterBankName}
-          placeholder="Search Bank Name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.place}
-          onChange={handleFilterPlace}
-          placeholder="Search place..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.branch}
-          onChange={handleFilterBranch}
-          placeholder="Search Branch ..."
+          value={filters.search}
+          onChange={handleFilterSearch}
+          placeholder="Search..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useBanks } from 'src/query/use-bank';
 import { useCustomer } from 'src/query/use-customer';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -18,14 +17,13 @@ const metadata = { title: `Customer edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { data: banks, isLoading: banksLoading, isError: banksError } = useBanks();
   const { data: customer, isLoading: customerLoading, isError: customerError } = useCustomer(id);
 
-  if (banksLoading || customerLoading) {
+  if (customerLoading) {
     return <LoadingScreen />;
   }
 
-  if (banksError || customerError) {
+  if (customerError) {
     return <EmptyContent />;
   }
 
@@ -35,7 +33,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <CustomerEditView customer={customer} bankList={banks} />
+      <CustomerEditView customer={customer} />
     </>
   );
 }

@@ -122,7 +122,7 @@ export const NewCustomerSchema = zod
 // ----------------------
 // 2. Main component
 // ----------------------
-export default function CustomerNewForm({ currentCustomer, bankList }) {
+export default function CustomerNewForm({ currentCustomer }) {
   const navigate = useNavigate();
   const router = useRouter();
   const bankDialogue = useBoolean();
@@ -460,7 +460,6 @@ export default function CustomerNewForm({ currentCustomer, bankList }) {
           setValue('bankDetails.place', bank?.place);
           setValue('bankDetails.name', bank?.name);
         }}
-        list={bankList}
         action={
           <Button
             size="small"

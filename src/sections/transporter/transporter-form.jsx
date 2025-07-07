@@ -75,7 +75,7 @@ export const NewTransporterSchema = zod
 
 // ----------------------------------------------------------------------
 
-export default function TransporterForm({ currentTransporter, bankList }) {
+export default function TransporterForm({ currentTransporter }) {
   const navigate = useNavigate();
   const router = useRouter();
   const bankDialogue = useBoolean();
@@ -257,7 +257,6 @@ export default function TransporterForm({ currentTransporter, bankList }) {
         setValue('bankDetails.place', bank?.place);
         setValue('bankDetails.name', bank?.name);
       }}
-      list={bankList}
       action={
         <Button
           size="small"

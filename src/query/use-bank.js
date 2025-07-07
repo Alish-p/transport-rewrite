@@ -1,5 +1,10 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -8,7 +13,14 @@ const QUERY_KEY = 'banks';
 
 // Fetchers
 const getBanks = async () => {
-  const { data } = await axios.get(ENDPOINT);
+  const { data } = await axios.get(ENDPOINT, {
+    params: { page: 1, rowsPerPage: 1000 },
+  });
+  return data.banks || data.results || [];
+};
+
+const getPaginatedBanks = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
 };
 
@@ -35,6 +47,35 @@ const deleteBank = async (id) => {
 // Queries & Mutations
 export function useBanks() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getBanks, staleTime: 1000 * 60 * 50 });
+}
+
+export function usePaginatedBanks(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedBanks(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+export function useInfiniteBanks(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPaginatedBanks({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + (page.banks ? page.banks.length : 0),
+        0
+      );
+      const totalCount = lastPage.total || 0;
+      return totalFetched < totalCount ? allPages.length + 1 : undefined;
+    },
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useBank(id) {

@@ -61,7 +61,7 @@ export const NewPumpSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function PumpForm({ currentPump, bankList }) {
+export default function PumpForm({ currentPump }) {
   const navigate = useNavigate();
   const router = useRouter();
   const bankDialogue = useBoolean();
@@ -212,7 +212,6 @@ export default function PumpForm({ currentPump, bankList }) {
         setValue('bankDetails.place', bank?.place);
         setValue('bankDetails.name', bank?.name);
       }}
-      list={bankList}
       action={
         <Button
           size="small"

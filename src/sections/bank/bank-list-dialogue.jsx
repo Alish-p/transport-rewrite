@@ -1,5 +1,5 @@
-import { FixedSizeList as List } from 'react-window';
-import { useState, useEffect, useCallback } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -10,7 +10,11 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { DialogTitle, DialogContent } from '@mui/material';
 
+import { useInfiniteBanks } from 'src/query/use-bank';
+
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
 // ----------------------------------------------------------------------
@@ -19,26 +23,7 @@ const ITEM_HEIGHT = 90;
 
 // ----------------------------------------------------------------------
 
-// Debounce hook
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-const Row = ({ index, style, data }) => {
-  const { banks, selected, onSelect } = data;
-  const bank = banks[index];
+const Row = ({ bank, selected, onSelect }) => {
 
   return (
     <ButtonBase
@@ -57,7 +42,6 @@ const Row = ({ index, style, data }) => {
           bgcolor: 'action.selected',
         }),
       }}
-      style={style}
     >
       <Stack direction="row" alignItems="center" spacing={1}>
         <Typography variant="subtitle2">{bank.name}</Typography>
@@ -79,20 +63,29 @@ const Row = ({ index, style, data }) => {
 };
 
 export function BankListDialog({
-  list,
+  selected,
   open,
   action,
   onClose,
-  selected,
   onSelect,
   title = 'Bank List',
 }) {
+  const scrollRef = useRef(null);
   const [searchBank, setSearchBank] = useState('');
-  const debouncedSearch = useDebounce(searchBank, 300);
 
-  const dataFiltered = applyFilter({ inputData: list, query: debouncedSearch });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useInfiniteBanks(
+    { search: searchBank || undefined, rowsPerPage: 50 },
+    { enabled: open }
+  );
 
-  const notFound = !dataFiltered.length && !!debouncedSearch;
+  const banks = data ? data.pages.flatMap((p) => p.banks) : [];
 
   const handleSearchBank = useCallback((event) => {
     setSearchBank(event.target.value);
@@ -101,32 +94,28 @@ export function BankListDialog({
   const handleSelectBank = useCallback(
     (bank) => {
       onSelect(bank);
-      setSearchBank('');
       onClose();
     },
-    [onClose, onSelect]
+    [onSelect, onClose]
   );
 
-  const renderList = (
-    <Box sx={{ height: ITEM_HEIGHT * 5, px: 2.5 }}>
-      <List
-        height={ITEM_HEIGHT * 5}
-        itemCount={dataFiltered.length}
-        itemSize={ITEM_HEIGHT}
-        width="100%"
-        itemData={{ banks: dataFiltered, selected, onSelect: handleSelectBank }}
-      >
-        {Row}
-      </List>
-    </Box>
-  );
+  const { ref: loadMoreRef, inView } = useInView({ root: scrollRef.current });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const notFound = !banks.length && !!searchBank && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">
-            {title} ({list?.length}){' '}
+            {title}{' '}
+            <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
           </Typography>
           {action && action}
         </Stack>
@@ -134,8 +123,8 @@ export function BankListDialog({
 
       <Box sx={{ px: 3, py: 2.5 }}>
         <TextField
-          value={searchBank}
           fullWidth
+          value={searchBank}
           onChange={handleSearchBank}
           placeholder="Search..."
           InputProps={{
@@ -149,25 +138,31 @@ export function BankListDialog({
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        {notFound ? (
-          <SearchNotFound query={debouncedSearch} sx={{ px: 3, pt: 5, pb: 10 }} />
+        {isLoading ? (
+          <LoadingSpinner sx={{ height: ITEM_HEIGHT * 5 }} />
+        ) : notFound ? (
+          <SearchNotFound query={searchBank} sx={{ mt: 3, mb: 10 }} />
         ) : (
-          renderList
+          <Scrollbar ref={scrollRef} sx={{ height: ITEM_HEIGHT * 5, px: 2.5 }}>
+            <Box component="ul">
+              {banks.map((bank) => (
+                <Row
+                  key={bank.ifsc || bank._id}
+                  bank={bank}
+                  selected={selected}
+                  onSelect={handleSelectBank}
+                />
+              ))}
+              <Box
+                ref={loadMoreRef}
+                sx={{ height: ITEM_HEIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                {isFetching && <LoadingSpinner />}
+              </Box>
+            </Box>
+          </Scrollbar>
         )}
       </DialogContent>
     </Dialog>
   );
-}
-
-function applyFilter({ inputData, query }) {
-  if (query) {
-    return inputData.filter(
-      (bank) =>
-        bank.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        bank.place.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        `${bank.ifsc}`.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
 }

@@ -75,7 +75,7 @@ export const NewDriverSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function DriverForm({ currentDriver, bankList }) {
+export default function DriverForm({ currentDriver }) {
   const navigate = useNavigate();
   const router = useRouter();
   const createDriver = useCreateFullDriver();
@@ -333,7 +333,6 @@ export default function DriverForm({ currentDriver, bankList }) {
         setValue('bankDetails.place', bank?.place);
         setValue('bankDetails.name', bank?.name);
       }}
-      list={bankList}
       action={
         <Button
           size="small"

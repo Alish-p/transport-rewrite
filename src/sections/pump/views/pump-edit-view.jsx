@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import PumpForm from '../pump-form';
 
-export function PumpEditView({ pump, bankList }) {
+export function PumpEditView({ pump }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -25,7 +25,7 @@ export function PumpEditView({ pump, bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <PumpForm isEdit currentPump={pump} bankList={bankList} />
+      <PumpForm isEdit currentPump={pump} />
     </DashboardContent>
   );
 }

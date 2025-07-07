@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TransporterNewForm from '../transporter-form';
 
-export function TransporterCreateView({ bankList }) {
+export function TransporterCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function TransporterCreateView({ bankList }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <TransporterNewForm bankList={bankList} />
+      <TransporterNewForm />
     </DashboardContent>
   );
 }
