@@ -17,7 +17,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
@@ -35,7 +35,6 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { transformSubtripsForExcel } from '../utils';
 import { TABLE_COLUMNS } from '../config/table-columns';
 
 // ----------------------------------------------------------------------
@@ -292,7 +291,10 @@ export default function SubtripTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(transformSubtripsForExcel(tableData, visibleCols), 'subtrip-list');
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'subtrip-list'
+              );
               popover.onClose();
             }}
           >

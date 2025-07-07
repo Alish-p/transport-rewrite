@@ -129,6 +129,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.quantity || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'grade',
@@ -223,6 +224,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.loadingWeight || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'unloadingWeight',
@@ -231,6 +233,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.unloadingWeight || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'shortageWeight',
@@ -239,6 +242,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.shortageWeight || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'shortageAmount',
@@ -247,6 +251,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row?.shortageAmount || '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'rate',
@@ -266,6 +271,7 @@ export const TABLE_COLUMNS = [
         ? row.rate * row.loadingWeight
         : '-',
     align: 'center',
+    showTotal: true,
   },
   {
     id: 'commissionRate',

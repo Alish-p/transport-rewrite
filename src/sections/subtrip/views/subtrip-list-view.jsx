@@ -20,7 +20,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -39,7 +39,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { transformSubtripsForExcel } from '../utils';
 import { TABLE_COLUMNS } from '../config/table-columns';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
@@ -418,7 +417,7 @@ export function SubtripListView() {
                       );
                       const selectedVisibleColumns = getVisibleColumnsForExport();
                       exportToExcel(
-                        transformSubtripsForExcel(selectedRows, selectedVisibleColumns),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, selectedVisibleColumns),
                         'filtered'
                       );
                     }}
