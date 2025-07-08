@@ -22,11 +22,6 @@ const createExpense = async (expense) => {
   return data;
 };
 
-const updateExpense = async (id, expenseData) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, expenseData);
-  return data;
-};
-
 const deleteExpense = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
