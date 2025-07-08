@@ -4,25 +4,16 @@
 
 ## Installation
 
-**Using Yarn (Recommended)**
+**Using npm**
 
 ```sh
-yarn install
-yarn dev
-```
-
-**Using Npm**
-
-```sh
-npm i
+npm install
 npm run dev
 ```
 
 ## Build
 
 ```sh
-yarn build
-# or
 npm run build
 ```
 
