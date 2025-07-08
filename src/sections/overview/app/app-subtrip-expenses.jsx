@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { Select, Divider, MenuItem, CardHeader, FormControl } from '@mui/material';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { useMonthlyExpenseSummary } from 'src/query/use-dashboard';
 
@@ -79,7 +79,8 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
         labels: filtered.map((item) => item.label),
         stroke: { width: 1, colors: [theme.palette.background.paper] },
         fill: { opacity: 0.88 },
-        tooltip: { y: { formatter: (value) => fCurrency(value) } },
+        tooltip: { y: { formatter: (value) => fShortenNumber(value) } },
+
         plotOptions: { pie: { donut: { labels: { show: false } } } },
     });
 
@@ -127,7 +128,7 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
                     colors={chartColorsAll}
                     labels={mapped.map((item) => item.label)}
                     icons={icons}
-                    sublabels={mapped.map((item) => fCurrency(item.value))}
+                    sublabels={mapped.map((item) => fShortenNumber(item.value))}
                     activeIndexes={activeIndexes}
                     onToggle={(idx) =>
                         setActiveIndexes((prev) =>
@@ -152,7 +153,7 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
 
                 <Box sx={{ py: 2 }}>
                     <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Amount</Box>
-                    {fCurrency(mapped.reduce((sum, i) => sum + i.value, 0))}
+                    {fShortenNumber(mapped.reduce((sum, i) => sum + i.value, 0))}
                 </Box>
             </Box>
         </Card>

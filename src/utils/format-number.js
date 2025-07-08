@@ -77,7 +77,7 @@ export function fShortenNumber(inputValue, options) {
     ...options,
   }).format(number);
 
-  return fm.replace(/[A-Z]/g, (match) => match.toLowerCase());
+  return fm.replace(/(\d)(?=[A-Za-z]+)/, '$1 ');
 }
 
 // ----------------------------------------------------------------------
