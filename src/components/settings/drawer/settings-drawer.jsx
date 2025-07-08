@@ -27,7 +27,6 @@ import { FullScreenButton } from './fullscreen-button';
 export function SettingsDrawer({
   sx,
   hideFont,
-  hideCompact,
   hidePresets,
   hideNavColor,
   hideContrast,
@@ -92,15 +91,6 @@ export function SettingsDrawer({
     />
   );
 
-  const renderCompact = (
-    <BaseOption
-      tooltip="Dashboard only and available at large resolutions > 1600px (xl)"
-      label="Compact"
-      icon="autofit-width"
-      selected={settings.compactLayout}
-      onClick={() => settings.onUpdateField('compactLayout', !settings.compactLayout)}
-    />
-  );
 
   const renderPresets = (
     <PresetsOptions
@@ -168,7 +158,6 @@ export function SettingsDrawer({
           <Box gap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
             {!hideColorScheme && renderMode}
             {!hideContrast && renderContrast}
-            {!hideCompact && renderCompact}
           </Box>
           {!(hideNavLayout && hideNavColor) && renderNav}
           {!hidePresets && renderPresets}

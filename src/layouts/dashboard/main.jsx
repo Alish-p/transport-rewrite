@@ -4,7 +4,6 @@ import Container from '@mui/material/Container';
 
 import { layoutClasses } from 'src/layouts/classes';
 
-import { useSettingsContext } from 'src/components/settings';
 
 // ----------------------------------------------------------------------
 
@@ -31,17 +30,15 @@ export function Main({ children, isNavHorizontal, sx, ...other }) {
 
 // ----------------------------------------------------------------------
 
-export function DashboardContent({ sx, children, disablePadding, maxWidth = 'lg', ...other }) {
+export function DashboardContent({ sx, children, disablePadding, ...other }) {
   const theme = useTheme();
-
-  const settings = useSettingsContext();
 
   const layoutQuery = 'lg';
 
   return (
     <Container
       className={layoutClasses.content}
-      maxWidth={settings.compactLayout ? maxWidth : false}
+      maxWidth={false}
       sx={{
         display: 'flex',
         flex: '1 1 auto',

@@ -2,13 +2,13 @@ import Alert from '@mui/material/Alert';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Main, CompactContent } from './main';
+import { Main } from './main';
 import { HeaderBase } from '../core/header-base';
 import { LayoutSection } from '../core/layout-section';
 
 // ----------------------------------------------------------------------
 
-export function SimpleLayout({ sx, children, content }) {
+export function SimpleLayout({ sx, children, }) {
   const mobileNavOpen = useBoolean();
 
   const layoutQuery = 'md';
@@ -50,12 +50,10 @@ export function SimpleLayout({ sx, children, content }) {
       /** **************************************
        * Style
        *************************************** */
-      cssVars={{
-        '--layout-simple-content-compact-width': '448px',
-      }}
+
       sx={sx}
     >
-      <Main>{content?.compact ? <CompactContent>{children}</CompactContent> : children}</Main>
+      <Main>{children}</Main>
     </LayoutSection>
   );
 }

@@ -15,7 +15,7 @@ import { varBounce, MotionContainer } from 'src/components/animate';
 
 export function View500() {
   return (
-    <SimpleLayout content={{ compact: true }}>
+    <SimpleLayout>
       <Container component={MotionContainer}>
         <m.div variants={varBounce().in}>
           <Typography variant="h3" sx={{ mb: 2 }}>

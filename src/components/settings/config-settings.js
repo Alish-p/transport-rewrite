@@ -10,6 +10,5 @@ export const defaultSettings = {
   navLayout: 'vertical',
   primaryColor: 'default',
   navColor: 'integrate',
-  compactLayout: false,
   fontFamily: defaultFont,
 };

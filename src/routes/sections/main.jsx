@@ -77,7 +77,7 @@ export const mainRoutes = [
       {
         path: 'coming-soon',
         element: (
-          <SimpleLayout content={{ compact: true }}>
+          <SimpleLayout >
             <ComingSoonPage />
           </SimpleLayout>
         ),
@@ -85,7 +85,7 @@ export const mainRoutes = [
       {
         path: 'maintenance',
         element: (
-          <SimpleLayout content={{ compact: true }}>
+          <SimpleLayout >
             <MaintenancePage />
           </SimpleLayout>
         ),
