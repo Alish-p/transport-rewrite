@@ -9,14 +9,12 @@ import { useTheme, useColorScheme } from '@mui/material/styles';
 
 import COLORS from 'src/theme/core/colors.json';
 import { paper, varAlpha } from 'src/theme/styles';
-import { defaultFont } from 'src/theme/core/typography';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 
 import { Iconify } from '../../iconify';
 import { BaseOption } from './base-option';
 import { NavOptions } from './nav-options';
 import { Scrollbar } from '../../scrollbar';
-import { FontOptions } from './font-options';
 import { useSettingsContext } from '../context';
 import { PresetsOptions } from './presets-options';
 import { defaultSettings } from '../config-settings';
@@ -26,7 +24,6 @@ import { FullScreenButton } from './fullscreen-button';
 
 export function SettingsDrawer({
   sx,
-  hideFont,
   hidePresets,
   hideNavColor,
   hideContrast,
@@ -126,13 +123,6 @@ export function SettingsDrawer({
     />
   );
 
-  const renderFont = (
-    <FontOptions
-      value={settings.fontFamily}
-      onClickOption={(newValue) => settings.onUpdateField('fontFamily', newValue)}
-      options={[defaultFont, 'Inter', 'DM Sans', 'Nunito Sans']}
-    />
-  );
 
   return (
     <Drawer
@@ -161,7 +151,6 @@ export function SettingsDrawer({
           </Box>
           {!(hideNavLayout && hideNavColor) && renderNav}
           {!hidePresets && renderPresets}
-          {!hideFont && renderFont}
         </Stack>
       </Scrollbar>
     </Drawer>

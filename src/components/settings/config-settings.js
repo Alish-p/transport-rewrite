@@ -1,5 +1,3 @@
-import { defaultFont } from 'src/theme/core/typography';
-
 // ----------------------------------------------------------------------
 
 export const STORAGE_KEY = 'app-settings';
@@ -10,5 +8,4 @@ export const defaultSettings = {
   navLayout: 'vertical',
   primaryColor: 'default',
   navColor: 'integrate',
-  fontFamily: defaultFont,
 };

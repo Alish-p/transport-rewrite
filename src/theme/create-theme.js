@@ -1,6 +1,7 @@
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles';
 
 import { setFont } from './styles/utils';
+import { defaultFont } from './core/typography';
 import { overridesTheme } from './overrides-theme';
 import { shadows, typography, components, colorSchemes, customShadows } from './core';
 import { updateCoreWithSettings, updateComponentsWithSettings } from './with-settings/update-theme';
@@ -16,7 +17,7 @@ export function createTheme(localeComponents, settings) {
     components,
     typography: {
       ...typography,
-      fontFamily: setFont(settings.fontFamily),
+      fontFamily: setFont(defaultFont),
     },
     cssVarPrefix: '',
     shouldSkipGeneratingVar,
