@@ -55,7 +55,7 @@ export function OverviewAppView({
   } = counts;
 
   return (
-    <DashboardContent maxWidth="xl">
+    <DashboardContent >
       <Grid container spacing={3}>
         <Grid xs={12} md={7}>
           <AppWelcome
