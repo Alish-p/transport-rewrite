@@ -311,29 +311,3 @@ export const TABLE_COLUMNS = [
     },
   },
 ];
-
-export const defaultFilters = Object.freeze({
-  customerId: '',
-  subtripId: '',
-  vehicleNo: '',
-  transportName: '',
-  driverId: '',
-  subtripStatus: 'all',
-  fromDate: null,
-  toDate: null,
-  subtripEndFromDate: null,
-  subtripEndToDate: null,
-  materials: [],
-});
-
-export const getDefaultVisibleColumns = () =>
-  TABLE_COLUMNS.reduce((acc, column) => {
-    acc[column.id] = column.defaultVisible;
-    return acc;
-  }, {});
-
-export const getDisabledColumns = () =>
-  TABLE_COLUMNS.reduce((acc, column) => {
-    acc[column.id] = column.disabled;
-    return acc;
-  }, {});

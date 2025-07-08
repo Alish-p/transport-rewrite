@@ -12,11 +12,6 @@ const getLoans = async () => {
   return data;
 };
 
-const getPendingLoans = async ({ borrowerType, borrowerId }) => {
-  const { data } = await axios.get(`${ENDPOINT}/pending/${borrowerType}/${borrowerId}`);
-  return data;
-};
-
 const getLoan = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -62,13 +57,6 @@ const deferAllInstallments = async ({ id, days }) => {
 // Queries & Mutations
 export function useLoans() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getLoans });
-}
-export function usePendingLoans({ borrowerType, borrowerId }) {
-  return useQuery({
-    queryKey: [QUERY_KEY, 'pending', borrowerType, borrowerId],
-    queryFn: () => getPendingLoans({ borrowerType, borrowerId }),
-    enabled: !!borrowerType && !!borrowerId,
-  });
 }
 
 export function useLoan(id) {

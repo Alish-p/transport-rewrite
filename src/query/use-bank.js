@@ -12,13 +12,6 @@ const ENDPOINT = '/api/banks';
 const QUERY_KEY = 'banks';
 
 // Fetchers
-const getBanks = async () => {
-  const { data } = await axios.get(ENDPOINT, {
-    params: { page: 1, rowsPerPage: 1000 },
-  });
-  return data.banks || data.results || [];
-};
-
 const getPaginatedBanks = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
@@ -45,10 +38,6 @@ const deleteBank = async (id) => {
 };
 
 // Queries & Mutations
-export function useBanks() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getBanks, staleTime: 1000 * 60 * 50 });
-}
-
 export function usePaginatedBanks(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],

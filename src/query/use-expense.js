@@ -67,25 +67,6 @@ export function useCreateExpense() {
   return mutateAsync;
 }
 
-export function useUpdateExpense() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: ({ id, data }) => updateExpense(id, data),
-    onSuccess: (updatedExpense) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedExpense._id], updatedExpense);
-
-      toast.success('Expense edited successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutateAsync;
-}
-
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({

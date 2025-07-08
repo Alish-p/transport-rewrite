@@ -12,11 +12,6 @@ const ENDPOINT = '/api/customers';
 const QUERY_KEY = 'customers';
 
 // Fetchers
-const getCustomers = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-
 const getPaginatedCustomers = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
@@ -49,10 +44,6 @@ const deleteCustomer = async (id) => {
 };
 
 // Queries & Mutations
-export function useCustomers() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getCustomers });
-}
-
 export function usePaginatedCustomers(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],

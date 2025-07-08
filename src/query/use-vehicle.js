@@ -7,18 +7,8 @@ const ENDPOINT = '/api/vehicles';
 const QUERY_KEY = 'vehicles';
 
 // Fetchers
-const getVehicles = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-
 const getPaginatedVehicles = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
-  return data;
-};
-
-const getVehiclesSummary = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/summary`);
   return data;
 };
 
@@ -44,10 +34,6 @@ const deleteVehicle = async (id) => {
 };
 
 // Queries & Mutations
-export function useVehicles() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getVehicles });
-}
-
 export function usePaginatedVehicles(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],
@@ -73,10 +59,6 @@ export function useInfiniteVehicles(params, options = {}) {
     enabled: !!params,
     ...options,
   });
-}
-
-export function useVehiclesSummary() {
-  return useQuery({ queryKey: [QUERY_KEY, 'summary'], queryFn: getVehiclesSummary });
 }
 
 export function useVehicle(id) {

@@ -22,12 +22,6 @@ const createDriverPayroll = async (driverPayroll) => {
   return data;
 };
 
-const updateDriverPayroll = async (id, driverPayrollData) => {
-  console.log({ driverPayrollDataInAPICAll: driverPayrollData });
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, driverPayrollData);
-  return data;
-};
-
 const updateDriverPayrollStatus = async (id, status) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
   return data;
@@ -67,25 +61,6 @@ export function useCreateDriverPayroll() {
     },
   });
   return mutateAsync;
-}
-
-export function useUpdateDriverPayroll() {
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: ({ id, data }) => updateDriverPayroll(id, data),
-    onSuccess: (updatedDriverPayroll) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedDriverPayroll._id], updatedDriverPayroll);
-
-      toast.success('DriverPayroll edited successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutate;
 }
 
 export function useUpdateDriverPayrollStatus() {

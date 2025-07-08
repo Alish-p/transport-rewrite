@@ -15,21 +15,6 @@ export default axiosInstance;
 
 // ----------------------------------------------------------------------
 
-export const fetcher = async (args) => {
-  try {
-    const [url, config] = Array.isArray(args) ? args : [args];
-
-    const res = await axiosInstance.get(url, { ...config });
-
-    return res.data;
-  } catch (error) {
-    console.error('Failed to fetch:', error);
-    throw error;
-  }
-};
-
-// ----------------------------------------------------------------------
-
 export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',

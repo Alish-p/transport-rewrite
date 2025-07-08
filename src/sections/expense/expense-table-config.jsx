@@ -169,15 +169,3 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.authorisedBy || '-',
   },
 ];
-
-export const getDefaultVisibleColumns = () =>
-  TABLE_COLUMNS.reduce((acc, column) => {
-    acc[column.id] = column.defaultVisible;
-    return acc;
-  }, {});
-
-export const getDisabledColumns = () =>
-  TABLE_COLUMNS.reduce((acc, column) => {
-    acc[column.id] = column.disabled;
-    return acc;
-  }, {});

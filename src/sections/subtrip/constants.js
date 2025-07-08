@@ -59,19 +59,3 @@ export const loadedSchema = inQueueSchema.extend({
   loadingPoint: zod.string().min(1, { message: 'Loading Point is required' }),
   unloadingPoint: zod.string().min(1, { message: 'Unloading Point is required' }),
 });
-
-// Schema for Received status (includes In-queue + Loaded + receive fields)
-export const receivedSchema = loadedSchema.extend({
-  remarks: zod.string().optional(),
-  unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
-  deductedWeight: zod
-    .number({ required_error: 'Deducted weight is required' })
-    .min(0, { message: 'Deducted weight cannot be negative' }),
-  deductedAmount: zod.number().min(0, { message: 'Deducted amount cannot be negative' }),
-  endKm: zod.number({ required_error: 'End Km is required' }),
-  totalKm: zod
-    .number()
-    .min(0, { message: 'Total Km must be zero or a positive number' })
-    .optional(),
-  endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
-});

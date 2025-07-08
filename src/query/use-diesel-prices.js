@@ -10,11 +10,7 @@ import axios from 'src/utils/axios';
 const ENDPOINT = '/api/diesel-prices';
 const QUERY_KEY = 'diesel-prices';
 
-const getDieselPrices = async () => {
-  const { data } = await axios.get(`${ENDPOINT}`);
-  return data;
-};
-
+// Fetchers
 const getDieselPriceOnDate = async ({ date, pump }) => {
   try {
     const { data } = await axios.get(`${ENDPOINT}/${pump}/${date}`);
@@ -54,13 +50,6 @@ const getPaginatedDieselPrices = async (params) => {
 };
 
 // Queries & Mutations
-export function useDieselPrices() {
-  return useQuery({
-    queryKey: [QUERY_KEY],
-    queryFn: getDieselPrices,
-  });
-}
-
 export function usePaginatedDieselPrices(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],

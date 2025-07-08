@@ -18,45 +18,6 @@ export const calculateDriverSalaryPerSubtrip = (subtrip) => {
   return totalDriverSalary;
 };
 
-export const calculatePayslipSummary = (payslip) => {
-  if (!payslip || typeof payslip !== 'object') {
-    throw new Error('Invalid payslip data');
-  }
-
-  const { otherSalaryComponent = [], subtripComponents = [], selectedLoans = [] } = payslip;
-
-  // Calculate total fixed income
-  const totalFixedIncome = otherSalaryComponent
-    .filter((item) => item.paymentType === 'Fixed Salary')
-    .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
-
-  // Calculate total trip-wise income
-  const totalTripWiseIncome = subtripComponents.reduce(
-    (accumulator, st) => accumulator + (calculateDriverSalaryPerSubtrip(st) || 0),
-    0
-  );
-
-  // Calculate total deductions
-  const totalDeductions = otherSalaryComponent
-    .filter((item) => item.paymentType === 'Penalty Deduction')
-    .reduce((accumulator, item) => accumulator + (item.amount || 0), 0);
-
-  // calculate total repayments
-  const totalRepayments = selectedLoans.reduce(
-    (accumulator, { installmentAmount }) => accumulator + installmentAmount,
-    0
-  );
-
-  const netSalary = totalFixedIncome + totalTripWiseIncome - totalDeductions - totalRepayments;
-
-  return {
-    totalFixedIncome,
-    totalTripWiseIncome,
-    totalDeductions,
-    netSalary,
-    totalRepayments,
-  };
-};
 
 // for providing insignts while adding salary expense
 export function getFixedExpensesByVehicleType(route, vehicle) {

@@ -17,11 +17,6 @@ const getPaginatedDrivers = async (params) => {
   return data;
 };
 
-const getDriversSummary = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/summary`);
-  return data;
-};
-
 const getDriver = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -83,14 +78,6 @@ export function useInfiniteDrivers(params, options = {}) {
   });
 }
 
-export function useDriversSummary(options = {}) {
-  return useQuery({
-    queryKey: [QUERY_KEY, 'summary'],
-    queryFn: getDriversSummary,
-    ...options,
-  });
-}
-
 export function useDriver(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
@@ -147,31 +134,6 @@ export function useCreateFullDriver() {
       toast.error(errorMessage);
     },
   });
-}
-
-// Legacy hook that determines which creation method to use based on the driver data
-export function useCreateDriver() {
-  const createQuickDriver = useCreateQuickDriver();
-  const createFullDriver = useCreateFullDriver();
-
-  return {
-    ...createFullDriver,
-    mutate: (driverData) => {
-      // Check if this is a quick driver (only has name and cell number)
-      const isQuickDriver =
-        driverData &&
-        driverData.driverName &&
-        driverData.driverCellNo &&
-        !driverData.driverLicenceNo &&
-        !driverData.driverPresentAddress;
-
-      if (isQuickDriver) {
-        return createQuickDriver.mutate(driverData);
-      }
-
-      return createFullDriver.mutate(driverData);
-    },
-  };
 }
 
 export function useUpdateDriver() {
