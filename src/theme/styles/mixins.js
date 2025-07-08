@@ -180,9 +180,6 @@ export function paper({ theme, color, dropdown }) {
     backgroundRepeat: 'no-repeat, no-repeat',
     backgroundPosition: 'top right, left bottom',
     backgroundSize: '50%, 50%',
-    ...(theme.direction === 'rtl' && {
-      backgroundPosition: 'top left, right bottom',
-    }),
     ...(dropdown && {
       padding: theme.spacing(0.5),
       boxShadow: theme.customShadows.dropdown,

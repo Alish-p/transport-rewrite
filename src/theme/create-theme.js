@@ -12,7 +12,6 @@ export function createTheme(localeComponents, settings) {
     colorSchemes,
     shadows: shadows(settings.colorScheme),
     customShadows: customShadows(settings.colorScheme),
-    direction: settings.direction,
     shape: { borderRadius: 8 },
     components,
     typography: {
@@ -43,11 +42,10 @@ export function createTheme(localeComponents, settings) {
 
 // ----------------------------------------------------------------------
 
-function shouldSkipGeneratingVar(keys,) {
+function shouldSkipGeneratingVar(keys) {
   const skipGlobalKeys = [
     'mixins',
     'overlays',
-    'direction',
     'breakpoints',
     'cssVarPrefix',
     'unstable_sxConfig',

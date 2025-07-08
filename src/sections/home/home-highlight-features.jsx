@@ -240,10 +240,4 @@ const ITEMS = [
       `${CONFIG.site.basePath}/assets/images/home/highlight-presets-5.webp`,
     ],
   },
-  {
-    title: 'Right-to-left',
-    subtitle: 'Support languages such as Arabic, Persian, and Hebrew.',
-    icon: 'solar:align-right-bold-duotone',
-    imgUrl: [`${CONFIG.site.basePath}/assets/images/home/highlight-rtl.webp`],
-  },
 ];

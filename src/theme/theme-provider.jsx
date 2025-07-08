@@ -6,7 +6,6 @@ import { useTranslate } from 'src/locales';
 import { useSettingsContext } from 'src/components/settings';
 
 import { createTheme } from './create-theme';
-import { RTL } from './with-settings/right-to-left';
 import { schemeConfig } from './color-scheme-script';
 
 // ----------------------------------------------------------------------
@@ -25,7 +24,7 @@ export function ThemeProvider({ children }) {
       modeStorageKey={schemeConfig.modeStorageKey}
     >
       <CssBaseline />
-      <RTL direction={settings.direction}>{children}</RTL>
+      {children}
     </CssVarsProvider>
   );
 }

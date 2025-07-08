@@ -32,7 +32,6 @@ export function SettingsDrawer({
   hideNavColor,
   hideContrast,
   hideNavLayout,
-  hideDirection,
   hideColorScheme,
 }) {
   const theme = useTheme();
@@ -89,17 +88,6 @@ export function SettingsDrawer({
       selected={settings.contrast === 'high'}
       onClick={() =>
         settings.onUpdateField('contrast', settings.contrast === 'default' ? 'high' : 'default')
-      }
-    />
-  );
-
-  const renderRTL = (
-    <BaseOption
-      label="Right to left"
-      icon="align-right"
-      selected={settings.direction === 'rtl'}
-      onClick={() =>
-        settings.onUpdateField('direction', settings.direction === 'ltr' ? 'rtl' : 'ltr')
       }
     />
   );
@@ -180,7 +168,6 @@ export function SettingsDrawer({
           <Box gap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
             {!hideColorScheme && renderMode}
             {!hideContrast && renderContrast}
-            {!hideDirection && renderRTL}
             {!hideCompact && renderCompact}
           </Box>
           {!(hideNavLayout && hideNavColor) && renderNav}
