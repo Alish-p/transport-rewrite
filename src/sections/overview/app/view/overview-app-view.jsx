@@ -215,11 +215,11 @@ export function OverviewAppView({
           />
         </Grid>
 
-        <Grid sm={12} lg={6}>
+        <Grid xs={12} lg={6}>
           <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
 
-        <Grid sm={12} lg={6}>
+        <Grid xs={12} lg={6}>
           <FinancialMonthlyChart title="Financial overview" />
         </Grid>
       </Grid>

@@ -11,7 +11,7 @@ import { Select, TableRow, TableCell, FormControl } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fNumber, fCurrency } from 'src/utils/format-number';
+import { fNumber, fShortenNumber } from 'src/utils/format-number';
 
 import { useCustomerMonthlyFreight } from 'src/query/use-dashboard';
 
@@ -93,7 +93,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                                             </RouterLink>
                                         </TableCell>
                                         <TableCell align="right">{fNumber(row.totalLoadingWeight)}</TableCell>
-                                        <TableCell align="right">{fCurrency(row.totalFreightAmount)}</TableCell>
+                                        <TableCell align="right">{fShortenNumber(row.totalFreightAmount)}</TableCell>
                                         <TableCell align="right">{(row.subtripCounts?.inQueue || '-')}</TableCell>
                                         <TableCell align="right">{(row.subtripCounts?.loaded || '-')}</TableCell>
                                         <TableCell align="right">{(row.subtripCounts?.error || '-')}</TableCell>
@@ -109,7 +109,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                                         {fNumber(summary.reduce((sum, r) => sum + r.totalLoadingWeight, 0))}
                                     </TableCell>
                                     <TableCell align="right">
-                                        {fCurrency(summary.reduce((sum, r) => sum + r.totalFreightAmount, 0))}
+                                        {fShortenNumber(summary.reduce((sum, r) => sum + r.totalFreightAmount, 0))}
                                     </TableCell>
                                     <TableCell align="right">
                                         {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.inQueue || 0), 0))}

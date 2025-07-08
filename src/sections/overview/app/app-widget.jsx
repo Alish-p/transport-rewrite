@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 
@@ -48,7 +48,7 @@ export function AppWidget({ title, total, icon, sx, ...other }) {
       </Box>
 
       <div>
-        <Box sx={{ typography: 'h4' }}>{fCurrency(total)}</Box>
+        <Box sx={{ typography: 'h4' }}>{fShortenNumber(total)} </Box>
         <Box sx={{ typography: 'subtitle2', opacity: 0.64 }}>{title}</Box>
       </div>
 
