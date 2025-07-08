@@ -1,45 +1,48 @@
+# Transport Plus
+
+Transport Plus is a logistics management dashboard built with React and Vite. It helps track trips, vehicles, invoices and other day‑to‑day operations for transport companies.
+
 ## Prerequisites
 
-- Node.js 20.x (Recommended)
+- Node.js 20.x (recommended)
 
 ## Installation
 
-**Using npm**
+Install dependencies and start the development server:
 
 ```sh
 npm install
 npm run dev
 ```
 
-## Build
+The app runs on [http://localhost:3031](http://localhost:3031) by default.
+
+## Build for production
 
 ```sh
 npm run build
 ```
 
-## Mock server
+Preview the production build with:
 
-By default we provide demo data from : `https://api-dev-minimal-[version].vercel.app`
+```sh
+npm start
+```
 
-To set up your local server:
+## Environment variables
 
-- **Guide:** [https://docs.minimals.cc/mock-server](https://docs.minimals.cc/mock-server).
+Create a `.env` file in the project root if you need to override default values:
 
-- **Resource:** [Download](https://www.dropbox.com/sh/6ojn099upi105tf/AACpmlqrNUacwbBfVdtt2t6va?dl=0).
+```
+VITE_SERVER_URL=<your API server URL>
+VITE_ASSET_URL=<path for static assets>
+VITE_BASE_PATH=<base path when deploying under a subfolder>
+```
 
-## Full version
+## Customisation
 
-- Create React App ([migrate to CRA](https://docs.minimals.cc/migrate-to-cra/)).
-- Next.js
-- Vite.js
-
-## Starter version
-
-- To remove unnecessary components. This is a simplified version ([https://starter.minimals.cc/](https://starter.minimals.cc/))
-- Good to start a new project. You can copy components from the full version.
-- Make sure to install the dependencies exactly as compared to the full version.
+Update [`src/config-global.js`](src/config-global.js) to change company information, invoice tax rates and other settings.
 
 ---
 
-**NOTE:**
-_When copying folders remember to also copy hidden files like .env. This is important because .env files often contain environment variables that are crucial for the application to run correctly._
+This project uses Material UI and integrates with service workers for optional PWA support.
