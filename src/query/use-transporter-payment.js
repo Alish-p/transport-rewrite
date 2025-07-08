@@ -7,11 +7,6 @@ const ENDPOINT = '/api/transporter-payments';
 const QUERY_KEY = 'transporterPayments';
 
 // Fetchers
-const getTransporterPayments = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  return data;
-};
-
 const getPaginatedTransporterPayments = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
   return data;
@@ -32,12 +27,6 @@ const createBulkTransporterPayment = async (list) => {
   return data;
 };
 
-const updateTransporterPayment = async (id, transporterPaymentData) => {
-  console.log({ transporterPaymentDataInAPICAll: transporterPaymentData });
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, transporterPaymentData);
-  return data;
-};
-
 const updateTransporterPaymentStatus = async (id, status) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
   return data;
@@ -49,10 +38,6 @@ const deleteTransporterPayment = async (id) => {
 };
 
 // Queries & Mutations
-export function useTransporterPayments() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getTransporterPayments });
-}
-
 export function usePaginatedTransporterPayments(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],
@@ -101,28 +86,6 @@ export function useCreateBulkTransporterPayment() {
     },
   });
   return mutateAsync;
-}
-
-export function useUpdateTransporterPayment() {
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: ({ id, data }) => updateTransporterPayment(id, data),
-    onSuccess: (updatedTransporterPayment) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData(
-        [QUERY_KEY, updatedTransporterPayment._id],
-        updatedTransporterPayment
-      );
-
-      toast.success('TransporterPayment edited successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutate;
 }
 
 export function useUpdateTransporterPaymentStatus() {

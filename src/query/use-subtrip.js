@@ -156,15 +156,6 @@ export function useFetchSubtripsForTransporterBilling(
   });
 }
 
-export function useFilteredSubtrips(params) {
-  return useQuery({
-    queryKey: [QUERY_KEY, params],
-    queryFn: getFilteredSubtrips,
-    enabled: Object.keys(params).length > 0,
-    retry: 0,
-  });
-}
-
 export function usePaginatedSubtrips(params, options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'paginated', params],

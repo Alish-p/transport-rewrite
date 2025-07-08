@@ -13,11 +13,6 @@ const getTasks = async () => {
   return data;
 };
 
-const getTask = async (id) => {
-  const { data } = await axios.get(`${ENDPOINT}/${id}`);
-  return data;
-};
-
 const createTask = async (column, task) => {
   const { data } = await axios.post(ENDPOINT, { ...task, status: column });
   return data;
@@ -56,14 +51,6 @@ const removeSubtask = async (taskId, subtaskId) => {
 // Queries & Mutations
 export function useTasks() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTasks });
-}
-
-export function useTask(id) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id],
-    queryFn: () => getTask(id),
-    enabled: !!id,
-  });
 }
 
 export function useCreateTask() {
