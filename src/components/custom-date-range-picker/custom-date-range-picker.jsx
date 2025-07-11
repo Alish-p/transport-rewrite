@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -26,6 +28,16 @@ export function CustomDateRangePicker({
 }) {
   const mdUp = useResponsive('up', 'md');
 
+  const handleStartChange = (date) => {
+    const newDate = date ? dayjs(date).startOf('day') : null;
+    onChangeStartDate(newDate);
+  };
+
+  const handleEndChange = (date) => {
+    const newDate = date ? dayjs(date).endOf('day') : null;
+    onChangeEndDate(newDate);
+  };
+
   const isCalendarView = variant === 'calendar';
 
   return (
@@ -51,21 +63,21 @@ export function CustomDateRangePicker({
                 variant="outlined"
                 sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
               >
-                <DateCalendar value={startDate} onChange={onChangeStartDate} />
+                <DateCalendar value={startDate} onChange={handleStartChange} />
               </Paper>
 
               <Paper
                 variant="outlined"
                 sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
               >
-                <DateCalendar value={endDate} onChange={onChangeEndDate} />
+                <DateCalendar value={endDate} onChange={handleEndChange} />
               </Paper>
             </>
           ) : (
             <>
-              <DatePicker label="Start date" value={startDate} onChange={onChangeStartDate} />
+              <DatePicker label="Start date" value={startDate} onChange={handleStartChange} />
 
-              <DatePicker label="End date" value={endDate} onChange={onChangeEndDate} />
+              <DatePicker label="End date" value={endDate} onChange={handleEndChange} />
             </>
           )}
         </Stack>
