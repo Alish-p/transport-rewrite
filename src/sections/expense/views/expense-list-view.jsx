@@ -73,21 +73,17 @@ export function ExpenseListView() {
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
-
 
   const { data, isLoading } = usePaginatedExpenses({
     vehicleId: filters.vehicle?._id || undefined,
@@ -96,10 +92,8 @@ export function ExpenseListView() {
     transporterId: filters.transporter?._id || undefined,
     routeId: filters.route?._id || undefined,
     tripId: filters.trip?._id || undefined,
-    expenseCategory:
-      filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
-    expenseType:
-      filters.expenseType !== 'all' ? filters.expenseType : undefined,
+    expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
+    expenseType: filters.expenseType !== 'all' ? filters.expenseType : undefined,
     startDate: filters.fromDate || undefined,
     endDate: filters.endDate || undefined,
     page: table.page + 1,
@@ -116,7 +110,6 @@ export function ExpenseListView() {
 
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || 0;
-
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -139,7 +132,6 @@ export function ExpenseListView() {
     },
   ];
 
-
   const handleEditRow = (id) => {
     navigate(paths.dashboard.expense.edit(paramCase(id)));
   };
@@ -159,7 +151,6 @@ export function ExpenseListView() {
     [handleFilters]
   );
 
-
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
     (columnName) => {
@@ -174,7 +165,6 @@ export function ExpenseListView() {
     },
     [toggleAllColumnsVisibility]
   );
-
 
   return (
     <DashboardContent>
@@ -337,7 +327,9 @@ export function ExpenseListView() {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
                         'Expense-selected-list'
@@ -363,6 +355,7 @@ export function ExpenseListView() {
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -388,6 +381,7 @@ export function ExpenseListView() {
                         onDeleteRow={() => deleteExpense(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 
@@ -412,4 +406,3 @@ export function ExpenseListView() {
 }
 
 // ----------------------------------------------------------------------
-

@@ -63,19 +63,16 @@ export function TransporterPaymentListView() {
   const table = useTable({ defaultOrderBy: 'createDate' });
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedTransporterPayments({
@@ -104,7 +101,12 @@ export function TransporterPaymentListView() {
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
     { value: 'paid', label: 'Paid', color: 'success', count: totals.paid?.count || 0 },
-    { value: 'generated', label: 'Generated', color: 'warning', count: totals.generated?.count || 0 },
+    {
+      value: 'generated',
+      label: 'Generated',
+      color: 'warning',
+      count: totals.generated?.count || 0,
+    },
   ];
 
   const notFound = !isLoading && !tableData.length;
@@ -212,7 +214,9 @@ export function TransporterPaymentListView() {
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
                         'Transporter-payment-selected'
@@ -235,6 +239,7 @@ export function TransporterPaymentListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -245,21 +250,22 @@ export function TransporterPaymentListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <TransporterPaymentTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                      <TransporterPaymentTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

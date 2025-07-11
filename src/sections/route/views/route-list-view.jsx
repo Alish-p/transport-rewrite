@@ -69,9 +69,11 @@ export function RouteListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedRoutes({
@@ -81,8 +83,7 @@ export function RouteListView() {
     fromPlace: filters.fromPlace || undefined,
     toPlace: filters.toPlace || undefined,
     customer: filters.customer || undefined,
-    isCustomerSpecific:
-      filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
+    isCustomerSpecific: filters.routeType === 'all' ? undefined : filters.routeType === 'customer',
   });
 
   const [tableData, setTableData] = useState([]);
@@ -102,7 +103,6 @@ export function RouteListView() {
   const handleEditRow = (id) => {
     navigate(paths.dashboard.route.edit(paramCase(id)));
   };
-
 
   const handleViewRow = useCallback(
     (id) => {
@@ -184,10 +184,7 @@ export function RouteListView() {
                   <CircularProgress size={16} />
                 ) : (
                   <Label
-                    variant={
-                      (tab.value === 'all' || tab.value === filters.routeType) &&
-                      'filled'
-                    }
+                    variant={(tab.value === 'all' || tab.value === filters.routeType) && 'filled'}
                     color={tab.color}
                   >
                     {tab.count}
@@ -215,8 +212,8 @@ export function RouteListView() {
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={() => {
-              handleResetFilters()
-              setSelectedCustomer(null)
+              handleResetFilters();
+              setSelectedCustomer(null);
             }}
             selectedCustomerName={selectedCustomer?.customerName}
             onRemoveCustomer={handleClearCustomer}
@@ -270,6 +267,7 @@ export function RouteListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -280,21 +278,22 @@ export function RouteListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <RouteTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteRoute(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                      <RouteTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteRoute(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

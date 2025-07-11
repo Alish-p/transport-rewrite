@@ -13,6 +13,7 @@ export default function RouteTableRow({
   onDeleteRow,
   visibleColumns,
   disabledColumns,
+  columnOrder,
 }) {
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
@@ -29,6 +30,7 @@ export default function RouteTableRow({
       onDeleteRow={handleDelete}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
+      columnOrder={columnOrder}
     />
   );
 }

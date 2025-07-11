@@ -48,7 +48,6 @@ import TripTableFiltersResult from '../trip-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-
 const defaultFilters = {
   tripId: '',
   driverId: '',
@@ -74,21 +73,19 @@ export function TripListView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
-
 
   const { data, isLoading } = usePaginatedTrips({
     page: table.page + 1,
@@ -114,13 +111,11 @@ export function TripListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
-
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: data?.total },
     { value: 'open', label: 'Open', color: 'warning', count: data?.totalOpen },
     { value: 'closed', label: 'Closed', color: 'success', count: data?.totalClosed },
   ];
-
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.trip.edit(paramCase(id)));
@@ -154,7 +149,6 @@ export function TripListView() {
     },
     [toggleColumnVisibility]
   );
-
 
   return (
     <DashboardContent>
@@ -274,7 +268,9 @@ export function TripListView() {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+                      const visibleCols = Object.keys(visibleColumns).filter(
+                        (c) => visibleColumns[c]
+                      );
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
                         'Trips-selected'
@@ -309,6 +305,7 @@ export function TripListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -319,21 +316,22 @@ export function TripListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                    <TableSkeleton key={index} />
-                  ))
+                      <TableSkeleton key={index} />
+                    ))
                   : tableData.map((row) => (
-                    <TripTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteTrip(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                    />
-                  ))}
+                      <TripTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deleteTrip(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

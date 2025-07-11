@@ -15,12 +15,13 @@ export default function ExpenseTableRow({
   onDeleteRow,
   visibleColumns,
   disabledColumns,
+  columnOrder,
 }) {
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
   const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
 
-  console.log({ row })
+  console.log({ row });
 
   return (
     <GenericTableRow
@@ -33,6 +34,7 @@ export default function ExpenseTableRow({
       onDeleteRow={handleDelete}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
+      columnOrder={columnOrder}
     />
   );
 }

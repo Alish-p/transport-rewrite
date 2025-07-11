@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 
 export function useColumnVisibility(TABLE_COLUMNS) {
   const defaultVisibleColumns = useMemo(
@@ -19,11 +20,20 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     [TABLE_COLUMNS]
   );
 
+  const defaultColumnOrder = useMemo(
+    () => TABLE_COLUMNS.map((column) => column.id),
+    [TABLE_COLUMNS]
+  );
+
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
+  const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
 
   const visibleHeaders = useMemo(
-    () => TABLE_COLUMNS.filter((column) => visibleColumns[column.id]),
-    [TABLE_COLUMNS, visibleColumns]
+    () =>
+      columnOrder
+        .map((id) => TABLE_COLUMNS.find((column) => column.id === id))
+        .filter((column) => column && visibleColumns[column.id]),
+    [columnOrder, TABLE_COLUMNS, visibleColumns]
   );
 
   const visibleColumnCount = useMemo(
@@ -58,6 +68,19 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     setVisibleColumns(defaultVisibleColumns);
   }, [defaultVisibleColumns]);
 
+  const moveColumn = useCallback((activeId, overId) => {
+    if (activeId === overId) return;
+    setColumnOrder((prev) => {
+      const oldIndex = prev.indexOf(activeId);
+      const newIndex = prev.indexOf(overId);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  }, []);
+
+  const resetColumnOrder = useCallback(() => {
+    setColumnOrder(defaultColumnOrder);
+  }, [defaultColumnOrder]);
+
   const isColumnVisible = useCallback(
     (columnName) => !!visibleColumns[columnName],
     [visibleColumns]
@@ -67,6 +90,7 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     // State
     visibleColumns,
     disabledColumns,
+    columnOrder,
     visibleHeaders,
     visibleColumnCount,
 
@@ -74,6 +98,8 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     resetColumnVisibility,
+    moveColumn,
+    resetColumnOrder,
 
     // Utilities
     isColumnVisible,

@@ -62,9 +62,11 @@ export function BankListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedBanks({
@@ -89,7 +91,7 @@ export function BankListView() {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -194,6 +196,7 @@ export function BankListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -219,6 +222,7 @@ export function BankListView() {
                           onDeleteRow={() => deleteBank(row._id)}
                           visibleColumns={visibleColumns}
                           disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
                         />
                       ))}
 

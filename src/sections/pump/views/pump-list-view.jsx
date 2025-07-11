@@ -70,9 +70,11 @@ export function PumpListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedPumps({
@@ -97,7 +99,7 @@ export function PumpListView() {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -232,6 +234,7 @@ export function PumpListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -242,21 +245,22 @@ export function PumpListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                        <TableSkeleton key={i} />
+                      ))
                     : tableData.map((row) => (
-                      <PumpTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePump(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+                        <PumpTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deletePump(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
+                        />
+                      ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>

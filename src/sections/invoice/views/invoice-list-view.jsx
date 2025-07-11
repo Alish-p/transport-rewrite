@@ -76,9 +76,11 @@ export function InvoiceListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const [tableData, setTableData] = useState([]);
@@ -336,6 +338,7 @@ export function InvoiceListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -355,6 +358,7 @@ export function InvoiceListView() {
                       onDeleteRow={() => deleteInvoice(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
                     />
                   ))}
 

@@ -64,9 +64,11 @@ export function DriverListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
+    moveColumn,
   } = useColumnVisibility(TABLE_COLUMNS);
 
   const { data, isLoading } = usePaginatedDrivers({
@@ -249,6 +251,7 @@ export function DriverListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -274,6 +277,7 @@ export function DriverListView() {
                         onDeleteRow={() => deleteDriver(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 
