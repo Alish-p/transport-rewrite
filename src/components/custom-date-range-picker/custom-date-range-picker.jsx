@@ -9,6 +9,8 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 
+import dayjs from 'dayjs';
+
 import { useResponsive } from 'src/hooks/use-responsive';
 
 // ----------------------------------------------------------------------
@@ -25,6 +27,16 @@ export function CustomDateRangePicker({
   title = 'Select date range',
 }) {
   const mdUp = useResponsive('up', 'md');
+
+  const handleStartChange = (date) => {
+    const newDate = date ? dayjs(date).startOf('day').toDate() : null;
+    onChangeStartDate(newDate);
+  };
+
+  const handleEndChange = (date) => {
+    const newDate = date ? dayjs(date).endOf('day').toDate() : null;
+    onChangeEndDate(newDate);
+  };
 
   const isCalendarView = variant === 'calendar';
 
@@ -51,21 +63,21 @@ export function CustomDateRangePicker({
                 variant="outlined"
                 sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
               >
-                <DateCalendar value={startDate} onChange={onChangeStartDate} />
+                <DateCalendar value={startDate} onChange={handleStartChange} />
               </Paper>
 
               <Paper
                 variant="outlined"
                 sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
               >
-                <DateCalendar value={endDate} onChange={onChangeEndDate} />
+                <DateCalendar value={endDate} onChange={handleEndChange} />
               </Paper>
             </>
           ) : (
             <>
-              <DatePicker label="Start date" value={startDate} onChange={onChangeStartDate} />
+              <DatePicker label="Start date" value={startDate} onChange={handleStartChange} />
 
-              <DatePicker label="End date" value={endDate} onChange={onChangeEndDate} />
+              <DatePicker label="End date" value={endDate} onChange={handleEndChange} />
             </>
           )}
         </Stack>
