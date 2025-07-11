@@ -88,4 +88,29 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => row.distance,
   },
+  {
+    id: 'vehicleConfiguration',
+    label: 'Vehicle Configurations',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) =>
+      row.vehicleConfiguration
+        ?.map(
+          (c) =>
+            `${c.vehicleType} [${c.noOfTyres}] - Toll: ${c.tollAmt ?? '-'}, Advance: ${
+              c.advanceAmt ?? '-'
+            }, Fixed: ${c.fixedSalary ?? '-'}, %: ${
+              c.percentageSalary ?? '-'
+            }, Diesel: ${c.diesel ?? '-'}, AdBlue: ${c.adBlue ?? '-'}, FixMil: ${
+              c.fixMilage ?? '-'
+            }, PerfMil: ${c.performanceMilage ?? '-'}`
+        )
+        .join('\n') || '-',
+    // render: ({ vehicleConfiguration }) => (
+    //   <Label variant="soft" color="info">
+    //     {vehicleConfiguration?.length ?? 0}
+    //   </Label>
+    // ),
+  },
 ];
