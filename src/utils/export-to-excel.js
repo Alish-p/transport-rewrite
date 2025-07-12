@@ -3,6 +3,8 @@
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+import { fNumber } from './format-number';
+
 export const exportToExcel = (data, fileName) => {
   console.log({ data });
 
@@ -110,25 +112,11 @@ export function prepareDataForExport(data, columnConfig, visibleColumns = [], co
   if (Object.keys(totals).length > 0) {
     const totalRow = {};
 
-    const buildDummy = (column, value) => {
-      if (['cgst', 'sgst', 'igst', 'tds'].includes(column.id)) {
-        return { taxBreakup: { [column.id]: { amount: value } } };
-      }
-      if (column.id === 'totalShortageAmount') {
-        return { summary: { totalShortageAmount: value } };
-      }
-      if (column.id === 'amount') {
-        return { summary: { netIncome: value } };
-      }
-      return { [column.id]: value };
-    };
-
     columns.forEach((col, index) => {
       if (index === 0) {
         totalRow[col.label] = 'TOTAL';
       } else if (col.showTotal) {
-        const dummy = buildDummy(col, totals[col.id]);
-        totalRow[col.label] = col.getter(dummy);
+        totalRow[col.label] = fNumber(totals[col.id] || 0);
       } else {
         totalRow[col.label] = '';
       }
