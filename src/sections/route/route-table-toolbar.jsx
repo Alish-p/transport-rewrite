@@ -6,6 +6,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Tooltip, MenuList, MenuItem } from '@mui/material';
 
@@ -35,6 +36,8 @@ export default function RouteTableToolbar({
   columnOrder = [],
   selectedCustomer,
   onSelectCustomer,
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -134,6 +137,16 @@ export default function RouteTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -185,17 +198,12 @@ export default function RouteTableToolbar({
           </MenuItem>
 
           <MenuItem
-          onClick={() => {
-            const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-            exportToExcel(
-              prepareDataForExport(
-                tableData,
-                TABLE_COLUMNS,
-                visibleCols,
-                columnOrder
-              ),
-              'Routes-list'
-            );
+            onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
+                'Routes-list'
+              );
               popover.onClose();
             }}
           >

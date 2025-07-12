@@ -77,17 +77,10 @@ export const exportToExcel = (data, fileName) => {
 };
 
 // Formats a list of items for export, including only the user - selected columns.
-export function prepareDataForExport(
-  data,
-  columnConfig,
-  visibleColumns = [],
-  columnOrder = []
-) {
+export function prepareDataForExport(data, columnConfig, visibleColumns = [], columnOrder = []) {
   let columns = columnConfig.filter((col) => visibleColumns.includes(col.id));
   if (columnOrder.length) {
-    columns = columnOrder
-      .map((id) => columns.find((col) => col.id === id))
-      .filter(Boolean);
+    columns = columnOrder.map((id) => columns.find((col) => col.id === id)).filter(Boolean);
   }
 
   const parseNumber = (value) => {

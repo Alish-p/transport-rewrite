@@ -77,6 +77,8 @@ export function PumpListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedPumps({
@@ -162,6 +164,8 @@ export function PumpListView() {
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
             columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (

@@ -69,6 +69,8 @@ export function BankListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedBanks({
@@ -142,6 +144,8 @@ export function BankListView() {
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
             columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (

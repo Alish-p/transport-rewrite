@@ -83,6 +83,8 @@ export function InvoiceListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const [tableData, setTableData] = useState([]);
@@ -266,6 +268,8 @@ export function InvoiceListView() {
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
             columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (

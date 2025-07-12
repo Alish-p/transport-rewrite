@@ -6,6 +6,7 @@ import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -52,6 +53,8 @@ export default function ExpenseTableToolbar({
   onToggleColumn,
   onToggleAllColumns,
   columnOrder = [],
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -237,6 +240,16 @@ export default function ExpenseTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -295,12 +308,7 @@ export default function ExpenseTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(
-                  tableData,
-                  TABLE_COLUMNS,
-                  visibleCols,
-                  columnOrder
-                ),
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
                 'Expense-list'
               );
 

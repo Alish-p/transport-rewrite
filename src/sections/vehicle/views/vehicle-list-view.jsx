@@ -81,6 +81,8 @@ export function VehicleListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedVehicles({
@@ -196,6 +198,8 @@ export function VehicleListView() {
           columnOrder={columnOrder}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -233,12 +237,7 @@ export function VehicleListView() {
                       );
 
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Vehcles-selected-list'
                       );
                     }}

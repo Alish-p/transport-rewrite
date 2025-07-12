@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -41,6 +42,8 @@ export default function InvoiceTableToolbar({
   onToggleColumn,
   onToggleAllColumns,
   columnOrder = [],
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -153,6 +156,16 @@ export default function InvoiceTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -212,12 +225,7 @@ export default function InvoiceTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(
-                  tableData,
-                  TABLE_COLUMNS,
-                  visibleCols,
-                  columnOrder
-                ),
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
                 'Invoice-list'
               );
 

@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
 // @mui
 
 // components
@@ -36,6 +37,8 @@ export default function DieselPriceTableToolbar({
   onToggleColumn,
   onToggleAllColumns,
   columnOrder = [],
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -101,6 +104,16 @@ export default function DieselPriceTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -129,17 +142,12 @@ export default function DieselPriceTableToolbar({
       >
         <MenuList>
           <MenuItem
-          onClick={() => {
-            const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-            exportToExcel(
-              prepareDataForExport(
-                tableData,
-                TABLE_COLUMNS,
-                visibleCols,
-                columnOrder
-              ),
-              'DieselPrice-list'
-            );
+            onClick={() => {
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
+                'DieselPrice-list'
+              );
               popover.onClose();
             }}
           >

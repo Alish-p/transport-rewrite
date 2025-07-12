@@ -85,6 +85,8 @@ export function ExpenseListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedExpenses({
@@ -293,6 +295,8 @@ export function ExpenseListView() {
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={handleToggleAllColumns}
           columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -334,12 +338,7 @@ export function ExpenseListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Expense-selected-list'
                       );
                     }}

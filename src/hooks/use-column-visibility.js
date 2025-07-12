@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { getStorage, setStorage } from './use-local-storage';
+import { isEqual } from 'src/utils/helper';
 
 export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
   const defaultVisibleColumns = useMemo(
@@ -37,6 +38,12 @@ export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
     stored?.columnOrder?.length
       ? stored.columnOrder.filter((id) => defaultColumnOrder.includes(id))
       : defaultColumnOrder
+  );
+
+  const canReset = useMemo(
+    () =>
+      !(isEqual(visibleColumns, defaultVisibleColumns) && isEqual(columnOrder, defaultColumnOrder)),
+    [visibleColumns, defaultVisibleColumns, columnOrder, defaultColumnOrder]
   );
 
   useEffect(() => {
@@ -85,6 +92,11 @@ export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
     setVisibleColumns(defaultVisibleColumns);
   }, [defaultVisibleColumns]);
 
+  const resetColumns = useCallback(() => {
+    setVisibleColumns(defaultVisibleColumns);
+    setColumnOrder(defaultColumnOrder);
+  }, [defaultVisibleColumns, defaultColumnOrder]);
+
   const moveColumn = useCallback((activeId, overId) => {
     if (activeId === overId) return;
     setColumnOrder((prev) => {
@@ -115,10 +127,12 @@ export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     resetColumnVisibility,
+    resetColumns,
     moveColumn,
     resetColumnOrder,
 
     // Utilities
     isColumnVisible,
+    canReset,
   };
 }

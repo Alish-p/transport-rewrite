@@ -76,6 +76,8 @@ export function RouteListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedRoutes({
@@ -208,6 +210,8 @@ export function RouteListView() {
           columnOrder={columnOrder}
           selectedCustomer={selectedCustomer}
           onSelectCustomer={handleSelectCustomer}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -249,12 +253,7 @@ export function RouteListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'filtered'
                       );
                     }}

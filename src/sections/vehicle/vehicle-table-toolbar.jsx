@@ -10,6 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
 import { Tooltip, MenuList } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -44,6 +45,8 @@ export default function VehicleTableToolbar({
   columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -156,6 +159,16 @@ export default function VehicleTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -210,12 +223,7 @@ export default function VehicleTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(
-                  tableData,
-                  TABLE_COLUMNS,
-                  visibleCols,
-                  columnOrder
-                ),
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
                 'Vehicles-list'
               );
 

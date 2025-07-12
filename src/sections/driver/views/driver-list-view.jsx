@@ -71,6 +71,8 @@ export function DriverListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedDrivers({
@@ -198,6 +200,8 @@ export function DriverListView() {
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
           columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -233,12 +237,7 @@ export function DriverListView() {
                       );
 
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Drivers-selected-list'
                       );
                     }}

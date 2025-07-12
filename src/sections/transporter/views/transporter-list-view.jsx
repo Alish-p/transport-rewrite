@@ -79,6 +79,8 @@ export function TransporterListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const handleToggleColumn = useCallback(
@@ -187,6 +189,8 @@ export function TransporterListView() {
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
           columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -221,12 +225,7 @@ export function TransporterListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporters-selected'
                       );
                     }}

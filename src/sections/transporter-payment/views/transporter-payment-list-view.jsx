@@ -75,6 +75,8 @@ export function TransporterPaymentListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedTransporterPayments({
@@ -187,6 +189,8 @@ export function TransporterPaymentListView() {
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
           columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -221,12 +225,7 @@ export function TransporterPaymentListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols,
-                          columnOrder
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporter-payment-selected'
                       );
                     }}
