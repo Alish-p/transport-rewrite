@@ -9,7 +9,6 @@ import { InvoiceCreateView } from 'src/sections/invoice/views';
 const metadata = { title: `Create a new Invoice | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-
   return (
     <>
       <Helmet>

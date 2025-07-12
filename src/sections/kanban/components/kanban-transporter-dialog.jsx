@@ -33,17 +33,11 @@ export function KanbanTransporterDialog({
   const scrollRef = useRef(null);
   const [searchTransporter, setSearchTransporter] = useState('');
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isFetching,
-  } = useInfiniteTransporters(
-    { search: searchTransporter || undefined, rowsPerPage: 50 },
-    { enabled: open }
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
+    useInfiniteTransporters(
+      { search: searchTransporter || undefined, rowsPerPage: 50 },
+      { enabled: open }
+    );
 
   const transporters = data ? data.pages.flatMap((p) => p.transporters) : [];
 
@@ -72,8 +66,7 @@ export function KanbanTransporterDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Transporters{' '}
-        <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
+        Transporters <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>

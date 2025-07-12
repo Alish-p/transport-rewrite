@@ -73,19 +73,31 @@ export default function TripTableFiltersResult({
 
         {filters.driverId && (
           <Block label="driver">
-            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
+            <Chip
+              size="small"
+              label={selectedDriverName || filters.driverId}
+              onDelete={handleRemoveDriver}
+            />
           </Block>
         )}
 
         {filters.vehicleId && (
           <Block label="Vehicle No:">
-            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicle}
+            />
           </Block>
         )}
 
         {filters.subtripId && (
           <Block label="Subtrip:">
-            <Chip size="small" label={selectedSubtripId || filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={selectedSubtripId || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 

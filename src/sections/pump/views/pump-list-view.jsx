@@ -46,6 +46,8 @@ import PumpTableToolbar from '../pump-table-toolbar';
 import { TABLE_COLUMNS } from '../pump-table-config';
 import PumpTableFiltersResult from '../pump-table-filters-result';
 
+const STORAGE_KEY = 'pump-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -70,10 +72,14 @@ export function PumpListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedPumps({
     search: filters.search || undefined,
@@ -97,7 +103,7 @@ export function PumpListView() {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -157,6 +163,9 @@ export function PumpListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -199,7 +208,12 @@ export function PumpListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Pumps-selected'
                         );
                       }}
@@ -232,6 +246,7 @@ export function PumpListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -242,21 +257,22 @@ export function PumpListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                        <TableSkeleton key={i} />
+                      ))
                     : tableData.map((row) => (
-                      <PumpTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePump(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+                        <PumpTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deletePump(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
+                        />
+                      ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>

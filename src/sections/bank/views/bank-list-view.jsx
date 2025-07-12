@@ -42,6 +42,8 @@ import BankTableToolbar from '../bank-table-toolbar';
 import { TABLE_COLUMNS } from '../bank-table-config';
 import BankTableFiltersResult from '../bank-table-filters-result';
 
+const STORAGE_KEY = 'bank-table-columns';
+
 const defaultFilters = {
   search: '',
 };
@@ -62,10 +64,14 @@ export function BankListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedBanks({
     search: filters.search || undefined,
@@ -89,7 +95,7 @@ export function BankListView() {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -137,6 +143,9 @@ export function BankListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -173,7 +182,12 @@ export function BankListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Banks-selected'
                         );
                       }}
@@ -194,6 +208,7 @@ export function BankListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -219,6 +234,7 @@ export function BankListView() {
                           onDeleteRow={() => deleteBank(row._id)}
                           visibleColumns={visibleColumns}
                           disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
                         />
                       ))}
 

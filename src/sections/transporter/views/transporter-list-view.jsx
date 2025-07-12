@@ -49,6 +49,8 @@ import { TABLE_COLUMNS } from '../transporter-table-config';
 import TransporterTableToolbar from '../transport-table-toolbar';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
+const STORAGE_KEY = 'transporter-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -65,20 +67,21 @@ export function TransporterListView() {
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const handleToggleColumn = useCallback(
     (columnName) => {
@@ -86,7 +89,6 @@ export function TransporterListView() {
     },
     [toggleColumnVisibility]
   );
-
 
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
@@ -108,7 +110,6 @@ export function TransporterListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
-
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
   };
@@ -119,7 +120,6 @@ export function TransporterListView() {
     },
     [router]
   );
-
 
   return (
     <DashboardContent>
@@ -188,6 +188,9 @@ export function TransporterListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -217,18 +220,12 @@ export function TransporterListView() {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const visibleCols = Object.keys(visibleColumns).filter(
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          visibleCols
-                        ),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporters-selected'
                       );
                     }}
@@ -249,6 +246,7 @@ export function TransporterListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -274,6 +272,7 @@ export function TransporterListView() {
                         onDeleteRow={() => deleteTransporter(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 

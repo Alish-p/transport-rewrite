@@ -13,8 +13,8 @@ export default function TransporterPaymentTableRow({
   onDeleteRow,
   visibleColumns,
   disabledColumns,
+  columnOrder,
 }) {
-
   return (
     <GenericTableRow
       row={row}
@@ -26,6 +26,7 @@ export default function TransporterPaymentTableRow({
       onDeleteRow={onDeleteRow}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
+      columnOrder={columnOrder}
     />
   );
 }

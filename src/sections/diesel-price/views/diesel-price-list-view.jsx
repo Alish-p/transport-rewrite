@@ -23,10 +23,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import {
-  useDeleteDieselPrice,
-  usePaginatedDieselPrices,
-} from 'src/query/use-diesel-prices';
+import { useDeleteDieselPrice, usePaginatedDieselPrices } from 'src/query/use-diesel-prices';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -45,8 +42,9 @@ import { TABLE_COLUMNS } from '../diesel-price-table-config';
 import DieselPriceTableToolbar from '../diesel-price-table-toolbar';
 import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result';
 
-// ----------------------------------------------------------------------
+const STORAGE_KEY = 'diesel-price-table-columns';
 
+// ----------------------------------------------------------------------
 
 const defaultFilters = {
   pump: null,
@@ -64,20 +62,21 @@ export function DieselPriceListView() {
   const navigate = useNavigate();
   const deleteDieselPrice = useDeleteDieselPrice();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(
-    defaultFilters,
-    {
-      onResetPage: table.onResetPage,
-    }
-  );
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedDieselPrices({
     pumpId: filters.pump?._id,
@@ -103,7 +102,7 @@ export function DieselPriceListView() {
     navigate(paths.dashboard.diesel.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -162,6 +161,9 @@ export function DieselPriceListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -207,7 +209,8 @@ export function DieselPriceListView() {
                           prepareDataForExport(
                             selectedRows,
                             TABLE_COLUMNS,
-                            visibleCols
+                            visibleCols,
+                            columnOrder
                           ),
                           'DieselPrice-selected'
                         );
@@ -241,6 +244,7 @@ export function DieselPriceListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -260,6 +264,7 @@ export function DieselPriceListView() {
                       onDeleteRow={() => deleteDieselPrice(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
                     />
                   ))}
 
@@ -307,4 +312,3 @@ export function DieselPriceListView() {
     </>
   );
 }
-

@@ -34,9 +34,7 @@ export function SubtripEditView({ subtrip }) {
           }}
         />
 
-        <SubtripEditForm
-          currentSubtrip={subtrip}
-        />
+        <SubtripEditForm currentSubtrip={subtrip} />
       </Container>
     </>
   );

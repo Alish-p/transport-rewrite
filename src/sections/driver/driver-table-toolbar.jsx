@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -26,6 +27,9 @@ export default function DriverTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -66,6 +70,16 @@ export default function DriverTableToolbar({
           <IconButton onClick={columnsPopover.onOpen}>
             <Iconify icon="mdi:table-column-plus-after" />
           </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
         </Tooltip>
 
         <IconButton onClick={popover.onOpen}>
@@ -122,7 +136,7 @@ export default function DriverTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
                 'Drivers-list'
               );
 

@@ -1,6 +1,11 @@
-import { useMemo, useState, useCallback } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
-export function useColumnVisibility(TABLE_COLUMNS) {
+import { isEqual } from 'src/utils/helper';
+
+import { getStorage, setStorage } from './use-local-storage';
+
+export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
   const defaultVisibleColumns = useMemo(
     () =>
       TABLE_COLUMNS.reduce((acc, column) => {
@@ -19,11 +24,42 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     [TABLE_COLUMNS]
   );
 
-  const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
+  const defaultColumnOrder = useMemo(
+    () => TABLE_COLUMNS.map((column) => column.id),
+    [TABLE_COLUMNS]
+  );
+
+  const stored = storageKey ? getStorage(storageKey) : null;
+
+  const [visibleColumns, setVisibleColumns] = useState(
+    stored?.visibleColumns
+      ? { ...defaultVisibleColumns, ...stored.visibleColumns }
+      : defaultVisibleColumns
+  );
+  const [columnOrder, setColumnOrder] = useState(
+    stored?.columnOrder?.length
+      ? stored.columnOrder.filter((id) => defaultColumnOrder.includes(id))
+      : defaultColumnOrder
+  );
+
+  const canReset = useMemo(
+    () =>
+      !(isEqual(visibleColumns, defaultVisibleColumns) && isEqual(columnOrder, defaultColumnOrder)),
+    [visibleColumns, defaultVisibleColumns, columnOrder, defaultColumnOrder]
+  );
+
+  useEffect(() => {
+    if (storageKey) {
+      setStorage(storageKey, { visibleColumns, columnOrder });
+    }
+  }, [storageKey, visibleColumns, columnOrder]);
 
   const visibleHeaders = useMemo(
-    () => TABLE_COLUMNS.filter((column) => visibleColumns[column.id]),
-    [TABLE_COLUMNS, visibleColumns]
+    () =>
+      columnOrder
+        .map((id) => TABLE_COLUMNS.find((column) => column.id === id))
+        .filter((column) => column && visibleColumns[column.id]),
+    [columnOrder, TABLE_COLUMNS, visibleColumns]
   );
 
   const visibleColumnCount = useMemo(
@@ -58,6 +94,24 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     setVisibleColumns(defaultVisibleColumns);
   }, [defaultVisibleColumns]);
 
+  const resetColumns = useCallback(() => {
+    setVisibleColumns(defaultVisibleColumns);
+    setColumnOrder(defaultColumnOrder);
+  }, [defaultVisibleColumns, defaultColumnOrder]);
+
+  const moveColumn = useCallback((activeId, overId) => {
+    if (activeId === overId) return;
+    setColumnOrder((prev) => {
+      const oldIndex = prev.indexOf(activeId);
+      const newIndex = prev.indexOf(overId);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  }, []);
+
+  const resetColumnOrder = useCallback(() => {
+    setColumnOrder(defaultColumnOrder);
+  }, [defaultColumnOrder]);
+
   const isColumnVisible = useCallback(
     (columnName) => !!visibleColumns[columnName],
     [visibleColumns]
@@ -67,6 +121,7 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     // State
     visibleColumns,
     disabledColumns,
+    columnOrder,
     visibleHeaders,
     visibleColumnCount,
 
@@ -74,8 +129,12 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     resetColumnVisibility,
+    resetColumns,
+    moveColumn,
+    resetColumnOrder,
 
     // Utilities
     isColumnVisible,
+    canReset,
   };
 }

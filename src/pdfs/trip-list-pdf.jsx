@@ -6,6 +6,11 @@ export default function TripListPdf({ trips, visibleColumns = [] }) {
   const columnsToShow = TABLE_COLUMNS.filter((col) => visibleColumns.includes(col.id));
 
   return (
-    <GenericListPdf title="Trip List" rows={trips} columns={columnsToShow} orientation="landscape" />
+    <GenericListPdf
+      title="Trip List"
+      rows={trips}
+      columns={columnsToShow}
+      orientation="landscape"
+    />
   );
 }

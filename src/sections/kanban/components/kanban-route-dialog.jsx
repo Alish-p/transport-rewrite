@@ -58,14 +58,8 @@ export function KanbanRouteDialog({
     // no additional params
   }
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isFetching,
-  } = useInfiniteRoutes(params, { enabled: open });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
+    useInfiniteRoutes(params, { enabled: open });
 
   const routes = data ? data.pages.flatMap((p) => p.routes || p.results || []) : [];
   const total = data?.pages?.[0]?.total || 0;
@@ -199,4 +193,3 @@ function renderRouteItem(route, selectedRoute, handleSelectRoute) {
     </Box>
   );
 }
-

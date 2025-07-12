@@ -9,7 +9,6 @@ import { InvoiceEditView } from 'src/sections/invoice/views';
 const metadata = { title: `Invoice edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-
   return (
     <>
       <Helmet>

@@ -177,9 +177,7 @@ export function SubtripLoadForm() {
   } = useSubtrip(selectedSubtripId);
 
   // fetch full details of the selected route ID
-  const {
-    data: detailedRoute,
-  } = useRoute(selectedRoute?._id);
+  const { data: detailedRoute } = useRoute(selectedRoute?._id);
 
   // Extract customerId from selected subtrip
   const customerId = selectedSubtrip?.customerId?._id;
@@ -381,7 +379,7 @@ export function SubtripLoadForm() {
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -552,11 +550,7 @@ export function SubtripLoadForm() {
       />
 
       <Field.Text name="ewayBill" label="Eway Bill" />
-      <Field.DatePicker
-        name="ewayExpiryDate"
-        label="Eway Expiry Date *"
-        minDate={dayjs()}
-      />
+      <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" minDate={dayjs()} />
 
       <Box sx={{ position: 'relative' }}>
         <Field.Text name="invoiceNo" label="Invoice No *" />
@@ -771,7 +765,7 @@ export function SubtripLoadForm() {
         onClose={routeDialog.onFalse}
         selectedRoute={selectedRoute}
         onRouteChange={handleRouteChange}
-        mode='genericAndCustomer'
+        mode="genericAndCustomer"
         customerId={customerId}
       />
 
@@ -781,7 +775,6 @@ export function SubtripLoadForm() {
         selectedPump={selectedPump}
         onPumpChange={handlePumpChange}
       />
-
     </Container>
   );
 }

@@ -265,7 +265,7 @@ export default function RouteForm({ currentRoute }) {
   );
 
   const renderVehicleConfigs = () => (
-    <Card >
+    <Card>
       <CardHeader
         title="Vehicle Configurations"
         sx={{ mb: 3 }}
@@ -279,7 +279,7 @@ export default function RouteForm({ currentRoute }) {
       />
       <Divider />
 
-      <TableContainer component={Paper} sx={{ py: 3, }}>
+      <TableContainer component={Paper} sx={{ py: 3 }}>
         <Table>
           <TableHead>
             <TableRow>

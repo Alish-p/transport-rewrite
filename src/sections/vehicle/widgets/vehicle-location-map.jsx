@@ -6,7 +6,7 @@ import { useGps } from 'src/query/use-gps';
 
 import { MapWithMarker } from 'src/components/map';
 
-export function VehicleLocationMap({ vehicleNo, isOwn, }) {
+export function VehicleLocationMap({ vehicleNo, isOwn }) {
   const { data, isLoading } = useGps(vehicleNo, { enabled: !!vehicleNo && isOwn });
   const lat = data?.latitude;
   const lng = data?.longitude;

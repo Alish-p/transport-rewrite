@@ -3,10 +3,11 @@ import { useCallback } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
-import { MenuList } from '@mui/material';
+import Badge from '@mui/material/Badge';
 import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -42,6 +43,9 @@ export default function TransporterPaymentTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -148,6 +152,16 @@ export default function TransporterPaymentTableToolbar({
           <Iconify icon="mdi:table-column-plus-after" />
         </IconButton>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -179,7 +193,12 @@ export default function TransporterPaymentTableToolbar({
             <PDFDownloadLink
               document={<TransporterPaymentListPdf payments={tableData} />}
               fileName="Transporter-payment-list.pdf"
-              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
               {({ loading }) => (
                 <>
@@ -197,7 +216,7 @@ export default function TransporterPaymentTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
                 'Transporter-payment-list'
               );
               popover.onClose();

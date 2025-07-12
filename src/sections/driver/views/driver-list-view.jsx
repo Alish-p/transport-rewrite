@@ -45,6 +45,8 @@ import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
 import DriverTableFiltersResult from '../driver-table-filters-result';
 
+const STORAGE_KEY = 'driver-table-columns';
+
 const defaultFilters = {
   search: '',
   status: 'all',
@@ -64,10 +66,14 @@ export function DriverListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
@@ -193,6 +199,9 @@ export function DriverListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (
@@ -228,7 +237,7 @@ export function DriverListView() {
                       );
 
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Drivers-selected-list'
                       );
                     }}
@@ -249,6 +258,7 @@ export function DriverListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -274,6 +284,7 @@ export function DriverListView() {
                         onDeleteRow={() => deleteDriver(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 

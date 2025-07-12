@@ -65,7 +65,11 @@ export default function TransporterPayrollTableFiltersResult({
 
         {filters.subtripId && (
           <Block label="Subtrip:">
-            <Chip size="small" label={subtrip?._id || filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={subtrip?._id || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 

@@ -18,144 +18,143 @@ import { subtripExpenseTypes } from '../../expense/expense-config';
 // ----------------------------------------------------------------------
 
 export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
+  const theme = useTheme();
 
-    const theme = useTheme();
+  // build list of months similar to customer freight table
+  const today = dayjs();
+  const currentMonthIndex = today.month();
+  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
+    const m = today.month(i);
+    return {
+      label: m.format('MMM-YYYY'),
+      value: m.format('YYYY-MM'),
+    };
+  });
 
-    // build list of months similar to customer freight table
-    const today = dayjs();
-    const currentMonthIndex = today.month();
-    const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-        const m = today.month(i);
+  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+
+  const { data: summary = [] } = useMonthlyExpenseSummary(selectedMonth);
+
+  const mapped = useMemo(
+    () =>
+      summary.map((item) => {
+        const cfg = subtripExpenseTypes.find((t) => t.value === item.expenseType);
         return {
-            label: m.format('MMM-YYYY'),
-            value: m.format('YYYY-MM'),
+          label: cfg?.label || item.expenseType,
+          value: item.totalAmount,
+          icon: cfg?.icon,
         };
-    });
+      }),
+    [summary]
+  );
 
-    const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+  const chartColorsAll = mapped.map(
+    (_, idx) =>
+      [
+        theme.palette.secondary.dark,
+        theme.palette.error.main,
+        theme.palette.primary.main,
+        theme.palette.warning.main,
+        theme.palette.info.dark,
+        theme.palette.info.main,
+        theme.palette.success.main,
+        theme.palette.warning.dark,
+      ][idx % 8]
+  );
 
-    const { data: summary = [] } = useMonthlyExpenseSummary(selectedMonth);
+  const [activeIndexes, setActiveIndexes] = useState([]);
 
-    const mapped = useMemo(
-        () =>
-            summary.map((item) => {
-                const cfg = subtripExpenseTypes.find((t) => t.value === item.expenseType);
-                return {
-                    label: cfg?.label || item.expenseType,
-                    value: item.totalAmount,
-                    icon: cfg?.icon,
-                };
-            }),
-        [summary]
-    );
+  useEffect(() => {
+    setActiveIndexes(mapped.map((_, idx) => idx));
+  }, [mapped]);
 
-    const chartColorsAll = mapped.map(
-        (_, idx) =>
-            [
-                theme.palette.secondary.dark,
-                theme.palette.error.main,
-                theme.palette.primary.main,
-                theme.palette.warning.main,
-                theme.palette.info.dark,
-                theme.palette.info.main,
-                theme.palette.success.main,
-                theme.palette.warning.dark,
-            ][idx % 8]
-    );
+  const filtered = mapped.filter((_, idx) => activeIndexes.includes(idx));
+  const chartColors = chartColorsAll.filter((_, idx) => activeIndexes.includes(idx));
+  const chartSeries = filtered.map((item) => item.value);
 
-    const [activeIndexes, setActiveIndexes] = useState([]);
+  const chartOptions = useChart({
+    chart: { offsetY: 12 },
+    colors: chartColors,
+    labels: filtered.map((item) => item.label),
+    stroke: { width: 1, colors: [theme.palette.background.paper] },
+    fill: { opacity: 0.88 },
+    tooltip: { y: { formatter: (value) => fShortenNumber(value) } },
 
-    useEffect(() => {
-        setActiveIndexes(mapped.map((_, idx) => idx));
-    }, [mapped]);
+    plotOptions: { pie: { donut: { labels: { show: false } } } },
+  });
 
-    const filtered = mapped.filter((_, idx) => activeIndexes.includes(idx));
-    const chartColors = chartColorsAll.filter((_, idx) => activeIndexes.includes(idx));
-    const chartSeries = filtered.map((item) => item.value);
+  const icons = mapped.map((item) => <Iconify icon={item.icon} />);
 
-    const chartOptions = useChart({
-        chart: { offsetY: 12 },
-        colors: chartColors,
-        labels: filtered.map((item) => item.label),
-        stroke: { width: 1, colors: [theme.palette.background.paper] },
-        fill: { opacity: 0.88 },
-        tooltip: { y: { formatter: (value) => fShortenNumber(value) } },
+  return (
+    <Card {...other}>
+      <CardHeader
+        title={title}
+        subheader={subheader}
+        action={
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+              {monthOptions.map(({ label, value }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        }
+      />
 
-        plotOptions: { pie: { donut: { labels: { show: false } } } },
-    });
+      <Box
+        sx={{
+          pt: 4,
+          pb: 3,
+          rowGap: 3,
+          columnGap: 5,
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Chart
+          type="polarArea"
+          series={chartSeries}
+          options={chartOptions}
+          width={{ xs: 240, md: 280 }}
+          height={{ xs: 240, md: 280 }}
+        />
 
-    const icons = mapped.map((item) => <Iconify icon={item.icon} />);
+        <ChartLegends
+          colors={chartColorsAll}
+          labels={mapped.map((item) => item.label)}
+          icons={icons}
+          sublabels={mapped.map((item) => fShortenNumber(item.value))}
+          activeIndexes={activeIndexes}
+          onToggle={(idx) =>
+            setActiveIndexes((prev) =>
+              prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+            )
+          }
+          sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
+        />
+      </Box>
 
-    return (
-        <Card {...other}>
-            <CardHeader
-                title={title}
-                subheader={subheader}
-                action={
-                    <FormControl size="small" sx={{ minWidth: 140 }}>
-                        <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-                            {monthOptions.map(({ label, value }) => (
-                                <MenuItem key={value} value={value}>
-                                    {label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                }
-            />
+      <Divider sx={{ borderStyle: 'dashed' }} />
 
-            <Box
-                sx={{
-                    pt: 4,
-                    pb: 3,
-                    rowGap: 3,
-                    columnGap: 5,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Chart
-                    type="polarArea"
-                    series={chartSeries}
-                    options={chartOptions}
-                    width={{ xs: 240, md: 280 }}
-                    height={{ xs: 240, md: 280 }}
-                />
+      <Box
+        display="grid"
+        gridTemplateColumns="repeat(2, 1fr)"
+        sx={{ textAlign: 'center', typography: 'h4' }}
+      >
+        <Box sx={{ py: 2, borderRight: `dashed 1px ${theme.vars.palette.divider}` }}>
+          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Categories</Box>
+          {mapped.length}
+        </Box>
 
-                <ChartLegends
-                    colors={chartColorsAll}
-                    labels={mapped.map((item) => item.label)}
-                    icons={icons}
-                    sublabels={mapped.map((item) => fShortenNumber(item.value))}
-                    activeIndexes={activeIndexes}
-                    onToggle={(idx) =>
-                        setActiveIndexes((prev) =>
-                            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
-                        )
-                    }
-                    sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
-                />
-            </Box>
-
-            <Divider sx={{ borderStyle: 'dashed' }} />
-
-            <Box
-                display="grid"
-                gridTemplateColumns="repeat(2, 1fr)"
-                sx={{ textAlign: 'center', typography: 'h4' }}
-            >
-                <Box sx={{ py: 2, borderRight: `dashed 1px ${theme.vars.palette.divider}` }}>
-                    <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Categories</Box>
-                    {mapped.length}
-                </Box>
-
-                <Box sx={{ py: 2 }}>
-                    <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Amount</Box>
-                    {fShortenNumber(mapped.reduce((sum, i) => sum + i.value, 0))}
-                </Box>
-            </Box>
-        </Card>
-    );
+        <Box sx={{ py: 2 }}>
+          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Amount</Box>
+          {fShortenNumber(mapped.reduce((sum, i) => sum + i.value, 0))}
+        </Box>
+      </Box>
+    </Card>
+  );
 }

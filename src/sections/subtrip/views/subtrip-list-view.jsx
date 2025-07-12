@@ -79,8 +79,15 @@ export function SubtripListView() {
   const [selectedRoute, setSelectedRoute] = useState(null);
 
   // Column visibility logic handled via custom hook
-  const { visibleColumns, disabledColumns, toggleColumnVisibility, toggleAllColumnsVisibility } =
-    useVisibleColumns();
+  const {
+    visibleColumns,
+    visibleHeaders,
+    columnOrder,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+    moveColumn,
+  } = useVisibleColumns();
 
   const [tableData, setTableData] = useState([]);
 
@@ -285,10 +292,8 @@ export function SubtripListView() {
     toggleAllColumnsVisibility(checked);
   };
 
-  // Filter the table head based on visible columns
-  const visibleTableHead = TABLE_COLUMNS.filter(
-    (column) => column.id === '' || visibleColumns[column.id]
-  );
+  // Filter the table head based on visible columns and order
+  const visibleTableHead = visibleHeaders;
 
   const getVisibleColumnsForExport = () =>
     TABLE_COLUMNS.filter((column) => visibleColumns[column.id]).map((column) => column.id);
@@ -366,6 +371,7 @@ export function SubtripListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={handleToggleAllColumns}
+          columnOrder={columnOrder}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
           selectedCustomer={selectedCustomer}
@@ -417,7 +423,12 @@ export function SubtripListView() {
                       );
                       const selectedVisibleColumns = getVisibleColumnsForExport();
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, selectedVisibleColumns),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          selectedVisibleColumns,
+                          columnOrder
+                        ),
                         'filtered'
                       );
                     }}
@@ -463,6 +474,7 @@ export function SubtripListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
+                onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
@@ -487,6 +499,8 @@ export function SubtripListView() {
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteSubtrip(row._id)}
                         visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 

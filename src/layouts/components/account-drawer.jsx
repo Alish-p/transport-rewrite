@@ -31,7 +31,6 @@ export function AccountDrawer({ sx, ...other }) {
 
   const router = useRouter();
 
-
   const { user } = useAuthContext();
 
   const [open, setOpen] = useState(false);

@@ -86,15 +86,16 @@ export const TABLE_COLUMNS = [
         ? 'Live'
         : 'Past',
     render: (row) => {
-      const isLive =
-        new Date() >= new Date(row.startDate) &&
-        new Date() <= new Date(row.endDate);
+      const isLive = new Date() >= new Date(row.startDate) && new Date() <= new Date(row.endDate);
       return (
         <ListItemText
           primary={
-            <Label color={isLive ? 'success' : 'error'} sx={{
-              textTransform: 'capitalize'
-            }}>
+            <Label
+              color={isLive ? 'success' : 'error'}
+              sx={{
+                textTransform: 'capitalize',
+              }}
+            >
               {isLive ? 'Live' : 'Past'}
             </Label>
           }

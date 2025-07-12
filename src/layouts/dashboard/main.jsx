@@ -4,7 +4,6 @@ import Container from '@mui/material/Container';
 
 import { layoutClasses } from 'src/layouts/classes';
 
-
 // ----------------------------------------------------------------------
 
 export function Main({ children, isNavHorizontal, sx, ...other }) {

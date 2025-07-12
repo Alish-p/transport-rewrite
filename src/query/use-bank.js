@@ -1,10 +1,5 @@
 import { toast } from 'sonner';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -51,8 +46,7 @@ export function usePaginatedBanks(params, options = {}) {
 export function useInfiniteBanks(params, options = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEY, 'infinite', params],
-    queryFn: ({ pageParam = 1 }) =>
-      getPaginatedBanks({ ...(params || {}), page: pageParam }),
+    queryFn: ({ pageParam = 1 }) => getPaginatedBanks({ ...(params || {}), page: pageParam }),
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.reduce(
         (acc, page) => acc + (page.banks ? page.banks.length : 0),
@@ -114,7 +108,7 @@ export function useDeleteBank() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteBank(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Bank deleted successfully!');
     },

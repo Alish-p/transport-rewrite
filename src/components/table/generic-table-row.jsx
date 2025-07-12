@@ -28,9 +28,15 @@ export function GenericTableRow({
   onDeleteRow,
   visibleColumns = {},
   disabledColumns = {},
+  columnOrder = [],
 }) {
   const confirm = useBoolean();
   const popover = usePopover();
+
+  const orderedColumns =
+    columnOrder.length > 0
+      ? columnOrder.map((id) => columns.find((column) => column.id === id)).filter(Boolean)
+      : columns;
 
   const renderCellContent = (column) => {
     const value = column.getter(row);
@@ -55,7 +61,7 @@ export function GenericTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        {columns.map(
+        {orderedColumns.map(
           (column) =>
             (visibleColumns[column.id] || disabledColumns[column.id]) && (
               <React.Fragment key={column.id}>{renderCellContent(column)}</React.Fragment>

@@ -88,7 +88,6 @@ export function SettingsDrawer({
     />
   );
 
-
   const renderPresets = (
     <PresetsOptions
       value={settings.primaryColor}
@@ -122,7 +121,6 @@ export function SettingsDrawer({
       hideNavLayout={hideNavLayout}
     />
   );
-
 
   return (
     <Drawer

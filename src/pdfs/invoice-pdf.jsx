@@ -96,11 +96,15 @@ export default function InvoicePdf({ invoice }) {
           cells: [
             { startIndex: 0, colspan: 9, value: '', align: 'left' }, // Empty cell spanning first 10 columns
             { startIndex: 9, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
-            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.cgst.amount), align: 'right' },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' }
-
+            {
+              startIndex: 10,
+              colspan: 1,
+              value: fCurrency(taxBreakup.cgst.amount),
+              align: 'right',
+            },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' },
           ],
-          highlight: false
+          highlight: false,
         });
       }
 
@@ -109,11 +113,15 @@ export default function InvoicePdf({ invoice }) {
           cells: [
             { startIndex: 0, colspan: 9, value: '', align: 'left' },
             { startIndex: 9, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
-            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.sgst.amount), align: 'right' },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' }
-
+            {
+              startIndex: 10,
+              colspan: 1,
+              value: fCurrency(taxBreakup.sgst.amount),
+              align: 'right',
+            },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' },
           ],
-          highlight: false
+          highlight: false,
         });
       }
 
@@ -122,10 +130,15 @@ export default function InvoicePdf({ invoice }) {
           cells: [
             { startIndex: 0, colspan: 9, value: '', align: 'left' },
             { startIndex: 9, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
-            { startIndex: 10, colspan: 1, value: fCurrency(taxBreakup.igst.amount), align: 'right' },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' }
+            {
+              startIndex: 10,
+              colspan: 1,
+              value: fCurrency(taxBreakup.igst.amount),
+              align: 'right',
+            },
+            { startIndex: 11, colspan: 1, value: '', align: 'right' },
           ],
-          highlight: false
+          highlight: false,
         });
       }
 
@@ -137,9 +150,9 @@ export default function InvoicePdf({ invoice }) {
               { startIndex: 0, colspan: 9, value: '', align: 'left' },
               { startIndex: 9, colspan: 1, value: label, align: 'right' },
               { startIndex: 10, colspan: 1, value: fCurrency(amount), align: 'right' },
-              { startIndex: 11, colspan: 1, value: '', align: 'right' }
+              { startIndex: 11, colspan: 1, value: '', align: 'right' },
             ],
-            highlight: false
+            highlight: false,
           });
         });
       }
@@ -150,9 +163,9 @@ export default function InvoicePdf({ invoice }) {
           { startIndex: 0, colspan: 9, value: '', align: 'left' },
           { startIndex: 9, colspan: 1, value: 'Net Total', align: 'right' },
           { startIndex: 10, colspan: 1, value: fCurrency(netTotal), align: 'right' },
-          { startIndex: 11, colspan: 1, value: '', align: 'right' }
+          { startIndex: 11, colspan: 1, value: '', align: 'right' },
         ],
-        highlight: true
+        highlight: true,
       });
 
       return extraRows;
@@ -176,9 +189,6 @@ export default function InvoicePdf({ invoice }) {
       />
     );
   };
-
-
-
 
   return (
     <Document>

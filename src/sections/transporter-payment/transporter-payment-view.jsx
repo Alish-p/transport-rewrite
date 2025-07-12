@@ -95,18 +95,12 @@ function RenderDateInfo({ issueDate, billingPeriod }) {
 }
 
 function RenderTable({ transporterPayment }) {
-  const { subtripSnapshot, taxBreakup, summary, additionalCharges } =
-    transporterPayment;
+  const { subtripSnapshot, taxBreakup, summary, additionalCharges } = transporterPayment;
 
   const navigate = useNavigate();
   const { cgst, sgst, igst, tds } = taxBreakup || {};
-  const {
-    netIncome,
-    totalExpense,
-    totalShortageAmount,
-    totalFreightAmount,
-    totalTripWiseIncome,
-  } = summary || {};
+  const { netIncome, totalExpense, totalShortageAmount, totalFreightAmount, totalTripWiseIncome } =
+    summary || {};
   return (
     <TableContainer>
       <Table sx={{ minWidth: 960, overflowX: 'auto' }}>
@@ -178,7 +172,9 @@ function RenderTable({ transporterPayment }) {
           {tds?.rate > 0 && (
             <StyledTableRow>
               <TableCell colSpan={11} />
-              <StyledTableCell colSpan={2} align='right'>TDS({tds?.rate || 0}%)</StyledTableCell>
+              <StyledTableCell colSpan={2} align="right">
+                TDS({tds?.rate || 0}%)
+              </StyledTableCell>
               <TableCell align="right" sx={{ color: 'error.main' }}>
                 {fCurrency(tds?.amount || 0)}
               </TableCell>
@@ -191,7 +187,9 @@ function RenderTable({ transporterPayment }) {
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
-              <StyledTableCell colSpan={2} align='right'>CGST {cgst.rate}%</StyledTableCell>
+              <StyledTableCell colSpan={2} align="right">
+                CGST {cgst.rate}%
+              </StyledTableCell>
               <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
             </StyledTableRow>
           )}
@@ -199,7 +197,9 @@ function RenderTable({ transporterPayment }) {
           {sgst?.rate > 0 && (
             <StyledTableRow>
               <TableCell colSpan={11} />
-              <StyledTableCell colSpan={2} align='right'>SGST {sgst.rate}%</StyledTableCell>
+              <StyledTableCell colSpan={2} align="right">
+                SGST {sgst.rate}%
+              </StyledTableCell>
               <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
             </StyledTableRow>
           )}
@@ -210,7 +210,9 @@ function RenderTable({ transporterPayment }) {
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
-              <StyledTableCell colSpan={2} align='right'>IGST {igst.rate}%</StyledTableCell>
+              <StyledTableCell colSpan={2} align="right">
+                IGST {igst.rate}%
+              </StyledTableCell>
               <TableCell align="right" title="GST under RCM Mechnism">
                 {fCurrency(igst.amount)}
               </TableCell>
@@ -221,7 +223,9 @@ function RenderTable({ transporterPayment }) {
             additionalCharges.map(({ label, amount }) => (
               <StyledTableRow>
                 <TableCell colSpan={11} />
-                <StyledTableCell colSpan={2} align='right'>{label}</StyledTableCell>
+                <StyledTableCell colSpan={2} align="right">
+                  {label}
+                </StyledTableCell>
                 <TableCell align="right" sx={{ color: 'error.main' }}>
                   {fCurrency(amount || 0)}
                 </TableCell>
@@ -230,13 +234,13 @@ function RenderTable({ transporterPayment }) {
 
           <StyledTableRow>
             <TableCell colSpan={11} />
-            <StyledTableCell colSpan={2} align='right'>Net-Payable</StyledTableCell>
+            <StyledTableCell colSpan={2} align="right">
+              Net-Payable
+            </StyledTableCell>
             <TableCell align="right" sx={{ color: 'success.main' }}>
               {fCurrency(netIncome)}
             </TableCell>
           </StyledTableRow>
-
-
         </TableBody>
       </Table>
     </TableContainer>

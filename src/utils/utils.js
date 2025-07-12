@@ -18,7 +18,6 @@ export const calculateDriverSalaryPerSubtrip = (subtrip) => {
   return totalDriverSalary;
 };
 
-
 // for providing insignts while adding salary expense
 export function getFixedExpensesByVehicleType(route, vehicle) {
   if (!route || !vehicle) {

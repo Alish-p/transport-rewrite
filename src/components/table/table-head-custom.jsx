@@ -1,3 +1,7 @@
+import { CSS } from '@dnd-kit/utilities';
+import { useSortable, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSensor, DndContext, useSensors, PointerSensor, closestCenter } from '@dnd-kit/core';
+
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -21,6 +25,47 @@ const visuallyHidden = {
 
 // ----------------------------------------------------------------------
 
+function DraggableHeaderCell({ headCell, order, orderBy, onSort }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: headCell.id,
+  });
+
+  return (
+    <TableCell
+      ref={setNodeRef}
+      align={headCell.align || 'left'}
+      sortDirection={orderBy === headCell.id ? order : false}
+      sx={{
+        width: headCell.width,
+        minWidth: headCell.minWidth,
+        transition,
+        transform: CSS.Translate.toString(transform),
+      }}
+      {...attributes}
+      {...listeners}
+    >
+      {onSort ? (
+        <TableSortLabel
+          hideSortIcon
+          active={orderBy === headCell.id}
+          direction={orderBy === headCell.id ? order : 'asc'}
+          onClick={() => onSort(headCell.id)}
+        >
+          {headCell.label}
+
+          {orderBy === headCell.id ? (
+            <Box sx={{ ...visuallyHidden }}>
+              {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+            </Box>
+          ) : null}
+        </TableSortLabel>
+      ) : (
+        headCell.label
+      )}
+    </TableCell>
+  );
+}
+
 export function TableHeadCustom({
   sx,
   order,
@@ -30,52 +75,49 @@ export function TableHeadCustom({
   rowCount = 0,
   numSelected = 0,
   onSelectAllRows,
+  onOrderChange,
 }) {
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    if (onOrderChange) {
+      onOrderChange(active.id, over.id);
+    }
+  };
+
   return (
-    <TableHead sx={sx}>
-      <TableRow>
-        {onSelectAllRows && (
-          <TableCell padding="checkbox">
-            <Checkbox
-              indeterminate={!!numSelected && numSelected < rowCount}
-              checked={!!rowCount && numSelected === rowCount}
-              onChange={(event) => onSelectAllRows(event.target.checked)}
-              inputProps={{
-                name: 'select-all-rows',
-                'aria-label': 'select all rows',
-              }}
-            />
-          </TableCell>
-        )}
-
-        {headLabel.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.align || 'left'}
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ width: headCell.width, minWidth: headCell.minWidth }}
-          >
-            {onSort ? (
-              <TableSortLabel
-                hideSortIcon
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={() => onSort(headCell.id)}
-              >
-                {headCell.label}
-
-                {orderBy === headCell.id ? (
-                  <Box sx={{ ...visuallyHidden }}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
-            ) : (
-              headCell.label
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={headLabel.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
+        <TableHead sx={sx}>
+          <TableRow>
+            {onSelectAllRows && (
+              <TableCell padding="checkbox">
+                <Checkbox
+                  indeterminate={!!numSelected && numSelected < rowCount}
+                  checked={!!rowCount && numSelected === rowCount}
+                  onChange={(event) => onSelectAllRows(event.target.checked)}
+                  inputProps={{
+                    name: 'select-all-rows',
+                    'aria-label': 'select all rows',
+                  }}
+                />
+              </TableCell>
             )}
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
+
+            {headLabel.map((headCell) => (
+              <DraggableHeaderCell
+                key={headCell.id}
+                headCell={headCell}
+                order={order}
+                orderBy={orderBy}
+                onSort={onSort}
+              />
+            ))}
+          </TableRow>
+        </TableHead>
+      </SortableContext>
+    </DndContext>
   );
 }

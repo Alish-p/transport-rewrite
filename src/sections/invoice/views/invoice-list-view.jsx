@@ -47,6 +47,8 @@ import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
 import InvoiceTableFiltersResult from '../invoice-list/invoice-table-filters-result';
 
+const STORAGE_KEY = 'invoice-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -76,10 +78,14 @@ export function InvoiceListView() {
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const [tableData, setTableData] = useState([]);
 
@@ -261,6 +267,9 @@ export function InvoiceListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -303,7 +312,12 @@ export function InvoiceListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Invoices-selected-list'
                         );
                       }}
@@ -336,6 +350,7 @@ export function InvoiceListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -355,6 +370,7 @@ export function InvoiceListView() {
                       onDeleteRow={() => deleteInvoice(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
                     />
                   ))}
 

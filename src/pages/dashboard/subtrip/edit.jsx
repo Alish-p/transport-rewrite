@@ -19,7 +19,6 @@ export default function Page() {
 
   const { data: subtrip, isLoading: subtripLoading, isError: subtripError } = useSubtrip(id);
 
-
   if (subtripLoading) {
     return <LoadingScreen />;
   }
@@ -40,9 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <SubtripEditView
-        subtrip={subtrip}
-      />
+      <SubtripEditView subtrip={subtrip} />
     </>
   );
 }

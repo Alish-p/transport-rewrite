@@ -68,7 +68,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   };
 
   return (
-    <Card >
+    <Card>
       <CardHeader
         title="P&L Report"
         subheader="Only subtrips with completed billing are listed below. Subtrips still in receive or loaded status are not included."

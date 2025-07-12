@@ -43,6 +43,8 @@ import { TABLE_COLUMNS } from '../customer-table-config';
 import CustomerTableToolbar from '../customer-table-toolbar';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
 
+const STORAGE_KEY = 'customer-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -59,20 +61,21 @@ export function CustomerListView() {
   const navigate = useNavigate();
   const deleteCustomer = useDeleteCustomer();
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const {
     visibleColumns,
     visibleHeaders,
+    columnOrder,
     disabledColumns,
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
-  } = useColumnVisibility(TABLE_COLUMNS);
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedCustomers({
     search: filters.search || undefined,
@@ -96,7 +99,7 @@ export function CustomerListView() {
     navigate(paths.dashboard.customer.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
+  const handleDeleteRows = useCallback(() => {}, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -146,6 +149,9 @@ export function CustomerListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -182,7 +188,12 @@ export function CustomerListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Customers-selected'
                         );
                       }}
@@ -203,6 +214,7 @@ export function CustomerListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -213,21 +225,22 @@ export function CustomerListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                        <TableSkeleton key={i} />
+                      ))
                     : tableData.map((row) => (
-                      <CustomerTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteCustomer(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                      />
-                    ))}
+                        <CustomerTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                          onDeleteRow={() => deleteCustomer(row._id)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
+                        />
+                      ))}
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>

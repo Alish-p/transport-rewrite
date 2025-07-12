@@ -2,6 +2,7 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -41,12 +42,15 @@ export default function TripTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedVehicle,
   onSelectVehicle,
   selectedDriver,
   onSelectDriver,
   selectedSubtrip,
   onSelectSubtrip,
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -169,6 +173,16 @@ export default function TripTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -205,11 +219,19 @@ export default function TripTableToolbar({
                 />
               }
               fileName="Trip-list.pdf"
-              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
               {({ loading }) => (
                 <>
-                  <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
                   PDF
                 </>
               )}
@@ -218,7 +240,10 @@ export default function TripTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols), 'Trips-list');
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
+                'Trips-list'
+              );
               popover.onClose();
             }}
           >

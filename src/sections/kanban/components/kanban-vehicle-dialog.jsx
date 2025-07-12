@@ -39,8 +39,7 @@ const QuickVehicleSchema = zod.object({
     .string()
     .min(1, { message: 'Vehicle No is required' })
     .regex(/^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4}$/, {
-      message:
-        'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
+      message: 'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
     }),
   vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
   noOfTyres: zod
@@ -247,7 +246,11 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
         {showQuickCreate ? 'Create New Vehicle' : 'Vehicles'}{' '}
-        {!showQuickCreate && <Typography component="span" sx={{ color: 'text.secondary' }}>({total})</Typography>}
+        {!showQuickCreate && (
+          <Typography component="span" sx={{ color: 'text.secondary' }}>
+            ({total})
+          </Typography>
+        )}
       </DialogTitle>
 
       {!showQuickCreate && (
@@ -302,7 +305,11 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="subtitle2" sx={{ mb: 0.25 }}>
                         {vehicle.vehicleNo}{' '}
-                        <Label color={vehicle.isOwn ? 'success' : 'warning'} size="small" variant="soft">
+                        <Label
+                          color={vehicle.isOwn ? 'success' : 'warning'}
+                          size="small"
+                          variant="soft"
+                        >
                           {vehicle.isOwn ? 'Own' : 'Market'}
                         </Label>
                       </Typography>
@@ -329,7 +336,12 @@ export function KanbanVehicleDialog({ selectedVehicle = null, open, onClose, onV
               })}
               <Box
                 ref={loadMoreRef}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: ITEM_HEIGHT }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: ITEM_HEIGHT,
+                }}
               >
                 {isFetchingNext && <LoadingSpinner />}
               </Box>

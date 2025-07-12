@@ -204,10 +204,8 @@ export function SubtripReceiveForm() {
   const subtripDialog = useBoolean();
   const [selectedSubtripId, setSelectedSubtripId] = useState(() => currentSubtripId || null);
 
-  const {
-    data: selectedSubtripData,
-    isLoading: isLoadingSelectedSubtrip,
-  } = useSubtrip(selectedSubtripId);
+  const { data: selectedSubtripData, isLoading: isLoadingSelectedSubtrip } =
+    useSubtrip(selectedSubtripId);
 
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
 

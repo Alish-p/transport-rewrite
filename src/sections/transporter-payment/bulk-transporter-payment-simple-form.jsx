@@ -172,14 +172,10 @@ export default function BulkTransporterPaymentSimpleForm() {
         payments.map((pay, ti) => {
           const { transporter, subtrips, additionalCharges, selected } = pay;
           const podCharge = subtrips.length * (transporter.podCharges || 0);
-          const summary = calculateTransporterPaymentSummary(
-            subtrips,
-            transporter,
-            [
-              { label: 'POD Charges', amount: podCharge },
-              ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
-            ]
-          );
+          const summary = calculateTransporterPaymentSummary(subtrips, transporter, [
+            { label: 'POD Charges', amount: podCharge },
+            ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
+          ]);
           const {
             taxBreakup,
             totalFreightAmount,
@@ -191,7 +187,12 @@ export default function BulkTransporterPaymentSimpleForm() {
 
           return (
             <Card key={transporter._id} sx={{ p: 3, mb: 3, opacity: selected ? 1 : 0.5 }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: 2 }}
+              >
                 <Typography variant="h6">{transporter.transportName}</Typography>
                 <FormControlLabel
                   control={<Switch checked={selected} onChange={() => toggleSelect(ti)} />}
@@ -354,8 +355,8 @@ export default function BulkTransporterPaymentSimpleForm() {
                             value={ch.label}
                             onChange={(e) => handleChangeCharge(ti, ci, 'label', e.target.value)}
                             placeholder="Label"
-                            size='small'
-                            variant='filled'
+                            size="small"
+                            variant="filled"
                           />
                         </TableCell>
                         <TableCell align="right">
@@ -364,9 +365,8 @@ export default function BulkTransporterPaymentSimpleForm() {
                             value={ch.amount}
                             onChange={(e) => handleChangeCharge(ti, ci, 'amount', e.target.value)}
                             placeholder="Amount"
-                            size='small'
-                            variant='filled'
-
+                            size="small"
+                            variant="filled"
                           />
                         </TableCell>
                         <TableCell>

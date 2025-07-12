@@ -10,7 +10,6 @@ import { LoadingScreen } from 'src/components/loading-screen';
 
 import { VehicleEditView } from 'src/sections/vehicle/views';
 
-
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Vehicle edit | Dashboard - ${CONFIG.site.name}` };
@@ -19,7 +18,6 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { data: vehicle, isLoading: vehicleLoading, isError: vehicleError } = useVehicle(id);
-
 
   if (vehicleLoading) {
     return <LoadingScreen />;

@@ -4,6 +4,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
@@ -41,8 +42,11 @@ export default function VehicleTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
+  onResetColumns,
+  canResetColumns,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -155,6 +159,16 @@ export default function VehicleTableToolbar({
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Reset Columns">
+          <span>
+            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:restart-bold" />
+              </Badge>
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -208,10 +222,12 @@ export default function VehicleTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols), 'Vehicles-list');
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
+                'Vehicles-list'
+              );
 
               popover.onClose();
-
             }}
           >
             <Iconify icon="eva:download-fill" />

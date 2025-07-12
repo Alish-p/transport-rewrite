@@ -15,9 +15,15 @@ export function VehicleFuelWidget({ value = 0, total = 400, sx, ...other }) {
 
   return (
     <Card sx={{ p: 2, position: 'relative', ...sx }} {...other}>
-
       <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Iconify icon="solar:gas-station-bold" width={24} height={24} color='success.main' sx={{ mr: 2 }} /> Fuel
+        <Iconify
+          icon="solar:gas-station-bold"
+          width={24}
+          height={24}
+          color="success.main"
+          sx={{ mr: 2 }}
+        />{' '}
+        Fuel
       </Typography>
 
       <LinearProgress

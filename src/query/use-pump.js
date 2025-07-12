@@ -1,10 +1,5 @@
 import { toast } from 'sonner';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -68,8 +63,7 @@ export function usePaginatedPumps(params, options = {}) {
 export function useInfinitePumps(params, options = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEY, 'infinite', params],
-    queryFn: ({ pageParam = 1 }) =>
-      getPaginatedPumps({ ...(params || {}), page: pageParam }),
+    queryFn: ({ pageParam = 1 }) => getPaginatedPumps({ ...(params || {}), page: pageParam }),
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.reduce(
         (acc, page) => acc + (page.pumps ? page.pumps.length : 0),
@@ -131,7 +125,7 @@ export function useDeletePump() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deletePump(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Pump deleted successfully!');
     },

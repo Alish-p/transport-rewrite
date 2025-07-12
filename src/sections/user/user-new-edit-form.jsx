@@ -91,9 +91,8 @@ export function UserNewEditForm({ currentUser }) {
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting, },
+    formState: { isSubmitting },
   } = methods;
-
 
   const onSubmit = handleSubmit(async (data) => {
     try {

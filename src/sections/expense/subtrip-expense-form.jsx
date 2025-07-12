@@ -39,9 +39,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const createExpense = useCreateExpense();
 
-  const {
-    data: subtripData,
-  } = useSubtrip(selectedSubtripId);
+  const { data: subtripData } = useSubtrip(selectedSubtripId);
 
   const defaultValues = useMemo(
     () => ({
@@ -219,7 +217,12 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
             {expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY && (
               <>
-                <Field.Text name="fixedSalary" label="Fixed Salary (Optional)" type="number" placeholder="0" />
+                <Field.Text
+                  name="fixedSalary"
+                  label="Fixed Salary (Optional)"
+                  type="number"
+                  placeholder="0"
+                />
                 <Field.Text
                   name="variableSalary"
                   label="Variable Salary (Optional)"

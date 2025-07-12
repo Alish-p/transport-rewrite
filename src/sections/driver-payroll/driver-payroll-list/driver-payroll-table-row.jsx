@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 
-
 // @mui
 import Link from '@mui/material/Link';
 import { MenuList } from '@mui/material';
@@ -60,7 +59,7 @@ export default function DriverPayrollTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => { }}
+                onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {driverId?.driverCellNo}
