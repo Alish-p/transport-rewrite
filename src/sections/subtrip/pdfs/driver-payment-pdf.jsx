@@ -26,7 +26,7 @@ export default function DriverPaymentPdf({ subtrip }) {
     customerId,
     startDate,
     expenses,
-    tripId: { driverId, },
+    tripId: { driverId },
     loadingPoint,
     unloadingPoint,
   } = subtrip;
@@ -212,7 +212,7 @@ export default function DriverPaymentPdf({ subtrip }) {
 
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col9, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{ }</Text>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
         <View style={[styles.col3, styles.horizontalCell]}>

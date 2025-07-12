@@ -68,7 +68,6 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
     netProfit: (st.amt || 0) - (st.totalExpense || 0),
   }));
 
-
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">

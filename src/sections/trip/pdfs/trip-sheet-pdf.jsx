@@ -158,9 +158,9 @@ export default function TripSheetPdf({ trip }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-          0
-        )
+            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+            0
+          )
         : 0),
     0
   );
@@ -204,17 +204,7 @@ export default function TripSheetPdf({ trip }) {
 
         {/* Summary Section */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
-        <PDFTable
-          headers={[
-            'Mileage',
-          ]}
-          data={[
-            [
-              `${fNumber(mileage)} Km/L`,
-            ],
-          ]}
-          columnWidths={[12]}
-        />
+        <PDFTable headers={['Mileage']} data={[[`${fNumber(mileage)} Km/L`]]} columnWidths={[12]} />
       </Page>
     </Document>
   );

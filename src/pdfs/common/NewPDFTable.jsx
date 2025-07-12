@@ -130,66 +130,73 @@ export default function NewPDFTable({
           extraRow.highlight && PDFStyles.bgLight, // Optional highlighting
         ]}
       >
-        {extraRow.cells ? (
-          // Handle custom cell structure with colspan
-          extraRow.cells.map((cell, cellIndex) => {
-            const cellWidth = cell.colspan
-              ? columns.slice(cell.startIndex, cell.startIndex + cell.colspan)
-                .reduce((acc, col) => acc + parseFloat(col.width || `${100 / columns.length}`), 0)
-              : columns[cell.startIndex]?.width || `${100 / columns.length}%`;
+        {extraRow.cells
+          ? // Handle custom cell structure with colspan
+            extraRow.cells.map((cell, cellIndex) => {
+              const cellWidth = cell.colspan
+                ? columns
+                    .slice(cell.startIndex, cell.startIndex + cell.colspan)
+                    .reduce(
+                      (acc, col) => acc + parseFloat(col.width || `${100 / columns.length}`),
+                      0
+                    )
+                : columns[cell.startIndex]?.width || `${100 / columns.length}%`;
 
-            const isLastCell = cellIndex === extraRow.cells.length - 1;
-            const cellAlign = cell.align || columns[cell.startIndex]?.align;
+              const isLastCell = cellIndex === extraRow.cells.length - 1;
+              const cellAlign = cell.align || columns[cell.startIndex]?.align;
 
-            return (
-              <View
-                key={cellIndex}
-                style={[
-                  PDFStyles.horizontalCell,
-                  { width: `${cellWidth}%` },
-                  !isLastCell && PDFStyles.borderRight,
-                ]}
-              >
-                <Text
+              return (
+                <View
+                  key={cellIndex}
                   style={[
-                    extraRow.highlight ? PDFStyles.horizontalCellTitle : PDFStyles.horizontalCellContent,
-                    alignStyle(cellAlign)
+                    PDFStyles.horizontalCell,
+                    { width: `${cellWidth}%` },
+                    !isLastCell && PDFStyles.borderRight,
                   ]}
                 >
-                  {cell.value}
-                </Text>
-              </View>
-            );
-          })
-        ) : (
-          // Handle legacy data array format
-          columns.map((col, colIndex) => {
-            const cellValue = extraRow.data[colIndex] || '';
-            const displayValue = col.formatter && typeof cellValue === 'number'
-              ? col.formatter(cellValue)
-              : cellValue;
+                  <Text
+                    style={[
+                      extraRow.highlight
+                        ? PDFStyles.horizontalCellTitle
+                        : PDFStyles.horizontalCellContent,
+                      alignStyle(cellAlign),
+                    ]}
+                  >
+                    {cell.value}
+                  </Text>
+                </View>
+              );
+            })
+          : // Handle legacy data array format
+            columns.map((col, colIndex) => {
+              const cellValue = extraRow.data[colIndex] || '';
+              const displayValue =
+                col.formatter && typeof cellValue === 'number'
+                  ? col.formatter(cellValue)
+                  : cellValue;
 
-            return (
-              <View
-                key={colIndex}
-                style={[
-                  PDFStyles.horizontalCell,
-                  { width: col.width || `${100 / columns.length}%` },
-                  colIndex !== columns.length - 1 && PDFStyles.borderRight,
-                ]}
-              >
-                <Text
+              return (
+                <View
+                  key={colIndex}
                   style={[
-                    extraRow.highlight ? PDFStyles.horizontalCellTitle : PDFStyles.horizontalCellContent,
-                    alignStyle(col.align)
+                    PDFStyles.horizontalCell,
+                    { width: col.width || `${100 / columns.length}%` },
+                    colIndex !== columns.length - 1 && PDFStyles.borderRight,
                   ]}
                 >
-                  {displayValue}
-                </Text>
-              </View>
-            );
-          })
-        )}
+                  <Text
+                    style={[
+                      extraRow.highlight
+                        ? PDFStyles.horizontalCellTitle
+                        : PDFStyles.horizontalCellContent,
+                      alignStyle(col.align),
+                    ]}
+                  >
+                    {displayValue}
+                  </Text>
+                </View>
+              );
+            })}
       </View>
     ));
   };

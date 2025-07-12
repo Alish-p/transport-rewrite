@@ -185,7 +185,6 @@ export function SubtripDetailView({ subtrip }) {
         </Grid>
       </DashboardContent>
 
-
       {/* Resolve Subtrip Dialogue */}
       <ResolveSubtripDialog
         showDialog={showResolveDialog}
@@ -206,7 +205,6 @@ export function SubtripDetailView({ subtrip }) {
         setShowDialog={setShowCloseEmptyDialog}
         subtripId={subtrip._id}
       />
-
     </>
   );
 }

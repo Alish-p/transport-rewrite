@@ -33,15 +33,7 @@ export default function LoansTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const {
-    _id,
-    borrowerId,
-    borrowerType,
-    totalAmount,
-    remainingBalance,
-    remarks,
-    createdAt,
-  } = row;
+  const { _id, borrowerId, borrowerType, totalAmount, remainingBalance, remarks, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -81,7 +73,7 @@ export default function LoansTableRow({
               <Link
                 noWrap
                 variant="body2"
-                onClick={() => { }}
+                onClick={() => {}}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
                 {getBorrowerDetails(borrowerType, borrowerId).cellNo}

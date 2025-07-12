@@ -90,7 +90,7 @@ export function useDeleteInvoice() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteInvoice(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Invoice deleted successfully!');
     },

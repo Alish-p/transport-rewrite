@@ -107,7 +107,6 @@ export default function InvoiceTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-
         <TextField
           fullWidth
           value={filters.invoiceNo}
@@ -135,8 +134,6 @@ export default function InvoiceTableToolbar({
           selected={selectedSubtrip?._id}
           iconName="mdi:bookmark"
         />
-
-
 
         <DialogSelectButton
           onClick={dateDialog.onTrue}

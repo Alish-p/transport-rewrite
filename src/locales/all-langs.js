@@ -24,7 +24,6 @@ export const allLangs = [
       components: { ...enUSDate.components, ...enUSDataGrid.components },
     },
   },
-
 ];
 
 /**

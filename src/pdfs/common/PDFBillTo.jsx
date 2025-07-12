@@ -28,7 +28,7 @@ export default function PDFBillToSection({
 
         {/* Meta Info Section - 30% width */}
         <View style={[PDFStyles.col4, PDFStyles.borderLeft, PDFStyles.contactSection]}>
-          <View style={[PDFStyles.flexColumn,]}>
+          <View style={[PDFStyles.flexColumn]}>
             {metaDetails.map(
               ([label, value], index) =>
                 value && (

@@ -4,7 +4,6 @@ import axios from 'src/utils/axios';
 
 const ENDPOINT = '/api/dashboard';
 
-
 const getCustomerMonthlyFreight = async (month) => {
   // month should be a string in "YYYY-MM" format
   const { data } = await axios.get(`${ENDPOINT}/customer-monthly-freight`, {

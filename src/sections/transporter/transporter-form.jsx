@@ -151,8 +151,14 @@ export default function TransporterForm({ currentTransporter }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="transportName" label="Transport Name" />
-        <Field.Text name="address" label="Address" multiline rows={4} placeholder="123 MG Road, Bengaluru, Karnataka 560001" />
-        <Field.Select name="state" label="State" >
+        <Field.Text
+          name="address"
+          label="Address"
+          multiline
+          rows={4}
+          placeholder="123 MG Road, Bengaluru, Karnataka 560001"
+        />
+        <Field.Select name="state" label="State">
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
           {STATES.map((state) => (
@@ -176,7 +182,7 @@ export default function TransporterForm({ currentTransporter }) {
   );
 
   const renderBankDetails = () => (
-    <Card >
+    <Card>
       <CardHeader title="Bank Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
@@ -206,12 +212,16 @@ export default function TransporterForm({ currentTransporter }) {
   );
 
   const renderAdditionalDetails = () => (
-    <Card >
+    <Card>
       <CardHeader title="Additional Details" sx={{ mb: 3 }} />
       <Divider />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="paymentMode" label="Payment Mode (Optional)" placeholder="Cash, UPI, NEFT, Cheque" />
+        <Field.Text
+          name="paymentMode"
+          label="Payment Mode (Optional)"
+          placeholder="Cash, UPI, NEFT, Cheque"
+        />
         <Field.Text name="panNo" label="PAN No (Optional)" placeholder="ABCDE1234F" />
 
         <Field.Text
@@ -231,7 +241,12 @@ export default function TransporterForm({ currentTransporter }) {
         <Field.Switch name="gstEnabled" label="GST Enabled" />
 
         {values.gstEnabled && (
-          <Field.Text name="gstNo" label="GST No" helperText="Enter only if GST is enabled" placeholder="22ABCDE1234F1Z5" />
+          <Field.Text
+            name="gstNo"
+            label="GST No"
+            helperText="Enter only if GST is enabled"
+            placeholder="22ABCDE1234F1Z5"
+          />
         )}
       </Stack>
     </Card>

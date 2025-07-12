@@ -107,7 +107,7 @@ export function useDeleteVehicle() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteVehicle(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Vehicle deleted successfully!');
     },

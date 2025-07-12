@@ -208,10 +208,12 @@ export default function VehicleTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols), 'Vehicles-list');
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Vehicles-list'
+              );
 
               popover.onClose();
-
             }}
           >
             <Iconify icon="eva:download-fill" />

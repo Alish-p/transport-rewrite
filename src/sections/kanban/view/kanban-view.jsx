@@ -36,7 +36,6 @@ import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 
 // ----------------------------------------------------------------------
 
-
 const cssVars = {
   '--item-gap': '24px',
   '--item-radius': '12px',
@@ -85,7 +84,7 @@ export function KanbanView({ tasks }) {
       const intersections =
         pointerIntersections.length > 0
           ? // If there are droppables intersecting with the pointer, return those
-          pointerIntersections
+            pointerIntersections
           : rectIntersection(args);
       let overId = getFirstCollision(intersections, 'id');
 
@@ -271,18 +270,18 @@ export function KanbanView({ tasks }) {
           sx={{
             pb: 3,
             display: 'unset',
-            ...({ minHeight: 0, display: 'flex', flex: '1 1 auto' }),
+            ...{ minHeight: 0, display: 'flex', flex: '1 1 auto' },
           }}
         >
           <Stack
             direction="row"
             sx={{
               gap: 'var(--column-gap)',
-              ...({
+              ...{
                 minHeight: 0,
                 flex: '1 1 auto',
                 [`& .${kanbanClasses.columnList}`]: { ...hideScrollY, flex: '1 1 auto' },
-              }),
+              },
             }}
           >
             <Stack direction="row" sx={{ gap: 'var(--column-gap)' }}>

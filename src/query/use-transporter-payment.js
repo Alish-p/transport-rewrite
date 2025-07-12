@@ -114,7 +114,7 @@ export function useDeleteTransporterPayment() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporterPayment(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('TransporterPayment deleted successfully!');
     },
@@ -126,4 +126,3 @@ export function useDeleteTransporterPayment() {
   });
   return mutate;
 }
-

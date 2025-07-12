@@ -129,9 +129,7 @@ export default function DieselPriceTableToolbar({
         <MenuList>
           <MenuItem
             onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter(
-                (c) => visibleColumns[c]
-              );
+              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
                 prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
                 'DieselPrice-list'
@@ -164,4 +162,3 @@ export default function DieselPriceTableToolbar({
     </>
   );
 }
-

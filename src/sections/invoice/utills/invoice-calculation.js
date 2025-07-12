@@ -1,7 +1,6 @@
 import { CONFIG } from 'src/config-global';
 
 export const calculateTaxBreakup = (customer) => {
-
   const taxRate = CONFIG.customerInvoiceTax || 6;
 
   if (!customer?.gstEnabled) {

@@ -10,7 +10,6 @@ import { SvgColor } from 'src/components/svg-color';
 // ----------------------------------------------------------------------
 
 export function AppWidget({ title, total, icon, sx, ...other }) {
-
   return (
     <Box
       sx={{

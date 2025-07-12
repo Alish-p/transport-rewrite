@@ -25,7 +25,9 @@ const visuallyHidden = {
 // ----------------------------------------------------------------------
 
 function DraggableHeaderCell({ headCell, order, orderBy, onSort }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: headCell.id });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: headCell.id,
+  });
 
   return (
     <TableCell

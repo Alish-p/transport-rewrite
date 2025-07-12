@@ -20,7 +20,6 @@ export default function CustomerTableFiltersResult({
     onFilters('search', '');
   };
 
-
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>

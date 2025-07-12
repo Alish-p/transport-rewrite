@@ -9,7 +9,6 @@ import { fNumber, fShortenNumber } from 'src/utils/format-number';
 
 import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart';
 
-
 // ----------------------------------------------------------------------
 
 export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) {
@@ -41,15 +40,10 @@ export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) 
 
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
 
-
   const legendItems = currentSeries?.data || [];
 
-  const legendTotals = legendItems.map(({ data }) =>
-    data.reduce((sum, v) => sum + v, 0)
-  );
-  const legendValues = legendTotals.map((total) =>
-    fShortenNumber(total)
-  );
+  const legendTotals = legendItems.map(({ data }) => data.reduce((sum, v) => sum + v, 0));
+  const legendValues = legendTotals.map((total) => fShortenNumber(total));
 
   return (
     <Card {...other}>

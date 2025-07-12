@@ -1,5 +1,3 @@
-
-
 export const SUBTRIP_STATUS_COLORS = {
   'in-queue': 'warning',
   loaded: 'info',

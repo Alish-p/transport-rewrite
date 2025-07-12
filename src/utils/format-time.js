@@ -250,7 +250,7 @@ export const getFirstDayOfCurrentMonth = () => {
 
 /**
  * Returns the number of full days between startDate and endDate.
- * 
+ *
  * @param  {string|number|Date} startDate — start of range
  * @param  {string|number|Date} endDate   — end of range
  * @returns {number|null|'Invalid time value'}
@@ -270,7 +270,6 @@ export function fDaysDuration(startDate, endDate) {
   // diff in days; if you want to include both endpoints, add +1
   return end.diff(start, 'day');
 }
-
 
 /**
  * Returns the current fiscal year in "YY-YY" format (e.g. "25-26").

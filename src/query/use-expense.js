@@ -66,7 +66,7 @@ export function useDeleteExpense() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteExpense(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Expense deleted successfully!');
     },

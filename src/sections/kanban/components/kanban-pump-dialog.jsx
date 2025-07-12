@@ -28,17 +28,8 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
   const scrollRef = useRef(null);
   const [searchPump, setSearchPump] = useState('');
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isFetching,
-  } = useInfinitePumps(
-    { search: searchPump || undefined, rowsPerPage: 50 },
-    { enabled: open }
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
+    useInfinitePumps({ search: searchPump || undefined, rowsPerPage: 50 }, { enabled: open });
 
   const pumps = data ? data.pages.flatMap((p) => p.pumps) : [];
 

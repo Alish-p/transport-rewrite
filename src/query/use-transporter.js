@@ -1,10 +1,5 @@
 import { toast } from 'sonner';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -64,10 +59,7 @@ export function useInfiniteTransporters(params, options = {}) {
     queryFn: ({ pageParam = 1 }) =>
       getPaginatedTransporters({ ...(params || {}), page: pageParam }),
     getNextPageParam: (lastPage, allPages) => {
-      const totalFetched = allPages.reduce(
-        (acc, page) => acc + page.transporters.length,
-        0
-      );
+      const totalFetched = allPages.reduce((acc, page) => acc + page.transporters.length, 0);
       return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
     },
     keepPreviousData: true,
@@ -122,7 +114,7 @@ export function useDeleteTransporter() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporter(id),
-    onSuccess: (_,) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Transporter deleted successfully!');
     },

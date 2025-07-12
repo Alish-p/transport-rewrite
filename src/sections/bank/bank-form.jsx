@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -87,9 +86,7 @@ export default function BankForm({ currentBank }) {
         setError('ifsc', {
           type: 'manual',
           message:
-            err.response?.status === 404
-              ? 'Invalid IFSC code'
-              : 'Network error, please try again',
+            err.response?.status === 404 ? 'Invalid IFSC code' : 'Network error, please try again',
         });
         console.error('IFSC lookup failed:', err);
       })
@@ -127,9 +124,7 @@ export default function BankForm({ currentBank }) {
                 label="IFSC"
                 required
                 InputProps={{
-                  endAdornment: ifscLoading && (
-                    <CircularProgress size={20} />
-                  ),
+                  endAdornment: ifscLoading && <CircularProgress size={20} />,
                 }}
               />
             </Stack>
@@ -158,11 +153,7 @@ export default function BankForm({ currentBank }) {
         {/* Actions */}
         <Grid item xs={12}>
           <Stack alignItems="flex-end">
-            <LoadingButton
-              type="submit"
-              variant="contained"
-              loading={isSubmitting}
-            >
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
               {!currentBank ? 'Create Bank' : 'Save Changes'}
             </LoadingButton>
           </Stack>

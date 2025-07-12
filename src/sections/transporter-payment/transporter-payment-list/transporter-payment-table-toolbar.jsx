@@ -179,7 +179,12 @@ export default function TransporterPaymentTableToolbar({
             <PDFDownloadLink
               document={<TransporterPaymentListPdf payments={tableData} />}
               fileName="Transporter-payment-list.pdf"
-              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
               {({ loading }) => (
                 <>

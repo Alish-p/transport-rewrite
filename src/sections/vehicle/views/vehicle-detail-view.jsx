@@ -203,7 +203,7 @@ export function VehicleDetailView({ vehicle }) {
 
       <Grid container spacing={3} mt={3}>
         <Grid xs={12} md={7} container spacing={3} sx={{ p: 3 }} item>
-          <Grid xs={12} sm={6} item >
+          <Grid xs={12} sm={6} item>
             <VehicleOdometerWidget total={Math.round(odometer)} />
           </Grid>
           <Grid xs={12} sm={6} item>

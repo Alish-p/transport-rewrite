@@ -121,7 +121,6 @@ export default function DriverSalarySimpleForm() {
 
   const { driver, billingPeriod, associatedSubtrips, additionalCharges } = watch();
 
-
   const {
     data: fetchedSubtrips,
     isSuccess,
@@ -258,10 +257,7 @@ export default function DriverSalarySimpleForm() {
                 To:
               </Typography>
               <IconButton onClick={driverDialog.onTrue}>
-                <Iconify
-                  icon={driver ? 'solar:pen-bold' : 'mingcute:add-line'}
-                  color="green"
-                />
+                <Iconify icon={driver ? 'solar:pen-bold' : 'mingcute:add-line'} color="green" />
               </IconButton>
             </Stack>
             {driver ? (
@@ -318,7 +314,7 @@ export default function DriverSalarySimpleForm() {
           onClose={driverDialog.onFalse}
           selectedDriver={driver}
           onDriverChange={(driver) => {
-            setValue('driver', driver)
+            setValue('driver', driver);
             replace([]);
           }}
         />

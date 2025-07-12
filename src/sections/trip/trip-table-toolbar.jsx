@@ -205,11 +205,19 @@ export default function TripTableToolbar({
                 />
               }
               fileName="Trip-list.pdf"
-              style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
               {({ loading }) => (
                 <>
-                  <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                  <Iconify
+                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                    sx={{ mr: 2 }}
+                  />
                   PDF
                 </>
               )}
@@ -218,7 +226,10 @@ export default function TripTableToolbar({
           <MenuItem
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols), 'Trips-list');
+              exportToExcel(
+                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                'Trips-list'
+              );
               popover.onClose();
             }}
           >

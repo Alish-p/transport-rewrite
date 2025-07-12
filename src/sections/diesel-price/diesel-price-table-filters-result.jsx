@@ -43,11 +43,7 @@ export default function PumpTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.pump && (
           <Block label="Pump :">
-            <Chip
-              size="small"
-              label={filters.pump.pumpName}
-              onDelete={handleRemovePump}
-            />
+            <Chip size="small" label={filters.pump.pumpName} onDelete={handleRemovePump} />
           </Block>
         )}
 

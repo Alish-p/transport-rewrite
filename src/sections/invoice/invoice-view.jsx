@@ -172,15 +172,15 @@ function RenderTable({ invoice }) {
             </StyledTableRow>
           )}
 
-          {
-            additionalCharges?.map(({ label, amount }, index) => (
-              <StyledTableRow key={index}>
-                <TableCell colSpan={7} />
-                <StyledTableCell>{label}</StyledTableCell>
-                <TableCell sx={{ color: amount < 0 ? 'error.main' : 'default' }} >{fCurrency(amount)}</TableCell>
-              </StyledTableRow>
-            ))
-          }
+          {additionalCharges?.map(({ label, amount }, index) => (
+            <StyledTableRow key={index}>
+              <TableCell colSpan={7} />
+              <StyledTableCell>{label}</StyledTableCell>
+              <TableCell sx={{ color: amount < 0 ? 'error.main' : 'default' }}>
+                {fCurrency(amount)}
+              </TableCell>
+            </StyledTableRow>
+          ))}
 
           <StyledTableRow>
             <TableCell colSpan={7} />

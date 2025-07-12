@@ -35,13 +35,8 @@ const ICONS = {
   invoice: icon('ic-invoice'),
 };
 
-export function OverviewAppView({
-  counts,
-  subtripMonthlyData,
-  invoiceStatusSummary,
-}) {
+export function OverviewAppView({ counts, subtripMonthlyData, invoiceStatusSummary }) {
   const { user } = useAuthContext();
-
 
   const {
     invoices,
@@ -55,7 +50,7 @@ export function OverviewAppView({
   } = counts;
 
   return (
-    <DashboardContent >
+    <DashboardContent>
       <Grid container spacing={3}>
         <Grid xs={12} md={7}>
           <AppWelcome
@@ -165,19 +160,19 @@ export function OverviewAppView({
               series: [
                 subtripMonthlyData
                   ? {
-                    name: String(subtripMonthlyData.year),
-                    data: [
-                      { name: 'Own', data: subtripMonthlyData.own },
-                      { name: 'Market', data: subtripMonthlyData.market },
-                    ],
-                  }
+                      name: String(subtripMonthlyData.year),
+                      data: [
+                        { name: 'Own', data: subtripMonthlyData.own },
+                        { name: 'Market', data: subtripMonthlyData.market },
+                      ],
+                    }
                   : {
-                    name: 'Year',
-                    data: [
-                      { name: 'Own', data: Array(12).fill(0) },
-                      { name: 'Market', data: Array(12).fill(0) },
-                    ],
-                  },
+                      name: 'Year',
+                      data: [
+                        { name: 'Own', data: Array(12).fill(0) },
+                        { name: 'Market', data: Array(12).fill(0) },
+                      ],
+                    },
               ],
             }}
           />

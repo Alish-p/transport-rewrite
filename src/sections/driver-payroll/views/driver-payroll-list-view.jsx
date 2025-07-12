@@ -123,7 +123,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
     [router]
   );
 
-
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);

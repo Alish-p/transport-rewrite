@@ -8,7 +8,7 @@ import { LayoutSection } from '../core/layout-section';
 
 // ----------------------------------------------------------------------
 
-export function SimpleLayout({ sx, children, }) {
+export function SimpleLayout({ sx, children }) {
   const mobileNavOpen = useBoolean();
 
   const layoutQuery = 'md';

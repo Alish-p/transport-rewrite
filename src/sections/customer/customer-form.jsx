@@ -352,7 +352,6 @@ export default function CustomerNewForm({ currentCustomer }) {
                   {values.invoicePrefix}
                   {values.currentInvoiceSerialNumber}
                   {values.invoiceSuffix}
-
                 </Label>
               )}
             </Box>
