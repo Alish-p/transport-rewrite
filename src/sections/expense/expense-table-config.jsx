@@ -3,7 +3,7 @@ import { Stack, Typography, ListItemText } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -78,16 +78,6 @@ export const TABLE_COLUMNS = [
         }}
       />
     ),
-  },
-  {
-    id: 'amount',
-    label: 'Amount',
-    defaultVisible: true,
-    type: 'number',
-    disabled: true,
-    getter: (row) => (row?.amount ? fCurrency(row?.amount) : '-'),
-    align: 'right',
-    showTotal: true,
   },
   {
     id: 'remarks',
@@ -167,5 +157,15 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row?.authorisedBy || '-',
+  },
+  {
+    id: 'amount',
+    label: 'Amount',
+    defaultVisible: true,
+    type: 'number',
+    disabled: true,
+    getter: (row) => fNumber(row?.amount),
+    align: 'right',
+    showTotal: true,
   },
 ];
