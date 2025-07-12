@@ -1,7 +1,8 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
+import { getStorage, setStorage } from './use-local-storage';
 
-export function useColumnVisibility(TABLE_COLUMNS) {
+export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
   const defaultVisibleColumns = useMemo(
     () =>
       TABLE_COLUMNS.reduce((acc, column) => {
@@ -25,8 +26,24 @@ export function useColumnVisibility(TABLE_COLUMNS) {
     [TABLE_COLUMNS]
   );
 
-  const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
-  const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
+  const stored = storageKey ? getStorage(storageKey) : null;
+
+  const [visibleColumns, setVisibleColumns] = useState(
+    stored?.visibleColumns
+      ? { ...defaultVisibleColumns, ...stored.visibleColumns }
+      : defaultVisibleColumns
+  );
+  const [columnOrder, setColumnOrder] = useState(
+    stored?.columnOrder?.length
+      ? stored.columnOrder.filter((id) => defaultColumnOrder.includes(id))
+      : defaultColumnOrder
+  );
+
+  useEffect(() => {
+    if (storageKey) {
+      setStorage(storageKey, { visibleColumns, columnOrder });
+    }
+  }, [storageKey, visibleColumns, columnOrder]);
 
   const visibleHeaders = useMemo(
     () =>

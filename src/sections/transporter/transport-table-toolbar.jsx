@@ -30,6 +30,7 @@ export default function TransporterTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -129,7 +130,12 @@ export default function TransporterTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(
+                  tableData,
+                  TABLE_COLUMNS,
+                  visibleCols,
+                  columnOrder
+                ),
                 'Transporters-list'
               );
 

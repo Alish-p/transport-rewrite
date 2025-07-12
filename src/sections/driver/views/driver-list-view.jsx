@@ -45,6 +45,8 @@ import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
 import DriverTableFiltersResult from '../driver-table-filters-result';
 
+const STORAGE_KEY = 'driver-table-columns';
+
 const defaultFilters = {
   search: '',
   status: 'all',
@@ -69,7 +71,7 @@ export function DriverListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
@@ -195,6 +197,7 @@ export function DriverListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
         />
 
         {canReset && (
@@ -230,7 +233,12 @@ export function DriverListView() {
                       );
 
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Drivers-selected-list'
                       );
                     }}

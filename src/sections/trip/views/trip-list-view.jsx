@@ -46,6 +46,8 @@ import TripTableToolbar from '../trip-table-toolbar';
 import { TABLE_COLUMNS } from '../trip-table-config';
 import TripTableFiltersResult from '../trip-table-filters-result';
 
+const STORAGE_KEY = 'trip-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -85,7 +87,7 @@ export function TripListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedTrips({
     page: table.page + 1,
@@ -222,6 +224,7 @@ export function TripListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
           selectedVehicle={selectedVehicle}
           onSelectVehicle={setSelectedVehicle}
           selectedDriver={selectedDriver}
@@ -272,7 +275,12 @@ export function TripListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Trips-selected'
                       );
                     }}

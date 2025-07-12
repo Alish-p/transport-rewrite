@@ -43,6 +43,8 @@ import { TABLE_COLUMNS } from '../customer-table-config';
 import CustomerTableToolbar from '../customer-table-toolbar';
 import CustomerTableFiltersResult from '../customer-table-filters-result';
 
+const STORAGE_KEY = 'customer-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -71,7 +73,7 @@ export function CustomerListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedCustomers({
     search: filters.search || undefined,
@@ -145,6 +147,7 @@ export function CustomerListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
           />
 
           {canReset && (
@@ -181,7 +184,12 @@ export function CustomerListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Customers-selected'
                         );
                       }}

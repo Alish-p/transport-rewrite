@@ -41,6 +41,7 @@ export default function VehicleTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
 }) {
@@ -209,7 +210,12 @@ export default function VehicleTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(
+                  tableData,
+                  TABLE_COLUMNS,
+                  visibleCols,
+                  columnOrder
+                ),
                 'Vehicles-list'
               );
 

@@ -49,6 +49,8 @@ import { TABLE_COLUMNS } from '../transporter-table-config';
 import TransporterTableToolbar from '../transport-table-toolbar';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
+const STORAGE_KEY = 'transporter-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -77,7 +79,7 @@ export function TransporterListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const handleToggleColumn = useCallback(
     (columnName) => {
@@ -184,6 +186,7 @@ export function TransporterListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
         />
 
         {canReset && (
@@ -218,7 +221,12 @@ export function TransporterListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Transporters-selected'
                       );
                     }}

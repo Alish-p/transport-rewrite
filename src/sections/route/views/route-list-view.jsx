@@ -45,6 +45,8 @@ import { TABLE_COLUMNS } from '../route-table-config';
 import RouteTableToolbar from '../route-table-toolbar';
 import RouteTableFiltersResult from '../route-table-filters-result';
 
+const STORAGE_KEY = 'route-table-columns';
+
 const defaultFilters = {
   routeName: '',
   fromPlace: '',
@@ -74,7 +76,7 @@ export function RouteListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedRoutes({
     page: table.page + 1,
@@ -203,6 +205,7 @@ export function RouteListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
           selectedCustomer={selectedCustomer}
           onSelectCustomer={handleSelectCustomer}
         />
@@ -246,7 +249,12 @@ export function RouteListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'filtered'
                       );
                     }}

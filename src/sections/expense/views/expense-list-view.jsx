@@ -49,6 +49,8 @@ import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
 import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense-config';
 import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
 
+const STORAGE_KEY = 'expense-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -83,7 +85,7 @@ export function ExpenseListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedExpenses({
     vehicleId: filters.vehicle?._id || undefined,
@@ -290,6 +292,7 @@ export function ExpenseListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={handleToggleAllColumns}
+          columnOrder={columnOrder}
         />
 
         {canReset && (
@@ -331,7 +334,12 @@ export function ExpenseListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Expense-selected-list'
                       );
                     }}

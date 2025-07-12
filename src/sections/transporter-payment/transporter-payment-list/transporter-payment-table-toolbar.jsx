@@ -42,6 +42,7 @@ export default function TransporterPaymentTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -202,7 +203,12 @@ export default function TransporterPaymentTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(
+                  tableData,
+                  TABLE_COLUMNS,
+                  visibleCols,
+                  columnOrder
+                ),
                 'Transporter-payment-list'
               );
               popover.onClose();
