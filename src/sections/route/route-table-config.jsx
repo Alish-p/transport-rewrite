@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
@@ -8,9 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { Label } from 'src/components/label';
+import { wrapText } from 'src/utils/change-case';
 
-import { wrapText } from '../../utils/change-case';
+import { Label } from 'src/components/label';
 
 export const TABLE_COLUMNS = [
   {
@@ -107,10 +108,18 @@ export const TABLE_COLUMNS = [
             }, PerfMil: ${c.performanceMilage ?? '-'}`
         )
         .join('\n') || '-',
-    // render: ({ vehicleConfiguration }) => (
-    //   <Label variant="soft" color="info">
-    //     {vehicleConfiguration?.length ?? 0}
-    //   </Label>
-    // ),
+    render: ({ vehicleConfiguration }) => (
+      <Stack spacing={0.5} alignItems="center">
+        {vehicleConfiguration?.length > 0 ? (
+          vehicleConfiguration.map((config, idx) => (
+            <Label key={idx} variant="soft" color="info">
+              {`${config.vehicleType} [${config.noOfTyres}]`}
+            </Label>
+          ))
+        ) : (
+          <Label variant="soft">-</Label>
+        )}
+      </Stack>
+    ),
   },
 ];

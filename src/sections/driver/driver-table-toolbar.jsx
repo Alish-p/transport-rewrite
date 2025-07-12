@@ -66,25 +66,27 @@ export default function DriverTableToolbar({
           }}
         />
 
-        <Tooltip title="Column Settings">
-          <IconButton onClick={columnsPopover.onOpen}>
-            <Iconify icon="mdi:table-column-plus-after" />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Reset Columns">
-          <span>
-            <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
-              <Badge color="error" variant="dot" invisible={!canResetColumns}>
-                <Iconify icon="solar:restart-bold" />
-              </Badge>
+        <Stack direction="row" spacing={1}>
+          <Tooltip title="Column Settings">
+            <IconButton onClick={columnsPopover.onOpen}>
+              <Iconify icon="mdi:table-column-plus-after" />
             </IconButton>
-          </span>
-        </Tooltip>
+          </Tooltip>
 
-        <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+          <Tooltip title="Reset Columns">
+            <span>
+              <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+                <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                  <Iconify icon="solar:restart-bold" />
+                </Badge>
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          <IconButton onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        </Stack>
       </Stack>
 
       <CustomPopover
