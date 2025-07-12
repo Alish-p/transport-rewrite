@@ -1,7 +1,9 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import { getStorage, setStorage } from './use-local-storage';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+
 import { isEqual } from 'src/utils/helper';
+
+import { getStorage, setStorage } from './use-local-storage';
 
 export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
   const defaultVisibleColumns = useMemo(
