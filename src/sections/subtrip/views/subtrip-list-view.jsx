@@ -87,6 +87,8 @@ export function SubtripListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
   } = useVisibleColumns();
 
   const [tableData, setTableData] = useState([]);
@@ -382,6 +384,8 @@ export function SubtripListView() {
           onSelectDriver={handleSelectDriver}
           selectedRoute={selectedRoute}
           onSelectRoute={handleSelectRoute}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
         {canReset && (

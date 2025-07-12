@@ -1,6 +1,14 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSensor, DndContext, useSensors, PointerSensor, closestCenter } from '@dnd-kit/core';
+import {
+  useSensor,
+  DndContext,
+  useSensors,
+  MouseSensor,
+  TouchSensor,
+  PointerSensor,
+  closestCenter,
+} from '@dnd-kit/core';
 
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
@@ -77,7 +85,11 @@ export function TableHeadCustom({
   onSelectAllRows,
   onOrderChange,
 }) {
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
+  );
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
