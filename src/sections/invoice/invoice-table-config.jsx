@@ -118,6 +118,21 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'totalAmountBeforeTax',
+    label: 'Taxable Amount',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.totalAmountBeforeTax),
+    showTotal: true,
+    render: ({ totalAmountBeforeTax }) => (
+      <ListItemText
+        primary={fCurrency(totalAmountBeforeTax)}
+        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+      />
+    ),
+  },
+  {
     id: 'cgst',
     label: 'CGST (TAX)',
     defaultVisible: false,
