@@ -46,6 +46,8 @@ import PumpTableToolbar from '../pump-table-toolbar';
 import { TABLE_COLUMNS } from '../pump-table-config';
 import PumpTableFiltersResult from '../pump-table-filters-result';
 
+const STORAGE_KEY = 'pump-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -75,7 +77,7 @@ export function PumpListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedPumps({
     search: filters.search || undefined,
@@ -159,6 +161,7 @@ export function PumpListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
           />
 
           {canReset && (
@@ -201,7 +204,12 @@ export function PumpListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Pumps-selected'
                         );
                       }}

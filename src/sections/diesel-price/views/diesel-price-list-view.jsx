@@ -42,6 +42,8 @@ import { TABLE_COLUMNS } from '../diesel-price-table-config';
 import DieselPriceTableToolbar from '../diesel-price-table-toolbar';
 import DieselPriceTableFiltersResult from '../diesel-price-table-filters-result';
 
+const STORAGE_KEY = 'diesel-price-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -72,7 +74,7 @@ export function DieselPriceListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedDieselPrices({
     pumpId: filters.pump?._id,
@@ -157,6 +159,7 @@ export function DieselPriceListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
           />
 
           {canReset && (
@@ -199,7 +202,12 @@ export function DieselPriceListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'DieselPrice-selected'
                         );
                       }}

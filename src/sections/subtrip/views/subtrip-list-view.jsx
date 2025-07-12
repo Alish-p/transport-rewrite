@@ -371,6 +371,7 @@ export function SubtripListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={handleToggleAllColumns}
+          columnOrder={columnOrder}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
           selectedCustomer={selectedCustomer}
@@ -422,7 +423,12 @@ export function SubtripListView() {
                       );
                       const selectedVisibleColumns = getVisibleColumnsForExport();
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, selectedVisibleColumns),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          selectedVisibleColumns,
+                          columnOrder
+                        ),
                         'filtered'
                       );
                     }}

@@ -32,6 +32,7 @@ export default function RouteTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedCustomer,
   onSelectCustomer,
 }) {
@@ -184,12 +185,17 @@ export default function RouteTableToolbar({
           </MenuItem>
 
           <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
-                'Routes-list'
-              );
+          onClick={() => {
+            const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+            exportToExcel(
+              prepareDataForExport(
+                tableData,
+                TABLE_COLUMNS,
+                visibleCols,
+                columnOrder
+              ),
+              'Routes-list'
+            );
               popover.onClose();
             }}
           >

@@ -47,6 +47,8 @@ import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
 import InvoiceTableFiltersResult from '../invoice-list/invoice-table-filters-result';
 
+const STORAGE_KEY = 'invoice-table-columns';
+
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -81,7 +83,7 @@ export function InvoiceListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const [tableData, setTableData] = useState([]);
 
@@ -263,6 +265,7 @@ export function InvoiceListView() {
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
           />
 
           {canReset && (
@@ -305,7 +308,12 @@ export function InvoiceListView() {
                           (c) => visibleColumns[c]
                         );
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Invoices-selected-list'
                         );
                       }}

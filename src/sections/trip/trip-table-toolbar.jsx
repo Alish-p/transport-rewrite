@@ -41,6 +41,7 @@ export default function TripTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedVehicle,
   onSelectVehicle,
   selectedDriver,
@@ -224,12 +225,17 @@ export default function TripTableToolbar({
             </PDFDownloadLink>
           </MenuItem>
           <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
-                'Trips-list'
-              );
+          onClick={() => {
+            const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+            exportToExcel(
+              prepareDataForExport(
+                tableData,
+                TABLE_COLUMNS,
+                visibleCols,
+                columnOrder
+              ),
+              'Trips-list'
+            );
               popover.onClose();
             }}
           >

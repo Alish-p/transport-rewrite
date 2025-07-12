@@ -47,6 +47,7 @@ export default function SubtripTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
   selectedCustomer,
@@ -292,7 +293,12 @@ export default function SubtripTableToolbar({
             onClick={() => {
               const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
               exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
+                prepareDataForExport(
+                  tableData,
+                  TABLE_COLUMNS,
+                  visibleCols,
+                  columnOrder
+                ),
                 'subtrip-list'
               );
               popover.onClose();

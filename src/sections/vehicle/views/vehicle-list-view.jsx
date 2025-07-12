@@ -46,6 +46,8 @@ import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
+const STORAGE_KEY = 'vehicle-table-columns';
+
 const defaultFilters = {
   vehicleNo: '',
   transporter: '',
@@ -79,7 +81,7 @@ export function VehicleListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedVehicles({
     page: table.page + 1,
@@ -191,6 +193,7 @@ export function VehicleListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
         />
@@ -230,7 +233,12 @@ export function VehicleListView() {
                       );
 
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Vehcles-selected-list'
                       );
                     }}

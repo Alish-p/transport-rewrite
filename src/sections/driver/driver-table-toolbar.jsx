@@ -26,6 +26,7 @@ export default function DriverTableToolbar({
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
+  columnOrder = [],
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -119,12 +120,17 @@ export default function DriverTableToolbar({
           </MenuItem>
 
           <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols),
-                'Drivers-list'
-              );
+          onClick={() => {
+            const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
+            exportToExcel(
+              prepareDataForExport(
+                tableData,
+                TABLE_COLUMNS,
+                visibleCols,
+                columnOrder
+              ),
+              'Drivers-list'
+            );
 
               popover.onClose();
             }}

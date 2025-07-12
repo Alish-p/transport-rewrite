@@ -46,6 +46,8 @@ import TransporterPaymentTableRow from '../transporter-payment-list/transporter-
 import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
 import TransporterPaymentTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
 
+const STORAGE_KEY = 'transporter-payment-table-columns';
+
 const defaultFilters = {
   transporterId: '',
   subtripId: '',
@@ -73,7 +75,7 @@ export function TransporterPaymentListView() {
     toggleColumnVisibility,
     toggleAllColumnsVisibility,
     moveColumn,
-  } = useColumnVisibility(TABLE_COLUMNS);
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedTransporterPayments({
     transporterId: filters.transporterId || undefined,
@@ -184,6 +186,7 @@ export function TransporterPaymentListView() {
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
+          columnOrder={columnOrder}
         />
 
         {canReset && (
@@ -218,7 +221,12 @@ export function TransporterPaymentListView() {
                         (c) => visibleColumns[c]
                       );
                       exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols),
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
                         'Transporter-payment-selected'
                       );
                     }}
