@@ -8,7 +8,7 @@ import { fShortenNumber } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 
-export function AppInvoiceAmountSummary({ summary, ...other }) {
+export function AppTransporterPaymentSummary({ summary, ...other }) {
   const theme = useTheme();
 
   if (!summary) {
@@ -17,19 +17,19 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
 
   const ITEMS = [
     {
-      title: 'Invoice yet to bill amount',
-      amount: summary.pendingAmount,
+      title: 'Payment yet to create amount',
+      amount: summary.yetToCreateAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
-      title: 'Invoice generated amount',
+      title: 'Payment generated amount',
       amount: summary.generatedAmount,
-      icon: 'mdi:clipboard-list-outline',
+      icon: 'mdi:file-document-outline',
       color: theme.palette.info.main,
     },
     {
-      title: 'Invoice paid amount',
+      title: 'Payment paid amount',
       amount: summary.paidAmount,
       icon: 'mdi:check-decagram-outline',
       color: theme.palette.success.main,

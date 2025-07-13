@@ -7,6 +7,7 @@ import {
   useSubtripStatusSummary,
   useInvoiceStatusSummary,
   useInvoiceAmountSummary,
+  useTransporterPaymentSummary,
 } from 'src/query/use-dashboard';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -45,12 +46,19 @@ export default function OverviewAppPage() {
     isError: invoiceAmountError,
   } = useInvoiceAmountSummary();
 
+  const {
+    data: transporterPaymentSummary,
+    isLoading: transporterPaymentLoading,
+    isError: transporterPaymentError,
+  } = useTransporterPaymentSummary();
+
   if (
     countsLoading ||
     monthlyLoading ||
     statusSummaryLoading ||
     invoiceStatusLoading ||
-    invoiceAmountLoading
+    invoiceAmountLoading ||
+    transporterPaymentLoading
   ) {
     return <LoadingScreen />;
   }
@@ -60,7 +68,8 @@ export default function OverviewAppPage() {
     monthlyError ||
     statusSummaryError ||
     invoiceStatusError ||
-    invoiceAmountError
+    invoiceAmountError ||
+    transporterPaymentError
   ) {
     return (
       <EmptyContent
@@ -82,6 +91,7 @@ export default function OverviewAppPage() {
         subtripStatusSummary={subtripStatusSummary}
         invoiceStatusSummary={invoiceStatusSummary}
         invoiceAmountSummary={invoiceAmountSummary}
+        transporterPaymentSummary={transporterPaymentSummary}
       />
     </>
   );

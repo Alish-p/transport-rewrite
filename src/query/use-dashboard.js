@@ -121,3 +121,18 @@ const getInvoiceAmountSummary = async () => {
 export function useInvoiceAmountSummary() {
   return useQuery({ queryKey: ['invoiceAmountSummary'], queryFn: getInvoiceAmountSummary });
 }
+
+// ----------------------------------------------------------------------
+// Transporter payment summary
+
+const getTransporterPaymentSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/transporter-payment-summary`);
+  return data;
+};
+
+export function useTransporterPaymentSummary() {
+  return useQuery({
+    queryKey: ['transporterPaymentSummary'],
+    queryFn: getTransporterPaymentSummary,
+  });
+}

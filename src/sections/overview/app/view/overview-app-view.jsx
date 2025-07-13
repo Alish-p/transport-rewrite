@@ -23,6 +23,7 @@ import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
+import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ export function OverviewAppView({
   subtripMonthlyData,
   invoiceStatusSummary,
   invoiceAmountSummary,
+  transporterPaymentSummary,
 }) {
   const { user } = useAuthContext();
 
@@ -136,6 +138,12 @@ export function OverviewAppView({
         {invoiceAmountSummary && (
           <Grid xs={12}>
             <AppInvoiceAmountSummary summary={invoiceAmountSummary} />
+          </Grid>
+        )}
+
+        {transporterPaymentSummary && (
+          <Grid xs={12}>
+            <AppTransporterPaymentSummary summary={transporterPaymentSummary} />
           </Grid>
         )}
 
