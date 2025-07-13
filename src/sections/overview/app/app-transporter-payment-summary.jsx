@@ -3,6 +3,7 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
+import CardHeader from '@mui/material/CardHeader';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
@@ -38,6 +39,7 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
 
   return (
     <Card {...other}>
+      <CardHeader title="Transporter Payment summary" sx={{ mb: 2 }} />
       <Stack
         direction="row"
         alignItems="center"
