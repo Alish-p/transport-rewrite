@@ -14,12 +14,13 @@ import { useAuthContext } from 'src/auth/hooks';
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
+import { TopRoutesTable } from '../app-top-routes-table';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppCurrentDownload } from '../app-current-download';
 import { FinancialMonthlyChart } from '../app-finance-charts';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
-import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { CustomerFreightTable } from '../app-customer-freight-table';
+import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 
 // ----------------------------------------------------------------------
@@ -208,6 +209,10 @@ export function OverviewAppView({ counts, subtripMonthlyData, invoiceStatusSumma
             title="📦 Customer-wise Summary"
             subheader="Shows total weight transferred and freight amount for each customer."
           />
+        </Grid>
+
+        <Grid xs={12} md={12}>
+          <TopRoutesTable title="🛣️ Top Routes" subheader="Most frequently travelled routes" />
         </Grid>
 
         <Grid xs={12} lg={6}>
