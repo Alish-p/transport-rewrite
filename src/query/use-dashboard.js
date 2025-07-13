@@ -190,3 +190,21 @@ export function useMonthlyDriverSubtrips(month) {
     enabled: Boolean(month),
   });
 }
+
+// ----------------------------------------------------------------------
+// Monthly transporter subtrips summary
+
+const getMonthlyTransporterSubtrips = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-transporter-subtrips`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyTransporterSubtrips(month) {
+  return useQuery({
+    queryKey: ['monthlyTransporterSubtrips', month],
+    queryFn: () => getMonthlyTransporterSubtrips(month),
+    enabled: Boolean(month),
+  });
+}
