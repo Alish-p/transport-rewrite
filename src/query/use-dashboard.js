@@ -172,3 +172,21 @@ export function useMonthlyVehicleSubtrips(month) {
     enabled: Boolean(month),
   });
 }
+
+// ----------------------------------------------------------------------
+// Monthly driver subtrips summary
+
+const getMonthlyDriverSubtrips = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-driver-subtrips`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyDriverSubtrips(month) {
+  return useQuery({
+    queryKey: ['monthlyDriverSubtrips', month],
+    queryFn: () => getMonthlyDriverSubtrips(month),
+    enabled: Boolean(month),
+  });
+}

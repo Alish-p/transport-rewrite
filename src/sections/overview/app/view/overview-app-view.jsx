@@ -22,6 +22,7 @@ import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { VehicleInsightsTable } from '../app-vehicle-insights-table';
+import { DriverInsightsTable } from '../app-driver-insights-table';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
@@ -241,6 +242,13 @@ export function OverviewAppView({
           <VehicleInsightsTable
             title="🚚 Vehicle Insights"
             subheader="Trips completed by each vehicle"
+          />
+        </Grid>
+
+        <Grid xs={12} md={12}>
+          <DriverInsightsTable
+            title="👷 Driver Insights"
+            subheader="Trips completed by each driver"
           />
         </Grid>
 
