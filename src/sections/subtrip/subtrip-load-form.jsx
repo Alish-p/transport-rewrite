@@ -67,7 +67,7 @@ const STEPS = [
 const STEP_FIELDS = [
   ['subtripId'], // Step 0
   ['consignee', 'routeCd', 'loadingPoint', 'unloadingPoint'], // Step 1
-  ['loadingWeight', 'rate', 'invoiceNo', 'ewayExpiryDate'], // Step 2
+  ['loadingWeight', 'rate', 'invoiceNo', 'ewayExpiryDate', 'materialType'], // Step 2
   ['driverAdvance', 'driverAdvanceGivenBy', 'initialAdvanceDiesel', 'pumpCd'], // Step 3
 ];
 
@@ -92,7 +92,7 @@ const LoadSubtripSchema = zod
     ewayExpiryDate: schemaHelper.date({
       message: { required_error: 'Eway Expiry date is required!' },
     }),
-    materialType: zod.string(),
+    materialType: zod.string().min(1, { message: 'Material Type is required' }),
     quantity: zod.number().optional(),
     grade: zod.string().optional(),
     tds: zod.number().optional(),
@@ -559,7 +559,7 @@ export function SubtripLoadForm() {
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
 
-      <Field.Select name="materialType" label="Material Type">
+      <Field.Select name="materialType" label="Material Type *">
         <MenuItem value="">None</MenuItem>
         <Divider sx={{ borderStyle: 'dashed' }} />
         {CONFIG.materialOptions.map(({ label, value }) => (
