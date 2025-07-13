@@ -21,6 +21,7 @@ import { FinancialMonthlyChart } from '../app-finance-charts';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
+import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 
 // ----------------------------------------------------------------------
@@ -36,7 +37,12 @@ const ICONS = {
   invoice: icon('ic-invoice'),
 };
 
-export function OverviewAppView({ counts, subtripMonthlyData, invoiceStatusSummary }) {
+export function OverviewAppView({
+  counts,
+  subtripMonthlyData,
+  invoiceStatusSummary,
+  invoiceAmountSummary,
+}) {
   const { user } = useAuthContext();
 
   const {
@@ -126,6 +132,12 @@ export function OverviewAppView({ counts, subtripMonthlyData, invoiceStatusSumma
             />
           </Grid>
         </>
+
+        {invoiceAmountSummary && (
+          <Grid xs={12}>
+            <AppInvoiceAmountSummary summary={invoiceAmountSummary} />
+          </Grid>
+        )}
 
         {invoices && (
           <Grid xs={12} md={6} lg={4}>

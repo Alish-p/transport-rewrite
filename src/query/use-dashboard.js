@@ -109,3 +109,15 @@ const getTopRoutes = async () => {
 export function useTopRoutes() {
   return useQuery({ queryKey: ['topRoutes'], queryFn: getTopRoutes });
 }
+
+// ----------------------------------------------------------------------
+// Invoice amount summary
+
+const getInvoiceAmountSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/invoice-amount-summary`);
+  return data;
+};
+
+export function useInvoiceAmountSummary() {
+  return useQuery({ queryKey: ['invoiceAmountSummary'], queryFn: getInvoiceAmountSummary });
+}
