@@ -4,6 +4,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
+import Tooltip from '@mui/material/Tooltip';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -49,7 +50,13 @@ export function TopRoutesTable({ title, subheader, ...other }) {
                     </TableCell>
                     <TableCell>{row.fromPlace}</TableCell>
                     <TableCell>{row.toPlace}</TableCell>
-                    <TableCell>{row.subtripCount}</TableCell>
+                    <TableCell>
+                      <Tooltip
+                        title={`Own: ${row.ownSubtripCount} Market: ${row.marketSubtripCount}`}
+                      >
+                        <span>{row.subtripCount}</span>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </>
