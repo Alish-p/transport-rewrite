@@ -22,6 +22,7 @@ import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
+import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
@@ -233,6 +234,10 @@ export function OverviewAppView({
 
         <Grid xs={12} md={12}>
           <TopRoutesTable title="🛣️ Top Routes" subheader="Most frequently travelled routes" />
+        </Grid>
+
+        <Grid xs={12} lg={6}>
+          <AppMaterialWeightSummary title="Material summary" />
         </Grid>
 
         <Grid xs={12} lg={6}>

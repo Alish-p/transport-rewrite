@@ -136,3 +136,21 @@ export function useTransporterPaymentSummary() {
     queryFn: getTransporterPaymentSummary,
   });
 }
+
+// ----------------------------------------------------------------------
+// Material weight summary
+
+const getMonthlyMaterialWeight = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-material-weight`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyMaterialWeight(month) {
+  return useQuery({
+    queryKey: ['monthlyMaterialWeight', month],
+    queryFn: () => getMonthlyMaterialWeight(month),
+    enabled: Boolean(month),
+  });
+}
