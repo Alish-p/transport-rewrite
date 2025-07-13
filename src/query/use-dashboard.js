@@ -154,3 +154,21 @@ export function useMonthlyMaterialWeight(month) {
     enabled: Boolean(month),
   });
 }
+
+// ----------------------------------------------------------------------
+// Monthly vehicle subtrips summary
+
+const getMonthlyVehicleSubtrips = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-vehicle-subtrips`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyVehicleSubtrips(month) {
+  return useQuery({
+    queryKey: ['monthlyVehicleSubtrips', month],
+    queryFn: () => getMonthlyVehicleSubtrips(month),
+    enabled: Boolean(month),
+  });
+}

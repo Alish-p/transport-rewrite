@@ -25,6 +25,7 @@ import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
+import { VehicleInsightsTable } from '../app-vehicle-insights-table';
 
 // ----------------------------------------------------------------------
 
@@ -234,6 +235,13 @@ export function OverviewAppView({
 
         <Grid xs={12} md={12}>
           <TopRoutesTable title="🛣️ Top Routes" subheader="Most frequently travelled routes" />
+        </Grid>
+
+        <Grid xs={12} md={12}>
+          <VehicleInsightsTable
+            title="🚚 Vehicle Insights"
+            subheader="Trips completed by each vehicle"
+          />
         </Grid>
 
         <Grid xs={12} lg={6}>
