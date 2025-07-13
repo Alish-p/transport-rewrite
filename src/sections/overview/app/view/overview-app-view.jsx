@@ -21,11 +21,11 @@ import { FinancialMonthlyChart } from '../app-finance-charts';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
+import { VehicleInsightsTable } from '../app-vehicle-insights-table';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
-import { VehicleInsightsTable } from '../app-vehicle-insights-table';
 
 // ----------------------------------------------------------------------
 

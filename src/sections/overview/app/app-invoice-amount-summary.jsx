@@ -5,11 +5,10 @@ import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 
-import { Scrollbar } from 'src/components/scrollbar';
-
 import { fShortenNumber } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 
 export function AppInvoiceAmountSummary({ summary, ...other }) {
   const theme = useTheme();
