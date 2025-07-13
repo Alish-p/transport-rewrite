@@ -8,6 +8,7 @@ import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 
 import { SUBTRIP_STATUS_COLORS } from '../constants';
+import { fNumber } from '../../../utils/format-number';
 
 export const TABLE_COLUMNS = [
   {
@@ -268,10 +269,10 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => {
       if (typeof row?.freightAmount === 'number') {
-        return row.freightAmount;
+        return fNumber(row.freightAmount);
       }
       if (row?.rate && row?.loadingWeight) {
-        return row.rate * row.loadingWeight;
+        return fNumber(row.rate * row.loadingWeight);
       }
       return '-';
     },
