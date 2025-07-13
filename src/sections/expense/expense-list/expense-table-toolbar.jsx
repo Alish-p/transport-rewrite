@@ -1,15 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import Select from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
+import Stack from '@mui/material/Stack';
+import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import ListItemText from '@mui/material/ListItemText';
 // @mui
 // components
 
@@ -25,6 +22,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -66,6 +64,7 @@ export default function ExpenseTableToolbar({
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
   const routeDialog = useBoolean();
+  const typePopover = usePopover();
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
@@ -123,11 +122,15 @@ export default function ExpenseTableToolbar({
     [onFilters]
   );
 
-  const handleFilterExpenseType = useCallback(
-    (event) => {
-      onFilters('expenseType', event.target.value);
+  const handleToggleExpenseType = useCallback(
+    (value) => {
+      const current = Array.isArray(filters.expenseType) ? [...filters.expenseType] : [];
+      const newValues = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      onFilters('expenseType', newValues);
     },
-    [onFilters]
+    [filters.expenseType, onFilters]
   );
 
   return (
@@ -215,24 +218,15 @@ export default function ExpenseTableToolbar({
           onChangeEndDate={handleFilterEndDate}
         />
 
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 300 } }}>
-          <InputLabel id="expense-type-select-label">Expense Type</InputLabel>
-          <Select
-            value={filters.expenseType}
-            onChange={handleFilterExpenseType}
-            input={<OutlinedInput label="Expense Type" />}
-            labelId="expense-type-select-label"
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <DialogSelectButton
+          onClick={typePopover.onOpen}
+          selected={
+            filters.expenseType.length > 0 ? `${filters.expenseType.length} types` : undefined
+          }
+          placeholder="Expense Type"
+          iconName="mdi:filter-variant"
+          sx={{ maxWidth: { md: 200 } }}
+        />
 
         <Stack direction="row" spacing={1}>
           <Tooltip title="Column Settings">
@@ -270,6 +264,24 @@ export default function ExpenseTableToolbar({
           handleToggleColumn={onToggleColumn}
           handleToggleAllColumns={onToggleAllColumns}
         />
+      </CustomPopover>
+
+      <CustomPopover
+        open={typePopover.open}
+        onClose={typePopover.onClose}
+        anchorEl={typePopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
+          <MenuList>
+            {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
+              <MenuItem key={option.value} onClick={() => handleToggleExpenseType(option.value)}>
+                <Checkbox checked={filters.expenseType.includes(option.value)} />
+                <ListItemText primary={option.label} />
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Scrollbar>
       </CustomPopover>
 
       <CustomPopover

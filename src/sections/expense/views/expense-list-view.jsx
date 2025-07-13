@@ -61,7 +61,7 @@ const defaultFilters = {
   route: null,
   trip: null,
   expenseCategory: 'all',
-  expenseType: 'all',
+  expenseType: [],
   fromDate: null,
   endDate: null,
 };
@@ -97,7 +97,7 @@ export function ExpenseListView() {
     routeId: filters.route?._id || undefined,
     tripId: filters.trip?._id || undefined,
     expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
-    expenseType: filters.expenseType !== 'all' ? filters.expenseType : undefined,
+    expenseType: filters.expenseType.length ? filters.expenseType : undefined,
     startDate: filters.fromDate || undefined,
     endDate: filters.endDate || undefined,
     page: table.page + 1,
@@ -150,7 +150,7 @@ export function ExpenseListView() {
   const handleFilterExpenseCategory = useCallback(
     (event, newValue) => {
       handleFilters('expenseCategory', newValue);
-      handleFilters('expenseType', 'all');
+      handleFilters('expenseType', []);
     },
     [handleFilters]
   );

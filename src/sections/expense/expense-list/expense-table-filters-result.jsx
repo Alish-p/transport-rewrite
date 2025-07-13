@@ -20,8 +20,9 @@ export default function ExpenseTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveExpenseType = () => {
-    onFilters('expenseType', 'all');
+  const handleRemoveExpenseType = (value) => {
+    const newValues = filters.expenseType.filter((v) => v !== value);
+    onFilters('expenseType', newValues);
   };
 
   const handleRemoveExpenseCategory = () => {
@@ -78,9 +79,16 @@ export default function ExpenseTableFiltersResult({
             />
           </Block>
         )}
-        {filters.expenseType !== 'all' && (
+        {filters.expenseType && filters.expenseType.length > 0 && (
           <Block label="Expense Type :">
-            <Chip size="small" label={filters.expenseType} onDelete={handleRemoveExpenseType} />
+            {filters.expenseType.map((type) => (
+              <Chip
+                key={type}
+                size="small"
+                label={type}
+                onDelete={() => handleRemoveExpenseType(type)}
+              />
+            ))}
           </Block>
         )}
 
