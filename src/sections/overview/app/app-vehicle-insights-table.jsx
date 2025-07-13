@@ -56,6 +56,8 @@ export function VehicleInsightsTable({ title, subheader, ...other }) {
             headLabel={[
               { id: 'index', label: 'No.' },
               { id: 'vehicleNo', label: 'Vehicle' },
+              { id: 'totalKm', label: 'Total Km' },
+              { id: 'totalDiesel', label: 'Total Diesel' },
               { id: 'subtripCount', label: 'Subtrips' },
               { id: 'totalWeight', label: 'Total Weight' },
             ]}
@@ -76,6 +78,8 @@ export function VehicleInsightsTable({ title, subheader, ...other }) {
                         {row.vehicleNo}
                       </RouterLink>
                     </TableCell>
+                    <TableCell>{fNumber(row.totalKm)} Km </TableCell>
+                    <TableCell>{fNumber(row.totalDiesel)} L</TableCell>
                     <TableCell>{row.subtripCount}</TableCell>
                     <TableCell>{fNumber(row.totalLoadingWeight)}</TableCell>
                   </TableRow>
