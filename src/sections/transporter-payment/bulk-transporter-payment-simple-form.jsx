@@ -123,7 +123,10 @@ export default function BulkTransporterPaymentSimpleForm() {
         billingPeriod: dateRange,
         associatedSubtrips: subtrips.map((st) => st._id),
         additionalCharges: [
-          { label: 'POD Charges', amount: subtrips.length * (transporter.podCharges || 0) },
+          {
+            label: 'POD Charges',
+            amount: subtrips.length * (transporter.podCharges || 0) * -1,
+          },
           ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
         ],
       }));
@@ -173,7 +176,7 @@ export default function BulkTransporterPaymentSimpleForm() {
           const { transporter, subtrips, additionalCharges, selected } = pay;
           const podCharge = subtrips.length * (transporter.podCharges || 0);
           const summary = calculateTransporterPaymentSummary(subtrips, transporter, [
-            { label: 'POD Charges', amount: podCharge },
+            { label: 'POD Charges', amount: podCharge * -1 },
             ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
           ]);
           const {
