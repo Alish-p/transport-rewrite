@@ -130,6 +130,15 @@ export const TABLE_COLUMNS = [
     showTotal: true,
   },
   {
+    id: 'taxableAmount',
+    label: 'Taxable amount',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber(row.summary?.totalTripWiseIncome),
+    showTotal: true,
+  },
+  {
     id: 'amount',
     label: 'Amount',
     defaultVisible: true,
