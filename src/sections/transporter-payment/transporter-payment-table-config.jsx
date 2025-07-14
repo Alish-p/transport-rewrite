@@ -160,6 +160,29 @@ export const TABLE_COLUMNS = [
     showTotal: true,
   },
   {
+    id: 'additionalCharges',
+    label: 'Additional Charges',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) =>
+      row.additionalCharges
+        ? row.additionalCharges.map((ch) => `${ch.label}(${fNumber(ch.amount)})`).join(', ')
+        : '',
+    render: (row) => {
+      const value = row.additionalCharges
+        ? row.additionalCharges.map((ch) => `${ch.label}(${fNumber(ch.amount)})`).join(', ')
+        : '';
+      return (
+        <Tooltip title={value}>
+          <ListItemText
+            primary={wrapText(value, 30)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
+  },
+  {
     id: 'amount',
     label: 'Amount',
     defaultVisible: true,
