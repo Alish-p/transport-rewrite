@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Link from '@mui/material/Link';
+import { Tooltip } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
@@ -11,6 +12,8 @@ import { fDate } from 'src/utils/format-time';
 import { fNumber } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
+
+import { wrapText } from '../../utils/change-case';
 
 export const TABLE_COLUMNS = [
   {
@@ -55,6 +58,24 @@ export const TABLE_COLUMNS = [
         }
       />
     ),
+  },
+  {
+    id: 'subtrips',
+    label: 'Subtrips',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => (row.associatedSubtrips ? row.associatedSubtrips.join(', ') : ''),
+    render: (row) => {
+      const value = row.associatedSubtrips ? row.associatedSubtrips.join(', ') : '';
+      return (
+        <Tooltip title={value}>
+          <ListItemText
+            primary={wrapText(value, 30)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'status',
