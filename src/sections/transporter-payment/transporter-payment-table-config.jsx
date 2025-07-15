@@ -156,7 +156,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'right',
-    getter: (row) => fNumber(row.summary?.totalTripWiseIncome),
+    getter: (row) => fNumber(row.summary?.totalFreightAmount),
     showTotal: true,
   },
   {
