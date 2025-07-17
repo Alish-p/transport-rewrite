@@ -1,1 +1,1 @@
-export const STORAGE_KEY = 'AlisJWT123';
+export const STORAGE_KEY = 'Token';
