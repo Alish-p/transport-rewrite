@@ -33,11 +33,12 @@ export default function InvoicePdf({ invoice }) {
       { header: 'S.No', accessor: 'sno', width: '4%' },
       { header: 'Consignee', accessor: 'consignee', width: '16%' },
       { header: 'Destination', accessor: 'destination', width: '12%' },
-      { header: 'Invoice No', accessor: 'invoiceNo', width: '9%' },
-      { header: 'Disp. Date', accessor: 'dispDate', width: '10%' },
+      { header: 'Invoice No', accessor: 'invoiceNo', width: '7%' },
+      { header: 'Disp. Date', accessor: 'dispDate', width: '7%' },
       { header: 'LR No', accessor: 'lrNo', width: '7%' },
-      { header: 'Vehicle', accessor: 'vehicle', width: '8%' },
-      { header: 'Material', accessor: 'material', width: '8%' },
+      { header: 'DI/DC No', accessor: 'diNumber', width: '7%' },
+      { header: 'Vehicle', accessor: 'vehicle', width: '7%' },
+      { header: 'Material', accessor: 'material', width: '7%' },
       {
         header: 'Freight Rate ( ₹ )',
         accessor: 'freightRate',
@@ -78,6 +79,7 @@ export default function InvoicePdf({ invoice }) {
       invoiceNo: subtrip.invoiceNo,
       dispDate: fDate(subtrip.startDate),
       lrNo: subtrip.subtripId,
+      diNumber: subtrip.diNumber || '-',
       vehicle: subtrip.vehicleNo,
       material: subtrip.materialType || '-',
       freightRate: subtrip.rate,
@@ -94,15 +96,15 @@ export default function InvoicePdf({ invoice }) {
       if (taxBreakup.cgst.rate !== 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 9, value: '', align: 'left' }, // Empty cell spanning first 10 columns
-            { startIndex: 9, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
+            { startIndex: 0, colspan: 10, value: '', align: 'left' }, // Empty cell spanning first 10 columns
+            { startIndex: 10, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
             {
-              startIndex: 10,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.cgst.amount),
               align: 'right',
             },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' },
+            { startIndex: 12, colspan: 1, value: '', align: 'right' },
           ],
           highlight: false,
         });
@@ -111,15 +113,15 @@ export default function InvoicePdf({ invoice }) {
       if (taxBreakup.sgst.rate !== 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 9, value: '', align: 'left' },
-            { startIndex: 9, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
+            { startIndex: 0, colspan: 10, value: '', align: 'left' },
+            { startIndex: 10, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
             {
-              startIndex: 10,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.sgst.amount),
               align: 'right',
             },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' },
+            { startIndex: 12, colspan: 1, value: '', align: 'right' },
           ],
           highlight: false,
         });
@@ -128,15 +130,15 @@ export default function InvoicePdf({ invoice }) {
       if (taxBreakup.igst.rate !== 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 9, value: '', align: 'left' },
-            { startIndex: 9, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
+            { startIndex: 0, colspan: 10, value: '', align: 'left' },
+            { startIndex: 10, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
             {
-              startIndex: 10,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.igst.amount),
               align: 'right',
             },
-            { startIndex: 11, colspan: 1, value: '', align: 'right' },
+            { startIndex: 12, colspan: 1, value: '', align: 'right' },
           ],
           highlight: false,
         });
@@ -147,10 +149,10 @@ export default function InvoicePdf({ invoice }) {
         additionalCharges.forEach(({ label, amount }) => {
           extraRows.push({
             cells: [
-              { startIndex: 0, colspan: 9, value: '', align: 'left' },
-              { startIndex: 9, colspan: 1, value: label, align: 'right' },
-              { startIndex: 10, colspan: 1, value: fCurrency(amount), align: 'right' },
-              { startIndex: 11, colspan: 1, value: '', align: 'right' },
+              { startIndex: 0, colspan: 10, value: '', align: 'left' },
+              { startIndex: 10, colspan: 1, value: label, align: 'right' },
+              { startIndex: 11, colspan: 1, value: fCurrency(amount), align: 'right' },
+              { startIndex: 12, colspan: 1, value: '', align: 'right' },
             ],
             highlight: false,
           });
@@ -160,10 +162,10 @@ export default function InvoicePdf({ invoice }) {
       // Add net total row
       extraRows.push({
         cells: [
-          { startIndex: 0, colspan: 9, value: '', align: 'left' },
-          { startIndex: 9, colspan: 1, value: 'Net Total', align: 'right' },
-          { startIndex: 10, colspan: 1, value: fCurrency(netTotal), align: 'right' },
-          { startIndex: 11, colspan: 1, value: '', align: 'right' },
+          { startIndex: 0, colspan: 10, value: '', align: 'left' },
+          { startIndex: 10, colspan: 1, value: 'Net Total', align: 'right' },
+          { startIndex: 11, colspan: 1, value: fCurrency(netTotal), align: 'right' },
+          { startIndex: 12, colspan: 1, value: '', align: 'right' },
         ],
         highlight: true,
       });
