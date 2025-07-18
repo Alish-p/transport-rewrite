@@ -18,6 +18,7 @@ import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
+import { TenantProvider } from 'src/auth/tenant';
 import { AuthProvider } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
@@ -29,18 +30,20 @@ export default function App() {
     <I18nProvider>
       <LocalizationProvider>
         <AuthProvider>
-          <ReactQueryProvider>
-            <SettingsProvider settings={defaultSettings}>
-              <ThemeProvider>
-                <MotionLazy>
-                  <Snackbar />
-                  <ProgressBar />
-                  <SettingsDrawer />
-                  <Router />
-                </MotionLazy>
-              </ThemeProvider>
-            </SettingsProvider>
-          </ReactQueryProvider>
+          <TenantProvider>
+            <ReactQueryProvider>
+              <SettingsProvider settings={defaultSettings}>
+                <ThemeProvider>
+                  <MotionLazy>
+                    <Snackbar />
+                    <ProgressBar />
+                    <SettingsDrawer />
+                    <Router />
+                  </MotionLazy>
+                </ThemeProvider>
+              </SettingsProvider>
+            </ReactQueryProvider>
+          </TenantProvider>
         </AuthProvider>
       </LocalizationProvider>
     </I18nProvider>

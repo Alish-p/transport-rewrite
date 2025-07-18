@@ -14,6 +14,7 @@ import { setSession, isValidToken } from './utils';
 export function AuthProvider({ children }) {
   const { state, setState } = useSetState({
     user: null,
+    tenant: null,
     loading: true,
   });
 
@@ -26,15 +27,19 @@ export function AuthProvider({ children }) {
 
         const res = await axios.get(endpoints.auth.me);
 
-        const { user } = res.data;
+        const { user, tenant } = res.data;
 
-        setState({ user: { ...user, accessToken }, loading: false });
+        setState({
+          user: { ...user, accessToken },
+          tenant,
+          loading: false,
+        });
       } else {
-        setState({ user: null, loading: false });
+        setState({ user: null, tenant: null, loading: false });
       }
     } catch (error) {
       console.error(error);
-      setState({ user: null, loading: false });
+      setState({ user: null, tenant: null, loading: false });
     }
   }, [setState]);
 
@@ -75,13 +80,14 @@ export function AuthProvider({ children }) {
             role: state.user?.role ?? 'admin',
           }
         : null,
+      tenant: state.tenant,
       hasPermission,
       checkUserSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
     }),
-    [checkUserSession, state.user, status, hasPermission]
+    [checkUserSession, state.user, state.tenant, status, hasPermission]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
