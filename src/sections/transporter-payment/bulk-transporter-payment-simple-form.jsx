@@ -28,7 +28,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
 import { useSubtripsByTransporter } from 'src/query/use-subtrip';
 import { useCreateBulkTransporterPayment } from 'src/query/use-transporter-payment';
 
@@ -36,6 +35,8 @@ import { Iconify } from 'src/components/iconify';
 import { TableSkeleton } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import {
   calculateTransporterPayment,
@@ -53,6 +54,7 @@ const StyledTableCell = styled(TableCell)(() => ({
 export default function BulkTransporterPaymentSimpleForm() {
   const dateRangeDialog = useBoolean();
   const navigate = useNavigate();
+  const tenant = useTenantContext();
   const [dateRange, setDateRange] = useState({ start: null, end: null });
 
   const { data = [], isLoading } = useSubtripsByTransporter(dateRange.start, dateRange.end);
@@ -213,11 +215,13 @@ export default function BulkTransporterPaymentSimpleForm() {
                     From:
                   </Typography>
                   <Stack spacing={1}>
-                    <Typography variant="subtitle2">{CONFIG.company.name}</Typography>
-                    <Typography variant="body2">{CONFIG.company.address.line1}</Typography>
-                    <Typography variant="body2">{CONFIG.company.address.line2}</Typography>
-                    <Typography variant="body2">{CONFIG.company.address.state}</Typography>
-                    <Typography variant="body2">Phone: {CONFIG.company.contacts[0]}</Typography>
+                    <Typography variant="subtitle2">{tenant?.name}</Typography>
+                    <Typography variant="body2">{tenant?.address?.line1}</Typography>
+                    <Typography variant="body2">{tenant?.address?.line2}</Typography>
+                    <Typography variant="body2">{tenant?.address?.state}</Typography>
+                    <Typography variant="body2">
+                      Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
+                    </Typography>
                   </Stack>
                 </Stack>
 

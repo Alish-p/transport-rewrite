@@ -19,7 +19,7 @@ Font.register({
   ],
 });
 
-export default function LoansPdf({ loan }) {
+export default function LoansPdf({ loan, tenant = CONFIG.company }) {
   const {
     _id,
     borrowerId: b,
@@ -86,7 +86,7 @@ export default function LoansPdf({ loan }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Loan Summary" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Borrower Details"
@@ -98,7 +98,7 @@ export default function LoansPdf({ loan }) {
 
         <PDFTable headers={['', '']} data={summaryData} columnWidths={[10, 2]} hideHeader />
 
-        <PDFInvoiceFooter declaration={remarks} signatory={`For ${CONFIG.company.name}`} />
+        <PDFInvoiceFooter declaration={remarks} signatory={`For ${tenant.name}`} />
       </Page>
 
       <Page size="A4" style={PDFStyles.page} orientation="landscape">

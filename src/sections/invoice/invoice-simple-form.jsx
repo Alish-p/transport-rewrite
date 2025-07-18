@@ -31,12 +31,13 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
 import { useCreateInvoice } from 'src/query/use-invoice';
 import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { TableSkeleton } from '../../components/table';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -90,6 +91,7 @@ export default function SimplerNewInvoiceForm() {
   const customerDialog = useBoolean();
   const dateDialog = useBoolean();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const tenant = useTenantContext();
 
   const methods = useForm({
     resolver: zodResolver(InvoiceSchema),
@@ -232,11 +234,13 @@ export default function SimplerNewInvoiceForm() {
               From:
             </Typography>
             <Stack spacing={1}>
-              <Typography variant="subtitle2">{CONFIG.company.name}</Typography>
-              <Typography variant="body2">{CONFIG.company.address.line1}</Typography>
-              <Typography variant="body2">{CONFIG.company.address.line2}</Typography>
-              <Typography variant="body2">{CONFIG.company.address.state}</Typography>
-              <Typography variant="body2">Phone: {CONFIG.company.contacts[0]}</Typography>
+              <Typography variant="subtitle2">{tenant?.name}</Typography>
+              <Typography variant="body2">{tenant?.address?.line1}</Typography>
+              <Typography variant="body2">{tenant?.address?.line2}</Typography>
+              <Typography variant="body2">{tenant?.address?.state}</Typography>
+              <Typography variant="body2">
+                Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
+              </Typography>
             </Stack>
           </Stack>
 

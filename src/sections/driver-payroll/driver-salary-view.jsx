@@ -23,9 +23,9 @@ import { paths } from 'src/routes/paths';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
-
 import { Label } from 'src/components/label';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 const StyledTableCell = styled(TableCell)(() => ({
   fontWeight: 'bold',
@@ -182,14 +182,15 @@ function RenderTable({ driverSalary }) {
 }
 
 function RenderFooter() {
+  const tenant = useTenantContext();
   return (
     <Grid container sx={{ py: 3 }}>
       <Grid item xs={12} md={9}>
         <Typography variant="subtitle2">NOTES</Typography>
-        <Typography variant="body2">{CONFIG.company.name}</Typography>
+        <Typography variant="body2">{tenant?.name}</Typography>
       </Grid>
       <Grid item xs={12} md={3} sx={{ textAlign: 'right' }}>
-        <Typography variant="subtitle2">For – {CONFIG.company.name}</Typography>
+        <Typography variant="subtitle2">For – {tenant?.name}</Typography>
         <Typography variant="body2">Authorised Signatory</Typography>
       </Grid>
     </Grid>
@@ -198,6 +199,7 @@ function RenderFooter() {
 
 export default function DriverSalaryView({ driverSalary }) {
   const { driverId: driver, billingPeriod, issueDate } = driverSalary || {};
+  const tenant = useTenantContext();
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -206,15 +208,15 @@ export default function DriverSalaryView({ driverSalary }) {
       <Box display="grid" rowGap={4} gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}>
         <RenderAddress title="Salary From">
           <>
-            {CONFIG.company.name}
+            {tenant?.name}
             <br />
-            {CONFIG.company.address.line1}
+            {tenant?.address?.line1}
             <br />
-            {CONFIG.company.address.line2}
+            {tenant?.address?.line2}
             <br />
-            {CONFIG.company.address.state}
+            {tenant?.address?.state}
             <br />
-            Phone: {CONFIG.company.contacts[0]}
+            Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
           </>
         </RenderAddress>
 

@@ -19,9 +19,9 @@ import { paths } from 'src/routes/paths';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
-
 import { Label } from 'src/components/label';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -248,14 +248,15 @@ function RenderTable({ transporterPayment }) {
 }
 
 function RenderFooter() {
+  const tenant = useTenantContext();
   return (
     <Grid container>
       <Grid xs={12} md={9} sx={{ py: 3 }}>
         <Typography variant="subtitle2">NOTES</Typography>
-        <Typography variant="body2">{CONFIG.company.name}</Typography>
+        <Typography variant="body2">{tenant?.name}</Typography>
       </Grid>
       <Grid xs={12} md={3} sx={{ py: 3, textAlign: 'right' }}>
-        <Typography variant="subtitle2">For-{CONFIG.company.name}</Typography>
+        <Typography variant="subtitle2">For-{tenant?.name}</Typography>
         <Typography variant="body2">Authorised Signatory</Typography>
       </Grid>
     </Grid>
@@ -264,6 +265,7 @@ function RenderFooter() {
 
 export default function TransporterPaymentPreview({ transporterPayment }) {
   const { transporterId: transporter, issueDate, billingPeriod } = transporterPayment || {};
+  const tenant = useTenantContext();
   return (
     <Card sx={{ pt: 5, px: 5 }}>
       <RenderHeader transporterPayment={transporterPayment} />
@@ -276,15 +278,15 @@ export default function TransporterPaymentPreview({ transporterPayment }) {
           title="Transporter Payment From"
           details={
             <>
-              {CONFIG.company.name}
+              {tenant?.name}
               <br />
-              {CONFIG.company.address.line1}
+              {tenant?.address?.line1}
               <br />
-              {CONFIG.company.address.line2}
+              {tenant?.address?.line2}
               <br />
-              {CONFIG.company.address.state}
+              {tenant?.address?.state}
               <br />
-              Phone: {CONFIG.company.contacts[0]}
+              Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
             </>
           }
         />

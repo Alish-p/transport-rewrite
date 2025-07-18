@@ -17,9 +17,8 @@ Font.register({
 
 const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
-const COMPANY = CONFIG.company;
-
-export default function EntryPassPdf({ subtrip }) {
+export default function EntryPassPdf({ subtrip, tenant = CONFIG.company }) {
+  const COMPANY = tenant;
   const {
     _id,
     diNumber,

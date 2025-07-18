@@ -18,7 +18,7 @@ Font.register({
   ],
 });
 
-export default function TransporterPaymentPdf({ transporterPayment }) {
+export default function TransporterPaymentPdf({ transporterPayment, tenant = CONFIG.company }) {
   const {
     subtripSnapshot = [],
     summary = {},
@@ -238,7 +238,7 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Transporter Payment Receipt" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Transporter Detail"
@@ -263,7 +263,7 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
 
         <PDFInvoiceFooter
           declaration="This is a system-generated transporter payment voucher."
-          signatory={`For ${CONFIG.company.name}`}
+          signatory={`For ${tenant.name}`}
         />
       </Page>
     </Document>

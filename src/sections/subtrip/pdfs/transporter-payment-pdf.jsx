@@ -19,9 +19,8 @@ Font.register({
 
 const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
-const COMPANY = CONFIG.company;
-
-export default function TransporterPaymentPdf({ subtrip }) {
+export default function TransporterPaymentPdf({ subtrip, tenant = CONFIG.company }) {
+  const COMPANY = tenant;
   const {
     _id,
     customerId,
