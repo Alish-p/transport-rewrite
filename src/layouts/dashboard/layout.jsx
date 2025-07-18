@@ -13,6 +13,8 @@ import { varAlpha, stylesMode } from 'src/theme/styles';
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { Main } from './main';
 import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
@@ -38,6 +40,16 @@ export function DashboardLayout({ sx, children, data }) {
   const layoutQuery = 'lg';
 
   const navData = data?.nav ?? dashboardNavData;
+
+  const tenant = useTenantContext();
+
+  const workspaces = [
+    {
+      ..._workspaces[0],
+      name: tenant?.name ?? _workspaces[0].name,
+      plan: 'basic',
+    },
+  ];
 
   const isNavMini = settings.navLayout === 'mini';
 
@@ -68,7 +80,7 @@ export function DashboardLayout({ sx, children, data }) {
               langs: allLangs,
               account: _account,
               contacts: _contacts,
-              workspaces: _workspaces,
+              workspaces,
               notifications: _notifications,
             }}
             slotsDisplay={{
