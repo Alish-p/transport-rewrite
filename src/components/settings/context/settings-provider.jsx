@@ -1,8 +1,9 @@
-import { useMemo, useState, useCallback, createContext, useEffect } from 'react';
-
-import { useTenantContext } from 'src/auth/tenant';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useMemo, useState, useEffect, useCallback, createContext } from 'react';
 
 import { useLocalStorage } from 'src/hooks/use-local-storage';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { STORAGE_KEY } from '../config-settings';
 

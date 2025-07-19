@@ -31,7 +31,7 @@ export function AccountDrawer({ sx, ...other }) {
 
   const router = useRouter();
 
-  const { user } = useAuthContext();
+  const { user, hasPermission } = useAuthContext();
 
   const [open, setOpen] = useState(false);
 
@@ -157,6 +157,22 @@ export function AccountDrawer({ sx, ...other }) {
                 Profile
               </Box>
             </MenuItem>
+            {hasPermission('tenant', 'update') && (
+              <MenuItem
+                onClick={() => handleClickItem(paths.dashboard.tenant)}
+                sx={{
+                  py: 1,
+                  color: 'text.secondary',
+                  '& svg': { width: 24, height: 24 },
+                  '&:hover': { color: 'text.primary' },
+                }}
+              >
+                <Iconify icon="solar:settings-bold-duotone" />
+                <Box component="span" sx={{ ml: 2 }}>
+                  Company Settings
+                </Box>
+              </MenuItem>
+            )}
           </Stack>
 
           <Box sx={{ px: 2.5, py: 3, mt: 30 }}>

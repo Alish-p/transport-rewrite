@@ -132,6 +132,7 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 // Blank page
 const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+const TenantSettingsPage = lazy(() => import('src/pages/dashboard/tenant'));
 
 // ----------------------------------------------------------------------
 
@@ -904,6 +905,14 @@ export const dashboardRoutes = [
       },
 
       { path: 'kanban', element: <KanbanPage /> },
+      {
+        path: 'tenant',
+        element: (
+          <PermissionBasedGuard resource="tenant" action="update" hasContent>
+            <TenantSettingsPage />
+          </PermissionBasedGuard>
+        ),
+      },
 
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'params', element: <ParamsPage /> },

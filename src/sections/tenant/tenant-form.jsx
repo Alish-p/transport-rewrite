@@ -1,0 +1,171 @@
+import { z as zod } from 'zod';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { LoadingButton } from '@mui/lab';
+import { Card, Stack, Divider, CardHeader } from '@mui/material';
+
+import COLORS from 'src/theme/core/colors.json';
+import { useUpdateTenant } from 'src/query/use-tenant';
+import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
+
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
+
+export const TenantSchema = zod.object({
+  name: zod.string().min(1, { message: 'Name is required' }),
+  slug: zod.string().min(1, { message: 'Slug is required' }),
+  tagline: zod.string().optional(),
+  theme: zod.string().optional(),
+  address: zod.object({
+    line1: zod.string().min(1, { message: 'Address is required' }),
+    city: zod.string().min(1, { message: 'City is required' }),
+    state: zod.string().min(1, { message: 'State is required' }),
+    pincode: schemaHelper.pinCode({}),
+  }),
+  contactDetails: zod.object({
+    email: zod.string().email({ message: 'Email must be valid' }),
+    phone: schemaHelper.phoneNumber({}),
+  }),
+  legalInfo: zod.object({
+    panNumber: schemaHelper.panNumberOptional({}),
+  }),
+  bankDetails: zod.object({
+    bankName: zod.string().optional(),
+    accountNumber: schemaHelper.accountNumber({}).optional(),
+    ifscCode: zod.string().optional(),
+  }),
+});
+
+export default function TenantForm({ currentTenant }) {
+  const updateTenant = useUpdateTenant();
+
+  const defaultValues = useMemo(
+    () => ({
+      name: currentTenant?.name || '',
+      slug: currentTenant?.slug || '',
+      tagline: currentTenant?.tagline || '',
+      theme: currentTenant?.theme || 'default',
+      address: {
+        line1: currentTenant?.address?.line1 || '',
+        city: currentTenant?.address?.city || '',
+        state: currentTenant?.address?.state || '',
+        pincode: currentTenant?.address?.pincode || '',
+      },
+      contactDetails: {
+        email: currentTenant?.contactDetails?.email || '',
+        phone: currentTenant?.contactDetails?.phoneNumbers?.[0] || '',
+      },
+      legalInfo: {
+        panNumber: currentTenant?.legalInfo?.panNumber || '',
+      },
+      bankDetails: {
+        bankName: currentTenant?.bankDetails?.bankName || '',
+        accountNumber: currentTenant?.bankDetails?.accountNumber || '',
+        ifscCode: currentTenant?.bankDetails?.ifscCode || '',
+      },
+    }),
+    [currentTenant]
+  );
+
+  const methods = useForm({ resolver: zodResolver(TenantSchema), defaultValues });
+
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { isSubmitting },
+  } = methods;
+
+  const values = watch();
+
+  const onSubmit = async (data) => {
+    try {
+      await updateTenant(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const renderBasic = () => (
+    <Card>
+      <CardHeader title="Basic Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="name" label="Name" />
+        <Field.Text name="slug" label="Slug" disabled />
+        <Field.Text name="tagline" label="Tagline" />
+      </Stack>
+    </Card>
+  );
+
+  const renderAddress = () => (
+    <Card>
+      <CardHeader title="Address & Contact" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="address.line1" label="Address" />
+        <Field.Text name="address.city" label="City" />
+        <Field.Text name="address.state" label="State" />
+        <Field.Text name="address.pincode" label="Pincode" />
+        <Field.Text name="contactDetails.email" label="Email" />
+        <Field.Text name="contactDetails.phone" label="Phone" />
+      </Stack>
+    </Card>
+  );
+
+  const renderTheme = () => (
+    <Card>
+      <CardHeader title="Theme" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <PresetsOptions
+          value={values.theme}
+          onClickOption={(newValue) => setValue('theme', newValue)}
+          options={[
+            { name: 'default', value: COLORS.primary.main },
+            { name: 'cyan', value: PRIMARY_COLOR.cyan.main },
+            { name: 'purple', value: PRIMARY_COLOR.purple.main },
+            { name: 'blue', value: PRIMARY_COLOR.blue.main },
+            { name: 'orange', value: PRIMARY_COLOR.orange.main },
+            { name: 'red', value: PRIMARY_COLOR.red.main },
+          ]}
+        />
+      </Stack>
+    </Card>
+  );
+
+  const renderBank = () => (
+    <Card>
+      <CardHeader title="Bank & Legal" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="bankDetails.bankName" label="Bank Name" />
+        <Field.Text name="bankDetails.accountNumber" label="Account Number" />
+        <Field.Text name="bankDetails.ifscCode" label="IFSC" />
+        <Field.Text name="legalInfo.panNumber" label="PAN Number" />
+      </Stack>
+    </Card>
+  );
+
+  const renderActions = () => (
+    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+        Save Changes
+      </LoadingButton>
+    </Stack>
+  );
+
+  return (
+    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderBasic()}
+        {renderAddress()}
+        {renderTheme()}
+        {renderBank()}
+        {renderActions()}
+      </Stack>
+    </Form>
+  );
+}
