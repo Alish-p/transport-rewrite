@@ -24,12 +24,16 @@ import InvoicePDF from 'src/pdfs/invoice-pdf';
 
 import { Iconify } from 'src/components/iconify';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 // ----------------------------------------------------------------------
 
 export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
   const router = useRouter();
 
   const view = useBoolean();
+
+  const tenant = useTenantContext();
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.invoice.edit(invoice?._id));
@@ -57,7 +61,9 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
           </Tooltip>
 
           <PDFDownloadLink
-            document={<InvoicePDF invoice={invoice} currentStatus={currentStatus} />}
+            document={
+              <InvoicePDF invoice={invoice} currentStatus={currentStatus} tenant={tenant} />
+            }
             fileName={invoice._id}
             style={{ textDecoration: 'none' }}
           >
@@ -125,7 +131,7 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <InvoicePDF invoice={invoice} currentStatus={currentStatus} />
+              <InvoicePDF invoice={invoice} currentStatus={currentStatus} tenant={tenant} />
             </PDFViewer>
           </Box>
         </Box>

@@ -1,13 +1,11 @@
 /* eslint-disable react/prop-types */
 import { View, Text, Image } from '@react-pdf/renderer';
 
-import { CONFIG } from 'src/config-global';
-
 import PDFStyles from './styles';
 
 export default function PDFHeader({
   logoPath = '/logo/company-logo-main.png',
-  company = CONFIG.company,
+  company,
   logoSize = 55,
 }) {
   const { name, tagline, address, email, website, contacts } = company;

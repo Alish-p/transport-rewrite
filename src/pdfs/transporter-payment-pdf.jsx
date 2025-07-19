@@ -4,7 +4,6 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
@@ -18,7 +17,7 @@ Font.register({
   ],
 });
 
-export default function TransporterPaymentPdf({ transporterPayment, tenant = CONFIG.company }) {
+export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
   const {
     subtripSnapshot = [],
     summary = {},

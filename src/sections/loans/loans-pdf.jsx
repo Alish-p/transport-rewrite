@@ -5,7 +5,6 @@ import { Font, Page, Document } from '@react-pdf/renderer';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
 import PDFBillToSection from 'src/pdfs/common/PDFBillTo';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
@@ -19,7 +18,7 @@ Font.register({
   ],
 });
 
-export default function LoansPdf({ loan, tenant = CONFIG.company }) {
+export default function LoansPdf({ loan, tenant }) {
   const {
     _id,
     borrowerId: b,

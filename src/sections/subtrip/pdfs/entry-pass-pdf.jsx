@@ -4,8 +4,6 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 
 import { fDate } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
-
 import { pdfStyles } from './pdf-styles';
 
 // ----------------------------------------------------------------------
@@ -17,7 +15,7 @@ Font.register({
 
 const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
-export default function EntryPassPdf({ subtrip, tenant = CONFIG.company }) {
+export default function EntryPassPdf({ subtrip, tenant }) {
   const COMPANY = tenant;
   const {
     _id,

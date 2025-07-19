@@ -3,7 +3,6 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
 import PDFTable from 'src/pdfs/common/PDFTable';
 import PDFBillToSection from 'src/pdfs/common/PDFBillTo';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
@@ -17,7 +16,7 @@ Font.register({
   ],
 });
 
-export default function DriverSalaryPdf({ driverSalary, tenant = CONFIG.company }) {
+export default function DriverSalaryPdf({ driverSalary, tenant }) {
   const {
     subtripSnapshot = [],
     summary = {},
