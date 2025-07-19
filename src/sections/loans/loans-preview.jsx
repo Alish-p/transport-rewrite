@@ -18,6 +18,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { useTenantContext } from 'src/auth/tenant';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -29,6 +30,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 function RenderHeader({ loan }) {
   const { status } = loan;
+  const tenant = useTenantContext();
   return (
     <Box
       rowGap={3}
@@ -39,7 +41,7 @@ function RenderHeader({ loan }) {
       <Box
         component="img"
         alt="logo"
-        src="/logo/company-logo-main.png"
+        src={`/logo/${tenant.slug}.png`}
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>

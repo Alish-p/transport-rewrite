@@ -223,7 +223,7 @@ export default function DriverSalarySimpleForm() {
           <Box
             component="img"
             alt="logo"
-            src="/logo/company-logo-main.png"
+            src={`/logo/${tenant.slug}.png`}
             sx={{ width: 60, height: 60 }}
           />
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>

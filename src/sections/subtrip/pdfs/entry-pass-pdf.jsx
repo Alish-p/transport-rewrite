@@ -39,7 +39,7 @@ export default function EntryPassPdf({ subtrip, tenant }) {
     <View style={[styles.gridContainer, styles.border]}>
       <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
         <View style={[styles.col4]}>
-          <Image source="/logo/company-logo-main.png" style={{ width: 48, height: 48 }} />
+          <Image source={`/logo/${tenant.slug}.png`} style={{ width: 48, height: 48 }} />
         </View>
 
         <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
