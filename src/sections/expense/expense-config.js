@@ -24,6 +24,14 @@ export const vehicleExpenseTypes = [
   { label: 'Major Repair', value: 'major-repair' },
   { label: 'Fitness Certificate', value: 'fitness-certificate' },
   { label: 'Over-Load Fees', value: 'over-load-fees' },
+  { label: 'Electrical Work', value: 'electrical-work' },
+  { label: 'Mechanical Work', value: 'mechanical-work' },
+  { label: 'Phata Work', value: 'phata-work' },
+  { label: 'Body Work', value: 'body-work' },
+  { label: 'Minor Engine Work', value: 'minor-engine-work' },
+  { label: 'Major Engine Work', value: 'major-engine-work' },
+  { label: 'Outside Garage Expense', value: 'outside-garage-expense' },
+  { label: 'Showroom Expence', value: 'showroom-expence' },
   { label: 'Other', value: 'other' },
 ];
 
