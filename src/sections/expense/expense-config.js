@@ -24,6 +24,7 @@ export const vehicleExpenseTypes = [
   { label: 'Major Repair', value: 'major-repair' },
   { label: 'Fitness Certificate', value: 'fitness-certificate' },
   { label: 'Over-Load Fees', value: 'over-load-fees' },
+
   { label: 'Other', value: 'other' },
 ];
 
