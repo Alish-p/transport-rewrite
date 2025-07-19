@@ -1,4 +1,6 @@
-import { useMemo, useState, useCallback, createContext } from 'react';
+import { useMemo, useState, useCallback, createContext, useEffect } from 'react';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { useLocalStorage } from 'src/hooks/use-local-storage';
 
@@ -13,7 +15,15 @@ export const SettingsConsumer = SettingsContext.Consumer;
 // ----------------------------------------------------------------------
 
 export function SettingsProvider({ children, settings }) {
+  const { theme: tenantTheme } = useTenantContext() ?? {};
+
   const values = useLocalStorage(STORAGE_KEY, settings);
+
+  useEffect(() => {
+    if (tenantTheme) {
+      values.setField('primaryColor', tenantTheme);
+    }
+  }, [tenantTheme, values.setField]);
 
   const [openDrawer, setOpenDrawer] = useState(false);
 

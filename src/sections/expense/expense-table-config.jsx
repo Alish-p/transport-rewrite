@@ -1,4 +1,4 @@
-import { Stack, Typography, ListItemText } from '@mui/material';
+import { Link, Stack, Typography, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -20,15 +20,15 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.subtripId || '-',
     align: 'left',
     render: ({ subtripId = '-' }) => (
-      <RouterLink
-        to={`${paths.dashboard.subtrip.details(subtripId)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
+      <Link
+        component={RouterLink}
+        to={paths.dashboard.subtrip.details(subtripId)}
+        variant="body2"
+        noWrap
+        sx={{ color: 'primary.main' }}
       >
-        <ListItemText
-          primary={subtripId}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
+        {subtripId}
+      </Link>
     ),
   },
   {

@@ -1,14 +1,14 @@
-import { ListItemText } from '@mui/material';
+import { Link, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
 import { SUBTRIP_STATUS_COLORS } from '../constants';
-import { fNumber } from '../../../utils/format-number';
 
 export const TABLE_COLUMNS = [
   {
@@ -19,15 +19,15 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?._id,
     align: 'center',
     render: ({ _id }) => (
-      <RouterLink
-        to={`${paths.dashboard.subtrip.details(_id)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
+      <Link
+        component={RouterLink}
+        to={paths.dashboard.subtrip.details(_id)}
+        variant="body2"
+        noWrap
+        sx={{ color: 'primary.main' }}
       >
-        <ListItemText
-          primary={_id}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
+        {_id}
+      </Link>
     ),
   },
   {
@@ -40,15 +40,15 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       const value = row?.tripId?._id || '-';
       return (
-        <RouterLink
-          to={`${paths.dashboard.trip.details(value)}`}
-          style={{ color: 'green', textDecoration: 'underline' }}
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.trip.details(value)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
         >
-          <ListItemText
-            primary={value}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </RouterLink>
+          {value}
+        </Link>
       );
     },
   },
