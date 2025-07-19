@@ -6,7 +6,7 @@ import Table from '@mui/material/Table';
 import MenuItem from '@mui/material/MenuItem';
 import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
-import { Select, TableRow, TableCell, FormControl } from '@mui/material';
+import { Link, Select, TableRow, TableCell, FormControl } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -82,12 +82,15 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                   <TableRow key={row.customerId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <RouterLink
+                      <Link
+                        component={RouterLink}
                         to={paths.dashboard.customer.details(row.customerId)}
-                        style={{ color: 'green' }}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
                       >
                         {row.customerName}
-                      </RouterLink>
+                      </Link>
                     </TableCell>
                     <TableCell align="right">{fNumber(row.totalLoadingWeight)}</TableCell>
                     <TableCell align="right">{fShortenNumber(row.totalFreightAmount)}</TableCell>
