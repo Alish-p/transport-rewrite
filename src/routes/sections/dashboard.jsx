@@ -133,6 +133,7 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const TenantSettingsPage = lazy(() => import('src/pages/dashboard/tenant'));
+const PaymentHistoryPage = lazy(() => import('src/pages/dashboard/payments'));
 
 // ----------------------------------------------------------------------
 
@@ -910,6 +911,14 @@ export const dashboardRoutes = [
         element: (
           <PermissionBasedGuard resource="tenant" action="update" hasContent>
             <TenantSettingsPage />
+          </PermissionBasedGuard>
+        ),
+      },
+      {
+        path: 'payments',
+        element: (
+          <PermissionBasedGuard resource="tenant" action="update" hasContent>
+            <PaymentHistoryPage />
           </PermissionBasedGuard>
         ),
       },

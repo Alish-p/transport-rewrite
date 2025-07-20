@@ -173,6 +173,22 @@ export function AccountDrawer({ sx, ...other }) {
                 </Box>
               </MenuItem>
             )}
+            {hasPermission('tenant', 'update') && (
+              <MenuItem
+                onClick={() => handleClickItem(paths.dashboard.paymentHistory)}
+                sx={{
+                  py: 1,
+                  color: 'text.secondary',
+                  '& svg': { width: 24, height: 24 },
+                  '&:hover': { color: 'text.primary' },
+                }}
+              >
+                <Iconify icon="solar:bill-list-bold-duotone" />
+                <Box component="span" sx={{ ml: 2 }}>
+                  Payments
+                </Box>
+              </MenuItem>
+            )}
           </Stack>
 
           <Box sx={{ px: 2.5, py: 3, mt: 30 }}>
