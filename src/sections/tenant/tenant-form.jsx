@@ -6,12 +6,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Card, Stack, Divider, CardHeader } from '@mui/material';
 
+import { CONFIG } from 'src/config-global';
 import COLORS from 'src/theme/core/colors.json';
 import { useUpdateTenant } from 'src/query/use-tenant';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
+
+import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense/expense-config';
 
 export const TenantSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required' }),
@@ -36,6 +39,31 @@ export const TenantSchema = zod.object({
     accountNumber: schemaHelper.accountNumber({}).optional(),
     ifscCode: zod.string().optional(),
   }),
+  config: zod
+    .object({
+      materialOptions: zod
+        .array(zod.object({ label: zod.string(), value: zod.string() }))
+        .optional(),
+      subtripExpenseTypes: zod
+        .array(
+          zod.object({
+            label: zod.string(),
+            value: zod.string(),
+            icon: zod.string().optional(),
+          })
+        )
+        .optional(),
+      vehicleExpenseTypes: zod
+        .array(
+          zod.object({
+            label: zod.string(),
+            value: zod.string(),
+            icon: zod.string().optional(),
+          })
+        )
+        .optional(),
+    })
+    .optional(),
 });
 
 export default function TenantForm({ currentTenant }) {
@@ -64,6 +92,11 @@ export default function TenantForm({ currentTenant }) {
         bankName: currentTenant?.bankDetails?.bankName || '',
         accountNumber: currentTenant?.bankDetails?.accountNumber || '',
         ifscCode: currentTenant?.bankDetails?.ifscCode || '',
+      },
+      config: {
+        materialOptions: currentTenant?.config?.materialOptions || CONFIG.materialOptions,
+        subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || subtripExpenseTypes,
+        vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || vehicleExpenseTypes,
       },
     }),
     [currentTenant]
@@ -149,6 +182,30 @@ export default function TenantForm({ currentTenant }) {
     </Card>
   );
 
+  const renderConfig = () => (
+    <Card>
+      <CardHeader title="Configuration" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.MultiAutocompleteFreeSolo
+          name="config.materialOptions"
+          label="Material Options"
+          options={CONFIG.materialOptions}
+        />
+        <Field.MultiAutocompleteFreeSolo
+          name="config.subtripExpenseTypes"
+          label="Subtrip Expense Types"
+          options={subtripExpenseTypes}
+        />
+        <Field.MultiAutocompleteFreeSolo
+          name="config.vehicleExpenseTypes"
+          label="Vehicle Expense Types"
+          options={vehicleExpenseTypes}
+        />
+      </Stack>
+    </Card>
+  );
+
   const renderActions = () => (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -164,6 +221,7 @@ export default function TenantForm({ currentTenant }) {
         {renderAddress()}
         {renderTheme()}
         {renderBank()}
+        {renderConfig()}
         {renderActions()}
       </Stack>
     </Form>
