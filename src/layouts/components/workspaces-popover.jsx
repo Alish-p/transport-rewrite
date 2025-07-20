@@ -31,7 +31,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
         component="img"
         alt={workspace?.name}
         src={`/logo/${tenant.slug}.png`}
-        sx={{ width: 36, height: 24, borderRadius: '50%' }}
+        sx={{ width: 36, height: 36, borderRadius: '50%' }}
       />
 
       <Box
