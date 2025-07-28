@@ -3,7 +3,7 @@ export const EXPENSE_CATEGORY_COLORS = {
   vehicle: 'secondary',
 };
 
-export const subtripExpenseTypes = [
+export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'Diesel', value: 'diesel', icon: 'mdi:gas-station' },
   { label: 'Adblue', value: 'adblue', icon: 'mdi:water' },
   { label: 'Trip Advance', value: 'trip-advance', icon: 'mdi:cash-fast' },

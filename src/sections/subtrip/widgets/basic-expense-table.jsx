@@ -32,12 +32,13 @@ import { Iconify } from 'src/components/iconify';
 import { TableNoData } from 'src/components/table';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
-import { subtripExpenseTypes } from '../../expense/expense-config';
+import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
 export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd = false }) => {
   const deleteExpense = useDeleteExpense();
   const navigate = useNavigate();
   const confirm = useBoolean();
+  const subtripExpenseTypes = useSubtripExpenseTypes();
 
   const [selectedExpense, setSelectedExpense] = useState(null);
 

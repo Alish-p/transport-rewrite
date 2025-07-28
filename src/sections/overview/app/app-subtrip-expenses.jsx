@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import dayjs from 'dayjs';
 import { useTheme } from '@emotion/react';
 import { useMemo, useState, useEffect } from 'react';
@@ -13,12 +14,13 @@ import { useMonthlyExpenseSummary } from 'src/query/use-dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
-import { subtripExpenseTypes } from '../../expense/expense-config';
+import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
 // ----------------------------------------------------------------------
 
 export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
   const theme = useTheme();
+  const subtripExpenseTypes = useSubtripExpenseTypes();
 
   // build list of months similar to customer freight table
   const today = dayjs();

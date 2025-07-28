@@ -18,10 +18,11 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
+import { useMaterialOptions } from 'src/hooks/use-material-options';
+
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
@@ -65,6 +66,8 @@ export default function SubtripTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
   const materialPopover = usePopover();
+
+  const materialOptions = useMaterialOptions();
 
   const startRange = useBoolean();
   const endRange = useBoolean();
@@ -328,7 +331,7 @@ export default function SubtripTableToolbar({
       >
         <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
           <MenuList>
-            {CONFIG.materialOptions.map(({ value }) => (
+            {materialOptions.map(({ value }) => (
               <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
                 <Checkbox checked={filters.materials.includes(value)} />
                 <ListItemText primary={value} />

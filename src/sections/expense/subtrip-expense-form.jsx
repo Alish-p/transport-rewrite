@@ -25,7 +25,7 @@ import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { SubtripExpenseSchema } from './expense-schemas';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
-import { subtripExpenseTypes, SUBTRIP_EXPENSE_TYPES } from './expense-config';
+import { SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes } from './expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
 function ExpenseCoreForm({ currentSubtrip }) {
@@ -36,6 +36,8 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const pumpDialog = useBoolean(false);
   const subtripDialog = useBoolean(false);
   const confirm = useBoolean(false);
+
+  const subtripExpenseTypes = useSubtripExpenseTypes();
 
   const createExpense = useCreateExpense();
 

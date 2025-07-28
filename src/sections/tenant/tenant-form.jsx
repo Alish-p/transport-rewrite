@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Card, Stack, Divider, CardHeader } from '@mui/material';
 
-import { CONFIG } from 'src/config-global';
+import { useMaterialOptions } from 'src/hooks/use-material-options';
+
 import COLORS from 'src/theme/core/colors.json';
 import { useUpdateTenant } from 'src/query/use-tenant';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
@@ -14,7 +15,7 @@ import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
-import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense/expense-config';
+import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense/expense-config';
 
 export const TenantSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required' }),
@@ -68,6 +69,9 @@ export const TenantSchema = zod.object({
 
 export default function TenantForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
+  const materialOptions = useMaterialOptions();
+  const subtripExpenseTypes = useSubtripExpenseTypes();
+  const vehicleExpenseTypes = useVehicleExpenseTypes();
 
   const defaultValues = useMemo(
     () => ({
@@ -94,12 +98,12 @@ export default function TenantForm({ currentTenant }) {
         ifscCode: currentTenant?.bankDetails?.ifscCode || '',
       },
       config: {
-        materialOptions: currentTenant?.config?.materialOptions || CONFIG.materialOptions,
+        materialOptions: currentTenant?.config?.materialOptions || materialOptions,
         subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || subtripExpenseTypes,
         vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || vehicleExpenseTypes,
       },
     }),
-    [currentTenant]
+    [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
   );
 
   const methods = useForm({ resolver: zodResolver(TenantSchema), defaultValues });
@@ -190,7 +194,7 @@ export default function TenantForm({ currentTenant }) {
         <Field.MultiAutocompleteFreeSolo
           name="config.materialOptions"
           label="Material Options"
-          options={CONFIG.materialOptions}
+          options={materialOptions}
         />
         <Field.MultiAutocompleteFreeSolo
           name="config.subtripExpenseTypes"

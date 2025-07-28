@@ -30,6 +30,7 @@ import { paths } from 'src/routes/paths';
 
 // Hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 // Utils
 import { getFixedExpensesByVehicleType } from 'src/utils/utils';
@@ -44,7 +45,6 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { CONFIG } from '../../config-global';
 // Config & Constants
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
@@ -151,6 +151,7 @@ export function SubtripLoadForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentSubtripId = searchParams.get('currentSubtrip');
+  const materialOptions = useMaterialOptions();
 
   // State management
   const [activeStep, setActiveStep] = useState(0);
@@ -562,7 +563,7 @@ export function SubtripLoadForm() {
       <Field.Select name="materialType" label="Material Type *">
         <MenuItem value="">None</MenuItem>
         <Divider sx={{ borderStyle: 'dashed' }} />
-        {CONFIG.materialOptions.map(({ label, value }) => (
+        {materialOptions.map(({ label, value }) => (
           <MenuItem key={value} value={value}>
             {label}
           </MenuItem>

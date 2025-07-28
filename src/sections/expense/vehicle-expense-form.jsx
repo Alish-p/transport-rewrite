@@ -15,8 +15,8 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useBoolean } from '../../hooks/use-boolean';
+import { useVehicleExpenseTypes } from './expense-config';
 import { useCreateExpense } from '../../query/use-expense';
-import { vehicleExpenseTypes as expenseTypes } from './expense-config';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
 export const ExpenseSchema = zod.object({
@@ -44,6 +44,8 @@ export default function VehicleExpenseForm({ currentExpense }) {
   const navigate = useNavigate();
   const vehicleDialog = useBoolean(false);
   const [selectedVehicle, setSelectedVehicle] = useState(currentExpense?.vehicleId || null);
+
+  const expenseTypes = useVehicleExpenseTypes();
 
   const createExpense = useCreateExpense();
   const updateExpense = useCreateExpense();
