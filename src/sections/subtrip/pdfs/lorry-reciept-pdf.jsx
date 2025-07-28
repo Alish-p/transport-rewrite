@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { Page, View, Text, Font, Document, StyleSheet } from '@react-pdf/renderer';
 
-import { fDate } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFFooter, PDFDeclaration } from 'src/pdfs/common';
 
@@ -54,7 +54,7 @@ export default function LRPDF({ subtrip }) {
         loadingPoint || '-',
         unloadingPoint || '-',
         _id,
-        fDate(startDate),
+        fDateTime(startDate),
         invoiceNo,
         ewayBill,
       ],
