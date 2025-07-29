@@ -16,6 +16,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
+import { STATES } from '../customer/config';
 import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense/expense-config';
 
 export const TenantSchema = zod
@@ -33,9 +34,12 @@ export const TenantSchema = zod
     contactDetails: zod.object({
       email: zod.string().email({ message: 'Email must be valid' }),
       phone: schemaHelper.phoneNumber({}),
+      website: zod.string().optional(),
     }),
     legalInfo: zod.object({
       panNumber: schemaHelper.panNumberOptional({}),
+      gstNumber: schemaHelper.gstNumberOptional({}),
+      registeredState: zod.string().optional(),
     }),
     bankDetails: zod.object({
       bankName: zod.string().optional(),
@@ -132,9 +136,12 @@ export default function TenantForm({ currentTenant }) {
       contactDetails: {
         email: currentTenant?.contactDetails?.email || '',
         phone: currentTenant?.contactDetails?.phone || '',
+        website: currentTenant?.contactDetails?.website || '',
       },
       legalInfo: {
         panNumber: currentTenant?.legalInfo?.panNumber || '',
+        gstNumber: currentTenant?.legalInfo?.gstNumber || '',
+        registeredState: currentTenant?.legalInfo?.registeredState || '',
       },
       bankDetails: {
         bankName: currentTenant?.bankDetails?.bankName || '',
@@ -223,6 +230,7 @@ export default function TenantForm({ currentTenant }) {
         <Field.Text name="address.pincode" label="Pincode" />
         <Field.Text name="contactDetails.email" label="Email" />
         <Field.Text name="contactDetails.phone" label="Phone" />
+        <Field.Text name="contactDetails.website" label="Website" />
       </Stack>
     </Card>
   );
@@ -257,6 +265,16 @@ export default function TenantForm({ currentTenant }) {
         <Field.Text name="bankDetails.accountNumber" label="Account Number" />
         <Field.Text name="bankDetails.ifscCode" label="IFSC" />
         <Field.Text name="legalInfo.panNumber" label="PAN Number" />
+        <Field.Text name="legalInfo.gstNumber" label="GST Number" />
+        <Field.Select name="legalInfo.registeredState" label="Registered State">
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {STATES.map((state) => (
+            <MenuItem key={state.value} value={state.value}>
+              {state.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
       </Stack>
     </Card>
   );
