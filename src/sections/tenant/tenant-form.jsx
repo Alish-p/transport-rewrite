@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Divider, CardHeader } from '@mui/material';
+import { Card, Stack, Divider, MenuItem, CardHeader } from '@mui/material';
 
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
@@ -12,6 +12,7 @@ import COLORS from 'src/theme/core/colors.json';
 import { useUpdateTenant } from 'src/query/use-tenant';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
@@ -65,6 +66,22 @@ export const TenantSchema = zod.object({
         .optional(),
     })
     .optional(),
+  integrations: zod
+    .object({
+      whatsapp: zod
+        .object({
+          enabled: zod.boolean().optional(),
+          provider: zod.enum(['Twilio', 'Gupshup', 'Kaleyra']).nullable().optional(),
+        })
+        .optional(),
+      vehicleGPS: zod
+        .object({
+          enabled: zod.boolean().optional(),
+          provider: zod.enum(['Fleetx', 'LocoNav', 'BlackBuck', 'Other']).nullable().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 export default function TenantForm({ currentTenant }) {
@@ -102,6 +119,16 @@ export default function TenantForm({ currentTenant }) {
         subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || subtripExpenseTypes,
         vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || vehicleExpenseTypes,
       },
+      integrations: {
+        whatsapp: {
+          enabled: currentTenant?.integrations?.whatsapp?.enabled || false,
+          provider: currentTenant?.integrations?.whatsapp?.provider || '',
+        },
+        vehicleGPS: {
+          enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
+          provider: currentTenant?.integrations?.vehicleGPS?.provider || '',
+        },
+      },
     }),
     [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
   );
@@ -112,8 +139,10 @@ export default function TenantForm({ currentTenant }) {
     handleSubmit,
     setValue,
     watch,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
+
+  console.log({ errors });
 
   const values = watch();
 
@@ -210,6 +239,59 @@ export default function TenantForm({ currentTenant }) {
     </Card>
   );
 
+  const renderIntegrations = () => (
+    <Card>
+      <CardHeader title="Integrations" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.whatsapp.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="prime:whatsapp" />
+                WhatsApp
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+          {values.integrations?.whatsapp?.enabled && (
+            <Field.Select name="integrations.whatsapp.provider" label="Provider">
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="Twilio">Twilio</MenuItem>
+              <MenuItem value="Gupshup">Gupshup</MenuItem>
+              <MenuItem value="Kaleyra">Kaleyra</MenuItem>
+            </Field.Select>
+          )}
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.vehicleGPS.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:gps" />
+                Vehicle GPS
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+          {values.integrations?.vehicleGPS?.enabled && (
+            <Field.Select name="integrations.vehicleGPS.provider" label="Provider">
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="Fleetx">Fleetx</MenuItem>
+              <MenuItem value="LocoNav">LocoNav</MenuItem>
+              <MenuItem value="BlackBuck">BlackBuck</MenuItem>
+              <MenuItem value="Other">Other</MenuItem>
+            </Field.Select>
+          )}
+        </Stack>
+      </Stack>
+    </Card>
+  );
+
   const renderActions = () => (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -226,6 +308,7 @@ export default function TenantForm({ currentTenant }) {
         {renderTheme()}
         {renderBank()}
         {renderConfig()}
+        {renderIntegrations()}
         {renderActions()}
       </Stack>
     </Form>
