@@ -1,4 +1,3 @@
-import { useTenantContext } from 'src/auth/tenant';
 
 export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'Diesel', value: 'diesel', icon: 'mdi:gas-station' },
@@ -39,13 +38,11 @@ export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
 ];
 
 export function useSubtripExpenseTypes() {
-  const tenant = useTenantContext();
-  return tenant?.config?.subtripExpenseTypes || DEFAULT_SUBTRIP_EXPENSE_TYPES;
+  return DEFAULT_SUBTRIP_EXPENSE_TYPES;
 }
 
 export function useVehicleExpenseTypes() {
-  const tenant = useTenantContext();
-  return tenant?.config?.vehicleExpenseTypes || DEFAULT_VEHICLE_EXPENSE_TYPES;
+  return DEFAULT_VEHICLE_EXPENSE_TYPES;
 }
 
 export const SUBTRIP_EXPENSE_TYPES = {
