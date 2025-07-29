@@ -46,7 +46,6 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 // Config & Constants
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
@@ -63,11 +62,25 @@ const STEPS = [
   { label: 'Driver Advance', icon: 'mdi:cash-multiple' },
 ];
 
+const LOADING_WEIGHT_UNITS = ['KL', 'Ton', 'KG'];
+const RATE_UNITS = ['Fixed', 'per Ton', 'per Km'];
+const QUANTITY_UNITS = ['25KG Bag', '50KG Bag', '100KG Bag'];
+
 // Fields to validate per step
 const STEP_FIELDS = [
   ['subtripId'], // Step 0
   ['consignee', 'routeCd', 'loadingPoint', 'unloadingPoint'], // Step 1
-  ['loadingWeight', 'rate', 'invoiceNo', 'ewayExpiryDate', 'materialType'], // Step 2
+  [
+    'loadingWeight',
+    'loadingWeightUnit',
+    'rate',
+    'rateUnit',
+    'invoiceNo',
+    'ewayExpiryDate',
+    'materialType',
+    'quantity',
+    'quantityUnit',
+  ], // Step 2
   ['driverAdvance', 'driverAdvanceGivenBy', 'initialAdvanceDiesel', 'pumpCd'], // Step 3
 ];
 
@@ -83,8 +96,10 @@ const LoadSubtripSchema = zod
       .nullable()
       .refine((val) => val !== null, { message: 'Consignee is required' }),
     loadingWeight: zod.number({ required_error: 'Loading Weight is required' }).positive(),
+    loadingWeightUnit: zod.string().optional(),
     startKm: zod.number().optional(),
     rate: zod.number().positive(),
+    rateUnit: zod.string().optional(),
     invoiceNo: zod.string().min(1, { message: 'Invoice No is required' }),
     shipmentNo: zod.string().optional(),
     orderNo: zod.string().optional(),
@@ -94,6 +109,7 @@ const LoadSubtripSchema = zod
     }),
     materialType: zod.string().min(1, { message: 'Material Type is required' }),
     quantity: zod.number().optional(),
+    quantityUnit: zod.string().optional(),
     grade: zod.string().optional(),
     tds: zod.number().optional(),
     driverAdvance: zod.number().optional(),
@@ -123,8 +139,10 @@ const defaultValues = {
   subtripId: '',
   consignee: null,
   loadingWeight: 0,
+  loadingWeightUnit: LOADING_WEIGHT_UNITS[1],
   startKm: 0,
   rate: 0,
+  rateUnit: RATE_UNITS[0],
   invoiceNo: '',
   shipmentNo: '',
   orderNo: '',
@@ -132,6 +150,7 @@ const defaultValues = {
   ewayExpiryDate: null,
   materialType: '',
   quantity: 0,
+  quantityUnit: QUANTITY_UNITS[0],
   grade: '',
   tds: 0,
   driverAdvance: 0,
@@ -492,25 +511,19 @@ export function SubtripLoadForm() {
       gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
       gap={3}
     >
-      <Field.Text
+      <Field.InputWithUnit
         name="loadingWeight"
+        unitName="loadingWeightUnit"
         label="Loading Weight *"
-        type="number"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
-            </InputAdornment>
-          ),
-        }}
+        units={LOADING_WEIGHT_UNITS}
       />
 
       {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
-        <Field.Text
+        <Field.InputWithUnit
           name="quantity"
+          unitName="quantityUnit"
           label="Quantity"
-          type="number"
-          InputProps={{ endAdornment: <InputAdornment position="end">Bags</InputAdornment> }}
+          units={QUANTITY_UNITS}
         />
       )}
 
@@ -543,12 +556,7 @@ export function SubtripLoadForm() {
         </Box>
       )}
 
-      <Field.Text
-        name="rate"
-        label="Rate *"
-        type="number"
-        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
-      />
+      <Field.InputWithUnit name="rate" unitName="rateUnit" label="Rate *" units={RATE_UNITS} />
 
       <Field.Text name="ewayBill" label="Eway Bill" />
       <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" minDate={dayjs()} />
