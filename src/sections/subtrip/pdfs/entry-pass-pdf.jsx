@@ -17,6 +17,9 @@ const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
 export default function EntryPassPdf({ subtrip, tenant }) {
   const COMPANY = tenant;
+  const phone = COMPANY.contacts?.[0] || COMPANY.contactDetails?.phone;
+  const email = COMPANY.email || COMPANY.contactDetails?.email;
+  const website = COMPANY.website || COMPANY.contactDetails?.website;
   const {
     _id,
     diNumber,
@@ -69,9 +72,9 @@ export default function EntryPassPdf({ subtrip, tenant }) {
 
         {/* Right Column: Values */}
         <View style={{ flex: 2 }}>
-          <Text style={[styles.body2]}>{COMPANY.contacts[0]}</Text>
-          <Text style={[styles.body2]}>{COMPANY.email}</Text>
-          <Text style={styles.body2}>{COMPANY.website}</Text>
+          <Text style={[styles.body2]}>{phone}</Text>
+          <Text style={[styles.body2]}>{email}</Text>
+          <Text style={styles.body2}>{website}</Text>
         </View>
       </View>
     </View>

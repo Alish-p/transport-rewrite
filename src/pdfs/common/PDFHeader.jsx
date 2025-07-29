@@ -4,7 +4,10 @@ import { View, Text, Image } from '@react-pdf/renderer';
 import PDFStyles from './styles';
 
 export default function PDFHeader({ company, logoPath, logoSize = 55 }) {
-  const { name, tagline, address, email, website, contacts, slug } = company;
+  const { name, tagline, address, slug } = company;
+  const phone = company.contacts?.[0] || company.contactDetails?.phone || null;
+  const email = company.email || company.contactDetails?.email || null;
+  const website = company.website || company.contactDetails?.website || null;
   const finalLogoPath = logoPath || `/logo/${slug}.png`;
 
   return (
@@ -32,7 +35,7 @@ export default function PDFHeader({ company, logoPath, logoSize = 55 }) {
         {/* Contact Info */}
         <View style={[PDFStyles.col4, PDFStyles.contactSection, PDFStyles.borderLeft]}>
           <View style={[PDFStyles.flexColumn]}>
-            <ContactRow label="Mobile" value={contacts?.[0]} />
+            <ContactRow label="Mobile" value={phone} />
             <ContactRow label="Email" value={email} />
             <ContactRow label="Website" value={website} />
           </View>
