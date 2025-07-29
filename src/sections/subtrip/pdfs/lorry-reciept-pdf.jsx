@@ -16,7 +16,7 @@ Font.register({
 
 const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
-export default function LRPDF({ subtrip }) {
+export default function LRPDF({ subtrip, tenant }) {
   const {
     _id,
     customerId,
@@ -99,7 +99,7 @@ export default function LRPDF({ subtrip }) {
     <Document>
       <Page size="A5" style={styles.page} orientation="landscape">
         <PDFTitle styles={styles} title="Lorry Receipt" />
-        <PDFHeader styles={styles} />
+        <PDFHeader styles={styles} company={tenant} />
         {renderStructuredHeader()}
         {renderTables()}
         <View style={[styles.gridContainer, styles.borderLeft, styles.borderRight]}>

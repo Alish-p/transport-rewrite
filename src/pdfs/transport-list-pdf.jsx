@@ -18,7 +18,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function TransporterListPdf({ transporters }) {
+export default function TransporterListPdf({ transporters, tenant }) {
   const renderTransporterTable = () => {
     const headers = [
       'S.No',
@@ -55,7 +55,7 @@ export default function TransporterListPdf({ transporters }) {
     <Document>
       <Page size="A3" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Transporter List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all transporters in the system as of ${fDate(new Date())}.`}
         />

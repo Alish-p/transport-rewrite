@@ -24,6 +24,8 @@ import TransporterPaymentPdf from 'src/pdfs/transporter-payment-pdf';
 
 import { Iconify } from 'src/components/iconify';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 // ----------------------------------------------------------------------
 
 export default function TransporterPaymentToolbar({
@@ -35,6 +37,7 @@ export default function TransporterPaymentToolbar({
   const router = useRouter();
 
   const view = useBoolean();
+  const tenant = useTenantContext();
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.transporterPayment.edit(transporterPayment?._id));
@@ -66,6 +69,7 @@ export default function TransporterPaymentToolbar({
               <TransporterPaymentPdf
                 transporterPayment={transporterPayment}
                 currentStatus={currentStatus}
+                tenant={tenant}
               />
             }
             fileName={transporterPayment._id}
@@ -138,6 +142,7 @@ export default function TransporterPaymentToolbar({
               <TransporterPaymentPdf
                 transporterPayment={transporterPayment}
                 currentStatus={currentStatus}
+                tenant={tenant}
               />
             </PDFViewer>
           </Box>

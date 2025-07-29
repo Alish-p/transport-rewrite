@@ -19,7 +19,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function BankListPdf({ banks }) {
+export default function BankListPdf({ banks, tenant }) {
   const renderBankTable = () => {
     const headers = ['S.No', 'Bank Name', 'Branch', 'Place', 'IFSC'];
 
@@ -40,7 +40,7 @@ export default function BankListPdf({ banks }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="portrait">
         <PDFTitle title="Bank List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all banks in the system as of ${fDate(new Date())}.`}
         />

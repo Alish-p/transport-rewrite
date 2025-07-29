@@ -3,7 +3,6 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
 import PDFTable from 'src/pdfs/common/PDFTable';
 import PDFBillToSection from 'src/pdfs/common/PDFBillTo';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
@@ -17,7 +16,7 @@ Font.register({
   ],
 });
 
-export default function DriverSalaryPdf({ driverSalary }) {
+export default function DriverSalaryPdf({ driverSalary, tenant }) {
   const {
     subtripSnapshot = [],
     summary = {},
@@ -57,7 +56,7 @@ export default function DriverSalaryPdf({ driverSalary }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Driver Salary Receipt" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Driver Detail"
@@ -80,7 +79,7 @@ export default function DriverSalaryPdf({ driverSalary }) {
 
         <PDFInvoiceFooter
           declaration="This is a system-generated driver salary voucher."
-          signatory={`For ${CONFIG.company.name}`}
+          signatory={`For ${tenant.name}`}
         />
       </Page>
     </Document>

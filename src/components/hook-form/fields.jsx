@@ -14,6 +14,7 @@ import { RHFCheckbox, RHFMultiCheckbox } from './rhf-checkbox';
 import RHFFreeSoloAutocomplete from './rhf-autocomplete-freesolo';
 import { RHFUpload, RHFUploadBox, RHFUploadAvatar } from './rhf-upload';
 import { RHFDatePicker, RHFMobileDateTimePicker } from './rhf-date-picker';
+import RHFMultiAutocompleteFreeSolo from './rhf-autocomplete-multiple-freesolo';
 
 // ----------------------------------------------------------------------
 
@@ -40,4 +41,5 @@ export const Field = {
   CountrySelect: RHFCountrySelect,
   MobileDateTimePicker: RHFMobileDateTimePicker,
   AutocompleteFreeSolo: RHFFreeSoloAutocomplete,
+  MultiAutocompleteFreeSolo: RHFMultiAutocompleteFreeSolo,
 };

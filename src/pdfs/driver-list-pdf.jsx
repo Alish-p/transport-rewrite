@@ -19,7 +19,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function DriverListPdf({ drivers }) {
+export default function DriverListPdf({ drivers, tenant }) {
   const renderDriverTable = () => {
     const headers = ['S.No', 'Driver Name', 'License No', 'Cell No', 'License Expiry', 'Status'];
 
@@ -42,7 +42,7 @@ export default function DriverListPdf({ drivers }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="portrait">
         <PDFTitle title="Driver List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all drivers in the system as of ${fDate(new Date())}.`}
         />

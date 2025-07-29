@@ -18,10 +18,11 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
+import { useMaterialOptions } from 'src/hooks/use-material-options';
+
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { CONFIG } from 'src/config-global';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
@@ -35,6 +36,8 @@ import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from '../config/table-columns';
 
@@ -65,6 +68,9 @@ export default function SubtripTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
   const materialPopover = usePopover();
+  const tenant = useTenantContext();
+
+  const materialOptions = useMaterialOptions();
 
   const startRange = useBoolean();
   const endRange = useBoolean();
@@ -282,7 +288,13 @@ export default function SubtripTableToolbar({
             <PDFDownloadLink
               document={(() => {
                 const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-                return <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+                return (
+                  <SubtripListPdf
+                    subtrips={tableData}
+                    visibleColumns={visibleCols}
+                    tenant={tenant}
+                  />
+                );
               })()}
               fileName="Subtrip-list.pdf"
               style={{
@@ -328,7 +340,7 @@ export default function SubtripTableToolbar({
       >
         <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
           <MenuList>
-            {CONFIG.materialOptions.map(({ value }) => (
+            {materialOptions.map(({ value }) => (
               <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
                 <Checkbox checked={filters.materials.includes(value)} />
                 <ListItemText primary={value} />

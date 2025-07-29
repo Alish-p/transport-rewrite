@@ -16,7 +16,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function RouteListPdf({ routes }) {
+export default function RouteListPdf({ routes, tenant }) {
   const renderRouteTables = () =>
     routes.map((route, index) => {
       const headers = [
@@ -69,7 +69,7 @@ export default function RouteListPdf({ routes }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="portrait">
         <PDFTitle title="Route List with Vehicle Configurations" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains all routes with their associated vehicle configurations as of ${fDate(new Date())}.`}
         />

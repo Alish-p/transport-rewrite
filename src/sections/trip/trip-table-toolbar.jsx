@@ -26,6 +26,8 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from './trip-table-config';
 import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
@@ -54,6 +56,7 @@ export default function TripTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
   const subtripDialog = useBoolean();
@@ -218,6 +221,7 @@ export default function TripTableToolbar({
                 <TripListPdf
                   trips={tableData}
                   visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                  tenant={tenant}
                 />
               }
               fileName="Trip-list.pdf"

@@ -1,16 +1,11 @@
 /* eslint-disable react/prop-types */
 import { View, Text, Image } from '@react-pdf/renderer';
 
-import { CONFIG } from 'src/config-global';
-
 import PDFStyles from './styles';
 
-export default function PDFHeader({
-  logoPath = '/logo/company-logo-main.png',
-  company = CONFIG.company,
-  logoSize = 55,
-}) {
-  const { name, tagline, address, email, website, contacts } = company;
+export default function PDFHeader({ company, logoPath, logoSize = 55 }) {
+  const { name, tagline, address, email, website, contacts, slug } = company;
+  const finalLogoPath = logoPath || `/logo/${slug}.png`;
 
   return (
     <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
@@ -19,7 +14,7 @@ export default function PDFHeader({
         {/* Logo Section */}
         <View style={[PDFStyles.col2, PDFStyles.alignCenter]}>
           <Image
-            src={logoPath}
+            src={finalLogoPath}
             style={{ width: logoSize, height: logoSize, objectFit: 'contain' }}
           />
         </View>

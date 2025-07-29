@@ -5,8 +5,6 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
-
 import { pdfStyles } from './pdf-styles';
 
 // ----------------------------------------------------------------------
@@ -18,9 +16,8 @@ Font.register({
 
 const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 
-const COMPANY = CONFIG.company;
-
-export default function DriverPaymentPdf({ subtrip }) {
+export default function DriverPaymentPdf({ subtrip, tenant }) {
+  const COMPANY = tenant;
   const {
     _id,
     customerId,
@@ -56,7 +53,7 @@ export default function DriverPaymentPdf({ subtrip }) {
     <View style={[styles.gridContainer, styles.border]}>
       <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
         <View style={[styles.col4]}>
-          <Image source="/logo/company-logo-main.png" style={{ width: 48, height: 48 }} />
+          <Image source={`/logo/${tenant.slug}.png`} style={{ width: 48, height: 48 }} />
         </View>
 
         <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>

@@ -18,7 +18,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function CustomerListPdf({ customers }) {
+export default function CustomerListPdf({ customers, tenant }) {
   const renderCustomerTable = () => {
     const headers = [
       'S.No',
@@ -51,7 +51,7 @@ export default function CustomerListPdf({ customers }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Customer List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all customers in the system as of ${fDate(new Date())}.`}
         />

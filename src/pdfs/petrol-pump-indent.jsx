@@ -26,7 +26,7 @@ const useStyles = () => useMemo(() => StyleSheet.create(PDFStyles), []);
 
 // ----------------------------------------------------------------------
 
-export default function IndentPdf({ subtrip }) {
+export default function IndentPdf({ subtrip, tenant }) {
   const {
     _id,
     startDate,
@@ -78,7 +78,7 @@ export default function IndentPdf({ subtrip }) {
       <Page size="A5" style={styles.page} orientation="landscape">
         <PDFTitle title="Petrol Pump Intent" />
 
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         {/* Pump Info Row */}
         <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>

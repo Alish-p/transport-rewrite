@@ -24,6 +24,8 @@ import DriverSalaryPDF from 'src/pdfs/driver-salary-pdf';
 
 import { Iconify } from 'src/components/iconify';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 // ----------------------------------------------------------------------
 
 export default function DriverSalaryToolbar({
@@ -35,6 +37,7 @@ export default function DriverSalaryToolbar({
   const router = useRouter();
 
   const view = useBoolean();
+  const tenant = useTenantContext();
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.driverSalary.edit(payslip._id));
@@ -62,7 +65,7 @@ export default function DriverSalaryToolbar({
           </Tooltip>
 
           <PDFDownloadLink
-            document={<DriverSalaryPDF driverSalary={payslip} />}
+            document={<DriverSalaryPDF driverSalary={payslip} tenant={tenant} />}
             fileName={payslip._id}
             style={{ textDecoration: 'none' }}
           >
@@ -130,7 +133,11 @@ export default function DriverSalaryToolbar({
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <DriverSalaryPDF driverSalary={payslip} currentStatus={currentStatus} />
+              <DriverSalaryPDF
+                driverSalary={payslip}
+                currentStatus={currentStatus}
+                tenant={tenant}
+              />
             </PDFViewer>
           </Box>
         </Box>

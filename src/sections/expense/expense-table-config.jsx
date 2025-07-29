@@ -1,4 +1,4 @@
-import { Stack, Typography, ListItemText } from '@mui/material';
+import { Link, Stack, Typography, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -9,7 +9,21 @@ import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { subtripExpenseTypes, EXPENSE_CATEGORY_COLORS } from './config/constants';
+import { useSubtripExpenseTypes } from './expense-config';
+import { EXPENSE_CATEGORY_COLORS } from './config/constants';
+
+function ExpenseTypeCell({ expenseType = '-' }) {
+  const types = useSubtripExpenseTypes();
+  const icon = types.find((t) => t.value === expenseType)?.icon;
+  return (
+    <Stack direction="row" alignItems="left" spacing={1}>
+      <Iconify icon={icon} sx={{ color: 'secondary.main' }} />
+      <Typography variant="body2" noWrap>
+        {expenseType}
+      </Typography>
+    </Stack>
+  );
+}
 
 export const TABLE_COLUMNS = [
   {
@@ -20,15 +34,15 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.subtripId || '-',
     align: 'left',
     render: ({ subtripId = '-' }) => (
-      <RouterLink
-        to={`${paths.dashboard.subtrip.details(subtripId)}`}
-        style={{ color: 'green', textDecoration: 'underline' }}
+      <Link
+        component={RouterLink}
+        to={paths.dashboard.subtrip.details(subtripId)}
+        variant="body2"
+        noWrap
+        sx={{ color: 'primary.main' }}
       >
-        <ListItemText
-          primary={subtripId}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </RouterLink>
+        {subtripId}
+      </Link>
     ),
   },
   {
@@ -46,17 +60,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => row?.expenseType || '-',
-    render: ({ expenseType = '-' }) => (
-      <Stack direction="row" alignItems="left" spacing={1}>
-        <Iconify
-          icon={subtripExpenseTypes.find((type) => type.value === expenseType)?.icon}
-          sx={{ color: 'secondary.main' }}
-        />
-        <Typography variant="body2" noWrap>
-          {expenseType}
-        </Typography>
-      </Stack>
-    ),
+    render: ({ expenseType = '-' }) => <ExpenseTypeCell expenseType={expenseType} />,
   },
   {
     id: 'date',

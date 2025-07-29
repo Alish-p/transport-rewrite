@@ -19,6 +19,8 @@ import { Iconify } from 'src/components/iconify/';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from './transporter-table-config';
 
 // ----------------------------------------------------------------------
@@ -37,6 +39,7 @@ export default function TransporterTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
 
   const handleFilterSearch = useCallback(
     (event) => {
@@ -120,7 +123,7 @@ export default function TransporterTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<TransporterListPdf transporters={tableData} />}
+              document={<TransporterListPdf transporters={tableData} tenant={tenant} />}
               fileName="Transporter-list.pdf"
               style={{
                 textDecoration: 'none',

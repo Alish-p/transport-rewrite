@@ -22,6 +22,7 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { paramCase } from 'src/utils/change-case';
 
@@ -30,7 +31,6 @@ import { useUpdateSubtrip } from 'src/query/use-subtrip';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { CONFIG } from '../../config-global';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
@@ -103,6 +103,7 @@ const getSchemaForStatus = (status) => {
 export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
+  const materialOptions = useMaterialOptions();
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -311,7 +312,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <Field.Select name="materialType" label="Material Type">
                     <MenuItem value="">None</MenuItem>
                     <Divider sx={{ borderStyle: 'dashed' }} />
-                    {CONFIG.materialOptions.map(({ label, value }) => (
+                    {materialOptions.map(({ label, value }) => (
                       <MenuItem key={value} value={value}>
                         {label}
                       </MenuItem>

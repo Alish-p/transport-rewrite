@@ -29,6 +29,8 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../invoice-table-config';
 
 // ----------------------------------------------------------------------
@@ -47,6 +49,7 @@ export default function InvoiceTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
   const customerDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -201,6 +204,7 @@ export default function InvoiceTableToolbar({
                 <InvoiceListPdf
                   invoices={tableData}
                   visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                  tenant={tenant}
                 />
               }
               fileName="Invoice-list.pdf"

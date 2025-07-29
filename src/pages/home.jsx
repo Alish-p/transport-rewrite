@@ -5,9 +5,9 @@ import { HomeView } from 'src/sections/home/view';
 // ----------------------------------------------------------------------
 
 const metadata = {
-  title: 'Transport Plus: Streamline Your Logistics Management',
+  title: 'Tranzit : Streamline Your Logistics Management',
   description:
-    'Transport Plus is your ultimate solution for efficient logistics management, featuring customizable tools and real-time insights to elevate your operations.',
+    'Tranzit is your ultimate solution for efficient logistics management, featuring customizable tools and real-time insights to elevate your operations.',
 };
 
 export default function Page() {

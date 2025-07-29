@@ -46,7 +46,7 @@ import { TABLE_COLUMNS } from '../expense-table-config';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
 import ExpenseTableRow from '../expense-list/expense-table-row';
 import ExpenseTableToolbar from '../expense-list/expense-table-toolbar';
-import { subtripExpenseTypes, vehicleExpenseTypes } from '../expense-config';
+import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense-config';
 import ExpenseTableFiltersResult from '../expense-list/expense-table-filters-result';
 
 const STORAGE_KEY = 'expense-table-columns';
@@ -74,6 +74,8 @@ export function ExpenseListView() {
   const table = useTable({});
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
+  const subtripExpenseTypes = useSubtripExpenseTypes();
+  const vehicleExpenseTypes = useVehicleExpenseTypes();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
 

@@ -30,10 +30,13 @@ import { useRepayLoan, useDeferNextInstallment, useDeferAllInstallments } from '
 
 import { Iconify } from 'src/components/iconify';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import LoansPDF from './loans-pdf';
 
 export default function LoansToolbar({ loan, onActionSuccess }) {
   const view = useBoolean();
+  const tenant = useTenantContext();
 
   // Repay
   const repay = useRepayLoan();
@@ -113,7 +116,7 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
           </Tooltip>
 
           <PDFDownloadLink
-            document={<LoansPDF loan={loan} />}
+            document={<LoansPDF loan={loan} tenant={tenant} />}
             fileName={loan._id}
             style={{ textDecoration: 'none' }}
           >
@@ -158,7 +161,7 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
           </Button>
         </DialogActions>
         <PDFViewer style={{ flex: 1, border: 'none' }}>
-          <LoansPDF loan={loan} />
+          <LoansPDF loan={loan} tenant={tenant} />
         </PDFViewer>
       </Dialog>
 

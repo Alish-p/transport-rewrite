@@ -31,6 +31,8 @@ import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 
 // ----------------------------------------------------------------------
@@ -49,6 +51,7 @@ export default function TransporterPaymentTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -193,7 +196,7 @@ export default function TransporterPaymentTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<TransporterPaymentListPdf payments={tableData} />}
+              document={<TransporterPaymentListPdf payments={tableData} tenant={tenant} />}
               fileName="Transporter-payment-list.pdf"
               style={{
                 textDecoration: 'none',

@@ -18,6 +18,8 @@ import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from './bank-table-config';
 
 export default function BankTableToolbar({
@@ -34,6 +36,7 @@ export default function BankTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
 
   const handleFilterSearch = useCallback(
     (event) => {
@@ -111,7 +114,7 @@ export default function BankTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<BankListPdf banks={tableData} />}
+              document={<BankListPdf banks={tableData} tenant={tenant} />}
               fileName="Bank-list.pdf"
               style={{
                 textDecoration: 'none',

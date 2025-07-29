@@ -4,7 +4,6 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
@@ -18,7 +17,7 @@ Font.register({
   ],
 });
 
-export default function TransporterPaymentPdf({ transporterPayment }) {
+export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
   const {
     subtripSnapshot = [],
     summary = {},
@@ -238,7 +237,7 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Transporter Payment Receipt" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Transporter Detail"
@@ -263,7 +262,7 @@ export default function TransporterPaymentPdf({ transporterPayment }) {
 
         <PDFInvoiceFooter
           declaration="This is a system-generated transporter payment voucher."
-          signatory={`For ${CONFIG.company.name}`}
+          signatory={`For ${tenant.name}`}
         />
       </Page>
     </Document>

@@ -6,7 +6,6 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
-import { CONFIG } from '../config-global';
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';
 
@@ -17,7 +16,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function InvoicePdf({ invoice }) {
+export default function InvoicePdf({ invoice, tenant }) {
   const {
     customerId,
     issueDate,
@@ -196,7 +195,7 @@ export default function InvoicePdf({ invoice }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Tax Invoice" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Consignor / Bill To"
@@ -211,11 +210,11 @@ export default function InvoicePdf({ invoice }) {
           metaDetails={[
             ['Bill No.', invoiceNo],
             ['Date', fDate(issueDate)],
-            ['PAN NO', CONFIG.company.panNo],
-            ['GSTIN NO', CONFIG.company.gstin],
-            ['Bank Name', CONFIG.company.bankDetails.name],
-            ['IFSC code', CONFIG.company.bankDetails.ifsc],
-            ['A/C No', CONFIG.company.bankDetails.accountNumber],
+            ['PAN NO', tenant?.legalInfo.panNumber],
+            ['GSTIN NO', tenant?.legalInfo.gstNumber],
+            ['Bank Name', tenant?.bankDetails.bankName],
+            ['IFSC code', tenant?.bankDetails.ifscCode],
+            ['A/C No', tenant?.bankDetails.accountNumber],
             ['Transporter Code', customerId?.transporterCode || '-'],
           ]}
         />

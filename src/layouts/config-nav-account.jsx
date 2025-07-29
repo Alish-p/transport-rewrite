@@ -30,4 +30,14 @@ export const _account = [
       </SvgIcon>
     ),
   },
+  {
+    label: 'Tenant Settings',
+    href: paths.dashboard.tenant,
+    icon: <Iconify icon="solar:settings-bold-duotone" />,
+  },
+  {
+    label: 'Payments',
+    href: paths.dashboard.paymentHistory,
+    icon: <Iconify icon="solar:bill-list-bold-duotone" />,
+  },
 ];

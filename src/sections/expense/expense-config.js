@@ -1,4 +1,6 @@
-export const subtripExpenseTypes = [
+import { useTenantContext } from 'src/auth/tenant';
+
+export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'Diesel', value: 'diesel', icon: 'mdi:gas-station' },
   { label: 'Adblue', value: 'adblue', icon: 'mdi:water' },
   { label: 'Trip Advance', value: 'trip-advance', icon: 'mdi:cash-fast' },
@@ -16,7 +18,7 @@ export const subtripExpenseTypes = [
   { label: 'Other', value: 'other', icon: 'mdi:dots-horizontal' },
 ];
 
-export const vehicleExpenseTypes = [
+export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
   { label: 'Insurance', value: 'insurance' },
   { label: 'Permit', value: 'permit' },
   { label: 'Passing', value: 'passing' },
@@ -24,6 +26,7 @@ export const vehicleExpenseTypes = [
   { label: 'Major Repair', value: 'major-repair' },
   { label: 'Fitness Certificate', value: 'fitness-certificate' },
   { label: 'Over-Load Fees', value: 'over-load-fees' },
+
   { label: 'Electrical Work', value: 'electrical-work' },
   { label: 'Mechanical Work', value: 'mechanical-work' },
   { label: 'Phata Work', value: 'phata-work' },
@@ -34,6 +37,16 @@ export const vehicleExpenseTypes = [
   { label: 'Showroom Expence', value: 'showroom-expence' },
   { label: 'Other', value: 'other' },
 ];
+
+export function useSubtripExpenseTypes() {
+  const tenant = useTenantContext();
+  return tenant?.config?.subtripExpenseTypes || DEFAULT_SUBTRIP_EXPENSE_TYPES;
+}
+
+export function useVehicleExpenseTypes() {
+  const tenant = useTenantContext();
+  return tenant?.config?.vehicleExpenseTypes || DEFAULT_VEHICLE_EXPENSE_TYPES;
+}
 
 export const SUBTRIP_EXPENSE_TYPES = {
   DIESEL: 'diesel',

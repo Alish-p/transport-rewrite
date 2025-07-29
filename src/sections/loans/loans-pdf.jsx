@@ -5,7 +5,6 @@ import { Font, Page, Document } from '@react-pdf/renderer';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
 import PDFBillToSection from 'src/pdfs/common/PDFBillTo';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles } from 'src/pdfs/common';
@@ -19,7 +18,7 @@ Font.register({
   ],
 });
 
-export default function LoansPdf({ loan }) {
+export default function LoansPdf({ loan, tenant }) {
   const {
     _id,
     borrowerId: b,
@@ -86,7 +85,7 @@ export default function LoansPdf({ loan }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Loan Summary" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         <PDFBillToSection
           title="Borrower Details"
@@ -98,7 +97,7 @@ export default function LoansPdf({ loan }) {
 
         <PDFTable headers={['', '']} data={summaryData} columnWidths={[10, 2]} hideHeader />
 
-        <PDFInvoiceFooter declaration={remarks} signatory={`For ${CONFIG.company.name}`} />
+        <PDFInvoiceFooter declaration={remarks} signatory={`For ${tenant.name}`} />
       </Page>
 
       <Page size="A4" style={PDFStyles.page} orientation="landscape">

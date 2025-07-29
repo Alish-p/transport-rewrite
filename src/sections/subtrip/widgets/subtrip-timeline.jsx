@@ -12,7 +12,7 @@ import { fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
-import { subtripExpenseTypes } from '../../expense/expense-config';
+import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
 // ----------------------------------------------------------------------
 
@@ -40,11 +40,11 @@ const EVENT_COLORS = {
   UPDATED: 'secondary',
 };
 
-function getExpenseLabel(value) {
-  return subtripExpenseTypes.find((t) => t.value === value)?.label || value;
+function getExpenseLabel(expenseTypes, value) {
+  return expenseTypes.find((t) => t.value === value)?.label || value;
 }
 
-function formatEventMessage(event) {
+function formatEventMessage(event, subtripExpenseTypes) {
   const { details = {}, eventType, user } = event;
   const userPrefix = user?.name ? `${user.name}: ` : '';
 
@@ -70,7 +70,7 @@ function formatEventMessage(event) {
 
   // 2. Expense added/removed (you already have this)
   if (details.expenseType && typeof details.amount !== 'undefined') {
-    const label = getExpenseLabel(details.expenseType);
+    const label = getExpenseLabel(subtripExpenseTypes, details.expenseType);
     const action = eventType === 'EXPENSE_DELETED' ? 'removed' : 'added';
     return `${userPrefix}${label} expense ${action} for ₹${details.amount}`;
   }
@@ -109,6 +109,8 @@ function formatEventMessage(event) {
 }
 
 export function SubtripTimeline({ events = [] }) {
+  const subtripExpenseTypes = useSubtripExpenseTypes();
+
   return (
     <Card sx={{ mt: 2 }}>
       <CardHeader title="Activity timeline" />
@@ -134,7 +136,7 @@ export function SubtripTimeline({ events = [] }) {
               <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                 {fDateTime(event.timestamp)}
               </Typography>
-              {formatEventMessage(event) && (
+              {formatEventMessage(event, subtripExpenseTypes) && (
                 <Typography
                   variant="body2"
                   sx={{
@@ -143,7 +145,7 @@ export function SubtripTimeline({ events = [] }) {
                     wordBreak: 'break-word',
                   }}
                 >
-                  {formatEventMessage(event)}
+                  {formatEventMessage(event, subtripExpenseTypes)}
                 </Typography>
               )}
             </TimelineContent>

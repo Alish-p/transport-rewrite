@@ -79,7 +79,7 @@ export function UpgradeBlock({ sx, ...other }) {
       sx={{
         ...bgGradient({
           color: `135deg, ${hexAlpha('#F7BB95', 0.92)}, ${hexAlpha('#5B2FF3', 0.92)}`,
-          imgUrl: `${CONFIG.site.basePath}/assets/background/background-7.webp`,
+          // imgUrl: `${CONFIG.site.basePath}/assets/background/background-7.webp`,
         }),
         px: 3,
         py: 4,
@@ -129,10 +129,6 @@ export function UpgradeBlock({ sx, ...other }) {
         >
           Optimize. Track. Deliver.
         </Box>
-
-        <Button variant="contained" size="small" color="warning">
-          Transport ++
-        </Button>
       </Stack>
     </Stack>
   );

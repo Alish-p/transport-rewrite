@@ -7,7 +7,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
-import { Select, MenuItem, FormControl } from '@mui/material';
+import { Link, Select, MenuItem, FormControl } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -69,12 +69,15 @@ export function DriverInsightsTable({ title, subheader, ...other }) {
                   <TableRow key={row.driverId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <RouterLink
+                      <Link
+                        component={RouterLink}
                         to={paths.dashboard.driver.details(row.driverId)}
-                        style={{ color: 'green' }}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
                       >
                         {row.driverName}
-                      </RouterLink>
+                      </Link>
                     </TableCell>
                     <TableCell>{row.subtripCount}</TableCell>
                     <TableCell>{fNumber(row.totalLoadingWeight)}</TableCell>

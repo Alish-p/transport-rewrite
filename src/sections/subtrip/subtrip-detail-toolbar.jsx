@@ -16,6 +16,8 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import LRPDF from './pdfs/lorry-reciept-pdf';
 import EntryPassPdf from './pdfs/entry-pass-pdf';
 import DriverPaymentPdf from './pdfs/driver-payment-pdf';
@@ -142,6 +144,7 @@ export default function SubtripToolbar({
   const viewEntryPass = useBoolean();
   const viewDriverPayment = useBoolean();
   const viewTransporterPayment = useBoolean();
+  const tenant = useTenantContext();
 
   return (
     <>
@@ -304,7 +307,7 @@ export default function SubtripToolbar({
       >
         <MenuList>
           <PDFDownloadMenuItem
-            document={<LRPDF subtrip={subtrip} />}
+            document={<LRPDF subtrip={subtrip} tenant={tenant} />}
             fileName={`${subtrip._id}_lr`}
             label="Lorry Receipt (LR)"
             onClose={downloadPopover.onClose}
@@ -313,7 +316,7 @@ export default function SubtripToolbar({
 
           {hasDieselIntent && (
             <PDFDownloadMenuItem
-              document={<IndentPdf subtrip={subtrip} />}
+              document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
               fileName={`${subtrip._id}_indent`}
               label="Petrol Pump Indent"
               onClose={downloadPopover.onClose}
@@ -323,7 +326,7 @@ export default function SubtripToolbar({
 
           {hasEntryPass && (
             <PDFDownloadMenuItem
-              document={<EntryPassPdf subtrip={subtrip} />}
+              document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
               fileName={`${subtrip._id}_entry_pass`}
               label="Entry Pass"
               onClose={downloadPopover.onClose}
@@ -331,7 +334,7 @@ export default function SubtripToolbar({
           )}
 
           <PDFDownloadMenuItem
-            document={<DriverPaymentPdf subtrip={subtrip} />}
+            document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
             fileName={`${subtrip._id}_driver_payment`}
             label="Driver Payment"
             onClose={downloadPopover.onClose}
@@ -340,7 +343,7 @@ export default function SubtripToolbar({
 
           {hasTransporterPayment && (
             <PDFDownloadMenuItem
-              document={<TransporterPayment subtrip={subtrip} />}
+              document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
               fileName={`${subtrip._id}_transporter_payment`}
               label="Transporter Payment"
               onClose={downloadPopover.onClose}
@@ -352,23 +355,23 @@ export default function SubtripToolbar({
 
       {/* PDF Viewers */}
       <PDFViewerDialog open={viewLR.value} onClose={viewLR.onFalse}>
-        <LRPDF subtrip={subtrip} />
+        <LRPDF subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewIntent.value} onClose={viewIntent.onFalse}>
-        <IndentPdf subtrip={subtrip} />
+        <IndentPdf subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewEntryPass.value} onClose={viewEntryPass.onFalse}>
-        <EntryPassPdf subtrip={subtrip} />
+        <EntryPassPdf subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewDriverPayment.value} onClose={viewDriverPayment.onFalse}>
-        <DriverPaymentPdf subtrip={subtrip} />
+        <DriverPaymentPdf subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewTransporterPayment.value} onClose={viewTransporterPayment.onFalse}>
-        <TransporterPayment subtrip={subtrip} />
+        <TransporterPayment subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
     </>
   );

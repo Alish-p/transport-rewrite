@@ -4,7 +4,7 @@ import GenericListPdf from './generic-list-pdf';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripListPdf({ subtrips, visibleColumns = [] }) {
+export default function SubtripListPdf({ subtrips, visibleColumns = [], tenant }) {
   const columnsToShow = TABLE_COLUMNS.filter((col) => visibleColumns.includes(col.id));
 
   return (
@@ -14,6 +14,7 @@ export default function SubtripListPdf({ subtrips, visibleColumns = [] }) {
       columns={columnsToShow}
       orientation="landscape"
       includeTotals
+      tenant={tenant}
     />
   );
 }

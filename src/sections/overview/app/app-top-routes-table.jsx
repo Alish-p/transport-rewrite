@@ -1,3 +1,4 @@
+import { Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
@@ -41,12 +42,15 @@ export function TopRoutesTable({ title, subheader, ...other }) {
                   <TableRow key={row.routeId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <RouterLink
+                      <Link
+                        component={RouterLink}
                         to={paths.dashboard.route.details(row.routeId)}
-                        style={{ color: 'green' }}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
                       >
                         {row.routeName}
-                      </RouterLink>
+                      </Link>
                     </TableCell>
                     <TableCell>{row.fromPlace}</TableCell>
                     <TableCell>{row.toPlace}</TableCell>

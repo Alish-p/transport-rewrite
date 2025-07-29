@@ -1,6 +1,6 @@
-# Transport Plus
+# tranzit 
 
-Transport Plus is a logistics management dashboard built with React and Vite. It helps track trips, vehicles, invoices and other day‑to‑day operations for transport companies.
+tranzit is a logistics management dashboard built with React and Vite. It helps track trips, vehicles, invoices and other day‑to‑day operations for transport companies.
 
 ## Prerequisites
 

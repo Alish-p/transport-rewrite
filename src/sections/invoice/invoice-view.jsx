@@ -19,9 +19,9 @@ import { paths } from 'src/routes/paths';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
-
 import { Label } from 'src/components/label';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
@@ -39,6 +39,7 @@ const StyledTableCell = styled(TableCell)(() => ({
 
 function RenderHeader({ invoice }) {
   const { invoiceNo, invoiceStatus } = invoice || {};
+  const tenant = useTenantContext();
   return (
     <Box
       rowGap={3}
@@ -49,7 +50,7 @@ function RenderHeader({ invoice }) {
       <Box
         component="img"
         alt="logo"
-        src="/logo/company-logo-main.png"
+        src={`/logo/${tenant.slug}.png`}
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
@@ -194,14 +195,15 @@ function RenderTable({ invoice }) {
 }
 
 function RenderFooter() {
+  const tenant = useTenantContext();
   return (
     <Grid container>
       <Grid xs={12} md={9} sx={{ py: 3 }}>
         <Typography variant="subtitle2">NOTES</Typography>
-        <Typography variant="body2">{CONFIG.company.name}</Typography>
+        <Typography variant="body2">{tenant?.name}</Typography>
       </Grid>
       <Grid xs={12} md={3} sx={{ py: 3, textAlign: 'right' }}>
-        <Typography variant="subtitle2">For-{CONFIG.company.name}</Typography>
+        <Typography variant="subtitle2">For-{tenant?.name}</Typography>
         <Typography variant="body2">Authorised Signatory</Typography>
       </Grid>
     </Grid>
@@ -210,6 +212,7 @@ function RenderFooter() {
 
 export default function InvoiceView({ invoice }) {
   const { customerId: customer, issueDate, dueDate } = invoice;
+  const tenant = useTenantContext();
 
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -223,15 +226,15 @@ export default function InvoiceView({ invoice }) {
           title="Invoice From"
           details={
             <>
-              {CONFIG.company.name}
+              {tenant?.name}
               <br />
-              {CONFIG.company.address.line1}
+              {tenant?.address?.line1}
               <br />
-              {CONFIG.company.address.line2}
+              {tenant?.address?.line2}
               <br />
-              {CONFIG.company.address.state}
+              {tenant?.address?.state}
               <br />
-              Phone: {CONFIG.company.contacts[0]}
+              Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
             </>
           }
         />

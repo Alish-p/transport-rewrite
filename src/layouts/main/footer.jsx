@@ -160,7 +160,7 @@ export function HomeFooter({ sx }) {
         <Box sx={{ mt: 1, typography: 'caption' }}>
           © All rights reserved.
           <br /> made by
-          <Link href="/"> Transport++ By Alish </Link>
+          <Link href="/"> Tranzit By Alish </Link>
         </Box>
       </Container>
     </Box>
