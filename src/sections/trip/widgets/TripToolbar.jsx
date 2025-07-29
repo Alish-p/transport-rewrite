@@ -18,6 +18,8 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import TripSheetPdf from '../pdfs/trip-sheet-pdf';
 
 // ----------------------------------------------------------------------
@@ -26,6 +28,7 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
   const actionPopover = usePopover();
   const viewPopover = usePopover();
   const viewTripSheet = useBoolean();
+  const tenant = useTenantContext();
 
   return (
     <>
@@ -160,7 +163,7 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
 
           <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
             <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              <TripSheetPdf trip={tripData} />
+              <TripSheetPdf trip={tripData} tenant={tenant} />
             </PDFViewer>
           </Box>
         </Box>

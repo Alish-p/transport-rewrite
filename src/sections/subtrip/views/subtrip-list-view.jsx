@@ -39,6 +39,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../config/table-columns';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
@@ -77,6 +79,7 @@ export function SubtripListView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const tenant = useTenantContext();
 
   // Column visibility logic handled via custom hook
   const {
@@ -452,6 +455,7 @@ export function SubtripListView() {
                         <SubtripListPdf
                           subtrips={selectedRows}
                           visibleColumns={selectedVisibleColumns}
+                          tenant={tenant}
                         />
                       );
                     })()}

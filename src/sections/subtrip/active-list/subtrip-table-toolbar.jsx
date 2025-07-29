@@ -37,6 +37,8 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../config/table-columns';
 
 // ----------------------------------------------------------------------
@@ -66,6 +68,7 @@ export default function SubtripTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
   const materialPopover = usePopover();
+  const tenant = useTenantContext();
 
   const materialOptions = useMaterialOptions();
 
@@ -285,7 +288,13 @@ export default function SubtripTableToolbar({
             <PDFDownloadLink
               document={(() => {
                 const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-                return <SubtripListPdf subtrips={tableData} visibleColumns={visibleCols} />;
+                return (
+                  <SubtripListPdf
+                    subtrips={tableData}
+                    visibleColumns={visibleCols}
+                    tenant={tenant}
+                  />
+                );
               })()}
               fileName="Subtrip-list.pdf"
               style={{

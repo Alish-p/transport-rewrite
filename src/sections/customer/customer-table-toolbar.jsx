@@ -18,6 +18,8 @@ import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from './customer-table-config';
 
 // ----------------------------------------------------------------------
@@ -36,6 +38,7 @@ export default function CustomerTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
 
   const handleFilterSearch = useCallback(
     (event) => {
@@ -113,7 +116,7 @@ export default function CustomerTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<CustomerListPdf customers={tableData} />}
+              document={<CustomerListPdf customers={tableData} tenant={tenant} />}
               fileName="Customer-list.pdf"
               style={{
                 textDecoration: 'none',

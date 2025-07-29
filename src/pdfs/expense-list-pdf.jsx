@@ -21,7 +21,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function ExpenseListPdf({ expenses, visibleColumns = [] }) {
+export default function ExpenseListPdf({ expenses, visibleColumns = [], tenant }) {
   const renderExpenseTable = () => {
     // Filter columns to include only the visible ones
     const columnsToShow = TABLE_COLUMNS.filter((col) => visibleColumns.includes(col.id));
@@ -54,7 +54,7 @@ export default function ExpenseListPdf({ expenses, visibleColumns = [] }) {
     <Document>
       <Page size="A3" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Expense List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all expenses in the system as of ${fDate(new Date())}.`}
         />

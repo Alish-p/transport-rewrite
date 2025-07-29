@@ -19,7 +19,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function VehicleListPdf({ vehicles }) {
+export default function VehicleListPdf({ vehicles, tenant }) {
   const renderVehicleTable = () => {
     const headers = [
       'S.No',
@@ -60,7 +60,7 @@ export default function VehicleListPdf({ vehicles }) {
     <Document>
       <Page size="A3" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Vehicle List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all vehicles in the system as of ${fDate(new Date())}.`}
         />

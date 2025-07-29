@@ -29,6 +29,8 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { vehicleTypes } from './vehicle-config';
 import { TABLE_COLUMNS } from './vehicle-table-config';
 
@@ -50,6 +52,7 @@ export default function VehicleTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
   const transporterDialog = useBoolean();
 
   const handleSelectTransporter = useCallback(
@@ -200,7 +203,7 @@ export default function VehicleTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<VehicleListPdf vehicles={tableData} />}
+              document={<VehicleListPdf vehicles={tableData} tenant={tenant} />}
               fileName="Vehicle-list.pdf"
               style={{
                 textDecoration: 'none',

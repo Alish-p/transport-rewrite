@@ -29,6 +29,8 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
   { id: '_id', label: 'ID' },
@@ -44,6 +46,7 @@ const TABLE_HEAD = [
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
+  const tenant = useTenantContext();
 
   const { data, isLoading } = useVehicleBillingSummary(
     {
@@ -63,7 +66,13 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     const end = rangePicker.endDate?.format('YYYY-MM-DD');
 
     return () => (
-      <VehiclePnlPdf vehicleNo={vehicleNo} startDate={start} endDate={end} subtrips={subtrips} />
+      <VehiclePnlPdf
+        vehicleNo={vehicleNo}
+        startDate={start}
+        endDate={end}
+        subtrips={subtrips}
+        tenant={tenant}
+      />
     );
   };
 

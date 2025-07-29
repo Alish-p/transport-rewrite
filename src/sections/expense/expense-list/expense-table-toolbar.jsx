@@ -35,6 +35,8 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../expense-table-config';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
 
@@ -57,6 +59,7 @@ export default function ExpenseTableToolbar({
   const popover = usePopover();
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
+  const tenant = useTenantContext();
 
   const vehicleDialog = useBoolean();
   const pumpDialog = useBoolean();
@@ -297,6 +300,7 @@ export default function ExpenseTableToolbar({
                 <ExpenseListPdf
                   expenses={tableData}
                   visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
+                  tenant={tenant}
                 />
               }
               fileName="Expense-list.pdf"

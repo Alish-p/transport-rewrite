@@ -13,7 +13,7 @@ Font.register({
   ],
 });
 
-export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips = [] }) {
+export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips = [], tenant }) {
   const columns = [
     { header: 'S.No', accessor: 'sno', width: '4%' },
     { header: 'ID', accessor: 'id', width: '8%' },
@@ -74,7 +74,7 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
         <PDFTitle
           title={`Vehicle P&L Report ${vehicleNo}(${fDateRangeShortLabel(startDate, endDate)})`}
         />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         {/* Subtrip Table */}
         <NewPDFTable columns={columns} data={tableData} showTotals totalRowLabel="TOTAL" />

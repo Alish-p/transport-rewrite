@@ -16,7 +16,7 @@ Font.register({
   ],
 });
 
-export default function TripSheetPdf({ trip }) {
+export default function TripSheetPdf({ trip, tenant }) {
   const { _id: tripId, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
 
   // Prepare subtrip table data
@@ -170,7 +170,7 @@ export default function TripSheetPdf({ trip }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Trip Sheet" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
 
         {/* Details Section */}
         <View style={{ flexDirection: 'row', marginVertical: 1 }}>

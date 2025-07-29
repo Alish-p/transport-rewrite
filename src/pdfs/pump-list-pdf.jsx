@@ -18,7 +18,7 @@ Font.register({
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
-export default function PumpListPdf({ pumps }) {
+export default function PumpListPdf({ pumps, tenant }) {
   const renderPumpTable = () => {
     const headers = [
       'S.No',
@@ -55,7 +55,7 @@ export default function PumpListPdf({ pumps }) {
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Pump List" />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration
           content={`This report contains a list of all pumps in the system as of ${fDate(new Date())}.`}
         />

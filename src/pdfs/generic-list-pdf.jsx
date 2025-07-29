@@ -24,6 +24,7 @@ export default function GenericListPdf({
   columns,
   orientation = 'portrait',
   includeTotals = false,
+  tenant,
 }) {
   const headers = ['S.No', ...columns.map((col) => col.label)];
 
@@ -49,7 +50,7 @@ export default function GenericListPdf({
     <Document>
       <Page size="A3" style={PDFStyles.page} orientation={orientation}>
         <PDFTitle title={title} />
-        <PDFHeader />
+        <PDFHeader company={tenant} />
         <PDFDeclaration content={`Report generated on ${fDate(new Date())}.`} />
         <PDFTable headers={headers} data={data} columnWidths={columnWidths} />
         <PDFFooter additionalInfo={`Total ${title}: ${rows.length}`} />

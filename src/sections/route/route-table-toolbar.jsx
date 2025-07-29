@@ -23,6 +23,8 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from './route-table-config';
 
 export default function RouteTableToolbar({
@@ -41,6 +43,7 @@ export default function RouteTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const tenant = useTenantContext();
   const customerDialog = useBoolean();
 
   const handleFilterRouteName = useCallback(
@@ -178,7 +181,7 @@ export default function RouteTableToolbar({
         <MenuList>
           <MenuItem onClick={popover.onClose}>
             <PDFDownloadLink
-              document={<RouteListPdf routes={tableData} />}
+              document={<RouteListPdf routes={tableData} tenant={tenant} />}
               fileName="Route-list.pdf"
               style={{
                 textDecoration: 'none',

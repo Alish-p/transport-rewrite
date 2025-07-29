@@ -307,7 +307,7 @@ export default function SubtripToolbar({
       >
         <MenuList>
           <PDFDownloadMenuItem
-            document={<LRPDF subtrip={subtrip} />}
+            document={<LRPDF subtrip={subtrip} tenant={tenant} />}
             fileName={`${subtrip._id}_lr`}
             label="Lorry Receipt (LR)"
             onClose={downloadPopover.onClose}
@@ -316,7 +316,7 @@ export default function SubtripToolbar({
 
           {hasDieselIntent && (
             <PDFDownloadMenuItem
-              document={<IndentPdf subtrip={subtrip} />}
+              document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
               fileName={`${subtrip._id}_indent`}
               label="Petrol Pump Indent"
               onClose={downloadPopover.onClose}
@@ -355,11 +355,11 @@ export default function SubtripToolbar({
 
       {/* PDF Viewers */}
       <PDFViewerDialog open={viewLR.value} onClose={viewLR.onFalse}>
-        <LRPDF subtrip={subtrip} />
+        <LRPDF subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewIntent.value} onClose={viewIntent.onFalse}>
-        <IndentPdf subtrip={subtrip} />
+        <IndentPdf subtrip={subtrip} tenant={tenant} />
       </PDFViewerDialog>
 
       <PDFViewerDialog open={viewEntryPass.value} onClose={viewEntryPass.onFalse}>
