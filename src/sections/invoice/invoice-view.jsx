@@ -234,7 +234,7 @@ export default function InvoiceView({ invoice }) {
               <br />
               {tenant?.address?.state}
               <br />
-              Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
+              Phone: {tenant?.contactDetails?.phone}
             </>
           }
         />

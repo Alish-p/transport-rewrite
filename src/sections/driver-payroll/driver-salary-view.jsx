@@ -217,7 +217,7 @@ export default function DriverSalaryView({ driverSalary }) {
             <br />
             {tenant?.address?.state}
             <br />
-            Phone: {tenant?.contactDetails?.phoneNumbers?.[0]}
+            Phone: {tenant?.contactDetails?.phone}
           </>
         </RenderAddress>
 

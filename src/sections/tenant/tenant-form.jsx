@@ -104,7 +104,7 @@ export default function TenantForm({ currentTenant }) {
       },
       contactDetails: {
         email: currentTenant?.contactDetails?.email || '',
-        phone: currentTenant?.contactDetails?.phoneNumbers?.[0] || '',
+        phone: currentTenant?.contactDetails?.phone || '',
       },
       legalInfo: {
         panNumber: currentTenant?.legalInfo?.panNumber || '',
