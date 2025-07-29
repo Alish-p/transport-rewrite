@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Table from '@mui/material/Table';
 import Paper from '@mui/material/Paper';
 import TableRow from '@mui/material/TableRow';
