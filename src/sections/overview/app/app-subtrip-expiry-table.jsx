@@ -1,3 +1,4 @@
+import { Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
@@ -45,12 +46,15 @@ export function SubtripExpiryTable({ title, subheader, ...other }) {
                   <TableRow key={row.subtripId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <RouterLink
+                      <Link
+                        component={RouterLink}
                         to={paths.dashboard.subtrip.details(row.subtripId)}
-                        style={{ color: 'green', textDecoration: 'underline' }}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
                       >
                         {row.subtripId}
-                      </RouterLink>
+                      </Link>
                     </TableCell>
                     <TableCell>{row.vehicle}</TableCell>
                     <TableCell>{row.customer}</TableCell>
