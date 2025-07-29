@@ -98,8 +98,8 @@ export function AboutVision() {
 
         <m.div variants={varFade().inUp}>
           <Typography variant="h3" sx={{ textAlign: 'center', maxWidth: 800, mx: 'auto' }}>
-            Our vision offering the best product nulla vehicula tortor scelerisque ultrices
-            malesuada.
+            Our vision is to build a seamless logistics ecosystem that empowers businesses to move
+            goods efficiently.
           </Typography>
         </m.div>
       </Container>

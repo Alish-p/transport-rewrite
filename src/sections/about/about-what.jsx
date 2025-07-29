@@ -85,7 +85,7 @@ export function AboutWhat() {
         <Grid xs={12} md={6} lg={5}>
           <m.div variants={varFade().inRight}>
             <Typography variant="h2" sx={{ mb: 3 }}>
-              What is Minimal?
+              What is Tranzit?
             </Typography>
           </m.div>
 
@@ -93,10 +93,9 @@ export function AboutWhat() {
             <Typography
               sx={{ color: 'text.secondary', [stylesMode.dark]: { color: 'common.white' } }}
             >
-              Our theme is the most advanced and user-friendly theme you will find on the market, we
-              have documentation and video to help set your site really easily, pre-installed demos
-              you can import in one click and everything from the theme options to page content can
-              be edited from the front-end. This is the theme you are looking for.
+              Tranzit is a cross‑functional team dedicated to delivering modern transport
+              technology. Our mission is to create tools that help communities move quickly and
+              safely.
             </Typography>
           </m.div>
 
