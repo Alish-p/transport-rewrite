@@ -40,8 +40,8 @@ export function AboutTeam() {
 
       <m.div variants={varFade().inUp}>
         <Typography sx={{ mx: 'auto', maxWidth: 640, color: 'text.secondary' }}>
-          Minimal will provide you support if you have any problems, our support team will reply
-          within a day and we also have detailed documentation.
+          Tranzit is here to support you with any transportation project. Our team responds quickly
+          and is always ready to help.
         </Typography>
       </m.div>
 

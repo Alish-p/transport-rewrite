@@ -49,8 +49,8 @@ export function AboutHero() {
               variant="h4"
               sx={{ mt: 3, color: 'common.white', fontWeight: 'fontWeightSemiBold' }}
             >
-              Let&apos;s work together and
-              <br /> make awesome site easily
+              Let&apos;s work together to
+              <br /> keep your city moving
             </Typography>
           </m.div>
         </Box>
