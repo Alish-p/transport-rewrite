@@ -18,71 +18,98 @@ import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
 import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense/expense-config';
 
-export const TenantSchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required' }),
-  slug: zod.string().min(1, { message: 'Slug is required' }),
-  tagline: zod.string().optional(),
-  theme: zod.string().optional(),
-  address: zod.object({
-    line1: zod.string().min(1, { message: 'Address is required' }),
-    city: zod.string().min(1, { message: 'City is required' }),
-    state: zod.string().min(1, { message: 'State is required' }),
-    pincode: schemaHelper.pinCode({}),
-  }),
-  contactDetails: zod.object({
-    email: zod.string().email({ message: 'Email must be valid' }),
-    phone: schemaHelper.phoneNumber({}),
-  }),
-  legalInfo: zod.object({
-    panNumber: schemaHelper.panNumberOptional({}),
-  }),
-  bankDetails: zod.object({
-    bankName: zod.string().optional(),
-    accountNumber: schemaHelper.accountNumber({}).optional(),
-    ifscCode: zod.string().optional(),
-  }),
-  config: zod
-    .object({
-      materialOptions: zod
-        .array(zod.object({ label: zod.string(), value: zod.string() }))
-        .optional(),
-      subtripExpenseTypes: zod
-        .array(
-          zod.object({
-            label: zod.string(),
-            value: zod.string(),
-            icon: zod.string().optional(),
+export const TenantSchema = zod
+  .object({
+    name: zod.string().min(1, { message: 'Name is required' }),
+    slug: zod.string().min(1, { message: 'Slug is required' }),
+    tagline: zod.string().optional(),
+    theme: zod.string().optional(),
+    address: zod.object({
+      line1: zod.string().min(1, { message: 'Address is required' }),
+      city: zod.string().min(1, { message: 'City is required' }),
+      state: zod.string().min(1, { message: 'State is required' }),
+      pincode: schemaHelper.pinCode({}),
+    }),
+    contactDetails: zod.object({
+      email: zod.string().email({ message: 'Email must be valid' }),
+      phone: schemaHelper.phoneNumber({}),
+    }),
+    legalInfo: zod.object({
+      panNumber: schemaHelper.panNumberOptional({}),
+    }),
+    bankDetails: zod.object({
+      bankName: zod.string().optional(),
+      accountNumber: schemaHelper.accountNumber({}).optional(),
+      ifscCode: zod.string().optional(),
+    }),
+    config: zod
+      .object({
+        materialOptions: zod
+          .array(zod.object({ label: zod.string(), value: zod.string() }))
+          .optional(),
+        subtripExpenseTypes: zod
+          .array(
+            zod.object({
+              label: zod.string(),
+              value: zod.string(),
+              icon: zod.string().optional(),
+            })
+          )
+          .optional(),
+        vehicleExpenseTypes: zod
+          .array(
+            zod.object({
+              label: zod.string(),
+              value: zod.string(),
+              icon: zod.string().optional(),
+            })
+          )
+          .optional(),
+      })
+      .optional(),
+    integrations: zod
+      .object({
+        whatsapp: zod
+          .object({
+            enabled: zod.boolean().optional(),
+            provider: zod
+              .preprocess(
+                (val) => (val === '' ? null : val),
+                zod.enum(['Twilio', 'Gupshup', 'Kaleyra']).nullable()
+              )
+              .optional(),
           })
-        )
-        .optional(),
-      vehicleExpenseTypes: zod
-        .array(
-          zod.object({
-            label: zod.string(),
-            value: zod.string(),
-            icon: zod.string().optional(),
+          .optional(),
+        vehicleGPS: zod
+          .object({
+            enabled: zod.boolean().optional(),
+            provider: zod
+              .preprocess(
+                (val) => (val === '' ? null : val),
+                zod.enum(['Fleetx', 'LocoNav', 'BlackBuck', 'Other']).nullable()
+              )
+              .optional(),
           })
-        )
-        .optional(),
-    })
-    .optional(),
-  integrations: zod
-    .object({
-      whatsapp: zod
-        .object({
-          enabled: zod.boolean().optional(),
-          provider: zod.enum(['Twilio', 'Gupshup', 'Kaleyra']).nullable().optional(),
-        })
-        .optional(),
-      vehicleGPS: zod
-        .object({
-          enabled: zod.boolean().optional(),
-          provider: zod.enum(['Fleetx', 'LocoNav', 'BlackBuck', 'Other']).nullable().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
-});
+          .optional(),
+      })
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.integrations?.whatsapp?.enabled && !data.integrations.whatsapp.provider) {
+      ctx.addIssue({
+        path: ['integrations', 'whatsapp', 'provider'],
+        code: zod.ZodIssueCode.custom,
+        message: 'Provider is required when WhatsApp is enabled',
+      });
+    }
+    if (data.integrations?.vehicleGPS?.enabled && !data.integrations.vehicleGPS.provider) {
+      ctx.addIssue({
+        path: ['integrations', 'vehicleGPS', 'provider'],
+        code: zod.ZodIssueCode.custom,
+        message: 'Provider is required when Vehicle GPS is enabled',
+      });
+    }
+  });
 
 export default function TenantForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
@@ -122,11 +149,11 @@ export default function TenantForm({ currentTenant }) {
       integrations: {
         whatsapp: {
           enabled: currentTenant?.integrations?.whatsapp?.enabled || false,
-          provider: currentTenant?.integrations?.whatsapp?.provider || '',
+          provider: currentTenant?.integrations?.whatsapp?.provider ?? null,
         },
         vehicleGPS: {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
-          provider: currentTenant?.integrations?.vehicleGPS?.provider || '',
+          provider: currentTenant?.integrations?.vehicleGPS?.provider ?? null,
         },
       },
     }),
@@ -148,7 +175,26 @@ export default function TenantForm({ currentTenant }) {
 
   const onSubmit = async (data) => {
     try {
-      await updateTenant(data);
+      const sanitized = {
+        ...data,
+        integrations: {
+          ...data.integrations,
+          whatsapp: data.integrations?.whatsapp
+            ? {
+                ...data.integrations.whatsapp,
+                provider: data.integrations.whatsapp.provider || null,
+              }
+            : undefined,
+          vehicleGPS: data.integrations?.vehicleGPS
+            ? {
+                ...data.integrations.vehicleGPS,
+                provider: data.integrations.vehicleGPS.provider || null,
+              }
+            : undefined,
+        },
+      };
+
+      await updateTenant(sanitized);
     } catch (error) {
       console.error(error);
     }
@@ -272,7 +318,7 @@ export default function TenantForm({ currentTenant }) {
             labelPlacement="start"
             label={
               <Stack direction="row" spacing={1} alignItems="center">
-                <Iconify icon="mdi:gps" />
+                <Iconify icon="mdi:location-radius-outline" />
                 Vehicle GPS
               </Stack>
             }
