@@ -53,12 +53,7 @@ const MuiTableCell = {
    * STYLE
    *************************************** */
   styleOverrides: {
-    root: ({ theme }) => ({
-      borderBottomStyle: 'dashed',
-      '&:not(:last-of-type)': {
-        borderRight: `1px solid var(--palette-TableCell-border)`,
-      },
-    }),
+    root: { borderBottomStyle: 'dashed' },
     head: ({ theme }) => ({
       fontSize: 14,
       color: theme.vars.palette.text.secondary,
