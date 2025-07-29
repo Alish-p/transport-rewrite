@@ -631,12 +631,12 @@ export const _sentences = [
   `Smart warehousing integrates AI for precise inventory tracking and streamlined storage.`,
   `Automation in salary management reduces manual effort, improving payroll accuracy.`,
   `Cross-border logistics tools simplify compliance with international transport regulations.`,
-  `The Transport Plus portal enhances collaboration among teams for smoother workflows.`,
+  `The Tranzit portal enhances collaboration among teams for smoother workflows.`,
   `Digital transformation in logistics empowers businesses to stay ahead in a competitive market.`,
   `Enhanced communication tools ensure quick updates and coordination between drivers and teams.`,
   `Real-time notifications provide visibility into fleet status and delivery progress.`,
   `Sustainable practices, like efficient transport planning, contribute to greener logistics solutions.`,
-  `The Transport Plus system offers scalable options to grow alongside business needs.`,
+  `The Tranzit system offers scalable options to grow alongside business needs.`,
 ];
 
 // ----------------------------------------------------------------------

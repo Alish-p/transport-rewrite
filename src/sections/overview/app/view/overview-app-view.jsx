@@ -68,7 +68,7 @@ export function OverviewAppView({
         <Grid xs={12} md={7}>
           <AppWelcome
             title={`Welcome back 👋 \n ${user?.name || 'User'} `}
-            description="Begin leveraging the Transport Plus portal to streamline and manage your logistics operations seamlessly."
+            description="Begin leveraging the Tranzit portal to streamline and manage your logistics operations seamlessly."
             img={<SeoIllustration hideBackground />}
             action={
               <Button variant="contained" color="primary">
