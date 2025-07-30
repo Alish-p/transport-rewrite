@@ -15,6 +15,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { paramCase } from 'src/utils/change-case';
 
 import { useCreateTrip, useUpdateTrip } from 'src/query/use-trip';
+import { useCreateSubtrip } from 'src/query/use-subtrip';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -22,31 +23,56 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
+import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 // --------------------------------------------------------------------------------------
 // 1) Extend the Zod schema to include the new boolean flag “closePreviousTrips”
 //    – Default to true.
 //    – We don’t need a refine here, since it’s just a toggle.
 // --------------------------------------------------------------------------------------
-const NewTripSchema = zod.object({
-  driver: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Driver is required' }),
-  vehicleId: zod
-    .any()
-    .nullable()
-    .refine((val) => val !== null, { message: 'Vehicle is required' }),
-  fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-  remarks: zod.string().optional(),
-  closePreviousTrips: zod.boolean().default(true),
-});
+const NewTripSchema = zod
+  .object({
+    driver: zod
+      .any()
+      .nullable()
+      .refine((val) => val !== null, { message: 'Driver is required' }),
+    vehicleId: zod
+      .any()
+      .nullable()
+      .refine((val) => val !== null, { message: 'Vehicle is required' }),
+    fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
+    remarks: zod.string().optional(),
+    closePreviousTrips: zod.boolean().default(true),
+    addFirstSubtrip: zod.boolean().optional().default(false),
+    customerId: zod.any().nullable(),
+    diNumber: zod.string().optional(),
+    subtripRemarks: zod.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.addFirstSubtrip) {
+      if (!data.customerId) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Customer is required',
+          path: ['customerId'],
+        });
+      }
+      if (!data.diNumber) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'DI/DO No is required',
+          path: ['diNumber'],
+        });
+      }
+    }
+  });
 
 export default function TripForm({ currentTrip }) {
   const navigate = useNavigate();
 
   const createTrip = useCreateTrip();
   const updateTrip = useUpdateTrip();
+  const createSubtrip = useCreateSubtrip();
 
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
@@ -62,12 +88,18 @@ export default function TripForm({ currentTrip }) {
       fromDate: currentTrip?.fromDate ? new Date(currentTrip.fromDate) : new Date(),
       remarks: currentTrip?.remarks || '',
       closePreviousTrips: true,
+      addFirstSubtrip: false,
+      customerId: null,
+      diNumber: '',
+      subtripRemarks: '',
     }),
     [currentTrip]
   );
 
   // Keep local copies of “selected” driver/vehicle so we can disable/enable the toggle
   const [selectedVehicle, setSelectedVehicle] = useState(currentTrip?.vehicleId || null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const customerDialog = useBoolean(false);
 
   const methods = useForm({
     resolver: zodResolver(NewTripSchema),
@@ -115,6 +147,12 @@ export default function TripForm({ currentTrip }) {
     clearErrors('driver');
   };
 
+  const handleCustomerChange = (customer) => {
+    setSelectedCustomer(customer);
+    setValue('customerId', { label: customer.customerName, value: customer._id });
+    clearErrors('customerId');
+  };
+
   // ------------------------------------------------------------------------------------
   // 4) onSubmit
   // ------------------------------------------------------------------------------------
@@ -130,7 +168,21 @@ export default function TripForm({ currentTrip }) {
         });
         navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
       } else {
-        const createdTrip = await createTrip({ ...data, driverId: data.driver._id });
+        const { addFirstSubtrip, customerId, diNumber, subtripRemarks, ...tripData } = data;
+        const createdTrip = await createTrip({ ...tripData, driverId: data.driver._id });
+
+        if (addFirstSubtrip) {
+          await createSubtrip({
+            tripId: createdTrip._id,
+            customerId: customerId.value,
+            diNumber,
+            startDate: tripData.fromDate,
+            isEmpty: false,
+            remarks: subtripRemarks || undefined,
+          });
+          toast.success('Trip and first subtrip created successfully!');
+        }
+
         navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
       }
       reset();
@@ -190,6 +242,34 @@ export default function TripForm({ currentTrip }) {
                 <Field.Checkbox name="closePreviousTrips" label="Close Previous Trip ?" />
               </Box>
             )}
+
+            {/* Add First Subtrip Toggle */}
+            {!currentTrip && (
+              <Box sx={{ mt: 3 }}>
+                <Field.Checkbox name="addFirstSubtrip" label="Add First Subtrip?" />
+              </Box>
+            )}
+
+            {watch('addFirstSubtrip') && (
+              <Box sx={{ mt: 3 }} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+                <Box>
+                  <DialogSelectButton
+                    onClick={customerDialog.onTrue}
+                    placeholder="Select Customer *"
+                    selected={selectedCustomer?.customerName}
+                    error={!!errors.customerId?.message}
+                    iconName="mdi:office-building"
+                  />
+                </Box>
+                <Field.Text name="diNumber" label="DI/DO No" required />
+                <Field.Text
+                  name="subtripRemarks"
+                  label="Subtrip Remarks (Optional)"
+                  fullWidth
+                  sx={{ gridColumn: '1 / -1' }}
+                />
+              </Box>
+            )}
           </Card>
 
           {selectedVehicle && <VehicleInfoDetails vehicle={selectedVehicle} />}
@@ -216,6 +296,12 @@ export default function TripForm({ currentTrip }) {
         selectedDriver={watch('driver')}
         onDriverChange={handleDriverChange}
         allowQuickCreate={!currentTrip}
+      />
+      <KanbanCustomerDialog
+        open={customerDialog.value}
+        onClose={customerDialog.onFalse}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={handleCustomerChange}
       />
     </Form>
   );
