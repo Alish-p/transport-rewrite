@@ -8,6 +8,9 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
 import { Link, Select, MenuItem, FormControl } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -18,6 +21,7 @@ import { useMonthlyTransporterSubtrips } from 'src/query/use-dashboard';
 
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
+import { Iconify } from 'src/components/iconify';
 
 export function TransporterInsightsTable({ title, subheader, ...other }) {
   const today = dayjs();
@@ -28,8 +32,10 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
   });
 
   const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+  const [showAll, setShowAll] = useState(false);
 
   const { data: summary = [], isLoading } = useMonthlyTransporterSubtrips(selectedMonth);
+  const displayedSummary = showAll ? summary : summary.slice(0, 6);
 
   return (
     <Card {...other}>
@@ -50,7 +56,7 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
         }
       />
 
-      <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
+      <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
         <Table sx={{ minWidth: 680 }}>
           <TableHeadCustom
             headLabel={[
@@ -67,7 +73,7 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
               <TableSkeleton />
             ) : summary.length ? (
               <>
-                {summary.map((row, idx) => (
+                {displayedSummary.map((row, idx) => (
                   <TableRow key={row.transporterId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
@@ -94,6 +100,30 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
           </TableBody>
         </Table>
       </Scrollbar>
+
+      {summary.length > 6 && (
+        <>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <Box sx={{ p: 2, textAlign: 'right' }}>
+            <Button
+              size="small"
+              color="inherit"
+              onClick={() => setShowAll((prev) => !prev)}
+              endIcon={
+                <Iconify
+                  icon={showAll ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-forward-fill'}
+                  width={18}
+                  sx={{ ml: -0.5 }}
+                />
+              }
+            >
+              {showAll ? 'View less' : 'View all'}
+            </Button>
+          </Box>
+        </>
+      )}
+
     </Card>
   );
 }
