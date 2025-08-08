@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate, fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -97,7 +97,7 @@ export default function LRInfoCard({ subtrip }) {
             <Typography>
               Start:{' '}
               <Box component="span" sx={{ color: 'text.secondary' }}>
-                {fDate(startDate)}
+                {fDateTime(startDate)}
               </Box>
             </Typography>
           </Stack>
@@ -107,7 +107,7 @@ export default function LRInfoCard({ subtrip }) {
             <Typography>
               End:{' '}
               <Box component="span" sx={{ color: 'text.secondary' }}>
-                {endDate ? fDate(endDate) : '-'}
+                {endDate ? fDateTime(endDate) : '-'}
               </Box>
             </Typography>
           </Stack>
