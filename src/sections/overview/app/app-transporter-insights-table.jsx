@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
 import { Link, Select, MenuItem, FormControl } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -19,9 +19,9 @@ import { fNumber } from 'src/utils/format-number';
 
 import { useMonthlyTransporterSubtrips } from 'src/query/use-dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
-import { Iconify } from 'src/components/iconify';
 
 export function TransporterInsightsTable({ title, subheader, ...other }) {
   const today = dayjs();
@@ -123,7 +123,6 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
           </Box>
         </>
       )}
-
     </Card>
   );
 }
