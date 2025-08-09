@@ -1,120 +1,51 @@
-import { useState } from 'react';
-
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import { Button } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-
-import { fDate } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
-import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { RouteInfoWidget, RouteBasicWidget, RouteSalaryWidget } from '../widgets';
+
 export function RouteDetailView({ route }) {
-  const [tabValue, setTabValue] = useState('details');
-
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-  };
-
-  const {
-    _id,
-    routeName,
-    tollAmt,
-    fromPlace,
-    toPlace,
-    noOfDays,
-    vehicleConfiguration,
-    tripType,
-    ratePerTon,
-    distance,
-    validFromDate,
-    validTillDate,
-    transportType,
-  } = route || {};
-
-  const detailsMarkdown = `
-[](/)
-**Route Name:** ${routeName}  
-**Trip Type:** ${tripType}  
-
----
-
-### Route Information
-
-| Attribute          | Details                  |
-| :----------------- | :----------------------- |
-| **From Place**     | ${fromPlace}             |
-| **To Place**       | ${toPlace}               |
-| **Number of Days** | ${noOfDays}              |
-| **Toll Amount**    | ${tollAmt}               |
-| **Distance (KM)**  | ${distance}              |
-| **Rate Per Ton**   | ${ratePerTon}            |
-| **Transport Type** | ${transportType}         |
-| **Valid From**     | ${fDate(validFromDate)}  |
-| **Valid Till**     | ${fDate(validTillDate)}  |
-
----
-
-### Salary Information
-
-| Vehicle Type      | Fixed Salary | Percentage Salary | Fixed Mileage | Performance Mileage | Diesel | AdBlue | Advance Amount |
-| :---------------- | :----------- | :---------------- | :------------ | :------------------ | :----- | :----- | :------------- |
-${vehicleConfiguration
-  .map(
-    (item) =>
-      `| ${item.vehicleType} | ${item.fixedSalary} | ${item.percentageSalary}% | ${item.fixMilage} | ${item.performanceMilage} | ${item.diesel} | ${item.adBlue} | ${item.advanceAmt} |`
-  )
-  .join('\n')}
-
-`;
+  const { routeName } = route || {};
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Route Info"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Routes List', href: paths.dashboard.route.root },
-          { name: `${routeName}` },
-        ]}
-        sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.route.edit(_id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Route
-          </Button>
-        }
-      />
-      <Card>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.vars.palette.grey['500Channel']}`,
-          }}
-        >
-          <Tab value="details" label="Route Details" />
-        </Tabs>
-
-        {tabValue === 'details' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={detailsMarkdown} />
-          </Box>
-        )}
-      </Card>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          py: { xs: 2, md: 3 },
+        }}
+      >
+        <CustomBreadcrumbs
+          heading="Route Info"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Routes List', href: paths.dashboard.route.root },
+            { name: `${routeName}` },
+          ]}
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
+      </Box>
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        <Grid container spacing={3}>
+          <Grid xs={12} md={6}>
+            <RouteBasicWidget route={route} />
+          </Grid>
+          <Grid xs={12} md={6}>
+            <RouteInfoWidget route={route} />
+          </Grid>
+          <Grid xs={12}>
+            <RouteSalaryWidget route={route} />
+          </Grid>
+        </Grid>
+      </Box>
     </DashboardContent>
   );
 }
