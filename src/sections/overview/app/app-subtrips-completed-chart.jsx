@@ -5,7 +5,7 @@ import Card from '@mui/material/Card';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 
-import { fNumber, fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart';
 
@@ -29,7 +29,11 @@ export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) 
     colors: chartColors,
     stroke: { width: 0 },
     xaxis: { categories: chart.categories },
-    tooltip: { y: { formatter: (value) => fNumber(value) } },
+    tooltip: {
+      y: {
+        formatter: (value) => value,
+      },
+    },
     plotOptions: { bar: { columnWidth: '40%' } },
     ...chart.options,
   });

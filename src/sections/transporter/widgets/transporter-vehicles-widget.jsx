@@ -22,6 +22,7 @@ export function TransporterVehiclesWidget({ transporterId, title = 'Vehicles' })
     <Card>
       <CardHeader
         title={title}
+        subheader={`Vehicles owned by the transporter (${vehicles?.length})`}
         action={
           <Button
             size="small"

@@ -50,11 +50,12 @@ export function TransporterDetailView({ transporter }) {
           <Grid xs={12} md={4}>
             <TransporterAdditionalWidget transporter={transporter} />
           </Grid>
-          <Grid xs={12} md={3}>
-            <TransporterVehiclesWidget transporterId={transporter._id} />
-          </Grid>
+
           <Grid xs={12} md={9}>
             <TransporterPaymentsWidget transporterId={transporter._id} />
+          </Grid>
+          <Grid xs={12} md={3}>
+            <TransporterVehiclesWidget transporterId={transporter._id} />
           </Grid>
         </Grid>
       </Box>
