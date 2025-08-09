@@ -93,6 +93,9 @@ export function KanbanDriverDialog({
     if (!driverName.trim()) {
       return setError('Driver Name is required');
     }
+    if (/\d/.test(driverName)) {
+      return setError('Driver Name must not contain numbers');
+    }
     if (!/^\d{10}$/.test(driverCellNo)) {
       return setError('Driver Cell No must be exactly 10 digits');
     }
