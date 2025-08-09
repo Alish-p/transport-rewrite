@@ -56,7 +56,7 @@ export function CustomerAdditionalWidget({ customer }) {
   ]);
 
   return (
-    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
+    <Card sx={{ height: 1 }}>
       <CardHeader
         title="Additional Details"
         avatar={<Iconify icon="solar:settings-bold" color="primary.main" width={24} />}

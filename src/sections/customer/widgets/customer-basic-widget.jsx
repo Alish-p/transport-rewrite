@@ -26,7 +26,7 @@ export function CustomerBasicWidget({ customer }) {
   }, [address, cellNo, customerName, pinCode, state]);
 
   return (
-    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
+    <Card sx={{ height: 1 }}>
       <CardHeader
         title="Basic Details"
         avatar={<Iconify icon="solar:user-bold" color="primary.main" width={24} />}

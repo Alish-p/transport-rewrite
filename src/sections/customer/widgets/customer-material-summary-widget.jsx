@@ -4,13 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import {
-  Select,
-  Divider,
-  MenuItem,
-  CardHeader,
-  FormControl,
-} from '@mui/material';
+import { Select, Divider, MenuItem, CardHeader, FormControl } from '@mui/material';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
@@ -33,14 +27,9 @@ export function CustomerMaterialSummaryWidget({ customer }) {
     };
   });
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    monthOptions[currentMonthIndex].value
-  );
+  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
 
-  const { data: summary = [] } = useCustomerMonthlyMaterialWeight(
-    customerId,
-    selectedMonth
-  );
+  const { data: summary = [] } = useCustomerMonthlyMaterialWeight(customerId, selectedMonth);
 
   const mapped = useMemo(
     () =>
@@ -86,16 +75,13 @@ export function CustomerMaterialSummaryWidget({ customer }) {
   });
 
   return (
-    <Card sx={{ borderTop: (t) => `4px solid ${t.palette.primary.main}`, height: 1 }}>
+    <Card>
       <CardHeader
         title="Material Summary"
         avatar={<Iconify icon="solar:box-bold" color="primary.main" width={24} />}
         action={
           <FormControl size="small" sx={{ minWidth: 140 }}>
-            <Select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
+            <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
               {monthOptions.map(({ label, value }) => (
                 <MenuItem key={value} value={value}>
                   {label}
@@ -104,10 +90,6 @@ export function CustomerMaterialSummaryWidget({ customer }) {
             </Select>
           </FormControl>
         }
-        sx={{
-          '& .MuiCardHeader-avatar': { mr: 1 },
-          '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
-        }}
       />
 
       <Box
@@ -137,9 +119,7 @@ export function CustomerMaterialSummaryWidget({ customer }) {
           activeIndexes={activeIndexes}
           onToggle={(idx) =>
             setActiveIndexes((prev) =>
-              prev.includes(idx)
-                ? prev.filter((i) => i !== idx)
-                : [...prev, idx]
+              prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
             )
           }
           sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
@@ -154,16 +134,12 @@ export function CustomerMaterialSummaryWidget({ customer }) {
         sx={{ textAlign: 'center', typography: 'h4' }}
       >
         <Box sx={{ py: 2, borderRight: `dashed 1px ${theme.vars.palette.divider}` }}>
-          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>
-            Categories
-          </Box>
+          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Categories</Box>
           {mapped.length}
         </Box>
 
         <Box sx={{ py: 2 }}>
-          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>
-            Weight
-          </Box>
+          <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Weight</Box>
           {fShortenNumber(mapped.reduce((sum, i) => sum + i.value, 0))}
         </Box>
       </Box>

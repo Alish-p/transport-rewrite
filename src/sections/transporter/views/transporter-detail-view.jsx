@@ -1,13 +1,10 @@
 import Box from '@mui/material/Box';
-import { Button } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import {
@@ -39,16 +36,6 @@ export function TransporterDetailView({ transporter }) {
             { name: `${transportName}` },
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.transporter.edit(transporter._id)}
-              variant="contained"
-              startIcon={<Iconify icon="solar:pen-bold" />}
-            >
-              Edit Transporter
-            </Button>
-          }
         />
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -62,7 +49,7 @@ export function TransporterDetailView({ transporter }) {
           <Grid xs={12} md={4}>
             <TransporterAdditionalWidget transporter={transporter} />
           </Grid>
-          <Grid xs={12} md={4}>
+          <Grid xs={12} md={3}>
             <TransporterVehiclesWidget transporterId={transporter._id} />
           </Grid>
         </Grid>

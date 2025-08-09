@@ -26,7 +26,7 @@ export function CustomerFinanceWidget({ customer }) {
   }, [GSTNo, PANNo, bankDetails, gstEnabled]);
 
   return (
-    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
+    <Card sx={{ height: 1 }}>
       <CardHeader
         title="Finance Details"
         avatar={<Iconify icon="solar:wallet-bold" color="primary.main" width={24} />}
