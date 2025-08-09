@@ -11,6 +11,7 @@ import {
   TransporterBasicWidget,
   TransporterFinanceWidget,
   TransporterVehiclesWidget,
+  TransporterPaymentsWidget,
   TransporterAdditionalWidget,
 } from '../widgets';
 
@@ -51,6 +52,9 @@ export function TransporterDetailView({ transporter }) {
           </Grid>
           <Grid xs={12} md={3}>
             <TransporterVehiclesWidget transporterId={transporter._id} />
+          </Grid>
+          <Grid xs={12} md={9}>
+            <TransporterPaymentsWidget transporterId={transporter._id} />
           </Grid>
         </Grid>
       </Box>
