@@ -7,7 +7,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { RouteInfoWidget, RouteBasicWidget, RouteSalaryWidget } from '../widgets';
+import {
+  RouteInfoWidget,
+  RouteBasicWidget,
+  RouteSalaryWidget,
+  RouteSubtripsTable,
+} from '../widgets';
 
 export function RouteDetailView({ route }) {
   const { routeName } = route || {};
@@ -43,6 +48,9 @@ export function RouteDetailView({ route }) {
           </Grid>
           <Grid xs={12}>
             <RouteSalaryWidget route={route} />
+          </Grid>
+          <Grid xs={12}>
+            <RouteSubtripsTable route={route} />
           </Grid>
         </Grid>
       </Box>

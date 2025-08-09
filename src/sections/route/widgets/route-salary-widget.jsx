@@ -71,7 +71,9 @@ export function RouteSalaryWidget({ route }) {
             {vehicleConfiguration.length ? (
               vehicleConfiguration.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item.vehicleType}</TableCell>
+                  <TableCell>
+                    {item.vehicleType}-[{item.noOfTyres}]
+                  </TableCell>
                   <TableCell>{item.fixedSalary}</TableCell>
                   <TableCell>{item.percentageSalary}</TableCell>
                   <TableCell>{item.fixMilage}</TableCell>
