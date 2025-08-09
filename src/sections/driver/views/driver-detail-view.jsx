@@ -10,6 +10,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   DriverBasicWidget,
   DriverFinanceWidget,
+  DriverSubtripsTable,
   DriverAdditionalWidget,
 } from '../widgets';
 
@@ -47,6 +48,9 @@ export function DriverDetailView({ driver }) {
           </Grid>
           <Grid xs={12} md={4}>
             <DriverAdditionalWidget driver={driver} />
+          </Grid>
+          <Grid xs={12}>
+            <DriverSubtripsTable driver={driver} />
           </Grid>
         </Grid>
       </Box>
