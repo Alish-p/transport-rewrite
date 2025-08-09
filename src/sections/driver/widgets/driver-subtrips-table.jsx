@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import { Link } from '@mui/material';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -14,11 +14,16 @@ import CardHeader from '@mui/material/CardHeader';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+
 import { useDriverSubtrips } from 'src/query/use-driver';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
+
+import { SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
 
 export function DriverSubtripsTable({ driver }) {
   const { _id: driverId } = driver || {};
@@ -35,10 +40,13 @@ export function DriverSubtripsTable({ driver }) {
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
-              { id: '_id', label: 'Subtrip ID' },
-              { id: 'loadingPoint', label: 'From' },
-              { id: 'unloadingPoint', label: 'To' },
-              { id: 'subtripStatus', label: 'Status' },
+              { id: 'id', label: 'Subtrip' },
+              { id: 'vehicleNo', label: 'Vehicle' },
+              { id: 'driverName', label: 'Driver' },
+              { id: 'loadingPoint', label: 'Loading' },
+              { id: 'unloadingPoint', label: 'Unloading' },
+              { id: 'time', label: 'time' },
+              { id: 'status', label: 'Status' },
             ]}
           />
           <TableBody>
@@ -60,9 +68,21 @@ export function DriverSubtripsTable({ driver }) {
                         {row._id}
                       </Link>
                     </TableCell>
+                    <TableCell>{row?.tripId?.vehicleId?.vehicleNo}</TableCell>
+
+                    <TableCell>{row?.tripId?.driverId?.driverName}</TableCell>
                     <TableCell>{row.loadingPoint}</TableCell>
                     <TableCell>{row.unloadingPoint}</TableCell>
-                    <TableCell>{row.subtripStatus}</TableCell>
+                    <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
+
+                    <TableCell>
+                      <Label
+                        variant="soft"
+                        color={SUBTRIP_STATUS_COLORS[row?.subtripStatus] || 'default'}
+                      >
+                        {row?.subtripStatus}
+                      </Label>
+                    </TableCell>
                   </TableRow>
                 ))}
               </>
@@ -100,4 +120,3 @@ export function DriverSubtripsTable({ driver }) {
 }
 
 export default DriverSubtripsTable;
-
