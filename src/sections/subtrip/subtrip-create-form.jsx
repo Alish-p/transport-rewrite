@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
@@ -26,6 +26,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { paramCase } from 'src/utils/change-case';
 
+import { useGps } from 'src/query/use-gps';
 import { useTrip } from 'src/query/use-trip';
 import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
 
@@ -100,6 +101,11 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
   // Fetch trip details including subtrips when a trip is selected
   const { data: selectedTripDetails } = useTrip(selectedTripId);
 
+  const vehicleNo = selectedTripDetails?.vehicleId?.vehicleNo;
+  const { data: gpsData } = useGps(vehicleNo, {
+    enabled: currentTab === 'empty' && selectedTripDetails?.vehicleId?.isOwn,
+  });
+
   const defaultValues = useMemo(
     () => ({
       tripId: currentTrip || null,
@@ -124,6 +130,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
     reset,
     setValue,
     handleSubmit,
+    getValues,
     formState: { isSubmitting, errors },
   } = methods;
 
@@ -154,6 +161,9 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
     const tripId = trip._id;
     setSelectedTripId(tripId);
     setValue('tripId', tripId);
+    if (currentTab === 'empty') {
+      setValue('startKm', 0);
+    }
   };
 
   const handleRouteChange = (route) => {
@@ -162,6 +172,15 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
     setValue('loadingPoint', route.fromPlace);
     setValue('unloadingPoint', route.toPlace);
   };
+
+  useEffect(() => {
+    if (currentTab === 'empty' && gpsData?.totalOdometer) {
+      const current = getValues('startKm');
+      if (!current) {
+        setValue('startKm', Math.round(gpsData.totalOdometer));
+      }
+    }
+  }, [gpsData, currentTab, setValue, getValues]);
 
   const onSubmit = async (data) => {
     try {
