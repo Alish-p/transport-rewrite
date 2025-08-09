@@ -36,6 +36,11 @@ const getCustomerSubtripMonthlyData = async (id, year) => {
   return data;
 };
 
+const getCustomerRoutes = async (id) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/routes`);
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -102,6 +107,14 @@ export function useCustomerSubtripMonthlyData(id, year) {
     queryKey: [QUERY_KEY, id, 'subtrip-monthly-data', year],
     queryFn: () => getCustomerSubtripMonthlyData(id, year),
     enabled: Boolean(id && year),
+  });
+}
+
+export function useCustomerRoutes(id) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'routes'],
+    queryFn: () => getCustomerRoutes(id),
+    enabled: Boolean(id),
   });
 }
 

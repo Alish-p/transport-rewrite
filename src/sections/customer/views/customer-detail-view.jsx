@@ -8,6 +8,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import {
+  CustomerRoutesTable,
   CustomerBasicWidget,
   CustomerFinanceWidget,
   CustomerAdditionalWidget,
@@ -55,6 +56,13 @@ export function CustomerDetailView({ customer }) {
           </Grid>
           <Grid xs={12} md={6}>
             <CustomerSubtripCompletedWidget customer={customer} />
+          </Grid>
+          <Grid xs={12} md={12}>
+            <CustomerRoutesTable
+              customer={customer}
+              title="🛣️ Top Routes"
+              subheader="Most frequently travelled routes"
+            />
           </Grid>
         </Grid>
       </Box>
