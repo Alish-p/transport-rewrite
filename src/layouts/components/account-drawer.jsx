@@ -51,11 +51,13 @@ export function AccountDrawer({ sx, ...other }) {
     [handleCloseDrawer, router]
   );
 
+  const userName = user?.name || user?.displayName;
+
   const renderAvatar = (
     <AnimateAvatar
       width={96}
       slotProps={{
-        avatar: { src: user?.photoURL, alt: user?.displayName },
+        avatar: { src: user?.photoURL, alt: userName },
         overlay: {
           border: 2,
           spacing: 3,
@@ -63,7 +65,7 @@ export function AccountDrawer({ sx, ...other }) {
         },
       }}
     >
-      {user?.displayName?.charAt(0).toUpperCase()}
+      {userName?.charAt(0).toUpperCase()}
     </AnimateAvatar>
   );
 
@@ -73,7 +75,7 @@ export function AccountDrawer({ sx, ...other }) {
         open={open}
         onClick={handleOpenDrawer}
         photoURL={user?.photoURL}
-        displayName={user?.displayName}
+        displayName={userName}
         sx={sx}
         {...other}
       />

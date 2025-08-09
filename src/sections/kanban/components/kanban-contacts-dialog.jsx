@@ -93,7 +93,9 @@ export function KanbanContactsDialog({ assignees = [], open, onClose, onAssignee
                       alignItems: 'center',
                     }}
                   >
-                    <Avatar src={contact?.avatarUrl} alt={contact?.name} />
+                    <Avatar src={contact?.avatarUrl} alt={contact?.name}>
+                      {contact?.name?.charAt(0).toUpperCase()}
+                    </Avatar>
 
                     <ListItemText
                       primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
