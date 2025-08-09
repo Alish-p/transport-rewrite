@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import { Tooltip } from '@mui/material';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 
@@ -45,7 +46,14 @@ export function CustomerAdditionalWidget({ customer }) {
     );
     copyToClipboard(text);
     toast.success('Copied to clipboard');
-  }, [currentInvoiceSerialNumber, invoiceDueInDays, invoicePrefix, invoiceSuffix, nextInvoiceNumber, transporterCode]);
+  }, [
+    currentInvoiceSerialNumber,
+    invoiceDueInDays,
+    invoicePrefix,
+    invoiceSuffix,
+    nextInvoiceNumber,
+    transporterCode,
+  ]);
 
   return (
     <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
@@ -54,12 +62,16 @@ export function CustomerAdditionalWidget({ customer }) {
         avatar={<Iconify icon="solar:settings-bold" color="primary.main" width={24} />}
         action={
           <Stack direction="row" spacing={0.5}>
-            <IconButton onClick={handleCopy}>
-              <Iconify icon="solar:copy-bold" />
-            </IconButton>
-            <IconButton component={RouterLink} href={paths.dashboard.customer.edit(_id)}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            <Tooltip title="Copy">
+              <IconButton onClick={handleCopy}>
+                <Iconify icon="solar:copy-bold" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton component={RouterLink} href={paths.dashboard.customer.edit(_id)}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
           </Stack>
         }
         sx={{
@@ -72,7 +84,11 @@ export function CustomerAdditionalWidget({ customer }) {
         <InfoItem label="Invoice Prefix" value={invoicePrefix} width={180} />
         <InfoItem label="Invoice Suffix" value={invoiceSuffix} width={180} />
         <InfoItem label="Current Serial No" value={currentInvoiceSerialNumber} width={180} />
-        <InfoItem label="Next Invoice No" value={<Label color="primary">{nextInvoiceNumber}</Label>} width={180} />
+        <InfoItem
+          label="Next Invoice No"
+          value={<Label color="primary">{nextInvoiceNumber}</Label>}
+          width={180}
+        />
         <InfoItem label="Invoice Due (days)" value={invoiceDueInDays} width={180} />
       </Stack>
     </Card>

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import { Tooltip } from '@mui/material';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 
@@ -31,12 +32,16 @@ export function CustomerFinanceWidget({ customer }) {
         avatar={<Iconify icon="solar:wallet-bold" color="primary.main" width={24} />}
         action={
           <Stack direction="row" spacing={0.5}>
-            <IconButton onClick={handleCopy}>
-              <Iconify icon="solar:copy-bold" />
-            </IconButton>
-            <IconButton component={RouterLink} href={paths.dashboard.customer.edit(_id)}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            <Tooltip title="Copy">
+              <IconButton onClick={handleCopy}>
+                <Iconify icon="solar:copy-bold" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton component={RouterLink} href={paths.dashboard.customer.edit(_id)}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
           </Stack>
         }
         sx={{
