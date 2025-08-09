@@ -22,6 +22,13 @@ const getCustomer = async (id) => {
   return data;
 };
 
+const getCustomerMonthlyMaterialWeight = async (id, month) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/monthly-material-weight`, {
+    params: { month },
+  });
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -72,6 +79,14 @@ export function useCustomer(id) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => getCustomer(id),
     enabled: !!id,
+  });
+}
+
+export function useCustomerMonthlyMaterialWeight(id, month) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'monthly-material-weight', month],
+    queryFn: () => getCustomerMonthlyMaterialWeight(id, month),
+    enabled: Boolean(id && month),
   });
 }
 
