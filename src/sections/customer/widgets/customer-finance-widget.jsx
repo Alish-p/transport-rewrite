@@ -1,26 +1,24 @@
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
 
-function InfoItem({ label, value }) {
-  return (
-    <Stack direction="row" alignItems="center" spacing={1} sx={{ typography: 'body2' }}>
-      <Box component="span" sx={{ color: 'text.secondary', width: 140, flexShrink: 0 }}>
-        {label}
-      </Box>
-      <Typography>{value || '-'}</Typography>
-    </Stack>
-  );
-}
+import { Iconify } from 'src/components/iconify';
+
+import { InfoItem } from './info-item';
 
 export function CustomerFinanceWidget({ customer }) {
   const { bankDetails, gstEnabled, GSTNo, PANNo } = customer || {};
 
   return (
-    <Card>
-      <CardHeader title="Finance Details" />
+    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.info.main}`, height: 1 }}>
+      <CardHeader
+        title="Finance Details"
+        avatar={<Iconify icon="solar:wallet-bold" color="info.main" width={24} />}
+        sx={{
+          '& .MuiCardHeader-avatar': { mr: 1 },
+          '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+        }}
+      />
       <Stack spacing={1.5} sx={{ p: 3 }}>
         <InfoItem label="Bank Name" value={bankDetails?.name} />
         <InfoItem label="Branch" value={bankDetails?.branch} />

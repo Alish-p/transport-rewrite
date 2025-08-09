@@ -33,26 +33,36 @@ export function CustomerDetailView({ customer }) {
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Customer Info"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Customers List', href: paths.dashboard.customer.root },
-          { name: `${customerName}` },
-        ]}
-        sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.customer.edit(_id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Customer
-          </Button>
-        }
-      />
-      <Box sx={{ p: 3 }}>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          py: { xs: 2, md: 3 },
+        }}
+      >
+        <CustomBreadcrumbs
+          heading="Customer Info"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Customers List', href: paths.dashboard.customer.root },
+            { name: `${customerName}` },
+          ]}
+          sx={{ mb: { xs: 3, md: 5 } }}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.customer.edit(_id)}
+              variant="contained"
+              startIcon={<Iconify icon="solar:pen-bold" />}
+            >
+              Edit Customer
+            </Button>
+          }
+        />
+      </Box>
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
             <CustomerBasicWidget customer={{ customerName, address, state, pinCode, cellNo }} />

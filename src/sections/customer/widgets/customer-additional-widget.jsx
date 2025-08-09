@@ -1,19 +1,10 @@
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
 
-function InfoItem({ label, value }) {
-  return (
-    <Stack direction="row" alignItems="center" spacing={1} sx={{ typography: 'body2' }}>
-      <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-        {label}
-      </Box>
-      <Typography>{value || '-'}</Typography>
-    </Stack>
-  );
-}
+import { Iconify } from 'src/components/iconify';
+
+import { InfoItem } from './info-item';
 
 export function CustomerAdditionalWidget({ customer }) {
   const {
@@ -29,15 +20,22 @@ export function CustomerAdditionalWidget({ customer }) {
   }${invoiceSuffix || ''}`;
 
   return (
-    <Card>
-      <CardHeader title="Additional Details" />
+    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
+      <CardHeader
+        title="Additional Details"
+        avatar={<Iconify icon="solar:settings-bold" color="primary.main" width={24} />}
+        sx={{
+          '& .MuiCardHeader-avatar': { mr: 1 },
+          '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+        }}
+      />
       <Stack spacing={1.5} sx={{ p: 3 }}>
-        <InfoItem label="Transporter Code" value={transporterCode} />
-        <InfoItem label="Invoice Prefix" value={invoicePrefix} />
-        <InfoItem label="Invoice Suffix" value={invoiceSuffix} />
-        <InfoItem label="Current Serial No" value={currentInvoiceSerialNumber} />
-        <InfoItem label="Next Invoice No" value={nextInvoiceNumber} />
-        <InfoItem label="Invoice Due (days)" value={invoiceDueInDays} />
+        <InfoItem label="Transporter Code" value={transporterCode} width={180} />
+        <InfoItem label="Invoice Prefix" value={invoicePrefix} width={180} />
+        <InfoItem label="Invoice Suffix" value={invoiceSuffix} width={180} />
+        <InfoItem label="Current Serial No" value={currentInvoiceSerialNumber} width={180} />
+        <InfoItem label="Next Invoice No" value={nextInvoiceNumber} width={180} />
+        <InfoItem label="Invoice Due (days)" value={invoiceDueInDays} width={180} />
       </Stack>
     </Card>
   );
