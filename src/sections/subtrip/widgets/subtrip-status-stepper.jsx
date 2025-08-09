@@ -1,4 +1,4 @@
-import { Tooltip } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -41,40 +41,96 @@ export function SubtripStatusStepper({ status }) {
 
   const icons = [
     <Tooltip title={statusDescriptions['in-queue']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions.loaded} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="mdi:truck" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions.error} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="material-symbols:error-outline" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions.received} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="material-symbols:call-received" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
 
     <Tooltip title={statusDescriptions['billed-pending']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="mdi:file-document-alert" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions['billed-overdue']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="mdi:file-document-alert-outline" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions['billed-paid']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="mdi:file-document-check" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
   ];
 

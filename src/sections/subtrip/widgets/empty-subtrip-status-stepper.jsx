@@ -1,4 +1,4 @@
-import { Tooltip } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -21,14 +21,30 @@ export function EmptySubtripStatusStepper({ status }) {
 
   const icons = [
     <Tooltip title={statusDescriptions['in-queue']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
     <Tooltip title={statusDescriptions['billed-paid']} arrow>
-      <span>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+        }}
+      >
         <Iconify icon="mdi:file-document-check" width={24} />
-      </span>
+      </Box>
     </Tooltip>,
   ];
 
