@@ -115,7 +115,7 @@ export function useCreateQuickDriver() {
 export function useCreateFullDriver() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  const { mutate } = useMutation({
     mutationFn: createDriver,
     onSuccess: (newDriver) => {
       // Update the drivers list in the cache
@@ -134,6 +134,8 @@ export function useCreateFullDriver() {
       toast.error(errorMessage);
     },
   });
+
+  return mutate;
 }
 
 export function useUpdateDriver() {
