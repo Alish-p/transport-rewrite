@@ -27,7 +27,10 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 // ----------------------------------------------------------------------
 
 export const NewDriverSchema = zod.object({
-  driverName: zod.string().min(1, { message: 'Driver Name is required' }),
+  driverName: zod
+    .string()
+    .min(1, { message: 'Driver Name is required' })
+    .regex(/^[^0-9]*$/, { message: 'Driver Name must not contain numbers' }),
   images: zod.any().nullable(),
   driverLicenceNo: zod
     .string()
