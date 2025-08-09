@@ -1,157 +1,55 @@
-import { useState } from 'react';
-
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import { Button } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-
-import { fDate } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
-import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import {
+  DriverBasicWidget,
+  DriverFinanceWidget,
+  DriverAdditionalWidget,
+} from '../widgets';
+
 export function DriverDetailView({ driver }) {
-  const [tabValue, setTabValue] = useState('details');
-
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-  };
-
-  const {
-    driverName,
-    driverLicenceNo,
-    driverPresentAddress,
-    driverCellNo,
-    licenseFrom,
-    licenseTo,
-    aadharNo,
-    guarantorName,
-    guarantorCellNo,
-    experience,
-    dob,
-    permanentAddress,
-    bankCd,
-    accNo,
-  } = driver || {};
-
-  const detailsMarkdown = `
-
-**Driver Name:** ${driverName}  
-**Date of Birth:** ${fDate(dob)}  
-**Experience:** ${experience} years  
-
-[](/)
-
----
-
-###### Contact Information:
-- **Mobile Number:** ${driverCellNo}
-- **Present Address:** ${driverPresentAddress}
-- **Permanent Address:** ${permanentAddress}
-
----
-
-###### License Details:
-- **License Number:** ${driverLicenceNo}
-- **Valid From:** ${fDate(licenseFrom)}
-- **Valid Until:** ${fDate(licenseTo)}
-
----
-
-
-### Identification Details
-
-| Attribute            | Details                  |
-| :------------------- | :----------------------- |
-| **Aadhar Number**    | ${aadharNo}              |
-| **Guarantor Name**   | ${guarantorName}         |
-| **Guarantor Contact**| ${guarantorCellNo}       |
-
----
-
-### Bank Details
-
-| Attribute            | Details                  |
-| :------------------- | :----------------------- |
-| **Bank Code**        | ${bankCd}                |
-| **Account Number**   | ${accNo}                 |
-
-`;
-
-  const payslipMarkdown = `
-### Payslip Information
-*Note: Example content. Replace with actual payslip details.*
-
-[](/)
-
-| Month         | Amount Paid | Payment Date |
-| :------------ | :---------- | :----------- |
-| January 2024  | $2000       | 01-Feb-2024  |
-| February 2024 | $2200       | 01-Mar-2024  |
-| March 2024    | $2500       | 01-Apr-2024  |
-
----
-
-For further details, please contact HR.
-`;
+  const { driverName } = driver || {};
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Driver Info"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Drivers List', href: paths.dashboard.driver.root },
-          { name: `${driverName}` },
-        ]}
-        sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.driver.edit(driver._id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Driver
-          </Button>
-        }
-      />
-      <Card>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.vars.palette.grey['500Channel']}`,
-          }}
-        >
-          {[
-            { value: 'details', label: 'Driver Details' },
-            { value: 'payslip', label: 'Payslip' },
-          ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
-          ))}
-        </Tabs>
-
-        {tabValue === 'details' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={detailsMarkdown} />
-          </Box>
-        )}
-
-        {tabValue === 'payslip' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={payslipMarkdown} />
-          </Box>
-        )}
-      </Card>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          py: { xs: 2, md: 3 },
+        }}
+      >
+        <CustomBreadcrumbs
+          heading="Driver Info"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Drivers List', href: paths.dashboard.driver.root },
+            { name: `${driverName}` },
+          ]}
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
+      </Box>
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        <Grid container spacing={3}>
+          <Grid xs={12} md={4}>
+            <DriverBasicWidget driver={driver} />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <DriverFinanceWidget driver={driver} />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <DriverAdditionalWidget driver={driver} />
+          </Grid>
+        </Grid>
+      </Box>
     </DashboardContent>
   );
 }
