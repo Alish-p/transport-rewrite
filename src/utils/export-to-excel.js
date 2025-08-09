@@ -1,84 +1,155 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 import { fNumber } from './format-number';
 
-export const exportToExcel = (data, fileName) => {
-  console.log({ data });
+// ===== ExcelJS version (professional styling) =====
+export const exportToExcel = async (data, fileName) => {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Tranzit';
+  workbook.created = new Date();
 
-  const worksheet = XLSX.utils.json_to_sheet(data);
+  const sheetName = 'Subtrip Report';
+  const ws = workbook.addWorksheet(sheetName, {
+    properties: { defaultRowHeight: 18 },
+    views: [{ state: 'frozen', ySplit: 1 }],
+  });
 
-  const headerStyle = {
-    font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12 },
-    fill: { fgColor: { rgb: '305496' } },
-    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-    border: {
-      top: { style: 'thin', color: { rgb: '000000' } },
-      bottom: { style: 'thin', color: { rgb: '000000' } },
-      left: { style: 'thin', color: { rgb: '000000' } },
-      right: { style: 'thin', color: { rgb: '000000' } },
-    },
+  // Global default font
+  ws.properties.defaultRowHeight = 18;
+  ws.eachRow((row) => {
+    row.font = { name: 'Calibri', size: 11 };
+  });
+
+  if (!Array.isArray(data) || data.length === 0) {
+    // Still create an empty sheet
+    const bufferEmpty = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([bufferEmpty]), `${fileName}.xlsx`);
+    return;
+  }
+
+  // Palette (subtle, professional)
+  const C = {
+    headerBg: 'FFF2F3F5', // light grey
+    headerFont: 'FF333333', // dark grey
+    grid: 'FFE6E7EA', // very light grid
+    zebra: 'FFF9FAFB', // soft zebra
+    white: 'FFFFFFFF',
+    totalLine: 'FFBFC5CC', // slightly stronger rule
   };
 
-  const bodyStyle = (isOddRow) => ({
-    fill: { fgColor: { rgb: isOddRow ? 'F9F9F9' : 'FFFFFF' } },
-    alignment: { horizontal: 'left', vertical: 'top', wrapText: true },
-    border: {
-      top: { style: 'thin', color: { rgb: 'DDDDDD' } },
-      bottom: { style: 'thin', color: { rgb: 'DDDDDD' } },
-      left: { style: 'thin', color: { rgb: 'DDDDDD' } },
-      right: { style: 'thin', color: { rgb: 'DDDDDD' } },
-    },
+  const headers = Object.keys(data[0]);
+
+  // Widths
+  const computeWidth = (v) => {
+    if (v == null) return 0;
+    // simple width heuristic
+    return String(v).length;
+  };
+
+  const colWidths = headers.map((h, idx) => {
+    let maxLen = computeWidth(h);
+    for (let r = 0; r < data.length; r++) {
+      const val = data[r][headers[idx]];
+      const len = computeWidth(val);
+      if (len > maxLen) maxLen = len;
+    }
+    // padding and sane bounds
+    return Math.min(Math.max(maxLen + 4, 10), 50);
   });
 
-  const range = XLSX.utils.decode_range(worksheet['!ref']);
-  const columns = range.e.c + 1;
+  ws.columns = headers.map((header, i) => ({
+    header,
+    key: header,
+    width: colWidths[i],
+    style: { font: { name: 'Calibri', size: 11 } },
+  }));
 
-  for (let col = 0; col < columns; col++) {
-    const headerCell = XLSX.utils.encode_cell({ r: 0, c: col });
-    if (!worksheet[headerCell]) continue;
-    worksheet[headerCell].s = headerStyle;
-  }
+  // Add rows
+  ws.addRows(data);
 
-  for (let row = 1; row <= range.e.r; row++) {
-    for (let col = 0; col < columns; col++) {
-      const cell = XLSX.utils.encode_cell({ r: row, c: col });
-      if (!worksheet[cell]) continue;
-      worksheet[cell].s = bodyStyle(row % 2);
-    }
-  }
+  // Header styling (row 1)
+  const headerRow = ws.getRow(1);
+  headerRow.height = 18;
+  headerRow.eachCell((cell) => {
+    cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: C.headerFont } };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.headerBg } };
+    cell.border = {
+      bottom: { style: 'thin', color: { argb: C.grid } },
+    };
+  });
 
-  // Auto-size columns
-  const columnWidths = [];
-  for (let col = 0; col < columns; col++) {
-    let maxLength = 0;
-    for (let row = 0; row <= range.e.r; row++) {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: row, c: col })];
-      if (cell && cell.v) {
-        const { length } = cell.v.toString();
-        maxLength = Math.max(maxLength, length);
+  const isNumericLike = (val) =>
+    typeof val === 'number' ||
+    (typeof val === 'string' && val.trim() !== '' && !Number.isNaN(Number(val)));
+
+  const shouldWrap = (val) => {
+    if (val == null) return false;
+    const s = String(val);
+    return s.includes('\n') || s.length > 40;
+  };
+
+  // Body styling
+  for (let r = 2; r <= ws.rowCount; r++) {
+    const zebra = r % 2 === 0 ? C.white : C.zebra;
+    const row = ws.getRow(r);
+    row.height = 18;
+
+    row.eachCell((cell) => {
+      const raw = cell.value;
+
+      // Alignment: numbers right, text left
+      const align = isNumericLike(raw) ? 'right' : 'left';
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: align,
+        wrapText: shouldWrap(raw),
+      };
+
+      // Fill (zebra)
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: zebra } };
+
+      // Subtle grid
+      cell.border = {
+        top: { style: 'thin', color: { argb: C.grid } },
+        left: { style: 'thin', color: { argb: C.grid } },
+        bottom: { style: 'thin', color: { argb: C.grid } },
+        right: { style: 'thin', color: { argb: C.grid } },
+      };
+
+      // Optional: numeric formatting (don’t force commas if you already pass formatted strings)
+      if (typeof raw === 'number') {
+        cell.numFmt = '#,##0.00'; // tweak if you prefer integers: '#,##0'
       }
-    }
-    columnWidths[col] = { wch: maxLength + 4 }; // more padding
+    });
   }
-  worksheet['!cols'] = columnWidths;
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Subtrip Report');
+  // TOTAL row (if present)
+  const last = ws.getRow(ws.lastRow.number);
+  const firstKey = headers[0];
+  const totalCell = last.getCell(firstKey);
+  if (String(totalCell.value).toUpperCase() === 'TOTAL') {
+    last.eachCell((cell) => {
+      cell.font = { name: 'Calibri', size: 11, bold: true };
+      // subtle top rule to separate totals from data
+      cell.border = {
+        top: { style: 'thin', color: { argb: C.totalLine } },
+        left: { style: 'thin', color: { argb: C.grid } },
+        bottom: { style: 'thin', color: { argb: C.grid } },
+        right: { style: 'thin', color: { argb: C.grid } },
+      };
+    });
+  }
 
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: 'xlsx',
-    type: 'array',
-    cellStyles: true,
-  });
-
-  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  saveAs(blob, `${fileName}.xlsx`);
+  // Download (browser)
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), `${fileName}.xlsx`);
 };
 
-// Formats a list of items for export, including only the user - selected columns.
+// ===== Unchanged: your formatter/aggregator =====
 export function prepareDataForExport(data, columnConfig, visibleColumns = [], columnOrder = []) {
   let columns = columnConfig.filter((col) => visibleColumns.includes(col.id));
   if (columnOrder.length) {
@@ -111,7 +182,6 @@ export function prepareDataForExport(data, columnConfig, visibleColumns = [], co
 
   if (Object.keys(totals).length > 0) {
     const totalRow = {};
-
     columns.forEach((col, index) => {
       if (index === 0) {
         totalRow[col.label] = 'TOTAL';
@@ -121,7 +191,6 @@ export function prepareDataForExport(data, columnConfig, visibleColumns = [], co
         totalRow[col.label] = '';
       }
     });
-
     formattedRows.push(totalRow);
   }
 
