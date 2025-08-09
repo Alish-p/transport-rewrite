@@ -25,6 +25,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
 import { Label } from '../../../components/label';
+import { getVehicleTypeTyreColor } from '../constants';
 import { SUBTRIP_STATUS_COLORS } from '../../subtrip/constants';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
@@ -45,6 +46,7 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
               { id: 'index', label: 'No.' },
               { id: 'id', label: 'Subtrip' },
               { id: 'vehicleNo', label: 'Vehicle' },
+              { id: 'vehicleType', label: 'Vehicle Type' },
               { id: 'driverName', label: 'Driver' },
               { id: 'loadingPoint', label: 'Loading' },
               { id: 'unloadingPoint', label: 'Unloading' },
@@ -71,6 +73,7 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
 
                   const vehicleType = row?.tripId?.vehicleId?.vehicleType || '';
                   const noOfTyres = row?.tripId?.vehicleId?.noOfTyres;
+                  const vehicleColor = getVehicleTypeTyreColor(vehicleType, noOfTyres);
                   const config =
                     route?.vehicleConfiguration?.find(
                       (c) =>
@@ -95,9 +98,11 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
                           {row?._id}
                         </Link>
                       </TableCell>
+                      <TableCell>{row?.tripId?.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>
-                        {row?.tripId?.vehicleId?.vehicleNo}({row?.tripId?.vehicleId?.vehicleType}-
-                        {row?.tripId?.vehicleId?.noOfTyres})
+                        <Label variant="soft" color={vehicleColor}>
+                          {vehicleType} {noOfTyres}
+                        </Label>
                       </TableCell>
                       <TableCell>{row?.tripId?.driverId?.driverName}</TableCell>
                       <TableCell>{row.loadingPoint}</TableCell>

@@ -20,6 +20,9 @@ import { copyToClipboard } from 'src/utils/copy-to-clipboard';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
+import { Label } from '../../../components/label';
+import { getVehicleTypeTyreColor } from '../constants';
+
 export function RouteSalaryWidget({ route }) {
   const { _id, vehicleConfiguration = [] } = route || {};
 
@@ -58,6 +61,7 @@ export function RouteSalaryWidget({ route }) {
           <TableHead>
             <TableRow>
               <TableCell>Vehicle Type</TableCell>
+              <TableCell>Tyres</TableCell>
               <TableCell>Fixed Salary</TableCell>
               <TableCell>Percentage Salary</TableCell>
               <TableCell>Fixed Mileage</TableCell>
@@ -69,23 +73,33 @@ export function RouteSalaryWidget({ route }) {
           </TableHead>
           <TableBody>
             {vehicleConfiguration.length ? (
-              vehicleConfiguration.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    {item.vehicleType}-[{item.noOfTyres}]
-                  </TableCell>
-                  <TableCell>{item.fixedSalary}</TableCell>
-                  <TableCell>{item.percentageSalary}</TableCell>
-                  <TableCell>{item.fixMilage}</TableCell>
-                  <TableCell>{item.performanceMilage}</TableCell>
-                  <TableCell>{item.diesel}</TableCell>
-                  <TableCell>{item.adBlue}</TableCell>
-                  <TableCell>{item.advanceAmt}</TableCell>
-                </TableRow>
-              ))
+              vehicleConfiguration.map((item, index) => {
+                const color = getVehicleTypeTyreColor(item.vehicleType, item.noOfTyres);
+                return (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Label variant="soft" color={color}>
+                        {item.vehicleType}
+                      </Label>
+                    </TableCell>
+                    <TableCell>
+                      <Label variant="soft" color={color}>
+                        {item.noOfTyres}
+                      </Label>
+                    </TableCell>
+                    <TableCell>{item.fixedSalary}</TableCell>
+                    <TableCell>{item.percentageSalary}</TableCell>
+                    <TableCell>{item.fixMilage}</TableCell>
+                    <TableCell>{item.performanceMilage}</TableCell>
+                    <TableCell>{item.diesel}</TableCell>
+                    <TableCell>{item.adBlue}</TableCell>
+                    <TableCell>{item.advanceAmt}</TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
-                <TableCell colSpan={8} align="center">
+                <TableCell colSpan={9} align="center">
                   No salary configuration
                 </TableCell>
               </TableRow>
