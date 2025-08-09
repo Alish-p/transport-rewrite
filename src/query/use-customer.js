@@ -41,6 +41,11 @@ const getCustomerRoutes = async (id) => {
   return data;
 };
 
+const getCustomerInvoiceAmountSummary = async (id) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/invoice-amount-summary`);
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -114,6 +119,14 @@ export function useCustomerRoutes(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id, 'routes'],
     queryFn: () => getCustomerRoutes(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCustomerInvoiceAmountSummary(id) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'invoice-amount-summary'],
+    queryFn: () => getCustomerInvoiceAmountSummary(id),
     enabled: Boolean(id),
   });
 }
