@@ -13,6 +13,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   TransporterBasicWidget,
   TransporterFinanceWidget,
+  TransporterVehiclesWidget,
   TransporterAdditionalWidget,
 } from '../widgets';
 
@@ -60,6 +61,9 @@ export function TransporterDetailView({ transporter }) {
           </Grid>
           <Grid xs={12} md={4}>
             <TransporterAdditionalWidget transporter={transporter} />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <TransporterVehiclesWidget transporterId={transporter._id} />
           </Grid>
         </Grid>
       </Box>

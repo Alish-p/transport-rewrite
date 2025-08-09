@@ -17,6 +17,11 @@ const getVehicle = async (id) => {
   return data;
 };
 
+const getTransporterVehicles = async (transporterId) => {
+  const { data } = await axios.get(`/api/transporters/${transporterId}/vehicles`);
+  return data;
+};
+
 const createVehicle = async (vehicle) => {
   const { data } = await axios.post(ENDPOINT, vehicle);
   return data;
@@ -66,6 +71,15 @@ export function useVehicle(id) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => getVehicle(id),
     enabled: !!id,
+  });
+}
+
+export function useTransporterVehicles(transporterId, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'by-transporter', transporterId],
+    queryFn: () => getTransporterVehicles(transporterId),
+    enabled: !!transporterId,
+    ...options,
   });
 }
 
