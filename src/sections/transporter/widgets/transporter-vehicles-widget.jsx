@@ -1,14 +1,14 @@
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import ListItemText from '@mui/material/ListItemText';
-
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { useTransporterVehicles } from 'src/query/use-vehicle';
 
@@ -17,26 +17,18 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 export function TransporterVehiclesWidget({ transporterId, title = 'Vehicles' }) {
   const { data: vehicles = [] } = useTransporterVehicles(transporterId);
+  const [showAll, setShowAll] = useState(false);
+  const displayed = showAll ? vehicles : vehicles.slice(0, 5);
 
   return (
     <Card>
       <CardHeader
         title={title}
         subheader={`Vehicles owned by the transporter (${vehicles?.length})`}
-        action={
-          <Button
-            size="small"
-            color="inherit"
-            endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
-            component={RouterLink}
-            href={paths.dashboard.vehicle.list}
-          >
-            View all
-          </Button>
-        }
+        sx={{ mb: 3 }}
       />
 
-      <Scrollbar sx={{ minHeight: 364 }}>
+      <Scrollbar sx={{ minHeight: 364, ...(showAll && { maxHeight: 364 }) }}>
         <Box
           sx={{
             p: 3,
@@ -47,12 +39,35 @@ export function TransporterVehiclesWidget({ transporterId, title = 'Vehicles' })
           }}
         >
           {vehicles.length ? (
-            vehicles.map((vehicle) => <Item key={vehicle._id} vehicle={vehicle} />)
+            displayed.map((vehicle) => <Item key={vehicle._id} vehicle={vehicle} />)
           ) : (
             <Box sx={{ typography: 'body2', color: 'text.secondary' }}>No vehicles</Box>
           )}
         </Box>
       </Scrollbar>
+
+      {vehicles.length > 5 && (
+        <>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <Box sx={{ p: 2, textAlign: 'right' }}>
+            <Button
+              size="small"
+              color="inherit"
+              onClick={() => setShowAll((prev) => !prev)}
+              endIcon={
+                <Iconify
+                  icon={showAll ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-forward-fill'}
+                  width={18}
+                  sx={{ ml: -0.5 }}
+                />
+              }
+            >
+              {showAll ? 'View less' : 'View all'}
+            </Button>
+          </Box>
+        </>
+      )}
     </Card>
   );
 }
