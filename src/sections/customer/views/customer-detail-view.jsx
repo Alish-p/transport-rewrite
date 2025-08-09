@@ -7,7 +7,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { CustomerBasicWidget, CustomerFinanceWidget, CustomerAdditionalWidget } from '../widgets';
+import {
+  CustomerBasicWidget,
+  CustomerFinanceWidget,
+  CustomerAdditionalWidget,
+  CustomerMaterialSummaryWidget,
+} from '../widgets';
 
 export function CustomerDetailView({ customer }) {
   const { customerName } = customer || {};
@@ -43,6 +48,9 @@ export function CustomerDetailView({ customer }) {
           </Grid>
           <Grid xs={12} md={4}>
             <CustomerAdditionalWidget customer={customer} />
+          </Grid>
+          <Grid xs={12}>
+            <CustomerMaterialSummaryWidget customer={customer} />
           </Grid>
         </Grid>
       </Box>
