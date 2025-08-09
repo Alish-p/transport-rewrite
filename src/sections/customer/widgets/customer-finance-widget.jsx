@@ -1,19 +1,44 @@
+import { useCallback } from 'react';
+
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
+import { copyToClipboard } from 'src/utils/copy-to-clipboard';
+
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { InfoItem } from './info-item';
 
 export function CustomerFinanceWidget({ customer }) {
-  const { bankDetails, gstEnabled, GSTNo, PANNo } = customer || {};
+  const { _id, bankDetails, gstEnabled, GSTNo, PANNo } = customer || {};
+
+  const handleCopy = useCallback(() => {
+    const text = JSON.stringify({ bankDetails, gstEnabled, GSTNo, PANNo }, null, 2);
+    copyToClipboard(text);
+    toast.success('Copied to clipboard');
+  }, [GSTNo, PANNo, bankDetails, gstEnabled]);
 
   return (
-    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.info.main}`, height: 1 }}>
+    <Card sx={{ borderTop: (theme) => `4px solid ${theme.palette.primary.main}`, height: 1 }}>
       <CardHeader
         title="Finance Details"
-        avatar={<Iconify icon="solar:wallet-bold" color="info.main" width={24} />}
+        avatar={<Iconify icon="solar:wallet-bold" color="primary.main" width={24} />}
+        action={
+          <Stack direction="row" spacing={0.5}>
+            <IconButton onClick={handleCopy}>
+              <Iconify icon="solar:copy-bold" />
+            </IconButton>
+            <IconButton component={RouterLink} href={paths.dashboard.customer.edit(_id)}>
+              <Iconify icon="solar:pen-bold" />
+            </IconButton>
+          </Stack>
+        }
         sx={{
           '& .MuiCardHeader-avatar': { mr: 1 },
           '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
@@ -25,7 +50,19 @@ export function CustomerFinanceWidget({ customer }) {
         <InfoItem label="IFSC" value={bankDetails?.ifsc} />
         <InfoItem label="Place" value={bankDetails?.place} />
         <InfoItem label="Account No" value={bankDetails?.accNo} />
-        <InfoItem label="GST Enabled" value={gstEnabled ? 'Yes' : 'No'} />
+        <InfoItem
+          label="GST Enabled"
+          value={
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Iconify
+                icon={gstEnabled ? 'solar:check-circle-bold' : 'solar:close-circle-bold'}
+                color={gstEnabled ? 'success.main' : 'error.main'}
+                width={20}
+              />
+              {gstEnabled ? 'Yes' : 'No'}
+            </Stack>
+          }
+        />
         <InfoItem label="GST No" value={GSTNo} />
         <InfoItem label="PAN No" value={PANNo} />
       </Stack>

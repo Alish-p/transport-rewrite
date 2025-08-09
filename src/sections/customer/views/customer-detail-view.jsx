@@ -1,35 +1,16 @@
 import Box from '@mui/material/Box';
-import { Button } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { CustomerBasicWidget, CustomerFinanceWidget, CustomerAdditionalWidget } from '../widgets';
 
 export function CustomerDetailView({ customer }) {
-  const {
-    _id,
-    customerName,
-    GSTNo,
-    PANNo,
-    address,
-    state,
-    pinCode,
-    cellNo,
-    bankDetails,
-    gstEnabled,
-    transporterCode,
-    invoicePrefix,
-    invoiceSuffix,
-    currentInvoiceSerialNumber,
-    invoiceDueInDays,
-  } = customer || {};
+  const { customerName } = customer || {};
 
   return (
     <DashboardContent>
@@ -50,36 +31,18 @@ export function CustomerDetailView({ customer }) {
             { name: `${customerName}` },
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.customer.edit(_id)}
-              variant="contained"
-              startIcon={<Iconify icon="solar:pen-bold" />}
-            >
-              Edit Customer
-            </Button>
-          }
         />
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
-            <CustomerBasicWidget customer={{ customerName, address, state, pinCode, cellNo }} />
+            <CustomerBasicWidget customer={customer} />
           </Grid>
           <Grid xs={12} md={4}>
-            <CustomerFinanceWidget customer={{ bankDetails, gstEnabled, GSTNo, PANNo }} />
+            <CustomerFinanceWidget customer={customer} />
           </Grid>
           <Grid xs={12} md={4}>
-            <CustomerAdditionalWidget
-              customer={{
-                transporterCode,
-                invoicePrefix,
-                invoiceSuffix,
-                currentInvoiceSerialNumber,
-                invoiceDueInDays,
-              }}
-            />
+            <CustomerAdditionalWidget customer={customer} />
           </Grid>
         </Grid>
       </Box>
