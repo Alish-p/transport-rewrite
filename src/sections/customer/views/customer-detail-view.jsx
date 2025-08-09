@@ -1,13 +1,10 @@
 import Box from '@mui/material/Box';
-import { Button } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { CustomerBasicWidget, CustomerFinanceWidget, CustomerAdditionalWidget } from '../widgets';
@@ -41,27 +38,24 @@ export function CustomerDetailView({ customer }) {
           { name: `${customerName}` },
         ]}
         sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.customer.edit(_id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Customer
-          </Button>
-        }
       />
       <Box sx={{ p: 3 }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
-            <CustomerBasicWidget customer={{ customerName, address, state, pinCode, cellNo }} />
+            <CustomerBasicWidget
+              customerId={_id}
+              customer={{ customerName, address, state, pinCode, cellNo }}
+            />
           </Grid>
           <Grid xs={12} md={4}>
-            <CustomerFinanceWidget customer={{ bankDetails, gstEnabled, GSTNo, PANNo }} />
+            <CustomerFinanceWidget
+              customerId={_id}
+              customer={{ bankDetails, gstEnabled, GSTNo, PANNo }}
+            />
           </Grid>
           <Grid xs={12} md={4}>
             <CustomerAdditionalWidget
+              customerId={_id}
               customer={{
                 transporterCode,
                 invoicePrefix,
