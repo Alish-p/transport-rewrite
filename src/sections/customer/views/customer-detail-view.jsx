@@ -12,6 +12,7 @@ import {
   CustomerFinanceWidget,
   CustomerAdditionalWidget,
   CustomerMaterialSummaryWidget,
+  CustomerSubtripCompletedWidget,
 } from '../widgets';
 
 export function CustomerDetailView({ customer }) {
@@ -49,8 +50,11 @@ export function CustomerDetailView({ customer }) {
           <Grid xs={12} md={4}>
             <CustomerAdditionalWidget customer={customer} />
           </Grid>
-          <Grid xs={12}>
+          <Grid xs={12} md={6}>
             <CustomerMaterialSummaryWidget customer={customer} />
+          </Grid>
+          <Grid xs={12} md={6}>
+            <CustomerSubtripCompletedWidget customer={customer} />
           </Grid>
         </Grid>
       </Box>

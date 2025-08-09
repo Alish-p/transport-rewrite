@@ -29,6 +29,13 @@ const getCustomerMonthlyMaterialWeight = async (id, month) => {
   return data;
 };
 
+const getCustomerSubtripMonthlyData = async (id, year) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/subtrip-monthly-data`, {
+    params: { year },
+  });
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -87,6 +94,14 @@ export function useCustomerMonthlyMaterialWeight(id, month) {
     queryKey: [QUERY_KEY, id, 'monthly-material-weight', month],
     queryFn: () => getCustomerMonthlyMaterialWeight(id, month),
     enabled: Boolean(id && month),
+  });
+}
+
+export function useCustomerSubtripMonthlyData(id, year) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'subtrip-monthly-data', year],
+    queryFn: () => getCustomerSubtripMonthlyData(id, year),
+    enabled: Boolean(id && year),
   });
 }
 
