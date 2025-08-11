@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import { Tooltip } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 
@@ -70,7 +71,20 @@ export function TransporterBasicWidget({ transporter }) {
         <InfoItem label="Address" value={address} />
         <InfoItem label="State" value={state} />
         <InfoItem label="Pin Code" value={pinNo} />
-        <InfoItem label="Mobile" value={cellNo} />
+        <InfoItem
+          label="Mobile"
+          value={
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>{cellNo}</Typography>
+              <IconButton
+                color="success"
+                onClick={() => window.open(`https://wa.me/${cellNo}`, '_blank')}
+              >
+                <Iconify icon="prime:whatsapp" />
+              </IconButton>
+            </Stack>
+          }
+        />
         <InfoItem label="Email" value={emailId} />
       </Stack>
     </Card>
