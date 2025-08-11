@@ -19,19 +19,19 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
 
   const ITEMS = [
     {
-      title: 'Invoice yet to bill amount',
+      title: 'Unbilled Amount',
       amount: summary.pendingAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
-      title: 'Invoice generated amount',
+      title: 'Billed Amount',
       amount: summary.generatedAmount,
       icon: 'mdi:clipboard-list-outline',
       color: theme.palette.info.main,
     },
     {
-      title: 'Invoice paid amount',
+      title: 'Paid Amount',
       amount: summary.paidAmount,
       icon: 'mdi:check-decagram-outline',
       color: theme.palette.success.main,
@@ -40,7 +40,7 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
 
   return (
     <Card {...other}>
-      <CardHeader title="Invoice Summary" sx={{ mb: 2 }} />
+      <CardHeader title="Customer Billing Summary" sx={{ mb: 2 }} />
       <Scrollbar>
         <Stack
           direction="row"
