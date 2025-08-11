@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf, PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Box from '@mui/material/Box';
@@ -20,8 +20,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { copyToClipboard } from 'src/utils/copy-to-clipboard';
+
 import InvoicePDF from 'src/pdfs/invoice-pdf';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { useTenantContext } from 'src/auth/tenant';
@@ -38,6 +41,42 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.invoice.edit(invoice?._id));
   }, [invoice._id, router]);
+
+  const handlePrint = useCallback(async () => {
+    const blob = await pdf(
+      <InvoicePDF invoice={invoice} currentStatus={currentStatus} tenant={tenant} />
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    const printWindow = window.open(url);
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+    }
+  }, [invoice, currentStatus, tenant]);
+
+  const handleSend = useCallback(() => {
+    const link = `${window.location.origin}${paths.dashboard.invoice.details(invoice?._id)}`;
+    const subject = encodeURIComponent(`Invoice ${invoice?._id}`);
+    const body = encodeURIComponent(`Please view the invoice at ${link}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }, [invoice._id]);
+
+  const handleShare = useCallback(async () => {
+    const link = `${window.location.origin}${paths.dashboard.invoice.details(invoice?._id)}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Invoice ${invoice?._id}`, url: link });
+      } catch {
+        copyToClipboard(link);
+        toast.success('Link copied to clipboard');
+      }
+    } else {
+      copyToClipboard(link);
+      toast.success('Link copied to clipboard');
+    }
+  }, [invoice._id]);
 
   return (
     <>
@@ -81,19 +120,19 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
           </PDFDownloadLink>
 
           <Tooltip title="Print">
-            <IconButton>
+            <IconButton onClick={handlePrint}>
               <Iconify icon="solar:printer-minimalistic-bold" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Send">
-            <IconButton>
+            <IconButton onClick={handleSend}>
               <Iconify icon="iconamoon:send-fill" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Share">
-            <IconButton>
+            <IconButton onClick={handleShare}>
               <Iconify icon="solar:share-bold" />
             </IconButton>
           </Tooltip>
