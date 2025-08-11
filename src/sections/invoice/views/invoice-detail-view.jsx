@@ -1,4 +1,11 @@
-import { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+
+import Dialog from '@mui/material/Dialog';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useUpdateInvoiceStatus } from 'src/query/use-invoice';
@@ -11,6 +18,7 @@ import InvoiceToolbar from '../invoice-toolbar';
 // Available invoice status options
 const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
+  { value: 'partially-paid', label: 'Partially Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
 ];
@@ -21,14 +29,40 @@ export function InvoiceDetailView({ invoice }) {
 
   const { invoiceStatus = '', _id, invoiceNo } = invoice;
 
-  // Callback to handle status change from the toolbar dropdown
+  const [statusValue, setStatusValue] = useState(invoiceStatus);
+  const [partialAmount, setPartialAmount] = useState('');
+  const [openPartial, setOpenPartial] = useState(false);
+  const [prevStatus, setPrevStatus] = useState(invoiceStatus);
+
+  useEffect(() => {
+    setStatusValue(invoiceStatus);
+  }, [invoiceStatus]);
+
   const handleChangeStatus = useCallback(
     (event) => {
       const newStatus = event.target.value;
-      updateInvoice({ id: _id, status: newStatus });
+      setStatusValue(newStatus);
+      if (newStatus === 'partially-paid') {
+        setPrevStatus(invoiceStatus);
+        setOpenPartial(true);
+      } else {
+        updateInvoice({ id: _id, status: newStatus });
+      }
     },
-    [updateInvoice, _id]
+    [updateInvoice, _id, invoiceStatus]
   );
+
+  const handleCancelPartial = () => {
+    setStatusValue(prevStatus);
+    setPartialAmount('');
+    setOpenPartial(false);
+  };
+
+  const handleConfirmPartial = () => {
+    updateInvoice({ id: _id, status: 'partially-paid', amount: Number(partialAmount) });
+    setPartialAmount('');
+    setOpenPartial(false);
+  };
 
   return (
     <DashboardContent>
@@ -46,13 +80,35 @@ export function InvoiceDetailView({ invoice }) {
       {/* Toolbar for status update and action buttons */}
       <InvoiceToolbar
         invoice={invoice}
-        currentStatus={invoiceStatus}
+        currentStatus={statusValue}
         onChangeStatus={handleChangeStatus}
         statusOptions={INVOICE_STATUS_OPTIONS}
       />
 
       {/* Invoice display content */}
       <InvoiceView invoice={invoice} />
+
+      <Dialog open={openPartial} onClose={handleCancelPartial} fullWidth maxWidth="xs">
+        <DialogTitle>Enter amount paid</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Amount"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={partialAmount}
+            onChange={(e) => setPartialAmount(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelPartial}>Cancel</Button>
+          <Button variant="contained" onClick={handleConfirmPartial} disabled={!partialAmount}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </DashboardContent>
   );
 }

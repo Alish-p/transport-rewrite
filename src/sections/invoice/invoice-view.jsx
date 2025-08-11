@@ -59,11 +59,13 @@ function RenderHeader({ invoice }) {
           color={
             invoiceStatus === 'paid'
               ? 'success'
-              : invoiceStatus === 'pending'
-                ? 'warning'
-                : invoiceStatus === 'overdue'
-                  ? 'error'
-                  : 'default'
+              : invoiceStatus === 'partially-paid'
+                ? 'info'
+                : invoiceStatus === 'pending'
+                  ? 'warning'
+                  : invoiceStatus === 'overdue'
+                    ? 'error'
+                    : 'default'
           }
         >
           {invoiceStatus || 'Draft'}

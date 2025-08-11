@@ -22,8 +22,12 @@ const createInvoice = async (invoice) => {
   return data;
 };
 
-const updateInvoiceStatus = async (id, status) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, { invoiceStatus: status });
+const updateInvoiceStatus = async (id, status, amount) => {
+  const payload = { invoiceStatus: status };
+  if (amount !== undefined) {
+    payload.amount = amount;
+  }
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, payload);
   return data;
 };
 
@@ -70,7 +74,7 @@ export function useCreateInvoice() {
 export function useUpdateInvoiceStatus() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, status }) => updateInvoiceStatus(id, status),
+    mutationFn: ({ id, status, amount }) => updateInvoiceStatus(id, status, amount),
     onSuccess: (updatedInvoice) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
