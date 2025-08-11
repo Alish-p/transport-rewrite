@@ -17,10 +17,11 @@ import InvoiceToolbar from '../invoice-toolbar';
 
 // Available invoice status options
 const INVOICE_STATUS_OPTIONS = [
-  { value: 'paid', label: 'Paid' },
-  { value: 'partially-paid', label: 'Partially Paid' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
+  { value: 'Received', label: 'Received' },
+  { value: 'Partial Received', label: 'Partially Paid' },
+  { value: 'Pending', label: 'Pending' },
+  { value: 'Overdue', label: 'Overdue' },
+  { value: 'Cancelled', label: 'Cancelled' },
 ];
 
 // Main component to display invoice details and allow status update
@@ -42,7 +43,7 @@ export function InvoiceDetailView({ invoice }) {
     (event) => {
       const newStatus = event.target.value;
       setStatusValue(newStatus);
-      if (newStatus === 'partially-paid') {
+      if (newStatus === 'Partial Received') {
         setPrevStatus(invoiceStatus);
         setOpenPartial(true);
       } else {
@@ -59,7 +60,7 @@ export function InvoiceDetailView({ invoice }) {
   };
 
   const handleConfirmPartial = () => {
-    updateInvoice({ id: _id, status: 'partially-paid', amount: Number(partialAmount) });
+    updateInvoice({ id: _id, status: 'Partial Received', amount: Number(partialAmount) });
     setPartialAmount('');
     setOpenPartial(false);
   };
