@@ -201,6 +201,14 @@ export default function SimplerNewInvoiceForm() {
     additionalItems,
   });
 
+  const nextInvoiceNumber = selectedCustomer
+    ? `${selectedCustomer.invoicePrefix || ''}${
+        typeof selectedCustomer.currentInvoiceSerialNumber === 'number'
+          ? selectedCustomer.currentInvoiceSerialNumber + 1
+          : ''
+      }${selectedCustomer.invoiceSuffix || ''}`
+    : 'INV - XXX';
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ p: 3 }}>
@@ -221,7 +229,7 @@ export default function SimplerNewInvoiceForm() {
             <Label variant="soft" color="warning">
               Draft
             </Label>
-            <Typography variant="h6">INV - XXX</Typography>
+            <Typography variant="h6">{nextInvoiceNumber}</Typography>
           </Stack>
         </Box>
         <Stack
@@ -238,9 +246,7 @@ export default function SimplerNewInvoiceForm() {
               <Typography variant="body2">{tenant?.address?.line1}</Typography>
               <Typography variant="body2">{tenant?.address?.line2}</Typography>
               <Typography variant="body2">{tenant?.address?.state}</Typography>
-              <Typography variant="body2">
-                Phone: {tenant?.contactDetails?.phone}
-              </Typography>
+              <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
             </Stack>
           </Stack>
 
