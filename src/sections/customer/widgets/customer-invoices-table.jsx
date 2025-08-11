@@ -16,7 +16,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate } from 'src/utils/format-time';
 
 import { useCustomerInvoices } from 'src/query/use-customer';
 
