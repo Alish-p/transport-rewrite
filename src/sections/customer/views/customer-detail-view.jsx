@@ -8,9 +8,10 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import {
-  CustomerRoutesTable,
   CustomerBasicWidget,
+  CustomerRoutesTable,
   CustomerFinanceWidget,
+  CustomerInvoicesTable,
   CustomerAdditionalWidget,
   CustomerMaterialSummaryWidget,
   CustomerSubtripCompletedWidget,
@@ -60,6 +61,13 @@ export function CustomerDetailView({ customer }) {
           </Grid>
           <Grid xs={12} md={6}>
             <CustomerSubtripCompletedWidget customer={customer} />
+          </Grid>
+          <Grid xs={12} md={12}>
+            <CustomerInvoicesTable
+              customer={customer}
+              title="📄 Invoices"
+              subheader="Invoices for this customer"
+            />
           </Grid>
           <Grid xs={12} md={12}>
             <CustomerRoutesTable

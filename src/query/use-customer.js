@@ -46,6 +46,11 @@ const getCustomerInvoiceAmountSummary = async (id) => {
   return data;
 };
 
+const getCustomerInvoices = async (id) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/invoices`);
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -127,6 +132,14 @@ export function useCustomerInvoiceAmountSummary(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id, 'invoice-amount-summary'],
     queryFn: () => getCustomerInvoiceAmountSummary(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCustomerInvoices(id) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'invoices'],
+    queryFn: () => getCustomerInvoices(id),
     enabled: Boolean(id),
   });
 }
