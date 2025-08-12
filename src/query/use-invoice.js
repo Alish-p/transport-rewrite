@@ -41,8 +41,8 @@ const cancelInvoice = async (id) => {
   return data;
 };
 
-const payInvoice = async (id, amount) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/pay`, { amount });
+const payInvoice = async (id, payload) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/pay`, payload);
   return data;
 };
 
@@ -122,7 +122,7 @@ export function useCancelInvoice() {
 export function usePayInvoice() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, amount }) => payInvoice(id, amount),
+    mutationFn: ({ id, ...payload }) => payInvoice(id, payload),
     onSuccess: (updatedInvoice) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);

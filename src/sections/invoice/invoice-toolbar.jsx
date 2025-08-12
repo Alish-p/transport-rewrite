@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
@@ -9,7 +9,6 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
-import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import DialogActions from '@mui/material/DialogActions';
@@ -22,7 +21,7 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import InvoicePDF from 'src/pdfs/invoice-pdf';
-import { usePayInvoice, useCancelInvoice } from 'src/query/use-invoice';
+import { useCancelInvoice } from 'src/query/use-invoice';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -31,6 +30,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { useTenantContext } from 'src/auth/tenant';
 
 import { INVOICE_STATUS } from './invoice-config';
+import InvoicePaymentDialog from './invoice-payment-dialog';
 import InvoicePaymentTimeline from './invoice-payment-timeline';
 
 // ----------------------------------------------------------------------
@@ -46,9 +46,6 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
   const tenant = useTenantContext();
 
   const cancelInvoice = useCancelInvoice();
-  const payInvoice = usePayInvoice();
-
-  const [amount, setAmount] = useState(0);
   const remainingAmount = Math.max(0, (invoice?.netTotal || 0) - (invoice?.totalReceived || 0));
 
   const handleEdit = useCallback(() => {
@@ -65,22 +62,8 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
   }, [cancelInvoice, confirmCancel, invoice._id]);
 
   const handleOpenPay = useCallback(() => {
-    setAmount(remainingAmount);
     payDialog.onTrue();
-  }, [remainingAmount, payDialog]);
-
-  const handleChangeAmount = (event) => {
-    setAmount(Number(event.target.value));
-  };
-
-  const handlePayInvoice = useCallback(async () => {
-    try {
-      await payInvoice({ id: invoice?._id, amount });
-      payDialog.onFalse();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [amount, invoice._id, payDialog, payInvoice]);
+  }, [payDialog]);
 
   return (
     <>
@@ -196,39 +179,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
         }
       />
 
-      <ConfirmDialog
-        open={payDialog.value}
-        onClose={payDialog.onFalse}
-        title="Record payment"
-        content={
-          <TextField
-            autoFocus
-            fullWidth
-            type="number"
-            label="Amount"
-            value={amount}
-            onChange={handleChangeAmount}
-            inputProps={{ min: 0, max: remainingAmount }}
-            error={amount <= 0 || amount > remainingAmount}
-            helperText={
-              amount <= 0
-                ? 'Amount must be greater than 0'
-                : amount > remainingAmount
-                  ? 'Amount exceeds pending amount'
-                  : ''
-            }
-          />
-        }
-        action={
-          <Button
-            variant="contained"
-            onClick={handlePayInvoice}
-            disabled={amount <= 0 || amount > remainingAmount}
-          >
-            Pay
-          </Button>
-        }
-      />
+      <InvoicePaymentDialog open={payDialog.value} onClose={payDialog.onFalse} invoice={invoice} />
     </>
   );
 }
