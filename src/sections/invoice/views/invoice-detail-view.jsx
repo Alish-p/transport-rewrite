@@ -15,15 +15,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import InvoiceView from '../invoice-view';
 import InvoiceToolbar from '../invoice-toolbar';
 
-// Available invoice status options
-const INVOICE_STATUS_OPTIONS = [
-  { value: 'Received', label: 'Received' },
-  { value: 'Partial Received', label: 'Partially Paid' },
-  { value: 'Pending', label: 'Pending' },
-  { value: 'Overdue', label: 'Overdue' },
-  { value: 'Cancelled', label: 'Cancelled' },
-];
-
 // Main component to display invoice details and allow status update
 export function InvoiceDetailView({ invoice }) {
   const { invoiceStatus = '', invoiceNo } = invoice;

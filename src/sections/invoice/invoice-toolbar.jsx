@@ -23,6 +23,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import InvoicePDF from 'src/pdfs/invoice-pdf';
 import { usePayInvoice, useCancelInvoice } from 'src/query/use-invoice';
 
+import { INVOICE_STATUS } from './invoice-config';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
@@ -135,7 +137,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
             </IconButton>
           </Tooltip>
 
-          {remainingAmount > 0 && currentStatus !== 'Cancelled' && (
+          {remainingAmount > 0 && currentStatus !== INVOICE_STATUS.CANCELLED && (
             <Tooltip title="Record payment">
               <IconButton color="success" onClick={handleOpenPay}>
                 <Iconify icon="ant-design:dollar-circle-filled" />
@@ -143,7 +145,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
             </Tooltip>
           )}
 
-          {currentStatus !== 'Cancelled' && (
+          {currentStatus !== INVOICE_STATUS.CANCELLED && (
             <Tooltip title="Cancel invoice">
               <IconButton color="error" onClick={confirmCancel.onTrue}>
                 <Iconify icon="material-symbols:cancel-outline" />
