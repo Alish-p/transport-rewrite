@@ -36,6 +36,11 @@ const deleteInvoice = async (id) => {
   return data;
 };
 
+const cancelInvoice = async (id) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/cancel`);
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedInvoices(params, options = {}) {
   return useQuery({
@@ -80,6 +85,25 @@ export function useUpdateInvoiceStatus() {
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
 
       toast.success('Invoice status changed successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useCancelInvoice() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: (id) => cancelInvoice(id),
+    onSuccess: (updatedInvoice) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
+
+      toast.success('Invoice cancelled successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';

@@ -21,8 +21,10 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import InvoicePDF from 'src/pdfs/invoice-pdf';
+import { useCancelInvoice } from 'src/query/use-invoice';
 
 import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -32,12 +34,24 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
   const router = useRouter();
 
   const view = useBoolean();
+  const confirmCancel = useBoolean();
 
   const tenant = useTenantContext();
+
+  const cancelInvoice = useCancelInvoice();
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.invoice.edit(invoice?._id));
   }, [invoice._id, router]);
+
+  const handleCancelInvoice = useCallback(async () => {
+    try {
+      await cancelInvoice(invoice?._id);
+      confirmCancel.onFalse();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [cancelInvoice, confirmCancel, invoice._id]);
 
   return (
     <>
@@ -97,6 +111,14 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
               <Iconify icon="solar:share-bold" />
             </IconButton>
           </Tooltip>
+
+          {currentStatus !== 'Cancelled' && (
+            <Tooltip title="Cancel invoice">
+              <IconButton color="error" onClick={confirmCancel.onTrue}>
+                <Iconify icon="material-symbols:cancel-outline" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
 
         <TextField
@@ -136,6 +158,18 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
           </Box>
         </Box>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmCancel.value}
+        onClose={confirmCancel.onFalse}
+        title="Cancel invoice"
+        content="Are you sure you want to cancel this invoice? All linked subtrips will be available for billing."
+        action={
+          <Button variant="contained" color="error" onClick={handleCancelInvoice}>
+            Cancel invoice
+          </Button>
+        }
+      />
     </>
   );
 }
