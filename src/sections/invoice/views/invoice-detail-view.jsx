@@ -26,44 +26,13 @@ const INVOICE_STATUS_OPTIONS = [
 
 // Main component to display invoice details and allow status update
 export function InvoiceDetailView({ invoice }) {
-  const updateInvoice = useUpdateInvoiceStatus();
-
-  const { invoiceStatus = '', _id, invoiceNo } = invoice;
+  const { invoiceStatus = '', invoiceNo } = invoice;
 
   const [statusValue, setStatusValue] = useState(invoiceStatus);
-  const [partialAmount, setPartialAmount] = useState('');
-  const [openPartial, setOpenPartial] = useState(false);
-  const [prevStatus, setPrevStatus] = useState(invoiceStatus);
 
   useEffect(() => {
     setStatusValue(invoiceStatus);
   }, [invoiceStatus]);
-
-  const handleChangeStatus = useCallback(
-    (event) => {
-      const newStatus = event.target.value;
-      setStatusValue(newStatus);
-      if (newStatus === 'Partial Received') {
-        setPrevStatus(invoiceStatus);
-        setOpenPartial(true);
-      } else {
-        updateInvoice({ id: _id, status: newStatus });
-      }
-    },
-    [updateInvoice, _id, invoiceStatus]
-  );
-
-  const handleCancelPartial = () => {
-    setStatusValue(prevStatus);
-    setPartialAmount('');
-    setOpenPartial(false);
-  };
-
-  const handleConfirmPartial = () => {
-    updateInvoice({ id: _id, status: 'Partial Received', amount: Number(partialAmount) });
-    setPartialAmount('');
-    setOpenPartial(false);
-  };
 
   return (
     <DashboardContent>
@@ -79,37 +48,10 @@ export function InvoiceDetailView({ invoice }) {
       />
 
       {/* Toolbar for status update and action buttons */}
-      <InvoiceToolbar
-        invoice={invoice}
-        currentStatus={statusValue}
-        onChangeStatus={handleChangeStatus}
-        statusOptions={INVOICE_STATUS_OPTIONS}
-      />
+      <InvoiceToolbar invoice={invoice} currentStatus={statusValue} />
 
       {/* Invoice display content */}
       <InvoiceView invoice={invoice} />
-
-      <Dialog open={openPartial} onClose={handleCancelPartial} fullWidth maxWidth="xs">
-        <DialogTitle>Enter amount paid</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Amount"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={partialAmount}
-            onChange={(e) => setPartialAmount(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelPartial}>Cancel</Button>
-          <Button variant="contained" onClick={handleConfirmPartial} disabled={!partialAmount}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </DashboardContent>
   );
 }

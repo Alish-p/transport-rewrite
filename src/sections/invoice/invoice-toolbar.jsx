@@ -30,7 +30,7 @@ import { useTenantContext } from 'src/auth/tenant';
 
 // ----------------------------------------------------------------------
 
-export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
+export default function InvoiceToolbar({ invoice, currentStatus }) {
   const router = useRouter();
 
   const view = useBoolean();
@@ -151,23 +151,6 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
             </Tooltip>
           )}
         </Stack>
-
-        <TextField
-          fullWidth
-          select
-          label="Status"
-          value={currentStatus}
-          onChange={onChangeStatus}
-          sx={{
-            maxWidth: 160,
-          }}
-        >
-          {statusOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
       </Stack>
 
       <Dialog fullScreen open={view.value}>
