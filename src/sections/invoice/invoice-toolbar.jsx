@@ -118,24 +118,6 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
             )}
           </PDFDownloadLink>
 
-          <Tooltip title="Print">
-            <IconButton>
-              <Iconify icon="solar:printer-minimalistic-bold" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Send">
-            <IconButton>
-              <Iconify icon="iconamoon:send-fill" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Share">
-            <IconButton>
-              <Iconify icon="solar:share-bold" />
-            </IconButton>
-          </Tooltip>
-
           {remainingAmount > 0 && currentStatus !== INVOICE_STATUS.CANCELLED && (
             <Tooltip title="Record payment">
               <IconButton color="success" onClick={handleOpenPay}>
