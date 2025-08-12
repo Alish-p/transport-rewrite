@@ -7,9 +7,11 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
 // routes
@@ -24,10 +26,12 @@ import { usePayInvoice, useCancelInvoice } from 'src/query/use-invoice';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { useTenantContext } from 'src/auth/tenant';
 
 import { INVOICE_STATUS } from './invoice-config';
+import InvoicePaymentTimeline from './invoice-payment-timeline';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +41,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
   const view = useBoolean();
   const confirmCancel = useBoolean();
   const payDialog = useBoolean();
+  const historyPopover = usePopover();
 
   const tenant = useTenantContext();
 
@@ -125,6 +130,11 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
               </Tooltip>
             )}
           </PDFDownloadLink>
+          <Tooltip title="Payment history">
+            <IconButton onClick={historyPopover.onOpen}>
+              <Iconify icon="mdi:timeline-clock-outline" />
+            </IconButton>
+          </Tooltip>
           <Box sx={{ flexGrow: 1 }} />
 
           {remainingAmount > 0 && currentStatus !== INVOICE_STATUS.CANCELLED && (
@@ -158,6 +168,21 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
           </Box>
         </Box>
       </Dialog>
+
+      <CustomPopover
+        open={historyPopover.open}
+        anchorEl={historyPopover.anchorEl}
+        onClose={historyPopover.onClose}
+        slotProps={{ paper: { sx: { p: 0, width: 320 } }, arrow: { placement: 'left-top' } }}
+      >
+        <Box sx={{ p: 2, pb: 1.5 }}>
+          <Typography variant="subtitle2">Payment history</Typography>
+        </Box>
+        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Box sx={{ p: 2 }}>
+          <InvoicePaymentTimeline payments={invoice?.payments} />
+        </Box>
+      </CustomPopover>
 
       <ConfirmDialog
         open={confirmCancel.value}
