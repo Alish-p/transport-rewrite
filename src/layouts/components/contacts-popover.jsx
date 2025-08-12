@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { m } from 'framer-motion';
 
 import Badge from '@mui/material/Badge';
@@ -10,14 +11,29 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { fToNow } from 'src/utils/format-time';
 
+import { useUsersLastSeen } from 'src/query/use-user';
+
 import { varHover } from 'src/components/animate';
 import { Scrollbar } from 'src/components/scrollbar';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function ContactsPopover({ data = [], sx, ...other }) {
+export function ContactsPopover({ sx, ...other }) {
   const popover = usePopover();
+  const { data: users = [] } = useUsersLastSeen();
+
+  const data = users.map((user) => {
+    const isOnline = user.lastSeen && dayjs().diff(user.lastSeen, 'minute') <= 5;
+
+    return {
+      id: user._id,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      lastActivity: user.lastSeen,
+      status: isOnline ? 'online' : 'offline',
+    };
+  });
 
   return (
     <>
@@ -51,7 +67,7 @@ export function ContactsPopover({ data = [], sx, ...other }) {
         }}
       >
         <Typography variant="h6" sx={{ p: 1.5 }}>
-          Contacts <span>({data.length})</span>
+          Users <span>({data.length})</span>
         </Typography>
 
         <Scrollbar sx={{ height: 320, width: 320 }}>
@@ -62,12 +78,18 @@ export function ContactsPopover({ data = [], sx, ...other }) {
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 sx={{ mr: 2 }}
               >
-                <Avatar alt={contact.name} src={contact.avatarUrl} />
+                <Avatar src={contact?.avatarUrl} alt={contact?.name}>
+                  {contact?.name?.charAt(0).toUpperCase()}
+                </Avatar>
               </Badge>
 
               <ListItemText
                 primary={contact.name}
-                secondary={contact.status === 'offline' ? fToNow(contact.lastActivity) : ''}
+                secondary={
+                  contact.status === 'offline' && contact.lastActivity
+                    ? `${fToNow(contact.lastActivity)} ago`
+                    : ''
+                }
                 primaryTypographyProps={{ typography: 'subtitle2' }}
                 secondaryTypographyProps={{ typography: 'caption', color: 'text.disabled' }}
               />

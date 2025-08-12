@@ -17,6 +17,11 @@ const getUser = async (id) => {
   return data;
 };
 
+const getUsersLastSeen = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/last-seen`);
+  return data;
+};
+
 const createUser = async (user) => {
   const { data } = await axios.post(ENDPOINT, user);
   return data;
@@ -44,6 +49,10 @@ export function useUser(id) {
     queryFn: () => getUser(id),
     enabled: !!id,
   });
+}
+
+export function useUsersLastSeen() {
+  return useQuery({ queryKey: [QUERY_KEY, 'last-seen'], queryFn: getUsersLastSeen });
 }
 
 export function useCreateUser() {
