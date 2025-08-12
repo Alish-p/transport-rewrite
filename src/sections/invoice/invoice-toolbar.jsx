@@ -83,7 +83,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
         spacing={3}
         direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-end', sm: 'center' }}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 2 } }}
       >
         <Stack direction="row" spacing={1} flexGrow={1} sx={{ width: 1 }}>
           <Tooltip title="Edit">
@@ -91,6 +91,14 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
+
+          {currentStatus !== INVOICE_STATUS.CANCELLED && (
+            <Tooltip title="Cancel invoice">
+              <IconButton onClick={confirmCancel.onTrue}>
+                <Iconify icon="material-symbols:cancel-outline" />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title="View">
             <IconButton onClick={view.onTrue}>
@@ -117,21 +125,16 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
               </Tooltip>
             )}
           </PDFDownloadLink>
+          <Box sx={{ flexGrow: 1 }} />
 
           {remainingAmount > 0 && currentStatus !== INVOICE_STATUS.CANCELLED && (
-            <Tooltip title="Record payment">
-              <IconButton color="success" onClick={handleOpenPay}>
-                <Iconify icon="ant-design:dollar-circle-filled" />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {currentStatus !== INVOICE_STATUS.CANCELLED && (
-            <Tooltip title="Cancel invoice">
-              <IconButton color="error" onClick={confirmCancel.onTrue}>
-                <Iconify icon="material-symbols:cancel-outline" />
-              </IconButton>
-            </Tooltip>
+            <Button
+              variant="outlined"
+              startIcon={<Iconify icon="mdi:cash-check" />}
+              onClick={handleOpenPay}
+            >
+              Mark as Paid
+            </Button>
           )}
         </Stack>
       </Stack>
