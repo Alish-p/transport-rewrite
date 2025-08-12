@@ -14,6 +14,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import InvoiceView from '../invoice-view';
 import InvoiceToolbar from '../invoice-toolbar';
+import InvoicePaymentTimeline from '../invoice-payment-timeline';
 
 // Main component to display invoice details and allow status update
 export function InvoiceDetailView({ invoice }) {
@@ -43,6 +44,7 @@ export function InvoiceDetailView({ invoice }) {
 
       {/* Invoice display content */}
       <InvoiceView invoice={invoice} />
+      <InvoicePaymentTimeline payments={invoice?.payments} />
     </DashboardContent>
   );
 }
