@@ -41,6 +41,11 @@ const cancelInvoice = async (id) => {
   return data;
 };
 
+const payInvoice = async (id, amount) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/pay`, { amount });
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedInvoices(params, options = {}) {
   return useQuery({
@@ -108,6 +113,25 @@ export function useCancelInvoice() {
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function usePayInvoice() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, amount }) => payInvoice(id, amount),
+    onSuccess: (updatedInvoice) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
+
+      toast.success('Payment recorded successfully!');
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.message || error?.message || 'Payment failed';
+      toast.error(msg);
     },
   });
 
