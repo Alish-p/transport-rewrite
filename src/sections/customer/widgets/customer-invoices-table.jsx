@@ -15,8 +15,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fCurrency } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time';
+import { fCurrency } from 'src/utils/format-number';
 
 import { useCustomerInvoices } from 'src/query/use-customer';
 

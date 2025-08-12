@@ -23,8 +23,8 @@ import { Label } from 'src/components/label';
 
 import { useTenantContext } from 'src/auth/tenant';
 
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { INVOICE_STATUS_COLOR } from './invoice-config';
+import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -56,10 +56,7 @@ function RenderHeader({ invoice }) {
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label
-          variant="soft"
-          color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}
-        >
+        <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
           {invoiceStatus || 'Draft'}
         </Label>
         <Typography variant="h6">{invoiceNo || 'INV - XXX'}</Typography>

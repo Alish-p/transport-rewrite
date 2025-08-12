@@ -11,9 +11,9 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
-import { INVOICE_STATUS_COLOR } from './invoice-config';
 
 import { wrapText } from '../../utils/change-case';
+import { INVOICE_STATUS_COLOR } from './invoice-config';
 
 export const TABLE_COLUMNS = [
   {
