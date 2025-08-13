@@ -1,19 +1,21 @@
 import dayjs from 'dayjs';
 import { m } from 'framer-motion';
 
+import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import SvgIcon from '@mui/material/SvgIcon';
+import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { alpha, styled } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-import Box from '@mui/material/Box';
-import { styled, alpha } from '@mui/material/styles';
 
 import { fToNow } from 'src/utils/format-time';
+
 import { useUsersLastSeen } from 'src/query/use-user';
+
 import { varHover } from 'src/components/animate';
 import { Scrollbar } from 'src/components/scrollbar';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -164,7 +166,6 @@ export function ContactsPopover({ sx, ...other }) {
         anchorEl={popover.anchorEl}
         onClose={popover.onClose}
         slotProps={{
-          arrow: { offset: 20 },
           paper: {
             sx: {
               width: 360,
@@ -174,6 +175,7 @@ export function ContactsPopover({ sx, ...other }) {
               boxShadow: (theme) => theme.shadows[20],
             },
           },
+          arrow: { placement: 'right-bottom' },
         }}
       >
         <HeaderContainer>
