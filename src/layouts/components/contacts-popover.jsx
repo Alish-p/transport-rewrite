@@ -116,7 +116,7 @@ export function ContactsPopover({ sx, ...other }) {
     if (contact.lastActivity) {
       return `Last seen ${fToNow(contact.lastActivity)} ago`;
     }
-    return 'Last seen recently';
+    return 'Offline';
   };
 
   return (
