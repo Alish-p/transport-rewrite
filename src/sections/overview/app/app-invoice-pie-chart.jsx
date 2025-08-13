@@ -9,7 +9,7 @@ import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export function AppCurrentDownload({ title, subheader, chart, ...other }) {
+export function InvoicePiechartWidget({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { pdf, PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Box from '@mui/material/Box';
@@ -20,12 +20,9 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { copyToClipboard } from 'src/utils/copy-to-clipboard';
-
 import InvoicePDF from 'src/pdfs/invoice-pdf';
 import { useCancelInvoice } from 'src/query/use-invoice';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';

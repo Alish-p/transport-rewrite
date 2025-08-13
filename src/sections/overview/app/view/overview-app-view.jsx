@@ -16,8 +16,8 @@ import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
 import { TopRoutesTable } from '../app-top-routes-table';
 import { DashboardTotalWidget } from '../app-total-widget';
-import { AppCurrentDownload } from '../app-current-download';
 import { FinancialMonthlyChart } from '../app-finance-charts';
+import { InvoicePiechartWidget } from '../app-invoice-pie-chart';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { DriverInsightsTable } from '../app-driver-insights-table';
 import { CustomerFreightTable } from '../app-customer-freight-table';
@@ -153,7 +153,7 @@ export function OverviewAppView({
 
         {invoices && (
           <Grid xs={12} md={6} lg={4}>
-            <AppCurrentDownload
+            <InvoicePiechartWidget
               title="Invoices"
               subheader="Invoice generated through the dashboard"
               chart={{
