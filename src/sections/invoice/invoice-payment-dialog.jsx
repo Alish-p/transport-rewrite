@@ -70,7 +70,7 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
                 <Typography variant="body2">{fCurrency(total)}</Typography>
               </Stack>
               <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2">Paid</Typography>
+                <Typography variant="body2">Received</Typography>
                 <Typography variant="body2">{fCurrency(paid)}</Typography>
               </Stack>
               <Stack direction="row" justifyContent="space-between">
