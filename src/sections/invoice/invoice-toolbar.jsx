@@ -7,10 +7,10 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
 // routes
@@ -23,60 +23,50 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { copyToClipboard } from 'src/utils/copy-to-clipboard';
 
 import InvoicePDF from 'src/pdfs/invoice-pdf';
+import { useCancelInvoice } from 'src/query/use-invoice';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { INVOICE_STATUS } from './invoice-config';
+import InvoicePaymentDialog from './invoice-payment-dialog';
+import InvoicePaymentTimeline from './invoice-payment-timeline';
+
 // ----------------------------------------------------------------------
 
-export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }) {
+export default function InvoiceToolbar({ invoice, currentStatus }) {
   const router = useRouter();
 
   const view = useBoolean();
+  const confirmCancel = useBoolean();
+  const payDialog = useBoolean();
+  const historyPopover = usePopover();
 
   const tenant = useTenantContext();
+
+  const cancelInvoice = useCancelInvoice();
+  const remainingAmount = Math.max(0, (invoice?.netTotal || 0) - (invoice?.totalReceived || 0));
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.invoice.edit(invoice?._id));
   }, [invoice._id, router]);
 
-  const handlePrint = useCallback(async () => {
-    const blob = await pdf(
-      <InvoicePDF invoice={invoice} currentStatus={currentStatus} tenant={tenant} />
-    ).toBlob();
-    const url = URL.createObjectURL(blob);
-    const printWindow = window.open(url);
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-      };
+  const handleCancelInvoice = useCallback(async () => {
+    try {
+      await cancelInvoice(invoice?._id);
+      confirmCancel.onFalse();
+    } catch (error) {
+      console.error(error);
     }
-  }, [invoice, currentStatus, tenant]);
+  }, [cancelInvoice, confirmCancel, invoice._id]);
 
-  const handleSend = useCallback(() => {
-    const link = `${window.location.origin}${paths.dashboard.invoice.details(invoice?._id)}`;
-    const subject = encodeURIComponent(`Invoice ${invoice?._id}`);
-    const body = encodeURIComponent(`Please view the invoice at ${link}`);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-  }, [invoice._id]);
-
-  const handleShare = useCallback(async () => {
-    const link = `${window.location.origin}${paths.dashboard.invoice.details(invoice?._id)}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `Invoice ${invoice?._id}`, url: link });
-      } catch {
-        copyToClipboard(link);
-        toast.success('Link copied to clipboard');
-      }
-    } else {
-      copyToClipboard(link);
-      toast.success('Link copied to clipboard');
-    }
-  }, [invoice._id]);
+  const handleOpenPay = useCallback(() => {
+    payDialog.onTrue();
+  }, [payDialog]);
 
   return (
     <>
@@ -84,7 +74,7 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
         spacing={3}
         direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-end', sm: 'center' }}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 2 } }}
       >
         <Stack direction="row" spacing={1} flexGrow={1} sx={{ width: 1 }}>
           <Tooltip title="Edit">
@@ -92,6 +82,14 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
+
+          {currentStatus !== INVOICE_STATUS.CANCELLED && (
+            <Tooltip title="Cancel invoice">
+              <IconButton onClick={confirmCancel.onTrue}>
+                <Iconify icon="material-symbols:cancel-outline" />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title="View">
             <IconButton onClick={view.onTrue}>
@@ -118,42 +116,23 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
               </Tooltip>
             )}
           </PDFDownloadLink>
-
-          <Tooltip title="Print">
-            <IconButton onClick={handlePrint}>
-              <Iconify icon="solar:printer-minimalistic-bold" />
+          <Tooltip title="Payment history">
+            <IconButton onClick={historyPopover.onOpen}>
+              <Iconify icon="mdi:timeline-clock-outline" />
             </IconButton>
           </Tooltip>
+          <Box sx={{ flexGrow: 1 }} />
 
-          <Tooltip title="Send">
-            <IconButton onClick={handleSend}>
-              <Iconify icon="iconamoon:send-fill" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Share">
-            <IconButton onClick={handleShare}>
-              <Iconify icon="solar:share-bold" />
-            </IconButton>
-          </Tooltip>
+          {remainingAmount > 0 && currentStatus !== INVOICE_STATUS.CANCELLED && (
+            <Button
+              variant="outlined"
+              startIcon={<Iconify icon="mdi:cash-check" />}
+              onClick={handleOpenPay}
+            >
+              Mark as Paid
+            </Button>
+          )}
         </Stack>
-
-        <TextField
-          fullWidth
-          select
-          label="Status"
-          value={currentStatus}
-          onChange={onChangeStatus}
-          sx={{
-            maxWidth: 160,
-          }}
-        >
-          {statusOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
       </Stack>
 
       <Dialog fullScreen open={view.value}>
@@ -175,6 +154,35 @@ export default function InvoiceToolbar({ invoice, currentStatus, statusOptions, 
           </Box>
         </Box>
       </Dialog>
+
+      <CustomPopover
+        open={historyPopover.open}
+        anchorEl={historyPopover.anchorEl}
+        onClose={historyPopover.onClose}
+        slotProps={{ paper: { sx: { p: 0, width: 320 } }, arrow: { placement: 'left-top' } }}
+      >
+        <Box sx={{ p: 2, pb: 1.5 }}>
+          <Typography variant="subtitle2">Payment history</Typography>
+        </Box>
+        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Box sx={{ p: 2 }}>
+          <InvoicePaymentTimeline payments={invoice?.payments} />
+        </Box>
+      </CustomPopover>
+
+      <ConfirmDialog
+        open={confirmCancel.value}
+        onClose={confirmCancel.onFalse}
+        title="Cancel invoice"
+        content="Are you sure you want to cancel this invoice? All linked subtrips will be available for billing."
+        action={
+          <Button variant="contained" color="error" onClick={handleCancelInvoice}>
+            Cancel invoice
+          </Button>
+        }
+      />
+
+      <InvoicePaymentDialog open={payDialog.value} onClose={payDialog.onFalse} invoice={invoice} />
     </>
   );
 }

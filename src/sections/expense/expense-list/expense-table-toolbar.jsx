@@ -356,9 +356,7 @@ export default function ExpenseTableToolbar({
           SUBTRIP_STATUS.LOADED,
           SUBTRIP_STATUS.RECEIVED,
           SUBTRIP_STATUS.ERROR,
-          SUBTRIP_STATUS.BILLED_PENDING,
-          SUBTRIP_STATUS.BILLED_PAID,
-          SUBTRIP_STATUS.BILLED_OVERDUE,
+          SUBTRIP_STATUS.BILLED,
         ]}
       />
 

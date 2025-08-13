@@ -10,9 +10,7 @@ export function SubtripStatusStepper({ status }) {
     loaded: 1,
     error: 2,
     received: 3,
-    'billed-pending': 4,
-    'billed-overdue': 5,
-    'billed-paid': 6,
+    billed: 4,
   };
 
   const statusDescriptions = {
@@ -22,22 +20,12 @@ export function SubtripStatusStepper({ status }) {
     error:
       'Issues detected: Problems with documentation or other complications that need resolution',
     received: 'Goods have been successfully delivered and received at the destination',
-    'billed-pending': 'Invoice generated and sent, awaiting payment within due date',
-    'billed-overdue': 'Payment deadline has passed, invoice amount still pending',
-    'billed-paid': 'Payment received in full, transaction completed',
+    billed: 'Invoice generated ',
   };
 
   const currentStep = statusToStepIndex[status] ?? 0;
 
-  const steps = [
-    'In-Queue',
-    'Loaded',
-    'Error',
-    'Received',
-    'Billed Pending',
-    'Billed Overdue',
-    'Billed Paid',
-  ];
+  const steps = ['In-Queue', 'Loaded', 'Error', 'Received', 'Billed'];
 
   const icons = [
     <Tooltip title={statusDescriptions['in-queue']} arrow>
@@ -93,33 +81,7 @@ export function SubtripStatusStepper({ status }) {
       </Box>
     </Tooltip>,
 
-    <Tooltip title={statusDescriptions['billed-pending']} arrow>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 24,
-          height: 24,
-        }}
-      >
-        <Iconify icon="mdi:file-document-alert" width={24} />
-      </Box>
-    </Tooltip>,
-    <Tooltip title={statusDescriptions['billed-overdue']} arrow>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 24,
-          height: 24,
-        }}
-      >
-        <Iconify icon="mdi:file-document-alert-outline" width={24} />
-      </Box>
-    </Tooltip>,
-    <Tooltip title={statusDescriptions['billed-paid']} arrow>
+    <Tooltip title={statusDescriptions.billed} arrow>
       <Box
         sx={{
           display: 'flex',

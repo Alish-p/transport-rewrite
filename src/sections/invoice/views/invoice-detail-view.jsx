@@ -1,34 +1,21 @@
-import { useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useUpdateInvoiceStatus } from 'src/query/use-invoice';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import InvoiceView from '../invoice-view';
 import InvoiceToolbar from '../invoice-toolbar';
 
-// Available invoice status options
-const INVOICE_STATUS_OPTIONS = [
-  { value: 'paid', label: 'Paid' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
-];
-
 // Main component to display invoice details and allow status update
 export function InvoiceDetailView({ invoice }) {
-  const updateInvoice = useUpdateInvoiceStatus();
+  const { invoiceStatus = '', invoiceNo } = invoice;
 
-  const { invoiceStatus = '', _id, invoiceNo } = invoice;
+  const [statusValue, setStatusValue] = useState(invoiceStatus);
 
-  // Callback to handle status change from the toolbar dropdown
-  const handleChangeStatus = useCallback(
-    (event) => {
-      const newStatus = event.target.value;
-      updateInvoice({ id: _id, status: newStatus });
-    },
-    [updateInvoice, _id]
-  );
+  useEffect(() => {
+    setStatusValue(invoiceStatus);
+  }, [invoiceStatus]);
 
   return (
     <DashboardContent>
@@ -44,12 +31,7 @@ export function InvoiceDetailView({ invoice }) {
       />
 
       {/* Toolbar for status update and action buttons */}
-      <InvoiceToolbar
-        invoice={invoice}
-        currentStatus={invoiceStatus}
-        onChangeStatus={handleChangeStatus}
-        statusOptions={INVOICE_STATUS_OPTIONS}
-      />
+      <InvoiceToolbar invoice={invoice} currentStatus={statusValue} />
 
       {/* Invoice display content */}
       <InvoiceView invoice={invoice} />

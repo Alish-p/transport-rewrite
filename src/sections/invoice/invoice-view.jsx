@@ -23,6 +23,7 @@ import { Label } from 'src/components/label';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { INVOICE_STATUS_COLOR } from './invoice-config';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -38,8 +39,9 @@ const StyledTableCell = styled(TableCell)(() => ({
 }));
 
 function RenderHeader({ invoice }) {
-  const { invoiceNo, invoiceStatus } = invoice || {};
+  const { invoiceNo, invoiceStatus, netTotal = 0, totalReceived = 0 } = invoice || {};
   const tenant = useTenantContext();
+  const remainingAmount = Math.max(0, netTotal - totalReceived);
   return (
     <Box
       rowGap={3}
@@ -54,21 +56,15 @@ function RenderHeader({ invoice }) {
         sx={{ width: 60, height: 60, mb: 3 }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label
-          variant="soft"
-          color={
-            invoiceStatus === 'paid'
-              ? 'success'
-              : invoiceStatus === 'pending'
-                ? 'warning'
-                : invoiceStatus === 'overdue'
-                  ? 'error'
-                  : 'default'
-          }
-        >
+        <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
           {invoiceStatus || 'Draft'}
         </Label>
         <Typography variant="h6">{invoiceNo || 'INV - XXX'}</Typography>
+        {remainingAmount > 0 && (
+          <Typography variant="body2" color="error.main">
+            Remaining: {fCurrency(remainingAmount)}
+          </Typography>
+        )}
       </Stack>
     </Box>
   );

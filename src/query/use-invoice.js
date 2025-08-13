@@ -22,13 +22,27 @@ const createInvoice = async (invoice) => {
   return data;
 };
 
-const updateInvoiceStatus = async (id, status) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, { invoiceStatus: status });
+const updateInvoiceStatus = async (id, status, amount) => {
+  const payload = { invoiceStatus: status };
+  if (amount !== undefined) {
+    payload.amount = amount;
+  }
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, payload);
   return data;
 };
 
 const deleteInvoice = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
+  return data;
+};
+
+const cancelInvoice = async (id) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/cancel`);
+  return data;
+};
+
+const payInvoice = async (id, payload) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/pay`, payload);
   return data;
 };
 
@@ -70,7 +84,7 @@ export function useCreateInvoice() {
 export function useUpdateInvoiceStatus() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, status }) => updateInvoiceStatus(id, status),
+    mutationFn: ({ id, status, amount }) => updateInvoiceStatus(id, status, amount),
     onSuccess: (updatedInvoice) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
@@ -80,6 +94,44 @@ export function useUpdateInvoiceStatus() {
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useCancelInvoice() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: (id) => cancelInvoice(id),
+    onSuccess: (updatedInvoice) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
+
+      toast.success('Invoice cancelled successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function usePayInvoice() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, ...payload }) => payInvoice(id, payload),
+    onSuccess: (updatedInvoice) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);
+
+      toast.success('Payment recorded successfully!');
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.message || error?.message || 'Payment failed';
+      toast.error(msg);
     },
   });
 

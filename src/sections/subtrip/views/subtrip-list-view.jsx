@@ -141,9 +141,7 @@ export function SubtripListView() {
     loaded: data?.totalLoaded || 0,
     received: data?.totalReceived || 0,
     error: data?.totalError || 0,
-    'billed-pending': data?.totalBilledPending || 0,
-    'billed-overdue': data?.totalBilledOverdue || 0,
-    'billed-paid': data?.totalBilledPaid || 0,
+    billed: data?.totalBilled || 0,
   };
 
   const TABS = [
@@ -173,22 +171,10 @@ export function SubtripListView() {
       count: statusCounts.error,
     },
     {
-      value: 'billed-pending',
-      label: 'Billed Pending',
-      color: 'warning',
-      count: statusCounts['billed-pending'],
-    },
-    {
-      value: 'billed-overdue',
-      label: 'Billed Overdue',
-      color: 'error',
-      count: statusCounts['billed-overdue'],
-    },
-    {
-      value: 'billed-paid',
-      label: 'Billed Paid',
+      value: 'billed',
+      label: 'Billed',
       color: 'success',
-      count: statusCounts['billed-paid'],
+      count: statusCounts.billed,
     },
   ];
 
