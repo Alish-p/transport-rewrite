@@ -256,11 +256,7 @@ export default function InvoiceTableToolbar({
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
-        statusList={[
-          SUBTRIP_STATUS.BILLED_PENDING,
-          SUBTRIP_STATUS.BILLED_OVERDUE,
-          SUBTRIP_STATUS.BILLED_PAID,
-        ]}
+        statusList={[SUBTRIP_STATUS.BILLED]}
       />
 
       <CustomDateRangePicker

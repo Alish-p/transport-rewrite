@@ -39,11 +39,7 @@ export function SubtripDetailView({ subtrip }) {
 
   // Function to check if editing is allowed based on status
   const isEditingAllowed = () => {
-    const restrictedStatuses = [
-      SUBTRIP_STATUS.BILLED_PENDING,
-      SUBTRIP_STATUS.BILLED_OVERDUE,
-      SUBTRIP_STATUS.BILLED_PAID,
-    ];
+    const restrictedStatuses = [SUBTRIP_STATUS.BILLED];
     return !restrictedStatuses.includes(subtrip.subtripStatus);
   };
 

@@ -278,16 +278,7 @@ export default function TripTableToolbar({
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
-        statusList={[
-          'in-queue',
-          'loaded',
-          'received',
-          'error',
-          'billed-pending',
-          'billed-overdue',
-          'billed-paid',
-          'closed',
-        ]}
+        statusList={['in-queue', 'loaded', 'received', 'error', 'billed']}
       />
 
       <CustomDateRangePicker

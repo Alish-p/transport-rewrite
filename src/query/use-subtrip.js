@@ -110,14 +110,7 @@ export function useTripsCompletedByDriverAndDate(driverId, periodStartDate, peri
         fromDate: periodStartDate,
         toDate: periodEndDate,
         // driver salary once the subtrip is Recieved and Above
-        subtripStatus: [
-          SUBTRIP_STATUS.RECEIVED,
-          SUBTRIP_STATUS.ERROR,
-
-          SUBTRIP_STATUS.BILLED_PENDING,
-          SUBTRIP_STATUS.BILLED_OVERDUE,
-          SUBTRIP_STATUS.BILLED_PAID,
-        ],
+        subtripStatus: [SUBTRIP_STATUS.RECEIVED, SUBTRIP_STATUS.ERROR, SUBTRIP_STATUS.BILLED],
         isEmpty: false,
         hasDriverSalary: false,
       },
@@ -140,12 +133,7 @@ export function useFetchSubtripsForTransporterBilling(
         transporterId,
         fromDate: periodStartDate,
         toDate: periodEndDate,
-        subtripStatus: [
-          SUBTRIP_STATUS.RECEIVED,
-          SUBTRIP_STATUS.BILLED_PENDING,
-          SUBTRIP_STATUS.BILLED_OVERDUE,
-          SUBTRIP_STATUS.BILLED_PAID,
-        ],
+        subtripStatus: [SUBTRIP_STATUS.RECEIVED, SUBTRIP_STATUS.BILLED],
         isEmpty: false,
         hasTransporterPayment: false,
       },

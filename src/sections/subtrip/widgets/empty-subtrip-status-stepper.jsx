@@ -7,17 +7,17 @@ import { SimpleStepper } from './subtrip-completion-stepper';
 export function EmptySubtripStatusStepper({ status }) {
   const statusToStepIndex = {
     'in-queue': 0,
-    'billed-paid': 1,
+    billed: 1,
   };
 
   const statusDescriptions = {
     'in-queue': 'Initial state: Empty trip is created and assigned to a vehicle',
-    'billed-paid': 'Trip completed and payment received',
+    billed: 'Trip completed and payment received',
   };
 
   const currentStep = statusToStepIndex[status] ?? 0;
 
-  const steps = ['In-Queue', 'Billed Paid'];
+  const steps = ['In-Queue', 'Billed'];
 
   const icons = [
     <Tooltip title={statusDescriptions['in-queue']} arrow>
@@ -33,7 +33,7 @@ export function EmptySubtripStatusStepper({ status }) {
         <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />
       </Box>
     </Tooltip>,
-    <Tooltip title={statusDescriptions['billed-paid']} arrow>
+    <Tooltip title={statusDescriptions['billed']} arrow>
       <Box
         sx={{
           display: 'flex',
