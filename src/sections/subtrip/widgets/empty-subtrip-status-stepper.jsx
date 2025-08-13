@@ -33,7 +33,7 @@ export function EmptySubtripStatusStepper({ status }) {
         <Iconify icon="solar:sort-by-time-bold-duotone" width={24} />
       </Box>
     </Tooltip>,
-    <Tooltip title={statusDescriptions['billed']} arrow>
+    <Tooltip title={statusDescriptions.billed} arrow>
       <Box
         sx={{
           display: 'flex',

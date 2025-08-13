@@ -174,7 +174,7 @@ export function SubtripListView() {
       value: 'billed',
       label: 'Billed',
       color: 'success',
-      count: statusCounts['billed'],
+      count: statusCounts.billed,
     },
   ];
 

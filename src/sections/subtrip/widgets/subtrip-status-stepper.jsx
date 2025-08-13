@@ -81,7 +81,7 @@ export function SubtripStatusStepper({ status }) {
       </Box>
     </Tooltip>,
 
-    <Tooltip title={statusDescriptions['billed']} arrow>
+    <Tooltip title={statusDescriptions.billed} arrow>
       <Box
         sx={{
           display: 'flex',
