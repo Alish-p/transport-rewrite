@@ -45,6 +45,7 @@ import { TABLE_COLUMNS } from '../invoice-table-config';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
 import InvoiceTableToolbar from '../invoice-list/invoice-table-toolbar';
+import { INVOICE_STATUS, INVOICE_STATUS_COLOR } from '../invoice-config';
 import InvoiceTableFiltersResult from '../invoice-list/invoice-table-filters-result';
 
 const STORAGE_KEY = 'invoice-table-columns';
@@ -118,18 +119,40 @@ export function InvoiceListView() {
   const getPercentByInvoiceStatus = (invoiceStatus) =>
     totalCount ? (getInvoiceLength(invoiceStatus) / totalCount) * 100 : 0;
 
+  const getStatusThemeColor = (status) => theme.palette[INVOICE_STATUS_COLOR[status]]?.main;
+
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
-    { value: 'Pending', label: 'Pending', color: 'warning', count: getInvoiceLength('Pending') },
     {
-      value: 'Partial Received',
-      label: 'Partial Received',
-      color: 'secondary',
-      count: getInvoiceLength('Partial Received'),
+      value: INVOICE_STATUS.PENDING,
+      label: INVOICE_STATUS.PENDING,
+      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.PENDING],
+      count: getInvoiceLength(INVOICE_STATUS.PENDING),
     },
-    { value: 'Overdue', label: 'Overdue', color: 'error', count: getInvoiceLength('overdue') },
-    { value: 'Cancelled', label: 'Cancelled', color: 'error', count: getInvoiceLength('overdue') },
-    { value: 'Received', label: 'Received', color: 'success', count: getInvoiceLength('Received') },
+    {
+      value: INVOICE_STATUS.PARTIAL_RECEIVED,
+      label: INVOICE_STATUS.PARTIAL_RECEIVED,
+      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.PARTIAL_RECEIVED],
+      count: getInvoiceLength(INVOICE_STATUS.PARTIAL_RECEIVED),
+    },
+    {
+      value: INVOICE_STATUS.OVERDUE,
+      label: INVOICE_STATUS.OVERDUE,
+      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.OVERDUE],
+      count: getInvoiceLength(INVOICE_STATUS.OVERDUE),
+    },
+    {
+      value: INVOICE_STATUS.CANCELLED,
+      label: INVOICE_STATUS.CANCELLED,
+      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.CANCELLED],
+      count: getInvoiceLength(INVOICE_STATUS.CANCELLED),
+    },
+    {
+      value: INVOICE_STATUS.RECEIVED,
+      label: INVOICE_STATUS.RECEIVED,
+      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.RECEIVED],
+      count: getInvoiceLength(INVOICE_STATUS.RECEIVED),
+    },
   ];
 
   const handleEditRow = (id) => {
@@ -205,30 +228,30 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Pending"
-                total={getInvoiceLength('Pending')}
-                percent={getPercentByInvoiceStatus('Pending')}
-                price={getTotalAmount('Pending')}
+                title={INVOICE_STATUS.PENDING}
+                total={getInvoiceLength(INVOICE_STATUS.PENDING)}
+                percent={getPercentByInvoiceStatus(INVOICE_STATUS.PENDING)}
+                price={getTotalAmount(INVOICE_STATUS.PENDING)}
                 icon="mdi:clock-outline"
-                color={theme.palette.warning.main}
+                color={getStatusThemeColor(INVOICE_STATUS.PENDING)}
               />
 
               <InvoiceAnalytic
-                title="Over-due"
-                total={getInvoiceLength('over-due')}
-                percent={getPercentByInvoiceStatus('over-due')}
-                price={getTotalAmount('over-due')}
+                title={INVOICE_STATUS.OVERDUE}
+                total={getInvoiceLength(INVOICE_STATUS.OVERDUE)}
+                percent={getPercentByInvoiceStatus(INVOICE_STATUS.OVERDUE)}
+                price={getTotalAmount(INVOICE_STATUS.OVERDUE)}
                 icon="mdi:alert-circle-outline"
-                color={theme.palette.error.main}
+                color={getStatusThemeColor(INVOICE_STATUS.OVERDUE)}
               />
 
               <InvoiceAnalytic
-                title="Paid"
-                total={getInvoiceLength('Received')}
-                percent={getPercentByInvoiceStatus('Received')}
-                price={getTotalAmount('Received')}
+                title={INVOICE_STATUS.RECEIVED}
+                total={getInvoiceLength(INVOICE_STATUS.RECEIVED)}
+                percent={getPercentByInvoiceStatus(INVOICE_STATUS.RECEIVED)}
+                price={getTotalAmount(INVOICE_STATUS.RECEIVED)}
                 icon="mdi:check-decagram-outline"
-                color={theme.palette.success.main}
+                color={getStatusThemeColor(INVOICE_STATUS.RECEIVED)}
               />
             </Stack>
           </Scrollbar>
