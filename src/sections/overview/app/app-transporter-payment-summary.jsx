@@ -19,19 +19,19 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
 
   const ITEMS = [
     {
-      title: 'Payment yet to create amount',
+      title: 'Not Billed amount',
       amount: summary.yetToCreateAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
-      title: 'Payment generated amount',
+      title: 'Payable amount',
       amount: summary.generatedAmount,
       icon: 'mdi:file-document-outline',
       color: theme.palette.info.main,
     },
     {
-      title: 'Payment paid amount',
+      title: 'Paid amount',
       amount: summary.paidAmount,
       icon: 'mdi:check-decagram-outline',
       color: theme.palette.success.main,

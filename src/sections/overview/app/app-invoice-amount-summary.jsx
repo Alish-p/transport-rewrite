@@ -19,13 +19,13 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
 
   const ITEMS = [
     {
-      title: 'Unbilled Amount',
+      title: 'Not Billed Amount',
       amount: summary.unbilledAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
-      title: 'Pending Amount',
+      title: 'Receivable Amount',
       amount: summary.pendingAmount,
       icon: 'mdi:clipboard-list-outline',
       color: theme.palette.info.main,
