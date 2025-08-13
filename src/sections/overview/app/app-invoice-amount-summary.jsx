@@ -25,14 +25,14 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
       color: theme.palette.warning.main,
     },
     {
-      title: 'Billed Amount',
+      title: 'Pending Amount',
       amount: summary.generatedAmount,
       icon: 'mdi:clipboard-list-outline',
       color: theme.palette.info.main,
     },
     {
-      title: 'Paid Amount',
-      amount: summary.paidAmount,
+      title: 'Received Amount',
+      amount: summary.receivedAmount,
       icon: 'mdi:check-decagram-outline',
       color: theme.palette.success.main,
     },
