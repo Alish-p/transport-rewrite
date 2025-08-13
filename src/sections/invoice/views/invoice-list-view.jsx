@@ -120,9 +120,16 @@ export function InvoiceListView() {
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
-    { value: 'pending', label: 'Pending', color: 'warning', count: getInvoiceLength('pending') },
-    { value: 'overdue', label: 'Over-due', color: 'error', count: getInvoiceLength('overdue') },
-    { value: 'paid', label: 'Paid', color: 'success', count: getInvoiceLength('paid') },
+    { value: 'Pending', label: 'Pending', color: 'warning', count: getInvoiceLength('Pending') },
+    {
+      value: 'Partial Received',
+      label: 'Partial Received',
+      color: 'secondary',
+      count: getInvoiceLength('Partial Received'),
+    },
+    { value: 'Overdue', label: 'Overdue', color: 'error', count: getInvoiceLength('overdue') },
+    { value: 'Cancelled', label: 'Cancelled', color: 'error', count: getInvoiceLength('overdue') },
+    { value: 'Received', label: 'Received', color: 'success', count: getInvoiceLength('Received') },
   ];
 
   const handleEditRow = (id) => {
@@ -199,9 +206,9 @@ export function InvoiceListView() {
 
               <InvoiceAnalytic
                 title="Pending"
-                total={getInvoiceLength('pending')}
-                percent={getPercentByInvoiceStatus('pending')}
-                price={getTotalAmount('pending')}
+                total={getInvoiceLength('Pending')}
+                percent={getPercentByInvoiceStatus('Pending')}
+                price={getTotalAmount('Pending')}
                 icon="mdi:clock-outline"
                 color={theme.palette.warning.main}
               />
@@ -217,9 +224,9 @@ export function InvoiceListView() {
 
               <InvoiceAnalytic
                 title="Paid"
-                total={getInvoiceLength('paid')}
-                percent={getPercentByInvoiceStatus('paid')}
-                price={getTotalAmount('paid')}
+                total={getInvoiceLength('Received')}
+                percent={getPercentByInvoiceStatus('Received')}
+                price={getTotalAmount('Received')}
                 icon="mdi:check-decagram-outline"
                 color={theme.palette.success.main}
               />
