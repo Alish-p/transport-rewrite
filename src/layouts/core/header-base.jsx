@@ -65,6 +65,7 @@ export function HeaderBase({
     workspaces = true,
     menuButton = true,
     localization = true,
+    contacts = true,
   } = {},
 
   ...other
@@ -144,7 +145,7 @@ export function HeaderBase({
               )} */}
 
               {/* -- Contacts popover -- */}
-              <ContactsPopover data-slot="contacts" />
+              {contacts && <ContactsPopover data-slot="contacts" />}
 
               {/* -- Settings button -- */}
               {settings && <SettingsButton data-slot="settings" />}
