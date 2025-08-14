@@ -35,7 +35,7 @@ export default function InvoicePaymentTimeline({ payments = [] }) {
             </Typography>
             {payment.paidBy && (
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Paid by {payment.paidBy?.name || payment.paidBy}
+                Payment Recorded by {payment.paidBy?.name || payment.paidBy}
               </Typography>
             )}
           </TimelineContent>
@@ -48,4 +48,3 @@ export default function InvoicePaymentTimeline({ payments = [] }) {
     </Typography>
   );
 }
-

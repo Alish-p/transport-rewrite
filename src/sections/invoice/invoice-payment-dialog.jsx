@@ -1,6 +1,9 @@
+import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
+  Box,
   Card,
   Stack,
   Button,
@@ -29,6 +32,8 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
   const payInvoice = usePayInvoice();
 
   const [amount, setAmount] = useState(remaining);
+  const [referenceNumber, setReferenceNumber] = useState('');
+  const [receivedDate, setReceivedDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
 
   const afterPayment = useMemo(() => Math.max(0, remaining - amount), [remaining, amount]);
@@ -42,6 +47,8 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
       await payInvoice({
         id: invoice?._id,
         amount,
+        referenceNumber,
+        receivedDate: receivedDate.toISOString(),
       });
       onClose();
     } catch (error) {
@@ -59,7 +66,14 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Record payment</DialogTitle>
+      <DialogTitle>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Typography variant="h6">Record payment</Typography>
+          <Typography variant="subtitle2" color="primary.main">
+            {invoice?.invoiceNo}
+          </Typography>
+        </Box>
+      </DialogTitle>
       <DialogContent dividers>
         <Stack spacing={3}>
           <Card variant="outlined" sx={{ p: 2 }}>
@@ -101,6 +115,18 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
               }}
               error={isAmountInvalid}
               helperText={isAmountInvalid ? 'Enter a valid amount' : ''}
+            />
+            <TextField
+              label="Reference Number"
+              value={referenceNumber}
+              onChange={(e) => setReferenceNumber(e.target.value)}
+            />
+            <DatePicker
+              label="Received Date"
+              value={receivedDate}
+              onChange={(newValue) => setReceivedDate(newValue)}
+              maxDate={dayjs()}
+              slotProps={{ textField: { fullWidth: true } }}
             />
           </Stack>
         </Stack>
