@@ -5,9 +5,11 @@ import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { fShortenNumber } from 'src/utils/format-number';
+import { exportBillingSummaryToExcel } from 'src/utils/export-billing-summary-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -52,9 +54,18 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
         title="Customer Billing Summary"
         sx={{ mb: 2 }}
         action={
-          <Tooltip title="Breakdown of billing amounts for customer invoices">
-            <Iconify icon="mdi:information-outline" width={20} sx={{ color: 'text.secondary' }} />
-          </Tooltip>
+          <Stack direction="row" spacing={0.5}>
+            <Tooltip title="Download Excel">
+              <IconButton onClick={() => exportBillingSummaryToExcel(summary)}>
+                <Iconify icon="mdi:download" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Breakdown of billing amounts for customer invoices">
+              <IconButton>
+                <Iconify icon="mdi:information-outline" sx={{ color: 'text.secondary' }} />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         }
       />
       <Scrollbar>
