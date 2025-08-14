@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useMemo } from 'react';
 
 import Alert from '@mui/material/Alert';
@@ -42,6 +43,12 @@ export function DashboardLayout({ sx, children, data }) {
   const navData = data?.nav ?? dashboardNavData;
 
   const tenant = useTenantContext();
+
+  const showSubscriptionExpired = useMemo(() => {
+    const validTill = tenant?.subscription?.validTill;
+    if (!validTill) return false;
+    return dayjs().isAfter(dayjs(validTill).add(7, 'day'));
+  }, [tenant?.subscription?.validTill]);
 
   const workspaces = [
     {
@@ -88,11 +95,12 @@ export function DashboardLayout({ sx, children, data }) {
               helpLink: false,
             }}
             slots={{
-              topArea: (
-                <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                  This is an info Alert.
+              topArea: showSubscriptionExpired ? (
+                <Alert severity="info" sx={{ borderRadius: 0 }}>
+                  Your subscription has ended. Renew today to keep enjoying seamless transport
+                  management support. 😊
                 </Alert>
-              ),
+              ) : null,
               bottomArea: isNavHorizontal ? (
                 <NavHorizontal
                   data={navData}
