@@ -2,8 +2,10 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-import { useTheme } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
 import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
+import { alpha, useTheme } from '@mui/material/styles';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
@@ -20,46 +22,108 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
   const ITEMS = [
     {
       title: 'Not Billed Amount',
+      description:
+        'Amount for freight for which subtrips POD received but not yet processed for billing',
       amount: summary.unbilledAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
       title: 'Receivable Amount',
+      description: 'Invoice generated and sent to customer but payment is still pending',
       amount: summary.pendingAmount,
       icon: 'mdi:clipboard-list-outline',
       color: theme.palette.info.main,
     },
     {
       title: 'Received Amount',
+      description: 'Invoice amount successfully paid by customer and received',
       amount: summary.receivedAmount,
       icon: 'mdi:check-decagram-outline',
       color: theme.palette.success.main,
     },
   ];
 
+  const totalOutstanding = summary.unbilledAmount + summary.pendingAmount;
+
   return (
     <Card {...other}>
-      <CardHeader title="Customer Billing Summary" sx={{ mb: 2 }} />
+      <CardHeader
+        title="Customer Billing Summary"
+        sx={{ mb: 2 }}
+        action={
+          <Tooltip title="Breakdown of billing amounts for customer invoices">
+            <Iconify icon="mdi:information-outline" width={20} sx={{ color: 'text.secondary' }} />
+          </Tooltip>
+        }
+      />
       <Scrollbar>
         <Stack
-          direction="row"
+          direction={{ xs: 'column', md: 'row' }}
           alignItems="center"
           justifyContent="space-around"
-          divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-          sx={{ px: 3, py: 2 }}
+          flexWrap="wrap"
+          divider={
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{ borderStyle: 'dashed', display: { xs: 'none', md: 'block' } }}
+            />
+          }
+          sx={{ px: 3, py: 2, gap: 2 }}
         >
           {ITEMS.map((item) => (
-            <Stack key={item.title} spacing={1} alignItems="center" sx={{ minWidth: 120 }}>
-              <Iconify icon={item.icon} width={24} sx={{ color: item.color }} />
-              <Box sx={{ typography: 'subtitle2', color: 'text.secondary', textAlign: 'center' }}>
-                {item.title}
-              </Box>
-              <Box sx={{ typography: 'h6' }}>₹ {fShortenNumber(item.amount)}</Box>
-            </Stack>
+            <Tooltip key={item.title} title={item.description}>
+              <Stack
+                spacing={1}
+                alignItems="center"
+                sx={{
+                  minWidth: { xs: 1, md: 160 },
+                  p: 2,
+                  borderRadius: 2,
+                  textAlign: 'center',
+                  transition: (t) =>
+                    t.transitions.create(['box-shadow', 'transform', 'background-color'], {
+                      duration: t.transitions.duration.shorter,
+                    }),
+                  '&:hover': {
+                    bgcolor: alpha(item.color, 0.08),
+                    boxShadow: (t) => t.shadows[4],
+                    transform: 'translateY(-4px)',
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: item.color,
+                    border: `1px solid ${alpha(item.color, 0.4)}`,
+                    bgcolor: alpha(item.color, 0.1),
+                  }}
+                >
+                  <Iconify icon={item.icon} width={24} />
+                </Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  {item.title}
+                </Typography>
+                <Typography variant="h6">₹ {fShortenNumber(item.amount)}</Typography>
+              </Stack>
+            </Tooltip>
           ))}
         </Stack>
       </Scrollbar>
+      <Divider sx={{ borderStyle: 'dashed', mt: 1 }} />
+      <Stack direction="row" justifyContent="flex-end" sx={{ px: 3, py: 2 }}>
+        <Typography variant="subtitle2" sx={{ mr: 1 }}>
+          Total Outstanding:
+        </Typography>
+        <Typography variant="subtitle2">{fShortenNumber(totalOutstanding)}</Typography>
+      </Stack>
     </Card>
   );
 }
