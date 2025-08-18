@@ -1,10 +1,6 @@
-import { useState } from 'react';
-
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
 import { Button } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -12,37 +8,12 @@ import { RouterLink } from 'src/routes/components';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { Markdown } from 'src/components/markdown';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { PumpBasicWidget, PumpFinanceWidget } from '../widgets';
+
 export function PumpDetailView({ pump }) {
-  const [tabValue, setTabValue] = useState('details');
-
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-  };
-
-  const { name, phone, address, bankAccount } = pump || {};
-
-  const detailsMarkdown = `
-[](/)
-**Pump Name:** ${name}
-**Phone:** ${phone}
-**Address:** ${address}
-
----
-
-### Bank Details
-
-| Attribute | Details |
-| :-- | :-- |
-| **Bank Name** | ${bankAccount?.name || ''} |
-| **Branch** | ${bankAccount?.branch || ''} |
-| **IFSC** | ${bankAccount?.ifsc || ''} |
-| **Place** | ${bankAccount?.place || ''} |
-| **Account No** | ${bankAccount?.accNo || ''} |
-
-`;
+  const { name } = pump || {};
 
   return (
     <DashboardContent>
@@ -65,24 +36,16 @@ export function PumpDetailView({ pump }) {
           </Button>
         }
       />
-      <Card>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.vars.palette.grey['500Channel']}`,
-          }}
-        >
-          <Tab value="details" label="Pump Details" />
-        </Tabs>
-
-        {tabValue === 'details' && (
-          <Box sx={{ p: 3 }}>
-            <Markdown children={detailsMarkdown} />
-          </Box>
-        )}
-      </Card>
+      <Box sx={{ p: 3 }}>
+        <Grid container spacing={3}>
+          <Grid xs={12} md={6}>
+            <PumpBasicWidget pump={pump} />
+          </Grid>
+          <Grid xs={12} md={6}>
+            <PumpFinanceWidget pump={pump} />
+          </Grid>
+        </Grid>
+      </Box>
     </DashboardContent>
   );
 }
