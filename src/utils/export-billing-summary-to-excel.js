@@ -31,16 +31,17 @@ export const exportBillingSummaryToExcel = async (summary, fileName = 'customer-
       'S.No': idx + 1,
       'Subtrip No': st._id,
       'Customer Name': st.customerName,
-      'Start Date': fDateTime(st.startDate),
-      'Received Date': fDateTime(st.receivedDate),
-      'Loading Point': st.loadingPoint,
-      'Loading Weight': st.loadingWeight,
-      Rate: st.rate,
-      'Unloading Point': st.unloadingPoint,
-      'Unloading Date': fDateTime(st.unloadingDate),
       'Vehicle No': st.vehicleNo,
       Driver: st.driver,
+      'Start Date': fDateTime(st.startDate),
+      'Received Date': fDateTime(st.receivedDate),
       'Subtrip Type': st.subtripType,
+
+      'Loading Point': st.loadingPoint,
+      'Unloading Point': st.unloadingPoint,
+      'Loading Weight': st.loadingWeight,
+      Rate: st.rate,
+      'Freight Amount': (st.rate || 0) * (st.loadingWeight || 0),
     }));
 
   const pendingInvoices = mapInvoices(summary?.pendingInvoices);
