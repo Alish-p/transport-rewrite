@@ -15,6 +15,7 @@ import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
 import { VehicleLocationMap } from '../widgets/vehicle-location-map';
 import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
 import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
+import { VehicleSubtripsWidget } from '../widgets/vehicle-subtrips-widget';
 
 // ----------------------------------------------------------------------
 
@@ -220,6 +221,10 @@ export function VehicleDetailView({ vehicle }) {
 
         <Grid xs={12} item>
           <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+        </Grid>
+
+        <Grid xs={12} item>
+          <VehicleSubtripsWidget vehicleId={vehicle._id} />
         </Grid>
       </Grid>
     </DashboardContent>
