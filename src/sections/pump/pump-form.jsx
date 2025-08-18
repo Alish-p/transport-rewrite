@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography } from '@mui/material';
+import { Card, Stack, Button, Divider, CardHeader } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -108,70 +108,50 @@ export default function PumpForm({ currentPump }) {
     }
   };
 
-  const renderPumpDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Pump Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          rowGap={3}
-          columnGap={2}
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-          }}
-        >
-          <Field.Text name="name" label="Pump Name" />
-          <Field.Text name="ownerName" label="Owner Name" />
-          <Field.Text name="phone" label="Phone" />
-          <Field.Text name="address" label="Address" multiline rows={4} />
-        </Box>
-      </Card>
-    </>
+  const renderPumpDetails = (
+    <Card>
+      <CardHeader title="Pump Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Field.Text name="name" label="Pump Name" />
+        <Field.Text name="ownerName" label="Owner Name" />
+        <Field.Text name="phone" label="Phone" />
+        <Field.Text name="address" label="Address" multiline rows={4} />
+      </Stack>
+    </Card>
   );
 
-  const renderBankDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Bank Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+  const renderBankDetails = (
+    <Card>
+      <CardHeader title="Bank Details" sx={{ mb: 3 }} />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={bankDialogue.onTrue}
+          sx={{
+            height: 56,
+            justifyContent: 'flex-start',
+            typography: 'body2',
+            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
           }}
-          gap={3}
+          startIcon={
+            <Iconify
+              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
+            />
+          }
         >
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={bankDialogue.onTrue}
-            sx={{
-              height: 56,
-              justifyContent: 'flex-start',
-              typography: 'body2',
-              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-            }}
-            startIcon={
-              <Iconify
-                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-              />
-            }
-          >
-            {bankDetails?.name || 'Select Bank'}
-          </Button>
+          {bankDetails?.name || 'Select Bank'}
+        </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
-        </Box>
-      </Card>
-    </>
+        <Field.Text name="bankDetails.accNo" label="Account No" />
+      </Stack>
+    </Card>
   );
 
-  const renderActions = () => (
+  const renderActions = (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
         {!currentPump ? 'Create Pump' : 'Save Changes'}
@@ -179,7 +159,7 @@ export default function PumpForm({ currentPump }) {
     </Stack>
   );
 
-  const renderDialogues = () => (
+  const renderDialogues = (
     <BankListDialog
       title="Banks"
       open={bankDialogue.value}
@@ -208,17 +188,12 @@ export default function PumpForm({ currentPump }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          {renderPumpDetails()}
-          {renderBankDetails()}
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 3 }} />
-
-      {renderActions()}
-      {renderDialogues()}
+      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderPumpDetails}
+        {renderBankDetails}
+        {renderActions}
+      </Stack>
+      {renderDialogues}
     </Form>
   );
 }
