@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { fShortenNumber } from 'src/utils/format-number';
+import { exportTransporterPaymentSummaryToExcel } from 'src/utils/export-transporter-payment-summary-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -24,14 +25,14 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
     {
       title: 'Not Billed Amount',
       description: 'Amount for subtrips completed but payment not yet generated',
-      amount: summary.yetToCreateAmount,
+      amount: summary.pendingAmount,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
     {
       title: 'Payable Amount',
       description: 'Payment generated and pending to pay the transporter',
-      amount: summary.generatedAmount,
+      amount: summary.payableAmount,
       icon: 'mdi:clipboard-list-outline',
       color: theme.palette.info.main,
     },
@@ -44,7 +45,7 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
     },
   ];
 
-  const totalOutstanding = summary.yetToCreateAmount + summary.generatedAmount;
+  const totalOutstanding = summary.pendingAmount + summary.payableAmount;
 
   return (
     <Card {...other}>
@@ -53,6 +54,11 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
         sx={{ mb: 2 }}
         action={
           <Stack direction="row" spacing={0.5}>
+            <Tooltip title="Download Excel">
+              <IconButton onClick={() => exportTransporterPaymentSummaryToExcel(summary)}>
+                <Iconify icon="mdi:download" />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Breakdown of payment amounts for transporters">
               <IconButton>
                 <Iconify icon="mdi:information-outline" sx={{ color: 'text.secondary' }} />
