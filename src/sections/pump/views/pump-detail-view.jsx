@@ -10,7 +10,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { PumpBasicWidget, PumpFinanceWidget } from '../widgets';
+import { PumpBasicWidget, PumpFinanceWidget, PumpExpensesWidget } from '../widgets';
 
 export function PumpDetailView({ pump }) {
   const { name } = pump || {};
@@ -43,6 +43,9 @@ export function PumpDetailView({ pump }) {
           </Grid>
           <Grid xs={12} md={6}>
             <PumpFinanceWidget pump={pump} />
+          </Grid>
+          <Grid xs={12}>
+            <PumpExpensesWidget pumpId={pump._id} />
           </Grid>
         </Grid>
       </Box>
