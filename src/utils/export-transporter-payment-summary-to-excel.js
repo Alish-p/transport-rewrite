@@ -9,7 +9,7 @@ const mapPayments = (payments) =>
     'Transporter Name': p.transporterName,
     'Issue Date': fDateTime(p.issueDate),
     Status: p.status,
-    'Net Income': p.netIncome,
+    'Net Payment': p.netIncome,
   }));
 
 const mapSubtrips = (subtrips) =>
