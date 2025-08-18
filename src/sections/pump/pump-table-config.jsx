@@ -46,9 +46,16 @@ export const TABLE_COLUMNS = [
   {
     id: 'phone',
     label: 'Phone',
-    defaultVisible: false,
+    defaultVisible: true,
     disabled: false,
     getter: (row) => row.phone,
+  },
+  {
+    id: 'ownerName',
+    label: 'Owner',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.ownerName,
   },
   {
     id: 'address',
