@@ -3,12 +3,15 @@ import { fNumber } from 'src/utils/format-number';
 
 import { exportToExcel } from './export-multi-sheet-to-excel';
 
-export const exportBillingSummaryToExcel = async (summary, fileName = 'customer-billing-summary') => {
+export const exportBillingSummaryToExcel = async (
+  summary,
+  fileName = 'customer-billing-summary'
+) => {
   const formatPayments = (payments) =>
     (payments || [])
       .map(
         (p) =>
-          `${fNumber(p.amount)} received on ${fDateTime(p.paidAt)}${p.referenceNumber ? ` against ${p.referenceNumber}` : ''}`,
+          `${fNumber(p.amount)} received on ${fDateTime(p.paidAt)}${p.referenceNumber ? ` against ${p.referenceNumber}` : ''}`
       )
       .join('\n');
 
@@ -54,10 +57,9 @@ export const exportBillingSummaryToExcel = async (summary, fileName = 'customer-
       (acc, inv) => ({
         netTotal: acc.netTotal + (inv.netTotal || 0),
         totalReceived: acc.totalReceived + (inv.totalReceived || 0),
-        pendingAmount:
-          acc.pendingAmount + (inv.netTotal || 0) - (inv.totalReceived || 0),
+        pendingAmount: acc.pendingAmount + (inv.netTotal || 0) - (inv.totalReceived || 0),
       }),
-      { netTotal: 0, totalReceived: 0, pendingAmount: 0 },
+      { netTotal: 0, totalReceived: 0, pendingAmount: 0 }
     );
     data.push({
       'S.No': '',
@@ -73,16 +75,47 @@ export const exportBillingSummaryToExcel = async (summary, fileName = 'customer-
     });
   };
 
+  const addSubtripTotals = (data, subtrips) => {
+    if (!data.length) return;
+    const totals = (subtrips || []).reduce(
+      (acc, st) => ({
+        loadingWeight: acc.loadingWeight + (st.loadingWeight || 0),
+        freightAmount: acc.freightAmount + (st.rate || 0) * (st.loadingWeight || 0),
+      }),
+      { loadingWeight: 0, freightAmount: 0 }
+    );
+    data.push({
+      'S.No': '',
+      'Subtrip No': 'Total',
+      'Customer Name': '',
+      'Vehicle No': '',
+      Driver: '',
+      'Start Date': '',
+      'Received Date': '',
+      'Subtrip Type': '',
+      'Loading Point': '',
+      'Unloading Point': '',
+      'Loading Weight': totals.loadingWeight,
+      Rate: '',
+      'Freight Amount': totals.freightAmount,
+    });
+  };
+
   addInvoiceTotals(pendingInvoices, summary?.pendingInvoices);
   addInvoiceTotals(receivedInvoices, summary?.receivedInvoices);
+  addSubtripTotals(unbilledSubtrips, summary?.unbilledSubtrips);
 
   await exportToExcel(
     [
-      { name: 'Pending Invoices', data: pendingInvoices, options: { highlightColumns: ['Pending Amount'] } },
+      {
+        name: 'Pending Invoices',
+        data: pendingInvoices,
+        options: { highlightColumns: ['Pending Amount'] },
+      },
       { name: 'Received Invoices', data: receivedInvoices },
       { name: 'Unbilled Subtrips', data: unbilledSubtrips },
     ],
-    fileName,
+    fileName
   );
 };
 
