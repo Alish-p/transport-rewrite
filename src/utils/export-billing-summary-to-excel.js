@@ -47,6 +47,34 @@ export const exportBillingSummaryToExcel = async (summary, fileName = 'customer-
   const receivedInvoices = mapInvoices(summary?.receivedInvoices);
   const unbilledSubtrips = mapSubtrips(summary?.unbilledSubtrips);
 
+  const addInvoiceTotals = (data, invoices) => {
+    if (!data.length) return;
+    const totals = (invoices || []).reduce(
+      (acc, inv) => ({
+        netTotal: acc.netTotal + (inv.netTotal || 0),
+        totalReceived: acc.totalReceived + (inv.totalReceived || 0),
+        pendingAmount:
+          acc.pendingAmount + (inv.netTotal || 0) - (inv.totalReceived || 0),
+      }),
+      { netTotal: 0, totalReceived: 0, pendingAmount: 0 },
+    );
+    data.push({
+      'S.No': '',
+      'Invoice No': 'Total',
+      'Customer Name': '',
+      Status: '',
+      'Issue Date': '',
+      'Due Date': '',
+      'Net Total': totals.netTotal,
+      'Total Received': totals.totalReceived,
+      'Pending Amount': totals.pendingAmount,
+      Payments: '',
+    });
+  };
+
+  addInvoiceTotals(pendingInvoices, summary?.pendingInvoices);
+  addInvoiceTotals(receivedInvoices, summary?.receivedInvoices);
+
   await exportToExcel(
     [
       { name: 'Pending Invoices', data: pendingInvoices, options: { highlightColumns: ['Pending Amount'] } },

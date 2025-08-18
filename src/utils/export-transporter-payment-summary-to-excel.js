@@ -41,6 +41,62 @@ export const exportTransporterPaymentSummaryToExcel = async (
   const payablePayments = mapPayments(summary?.payablePayments);
   const paidPayments = mapPayments(summary?.paidPayments);
 
+  if (pendingTransporterPayments.length) {
+    const totals = (summary?.pendingTransporterPayments || []).reduce(
+      (acc, st) => ({
+        freight: acc.freight + (st.totalFreightAmount || 0),
+        expense: acc.expense + (st.totalExpense || 0),
+        shortage: acc.shortage + (st.totalShortageAmount || 0),
+        payment: acc.payment + (st.totalTransporterPayment || 0),
+      }),
+      { freight: 0, expense: 0, shortage: 0, payment: 0 },
+    );
+
+    pendingTransporterPayments.push({
+      'S.No': '',
+      'Subtrip ID': 'Total',
+      'Customer Name': '',
+      'Loading Point': '',
+      'Unloading Point': '',
+      'Start Date': '',
+      'End Date': '',
+      'Loading Weight': '',
+      Rate: '',
+      Transporter: '',
+      'Vehicle No': '',
+      Driver: '',
+      'Total Freight Amount': totals.freight,
+      'Total Expense': totals.expense,
+      'Total Shortage Amount': totals.shortage,
+      'Total Transporter Payment': totals.payment,
+    });
+  }
+
+  const calcNetTotal = (payments) =>
+    (payments || []).reduce((sum, p) => sum + (p.netIncome || 0), 0);
+
+  if (payablePayments.length) {
+    payablePayments.push({
+      'S.No': '',
+      'Payment ID': 'Total',
+      'Transporter Name': '',
+      'Issue Date': '',
+      Status: '',
+      'Net Payment': calcNetTotal(summary?.payablePayments),
+    });
+  }
+
+  if (paidPayments.length) {
+    paidPayments.push({
+      'S.No': '',
+      'Payment ID': 'Total',
+      'Transporter Name': '',
+      'Issue Date': '',
+      Status: '',
+      'Net Payment': calcNetTotal(summary?.paidPayments),
+    });
+  }
+
   await exportToExcel(
     [
       { name: 'Pending Subtrips', data: pendingTransporterPayments },
