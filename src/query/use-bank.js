@@ -71,7 +71,7 @@ export function useBank(id) {
 
 export function useCreateBank() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createBank,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -82,12 +82,12 @@ export function useCreateBank() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateBank() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateBank(id, data),
     onSuccess: (updatedBank) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -101,12 +101,12 @@ export function useUpdateBank() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteBank() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (id) => deleteBank(id),
     onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -118,5 +118,5 @@ export function useDeleteBank() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
