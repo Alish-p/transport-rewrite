@@ -13,13 +13,13 @@ import { wrapText } from 'src/utils/change-case';
 
 export const TABLE_COLUMNS = [
   {
-    id: 'pumpName',
+    id: 'name',
     label: 'Pump Name',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row.pumpName,
+    getter: (row) => row.name,
     render: (row) => {
-      const value = row.pumpName;
+      const value = row.name || '';
       return (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={value} sx={{ mr: 2 }}>
@@ -44,46 +44,11 @@ export const TABLE_COLUMNS = [
     },
   },
   {
-    id: 'placeName',
-    label: 'Place Name',
+    id: 'phone',
+    label: 'Phone',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row.placeName,
-  },
-  {
-    id: 'ownerName',
-    label: 'Owner Name',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.ownerName,
-  },
-  {
-    id: 'ownerCellNo',
-    label: 'Owner Cell No',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.ownerCellNo,
-  },
-  {
-    id: 'pumpPhoneNo',
-    label: 'Pump Phone No',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.pumpPhoneNo,
-  },
-  {
-    id: 'taluk',
-    label: 'Taluk',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.taluk,
-  },
-  {
-    id: 'district',
-    label: 'District',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.district,
+    getter: (row) => row.phone,
   },
   {
     id: 'address',
@@ -92,7 +57,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row.address,
     render: (row) => {
-      const value = row.address;
+      const value = row.address || '';
       return (
         <Tooltip title={value}>
           <Typography variant="body2" noWrap>
@@ -101,5 +66,19 @@ export const TABLE_COLUMNS = [
         </Tooltip>
       );
     },
+  },
+  {
+    id: 'bankName',
+    label: 'Bank Name',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.bankAccount?.name,
+  },
+  {
+    id: 'accountNo',
+    label: 'Account No',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.bankAccount?.accNo,
   },
 ];

@@ -23,30 +23,24 @@ export default function PumpListPdf({ pumps, tenant }) {
     const headers = [
       'S.No',
       'Pump Name',
-      'place',
       'Owner Name',
-      'Owner Cell No',
-      'Pump Phone No',
-      'Taluk',
-      'District',
-      'Contact Person',
+      'Phone',
       'Address',
+      'Bank Name',
+      'Account No',
     ];
 
     const data = pumps.map((pump, index) => [
       index + 1,
-      pump.pumpName,
-      pump.placeName,
+      pump.name,
       pump.ownerName,
-      pump.ownerCellNo,
-      pump.pumpPhoneNo,
-      pump.taluk,
-      pump.district,
-      pump.contactPerson,
+      pump.phone,
       pump.address,
+      pump.bankAccount?.name,
+      pump.bankAccount?.accNo,
     ]);
 
-    const columnWidths = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const columnWidths = [1, 2, 2, 2, 2, 1, 2];
 
     return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
   };

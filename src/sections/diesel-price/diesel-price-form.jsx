@@ -44,7 +44,7 @@ export default function DieselPriceForm({ currentDieselPrice }) {
   const defaultValues = useMemo(
     () => ({
       pump: currentDieselPrice?.pump
-        ? { label: currentDieselPrice.pump.pumpName, value: currentDieselPrice.pump._id }
+        ? { label: currentDieselPrice.pump.name, value: currentDieselPrice.pump._id }
         : null,
       price: currentDieselPrice?.price || 0,
       startDate: currentDieselPrice?.startDate
@@ -70,7 +70,7 @@ export default function DieselPriceForm({ currentDieselPrice }) {
   } = methods;
 
   const handlePumpChange = (pump) => {
-    setValue('pump', { label: pump.pumpName, value: pump._id });
+    setValue('pump', { label: pump.name, value: pump._id });
   };
 
   const onSubmit = async (data) => {

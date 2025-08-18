@@ -17,9 +17,9 @@ export const TABLE_COLUMNS = [
     label: 'Pump Name',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row.pump?.pumpName,
+    getter: (row) => row.pump?.name,
     render: (row) => {
-      const value = row.pump?.pumpName || '-';
+      const value = row.pump?.name || '-';
       return (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={value} sx={{ mr: 2 }}>

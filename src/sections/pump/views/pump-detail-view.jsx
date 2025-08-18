@@ -22,43 +22,25 @@ export function PumpDetailView({ pump }) {
     setTabValue(newValue);
   };
 
-  const {
-    pumpName,
-    placeName,
-    ownerName,
-    ownerCellNo,
-    pumpPhoneNo,
-    taluk,
-    district,
-    contactPerson,
-    address,
-  } = pump || {};
+  const { name, phone, address, bankAccount } = pump || {};
 
   const detailsMarkdown = `
 [](/)
-**Pump Name:** ${pumpName}  
-**Place Name:** ${placeName}  
+**Pump Name:** ${name}
+**Phone:** ${phone}
+**Address:** ${address}
 
 ---
 
-### Contact Information
+### Bank Details
 
-| Attribute            | Details                  |
-| :------------------- | :----------------------- |
-| **Owner Name**       | ${ownerName}             |
-| **Owner Cell Number**| ${ownerCellNo}           |
-| **Pump Phone Number**| ${pumpPhoneNo}           |
-| **Contact Person**   | ${contactPerson}         |
-
----
-
-### Location Details
-
-| Attribute            | Details                  |
-| :------------------- | :----------------------- |
-| **Taluk**            | ${taluk}                 |
-| **District**         | ${district}              |
-| **Address**          | ${address}               |
+| Attribute | Details |
+| :-- | :-- |
+| **Bank Name** | ${bankAccount?.name || ''} |
+| **Branch** | ${bankAccount?.branch || ''} |
+| **IFSC** | ${bankAccount?.ifsc || ''} |
+| **Place** | ${bankAccount?.place || ''} |
+| **Account No** | ${bankAccount?.accNo || ''} |
 
 `;
 
@@ -69,7 +51,7 @@ export function PumpDetailView({ pump }) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Pumps List', href: paths.dashboard.pump.root },
-          { name: `${pumpName}` },
+          { name: `${name}` },
         ]}
         sx={{ my: { xs: 3, md: 5 } }}
         action={

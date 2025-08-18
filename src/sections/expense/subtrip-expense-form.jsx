@@ -193,7 +193,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                   <DialogSelectButton
                     onClick={pumpDialog.onTrue}
                     placeholder="Select Pump"
-                    selected={selectedPump?.pumpName}
+                    selected={selectedPump?.name}
                     error={!!errors.tripId?.message}
                     iconName="mdi:gas-station"
                   />

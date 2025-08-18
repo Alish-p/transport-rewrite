@@ -94,7 +94,7 @@ export default function ExpenseTableFiltersResult({
 
         {filters.pump && (
           <Block label="Pump">
-            <Chip size="small" label={filters.pump.pumpName} onDelete={handleRemovePump} />
+            <Chip size="small" label={filters.pump.name} onDelete={handleRemovePump} />
           </Block>
         )}
 

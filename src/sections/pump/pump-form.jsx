@@ -26,25 +26,15 @@ import { BankListDialog } from '../bank/bank-list-dialogue';
 // ----------------------------------------------------------------------
 
 export const NewPumpSchema = zod.object({
-  pumpName: zod.string().min(1, { message: 'Pump Name is required' }),
-  placeName: zod.string().min(1, { message: 'Place Name is required' }),
-  ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  ownerCellNo: schemaHelper.phoneNumber({
+  name: zod.string().min(1, { message: 'Name is required' }),
+  phone: schemaHelper.phoneNumber({
     message: {
-      required_error: 'Owner Mobile No is required',
-      invalid_error: 'Owner Mobile No must be exactly 10 digits',
+      required_error: 'Phone is required',
+      invalid_error: 'Phone must be exactly 10 digits',
     },
   }),
-  pumpPhoneNo: schemaHelper.phoneNumber({
-    message: {
-      required_error: 'Pump Mobile No is required',
-      invalid_error: 'Pump Mobile No must be exactly 10 digits',
-    },
-  }),
-  taluk: zod.string().min(1, { message: 'Taluk is required' }),
-  district: zod.string().min(1, { message: 'District is required' }),
-  contactPerson: zod.string().min(1, { message: 'Contact Person is required' }),
   address: zod.string().min(1, { message: 'Address is required' }),
+  ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
   bankDetails: zod.object({
     name: zod.string().min(1, { message: 'Bank Name is required' }),
     branch: zod.string().min(1, { message: 'Branch is required' }),
@@ -71,15 +61,10 @@ export default function PumpForm({ currentPump }) {
 
   const defaultValues = useMemo(
     () => ({
-      pumpName: currentPump?.pumpName || '',
-      placeName: currentPump?.placeName || '',
-      ownerName: currentPump?.ownerName || '',
-      ownerCellNo: currentPump?.ownerCellNo || '',
-      pumpPhoneNo: currentPump?.pumpPhoneNo || '',
-      taluk: currentPump?.taluk || '',
-      district: currentPump?.district || '',
-      contactPerson: currentPump?.contactPerson || '',
+      name: currentPump?.name || '',
+      phone: currentPump?.phone || '',
       address: currentPump?.address || '',
+      ownerName: currentPump?.ownerName || '',
       bankDetails: {
         name: currentPump?.bankDetails?.name || '',
         ifsc: currentPump?.bankDetails?.ifsc || '',
@@ -135,18 +120,12 @@ export default function PumpForm({ currentPump }) {
           display="grid"
           gridTemplateColumns={{
             xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
           }}
         >
-          <Field.Text name="pumpName" label="Pump Name" />
-          <Field.Text name="placeName" label="Place Name" />
+          <Field.Text name="name" label="Pump Name" />
           <Field.Text name="ownerName" label="Owner Name" />
-          <Field.Text name="ownerCellNo" label="Owner Cell No" />
-          <Field.Text name="pumpPhoneNo" label="Pump Phone No" />
-          <Field.Text name="taluk" label="Taluk" />
-          <Field.Text name="district" label="District" />
-          <Field.Text name="contactPerson" label="Contact Person" />
-          <Field.Text name="address" label="Address" />
+          <Field.Text name="phone" label="Phone" />
+          <Field.Text name="address" label="Address" multiline rows={4} />
         </Box>
       </Card>
     </>

@@ -20,7 +20,7 @@ export function PumpEditView({ pump }) {
             name: 'Pump List',
             href: paths.dashboard.pump.list,
           },
-          { name: pump?.pumpName },
+          { name: pump?.name },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

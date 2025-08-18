@@ -641,7 +641,7 @@ export function SubtripLoadForm() {
                   />
                 }
               >
-                {selectedPump ? selectedPump.pumpName : 'Select Pump'}
+                {selectedPump ? selectedPump.name : 'Select Pump'}
                 {(driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
                   (initialAdvanceDiesel && initialAdvanceDiesel > 0)) &&
                   ' *'}

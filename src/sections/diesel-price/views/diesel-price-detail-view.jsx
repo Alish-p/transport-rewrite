@@ -38,7 +38,7 @@ export function DieselPriceDetailView({ dieselPrice }) {
 
 | Attribute            | Details                  |
 | :------------------- | :----------------------- |
-| **Pump Name**        | ${pump?.pumpName}              |
+| **Pump Name**        | ${pump?.name}              |
 | **Location**         | ${pump?.address}              |
 
 `;
@@ -50,7 +50,7 @@ export function DieselPriceDetailView({ dieselPrice }) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Diesel Prices List', href: paths.dashboard.diesel.root },
-          { name: `${pump?.pumpName}` },
+          { name: `${pump?.name}` },
         ]}
         sx={{ my: { xs: 3, md: 5 } }}
         action={

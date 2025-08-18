@@ -82,7 +82,7 @@ export default function DieselPriceTableToolbar({
       >
         <DialogSelectButton
           onClick={pumpDialog.onTrue}
-          selected={filters.pump?.pumpName}
+          selected={filters.pump?.name}
           placeholder="Pump"
           iconName="mdi:gas-station"
         />

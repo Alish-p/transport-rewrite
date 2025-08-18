@@ -102,11 +102,11 @@ export function KanbanPumpDialog({ selectedPump = null, open, onClose, onPumpCha
                     <ListItemText
                       primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                       secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={pump.pumpName}
+                      primary={pump.name}
                       secondary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="caption">
-                            {pump.pumpPhoneNo} • {pump.address}
+                            {pump.phone} • {pump.address}
                           </Typography>
                         </Box>
                       }

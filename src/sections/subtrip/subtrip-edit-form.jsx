@@ -362,7 +362,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <DialogSelectButton
                     variant="outlined"
                     placeholder="Select Pump"
-                    selected={selectedPump?.pumpName}
+                    selected={selectedPump?.name}
                     onClick={pumpDialog.onTrue}
                     iconName="mdi:gas-station"
                   />

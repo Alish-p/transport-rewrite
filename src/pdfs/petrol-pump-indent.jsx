@@ -64,7 +64,7 @@ export default function IndentPdf({ subtrip, tenant }) {
 
   // Prepare pump info
   const pumpInfo = {
-    to: intentFuelPump?.pumpName || '',
+    to: intentFuelPump?.name || '',
     lrNo: _id || '',
     date: fDate(startDate),
   };
