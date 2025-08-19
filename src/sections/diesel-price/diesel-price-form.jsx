@@ -2,15 +2,11 @@
 import { z as zod } from 'zod';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Button, Divider, Typography } from '@mui/material';
-
-// routes
-import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -35,24 +31,25 @@ export const DieselPriceSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export default function DieselPriceForm({ currentDieselPrice }) {
-  const navigate = useNavigate();
+export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess }) {
   const createDieselPrice = useCreateDieselPrice();
   const updateDieselPrice = useUpdateDieselPrice();
   const pumpDialog = useBoolean(false);
 
   const defaultValues = useMemo(
     () => ({
-      pump: currentDieselPrice?.pump
-        ? { label: currentDieselPrice.pump.name, value: currentDieselPrice.pump._id }
-        : null,
+      pump: pump
+        ? { label: pump.name, value: pump._id }
+        : currentDieselPrice?.pump
+          ? { label: currentDieselPrice.pump.name, value: currentDieselPrice.pump._id }
+          : null,
       price: currentDieselPrice?.price || 0,
       startDate: currentDieselPrice?.startDate
         ? new Date(currentDieselPrice.startDate)
         : new Date(),
       endDate: currentDieselPrice?.endDate ? new Date(currentDieselPrice.endDate) : new Date(),
     }),
-    [currentDieselPrice]
+    [currentDieselPrice, pump]
   );
 
   const methods = useForm({
@@ -69,14 +66,14 @@ export default function DieselPriceForm({ currentDieselPrice }) {
     formState: { isSubmitting, errors },
   } = methods;
 
-  const handlePumpChange = (pump) => {
-    setValue('pump', { label: pump.name, value: pump._id });
+  const handlePumpChange = (selectedPump) => {
+    setValue('pump', { label: selectedPump.name, value: selectedPump._id });
   };
 
   const onSubmit = async (data) => {
     const transformedData = {
       ...data,
-      pump: data.pump.value, // Transform pump to save only the value
+      pump: pump ? pump._id : data.pump.value, // Transform pump to save only the value
     };
 
     try {
@@ -91,8 +88,10 @@ export default function DieselPriceForm({ currentDieselPrice }) {
       }
 
       if (newDieselPrice) {
-        navigate(paths.dashboard.diesel.list);
         reset();
+        if (onSuccess) {
+          onSuccess(newDieselPrice);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -119,25 +118,41 @@ export default function DieselPriceForm({ currentDieselPrice }) {
               }}
             >
               <Box>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={pumpDialog.onTrue}
-                  sx={{
-                    height: 56,
-                    justifyContent: 'flex-start',
-                    typography: 'body2',
-                    borderColor: errors.pump?.message ? 'error.main' : 'text.disabled',
-                  }}
-                  startIcon={
-                    <Iconify
-                      icon={selectedPump?.label ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
-                      sx={{ color: selectedPump?.label ? 'primary.main' : 'text.disabled' }}
-                    />
-                  }
-                >
-                  {selectedPump?.label ? selectedPump.label : 'Select Pump *'}
-                </Button>
+                {pump ? (
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    disabled
+                    sx={{
+                      height: 56,
+                      justifyContent: 'flex-start',
+                      typography: 'body2',
+                    }}
+                    startIcon={<Iconify icon="mdi:gas-station" sx={{ color: 'primary.main' }} />}
+                  >
+                    {pump.name}
+                  </Button>
+                ) : (
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={pumpDialog.onTrue}
+                    sx={{
+                      height: 56,
+                      justifyContent: 'flex-start',
+                      typography: 'body2',
+                      borderColor: errors.pump?.message ? 'error.main' : 'text.disabled',
+                    }}
+                    startIcon={
+                      <Iconify
+                        icon={selectedPump?.label ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
+                        sx={{ color: selectedPump?.label ? 'primary.main' : 'text.disabled' }}
+                      />
+                    }
+                  >
+                    {selectedPump?.label ? selectedPump.label : 'Select Pump *'}
+                  </Button>
+                )}
               </Box>
               <Field.Text name="price" label="Price" type="number" />
               <Field.DatePicker name="startDate" label="Start Date" />
@@ -155,12 +170,14 @@ export default function DieselPriceForm({ currentDieselPrice }) {
         </LoadingButton>
       </Stack>
 
-      <KanbanPumpDialog
-        open={pumpDialog.value}
-        onClose={pumpDialog.onFalse}
-        selectedPump={selectedPump}
-        onPumpChange={handlePumpChange}
-      />
+      {!pump && (
+        <KanbanPumpDialog
+          open={pumpDialog.value}
+          onClose={pumpDialog.onFalse}
+          selectedPump={selectedPump}
+          onPumpChange={handlePumpChange}
+        />
+      )}
     </Form>
   );
 }

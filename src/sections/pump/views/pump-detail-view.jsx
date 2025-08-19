@@ -15,6 +15,7 @@ import {
   PumpFinanceWidget,
   PumpExpensesWidget,
   PumpDieselPriceWidget,
+  PumpDieselPricesWidget,
 } from '../widgets';
 
 export function PumpDetailView({ pump }) {
@@ -43,14 +44,17 @@ export function PumpDetailView({ pump }) {
       />
       <Box sx={{ p: 3 }}>
         <Grid container spacing={3}>
-          <Grid xs={12} md={4}>
+          <Grid xs={12} md={6}>
             <PumpBasicWidget pump={pump} />
           </Grid>
-          <Grid xs={12} md={4}>
+          <Grid xs={12} md={6}>
             <PumpFinanceWidget pump={pump} />
           </Grid>
-          <Grid xs={12} md={4}>
+          <Grid xs={12} md={6}>
             <PumpDieselPriceWidget pumpId={pump._id} />
+          </Grid>
+          <Grid xs={12} md={6}>
+            <PumpDieselPricesWidget pump={pump} />
           </Grid>
           <Grid xs={12}>
             <PumpExpensesWidget pumpId={pump._id} />
