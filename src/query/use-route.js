@@ -13,11 +13,6 @@ const getRoute = async (id) => {
   return data;
 };
 
-const getRouteSubtrips = async (id) => {
-  const { data } = await axios.get(`${ENDPOINT}/${id}/subtrips`);
-  return data;
-};
-
 const createRoute = async (route) => {
   const { data } = await axios.post(ENDPOINT, route);
   return data;
@@ -73,14 +68,6 @@ export function useRoute(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => getRoute(id),
-    enabled: !!id,
-  });
-}
-
-export function useRouteSubtrips(id) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id, 'subtrips'],
-    queryFn: () => getRouteSubtrips(id),
     enabled: !!id,
   });
 }
