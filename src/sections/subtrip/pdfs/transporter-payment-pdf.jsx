@@ -33,7 +33,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
     rate,
     loadingWeight,
     unloadingWeight,
-    tripId: { vehicleId },
+    vehicleId,
     loadingPoint,
     unloadingPoint,
   } = subtrip;

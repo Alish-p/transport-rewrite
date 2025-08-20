@@ -26,7 +26,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
     customerId,
     startDate,
     expenses,
-    tripId: { driverId },
+    driverId,
     loadingPoint,
     unloadingPoint,
   } = subtrip;

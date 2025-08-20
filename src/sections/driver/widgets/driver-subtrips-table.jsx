@@ -75,9 +75,9 @@ export function DriverSubtripsTable({ driver }) {
                         {row._id}
                       </Link>
                     </TableCell>
-                    <TableCell>{row?.tripId?.vehicleId?.vehicleNo}</TableCell>
+                    <TableCell>{row?.vehicleId?.vehicleNo}</TableCell>
 
-                    <TableCell>{row?.tripId?.driverId?.driverName}</TableCell>
+                    <TableCell>{row?.driverId?.driverName}</TableCell>
                     <TableCell>{row.loadingPoint}</TableCell>
                     <TableCell>{row.unloadingPoint}</TableCell>
                     <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>

@@ -366,14 +366,14 @@ export default function SimplerNewInvoiceForm() {
                         />
                       </TableCell>
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                      <TableCell>{st.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.consignee}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
                       <TableCell>{st._id}</TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>{fCurrency(st.rate)}</TableCell>
                       <TableCell>
-                        {st.loadingWeight} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                        {st.loadingWeight} {loadingWeightUnit[st.vehicleId?.vehicleType]}
                       </TableCell>
                       <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
                         {fNumber(st.shortageWeight)} Kg

@@ -17,7 +17,9 @@ Font.register({
 });
 
 export default function TripSheetPdf({ trip, tenant }) {
-  const { _id: tripId, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
+  const { _id: tripId, fromDate, endDate, subtrips = [] } = trip || {};
+  const vehicleId = subtrips[0]?.vehicleId;
+  const driverId = subtrips[0]?.driverId;
 
   // Prepare subtrip table data
   const subtripColumns = [

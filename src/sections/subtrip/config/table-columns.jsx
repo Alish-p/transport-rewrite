@@ -57,7 +57,7 @@ export const TABLE_COLUMNS = [
     label: 'Vehicle No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?.tripId?.vehicleId?.vehicleNo || '-',
+    getter: (row) => row?.vehicleId?.vehicleNo || '-',
     align: 'center',
   },
   {
@@ -65,7 +65,7 @@ export const TABLE_COLUMNS = [
     label: 'Driver',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.tripId?.driverId?.driverName || '-',
+    getter: (row) => row?.driverId?.driverName || '-',
     align: 'center',
   },
   {
@@ -292,7 +292,7 @@ export const TABLE_COLUMNS = [
     label: 'Transporter',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.tripId?.vehicleId?.transporter?.transportName || '-',
+    getter: (row) => row?.vehicleId?.transporter?.transportName || '-',
     align: 'center',
   },
   {

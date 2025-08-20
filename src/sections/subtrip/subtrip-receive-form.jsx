@@ -50,7 +50,7 @@ const defaultValues = {
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch } = methods;
   const { hasError, hasShortage, unloadingWeight, endKm, commissionRate } = watch();
-  const { isOwn, vehicleType } = selectedSubtrip?.tripId?.vehicleId || {};
+  const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
 
   return (
     <Card sx={{ p: 2, height: '100%' }}>
@@ -225,10 +225,10 @@ export function SubtripReceiveForm() {
   } = methods;
 
   const { unloadingWeight, endKm, commissionRate } = watch();
-  const { isOwn } = selectedSubtripData?.tripId?.vehicleId || {};
-  const vehicleNo = selectedSubtripData?.tripId?.vehicleId?.vehicleNo;
+  const { isOwn } = selectedSubtripData?.vehicleId || {};
+  const vehicleNo = selectedSubtripData?.vehicleId?.vehicleNo;
   const { data: gpsData } = useGps(vehicleNo, {
-    enabled: selectedSubtripData?.tripId?.vehicleId?.isOwn,
+    enabled: selectedSubtripData?.vehicleId?.isOwn,
   });
   const handleSubtripChange = useCallback(
     (subtrip) => {

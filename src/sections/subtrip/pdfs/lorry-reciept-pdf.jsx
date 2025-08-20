@@ -30,7 +30,8 @@ export default function LRPDF({ subtrip, tenant }) {
     unloadingPoint,
     grade,
     quantity,
-    tripId: { driverId, vehicleId },
+    driverId,
+    vehicleId,
   } = subtrip;
 
   const { vehicleType } = vehicleId;

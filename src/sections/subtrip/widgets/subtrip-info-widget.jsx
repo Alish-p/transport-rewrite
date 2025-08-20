@@ -24,7 +24,9 @@ export default function LRInfoCard({ subtrip }) {
     materialType,
     quantity,
     grade,
-    tripId: { _id, vehicleId, driverId } = {},
+    tripId = {},
+    vehicleId,
+    driverId,
     startDate,
     endDate,
     rate = '-',
@@ -46,6 +48,7 @@ export default function LRInfoCard({ subtrip }) {
 
   const routeName = routeCd?.routeName || '-';
   const customerName = customerId?.customerName || '-';
+  const tripNo = tripId?._id || '-';
   const vehicleNo = vehicleId?.vehicleNo || '-';
   const driverName = driverId?.driverName || '-';
 
@@ -87,7 +90,7 @@ export default function LRInfoCard({ subtrip }) {
             <Typography>
               Trip No:{' '}
               <Box component="span" sx={{ color: 'text.secondary' }}>
-                {_id}
+                {tripNo}
               </Box>
             </Typography>
           </Stack>

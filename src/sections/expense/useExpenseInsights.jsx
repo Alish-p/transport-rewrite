@@ -5,7 +5,7 @@ import { fCurrency } from 'src/utils/format-number';
 function useExpenseInsights(subtrip) {
   const {
     routeCd: routeInfo,
-    tripId: { vehicleId: vehicleInfo } = {},
+    vehicleId: vehicleInfo,
     rate = 0,
     loadingWeight = 0,
   } = subtrip || {};

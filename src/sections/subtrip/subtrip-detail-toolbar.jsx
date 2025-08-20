@@ -133,7 +133,7 @@ export default function SubtripToolbar({
 
   const hasDieselIntent = subtrip?.intentFuelPump;
   const hasEntryPass = subtrip?.diNumber;
-  const hasTransporterPayment = !subtrip?.tripId?.vehicleId?.isOwn;
+  const hasTransporterPayment = !subtrip?.vehicleId?.isOwn;
 
   const actionPopover = usePopover();
   const viewPopover = usePopover();
@@ -164,9 +164,9 @@ export default function SubtripToolbar({
               </Label>
               <Label
                 variant="soft"
-                color={subtrip.tripId?.vehicleId?.isOwn ? 'success' : 'warning'}
+                color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}
               >
-                {subtrip.tripId?.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
+                {subtrip.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
               </Label>
             </Stack>
           </Stack>

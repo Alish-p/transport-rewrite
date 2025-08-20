@@ -69,8 +69,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
   const { freightAmount, expenses, driverSalary } = calculateFinancials();
 
   // Check if vehicle is owned
-  const isOwn = selectedSubtrip?.tripId?.vehicleId?.isOwn || false;
-  const vehicleType = selectedSubtrip?.tripId?.vehicleId?.vehicleType || '';
+  const isOwn = selectedSubtrip?.vehicleId?.isOwn || false;
+  const vehicleType = selectedSubtrip?.vehicleId?.vehicleType || '';
 
   const navigate = useNavigate();
 
@@ -202,13 +202,13 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Vehicle</Typography>
                 <Typography variant="body2" fontWeight="bold">
-                  {selectedSubtrip.tripId?.vehicleId?.vehicleNo || '-'}
+                  {selectedSubtrip.vehicleId?.vehicleNo || '-'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Driver</Typography>
                 <Typography variant="body2" fontWeight="bold">
-                  {selectedSubtrip.tripId?.driverId?.driverName || '-'}
+                  {selectedSubtrip.driverId?.driverName || '-'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -356,7 +356,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             {fCurrency(driverSalary || 0)}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Driver: {selectedSubtrip.tripId?.driverId?.driverName || '-'}
+            Driver: {selectedSubtrip.driverId?.driverName || '-'}
           </Typography>
         </Paper>
       </Grid>
