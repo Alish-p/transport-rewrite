@@ -390,7 +390,7 @@ export default function TransporterPaymentSimpleForm() {
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>{st._id}</TableCell>
-                      <TableCell>{st.tripId?.vehicleId?.vehicleNo}</TableCell>
+                      <TableCell>{st.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.loadingPoint}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
                       <TableCell>{st.invoiceNo}</TableCell>

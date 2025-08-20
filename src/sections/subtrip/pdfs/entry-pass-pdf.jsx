@@ -25,7 +25,8 @@ export default function EntryPassPdf({ subtrip, tenant }) {
     diNumber,
     customerId,
     startDate,
-    tripId: { driverId, vehicleId },
+    driverId,
+    vehicleId,
   } = subtrip;
 
   console.log(subtrip);

@@ -132,7 +132,7 @@ function RenderTable({ invoice }) {
               </TableCell>
               <TableCell>{fDate(st.startDate)}</TableCell>
               <TableCell>
-                {st.loadingWeight || 0} {loadingWeightUnit[st.tripId?.vehicleId?.vehicleType]}
+                {st.loadingWeight || 0} {loadingWeightUnit[st.vehicleType]}
               </TableCell>
               <TableCell>{fCurrency(st.rate || 0)}</TableCell>
               <TableCell>{fCurrency(st.totalAmount || 0)}</TableCell>

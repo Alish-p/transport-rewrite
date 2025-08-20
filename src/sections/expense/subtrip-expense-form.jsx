@@ -137,7 +137,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
       ...data,
       expenseCategory: 'subtrip',
       subtripId: selectedSubtripId,
-      vehicleId: subtripData?.tripId?.vehicleId?._id,
+      vehicleId: subtripData?.vehicleId?._id,
     };
 
     await createExpense(transformedData);

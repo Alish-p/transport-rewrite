@@ -32,7 +32,8 @@ export default function IndentPdf({ subtrip, tenant }) {
     startDate,
     expenses,
     initialAdvanceDiesel,
-    tripId: { driverId, vehicleId },
+    driverId,
+    vehicleId,
     intentFuelPump,
     driverAdvanceGivenBy,
   } = subtrip;

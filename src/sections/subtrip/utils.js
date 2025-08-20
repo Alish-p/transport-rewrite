@@ -18,21 +18,21 @@ export const mapExpensesToChartData = (expenses, expenseTypes = DEFAULT_SUBTRIP_
  * @param {Object} subtrip - The complete subtrip object, populated with:
  *   - routeCd
  *   - expenses
- *   - tripId.vehicleId
+ *   - vehicleId
  * @returns {Array} An array of insight objects (each with a `type` and `message`).
  */
 export function generateInsightsForSubtrip(subtrip) {
   const insights = [];
 
   // 1. Safety checks
-  if (!subtrip.routeCd || !subtrip.tripId || !subtrip.tripId.vehicleId) {
+  if (!subtrip.routeCd || !subtrip.vehicleId) {
     // If we lack route data or vehicle data, we cannot compare expected vs actual
     return insights; // Return an empty array
   }
 
   const { routeCd, expenses, startKm, endKm } = subtrip;
-  const vehicleType = subtrip.tripId.vehicleId.vehicleType
-    ? subtrip.tripId.vehicleId.vehicleType.toLowerCase()
+  const vehicleType = subtrip.vehicleId.vehicleType
+    ? subtrip.vehicleId.vehicleType.toLowerCase()
     : 'body'; // default to "body" or handle gracefully
 
   // 2. Find the route config for this vehicle type

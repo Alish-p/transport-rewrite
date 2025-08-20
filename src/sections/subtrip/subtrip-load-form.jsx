@@ -207,7 +207,7 @@ export function SubtripLoadForm() {
   const { driverAdvanceGivenBy, initialAdvanceDiesel } = watch();
 
   // Derived data
-  const vehicleData = selectedSubtrip?.tripId?.vehicleId;
+  const vehicleData = selectedSubtrip?.vehicleId;
   const { isOwn, vehicleType, trackingLink } = vehicleData || {};
 
   const { data: gpsData } = useGps(vehicleData?.vehicleNo, { enabled: vehicleData?.isOwn });
@@ -291,7 +291,7 @@ export function SubtripLoadForm() {
     try {
       const payload = {
         ...data,
-        vehicleId: selectedSubtrip.tripId.vehicleId._id,
+        vehicleId: selectedSubtrip.vehicleId._id,
         consignee: data.consignee?.value,
       };
       delete payload.subtripId;

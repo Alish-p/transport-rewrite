@@ -79,8 +79,8 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
                     )
                     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
-                  const vehicleType = row?.tripId?.vehicleId?.vehicleType || '';
-                  const noOfTyres = row?.tripId?.vehicleId?.noOfTyres;
+                  const vehicleType = row?.vehicleId?.vehicleType || '';
+                  const noOfTyres = row?.vehicleId?.noOfTyres;
                   const vehicleColor = getVehicleTypeTyreColor(vehicleType, noOfTyres);
                   const config =
                     route?.vehicleConfiguration?.find(
@@ -106,13 +106,13 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
                           {row?._id}
                         </Link>
                       </TableCell>
-                      <TableCell>{row?.tripId?.vehicleId?.vehicleNo}</TableCell>
+                      <TableCell>{row?.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>
                         <Label variant="soft" color={vehicleColor}>
                           {vehicleType} {noOfTyres}
                         </Label>
                       </TableCell>
-                      <TableCell>{row?.tripId?.driverId?.driverName}</TableCell>
+                      <TableCell>{row?.driverId?.driverName}</TableCell>
                       <TableCell>{row.loadingPoint}</TableCell>
                       <TableCell>{row.unloadingPoint}</TableCell>
                       <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>

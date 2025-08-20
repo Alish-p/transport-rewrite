@@ -150,7 +150,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const values = watch();
 
-  const { vehicleType, isOwn } = currentSubtrip?.tripId?.vehicleId || {};
+  const { vehicleType, isOwn } = currentSubtrip?.vehicleId || {};
 
   const handleCustomerChange = (customer) => {
     setSelectedCustomer(customer);
