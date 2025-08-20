@@ -22,11 +22,6 @@ const getDriver = async (id) => {
   return data;
 };
 
-const getDriverSubtrips = async (id) => {
-  const { data } = await axios.get(`${ENDPOINT}/${id}/subtrips`);
-  return data;
-};
-
 const createDriver = async (driver) => {
   const { data } = await axios.post(ENDPOINT, driver);
   return data;
@@ -87,14 +82,6 @@ export function useDriver(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => getDriver(id),
-    enabled: !!id,
-  });
-}
-
-export function useDriverSubtrips(id) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id, 'subtrips'],
-    queryFn: () => getDriverSubtrips(id),
     enabled: !!id,
   });
 }
