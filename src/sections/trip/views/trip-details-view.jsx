@@ -167,54 +167,6 @@ export function TripDetailView({ trip }) {
             </Grid>
             <Grid item container spacing={1} xs={12} md={12}>
               <Grid item xs={5} md={6}>
-                <AnalyticsCurrentVisits
-                  title="Subtrip Status"
-                  chart={{
-                    series: [
-                      {
-                        label: 'Inqueue',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.IN_QUEUE
-                        ).length,
-                      },
-                      {
-                        label: 'Loaded',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.LOADED
-                        ).length,
-                      },
-                      {
-                        label: 'Received',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.RECEIVED
-                        ).length,
-                      },
-                      {
-                        label: 'Error',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.ERROR
-                        ).length,
-                      },
-
-                      {
-                        label: 'Billed',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.BILLED
-                        ).length,
-                      },
-                    ],
-                    colors: [
-                      theme.palette.primary.main,
-                      theme.palette.info.main,
-                      theme.palette.success.main,
-                      theme.palette.error.main,
-                      theme.palette.warning.main,
-                      theme.palette.secondary.main,
-                    ],
-                  }}
-                />
-              </Grid>
-              <Grid item xs={5} md={6}>
                 <ProfitExpenseChart
                   subtrips={trip.subtrips}
                   title="Subtrip Profit/Expense"
