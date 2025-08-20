@@ -1,11 +1,6 @@
-import { useState } from 'react';
-
-import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -18,24 +13,36 @@ import { RouterLink } from 'src/routes/components';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
-import { useCustomerInvoices } from 'src/query/use-customer';
+import { usePaginatedInvoices } from 'src/query/use-invoice';
 
 import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
+import {
+  useTable,
+  TableNoData,
+  TableSkeleton,
+  TableHeadCustom,
+  TablePaginationCustom,
+} from 'src/components/table';
 
 export function CustomerInvoicesTable({ customer, title, subheader, ...other }) {
   const { _id: customerId } = customer || {};
-  const { data: invoices = [], isLoading } = useCustomerInvoices(customerId);
-  const [showAll, setShowAll] = useState(false);
-  const displayedInvoices = showAll ? invoices : invoices.slice(0, 6);
+  const table = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
+
+  const { data, isLoading } = usePaginatedInvoices({
+    customerId,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
+
+  const invoices = data?.invoices || [];
+  const totalCount = data?.totals?.all?.count || 0;
 
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
-      <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
+      <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
         <Table sx={{ minWidth: 720 }}>
           <TableHeadCustom
             headLabel={[
@@ -53,7 +60,7 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
               <TableSkeleton />
             ) : invoices.length ? (
               <>
-                {displayedInvoices.map((row, idx) => {
+                {invoices.map((row, idx) => {
                   const invoiceNo = row.invoiceNo || row.invoiceNumber;
                   const invoiceStatus = row.invoiceStatus || row.status;
                   const issueDate = row.issueDate || row.invoiceDate;
@@ -61,7 +68,7 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
 
                   return (
                     <TableRow key={row._id}>
-                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
 
                       <TableCell>
                         <Link
@@ -121,28 +128,15 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
         </Table>
       </Scrollbar>
 
-      {invoices.length > 6 && (
-        <>
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <Box sx={{ p: 2, textAlign: 'right' }}>
-            <Button
-              size="small"
-              color="inherit"
-              onClick={() => setShowAll((prev) => !prev)}
-              endIcon={
-                <Iconify
-                  icon={showAll ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-forward-fill'}
-                  width={18}
-                  sx={{ ml: -0.5 }}
-                />
-              }
-            >
-              {showAll ? 'View less' : 'View all'}
-            </Button>
-          </Box>
-        </>
-      )}
+      <TablePaginationCustom
+        count={totalCount}
+        page={table.page}
+        rowsPerPage={table.rowsPerPage}
+        onPageChange={table.onChangePage}
+        onRowsPerPageChange={table.onChangeRowsPerPage}
+        dense={table.dense}
+        onChangeDense={table.onChangeDense}
+      />
     </Card>
   );
 }
