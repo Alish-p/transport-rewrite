@@ -12,12 +12,13 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import TripToolbar from '../widgets/TripToolbar';
 import DriverCard from '../widgets/DriverWidgets';
+import TripToolbar from '../widgets/TripToolbar';
+import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import VehicleCard from '../widgets/VehicleWidgets';
+import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import SimpleSubtripList from '../basic-subtrip-table';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
-import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
 
@@ -162,6 +163,7 @@ export function TripDetailView({ trip }) {
                 </Stack>
                 <SimpleSubtripList subtrips={trip.subtrips} />
               </Card>
+              <TripExpensesWidget tripId={trip._id} />
             </Grid>
             <Grid item container spacing={1} xs={12} md={12}>
               <Grid item xs={5} md={6}>
@@ -237,6 +239,7 @@ export function TripDetailView({ trip }) {
                 navigate(paths.dashboard.vehicle.edit(trip?.vehicleId?._id));
               }}
             />
+
           </Stack>
         </Grid>
       </Grid>
