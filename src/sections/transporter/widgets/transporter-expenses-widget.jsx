@@ -1,21 +1,22 @@
 import dayjs from 'dayjs';
+import { useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
+import FormControl from '@mui/material/FormControl';
 
 import { fDate } from 'src/utils/format-time';
 import { fNumber } from 'src/utils/format-number';
 
 import { usePaginatedExpenses } from 'src/query/use-expense';
 
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import {
   useTable,
   TableNoData,
@@ -24,15 +25,25 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }) {
+export function TransporterExpensesWidget({ transporterId, title = 'Expenses', ...other }) {
+  const today = dayjs();
+  const currentMonthIndex = today.month();
+  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
+    const m = today.month(i);
+    return { label: m.format('MMM-YYYY'), value: m.format('YYYY-MM') };
+  });
+
+  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+
   const table = useTable({ defaultOrderBy: 'date', defaultRowsPerPage: 5 });
 
-  const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
+  const startDate = dayjs(selectedMonth).startOf('month').format('YYYY-MM-DD');
+  const endDate = dayjs(selectedMonth).endOf('month').format('YYYY-MM-DD');
 
   const { data, isLoading } = usePaginatedExpenses({
-    pumpId,
-    startDate: rangePicker.startDate && rangePicker.startDate.format('YYYY-MM-DD'),
-    endDate: rangePicker.endDate && rangePicker.endDate.format('YYYY-MM-DD'),
+    transporterId,
+    startDate,
+    endDate,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -40,13 +51,8 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
   const expenses = data?.expenses || [];
   const totalCount = data?.totals?.all?.count || 0;
 
-  const handleChangeStartDate = (newValue) => {
-    rangePicker.onChangeStartDate(newValue);
-    table.onResetPage();
-  };
-
-  const handleChangeEndDate = (newValue) => {
-    rangePicker.onChangeEndDate(newValue);
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
     table.onResetPage();
   };
 
@@ -54,16 +60,18 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
     <Card {...other}>
       <CardHeader
         title={title}
-        subheader="Expenses incurred at this pump"
+        subheader="Expenses incurred by transporter vehicles"
         sx={{ mb: 3 }}
         action={
-          <Button
-            variant="outlined"
-            onClick={rangePicker.onOpen}
-            startIcon={<Iconify icon="solar:calendar-date-bold" />}
-          >
-            {rangePicker.shortLabel}
-          </Button>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <Select value={selectedMonth} onChange={handleMonthChange}>
+              {monthOptions.map(({ label, value }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         }
       />
 
@@ -74,12 +82,11 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
               { id: 'index', label: 'No.' },
               { id: 'vehicle', label: 'Vehicle No' },
               { id: 'type', label: 'Expense Type' },
-              { id: 'dieselRate', label: 'Diesel Rate' },
+              { id: 'dieselLtr', label: 'Diesel Ltr' },
               { id: 'date', label: 'Date' },
               { id: 'amount', label: 'Amount', align: 'right' },
             ]}
           />
-
           <TableBody>
             {isLoading ? (
               <TableSkeleton />
@@ -90,7 +97,7 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
                     <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
                     <TableCell>{row.vehicleId?.vehicleNo || '-'}</TableCell>
                     <TableCell>{row.expenseType || '-'}</TableCell>
-                    <TableCell>{row.dieselPrice || '-'}</TableCell>
+                    <TableCell>{row.dieselLtr || '-'}</TableCell>
                     <TableCell>{row.date ? fDate(new Date(row.date)) : '-'}</TableCell>
                     <TableCell align="right">{fNumber(row.amount)}</TableCell>
                   </TableRow>
@@ -112,19 +119,9 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
         dense={table.dense}
         onChangeDense={table.onChangeDense}
       />
-
-      <CustomDateRangePicker
-        variant="calendar"
-        open={rangePicker.open}
-        onClose={rangePicker.onClose}
-        startDate={rangePicker.startDate}
-        endDate={rangePicker.endDate}
-        onChangeStartDate={handleChangeStartDate}
-        onChangeEndDate={handleChangeEndDate}
-      />
     </Card>
   );
 }
 
-export default PumpExpensesWidget;
+export default TransporterExpensesWidget;
 

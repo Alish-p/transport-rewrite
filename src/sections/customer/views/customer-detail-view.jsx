@@ -53,21 +53,24 @@ export function CustomerDetailView({ customer }) {
           <Grid xs={12} md={4}>
             <CustomerAdditionalWidget customer={customer} />
           </Grid>
-          <Grid xs={12}>
+          <Grid xs={12} md={4}>
             <CustomerInvoiceAmountSummaryWidget customer={customer} />
           </Grid>
-          <Grid xs={12} md={6}>
-            <CustomerMaterialSummaryWidget customer={customer} />
-          </Grid>
-          <Grid xs={12} md={6}>
+          <Grid xs={12} md={8}>
             <CustomerSubtripCompletedWidget customer={customer} />
           </Grid>
-          <Grid xs={12} md={12}>
+
+
+          <Grid xs={12} md={6}>
             <CustomerInvoicesTable
               customer={customer}
               title="📄 Invoices"
               subheader="Invoices for this customer"
             />
+          </Grid>
+
+          <Grid xs={12} md={6}>
+            <CustomerMaterialSummaryWidget customer={customer} />
           </Grid>
           <Grid xs={12} md={12}>
             <CustomerRoutesTable

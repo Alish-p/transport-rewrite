@@ -31,11 +31,6 @@ const PumpListPage = lazy(() => import('src/pages/dashboard/pump/list'));
 const PumpCreatePage = lazy(() => import('src/pages/dashboard/pump/new'));
 const PumpEditPage = lazy(() => import('src/pages/dashboard/pump/edit'));
 
-// DieselPrice
-const DieselPriceDetailsPage = lazy(() => import('src/pages/dashboard/diesel-prices/details'));
-const DieselPriceListPage = lazy(() => import('src/pages/dashboard/diesel-prices/list'));
-const DieselPriceCreatePage = lazy(() => import('src/pages/dashboard/diesel-prices/new'));
-const DieselPriceEditPage = lazy(() => import('src/pages/dashboard/diesel-prices/edit'));
 
 // Customer
 const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customer/details'));
@@ -284,51 +279,6 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="pump" action="update" hasContent>
                 <PumpEditPage />
-              </PermissionBasedGuard>
-            ),
-          },
-        ],
-      },
-      {
-        path: 'diesel',
-        children: [
-          {
-            element: (
-              <PermissionBasedGuard resource="diesel" action="view" hasContent>
-                <DieselPriceListPage />
-              </PermissionBasedGuard>
-            ),
-            index: true,
-          },
-          {
-            path: 'list',
-            element: (
-              <PermissionBasedGuard resource="diesel" action="view" hasContent>
-                <DieselPriceListPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <PermissionBasedGuard resource="diesel" action="view" hasContent>
-                <DieselPriceDetailsPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: 'new',
-            element: (
-              <PermissionBasedGuard resource="diesel" action="create" hasContent>
-                <DieselPriceCreatePage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <PermissionBasedGuard resource="diesel" action="update" hasContent>
-                <DieselPriceEditPage />
               </PermissionBasedGuard>
             ),
           },

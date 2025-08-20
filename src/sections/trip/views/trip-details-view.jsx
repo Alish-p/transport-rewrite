@@ -12,12 +12,13 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import TripToolbar from '../widgets/TripToolbar';
 import DriverCard from '../widgets/DriverWidgets';
+import TripToolbar from '../widgets/TripToolbar';
+import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import VehicleCard from '../widgets/VehicleWidgets';
+import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import SimpleSubtripList from '../basic-subtrip-table';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
-import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
 
@@ -162,56 +163,9 @@ export function TripDetailView({ trip }) {
                 </Stack>
                 <SimpleSubtripList subtrips={trip.subtrips} />
               </Card>
+              <TripExpensesWidget tripId={trip._id} />
             </Grid>
             <Grid item container spacing={1} xs={12} md={12}>
-              <Grid item xs={5} md={6}>
-                <AnalyticsCurrentVisits
-                  title="Subtrip Status"
-                  chart={{
-                    series: [
-                      {
-                        label: 'Inqueue',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.IN_QUEUE
-                        ).length,
-                      },
-                      {
-                        label: 'Loaded',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.LOADED
-                        ).length,
-                      },
-                      {
-                        label: 'Received',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.RECEIVED
-                        ).length,
-                      },
-                      {
-                        label: 'Error',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.ERROR
-                        ).length,
-                      },
-
-                      {
-                        label: 'Billed',
-                        value: trip?.subtrips?.filter(
-                          (st) => st.subtripStatus === SUBTRIP_STATUS.BILLED
-                        ).length,
-                      },
-                    ],
-                    colors: [
-                      theme.palette.primary.main,
-                      theme.palette.info.main,
-                      theme.palette.success.main,
-                      theme.palette.error.main,
-                      theme.palette.warning.main,
-                      theme.palette.secondary.main,
-                    ],
-                  }}
-                />
-              </Grid>
               <Grid item xs={5} md={6}>
                 <ProfitExpenseChart
                   subtrips={trip.subtrips}
@@ -237,6 +191,7 @@ export function TripDetailView({ trip }) {
                 navigate(paths.dashboard.vehicle.edit(trip?.vehicleId?._id));
               }}
             />
+
           </Stack>
         </Grid>
       </Grid>

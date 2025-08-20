@@ -124,13 +124,6 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/pump/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/pump/${id}`,
     },
-    diesel: {
-      root: `${ROOTS.DASHBOARD}/diesel`,
-      new: `${ROOTS.DASHBOARD}/diesel/new`,
-      list: `${ROOTS.DASHBOARD}/diesel/list`,
-      edit: (id) => `${ROOTS.DASHBOARD}/diesel/${id}/edit`,
-      details: (id) => `${ROOTS.DASHBOARD}/diesel/${id}`,
-    },
     customer: {
       root: `${ROOTS.DASHBOARD}/customer`,
       new: `${ROOTS.DASHBOARD}/customer/new`,
