@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Timeline from '@mui/lab/Timeline';
 import TimelineDot from '@mui/lab/TimelineDot';
@@ -112,46 +113,55 @@ export function SubtripTimeline({ events = [] }) {
   const subtripExpenseTypes = useSubtripExpenseTypes();
 
   return (
-    <Card sx={{ mt: 2 }}>
+    <Card
+      sx={{
+        mt: 2,
+        height: 400,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <CardHeader title="Activity timeline" />
-      <Timeline
-        sx={{
-          m: 0,
-          p: 3,
-          [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 },
-        }}
-      >
-        {events.map((event, index) => (
-          <TimelineItem key={event._id}>
-            <TimelineSeparator>
-              <TimelineDot color={EVENT_COLORS[event.eventType] || 'primary'}>
-                <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
-              </TimelineDot>
-              {index === events.length - 1 ? null : <TimelineConnector />}
-            </TimelineSeparator>
-            <TimelineContent>
-              <Typography variant="subtitle2" color="primary">
-                {event.eventType}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                {fDateTime(event.timestamp)}
-              </Typography>
-              {formatEventMessage(event, subtripExpenseTypes) && (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                    whiteSpace: 'pre-line',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {formatEventMessage(event, subtripExpenseTypes)}
+      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+        <Timeline
+          sx={{
+            m: 0,
+            p: 3,
+            [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 },
+          }}
+        >
+          {events.map((event, index) => (
+            <TimelineItem key={event._id}>
+              <TimelineSeparator>
+                <TimelineDot color={'primary'}>
+                  <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
+                </TimelineDot>
+                {index === events.length - 1 ? null : <TimelineConnector />}
+              </TimelineSeparator>
+              <TimelineContent>
+                <Typography variant="subtitle2" color="primary">
+                  {event.eventType}
                 </Typography>
-              )}
-            </TimelineContent>
-          </TimelineItem>
-        ))}
-      </Timeline>
+                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                  {fDateTime(event.timestamp)}
+                </Typography>
+                {formatEventMessage(event, subtripExpenseTypes) && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      whiteSpace: 'pre-line',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {formatEventMessage(event, subtripExpenseTypes)}
+                  </Typography>
+                )}
+              </TimelineContent>
+            </TimelineItem>
+          ))}
+        </Timeline>
+      </Box>
     </Card>
   );
 }
