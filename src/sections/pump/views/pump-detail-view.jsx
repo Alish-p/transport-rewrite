@@ -8,7 +8,7 @@ import { RouterLink } from 'src/routes/components';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import {
   PumpBasicWidget,
@@ -19,29 +19,40 @@ import {
 } from '../widgets';
 
 export function PumpDetailView({ pump }) {
-  const { name } = pump || {};
+  const { name, ownerName, phone, address } = pump || {};
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Pump Info"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Pumps List', href: paths.dashboard.pump.root },
-          { name: `${name}` },
-        ]}
-        sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.pump.edit(pump._id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Pump
-          </Button>
-        }
-      />
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        <HeroHeaderCard
+          title={name}
+          status="Active"
+          icon="solar:gas-station-bold"
+          meta={[
+            { icon: 'mdi:account', label: ownerName },
+            { icon: 'mdi:phone', label: phone },
+            { icon: 'mdi:map-marker', label: address },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.pump.edit(pump._id)}
+              variant="contained"
+              startIcon={<Iconify icon="solar:pen-bold" />}
+            >
+              Edit Pump
+            </Button>
+          }
+        />
+      </Box>
       <Box sx={{ p: 3 }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={6}>

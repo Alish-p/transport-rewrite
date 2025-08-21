@@ -133,7 +133,7 @@ export function SubtripTimeline({ events = [] }) {
           {events.map((event, index) => (
             <TimelineItem key={event._id}>
               <TimelineSeparator>
-                <TimelineDot color={'primary'}>
+                <TimelineDot color="primary">
                   <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
                 </TimelineDot>
                 {index === events.length - 1 ? null : <TimelineConnector />}

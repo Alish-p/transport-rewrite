@@ -1,11 +1,9 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { paths } from 'src/routes/paths';
-
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import {
   DriverBasicWidget,
@@ -15,7 +13,7 @@ import {
 } from '../widgets';
 
 export function DriverDetailView({ driver }) {
-  const { driverName } = driver || {};
+  const { driverName, driverCellNo, driverPresentAddress } = driver || {};
 
   return (
     <DashboardContent>
@@ -25,17 +23,17 @@ export function DriverDetailView({ driver }) {
           top: 0,
           zIndex: 9,
           bgcolor: 'background.default',
-          py: { xs: 2, md: 3 },
+          p: { xs: 2, md: 3 },
         }}
       >
-        <CustomBreadcrumbs
-          heading="Driver Info"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Drivers List', href: paths.dashboard.driver.root },
-            { name: `${driverName}` },
+        <HeroHeaderCard
+          title={driverName}
+          status="Active"
+          icon="solar:user-bold"
+          meta={[
+            { icon: 'mdi:phone', label: driverCellNo },
+            { icon: 'mdi:map-marker', label: driverPresentAddress },
           ]}
-          sx={{ mb: { xs: 3, md: 5 } }}
         />
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>
