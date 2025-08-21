@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { Grid, Stack } from '@mui/material';
+import { Box, Grid, Stack } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import { SUBTRIP_STATUS } from '../constants';
 import LRInfo from '../widgets/subtrip-info-widget';
@@ -56,23 +56,30 @@ export function SubtripDetailView({ subtrip }) {
 
   const insights = generateInsightsForSubtrip(subtrip);
 
+  const { _id, vehicleId = {}, driverId = {}, subtripStatus } = subtrip;
+
   return (
     <>
       <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Subtrip Dashboard"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            {
-              name: `${subtrip.tripId._id ?? 'Trip Dashboard'}`,
-              href: paths.dashboard.trip.details(subtrip.tripId._id),
-            },
-            { name: `${subtrip._id ?? 'Subtrip Dashboard'}` },
-          ]}
+        <Box
           sx={{
-            mb: { xs: 3, md: 5 },
+            position: 'sticky',
+            top: 0,
+            zIndex: 9,
+            bgcolor: 'background.default',
+            p: { xs: 2, md: 3 },
           }}
-        />
+        >
+          <HeroHeaderCard
+            title={`Subtrip #${_id}`}
+            status={subtripStatus}
+            icon="mdi:routes"
+            meta={[
+              { icon: 'mdi:truck-outline', label: vehicleId?.vehicleNo },
+              { icon: 'mdi:account', label: driverId?.driverName },
+            ]}
+          />
+        </Box>
 
         <SubtripToolbar
           backLink={paths.dashboard.trip.details(subtrip.tripId._id)}

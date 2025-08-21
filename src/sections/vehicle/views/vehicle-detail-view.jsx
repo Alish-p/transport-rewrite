@@ -9,7 +9,7 @@ import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
 import { VehicleLocationMap } from '../widgets/vehicle-location-map';
@@ -182,25 +182,35 @@ export function VehicleDetailView({ vehicle }) {
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading={`Vehicle Details - ${vehicleNo}`}
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicles List', href: paths.dashboard.vehicle.root },
-          { name: `${vehicleNo}` },
-        ]}
-        sx={{ my: { xs: 3, md: 5 } }}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.vehicle.edit(vehicle._id)}
-            variant="contained"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-          >
-            Edit Vehicle
-          </Button>
-        }
-      />
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        <HeroHeaderCard
+          title={vehicleNo}
+          status={vehicle.isOwn ? 'Own Vehicle' : 'Market Vehicle'}
+          icon="mdi:truck-outline"
+          meta={[
+            { icon: 'mdi:car', label: vehicleType },
+            { icon: 'mdi:domain', label: vehicleCompany },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.vehicle.edit(vehicle._id)}
+              variant="contained"
+              startIcon={<Iconify icon="solar:pen-bold" />}
+            >
+              Edit Vehicle
+            </Button>
+          }
+        />
+      </Box>
 
       <Grid container spacing={3} mt={3}>
         <Grid xs={12} md={7} container spacing={3} sx={{ p: 3 }} item>

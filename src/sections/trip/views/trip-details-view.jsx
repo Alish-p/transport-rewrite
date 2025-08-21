@@ -2,15 +2,14 @@
 // components
 import { useNavigate } from 'react-router';
 
-import { useTheme } from '@mui/material/styles';
-import { Card, Grid, Stack, Button, Typography } from '@mui/material';
+import { Card, Grid, Stack, Button, Typography, Box } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { useCloseTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import DriverCard from '../widgets/DriverWidgets';
 import TripToolbar from '../widgets/TripToolbar';
@@ -18,9 +17,7 @@ import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import VehicleCard from '../widgets/VehicleWidgets';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import SimpleSubtripList from '../basic-subtrip-table';
-import { SUBTRIP_STATUS } from '../../subtrip/constants';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
-import { AnalyticsCurrentVisits } from '../../overview/analytics/analytics-current-visits';
 
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
@@ -66,7 +63,6 @@ function getTripDashboardData(trip) {
 // ----------------------------------------------------------------------
 
 export function TripDetailView({ trip }) {
-  const theme = useTheme();
   const navigate = useNavigate();
 
   const closeTrip = useCloseTrip();
@@ -76,15 +72,25 @@ export function TripDetailView({ trip }) {
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Trips Dashboard"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Trips List', href: paths.dashboard.trip.list },
-          { name: 'Trip Dashboard' },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 9,
+          bgcolor: 'background.default',
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        <HeroHeaderCard
+          title={`Trip #${trip._id}`}
+          status={trip.tripStatus}
+          icon="mdi:routes"
+          meta={[
+            { icon: 'mdi:account', label: trip.driverId?.driverName },
+            { icon: 'mdi:truck-outline', label: trip.vehicleId?.vehicleNo },
+          ]}
+        />
+      </Box>
 
       <TripToolbar
         backLink={paths.dashboard.trip.list}
