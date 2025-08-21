@@ -1,24 +1,22 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { paths } from 'src/routes/paths';
-
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { HeroHeaderCard } from 'src/components/hero-header-card';
 
 import {
   TransporterBasicWidget,
   TransporterFinanceWidget,
-  TransporterVehiclesWidget,
-  TransporterPaymentsWidget,
   TransporterExpensesWidget,
-  TransporterAdditionalWidget,
+  TransporterPaymentsWidget,
   TransporterSubtripsWidget,
+  TransporterVehiclesWidget,
+  TransporterAdditionalWidget,
 } from '../widgets';
 
 export function TransporterDetailView({ transporter }) {
-  const { transportName } = transporter || {};
+  const { transportName, ownerName, cellNo, status } = transporter || {};
 
   return (
     <DashboardContent>
@@ -28,17 +26,17 @@ export function TransporterDetailView({ transporter }) {
           top: 0,
           zIndex: 9,
           bgcolor: 'background.default',
-          py: { xs: 2, md: 3 },
+          p: { xs: 2, md: 3 },
         }}
       >
-        <CustomBreadcrumbs
-          heading="Transporter Info"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Transporters List', href: paths.dashboard.transporter.root },
-            { name: `${transportName}` },
+        <HeroHeaderCard
+          title={transportName}
+          status={status || 'Active'}
+          icon="mdi:truck"
+          meta={[
+            { icon: 'mdi:account', label: ownerName },
+            { icon: 'mdi:phone', label: cellNo },
           ]}
-          sx={{ mb: { xs: 3, md: 5 } }}
         />
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>

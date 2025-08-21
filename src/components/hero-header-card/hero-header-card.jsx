@@ -1,0 +1,71 @@
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+
+import { bgGradient } from 'src/theme/styles';
+
+import { Iconify } from '../iconify';
+
+export function HeroHeaderCard({ icon, title, status, meta = [], action, gradient, sx, ...other }) {
+  const theme = useTheme();
+
+  const background =
+    gradient || `100deg, ${theme.vars.palette.primary.main}, ${theme.vars.palette.primary.lighter}`;
+
+  return (
+    <Card
+      sx={{
+        ...bgGradient({ color: background }),
+        color: 'common.white',
+        position: 'relative',
+        overflow: 'hidden',
+        ...sx,
+      }}
+      {...other}
+    >
+      <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ md: 'center' }}>
+          <Box sx={{ flex: 1 }}>
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+              {icon && <Iconify icon={icon} width={32} height={32} />}
+              <Typography variant="h3" component="h1" sx={{ fontWeight: 700 }}>
+                {title}
+              </Typography>
+              {status && (
+                <Chip
+                  label={status}
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'common.white',
+                    fontWeight: 600,
+                  }}
+                />
+              )}
+            </Stack>
+            {!!meta.length && (
+              <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
+                {meta.map((item) => (
+                  <Stack key={item.label} direction="row" spacing={1} alignItems="center">
+                    {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      {item.label}
+                    </Typography>
+                  </Stack>
+                ))}
+              </Stack>
+            )}
+          </Box>
+
+          {action && <Box sx={{ flexShrink: 0 }}>{action}</Box>}
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default HeroHeaderCard;
