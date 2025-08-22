@@ -24,10 +24,10 @@ export const modelType = [
 ];
 
 export const engineType = [
-  { key: 'bs3', value: 'BS-3' },
-  { key: 'bs4', value: 'BS-4' },
-  { key: 'bs5', value: 'BS-5' },
-  { key: 'bs6', value: 'BS-6' },
+  { key: 'BS-3', value: 'BS-3' },
+  { key: 'BS-4', value: 'BS-4' },
+  { key: 'BS-5', value: 'BS-5' },
+  { key: 'BS-6', value: 'BS-6' },
 ];
 
 export const vehicleCompany = [
