@@ -35,7 +35,7 @@ export const NewPumpSchema = zod.object({
   }),
   address: zod.string().min(1, { message: 'Address is required' }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  bankDetails: zod.object({
+  bankAccount: zod.object({
     name: zod.string().min(1, { message: 'Bank Name is required' }),
     branch: zod.string().min(1, { message: 'Branch is required' }),
     ifsc: zod.string().min(1, { message: 'IFSC is required' }),
@@ -65,12 +65,12 @@ export default function PumpForm({ currentPump }) {
       phone: currentPump?.phone || '',
       address: currentPump?.address || '',
       ownerName: currentPump?.ownerName || '',
-      bankDetails: {
-        name: currentPump?.bankDetails?.name || '',
-        ifsc: currentPump?.bankDetails?.ifsc || '',
-        place: currentPump?.bankDetails?.place || '',
-        branch: currentPump?.bankDetails?.branch || '',
-        accNo: currentPump?.bankDetails?.accNo || '',
+      bankAccount: {
+        name: currentPump?.bankAccount?.name || '',
+        ifsc: currentPump?.bankAccount?.ifsc || '',
+        place: currentPump?.bankAccount?.place || '',
+        branch: currentPump?.bankAccount?.branch || '',
+        accNo: currentPump?.bankAccount?.accNo || '',
       },
     }),
     [currentPump]
@@ -92,7 +92,7 @@ export default function PumpForm({ currentPump }) {
 
   const values = watch();
 
-  const { bankDetails } = values;
+  const { bankAccount } = values;
 
   const onSubmit = async (data) => {
     try {
@@ -121,7 +121,7 @@ export default function PumpForm({ currentPump }) {
     </Card>
   );
 
-  const renderBankDetails = (
+  const renderbankAccount = (
     <Card>
       <CardHeader title="Bank Details" sx={{ mb: 3 }} />
       <Divider />
@@ -134,19 +134,19 @@ export default function PumpForm({ currentPump }) {
             height: 56,
             justifyContent: 'flex-start',
             typography: 'body2',
-            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+            borderColor: errors.bankAccount?.branch?.message ? 'error.main' : 'text.disabled',
           }}
           startIcon={
             <Iconify
-              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
+              icon={bankAccount?.name ? 'mdi:bank' : 'mdi:bank-outline'}
+              sx={{ color: bankAccount?.name ? 'primary.main' : 'text.disabled' }}
             />
           }
         >
-          {bankDetails?.name || 'Select Bank'}
+          {bankAccount?.name || 'Select Bank'}
         </Button>
 
-        <Field.Text name="bankDetails.accNo" label="Account No" />
+        <Field.Text name="bankAccount.accNo" label="Account No" />
       </Stack>
     </Card>
   );
@@ -164,12 +164,12 @@ export default function PumpForm({ currentPump }) {
       title="Banks"
       open={bankDialogue.value}
       onClose={bankDialogue.onFalse}
-      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
+      selected={(selectedIfsc) => bankAccount?.ifsc === selectedIfsc}
       onSelect={(bank) => {
-        setValue('bankDetails.branch', bank?.branch);
-        setValue('bankDetails.ifsc', bank?.ifsc);
-        setValue('bankDetails.place', bank?.place);
-        setValue('bankDetails.name', bank?.name);
+        setValue('bankAccount.branch', bank?.branch);
+        setValue('bankAccount.ifsc', bank?.ifsc);
+        setValue('bankAccount.place', bank?.place);
+        setValue('bankAccount.name', bank?.name);
       }}
       action={
         <Button
@@ -190,7 +190,7 @@ export default function PumpForm({ currentPump }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderPumpDetails}
-        {renderBankDetails}
+        {renderbankAccount}
         {renderActions}
       </Stack>
       {renderDialogues}
