@@ -75,8 +75,21 @@ export function SubtripDetailView({ subtrip }) {
             status={subtripStatus}
             icon="mdi:routes"
             meta={[
-              { icon: 'mdi:truck-outline', label: vehicleId?.vehicleNo },
-              { icon: 'mdi:account', label: driverId?.driverName },
+              {
+                icon: 'mdi:truck-outline',
+                label: vehicleId?.vehicleNo,
+                href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+              },
+              {
+                icon: 'mdi:account',
+                label: driverId?.driverName,
+                href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
+              },
+              {
+                icon: 'mdi:routes',
+                label: `Trip #${subtrip.tripId._id}`,
+                href: paths.dashboard.trip.details(subtrip.tripId._id),
+              },
             ]}
           />
         </Box>

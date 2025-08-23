@@ -1,10 +1,13 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
+
+import { RouterLink } from 'src/routes/components';
 
 import { bgGradient } from 'src/theme/styles';
 
@@ -52,9 +55,15 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, gradien
                 {meta.map((item) => (
                   <Stack key={item.label} direction="row" spacing={1} alignItems="center">
                     {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                      {item.label}
-                    </Typography>
+                    {item.href ? (
+                      <Link component={RouterLink} href={item.href} variant="body2" color={'white'} sx={{ opacity: 0.9 }}>
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        {item.label}
+                      </Typography>
+                    )}
                   </Stack>
                 ))}
               </Stack>
