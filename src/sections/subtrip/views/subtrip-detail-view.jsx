@@ -61,30 +61,36 @@ export function SubtripDetailView({ subtrip }) {
   return (
     <>
       <DashboardContent>
-
-        <HeroHeaderCard
-          title={`Subtrip #${_id}`}
-          status={subtripStatus}
-          icon="mdi:routes"
-          meta={[
-            {
-              icon: 'mdi:truck-outline',
-              label: vehicleId?.vehicleNo,
-              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
-            },
-            {
-              icon: 'mdi:account',
-              label: driverId?.driverName,
-              href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
-            },
-            {
-              icon: 'mdi:routes',
-              label: `Trip #${subtrip.tripId._id}`,
-              href: paths.dashboard.trip.details(subtrip.tripId._id),
-            },
-          ]}
-
-        />
+        <Box
+          sx={{
+            position: 'sticky',
+            top: 70,
+            zIndex: 9,
+          }}
+        >
+          <HeroHeaderCard
+            title={`Subtrip #${_id}`}
+            status={subtripStatus}
+            icon="mdi:routes"
+            meta={[
+              {
+                icon: 'mdi:truck-outline',
+                label: vehicleId?.vehicleNo,
+                href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+              },
+              {
+                icon: 'mdi:account',
+                label: driverId?.driverName,
+                href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
+              },
+              {
+                icon: 'mdi:routes',
+                label: `Trip #${subtrip.tripId._id}`,
+                href: paths.dashboard.trip.details(subtrip.tripId._id),
+              },
+            ]}
+          />
+        </Box>
 
         <SubtripToolbar
           backLink={paths.dashboard.trip.details(subtrip.tripId._id)}

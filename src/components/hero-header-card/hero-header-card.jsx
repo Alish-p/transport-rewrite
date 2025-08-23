@@ -30,7 +30,7 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, gradien
       }}
       {...other}
     >
-      <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
+      <CardContent sx={{ position: 'relative', zIndex: 1 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ md: 'center' }}>
           <Box sx={{ flex: 1 }}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
