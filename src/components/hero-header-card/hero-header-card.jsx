@@ -11,9 +11,20 @@ import { RouterLink } from 'src/routes/components';
 
 import { bgGradient } from 'src/theme/styles';
 
+import { Label } from '../label';
 import { Iconify } from '../iconify';
 
-export function HeroHeaderCard({ icon, title, status, meta = [], action, gradient, sx, ...other }) {
+export function HeroHeaderCard({
+  icon,
+  title,
+  status,
+  statusColor,
+  meta = [],
+  action,
+  gradient,
+  sx,
+  ...other
+}) {
   const theme = useTheme();
 
   const background =
@@ -38,17 +49,22 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, gradien
               <Typography variant="h3" component="h1" sx={{ fontWeight: 700 }}>
                 {title}
               </Typography>
-              {status && (
-                <Chip
-                  label={status}
-                  size="small"
-                  sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.2)',
-                    color: 'common.white',
-                    fontWeight: 600,
-                  }}
-                />
-              )}
+              {status &&
+                (statusColor ? (
+                  <Label variant="soft" color={statusColor} sx={{ fontWeight: 600 }}>
+                    {status}
+                  </Label>
+                ) : (
+                  <Chip
+                    label={status}
+                    size="small"
+                    sx={{
+                      bgcolor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'common.white',
+                      fontWeight: 600,
+                    }}
+                  />
+                ))}
             </Stack>
             {!!meta.length && (
               <Stack direction="row" spacing={3} sx={{ mt: 2 }}>

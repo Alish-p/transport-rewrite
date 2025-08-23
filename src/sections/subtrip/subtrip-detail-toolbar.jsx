@@ -95,6 +95,7 @@ export default function SubtripToolbar({
   onCloseEmpty,
   isEditDisabled,
   isEmpty,
+  hideHeader = false,
 }) {
   const getActions = () => {
     if (isEmpty) {
@@ -146,67 +147,75 @@ export default function SubtripToolbar({
   const viewTransporterPayment = useBoolean();
   const tenant = useTenantContext();
 
-  return (
-    <>
-      <Stack
-        spacing={3}
-        direction={{ xs: 'column', md: 'row' }}
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      >
-        <Stack spacing={1} direction="row" alignItems="flex-start">
-          <Stack spacing={0.5}>
-            <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="h4">Subtrip #{subtrip._id} </Typography>
-              <Label variant="soft" color={SUBTRIP_STATUS_COLORS[status] || 'default'}>
-                {status}
-              </Label>
-              <Label
-                variant="soft"
-                color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}
-              >
-                {subtrip.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
-              </Label>
-            </Stack>
-          </Stack>
-        </Stack>
-
-        <Stack
-          flexGrow={1}
-          spacing={1.5}
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-        >
-          <ActionButton
-            label="Actions"
-            endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={actionPopover.onOpen}
-          />
-
-          <ActionButton
-            label="View"
-            startIcon={<Iconify icon="solar:eye-bold" />}
-            endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={viewPopover.onOpen}
-          />
-
-          <ActionButton
-            label="Download"
-            startIcon={<Iconify icon="material-symbols:download" />}
-            endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={downloadPopover.onOpen}
-          />
-
-          <ActionButton
-            label="Edit"
-            startIcon={<Iconify icon="solar:pen-bold" />}
-            onClick={onEdit}
-            disabled={isEditDisabled}
-          />
+  const header = (
+    <Stack spacing={1} direction="row" alignItems="flex-start">
+      <Stack spacing={0.5}>
+        <Stack spacing={1} direction="row" alignItems="center">
+          <Typography variant="h4">Subtrip #{subtrip._id} </Typography>
+          <Label variant="soft" color={SUBTRIP_STATUS_COLORS[status] || 'default'}>
+            {status}
+          </Label>
+          <Label variant="soft" color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}>
+            {subtrip.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
+          </Label>
         </Stack>
       </Stack>
+    </Stack>
+  );
+
+  const actions = (
+    <Stack
+      flexGrow={1}
+      spacing={1.5}
+      direction="row"
+      alignItems="center"
+      justifyContent="flex-end"
+    >
+      <ActionButton
+        label="Actions"
+        endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+        onClick={actionPopover.onOpen}
+      />
+
+      <ActionButton
+        label="View"
+        startIcon={<Iconify icon="solar:eye-bold" />}
+        endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+        onClick={viewPopover.onOpen}
+      />
+
+      <ActionButton
+        label="Download"
+        startIcon={<Iconify icon="material-symbols:download" />}
+        endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+        onClick={downloadPopover.onOpen}
+      />
+
+      <ActionButton
+        label="Edit"
+        startIcon={<Iconify icon="solar:pen-bold" />}
+        onClick={onEdit}
+        disabled={isEditDisabled}
+      />
+    </Stack>
+  );
+
+  const toolbarContent = hideHeader ? (
+    actions
+  ) : (
+    <Stack
+      spacing={3}
+      direction={{ xs: 'column', md: 'row' }}
+      sx={{ mb: { xs: 3, md: 5 } }}
+    >
+      {header}
+      {actions}
+    </Stack>
+  );
+
+  return (
+    <>
+      {toolbarContent}
 
       {/* Actions Popover */}
       <CustomPopover

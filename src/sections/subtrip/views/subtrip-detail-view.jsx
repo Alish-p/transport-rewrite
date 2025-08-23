@@ -10,7 +10,6 @@ import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { HeroHeaderCard } from 'src/components/hero-header-card';
 
-import { SUBTRIP_STATUS } from '../constants';
 import LRInfo from '../widgets/subtrip-info-widget';
 import SubtripToolbar from '../subtrip-detail-toolbar';
 import InsightsWidget from '../widgets/insights-widget';
@@ -20,6 +19,7 @@ import { ExpenseChart } from '../widgets/expense-chart-widget';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
+import { SUBTRIP_STATUS, SUBTRIP_STATUS_COLORS } from '../constants';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
@@ -71,6 +71,7 @@ export function SubtripDetailView({ subtrip }) {
           <HeroHeaderCard
             title={`Subtrip #${_id}`}
             status={subtripStatus}
+            statusColor={SUBTRIP_STATUS_COLORS[subtripStatus]}
             icon="mdi:routes"
             meta={[
               {
@@ -89,33 +90,36 @@ export function SubtripDetailView({ subtrip }) {
                 href: paths.dashboard.trip.details(subtrip.tripId._id),
               },
             ]}
+            action={
+              <SubtripToolbar
+                status={subtrip.subtripStatus}
+                subtrip={subtrip}
+                onAddMaterialInfo={() =>
+                  navigate(
+                    `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(
+                      window.location.pathname
+                    )}`
+                  )
+                }
+                onRecieve={() =>
+                  navigate(
+                    `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(
+                      window.location.pathname
+                    )}`
+                  )
+                }
+                onEdit={() => {
+                  navigate(paths.dashboard.subtrip.edit(subtrip._id));
+                }}
+                onResolve={() => setShowResolveDialog(true)}
+                onCloseEmpty={() => setShowCloseEmptyDialog(true)}
+                isEditDisabled={!isEditingAllowed()}
+                isEmpty={subtrip.isEmpty}
+                hideHeader
+              />
+            }
           />
         </Box>
-
-        <SubtripToolbar
-          backLink={paths.dashboard.trip.details(subtrip.tripId._id)}
-          tripId={subtrip.tripId._id}
-          status={subtrip.subtripStatus}
-          subtrip={subtrip}
-          onAddMaterialInfo={() =>
-            navigate(
-              `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-            )
-          }
-          onRecieve={() =>
-            navigate(
-              `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-            )
-          }
-          onEdit={() => {
-            navigate(paths.dashboard.subtrip.edit(subtrip._id));
-          }}
-          onResolve={() => setShowResolveDialog(true)}
-          onSubtripClose={() => setShowCloseDialog(true)}
-          onCloseEmpty={() => setShowCloseEmptyDialog(true)}
-          isEditDisabled={!isEditingAllowed()}
-          isEmpty={subtrip.isEmpty}
-        />
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
