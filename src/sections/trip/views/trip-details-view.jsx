@@ -2,7 +2,7 @@
 // components
 import { useNavigate } from 'react-router';
 
-import { Card, Grid, Stack, Button, Typography, Box } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -11,12 +11,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { HeroHeaderCard } from 'src/components/hero-header-card';
 
-import DriverCard from '../widgets/DriverWidgets';
 import TripToolbar from '../widgets/TripToolbar';
-import ProfitExpenseChart from '../widgets/SubtripColumnChart';
+import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
-import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import SimpleSubtripList from '../basic-subtrip-table';
+import ProfitExpenseChart from '../widgets/SubtripColumnChart';
+import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 
 // ----------------------------------------------------------------------
@@ -70,6 +70,8 @@ export function TripDetailView({ trip }) {
   const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalKm } =
     getTripDashboardData(trip);
 
+  const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips } = trip;
+
   return (
     <DashboardContent>
       <Box
@@ -82,23 +84,32 @@ export function TripDetailView({ trip }) {
         }}
       >
         <HeroHeaderCard
-          title={`Trip #${trip._id}`}
-          status={trip.tripStatus}
+          title={`Trip #${_id}`}
+          status={tripStatus}
           icon="mdi:routes"
           meta={[
-            { icon: 'mdi:account', label: trip.driverId?.driverName },
-            { icon: 'mdi:truck-outline', label: trip.vehicleId?.vehicleNo },
+            {
+              icon: 'mdi:account',
+              label: driverId?.driverName,
+              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+            },
+
+            {
+              icon: 'mdi:truck-outline',
+              label: vehicleId?.vehicleNo,
+              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+            },
           ]}
         />
       </Box>
 
       <TripToolbar
         backLink={paths.dashboard.trip.list}
-        status={trip.tripStatus}
+        status={tripStatus}
         tripData={trip}
-        onTripClose={() => closeTrip(trip._id)}
+        onTripClose={() => closeTrip(_id)}
         onEdit={() => {
-          navigate(paths.dashboard.trip.edit(trip._id));
+          navigate(paths.dashboard.trip.edit(_id));
         }}
       />
       <Grid container spacing={3}>
@@ -159,22 +170,22 @@ export function TripDetailView({ trip }) {
                     onClick={() => {
                       navigate({
                         pathname: paths.dashboard.subtrip.new,
-                        search: `?id=${trip._id}`,
+                        search: `?id=${_id}`,
                       });
                     }}
-                    disabled={trip.tripStatus === 'billed'}
+                    disabled={tripStatus === 'billed'}
                   >
                     New Subtrip
                   </Button>
                 </Stack>
-                <SimpleSubtripList subtrips={trip.subtrips} />
+                <SimpleSubtripList subtrips={subtrips} />
               </Card>
-              <TripExpensesWidget tripId={trip._id} />
+              <TripExpensesWidget tripId={_id} />
             </Grid>
             <Grid item container spacing={1} xs={12} md={12}>
               <Grid item xs={5} md={6}>
                 <ProfitExpenseChart
-                  subtrips={trip.subtrips}
+                  subtrips={subtrips}
                   title="Subtrip Profit/Expense"
                   subheader="Profit and expense Subtrip Wise"
                 />
@@ -186,18 +197,17 @@ export function TripDetailView({ trip }) {
         <Grid item xs={12} md={4}>
           <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
             <DriverCard
-              driver={trip.driverId}
+              driver={driverId}
               onDriverEdit={() => {
                 navigate(paths.dashboard.driver.edit(trip?.driverId?._id));
               }}
             />
             <VehicleCard
-              vehicle={trip.vehicleId}
+              vehicle={vehicleId}
               onVehicleEdit={() => {
                 navigate(paths.dashboard.vehicle.edit(trip?.vehicleId?._id));
               }}
             />
-
           </Stack>
         </Grid>
       </Grid>

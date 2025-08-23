@@ -29,18 +29,6 @@ const EVENT_ICONS = {
   UPDATED: 'mdi:refresh',
 };
 
-const EVENT_COLORS = {
-  CREATED: 'primary',
-  MATERIAL_ADDED: 'info',
-  EXPENSE_ADDED: 'success',
-  EXPENSE_DELETED: 'error',
-  RECEIVED: 'info',
-  INVOICE_GENERATED: 'warning',
-  INVOICE_DELETED: 'error',
-  INVOICE_PAID: 'success',
-  UPDATED: 'secondary',
-};
-
 function getExpenseLabel(expenseTypes, value) {
   return expenseTypes.find((t) => t.value === value)?.label || value;
 }

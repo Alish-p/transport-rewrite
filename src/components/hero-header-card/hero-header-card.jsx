@@ -56,7 +56,7 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, gradien
                   <Stack key={item.label} direction="row" spacing={1} alignItems="center">
                     {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
                     {item.href ? (
-                      <Link component={RouterLink} href={item.href} variant="body2" color={'white'} sx={{ opacity: 0.9 }}>
+                      <Link component={RouterLink} href={item.href} variant="body2" color="white" sx={{ opacity: 0.9 }}>
                         {item.label}
                       </Link>
                     ) : (
