@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -17,6 +18,7 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
@@ -237,6 +239,13 @@ export default function SubtripTableToolbar({
           }
           placeholder="Materials"
           iconName="mdi:filter-variant"
+        />
+
+        <FormControlLabel
+          label="Own"
+          labelPlacement="top"
+
+          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} placeholder="Own Subtrips" />}
         />
 
         <Stack direction="row" spacing={1}>

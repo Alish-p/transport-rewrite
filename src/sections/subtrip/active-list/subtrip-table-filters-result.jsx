@@ -67,6 +67,10 @@ export default function SubtripTableFiltersResult({
     onFilters('materials', newValues);
   };
 
+  const handleRemoveIsOwn = () => {
+    onFilters('isOwn', false);
+  };
+
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
 
   return (
@@ -162,6 +166,12 @@ export default function SubtripTableFiltersResult({
             {filters.materials.map((m) => (
               <Chip key={m} size="small" label={m} onDelete={() => handleRemoveMaterials(m)} />
             ))}
+          </Block>
+        )}
+
+        {filters.isOwn && (
+          <Block label="Ownership:">
+            <Chip size="small" label="Own subtrips" onDelete={handleRemoveIsOwn} />
           </Block>
         )}
 

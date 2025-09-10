@@ -62,6 +62,7 @@ const defaultFilters = {
   subtripEndFromDate: null,
   subtripEndToDate: null,
   materials: [],
+  isOwn: false,
 };
 
 // ----------------------------------------------------------------------
@@ -111,6 +112,7 @@ export function SubtripListView() {
     subtripEndFromDate: filters.subtripEndFromDate || undefined,
     subtripEndToDate: filters.subtripEndToDate || undefined,
     materials: filters.materials.length ? filters.materials : undefined,
+    isOwn: filters.isOwn ? true : undefined,
   });
 
   useEffect(() => {
@@ -131,6 +133,7 @@ export function SubtripListView() {
     !!filters.transportName ||
     filters.materials.length > 0 ||
     filters.subtripStatus !== 'all' ||
+    filters.isOwn ||
     (!!filters.fromDate && !!filters.toDate) ||
     (!!filters.subtripEndFromDate && !!filters.subtripEndToDate);
 
