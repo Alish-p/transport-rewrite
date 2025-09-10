@@ -17,9 +17,7 @@ Font.register({
 });
 
 export default function TripSheetPdf({ trip, tenant }) {
-  const { _id: tripId, fromDate, endDate, subtrips = [] } = trip || {};
-  const vehicleId = subtrips[0]?.vehicleId;
-  const driverId = subtrips[0]?.driverId;
+  const { _id: tripId, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
 
   // Prepare subtrip table data
   const subtripColumns = [
@@ -160,9 +158,9 @@ export default function TripSheetPdf({ trip, tenant }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-            0
-          )
+          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+          0
+        )
         : 0),
     0
   );
