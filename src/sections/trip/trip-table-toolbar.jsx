@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -13,6 +14,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList } from '@mui/material';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -168,6 +170,12 @@ export default function TripTableToolbar({
           }
           iconName="mdi:calendar"
           sx={{ maxWidth: { md: 200 } }}
+        />
+
+        <FormControlLabel
+          label="Own"
+          labelPlacement="top"
+          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} />}
         />
 
         <Stack direction="row" spacing={1}>
