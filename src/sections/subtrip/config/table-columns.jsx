@@ -108,6 +108,14 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.orderNo || '-',
   },
   {
+    id: 'referenceSubtripNo',
+    label: 'Reference Subtrip No',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.referenceSubtripNo || '-',
+    align: 'center',
+  },
+  {
     id: 'consignee',
     label: 'Consignee',
     defaultVisible: false,

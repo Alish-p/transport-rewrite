@@ -62,6 +62,7 @@ const loadedSchema = inQueueSchema.extend({
   invoiceNo: z.string().max(100),
   shipmentNo: z.string().max(100).optional(),
   orderNo: z.string().max(100).optional(),
+  referenceSubtripNo: z.string().max(100).optional(),
   materialType: z.string().max(100),
   grade: z.string().max(100).optional(),
   driverAdvance: z.number().min(0, 'Advance must be non-negative').optional(),
@@ -308,6 +309,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <Field.Text name="invoiceNo" label="Invoice No *" />
                   <Field.Text name="shipmentNo" label="Shipment No" />
                   <Field.Text name="orderNo" label="Order No" />
+                  <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" />
 
                   <Field.Select name="materialType" label="Material Type">
                     <MenuItem value="">None</MenuItem>

@@ -88,6 +88,7 @@ const LoadSubtripSchema = zod
     invoiceNo: zod.string().min(1, { message: 'Invoice No is required' }),
     shipmentNo: zod.string().optional(),
     orderNo: zod.string().optional(),
+    referenceSubtripNo: zod.string().optional(),
     ewayBill: zod.string().optional(),
     ewayExpiryDate: schemaHelper.date({
       message: { required_error: 'Eway Expiry date is required!' },
@@ -128,6 +129,7 @@ const defaultValues = {
   invoiceNo: '',
   shipmentNo: '',
   orderNo: '',
+  referenceSubtripNo: '',
   ewayBill: '',
   ewayExpiryDate: null,
   materialType: '',
@@ -380,7 +382,7 @@ export function SubtripLoadForm() {
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -559,6 +561,7 @@ export function SubtripLoadForm() {
 
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
+      <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" placeholder='Enter original subtrip no (if created by another transporter)' />
 
       <Field.Select name="materialType" label="Material Type *">
         <MenuItem value="">None</MenuItem>

@@ -44,6 +44,7 @@ export default function LRInfoCard({ subtrip }) {
     shipmentNo = '-',
     diNumber = '-',
     consignee = '-',
+    referenceSubtripNo = '-',
   } = subtrip;
 
   const routeName = routeCd?.routeName || '-';
@@ -285,6 +286,14 @@ export default function LRInfoCard({ subtrip }) {
         }
       />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Iconify icon="mdi:link-variant" width={20} />
+          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
+            Reference Subtrip No
+          </Box>
+          <Typography>{referenceSubtripNo}</Typography>
+        </Stack>
+
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:truck-delivery" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
