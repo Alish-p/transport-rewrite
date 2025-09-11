@@ -170,7 +170,7 @@ export default function SubtripTableToolbar({
           fullWidth
           value={filters.subtripId}
           onChange={handleFilterSubtripId}
-          placeholder="Search Id ..."
+          placeholder="Id"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -184,7 +184,7 @@ export default function SubtripTableToolbar({
           fullWidth
           value={filters.referenceSubtripNo}
           onChange={handleFilterReferenceSubtripNo}
-          placeholder="Reference Subtrip No"
+          placeholder="Ref"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
