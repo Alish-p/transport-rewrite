@@ -44,6 +44,10 @@ export default function SubtripTableFiltersResult({
     onFilters('subtripId', '');
   };
 
+  const handleRemoveReferenceSubtripNo = () => {
+    onFilters('referenceSubtripNo', '');
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('toDate', null);
@@ -142,6 +146,16 @@ export default function SubtripTableFiltersResult({
         {filters.subtripId && (
           <Block label="Subtrip Id:">
             <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtripId} />
+          </Block>
+        )}
+
+        {filters.referenceSubtripNo && (
+          <Block label="Reference Subtrip No:">
+            <Chip
+              size="small"
+              label={filters.referenceSubtripNo}
+              onDelete={handleRemoveReferenceSubtripNo}
+            />
           </Block>
         )}
 

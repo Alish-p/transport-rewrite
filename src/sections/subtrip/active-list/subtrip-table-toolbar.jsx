@@ -151,6 +151,13 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
+  const handleFilterReferenceSubtripNo = useCallback(
+    (event) => {
+      onFilters('referenceSubtripNo', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -164,6 +171,20 @@ export default function SubtripTableToolbar({
           value={filters.subtripId}
           onChange={handleFilterSubtripId}
           placeholder="Search Id ..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.referenceSubtripNo}
+          onChange={handleFilterReferenceSubtripNo}
+          placeholder="Reference Subtrip No"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
