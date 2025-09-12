@@ -88,6 +88,16 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd, date });
 
+  const showPumpSelection = useMemo(
+    () =>
+      [
+        SUBTRIP_EXPENSE_TYPES.DIESEL,
+        SUBTRIP_EXPENSE_TYPES.ADBLUE,
+        SUBTRIP_EXPENSE_TYPES.DRIVER_ADVANCE,
+      ].includes(expenseType),
+    [expenseType]
+  );
+
   // updating amount based on expense type (driver salary and diesel)
   useEffect(() => {
     if (expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY) {
@@ -187,20 +197,23 @@ function ExpenseCoreForm({ currentSubtrip }) {
               ))}
             </Field.Select>
 
+            {showPumpSelection && (
+              <Box>
+                <DialogSelectButton
+                  onClick={pumpDialog.onTrue}
+                  placeholder="Select Pump (Optional)"
+                  selected={selectedPump?.name}
+                  error={!!errors.pumpCd?.message}
+                  iconName="mdi:gas-station"
+                />
+              </Box>
+            )}
+
             {expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL && (
               <>
-                <Box>
-                  <DialogSelectButton
-                    onClick={pumpDialog.onTrue}
-                    placeholder="Select Pump"
-                    selected={selectedPump?.name}
-                    error={!!errors.tripId?.message}
-                    iconName="mdi:gas-station"
-                  />
-                </Box>
                 <Field.Text
                   name="dieselLtr"
-                  label="Diesel Liters (Optional)"
+                  label="Diesel Liters"
                   type="number"
                   InputProps={{
                     endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
@@ -208,7 +221,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
                 />
                 <Field.Text
                   name="dieselPrice"
-                  label="Per Litre Diesel Price (Optional)"
+                  label="Per Litre Diesel Price"
                   type="number"
                   InputProps={{
                     endAdornment: <InputAdornment position="end">₹</InputAdornment>,

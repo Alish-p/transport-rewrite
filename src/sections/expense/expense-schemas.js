@@ -19,9 +19,6 @@ export const SubtripExpenseSchema = zod
   })
   .superRefine((data, ctx) => {
     if (data.expenseType === 'diesel') {
-      if (!data.pumpCd) {
-        ctx.addIssue({ path: ['pumpCd'], message: 'Pump Code is required for Diesel expenses' });
-      }
       if (!data.dieselLtr || data.dieselLtr <= 0) {
         ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive Number' });
       }
