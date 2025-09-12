@@ -1,7 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
 import dayjs from 'dayjs';
+import { useState } from 'react';
 
 import Card from '@mui/material/Card';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -21,15 +24,15 @@ import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { PDFDownloadButton } from 'src/pdfs/common';
-import { useVehicleBillingSummary } from 'src/query/use-vehicle';
+import { usePaginatedSubtrips } from 'src/query/use-subtrip';
+import { usePaginatedExpenses } from 'src/query/use-expense';
+import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { useTenantContext } from 'src/auth/tenant';
 
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
@@ -46,35 +49,50 @@ const TABLE_HEAD = [
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
-  const tenant = useTenantContext();
 
-  const { data, isLoading } = useVehicleBillingSummary(
+  const start = rangePicker.startDate && rangePicker.startDate.format('YYYY-MM-DD');
+  const end = rangePicker.endDate && rangePicker.endDate.format('YYYY-MM-DD');
+
+  const { data, isLoading } = usePaginatedSubtrips(
     {
-      id: vehicleId,
-      startDate: rangePicker.startDate && rangePicker.startDate.format('YYYY-MM-DD'),
-      endDate: rangePicker.endDate && rangePicker.endDate.format('YYYY-MM-DD'),
+      page: 1,
+      rowsPerPage: 500,
+      vehicleId,
+      subtripStatus: 'billed',
+      fromDate: start,
+      toDate: end,
     },
     { keepPreviousData: true }
   );
 
-  const subtrips = data?.subtrips || [];
+  const subtripsRaw = data?.results || [];
+  const subtrips = subtripsRaw.map((row) => {
+    const totalExpense = (row?.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+    const amount =
+      typeof row?.freightAmount === 'number'
+        ? row.freightAmount
+        : (row?.rate || 0) * (row?.loadingWeight || 0);
+    return {
+      ...row,
+      customerName: row?.customerId?.customerName,
+      routeName: row?.routeCd?.routeName,
+      totalExpense,
+      amt: amount,
+    };
+  });
 
-  const getDocument = async () => {
-    const { default: VehiclePnlPdf } = await import('src/pdfs/vehicle-pnl-pdf');
+  // Vehicle expenses for Loss tab and export
+  const { data: expData, isLoading: isExpLoading } = usePaginatedExpenses({
+    vehicleId,
+    expenseCategory: 'vehicle',
+    startDate: start,
+    endDate: end,
+    page: 1,
+    rowsPerPage: 500,
+  });
+  const expenses = expData?.expenses || [];
 
-    const start = rangePicker.startDate?.format('YYYY-MM-DD');
-    const end = rangePicker.endDate?.format('YYYY-MM-DD');
-
-    return () => (
-      <VehiclePnlPdf
-        vehicleNo={vehicleNo}
-        startDate={start}
-        endDate={end}
-        subtrips={subtrips}
-        tenant={tenant}
-      />
-    );
-  };
+  const [currentTab, setCurrentTab] = useState('profits');
 
   return (
     <Card>
@@ -90,100 +108,175 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
             >
               {rangePicker.shortLabel}
             </Button>
-            <PDFDownloadButton
-              buttonText="Download"
-              fileName={`vehicle-pnl-${vehicleNo}.pdf`}
-              getDocument={getDocument}
-            />
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="eva:download-outline" />}
+              onClick={async () => {
+                const profitsData = subtrips.map((st, idx) => ({
+                  'S.No': idx + 1,
+                  ID: st._id,
+                  Customer: st.customerName || '-',
+                  Route: st.routeName || '-'
+                  ,
+                  Date: fDateRangeShortLabel(st.startDate, st.endDate),
+                  Weight: st.loadingWeight || 0,
+                  Rate: st.rate || 0,
+                  Amount: st.amt || 0,
+                  Expense: st.totalExpense || 0,
+                  'Net Profit': (st.amt || 0) - (st.totalExpense || 0),
+                }));
+
+                const lossesData = expenses.map((e, idx) => ({
+                  'S.No': idx + 1,
+                  Date: e.date ? dayjs(e.date).format('DD MMM, YYYY') : '-',
+                  'Expense Type': e.expenseType || '-',
+                  Remarks: e.remarks || '-',
+                  Amount: e.amount || 0,
+                }));
+
+                const totalNetProfit = subtrips.reduce(
+                  (sum, st) => sum + (st.amt || 0) - (st.totalExpense || 0),
+                  0
+                );
+                const totalLoss = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+                const overall = totalNetProfit - totalLoss;
+                const status = overall >= 0 ? 'Profit' : 'Loss';
+
+                const summaryData = [
+                  { Metric: 'Total Net Profit (Subtrips)', Value: totalNetProfit },
+                  { Metric: 'Total Vehicle Expenses', Value: totalLoss },
+                  { Metric: 'Overall (Profit - Loss)', Value: overall },
+                  { Metric: 'Status', Value: status },
+                ];
+
+                await exportToExcel(
+                  [
+                    { name: 'Profits', data: profitsData },
+                    { name: 'Loss', data: lossesData },
+                    { name: 'Summary', data: summaryData },
+                  ],
+                  `Vehicle-P&L-${vehicleNo}`
+                );
+              }}
+            >
+              Download
+            </Button>
           </Stack>
         }
       />
 
-      <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 3 }}>
-        <Scrollbar>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                {TABLE_HEAD.map((head) => (
-                  <TableCell key={head.id}>{head.label}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {isLoading ? (
-                <TableSkeleton />
-              ) : (
-                subtrips.map((row, index) => {
-                  const netProfit = row.amt - row.totalExpense;
+      <Tabs
+        value={currentTab}
+        onChange={(_e, v) => setCurrentTab(v)}
+        sx={{ px: 3, mt: 1 }}
+        variant="scrollable"
+        allowScrollButtonsMobile
+      >
+        <Tab
+          value="profits"
+          label="Profits"
+          icon={<Iconify icon="eva:trending-up-fill" sx={{ color: 'success.main' }} />}
+          iconPosition="start"
+        />
+        <Tab
+          value="loss"
+          label="Loss"
+          icon={<Iconify icon="eva:trending-down-fill" sx={{ color: 'error.main' }} />}
+          iconPosition="start"
+        />
+      </Tabs>
 
-                  return (
-                    <TableRow key={row._id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
-                        <RouterLink
-                          to={paths.dashboard.subtrip.details(row._id)}
-                          style={{ color: 'green', textDecoration: 'underline' }}
-                        >
-                          {row._id}
-                        </RouterLink>
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={row.customerName}>
-                          <Typography variant="body2" noWrap>
-                            {wrapText(row.customerName || '-', 20)}
-                          </Typography>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={row.routeName}>
-                          <Typography variant="body2" noWrap>
-                            {wrapText(row.routeName || '-', 20)}
-                          </Typography>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
-                      <TableCell>{row.loadingWeight}</TableCell>
-                      <TableCell>{row.rate}</TableCell>
-                      <TableCell>{fCurrency(row.amt)}</TableCell>
-                      <TableCell>{fCurrency(row.totalExpense)}</TableCell>
-                      <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>
-                        {fCurrency(netProfit)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-              {subtrips.length > 0 && (
+      {currentTab === 'profits' && (
+        <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>
+          <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
+            <Table size="small">
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ fontWeight: 'fontWeightBold' }}>
-                    Total
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
-                    {fCurrency(subtrips.reduce((sum, r) => sum + r.amt, 0))}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
-                    {fCurrency(subtrips.reduce((sum, r) => sum + r.totalExpense, 0))}
-                  </TableCell>
-                  {(() => {
-                    const totalNet = subtrips.reduce((sum, r) => sum + r.amt - r.totalExpense, 0);
-                    return (
-                      <TableCell
-                        sx={{
-                          fontWeight: 'fontWeightBold',
-                          color: totalNet > 0 ? 'success.main' : 'error.main',
-                        }}
-                      >
-                        {fCurrency(totalNet)}
-                      </TableCell>
-                    );
-                  })()}
+                  {TABLE_HEAD.map((head) => (
+                    <TableCell key={head.id}>{head.label}</TableCell>
+                  ))}
                 </TableRow>
-              )}
-              <TableNoData notFound={!isLoading && subtrips.length === 0} />
-            </TableBody>
-          </Table>
-        </Scrollbar>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                {isLoading ? (
+                  <TableSkeleton />
+                ) : (
+                  subtrips.map((row, index) => {
+                    const netProfit = row.amt - row.totalExpense;
+
+                    return (
+                      <TableRow key={row._id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>
+                          <RouterLink
+                            to={paths.dashboard.subtrip.details(row._id)}
+                            style={{ color: 'green', textDecoration: 'underline' }}
+                          >
+                            {row._id}
+                          </RouterLink>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={row.customerName}>
+                            <Typography variant="body2" noWrap>
+                              {wrapText(row.customerName || '-', 20)}
+                            </Typography>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={row.routeName}>
+                            <Typography variant="body2" noWrap>
+                              {wrapText(row.routeName || '-', 20)}
+                            </Typography>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
+                        <TableCell>{row.loadingWeight}</TableCell>
+                        <TableCell>{row.rate}</TableCell>
+                        <TableCell>{fCurrency(row.amt)}</TableCell>
+                        <TableCell>{fCurrency(row.totalExpense)}</TableCell>
+                        <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>
+                          {fCurrency(netProfit)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+                {subtrips.length > 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} sx={{ fontWeight: 'fontWeightBold' }}>
+                      Total
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                      {fCurrency(subtrips.reduce((sum, r) => sum + r.amt, 0))}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                      {fCurrency(subtrips.reduce((sum, r) => sum + r.totalExpense, 0))}
+                    </TableCell>
+                    {(() => {
+                      const totalNet = subtrips.reduce((sum, r) => sum + r.amt - r.totalExpense, 0);
+                      return (
+                        <TableCell
+                          sx={{
+                            fontWeight: 'fontWeightBold',
+                            color: totalNet > 0 ? 'success.main' : 'error.main',
+                          }}
+                        >
+                          {fCurrency(totalNet)}
+                        </TableCell>
+                      );
+                    })()}
+                  </TableRow>
+                )}
+                <TableNoData notFound={!isLoading && subtrips.length === 0} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+      )}
+
+      {currentTab === 'loss' && (
+        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />
+      )}
 
       <CustomDateRangePicker
         variant="calendar"
@@ -195,5 +288,63 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         onChangeEndDate={rangePicker.onChangeEndDate}
       />
     </Card>
+  );
+}
+
+// ----------------------------------------------------------------------
+// Loss Table Component
+function VehicleLossTable({ expenses, isLoading }) {
+  const totalAmount = (expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+
+  return (
+    <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>
+      <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Expense Type</TableCell>
+              <TableCell>Remarks</TableCell>
+              <TableCell align="right">Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isLoading ? (
+              <TableSkeleton />
+            ) : (
+              expenses.map((row, idx) => (
+                <TableRow key={row._id || `${row.date}-${idx}`}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{row.date ? dayjs(row.date).format('DD MMM, YYYY') : '-'}</TableCell>
+                  <TableCell>{row.expenseType || '-'}</TableCell>
+                  <TableCell>
+                    <Tooltip title={row.remarks || '-'}>
+                      <Typography variant="body2" noWrap>
+                        {wrapText(row.remarks || '-', 40)}
+                      </Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="right" sx={{ color: 'error.main', fontWeight: 500 }}>
+                    {fCurrency(row.amount || 0)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+            {expenses.length > 0 && (
+              <TableRow>
+                <TableCell colSpan={4} sx={{ fontWeight: 'fontWeightBold' }}>
+                  Total
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'fontWeightBold', color: 'error.main' }}>
+                  {fCurrency(totalAmount)}
+                </TableCell>
+              </TableRow>
+            )}
+            <TableNoData notFound={!isLoading && expenses.length === 0} />
+          </TableBody>
+        </Table>
+      </Scrollbar>
+    </TableContainer>
   );
 }
