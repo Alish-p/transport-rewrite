@@ -31,7 +31,8 @@ import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
-import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+// Date range picker removed in favor of month selector
+import { Select, MenuItem, FormControl } from '@mui/material';
 
 
 const TABLE_HEAD = [
@@ -50,10 +51,17 @@ const TABLE_HEAD = [
 const getDateRangeLabel = (start, end) => (start && end ? fDateRangeShortLabel(start, end) : '-');
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
-  const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
+  const today = dayjs();
+  const currentMonthIndex = today.month();
+  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
+    const m = today.month(i);
+    return { label: m.format('MMM-YYYY'), value: m.format('YYYY-MM') };
+  });
 
-  const start = rangePicker.startDate && rangePicker.startDate.format('YYYY-MM-DD');
-  const end = rangePicker.endDate && rangePicker.endDate.format('YYYY-MM-DD');
+  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+  const monthObj = dayjs(selectedMonth);
+  const start = monthObj.startOf('month').format('YYYY-MM-DD');
+  const end = monthObj.endOf('month').format('YYYY-MM-DD');
 
   const { data, isLoading } = usePaginatedSubtrips(
     {
@@ -96,7 +104,8 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 
   const [currentTab, setCurrentTab] = useState('profits');
   const dateRangeLabel = getDateRangeLabel(start, end);
-  const infoText = `Data for vehicle ${vehicleNo || '-'} between ${dateRangeLabel}`;
+  const monthLabel = monthObj.format('MMM-YYYY');
+  const infoText = `Data for vehicle ${vehicleNo || '-'} for ${monthLabel}`;
 
   return (
     <Card>
@@ -105,13 +114,15 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         subheader="Only subtrips with completed billing are listed below. Subtrips still in receive or loaded status are not included."
         action={
           <Stack direction={{ sm: 'column', md: 'row' }} spacing={1}>
-            <Button
-              variant="outlined"
-              onClick={rangePicker.onOpen}
-              startIcon={<Iconify icon="solar:calendar-date-bold" />}
-            >
-              {rangePicker.shortLabel}
-            </Button>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+                {monthOptions.map(({ label, value }) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:download-outline" />}
@@ -202,15 +213,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         <VehicleLossTable expenses={expenses} isLoading={isExpLoading} infoText={infoText} />
       )}
 
-      <CustomDateRangePicker
-        variant="calendar"
-        open={rangePicker.open}
-        onClose={rangePicker.onClose}
-        startDate={rangePicker.startDate}
-        endDate={rangePicker.endDate}
-        onChangeStartDate={rangePicker.onChangeStartDate}
-        onChangeEndDate={rangePicker.onChangeEndDate}
-      />
+      {/* Month selector replaces date range calendar */}
     </Card>
   );
 }
