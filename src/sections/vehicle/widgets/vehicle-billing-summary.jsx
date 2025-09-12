@@ -47,6 +47,8 @@ const TABLE_HEAD = [
   { id: 'netProfit', label: 'Net Profit' },
 ];
 
+const getDateRangeLabel = (start, end) => (start && end ? fDateRangeShortLabel(start, end) : '-');
+
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs());
 
@@ -93,6 +95,8 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const expenses = expData?.expenses || [];
 
   const [currentTab, setCurrentTab] = useState('profits');
+  const dateRangeLabel = getDateRangeLabel(start, end);
+  const infoText = `Data for vehicle ${vehicleNo || '-'} between ${dateRangeLabel}`;
 
   return (
     <Card>
@@ -151,9 +155,9 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 
                 await exportToExcel(
                   [
-                    { name: 'Profits', data: profitsData },
-                    { name: 'Loss', data: lossesData },
-                    { name: 'Summary', data: summaryData },
+                    { name: 'Income', data: profitsData, options: { prependInfoRows: [infoText] } },
+                    { name: 'Vehicle Expenses', data: lossesData, options: { prependInfoRows: [infoText] } },
+                    { name: 'P&L', data: summaryData, options: { prependInfoRows: [infoText] } },
                   ],
                   `Vehicle-P&L-${vehicleNo}`
                 );
@@ -187,95 +191,15 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
       </Tabs>
 
       {currentTab === 'profits' && (
-        <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>
-          <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  {TABLE_HEAD.map((head) => (
-                    <TableCell key={head.id}>{head.label}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoading ? (
-                  <TableSkeleton />
-                ) : (
-                  subtrips.map((row, index) => {
-                    const netProfit = row.amt - row.totalExpense;
-
-                    return (
-                      <TableRow key={row._id}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>
-                          <RouterLink
-                            to={paths.dashboard.subtrip.details(row._id)}
-                            style={{ color: 'green', textDecoration: 'underline' }}
-                          >
-                            {row._id}
-                          </RouterLink>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.customerName}>
-                            <Typography variant="body2" noWrap>
-                              {wrapText(row.customerName || '-', 20)}
-                            </Typography>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.routeName}>
-                            <Typography variant="body2" noWrap>
-                              {wrapText(row.routeName || '-', 20)}
-                            </Typography>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
-                        <TableCell>{row.loadingWeight}</TableCell>
-                        <TableCell>{row.rate}</TableCell>
-                        <TableCell>{fCurrency(row.amt)}</TableCell>
-                        <TableCell>{fCurrency(row.totalExpense)}</TableCell>
-                        <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>
-                          {fCurrency(netProfit)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-                {subtrips.length > 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} sx={{ fontWeight: 'fontWeightBold' }}>
-                      Total
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
-                      {fCurrency(subtrips.reduce((sum, r) => sum + r.amt, 0))}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
-                      {fCurrency(subtrips.reduce((sum, r) => sum + r.totalExpense, 0))}
-                    </TableCell>
-                    {(() => {
-                      const totalNet = subtrips.reduce((sum, r) => sum + r.amt - r.totalExpense, 0);
-                      return (
-                        <TableCell
-                          sx={{
-                            fontWeight: 'fontWeightBold',
-                            color: totalNet > 0 ? 'success.main' : 'error.main',
-                          }}
-                        >
-                          {fCurrency(totalNet)}
-                        </TableCell>
-                      );
-                    })()}
-                  </TableRow>
-                )}
-                <TableNoData notFound={!isLoading && subtrips.length === 0} />
-              </TableBody>
-            </Table>
-          </Scrollbar>
-        </TableContainer>
+        <ProfitsTable
+          subtrips={subtrips}
+          isLoading={isLoading}
+          infoText={infoText}
+        />
       )}
 
       {currentTab === 'loss' && (
-        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />
+        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} infoText={infoText} />
       )}
 
       <CustomDateRangePicker
@@ -292,8 +216,100 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 }
 
 // ----------------------------------------------------------------------
+// Profits Table Component
+function ProfitsTable({ subtrips, isLoading, infoText }) {
+  return (
+    <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>
+      <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              {TABLE_HEAD.map((head) => (
+                <TableCell key={head.id}>{head.label}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isLoading ? (
+              <TableSkeleton />
+            ) : (
+              subtrips.map((row, index) => {
+                const netProfit = (row.amt || 0) - (row.totalExpense || 0);
+
+                return (
+                  <TableRow key={row._id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      <RouterLink
+                        to={paths.dashboard.subtrip.details(row._id)}
+                        style={{ color: 'green', textDecoration: 'underline' }}
+                      >
+                        {row._id}
+                      </RouterLink>
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip title={row.customerName}>
+                        <Typography variant="body2" noWrap>
+                          {wrapText(row.customerName || '-', 20)}
+                        </Typography>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip title={row.routeName}>
+                        <Typography variant="body2" noWrap>
+                          {wrapText(row.routeName || '-', 20)}
+                        </Typography>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
+                    <TableCell>{row.loadingWeight}</TableCell>
+                    <TableCell>{row.rate}</TableCell>
+                    <TableCell>{fCurrency(row.amt)}</TableCell>
+                    <TableCell>{fCurrency(row.totalExpense)}</TableCell>
+                    <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>
+                      {fCurrency(netProfit)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+            {subtrips.length > 0 && (
+              <TableRow>
+                <TableCell colSpan={7} sx={{ fontWeight: 'fontWeightBold' }}>
+                  Total
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                  {fCurrency(subtrips.reduce((sum, r) => sum + (r.amt || 0), 0))}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'fontWeightBold' }}>
+                  {fCurrency(subtrips.reduce((sum, r) => sum + (r.totalExpense || 0), 0))}
+                </TableCell>
+                {(() => {
+                  const totalNet = subtrips.reduce((sum, r) => sum + (r.amt || 0) - (r.totalExpense || 0), 0);
+                  return (
+                    <TableCell
+                      sx={{
+                        fontWeight: 'fontWeightBold',
+                        color: totalNet > 0 ? 'success.main' : 'error.main',
+                      }}
+                    >
+                      {fCurrency(totalNet)}
+                    </TableCell>
+                  );
+                })()}
+              </TableRow>
+            )}
+            <TableNoData notFound={!isLoading && subtrips.length === 0} />
+          </TableBody>
+        </Table>
+      </Scrollbar>
+    </TableContainer>
+  );
+}
+
+// ----------------------------------------------------------------------
 // Loss Table Component
-function VehicleLossTable({ expenses, isLoading }) {
+function VehicleLossTable({ expenses, isLoading, infoText }) {
   const totalAmount = (expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
 
   return (

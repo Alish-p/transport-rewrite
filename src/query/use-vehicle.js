@@ -133,22 +133,3 @@ export function useDeleteVehicle() {
   });
   return mutate;
 }
-
-// ----------------------------------------------------------------------
-// Vehicle billing summary
-const getVehicleBillingSummary = async ({ queryKey }) => {
-  const [, , { id, startDate, endDate }] = queryKey;
-  const { data } = await axios.get(`${ENDPOINT}/${id}/billing-summary`, {
-    params: { startDate, endDate },
-  });
-  return data;
-};
-
-export function useVehicleBillingSummary({ id, startDate, endDate }, options = {}) {
-  return useQuery({
-    queryKey: [QUERY_KEY, 'billing-summary', { id, startDate, endDate }],
-    queryFn: getVehicleBillingSummary,
-    enabled: !!id && !!startDate && !!endDate,
-    ...options,
-  });
-}
