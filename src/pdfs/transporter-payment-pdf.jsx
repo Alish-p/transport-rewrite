@@ -29,7 +29,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
     additionalCharges = [],
   } = transporterPayment || {};
 
-  const renderInvoiceTable = () => {
+  const renderSubtripTable = () => {
     const columns = [
       { header: 'S.No', accessor: 'sno', width: '4%' },
       { header: 'Dispatch Date', accessor: 'dispatchDate', width: '8%' },
@@ -233,6 +233,43 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
     );
   };
 
+  const renderExpenseTable = () => {
+    const columns = [
+      { header: 'S.No', accessor: 'sno', width: '6%' },
+      { header: 'Subtrip No', accessor: 'subtripId', width: '18%' },
+      { header: 'Expense Type', accessor: 'expenseType', width: '22%' },
+      {
+        header: 'Amount',
+        accessor: 'amount',
+        width: '12%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      { header: 'Remarks', accessor: 'remarks', width: '42%' },
+    ];
+
+    const expenseRows = subtripSnapshot.flatMap((st) =>
+      (st.expenses || []).map((e) => ({
+        subtripId: st.subtripId,
+        expenseType: e.expenseType,
+        amount: e.amount,
+        remarks: e.remarks || '',
+      }))
+    );
+
+    const tableData = expenseRows.map((row, idx) => ({ ...row, sno: idx + 1 }));
+
+    return (
+      <NewPDFTable
+        columns={columns}
+        data={tableData}
+        showTotals
+        totalRowLabel="TOTAL"
+      />
+    );
+  };
+
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
@@ -258,13 +295,24 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
           ]}
         />
 
-        {renderInvoiceTable()}
+        {renderSubtripTable()}
 
         <PDFInvoiceFooter
           declaration="This is a system-generated transporter payment voucher."
           signatory={`For ${tenant.name}`}
         />
       </Page>
+      {subtripSnapshot.some((st) => (st.expenses || []).length > 0) && (
+        <Page size="A4" style={PDFStyles.page} orientation="landscape">
+          <PDFTitle title="Trip Expenses" />
+          <PDFHeader company={tenant} />
+          {renderExpenseTable()}
+          <PDFInvoiceFooter
+            declaration="This is a system-generated transporter payment voucher."
+            signatory={`For ${tenant.name}`}
+          />
+        </Page>
+      )}
     </Document>
   );
 }
