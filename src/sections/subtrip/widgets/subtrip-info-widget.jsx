@@ -339,7 +339,7 @@ export default function LRInfoCard({ subtrip }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Eway-Bill Expiry
           </Box>
-          <Typography>{fDate(ewayExpiryDate)}</Typography>
+          <Typography>{fDateTime(ewayExpiryDate)}</Typography>
         </Stack>
       </Stack>
     </>
