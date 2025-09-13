@@ -166,6 +166,31 @@ export default function TripSheetPdf({ trip, tenant }) {
   );
   const mileage = totalDiesel > 0 ? totalKm / totalDiesel : 0;
 
+  // Amount per Ton per Km
+  // Formula: Total Freight Amount / (Total Weight × Total Distance)
+  // Exclude subtrips that don't have positive weight, distance, or rate
+  const validForRate = subtrips.filter((st) => {
+    const weight = Number(st?.loadingWeight) || 0;
+    const startKm = Number(st?.startKm) || 0;
+    const endKm = Number(st?.endKm) || 0;
+    const distance = endKm - startKm;
+    const rate = Number(st?.rate) || 0;
+    return weight > 0 && distance > 0 && rate > 0;
+  });
+
+  const totalFreightAmount = validForRate.reduce(
+    (sum, st) => sum + (Number(st?.rate) || 0) * (Number(st?.loadingWeight) || 0),
+    0
+  );
+  const totalWeight = validForRate.reduce((sum, st) => sum + (Number(st?.loadingWeight) || 0), 0);
+  const totalDistance = validForRate.reduce(
+    (sum, st) => sum + ((Number(st?.endKm) || 0) - (Number(st?.startKm) || 0)),
+    0
+  );
+  const ratePerTonKm = totalWeight > 0 && totalDistance > 0
+    ? totalFreightAmount / (totalWeight * totalDistance)
+    : 0;
+
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
@@ -204,7 +229,11 @@ export default function TripSheetPdf({ trip, tenant }) {
 
         {/* Summary Section */}
         <Text style={[PDFStyles.subtitle1, { marginTop: 8 }]}>Summary</Text>
-        <PDFTable headers={['Mileage']} data={[[`${fNumber(mileage)} Km/L`]]} columnWidths={[12]} />
+        <PDFTable
+          headers={['Mileage', 'Rate per Tonne-Kilometer']}
+          data={[[`${fNumber(mileage)} Km/L`, `${fNumber(ratePerTonKm)} per T-Km`]]}
+          columnWidths={[12]}
+        />
       </Page>
     </Document>
   );
