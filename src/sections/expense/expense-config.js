@@ -37,12 +37,27 @@ export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
   { label: 'Other', value: 'other' },
 ];
 
+// Standard set of payment methods for consistency across forms
+export const DEFAULT_PAYMENT_METHODS = [
+  { label: 'Cash', value: 'Cash' },
+  { label: 'Bank Transfer', value: 'Bank Transfer' },
+  { label: 'Credit Card', value: 'Credit Card' },
+  { label: 'Debit Card', value: 'Debit Card' },
+  { label: 'UPI (Google Pay, PhonePe, Paytm, etc.)', value: 'UPI' },
+  { label: 'Cheque', value: 'Cheque' },
+  { label: 'Other', value: 'Other' },
+];
+
 export function useSubtripExpenseTypes() {
   return DEFAULT_SUBTRIP_EXPENSE_TYPES;
 }
 
 export function useVehicleExpenseTypes() {
   return DEFAULT_VEHICLE_EXPENSE_TYPES;
+}
+
+export function usePaymentMethods() {
+  return DEFAULT_PAYMENT_METHODS;
 }
 
 export const SUBTRIP_EXPENSE_TYPES = {

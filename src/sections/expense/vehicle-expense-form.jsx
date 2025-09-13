@@ -15,7 +15,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useBoolean } from '../../hooks/use-boolean';
-import { useVehicleExpenseTypes } from './expense-config';
+import { useVehicleExpenseTypes, usePaymentMethods } from './expense-config';
 import { useCreateExpense } from '../../query/use-expense';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
@@ -46,6 +46,7 @@ export default function VehicleExpenseForm({ currentExpense }) {
   const [selectedVehicle, setSelectedVehicle] = useState(currentExpense?.vehicleId || null);
 
   const expenseTypes = useVehicleExpenseTypes();
+  const paymentMethods = usePaymentMethods();
 
   const createExpense = useCreateExpense();
   const updateExpense = useCreateExpense();
@@ -156,7 +157,15 @@ export default function VehicleExpenseForm({ currentExpense }) {
               <Field.Text name="amount" label="Amount" type="number" />
               <Field.Text name="slipNo" label="Slip No" />
               <Field.Text name="remarks" label="Remarks" />
-              <Field.Text name="paidThrough" label="Paid Through" />
+              <Field.Select name="paidThrough" label="Paid Through">
+                <MenuItem value="">None</MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
+                {paymentMethods.map(({ value, label }) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </Field.Select>
               <Field.Text name="authorisedBy" label="Authorised By" />
             </Box>
 

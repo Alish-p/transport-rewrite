@@ -25,7 +25,7 @@ import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { SubtripExpenseSchema } from './expense-schemas';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
-import { SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes } from './expense-config';
+import { SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes, usePaymentMethods } from './expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 
 function ExpenseCoreForm({ currentSubtrip }) {
@@ -38,6 +38,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const confirm = useBoolean(false);
 
   const subtripExpenseTypes = useSubtripExpenseTypes();
+  const paymentMethods = usePaymentMethods();
 
   const createExpense = useCreateExpense();
 
@@ -272,7 +273,15 @@ function ExpenseCoreForm({ currentSubtrip }) {
               }}
             />
             <Field.Text name="remarks" label="Remarks (Optional)" />
-            <Field.Text name="paidThrough" label="Paid Through (Optional)" />
+            <Field.Select name="paidThrough" label="Paid Through (Optional)">
+              <MenuItem value="">None</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              {paymentMethods.map(({ value, label }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ))}
+            </Field.Select>
           </Box>
         </Card>
         <Stack sx={{ mt: 2 }} direction="row" justifyContent="flex-end" spacing={2}>
