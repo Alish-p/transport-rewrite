@@ -2,9 +2,9 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -16,6 +16,8 @@ import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
+// Date range picker removed in favor of month selector
+import { Select, MenuItem, FormControl } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -23,16 +25,14 @@ import { RouterLink } from 'src/routes/components';
 import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
+import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 
 import { usePaginatedSubtrips } from 'src/query/use-subtrip';
 import { usePaginatedExpenses } from 'src/query/use-expense';
-import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
-// Date range picker removed in favor of month selector
-import { Select, MenuItem, FormControl } from '@mui/material';
 
 
 const TABLE_HEAD = [
@@ -48,7 +48,6 @@ const TABLE_HEAD = [
   { id: 'netProfit', label: 'Net Profit' },
 ];
 
-const getDateRangeLabel = (start, end) => (start && end ? fDateRangeShortLabel(start, end) : '-');
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const today = dayjs();
@@ -103,7 +102,6 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const expenses = expData?.expenses || [];
 
   const [currentTab, setCurrentTab] = useState('profits');
-  const dateRangeLabel = getDateRangeLabel(start, end);
   const monthLabel = monthObj.format('MMM-YYYY');
   const infoText = `Data for vehicle ${vehicleNo || '-'} for ${monthLabel}`;
 
@@ -205,12 +203,11 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         <ProfitsTable
           subtrips={subtrips}
           isLoading={isLoading}
-          infoText={infoText}
         />
       )}
 
       {currentTab === 'loss' && (
-        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} infoText={infoText} />
+        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />
       )}
 
       {/* Month selector replaces date range calendar */}
@@ -220,7 +217,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 
 // ----------------------------------------------------------------------
 // Profits Table Component
-function ProfitsTable({ subtrips, isLoading, infoText }) {
+function ProfitsTable({ subtrips, isLoading }) {
   return (
     <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>
       <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
@@ -312,7 +309,7 @@ function ProfitsTable({ subtrips, isLoading, infoText }) {
 
 // ----------------------------------------------------------------------
 // Loss Table Component
-function VehicleLossTable({ expenses, isLoading, infoText }) {
+function VehicleLossTable({ expenses, isLoading }) {
   const totalAmount = (expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
 
   return (

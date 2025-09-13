@@ -25,8 +25,8 @@ import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { SubtripExpenseSchema } from './expense-schemas';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
-import { SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes, usePaymentMethods } from './expense-config';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
+import { usePaymentMethods, SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes } from './expense-config';
 
 function ExpenseCoreForm({ currentSubtrip }) {
   const [selectedPump, setSelectedPump] = useState(null);
