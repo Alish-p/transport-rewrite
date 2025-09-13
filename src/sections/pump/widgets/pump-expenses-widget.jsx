@@ -7,9 +7,11 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
+import Stack from '@mui/material/Stack';
 
 import { fDate } from 'src/utils/format-time';
 import { fNumber } from 'src/utils/format-number';
+import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { usePaginatedExpenses } from 'src/query/use-expense';
 
@@ -50,6 +52,19 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
     table.onResetPage();
   };
 
+  const handleDownload = async () => {
+    const exportRows = expenses.map((row, idx) => ({
+      'No.': table.page * table.rowsPerPage + idx + 1,
+      'Vehicle No': row.vehicleId?.vehicleNo || '-',
+      'Expense Type': row.expenseType || '-',
+      'Diesel Rate': row.dieselPrice ?? '-',
+      Date: row.date ? fDate(new Date(row.date)) : '-',
+      Amount: typeof row.amount === 'number' ? row.amount : Number(row.amount) || 0,
+    }));
+
+    await exportToExcel(exportRows, 'Pump-Expenses');
+  };
+
   return (
     <Card {...other}>
       <CardHeader
@@ -57,13 +72,24 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
         subheader="Expenses incurred at this pump"
         sx={{ mb: 3 }}
         action={
-          <Button
-            variant="outlined"
-            onClick={rangePicker.onOpen}
-            startIcon={<Iconify icon="solar:calendar-date-bold" />}
-          >
-            {rangePicker.shortLabel}
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              onClick={rangePicker.onOpen}
+              startIcon={<Iconify icon="solar:calendar-date-bold" />}
+            >
+              {rangePicker.shortLabel}
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleDownload}
+              startIcon={<Iconify icon="eva:download-fill" />}
+            >
+              Download
+            </Button>
+          </Stack>
         }
       />
 
@@ -111,6 +137,7 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
         onRowsPerPageChange={table.onChangeRowsPerPage}
         dense={table.dense}
         onChangeDense={table.onChangeDense}
+        rowsPerPageOptions={[5, 25, 100, 250]}
       />
 
       <CustomDateRangePicker
@@ -127,4 +154,3 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
 }
 
 export default PumpExpensesWidget;
-
