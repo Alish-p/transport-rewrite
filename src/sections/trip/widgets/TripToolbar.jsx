@@ -21,14 +21,25 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { useTenantContext } from 'src/auth/tenant';
 
 import TripSheetPdf from '../pdfs/trip-sheet-pdf';
+import { SUBTRIP_STATUS } from '../../subtrip/constants';
 
 // ----------------------------------------------------------------------
-
 export default function TripToolbar({ status, backLink, tripData, onTripClose, onEdit }) {
   const actionPopover = usePopover();
   const viewPopover = usePopover();
   const viewTripSheet = useBoolean();
   const tenant = useTenantContext();
+
+  const isOwnVehicle = Boolean(tripData?.vehicleId?.isOwn);
+  const subtrips = Array.isArray(tripData?.subtrips) ? tripData.subtrips : [];
+  const allSubtripsBilled = subtrips.length > 0 && subtrips.every((st) => st?.subtripStatus === SUBTRIP_STATUS.BILLED);
+  const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
+
+  const tripSheetTooltipTitle = !isOwnVehicle
+    ? 'Trip Sheet is only available for Own vehicles'
+    : !allSubtripsBilled
+      ? 'Trip Sheet is visible only when all subtrips are billed'
+      : '';
 
   return (
     <>
@@ -128,10 +139,10 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
       >
         <MenuList>
           <Tooltip
-            title="Trip Sheet is only available for Own vehicles"
-            disableHoverListener={tripData.vehicleId.isOwn}
-            disableFocusListener={tripData.vehicleId.isOwn}
-            disableTouchListener={tripData.vehicleId.isOwn}
+            title={tripSheetTooltipTitle}
+            disableHoverListener={canViewTripSheet}
+            disableFocusListener={canViewTripSheet}
+            disableTouchListener={canViewTripSheet}
           >
             <span>
               <MenuItem
@@ -139,7 +150,7 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
                   viewPopover.onClose();
                   viewTripSheet.onTrue();
                 }}
-                disabled={!tripData.vehicleId.isOwn}
+                disabled={!canViewTripSheet}
               >
                 Trip Sheet
               </MenuItem>
