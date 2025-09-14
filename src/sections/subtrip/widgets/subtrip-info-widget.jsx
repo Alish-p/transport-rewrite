@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
-import { fDate, fDateTime } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
