@@ -19,6 +19,9 @@ export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
 
 export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
   { label: 'Insurance', value: 'insurance' },
+  { label: 'EMI', value: 'emi' },
+  { label: 'AMC', value: 'amc' },
+  { label: 'Road Tax', value: 'road-tax' },
   { label: 'Permit', value: 'permit' },
   { label: 'Passing', value: 'passing' },
   { label: 'Tyre', value: 'tyre' },
