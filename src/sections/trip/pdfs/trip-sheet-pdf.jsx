@@ -17,7 +17,7 @@ Font.register({
 });
 
 export default function TripSheetPdf({ trip, tenant }) {
-  const { _id: tripId, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
+  const { _id: tripId, tripNo, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
 
   // Prepare subtrip table data
   const subtripColumns = [
@@ -201,7 +201,7 @@ export default function TripSheetPdf({ trip, tenant }) {
         <View style={{ flexDirection: 'row', marginVertical: 1 }}>
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Trip Details</Text>
-            <Text>Trip ID: {tripId}</Text>
+            <Text>Trip ID: {tripNo}</Text>
             <Text>Start Date: {fDate(fromDate)}</Text>
             <Text>End Date: {endDate ? fDate(endDate) : 'N/A'}</Text>
           </View>
