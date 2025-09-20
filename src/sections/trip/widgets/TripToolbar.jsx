@@ -57,7 +57,7 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
 
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="h4">Trip #{tripData._id} </Typography>
+              <Typography variant="h4">Trip #{tripData.tripNo} </Typography>
               <Label
                 variant="soft"
                 color={

@@ -70,7 +70,7 @@ export function TripDetailView({ trip }) {
   const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalKm } =
     getTripDashboardData(trip);
 
-  const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips } = trip;
+  const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips, tripNo } = trip;
 
   return (
     <DashboardContent>
@@ -84,7 +84,7 @@ export function TripDetailView({ trip }) {
         }}
       >
         <HeroHeaderCard
-          title={`Trip #${_id}`}
+          title={`Trip #${tripNo}`}
           status={tripStatus}
           icon="mdi:routes"
           meta={[
