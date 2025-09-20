@@ -49,7 +49,7 @@ export default function LRInfoCard({ subtrip }) {
 
   const routeName = routeCd?.routeName || '-';
   const customerName = customerId?.customerName || '-';
-  const tripNo = tripId?._id || '-';
+  const tripNo = tripId?.tripNo || '-';
   const vehicleNo = vehicleId?.vehicleNo || '-';
   const driverName = driverId?.driverName || '-';
 
