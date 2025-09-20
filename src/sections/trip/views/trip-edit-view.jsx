@@ -22,7 +22,7 @@ export function TripEditView({ trip }) {
             name: 'Trip List',
             href: paths.dashboard.trip.list,
           },
-          { name: trip?._id },
+          { name: trip?.tripNo },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

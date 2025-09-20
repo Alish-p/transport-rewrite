@@ -107,9 +107,9 @@ export function TripDetailView({ trip }) {
         backLink={paths.dashboard.trip.list}
         status={tripStatus}
         tripData={trip}
-        onTripClose={() => closeTrip(_id)}
+        onTripClose={() => closeTrip(tripNo)}
         onEdit={() => {
-          navigate(paths.dashboard.trip.edit(_id));
+          navigate(paths.dashboard.trip.edit(tripNo));
         }}
       />
       <Grid container spacing={3}>

@@ -15,9 +15,9 @@ export default function TripTableRow({
   disabledColumns,
   columnOrder,
 }) {
-  const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
-  const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
-  const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
+  const handleView = onViewRow ? () => onViewRow(row.tripNo) : undefined;
+  const handleEdit = onEditRow ? () => onEditRow(row.tripNo) : undefined;
+  const handleDelete = onDeleteRow ? () => onDeleteRow(row.tripNo) : undefined;
 
   return (
     <GenericTableRow

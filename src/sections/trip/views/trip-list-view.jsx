@@ -333,9 +333,9 @@ export function TripListView() {
                       row={row}
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteTrip(row._id)}
+                      onViewRow={() => handleViewRow(row.tripNo)}
+                      onEditRow={() => handleEditRow(row.tripNo)}
+                      onDeleteRow={() => deleteTrip(row.tripNo)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}

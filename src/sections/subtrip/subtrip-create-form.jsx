@@ -90,6 +90,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
   const [currentTab, setCurrentTab] = useState('loaded');
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedTripId, setSelectedTripId] = useState(currentTrip || null);
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const addSubtrip = useCreateSubtrip();
@@ -188,21 +189,21 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
       const submitData =
         currentTab === 'loaded'
           ? {
-              tripId: data?.tripId,
-              customerId: data?.customerId?.value,
-              startDate: data?.startDate,
-              diNumber: data?.diNumber,
-              isEmpty: false,
-            }
+            tripId: data?.tripId,
+            customerId: data?.customerId?.value,
+            startDate: data?.startDate,
+            diNumber: data?.diNumber,
+            isEmpty: false,
+          }
           : {
-              tripId: data?.tripId,
-              routeCd: data?.routeCd,
-              loadingPoint: data?.loadingPoint,
-              unloadingPoint: data?.unloadingPoint,
-              startKm: data?.startKm,
-              startDate: data?.startDate,
-              isEmpty: true,
-            };
+            tripId: data?.tripId,
+            routeCd: data?.routeCd,
+            loadingPoint: data?.loadingPoint,
+            unloadingPoint: data?.unloadingPoint,
+            startKm: data?.startKm,
+            startDate: data?.startDate,
+            isEmpty: true,
+          };
 
       const createdSubtrip =
         currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);

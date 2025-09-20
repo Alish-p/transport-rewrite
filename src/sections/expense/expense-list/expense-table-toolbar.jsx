@@ -184,7 +184,7 @@ export default function ExpenseTableToolbar({
 
         <DialogSelectButton
           onClick={tripDialog.onTrue}
-          selected={filters.trip?._id}
+          selected={filters.trip?.tripNo}
           placeholder="Trip"
           iconName="mdi:truck-fast"
           sx={{ maxWidth: { md: 200 } }}

@@ -110,7 +110,7 @@ export default function ExpenseTableFiltersResult({
 
         {filters.trip && (
           <Block label="Trip">
-            <Chip size="small" label={filters.trip._id} onDelete={handleRemoveTripId} />
+            <Chip size="small" label={filters.trip.tripNo} onDelete={handleRemoveTripId} />
           </Block>
         )}
 
