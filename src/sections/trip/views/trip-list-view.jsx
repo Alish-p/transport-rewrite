@@ -51,7 +51,7 @@ const STORAGE_KEY = 'trip-table-columns';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
-  tripId: '',
+  tripNo: '',
   driverId: '',
   vehicleId: '',
   subtripId: '',
@@ -95,7 +95,7 @@ export function TripListView() {
   const { data, isLoading } = usePaginatedTrips({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
-    tripId: filters.tripId || undefined,
+    tripNo: filters.tripNo || undefined,
     driverId: filters.driverId || undefined,
     vehicleId: filters.vehicleId || undefined,
     subtripId: filters.subtripId || undefined,
@@ -325,22 +325,22 @@ export function TripListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                      <TableSkeleton key={index} />
-                    ))
+                    <TableSkeleton key={index} />
+                  ))
                   : tableData.map((row) => (
-                      <TripTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteTrip(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <TripTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteTrip(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

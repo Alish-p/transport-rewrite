@@ -46,7 +46,7 @@ function TripItem({ trip, selectedTrip, onSelect }) {
         secondaryTypographyProps={{
           typography: 'caption',
         }}
-        primary={`Trip ${trip._id}`}
+        primary={`Trip ${trip.tripNo}`}
         secondary={
           <>
             {trip.vehicleId?.vehicleNo || '—'} | {trip.driverId?.driverName || '—'} |{' '}

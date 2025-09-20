@@ -14,20 +14,20 @@ import { Label } from 'src/components/label';
 export const TABLE_COLUMNS = [
   {
     id: 'tripId',
-    label: 'Trip ID',
+    label: 'Trip No',
     defaultVisible: true,
     disabled: false,
     align: 'left',
-    getter: (row) => row._id,
+    getter: (row) => row.tripNo,
     render: (row) => (
       <Link
         component={RouterLink}
-        to={paths.dashboard.trip.details(row._id)}
+        to={paths.dashboard.trip.details(row.tripNo)}
         variant="body2"
         noWrap
         sx={{ color: 'primary.main' }}
       >
-        {row._id}
+        {row.tripNo}
       </Link>
     ),
   },

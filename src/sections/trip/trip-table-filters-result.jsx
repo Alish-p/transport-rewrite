@@ -27,7 +27,7 @@ export default function TripTableFiltersResult({
   };
 
   const handleRemoveTripId = () => {
-    onFilters('tripId', '');
+    onFilters('tripNo', '');
   };
 
   const handleRemoveDriver = () => {
@@ -69,9 +69,9 @@ export default function TripTableFiltersResult({
           </Block>
         )}
 
-        {filters.tripId && (
+        {filters.tripNo && (
           <Block label="Trip:">
-            <Chip size="small" label={filters.tripId} onDelete={handleRemoveTripId} />
+            <Chip size="small" label={filters.tripNo} onDelete={handleRemoveTripId} />
           </Block>
         )}
 

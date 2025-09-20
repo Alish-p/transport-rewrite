@@ -8,9 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-// @mui
 // components
-
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList } from '@mui/material';
@@ -66,7 +64,7 @@ export default function TripTableToolbar({
 
   const handleFilterTripNo = useCallback(
     (event) => {
-      onFilters('tripId', event.target.value);
+      onFilters('tripNo', event.target.value);
     },
     [onFilters]
   );
@@ -125,9 +123,9 @@ export default function TripTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.tripId}
+          value={filters.tripNo}
           onChange={handleFilterTripNo}
-          placeholder="Search TripId..."
+          placeholder="Search Trip-NO..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
