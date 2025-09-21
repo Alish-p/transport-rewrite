@@ -128,7 +128,7 @@ function RenderTable({ invoice }) {
                 sx={{ color: 'success.main', cursor: 'pointer' }}
                 onClick={() => navigate(paths.dashboard.subtrip.details(st.subtripId))}
               >
-                {st.subtripId}
+                {st.subtripNo}
               </TableCell>
               <TableCell>{fDate(st.startDate)}</TableCell>
               <TableCell>

@@ -56,7 +56,7 @@ export function SubtripDetailView({ subtrip }) {
 
   const insights = generateInsightsForSubtrip(subtrip);
 
-  const { _id, vehicleId = {}, driverId = {}, subtripStatus } = subtrip;
+  const { _id, subtripNo, vehicleId = {}, driverId = {}, subtripStatus } = subtrip;
 
   return (
     <>
@@ -69,7 +69,7 @@ export function SubtripDetailView({ subtrip }) {
           }}
         >
           <HeroHeaderCard
-            title={`Subtrip #${_id}`}
+            title={`Subtrip #${subtripNo}`}
             status={subtripStatus}
             icon="mdi:routes"
             meta={[

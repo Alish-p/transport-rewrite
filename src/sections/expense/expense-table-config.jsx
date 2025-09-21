@@ -31,7 +31,7 @@ export const TABLE_COLUMNS = [
     label: 'LR No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?.subtripId || '-',
+    getter: (row) => row?.subtripId?.subtripNo || '-',
     align: 'left',
     render: ({ subtripId = '-' }) => (
       <Link

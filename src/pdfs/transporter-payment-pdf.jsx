@@ -91,7 +91,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
     const tableData = subtripSnapshot.map((st, idx) => ({
       sno: idx + 1,
       dispatchDate: fDate(st.startDate),
-      lrNo: st.subtripId,
+      lrNo: st.subtripNo,
       vehicleNo: st.vehicleNo,
       from: st.loadingPoint,
       destination: st.unloadingPoint,

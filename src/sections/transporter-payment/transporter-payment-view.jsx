@@ -132,7 +132,7 @@ function RenderTable({ transporterPayment }) {
                 sx={{ color: 'success.main', cursor: 'pointer' }}
                 onClick={() => navigate(paths.dashboard.subtrip.details(st.subtripId))}
               >
-                {st.subtripId}
+                {st.subtripNo}
               </TableCell>
               <TableCell>{st.vehicleNo}</TableCell>
               <TableCell>{st.loadingPoint}</TableCell>

@@ -16,9 +16,9 @@ export const TABLE_COLUMNS = [
     label: 'LR No',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?._id,
+    getter: (row) => row?.subtripNo,
     align: 'center',
-    render: ({ _id }) => (
+    render: ({ _id, subtripNo }) => (
       <Link
         component={RouterLink}
         to={paths.dashboard.subtrip.details(_id)}
@@ -26,7 +26,7 @@ export const TABLE_COLUMNS = [
         noWrap
         sx={{ color: 'primary.main' }}
       >
-        {_id}
+        {subtripNo}
       </Link>
     ),
   },
@@ -35,7 +35,7 @@ export const TABLE_COLUMNS = [
     label: 'Trip No',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.tripId?._id,
+    getter: (row) => row?.tripId?.tripNo,
     align: 'center',
     render: (row) => {
       const value = row?.tripId?._id || '-';
@@ -47,7 +47,7 @@ export const TABLE_COLUMNS = [
           noWrap
           sx={{ color: 'primary.main' }}
         >
-          {value}
+          {row?.tripId?.tripNo || '-'}
         </Link>
       );
     },

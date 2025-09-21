@@ -77,7 +77,7 @@ export default function InvoicePdf({ invoice, tenant }) {
       destination: subtrip.unloadingPoint,
       invoiceNo: subtrip.invoiceNo,
       dispDate: fDate(subtrip.startDate),
-      lrNo: subtrip.subtripId,
+      lrNo: subtrip.subtripNo,
       diNumber: subtrip.diNumber || '-',
       vehicle: subtrip.vehicleNo,
       material: subtrip.materialType || '-',

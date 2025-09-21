@@ -103,7 +103,7 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
                           noWrap
                           sx={{ color: 'primary.main' }}
                         >
-                          {row?._id}
+                          {row?.subtripNo}
                         </Link>
                       </TableCell>
                       <TableCell>{row?.vehicleId?.vehicleNo}</TableCell>
