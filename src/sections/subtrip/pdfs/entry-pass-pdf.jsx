@@ -22,6 +22,7 @@ export default function EntryPassPdf({ subtrip, tenant }) {
   const website = COMPANY.website || COMPANY.contactDetails?.website;
   const {
     _id,
+    subtripNo,
     diNumber,
     customerId,
     startDate,
@@ -153,7 +154,7 @@ export default function EntryPassPdf({ subtrip, tenant }) {
           <Text style={[styles.horizontalCellContent]}>{vehicleId?.noOfTyres} Tyre</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
+          <Text style={[styles.horizontalCellContent]}>{subtripNo}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
           <Text style={[styles.horizontalCellContent]}>{COMPANY.name}</Text>

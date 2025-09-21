@@ -142,7 +142,7 @@ export default function SubtripTableToolbar({
 
   const handleFilterSubtripId = useCallback(
     (event) => {
-      onFilters('subtripId', event.target.value);
+      onFilters('subtripNo', event.target.value);
     },
     [onFilters]
   );
@@ -164,7 +164,7 @@ export default function SubtripTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.subtripId}
+          value={filters.subtripNo}
           onChange={handleFilterSubtripId}
           placeholder="Id"
           InputProps={{

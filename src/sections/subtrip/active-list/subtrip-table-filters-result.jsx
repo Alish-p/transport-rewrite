@@ -40,8 +40,8 @@ export default function SubtripTableFiltersResult({
     onFilters('vehicleNo', '');
   };
 
-  const handleRemoveSubtripId = () => {
-    onFilters('subtripId', '');
+  const handleRemoveSubtripNo = () => {
+    onFilters('subtripNo', '');
   };
 
   const handleRemoveReferenceSubtripNo = () => {
@@ -143,9 +143,9 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
-        {filters.subtripId && (
-          <Block label="Subtrip Id:">
-            <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtripId} />
+        {filters.subtripNo && (
+          <Block label="Subtrip No:">
+            <Chip size="small" label={filters.subtripNo} onDelete={handleRemoveSubtripNo} />
           </Block>
         )}
 

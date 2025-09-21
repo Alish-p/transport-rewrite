@@ -51,7 +51,7 @@ import SubtripTableFiltersResult from '../active-list/subtrip-table-filters-resu
 
 const defaultFilters = {
   customerId: '',
-  subtripId: '',
+  subtripNo: '',
   referenceSubtripNo: '',
   vehicleNo: '',
   transportName: '',
@@ -102,7 +102,7 @@ export function SubtripListView() {
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     subtripStatus: filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
-    subtripId: filters.subtripId || undefined,
+    subtripNo: filters.subtripNo || undefined,
     referenceSubtripNo: filters.referenceSubtripNo || undefined,
     transporterId: filters.transportName || undefined,
     customerId: filters.customerId || undefined,
@@ -128,7 +128,7 @@ export function SubtripListView() {
 
   const canReset =
     !!filters.vehicleNo ||
-    !!filters.subtripId ||
+    !!filters.subtripNo ||
     !!filters.referenceSubtripNo ||
     !!filters.customerId ||
     !!filters.driverId ||

@@ -308,7 +308,7 @@ export default function SubtripToolbar({
         <MenuList>
           <PDFDownloadMenuItem
             document={<LRPDF subtrip={subtrip} tenant={tenant} />}
-            fileName={`${subtrip._id}_lr`}
+            fileName={`${subtrip.subtripNo}_lr`}
             label="Lorry Receipt (LR)"
             onClose={downloadPopover.onClose}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
@@ -317,7 +317,7 @@ export default function SubtripToolbar({
           {hasDieselIntent && (
             <PDFDownloadMenuItem
               document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
-              fileName={`${subtrip._id}_indent`}
+              fileName={`${subtrip.subtripNo}_indent`}
               label="Petrol Pump Indent"
               onClose={downloadPopover.onClose}
               disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
@@ -327,7 +327,7 @@ export default function SubtripToolbar({
           {hasEntryPass && (
             <PDFDownloadMenuItem
               document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
-              fileName={`${subtrip._id}_entry_pass`}
+              fileName={`${subtrip.subtripNo}_entry_pass`}
               label="Entry Pass"
               onClose={downloadPopover.onClose}
             />
@@ -335,7 +335,7 @@ export default function SubtripToolbar({
 
           <PDFDownloadMenuItem
             document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
-            fileName={`${subtrip._id}_driver_payment`}
+            fileName={`${subtrip.subtripNo}_driver_payment`}
             label="Driver Payment"
             onClose={downloadPopover.onClose}
             disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
@@ -344,7 +344,7 @@ export default function SubtripToolbar({
           {hasTransporterPayment && (
             <PDFDownloadMenuItem
               document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
-              fileName={`${subtrip._id}_transporter_payment`}
+              fileName={`${subtrip.subtripNo}_transporter_payment`}
               label="Transporter Payment"
               onClose={downloadPopover.onClose}
               disabled={subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE}
