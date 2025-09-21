@@ -68,6 +68,6 @@ export const CONFIG = {
     { label: 'Other', value: 'Other' },
   ],
 
-  customerInvoiceTax: 6,
-  transporterInvoiceTax: 6,
+  customerInvoiceTax: 9,
+  transporterInvoiceTax: 9,
 };

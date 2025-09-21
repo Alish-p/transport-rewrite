@@ -1,7 +1,7 @@
 import { CONFIG } from 'src/config-global';
 
 export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
-  const taxRate = CONFIG.transporterInvoiceTax || 6;
+  const taxRate = CONFIG.transporterInvoiceTax || 9;
   const tdsRate = transporter?.tdsPercentage || 0;
   const tdsAmount = (totalAmountBeforeTax * tdsRate) / 100;
 
