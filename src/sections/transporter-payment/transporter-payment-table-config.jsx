@@ -64,9 +64,9 @@ export const TABLE_COLUMNS = [
     label: 'Subtrips',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => (row.associatedSubtrips ? row.associatedSubtrips.join(', ') : ''),
+    getter: (row) => row.subtripSnapshot?.map((st) => st.subtripNo).join(', '),
     render: (row) => {
-      const value = row.associatedSubtrips ? row.associatedSubtrips.join(', ') : '';
+      const value = row.subtripSnapshot?.map((st) => st.subtripNo).join(', ')
       return (
         <Tooltip title={value}>
           <ListItemText
