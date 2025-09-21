@@ -22,7 +22,7 @@ export const TABLE_COLUMNS = [
     render: (row) => (
       <Link
         component={RouterLink}
-        to={paths.dashboard.trip.details(row.tripNo)}
+        to={paths.dashboard.trip.details(row._id)}
         variant="body2"
         noWrap
         sx={{ color: 'primary.main' }}

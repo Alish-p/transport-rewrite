@@ -12,8 +12,6 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { useCreateSubtrip } from 'src/query/use-subtrip';
 import { useCreateTrip, useUpdateTrip } from 'src/query/use-trip';
 
@@ -166,7 +164,7 @@ export default function TripForm({ currentTrip }) {
             driverId: data.driver._id,
           },
         });
-        navigate(paths.dashboard.trip.details(paramCase(currentTrip._id)));
+        navigate(paths.dashboard.trip.details(currentTrip._id));
       } else {
         const { addFirstSubtrip, customerId, diNumber, subtripRemarks, ...tripData } = data;
         const createdTrip = await createTrip({ ...tripData, driverId: data.driver._id });
@@ -183,7 +181,7 @@ export default function TripForm({ currentTrip }) {
           toast.success('Trip and first subtrip created successfully!');
         }
 
-        navigate(paths.dashboard.trip.details(paramCase(createdTrip._id)));
+        navigate(paths.dashboard.trip.details(createdTrip._id));
       }
       reset();
     } catch (error) {

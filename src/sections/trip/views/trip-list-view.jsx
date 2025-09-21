@@ -22,7 +22,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -124,7 +123,7 @@ export function TripListView() {
   ];
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.trip.edit(paramCase(id)));
+    navigate(paths.dashboard.trip.edit(id));
   };
 
   const handleViewRow = useCallback(
@@ -333,9 +332,9 @@ export function TripListView() {
                       row={row}
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row.tripNo)}
-                      onEditRow={() => handleEditRow(row.tripNo)}
-                      onDeleteRow={() => deleteTrip(row.tripNo)}
+                      onViewRow={handleViewRow}
+                      onEditRow={handleEditRow}
+                      onDeleteRow={deleteTrip}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}

@@ -86,15 +86,15 @@ export function SubtripDetailView({ subtrip }) {
               {
                 icon: 'mdi:routes',
                 label: `Trip #${subtrip.tripId.tripNo}`,
-                href: paths.dashboard.trip.details(subtrip.tripId.tripNo),
+                href: paths.dashboard.trip.details(subtrip.tripId._id),
               },
             ]}
           />
         </Box>
 
         <SubtripToolbar
-          backLink={paths.dashboard.trip.details(subtrip.tripId.tripNo)}
-          tripId={subtrip.tripId.tripNo}
+          backLink={paths.dashboard.trip.details(subtrip.tripId._id)}
+          tripId={subtrip.tripId._id}
           status={subtrip.subtripStatus}
           subtrip={subtrip}
           onAddMaterialInfo={() =>
