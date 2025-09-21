@@ -10,7 +10,7 @@ export function SubtripLoadView({ currentSubtrip }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={'Load Subtrip'}
+        heading='Load Subtrip'
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Subtrip List', href: paths.dashboard.subtrip.list },

@@ -1,11 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 
+import { CONFIG } from 'src/config-global';
 import { MainLayout } from 'src/layouts/main';
 import { SimpleLayout } from 'src/layouts/simple';
 
 import { SplashScreen } from 'src/components/loading-screen';
-import { CONFIG } from 'src/config-global';
 
 import { authRoutes } from './auth';
 import { mainRoutes } from './main';

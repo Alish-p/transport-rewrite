@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useCallback } from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';

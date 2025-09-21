@@ -32,7 +32,7 @@ export const exportBillingSummaryToExcel = async (
   const mapSubtrips = (subtrips) =>
     (subtrips || []).map((st, idx) => ({
       'S.No': idx + 1,
-      'Subtrip No': st._id,
+      'Subtrip No': st.subtripNo,
       'Customer Name': st.customerName,
       'Vehicle No': st.vehicleNo,
       Driver: st.driver,
