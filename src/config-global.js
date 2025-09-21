@@ -17,6 +17,7 @@ export const CONFIG = {
     skip: false,
     redirectPath: paths.dashboard.root,
   },
+  maintenanceMode: import.meta.env.VITE_MAINTENANCE_MODE === 'true',
 
   company: {
     name: 'Shree Enterprises',

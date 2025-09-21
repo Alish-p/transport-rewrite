@@ -2,8 +2,10 @@ import { lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 
 import { MainLayout } from 'src/layouts/main';
+import { SimpleLayout } from 'src/layouts/simple';
 
 import { SplashScreen } from 'src/components/loading-screen';
+import { CONFIG } from 'src/config-global';
 
 import { authRoutes } from './auth';
 import { mainRoutes } from './main';
@@ -13,8 +15,24 @@ import { dashboardRoutes } from './dashboard';
 // ----------------------------------------------------------------------
 
 const HomePage = lazy(() => import('src/pages/home'));
+const MaintenancePage = lazy(() => import('src/pages/maintenance'));
 
 export function Router() {
+  if (CONFIG.maintenanceMode) {
+    return useRoutes([
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<SplashScreen />}>
+            <SimpleLayout>
+              <MaintenancePage />
+            </SimpleLayout>
+          </Suspense>
+        ),
+      },
+    ]);
+  }
+
   return useRoutes([
     {
       path: '/',
