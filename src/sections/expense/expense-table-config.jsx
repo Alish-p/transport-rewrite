@@ -36,12 +36,12 @@ export const TABLE_COLUMNS = [
     render: ({ subtripId = '-' }) => (
       <Link
         component={RouterLink}
-        to={paths.dashboard.subtrip.details(subtripId)}
+        to={paths.dashboard.subtrip.details(subtripId?._id)}
         variant="body2"
         noWrap
         sx={{ color: 'primary.main' }}
       >
-        {subtripId}
+        {subtripId?.subtripNo || '-'}
       </Link>
     ),
   },

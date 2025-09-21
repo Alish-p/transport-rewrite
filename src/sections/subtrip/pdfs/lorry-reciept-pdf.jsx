@@ -19,6 +19,7 @@ const useStyles = () => useMemo(() => StyleSheet.create(pdfStyles), []);
 export default function LRPDF({ subtrip, tenant }) {
   const {
     _id,
+    subtripNo,
     customerId,
     consignee,
     ewayBill,
@@ -54,7 +55,7 @@ export default function LRPDF({ subtrip, tenant }) {
         consignee || '-',
         loadingPoint || '-',
         unloadingPoint || '-',
-        _id,
+        subtripNo,
         fDateTime(startDate),
         invoiceNo,
         ewayBill,
@@ -116,7 +117,7 @@ export default function LRPDF({ subtrip, tenant }) {
             '3. E. & O. E.',
           ]}
         />
-        <PDFFooter styles={styles} additionalInfo={`LR No: ${_id}`} />
+        <PDFFooter styles={styles} additionalInfo={`LR No: ${subtripNo}`} />
       </Page>
     </Document>
   );

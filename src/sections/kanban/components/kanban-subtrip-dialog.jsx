@@ -49,7 +49,7 @@ const SubtripItem = ({ subtrip, selectedSubtrip, onSelect }) => {
         secondaryTypographyProps={{ typography: 'caption' }}
         primary={
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography variant="subtitle2">#{subtrip._id}</Typography>
+            <Typography variant="subtitle2">{subtrip.subtripNo}</Typography>
             <Label
               variant="soft"
               color={SUBTRIP_STATUS_COLORS[subtrip.subtripStatus] || 'default'}
@@ -191,7 +191,7 @@ export function KanbanSubtripDialog({
           fullWidth
           value={searchSubtrip}
           onChange={handleSearchSubtrips}
-          placeholder="Search by ID, vehicle, or driver..."
+          placeholder="Search by LR No, vehicle, or driver..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

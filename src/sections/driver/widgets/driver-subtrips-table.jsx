@@ -72,7 +72,7 @@ export function DriverSubtripsTable({ driver }) {
                         noWrap
                         sx={{ color: 'primary.main' }}
                       >
-                        {row._id}
+                        {row.subtripNo}
                       </Link>
                     </TableCell>
                     <TableCell>{row?.vehicleId?.vehicleNo}</TableCell>

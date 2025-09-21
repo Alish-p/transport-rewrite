@@ -337,7 +337,7 @@ export default function DriverSalarySimpleForm() {
           <Table sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow>
-                {['Select', '#', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary'].map(
+                {['Select', '#', 'Date', 'Subtrip No', 'From', 'Destination', 'Trip Salary'].map(
                   (h) => (
                     <StyledTableCell key={h}>{h}</StyledTableCell>
                   )
@@ -360,7 +360,7 @@ export default function DriverSalarySimpleForm() {
                       </TableCell>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
-                      <TableCell>{st._id}</TableCell>
+                      <TableCell>{st.subtripNo}</TableCell>
                       <TableCell>{st.loadingPoint}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
                       <TableCell align="right">{fCurrency(tripSalary)}</TableCell>

@@ -38,7 +38,7 @@ export function SubtripExpiryTable({ title, subheader, ...other }) {
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
-              { id: 'subtripId', label: 'Subtrip ID' },
+              { id: 'subtripId', label: 'LR No' },
               { id: 'vehicle', label: 'Vehicle' },
               { id: 'customer', label: 'Customer' },
               { id: 'ewayExpiryDate', label: 'Eway Expiry' },
@@ -52,17 +52,17 @@ export function SubtripExpiryTable({ title, subheader, ...other }) {
             ) : subtrips.length ? (
               <>
                 {displayedSubtrips.map((row, idx) => (
-                  <TableRow key={row.subtripId}>
+                  <TableRow key={row._id || row.subtripId}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={paths.dashboard.subtrip.details(row.subtripId)}
+                        to={paths.dashboard.subtrip.details(row._id || row.subtripId)}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}
                       >
-                        {row.subtripId}
+                        {row.subtripNo}
                       </Link>
                     </TableCell>
                     <TableCell>{row.vehicle}</TableCell>

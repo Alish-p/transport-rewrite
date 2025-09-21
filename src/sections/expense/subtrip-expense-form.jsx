@@ -179,7 +179,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
               <DialogSelectButton
                 onClick={subtripDialog.onTrue}
                 placeholder="Select Subtrip"
-                selected={subtripData?._id}
+                selected={subtripData?.subtripNo}
                 error={!!errors.subtripId?.message}
                 iconName="mdi:truck-fast"
               />

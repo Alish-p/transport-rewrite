@@ -122,7 +122,7 @@ export default function ExpenseTableFiltersResult({
 
         {filters.subtrip && (
           <Block label="Subtrip">
-            <Chip size="small" label={filters.subtrip._id} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={filters.subtrip.subtripNo} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 

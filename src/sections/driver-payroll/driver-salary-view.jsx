@@ -114,7 +114,7 @@ function RenderTable({ driverSalary }) {
           <TableRow>
             <StyledTableCell>SR.NO</StyledTableCell>
             <StyledTableCell>Date</StyledTableCell>
-            <StyledTableCell>Subtrip ID</StyledTableCell>
+            <StyledTableCell>Subtrip No</StyledTableCell>
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell align="right">Trip Salary</StyledTableCell>
@@ -129,7 +129,7 @@ function RenderTable({ driverSalary }) {
                 sx={{ color: 'success.main', cursor: 'pointer' }}
                 onClick={() => navigate(paths.dashboard.subtrip.details(st.subtripId))}
               >
-                {st.subtripId}
+                {st.subtripNo}
               </TableCell>
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>

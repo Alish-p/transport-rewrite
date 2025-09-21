@@ -86,7 +86,7 @@ export function ExpenseDetailView({ expense }) {
 | Attribute              | Details                  |
 | :--------------------- | :----------------------- |
 | **Trip ID**            | ${tripId || 'N/A'}       |
-| **Subtrip ID**         | ${subtripId || 'N/A'}    |
+| **Subtrip**            | ${subtripId || 'N/A'}    |
 | **Vehicle ID**         | ${vehicleId || 'N/A'}    |
 | **Pump Code**          | ${pumpCd || 'N/A'}       |
 

@@ -342,7 +342,7 @@ export default function SimplerNewInvoiceForm() {
                 <StyledTableCell>Vehicle No</StyledTableCell>
                 <StyledTableCell>Consignee</StyledTableCell>
                 <StyledTableCell>Destination</StyledTableCell>
-                <StyledTableCell>Subtrip ID</StyledTableCell>
+                <StyledTableCell>LR No</StyledTableCell>
                 <StyledTableCell>Dispatch Date</StyledTableCell>
                 <StyledTableCell>Freight Rate</StyledTableCell>
                 <StyledTableCell>Quantity</StyledTableCell>
@@ -369,7 +369,7 @@ export default function SimplerNewInvoiceForm() {
                       <TableCell>{st.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.consignee}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
-                      <TableCell>{st._id}</TableCell>
+                      <TableCell>{st.subtripNo}</TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>{fCurrency(st.rate)}</TableCell>
                       <TableCell>

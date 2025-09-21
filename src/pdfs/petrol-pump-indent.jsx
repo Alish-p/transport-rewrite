@@ -29,6 +29,7 @@ const useStyles = () => useMemo(() => StyleSheet.create(PDFStyles), []);
 export default function IndentPdf({ subtrip, tenant }) {
   const {
     _id,
+    subtripNo,
     startDate,
     expenses,
     initialAdvanceDiesel,
@@ -66,7 +67,7 @@ export default function IndentPdf({ subtrip, tenant }) {
   // Prepare pump info
   const pumpInfo = {
     to: intentFuelPump?.name || '',
-    lrNo: _id || '',
+    lrNo: subtripNo || '',
     date: fDate(startDate),
   };
 

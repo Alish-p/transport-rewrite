@@ -109,7 +109,7 @@ export function TransporterSubtripsWidget({ transporterId, title = 'Subtrips', .
                         noWrap
                         sx={{ color: 'primary.main' }}
                       >
-                        {row._id}
+                        {row.subtripNo}
                       </Link>
                     </TableCell>
                     <TableCell>{row.customerId?.customerName || '-'}</TableCell>
@@ -144,4 +144,3 @@ export function TransporterSubtripsWidget({ transporterId, title = 'Subtrips', .
 }
 
 export default TransporterSubtripsWidget;
-

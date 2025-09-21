@@ -109,7 +109,7 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Subtrips', ...other 
                         noWrap
                         sx={{ color: 'primary.main' }}
                       >
-                        {row._id}
+                        {row.subtripNo}
                       </Link>
                     </TableCell>
                     <TableCell>{row.customerId?.customerName || '-'}</TableCell>
@@ -144,4 +144,3 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Subtrips', ...other 
 }
 
 export default VehicleSubtripsWidget;
-

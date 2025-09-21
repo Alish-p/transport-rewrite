@@ -94,7 +94,7 @@ export default function TripSheetPdf({ trip, tenant }) {
 
     return {
       sno: idx + 1,
-      id: st._id || '-',
+      id: st.subtripNo || '-',
       customer: st.customerId?.customerName || '-',
       route: st.routeCd?.routeName || '-',
       startDate: fDate(st.startDate),
@@ -141,7 +141,7 @@ export default function TripSheetPdf({ trip, tenant }) {
       expenseIndex += 1;
       return {
         sno: expenseIndex,
-        lrNo: st._id || '-',
+        lrNo: st.subtripNo || '-',
         type: e.expenseType,
         date: fDateTime(e.date),
         amount: e.amount || 0,

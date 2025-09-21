@@ -30,11 +30,11 @@ export default function DriverSalaryPdf({ driverSalary, tenant }) {
   } = driverSalary || {};
 
   const renderSalaryTable = () => {
-    const headers = ['S.No', 'Date', 'Subtrip ID', 'From', 'Destination', 'Trip Salary'];
+    const headers = ['S.No', 'Date', 'Subtrip No', 'From', 'Destination', 'Trip Salary'];
     const data = subtripSnapshot.map((st, idx) => [
       idx + 1,
       fDate(st.startDate),
-      st.subtripId,
+      st.subtripNo,
       st.loadingPoint,
       st.unloadingPoint,
       fCurrency(st.totalDriverSalary || 0),

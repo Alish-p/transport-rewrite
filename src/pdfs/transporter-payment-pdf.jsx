@@ -236,7 +236,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
   const renderExpenseTable = () => {
     const columns = [
       { header: 'S.No', accessor: 'sno', width: '6%' },
-      { header: 'Subtrip No', accessor: 'subtripId', width: '18%' },
+      { header: 'Subtrip No', accessor: 'subtripNo', width: '18%' },
       { header: 'Expense Type', accessor: 'expenseType', width: '22%' },
       {
         header: 'Amount',
@@ -251,7 +251,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
 
     const expenseRows = subtripSnapshot.flatMap((st) =>
       (st.expenses || []).map((e) => ({
-        subtripId: st.subtripId,
+        subtripNo: st.subtripNo,
         expenseType: e.expenseType,
         amount: e.amount,
         remarks: e.remarks || '',

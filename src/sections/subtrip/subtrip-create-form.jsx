@@ -360,7 +360,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                           >
                             <Stack direction="row" alignItems="center" spacing={1}>
                               <Iconify icon="mdi:truck-fast" sx={{ color: 'primary.main' }} />
-                              <Typography variant="subtitle1">Subtrip #{subtrip._id} </Typography>
+                              <Typography variant="subtitle1">Subtrip #{subtrip.subtripNo} </Typography>
                             </Stack>
                             <Stack direction="row" alignItems="center" spacing={1}>
                               {subtrip.isEmpty && (

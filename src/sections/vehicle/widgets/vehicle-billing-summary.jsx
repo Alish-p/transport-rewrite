@@ -244,7 +244,7 @@ function ProfitsTable({ subtrips, isLoading }) {
                         to={paths.dashboard.subtrip.details(row._id)}
                         style={{ color: 'green', textDecoration: 'underline' }}
                       >
-                        {row._id}
+                        {row.subtripNo}
                       </RouterLink>
                     </TableCell>
                     <TableCell>

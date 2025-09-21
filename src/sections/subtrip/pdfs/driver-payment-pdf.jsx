@@ -23,6 +23,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
   const website = COMPANY.website || COMPANY.contactDetails?.website;
   const {
     _id,
+    subtripNo,
     customerId,
     startDate,
     expenses,
@@ -48,7 +49,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Driver Payment For Subtrip {_id}</Text>
+      <Text style={[styles.h3, styles.mb4]}>Driver Payment For Subtrip {subtripNo}</Text>
     </View>
   );
 
@@ -98,7 +99,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
     <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
       <View style={[styles.col12]}>
         <Text style={[styles.p4, styles.subtitle2]}>
-          The total driver payment amount for this subtrip {_id} is as follows:
+          The total driver payment amount for this subtrip {subtripNo} is as follows:
         </Text>
       </View>
     </View>
@@ -155,7 +156,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
         </View>
         <View style={[styles.col6]}>
           <View style={[styles.horizontalCell, styles.borderBottom]}>
-            <Text style={[styles.horizontalCellContent]}>{_id} </Text>
+            <Text style={[styles.horizontalCellContent]}>{subtripNo} </Text>
           </View>
           <View style={[styles.horizontalCell, styles.borderBottom]}>
             <Text style={[styles.horizontalCellContent]}>{customerId?.customerName} </Text>
@@ -212,7 +213,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
 
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col9, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{}</Text>
+          <Text style={[styles.horizontalCellContent]}>{ }</Text>
         </View>
 
         <View style={[styles.col3, styles.horizontalCell]}>

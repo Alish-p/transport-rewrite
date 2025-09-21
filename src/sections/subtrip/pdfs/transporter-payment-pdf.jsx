@@ -26,6 +26,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
   const website = COMPANY.website || COMPANY.contactDetails?.website;
   const {
     _id,
+    subtripNo,
     customerId,
     startDate,
     expenses,
@@ -52,7 +53,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Transporter Payment For Subtrip {_id}</Text>
+      <Text style={[styles.h3, styles.mb4]}>Transporter Payment For Subtrip {subtripNo}</Text>
     </View>
   );
 
@@ -158,7 +159,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
         </View>
         <View style={[styles.col6]}>
           <View style={[styles.horizontalCell, styles.borderBottom]}>
-            <Text style={[styles.horizontalCellContent]}>{_id} </Text>
+            <Text style={[styles.horizontalCellContent]}>{subtripNo} </Text>
           </View>
           <View style={[styles.horizontalCell, styles.borderBottom]}>
             <Text style={[styles.horizontalCellContent]}>{customerId?.customerName} </Text>
@@ -217,7 +218,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
       1,2,1,1,1,2,2,2
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{_id}</Text>
+          <Text style={[styles.horizontalCellContent]}>{subtripNo}</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellContent]}>{vehicleNo}</Text>
@@ -298,7 +299,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
 
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col10, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{}</Text>
+          <Text style={[styles.horizontalCellContent]}>{ }</Text>
         </View>
 
         <View style={[styles.col2, styles.horizontalCell]}>
