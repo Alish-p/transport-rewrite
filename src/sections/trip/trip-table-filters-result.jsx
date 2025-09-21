@@ -19,7 +19,7 @@ export default function TripTableFiltersResult({
   results,
   selectedDriverName,
   selectedVehicleNo,
-  selectedSubtripId,
+  selectedSubtripNo,
   ...other
 }) {
   const handleRemoveTripStatus = () => {
@@ -79,7 +79,7 @@ export default function TripTableFiltersResult({
           <Block label="driver">
             <Chip
               size="small"
-              label={selectedDriverName || filters.driverId}
+              label={selectedDriverName}
               onDelete={handleRemoveDriver}
             />
           </Block>
@@ -89,7 +89,7 @@ export default function TripTableFiltersResult({
           <Block label="Vehicle No:">
             <Chip
               size="small"
-              label={selectedVehicleNo || filters.vehicleId}
+              label={selectedVehicleNo}
               onDelete={handleRemoveVehicle}
             />
           </Block>
@@ -99,7 +99,7 @@ export default function TripTableFiltersResult({
           <Block label="Subtrip:">
             <Chip
               size="small"
-              label={selectedSubtripId || filters.subtripId}
+              label={selectedSubtripNo}
               onDelete={handleRemoveSubtrip}
             />
           </Block>

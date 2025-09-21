@@ -246,7 +246,7 @@ export function TripListView() {
             results={totalCount}
             selectedDriverName={selectedDriver?.driverName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
-            selectedSubtripId={selectedSubtrip?._id}
+            selectedSubtripNo={selectedSubtrip?.subtripNo}
             sx={{ p: 2.5, pt: 0 }}
           />
         )}

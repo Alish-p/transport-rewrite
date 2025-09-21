@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
@@ -44,6 +44,8 @@ export default function InvoiceTableToolbar({
   onToggleColumn,
   onToggleAllColumns,
   columnOrder = [],
+  selectedSubtrip,
+  onSelectSubtrip,
   onResetColumns,
   canResetColumns,
 }) {
@@ -54,13 +56,6 @@ export default function InvoiceTableToolbar({
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
   const { data: customers = [] } = useCustomersSummary();
-  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
-
-  useEffect(() => {
-    if (!filters.subtripId) {
-      setSelectedSubtrip(null);
-    }
-  }, [filters.subtripId]);
 
   const selectedCustomer = customers.find((c) => c._id === filters.customerId);
 
@@ -73,10 +68,10 @@ export default function InvoiceTableToolbar({
 
   const handleSelectSubtrip = useCallback(
     (subtrip) => {
-      setSelectedSubtrip(subtrip);
-      onFilters('subtripId', subtrip._id);
+      if (onSelectSubtrip) onSelectSubtrip(subtrip);
+      onFilters('subtripId', subtrip ? subtrip._id : '');
     },
-    [onFilters]
+    [onFilters, onSelectSubtrip]
   );
 
   const handleFilterInvoiceNo = useCallback(
@@ -138,7 +133,7 @@ export default function InvoiceTableToolbar({
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           placeholder="Search subtrip"
-          selected={selectedSubtrip?._id}
+          selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
         />
 

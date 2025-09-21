@@ -153,7 +153,7 @@ export default function TripTableToolbar({
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           placeholder="Subtrip"
-          selected={selectedSubtrip?._id}
+          selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
           sx={{ maxWidth: { md: 200 } }}
         />

@@ -28,7 +28,7 @@ export default function ProfitExpenseChart({ subtrips, title, subheader }) {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: subtrips.map((subtrip) => subtrip._id),
+      categories: subtrips.map((subtrip) => subtrip.subtripNo),
     },
     yaxis: {
       labels: {

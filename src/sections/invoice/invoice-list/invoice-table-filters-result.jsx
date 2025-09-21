@@ -19,6 +19,7 @@ export default function DriverTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedSubtripNo,
   ...other
 }) {
   const { data: customers = [] } = useCustomersSummary();
@@ -84,7 +85,11 @@ export default function DriverTableFiltersResult({
 
         {filters.subtripId && (
           <Block label="Subtrip:">
-            <Chip size="small" label={filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={selectedSubtripNo || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 

@@ -76,6 +76,14 @@ export function InvoiceListView() {
     onResetPage: table.onResetPage,
   });
 
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  // Clear local selected subtrip when filter is removed via chips/reset
+  useEffect(() => {
+    if (!filters.subtripId) {
+      setSelectedSubtrip(null);
+    }
+  }, [filters.subtripId]);
+
   const {
     visibleColumns,
     visibleHeaders,
@@ -298,6 +306,8 @@ export function InvoiceListView() {
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
             columnOrder={columnOrder}
+            selectedSubtrip={selectedSubtrip}
+            onSelectSubtrip={setSelectedSubtrip}
             onResetColumns={resetColumns}
             canResetColumns={canResetColumns}
           />
@@ -308,6 +318,7 @@ export function InvoiceListView() {
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={totalCount}
+              selectedSubtripNo={selectedSubtrip?.subtripNo}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}

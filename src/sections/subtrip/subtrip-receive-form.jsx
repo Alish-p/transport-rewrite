@@ -68,7 +68,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           placeholder="Select Subtrip *"
-          selected={selectedSubtrip?._id}
+          selected={selectedSubtrip?.subtripNo}
           error={!!errors.subtripId?.message}
           iconName="mdi:truck-fast"
           sx={{ gridColumn: '1 / -1' }}

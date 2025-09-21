@@ -60,15 +60,15 @@ export function TripExpensesWidget({ tripId, title = 'Expenses', ...other }) {
                   <TableRow key={row._id}>
                     <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
                     <TableCell>
-                      {row.subtripId ? (
+                      {row?.subtripId?.subtripNo ? (
                         <Link
                           component={RouterLink}
-                          to={paths.dashboard.subtrip.details(row.subtripId)}
+                          to={paths.dashboard.subtrip.details(row?.subtripId?._id)}
                           variant="body2"
                           noWrap
                           sx={{ color: 'primary.main' }}
                         >
-                          {row.subtripId}
+                          {row?.subtripId?.subtripNo}
                         </Link>
                       ) : (
                         '-'

@@ -414,17 +414,10 @@ export function SubtripLoadForm() {
       <DialogSelectButton
         onClick={subtripDialog.onTrue}
         placeholder="Select Subtrip *"
-        selected={selectedSubtripId}
+        selected={selectedSubtrip?.subtripNo}
         error={!!errors.subtripId}
         iconName="mdi:truck"
         disabled={isLoadingSubtripDetails || !!currentSubtripId}
-        selectedText={
-          selectedSubtrip
-            ? `Subtrip: ${selectedSubtrip?.displayIdentifier || selectedSubtrip?._id}`
-            : selectedSubtripId
-              ? 'Loading Details...'
-              : null
-        }
       />
       {errors.subtripId && (
         <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
