@@ -26,6 +26,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { downloadInvoicesXml } from 'src/utils/export-invoice-xml';
 import { useDeleteInvoice, usePaginatedInvoices } from 'src/query/use-invoice';
 
 import { Label } from 'src/components/label';
@@ -364,6 +365,25 @@ export function InvoiceListView() {
                       }}
                     >
                       <Iconify icon="eva:download-outline" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="XML">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        if (selectedRows.length === 0) return;
+                        const fileName =
+                          selectedRows.length === 1
+                            ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
+                            : 'invoices-selected.xml';
+                        downloadInvoicesXml(selectedRows, fileName);
+                      }}
+                    >
+                      <Iconify icon="mdi:code-brackets" />
                     </IconButton>
                   </Tooltip>
 
