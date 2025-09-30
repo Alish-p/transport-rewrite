@@ -167,6 +167,9 @@ export default function SimplerNewInvoiceForm() {
       subtrips: [],
       additionalItems: [],
     });
+    // Also clear any locally selected customer and subtrips state
+    setSelectedCustomer(null);
+    replace([]);
   };
 
   const onSubmit = async (data) => {
