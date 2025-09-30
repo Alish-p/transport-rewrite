@@ -14,6 +14,7 @@ import { fNumber } from 'src/utils/format-number';
 import { Label } from 'src/components/label';
 
 import { wrapText } from '../../utils/change-case';
+import { SUBTRIP_EXPENSE_TYPES } from '../expense/expense-config';
 
 export const TABLE_COLUMNS = [
   {
@@ -104,7 +105,96 @@ export const TABLE_COLUMNS = [
       />
     ),
   },
-
+  {
+    id: 'dieselTotal',
+    label: 'Diesel',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) =>
+      fNumber(
+        (row.subtripSnapshot || []).reduce(
+          (sum, st) =>
+            sum +
+            (st.expenses || [])
+              .filter((e) => e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
+              .reduce((s, e) => s + (e.amount || 0), 0),
+          0
+        )
+      ),
+  },
+  {
+    id: 'tripAdvanceTotal',
+    label: 'Trip Advance',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) =>
+      fNumber(
+        (row.subtripSnapshot || []).reduce(
+          (sum, st) =>
+            sum +
+            (st.expenses || [])
+              .filter((e) => e.expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_ADVANCE)
+              .reduce((s, e) => s + (e.amount || 0), 0),
+          0
+        )
+      ),
+  },
+  {
+    id: 'podAmount',
+    label: 'POD Amount',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) =>
+      fNumber(
+        (row.additionalCharges || [])
+          .filter((ch) => (ch.label || '').toLowerCase().includes('pod'))
+          .reduce((s, ch) => s + (ch.amount || 0), 0)
+      ),
+  },
+  {
+    id: 'materialDamagesTotal',
+    label: 'Material Damages',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) =>
+      fNumber(
+        (row.subtripSnapshot || []).reduce(
+          (sum, st) =>
+            sum +
+            (st.expenses || [])
+              .filter((e) => e.expenseType === SUBTRIP_EXPENSE_TYPES.MATERIAL_DAMAGES)
+              .reduce((s, e) => s + (e.amount || 0), 0),
+          0
+        )
+      ),
+  },
+  {
+    id: 'latePouchPenaltyTotal',
+    label: 'Late Pouch Penalty',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    showTotal: true,
+    getter: (row) =>
+      fNumber(
+        (row.subtripSnapshot || []).reduce(
+          (sum, st) =>
+            sum +
+            (st.expenses || [])
+              .filter((e) => e.expenseType === SUBTRIP_EXPENSE_TYPES.LATE_POUCH_PENALTY)
+              .reduce((s, e) => s + (e.amount || 0), 0),
+          0
+        )
+      ),
+  },
   {
     id: 'totalShortageAmount',
     label: 'Total Shortage Amount',
