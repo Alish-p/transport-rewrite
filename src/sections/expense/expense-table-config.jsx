@@ -9,13 +9,13 @@ import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+import { EXPENSE_CATEGORY_COLORS } from './config/constants';
 import {
   useSubtripExpenseTypes,
   useVehicleExpenseTypes,
   DEFAULT_SUBTRIP_EXPENSE_TYPES,
   DEFAULT_VEHICLE_EXPENSE_TYPES,
 } from './expense-config';
-import { EXPENSE_CATEGORY_COLORS } from './config/constants';
 
 function getExpenseTypeMeta(label) {
   const all = [...DEFAULT_SUBTRIP_EXPENSE_TYPES, ...DEFAULT_VEHICLE_EXPENSE_TYPES];

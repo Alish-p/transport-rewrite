@@ -24,6 +24,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
+import { fShortenNumber } from 'src/utils/format-number';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -278,7 +279,7 @@ export function ExpenseListView() {
                     }
                     color={tab.color}
                   >
-                    {tab.count}
+                    {fShortenNumber(tab.count)}
                   </Label>
                 )
               }

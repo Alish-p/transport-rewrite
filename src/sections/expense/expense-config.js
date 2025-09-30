@@ -29,7 +29,7 @@ export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
   { label: 'Tyre', icon: 'mdi:car-tire-alert' },
   { label: 'Major Repair', icon: 'mdi:wrench' },
   { label: 'Fitness Certificate', icon: 'mdi:certificate' },
-  { label: 'Over-Load Fees', icon: 'mdi:cash-alert' },
+  { label: 'Over-Load Fees', icon: 'mdi:truck-alert' },
   { label: 'Electrical Work', icon: 'mdi:flash' },
   { label: 'Mechanical Work', icon: 'mdi:cog' },
   { label: 'Phata Work', icon: 'mdi:hammer' },
