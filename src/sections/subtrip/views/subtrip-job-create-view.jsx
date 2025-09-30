@@ -1,42 +1,40 @@
 import dayjs from 'dayjs';
-import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 
+import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Box,
   Card,
-  Stack,
-  Button,
-  Typography,
-  Alert,
-  Chip,
-  MenuItem,
-  Stepper as MuiStepper,
   Step,
+  Stack,
+  Alert,
+  Button,
+  MenuItem,
   StepLabel,
+  Typography,
   StepContent,
+  Stepper as MuiStepper,
 } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 import { paths } from 'src/routes/paths';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-
-import { useCreateTrip, useCloseTrip } from 'src/query/use-trip';
 import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
-import { useVehicleActiveTrip } from 'src/query/use-trip';
+import { useCloseTrip , useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
+import { Form, Field } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
-import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
-import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
+import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
 // Two-step vertical stepper
 const STEPS = [
@@ -213,9 +211,7 @@ export function SubtripJobCreateView() {
     }
     if (isLoaded) {
       if (!selectedCustomer) return false;
-    } else {
-      if (!selectedRoute) return false;
-    }
+    } else if (!selectedRoute) return false;
     return true;
   }, [selectedVehicle, selectedDriver, startDate, loadType, fetchingActiveTrip, activeTrip, tripDecision, selectedCustomer, selectedRoute]);
 
