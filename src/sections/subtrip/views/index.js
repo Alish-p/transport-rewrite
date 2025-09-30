@@ -4,3 +4,4 @@ export * from './subtrip-load-view';
 export * from './subtrip-create-view';
 export * from './subtrip-detail-view';
 export * from './subtrip-receive-view';
+export * from './subtrip-job-create-view';

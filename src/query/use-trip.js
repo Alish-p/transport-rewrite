@@ -23,6 +23,18 @@ const getTrip = async (id) => {
   return data;
 };
 
+// Fetch active trip for a vehicle. Returns `null` if none.
+const getVehicleActiveTrip = async (vehicleId) => {
+  try {
+    const { data } = await axios.get(`${ENDPOINT}/vehicle/${vehicleId}/active`);
+    return data;
+  } catch (error) {
+    // API returns 404 with { message: 'Trip not found' } when no active trip.
+    // Our axios interceptor maps errors to response.data or string, so treat any error as no active trip.
+    return null;
+  }
+};
+
 const createTrip = async (trip) => {
   const { data } = await axios.post(ENDPOINT, trip);
   return data;
@@ -73,6 +85,17 @@ export function useTrip(id) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => getTrip(id),
     enabled: !!id,
+  });
+}
+
+// Get vehicle's active trip (or null if none)
+export function useVehicleActiveTrip(vehicleId, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'vehicle-active', vehicleId],
+    queryFn: () => getVehicleActiveTrip(vehicleId),
+    enabled: !!vehicleId,
+    staleTime: 30_000,
+    ...options,
   });
 }
 

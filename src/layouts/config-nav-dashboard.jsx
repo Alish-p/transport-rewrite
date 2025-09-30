@@ -79,6 +79,11 @@ export const navData = [
         path: paths.dashboard.subtrip.new,
         icon: ICONS.subtrip,
       },
+      // {
+      //   title: 'Create Job',
+      //   path: paths.dashboard.subtrip.jobCreate,
+      //   icon: ICONS.job,
+      // },
       {
         title: 'Add Expense',
         path: paths.dashboard.expense.new,
@@ -115,6 +120,12 @@ export const navData = [
             path: paths.dashboard.subtrip.new,
             action: 'create',
             info: <Iconify icon="material-symbols:add" />,
+          },
+          {
+            title: 'Create Job',
+            path: paths.dashboard.subtrip.jobCreate,
+            action: 'create',
+            info: <Iconify icon="mdi:briefcase-plus" />,
           },
           {
             title: 'Load',

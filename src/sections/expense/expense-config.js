@@ -14,6 +14,8 @@ export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'RTO', value: 'rto', icon: 'mdi:office-building' },
   { label: 'Toll', value: 'toll', icon: 'mdi:gate' },
   { label: 'Vehicle Repair', value: 'vehicle-repair', icon: 'mdi:car-wrench' },
+  { label: 'Material Damages', value: 'material-damages', icon: 'mdi:package-variant' },
+  { label: 'Late Pouch Penalty', value: 'late-pouch-penalty', icon: 'mdi:clock-alert' },
   { label: 'Other', value: 'other', icon: 'mdi:dots-horizontal' },
 ];
 
@@ -78,5 +80,7 @@ export const SUBTRIP_EXPENSE_TYPES = {
   VEHICLE_REPAIR: 'vehicle-repair',
   GREASING: 'greasing',
   EXCISE: 'excise',
+  MATERIAL_DAMAGES: 'material-damages',
+  LATE_POUCH_PENALTY: 'late-pouch-penalty',
   OTHER: 'other',
 };
