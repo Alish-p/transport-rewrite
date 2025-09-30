@@ -24,17 +24,22 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row.paymentId,
     render: (row) => (
-      <Label variant="soft">
-        <Link
-          component={RouterLink}
-          to={paths.dashboard.transporterPayment.details(row._id)}
-          variant="body2"
-          noWrap
-          sx={{ color: 'text.disabled' }}
-        >
-          {row.paymentId}
-        </Link>
-      </Label>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <ListItemText
+          disableTypography
+          primary={
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.transporterPayment.details(row._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {row.paymentId}
+            </Link>
+          }
+        />
+      </div >
     ),
   },
   {
