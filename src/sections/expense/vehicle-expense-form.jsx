@@ -147,9 +147,16 @@ export default function VehicleExpenseForm({ currentExpense }) {
               <Field.Select name="expenseType" label="Expense Type">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
-                {expenseTypes.map(({ value, label }) => (
+                {expenseTypes.map(({ value, label, icon }) => (
                   <MenuItem key={value} value={value}>
-                    {label}
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      {icon ? (
+                        <Iconify icon={icon} />
+                      ) : null}
+                      <Typography variant="body2" noWrap>
+                        {label}
+                      </Typography>
+                    </Stack>
                   </MenuItem>
                 ))}
               </Field.Select>

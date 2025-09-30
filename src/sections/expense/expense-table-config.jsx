@@ -9,17 +9,29 @@ import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { useSubtripExpenseTypes } from './expense-config';
+import {
+  useSubtripExpenseTypes,
+  useVehicleExpenseTypes,
+  DEFAULT_SUBTRIP_EXPENSE_TYPES,
+  DEFAULT_VEHICLE_EXPENSE_TYPES,
+} from './expense-config';
 import { EXPENSE_CATEGORY_COLORS } from './config/constants';
 
+function getExpenseTypeMeta(value) {
+  const all = [...DEFAULT_SUBTRIP_EXPENSE_TYPES, ...DEFAULT_VEHICLE_EXPENSE_TYPES];
+  return all.find((t) => t.value === value);
+}
+
 function ExpenseTypeCell({ expenseType = '-' }) {
-  const types = useSubtripExpenseTypes();
-  const icon = types.find((t) => t.value === expenseType)?.icon;
+  const types = [...useSubtripExpenseTypes(), ...useVehicleExpenseTypes()];
+  const matched = types.find((t) => t.value === expenseType);
+  const icon = matched?.icon;
+  const label = matched?.label || expenseType;
   return (
     <Stack direction="row" alignItems="left" spacing={1}>
-      <Iconify icon={icon} sx={{ color: 'secondary.main' }} />
+      {icon ? <Iconify icon={icon} sx={{ color: 'primary.main' }} /> : null}
       <Typography variant="body2" noWrap>
-        {expenseType}
+        {label}
       </Typography>
     </Stack>
   );
@@ -59,7 +71,7 @@ export const TABLE_COLUMNS = [
     label: 'Expense Type',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row?.expenseType || '-',
+    getter: (row) => getExpenseTypeMeta(row?.expenseType)?.label || row?.expenseType || '-',
     render: ({ expenseType = '-' }) => <ExpenseTypeCell expenseType={expenseType} />,
   },
   {
