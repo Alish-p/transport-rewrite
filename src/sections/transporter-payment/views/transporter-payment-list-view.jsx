@@ -108,7 +108,7 @@ export function TransporterPaymentListView() {
     {
       value: 'generated',
       label: 'Generated',
-      color: 'warning',
+      color: 'error',
       count: totals.generated?.count || 0,
     },
   ];
@@ -257,22 +257,22 @@ export function TransporterPaymentListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                    <TableSkeleton key={i} />
+                  ))
                   : tableData.map((row) => (
-                      <TransporterPaymentTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <TransporterPaymentTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

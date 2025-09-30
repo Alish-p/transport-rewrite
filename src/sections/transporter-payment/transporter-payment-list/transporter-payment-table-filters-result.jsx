@@ -53,6 +53,16 @@ export default function TransporterPayrollTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.status !== 'all' && (
+          <Block label="Status:">
+            <Chip
+              size="small"
+              label={filters.status}
+              onDelete={() => onFilters('status', 'all')}
+            />
+          </Block>
+        )}
+
         {filters.transporterId && (
           <Block label="Transporter">
             <Chip

@@ -47,6 +47,15 @@ export default function RouteTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.routeType !== 'all' && (
+          <Block label="Route Type:">
+            <Chip
+              size="small"
+              label={filters.routeType === 'customer' ? 'Customer Specific' : 'General'}
+              onDelete={() => onFilters('routeType', 'all')}
+            />
+          </Block>
+        )}
         {filters.routeName && (
           <Block label="Route Name :">
             <Chip size="small" label={filters.routeName} onDelete={handleRemoveRouteName} />

@@ -188,7 +188,7 @@ export function RouteListView() {
                   <CircularProgress size={16} />
                 ) : (
                   <Label
-                    variant={(tab.value === 'all' || tab.value === filters.routeType) && 'filled'}
+                    variant={tab.value === filters.routeType ? 'filled' : 'soft'}
                     color={tab.color}
                   >
                     {tab.count}
