@@ -3,7 +3,7 @@ import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 
-import { fNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
@@ -28,7 +28,7 @@ export function InvoicePiechartWidget({ title, subheader, chart, ...other }) {
     stroke: { width: 0 },
     tooltip: {
       y: {
-        formatter: (value) => fNumber(value),
+        formatter: (value) => fShortenNumber(value),
         title: { formatter: (seriesName) => `${seriesName}` },
       },
     },
@@ -37,11 +37,11 @@ export function InvoicePiechartWidget({ title, subheader, chart, ...other }) {
         donut: {
           size: '72%',
           labels: {
-            value: { formatter: (value) => fNumber(value) },
+            value: { formatter: (value) => fShortenNumber(value) },
             total: {
               formatter: (w) => {
                 const sum = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                return fNumber(sum);
+                return fShortenNumber(sum);
               },
             },
           },
