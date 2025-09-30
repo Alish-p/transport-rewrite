@@ -40,7 +40,7 @@ export function AppSubtripExpensesCategory({ title, subheader, ...other }) {
   const mapped = useMemo(
     () =>
       summary.map((item) => {
-        const cfg = subtripExpenseTypes.find((t) => t.value === item.expenseType);
+        const cfg = subtripExpenseTypes.find((t) => t.label === item.expenseType);
         return {
           label: cfg?.label || item.expenseType,
           value: item.totalAmount,

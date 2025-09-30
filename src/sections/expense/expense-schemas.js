@@ -18,7 +18,7 @@ export const SubtripExpenseSchema = zod
     performanceSalary: zod.number().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.expenseType === 'diesel') {
+    if (data.expenseType === 'Diesel') {
       if (!data.dieselLtr || data.dieselLtr <= 0) {
         ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive Number' });
       }

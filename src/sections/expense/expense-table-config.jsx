@@ -17,14 +17,14 @@ import {
 } from './expense-config';
 import { EXPENSE_CATEGORY_COLORS } from './config/constants';
 
-function getExpenseTypeMeta(value) {
+function getExpenseTypeMeta(label) {
   const all = [...DEFAULT_SUBTRIP_EXPENSE_TYPES, ...DEFAULT_VEHICLE_EXPENSE_TYPES];
-  return all.find((t) => t.value === value);
+  return all.find((t) => t.label === label);
 }
 
 function ExpenseTypeCell({ expenseType = '-' }) {
   const types = [...useSubtripExpenseTypes(), ...useVehicleExpenseTypes()];
-  const matched = types.find((t) => t.value === expenseType);
+  const matched = types.find((t) => t.label === expenseType);
   const icon = matched?.icon;
   const label = matched?.label || expenseType;
   return (

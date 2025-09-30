@@ -111,7 +111,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
                   <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
                     <Iconify
                       icon={
-                        subtripExpenseTypes.find((type) => type.value === expense.expenseType)
+                        subtripExpenseTypes.find((type) => type.label === expense.expenseType)
                           ?.icon || 'mdi:help-circle'
                       }
                       sx={{ color: 'primary.main' }}

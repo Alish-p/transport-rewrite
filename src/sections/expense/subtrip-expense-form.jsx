@@ -190,12 +190,12 @@ function ExpenseCoreForm({ currentSubtrip }) {
             <Field.Select name="expenseType" label="Expense Type">
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
-              {subtripExpenseTypes.map((type) => (
-                <MenuItem key={type.value} value={type.value}>
-                  <Iconify icon={type.icon} sx={{ mr: 1 }} />
-                  {type.label}
-                </MenuItem>
-              ))}
+            {subtripExpenseTypes.map((type) => (
+              <MenuItem key={type.label} value={type.label}>
+                <Iconify icon={type.icon} sx={{ mr: 1 }} />
+                {type.label}
+              </MenuItem>
+            ))}
             </Field.Select>
 
             {showPumpSelection && (

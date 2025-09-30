@@ -278,8 +278,8 @@ export default function ExpenseTableToolbar({
         <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
           <MenuList>
             {[...subtripExpenseTypes, ...vehicleExpenseTypes].map((option) => (
-              <MenuItem key={option.value} onClick={() => handleToggleExpenseType(option.value)}>
-                <Checkbox checked={filters.expenseType.includes(option.value)} />
+              <MenuItem key={option.label} onClick={() => handleToggleExpenseType(option.label)}>
+                <Checkbox checked={filters.expenseType.includes(option.label)} />
                 <ListItemText primary={option.label} />
               </MenuItem>
             ))}

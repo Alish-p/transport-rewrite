@@ -30,7 +30,7 @@ const EVENT_ICONS = {
 };
 
 function getExpenseLabel(expenseTypes, value) {
-  return expenseTypes.find((t) => t.value === value)?.label || value;
+  return expenseTypes.find((t) => t.label === value)?.label || value;
 }
 
 function formatEventMessage(event, subtripExpenseTypes) {

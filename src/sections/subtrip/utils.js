@@ -3,7 +3,7 @@ import { DEFAULT_SUBTRIP_EXPENSE_TYPES } from '../expense/expense-config';
 export const mapExpensesToChartData = (expenses, expenseTypes = DEFAULT_SUBTRIP_EXPENSE_TYPES) => {
   const expenseData = expenseTypes.map((type) => {
     const total = expenses
-      .filter((expense) => expense.expenseType === type.value)
+      .filter((expense) => expense.expenseType === type.label)
       .reduce((sum, expense) => sum + expense.amount, 0);
     return { label: type.label, value: total };
   });
@@ -52,7 +52,7 @@ export function generateInsightsForSubtrip(subtrip) {
   // 3. Diesel Usage Check
   //    a) Sum up actual diesel liters from subtrip expenses
   const totalDieselLiters = expenses
-    .filter((e) => e.expenseType === 'diesel')
+    .filter((e) => e.expenseType === 'Diesel')
     .reduce((sum, e) => sum + (e.dieselLtr || 0), 0);
 
   //    b) Compare with the route's expected "diesel" field for that vehicle type
@@ -74,7 +74,7 @@ export function generateInsightsForSubtrip(subtrip) {
   // 4. Toll Cost Check
   //    a) Sum up actual toll expenses
   const totalTollSpent = expenses
-    .filter((e) => e.expenseType === 'toll')
+    .filter((e) => e.expenseType === 'Toll')
     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
   //    b) Compare with routeCd.tollAmt
@@ -96,7 +96,7 @@ export function generateInsightsForSubtrip(subtrip) {
   // 5. Driver Salary Check
   //    a) Sum up any "driver-salary" expenses
   const totalDriverSalary = expenses
-    .filter((e) => e.expenseType === 'driver-salary')
+    .filter((e) => e.expenseType === 'Driver Salary')
     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
   //    b) Compare with the routeVehicleData.fixedSalary

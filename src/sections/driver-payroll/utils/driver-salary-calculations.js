@@ -1,5 +1,5 @@
 /**
- * Calculate driver income for a single subtrip based on 'driver-salary' type expenses.
+ * Calculate driver income for a single subtrip based on 'Driver Salary' type expenses.
  * @param {Object} subtrip - Subtrip document containing an 'expenses' array.
  * @returns {number} Total driver salary amount from the subtrip.
  */
@@ -8,9 +8,9 @@ export function calculateDriverSalary(subtrip) {
     return 0;
   }
 
-  // Filter only the expenses of type 'driver-salary'
+  // Filter only the expenses of type 'Driver Salary'
   const driverSalaryExpenses = subtrip.expenses.filter(
-    (expense) => expense.expenseType === 'driver-salary'
+    (expense) => expense.expenseType === 'Driver Salary'
   );
 
   // Sum up the amounts of those expenses

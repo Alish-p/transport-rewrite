@@ -292,12 +292,12 @@ export default function TenantForm({ currentTenant }) {
         <Field.MultiAutocompleteFreeSolo
           name="config.subtripExpenseTypes"
           label="Subtrip Expense Types"
-          options={subtripExpenseTypes}
+          options={subtripExpenseTypes.map((t) => ({ ...t, value: t.label }))}
         />
         <Field.MultiAutocompleteFreeSolo
           name="config.vehicleExpenseTypes"
           label="Vehicle Expense Types"
-          options={vehicleExpenseTypes}
+          options={vehicleExpenseTypes.map((t) => ({ ...t, value: t.label }))}
         />
       </Stack>
     </Card>

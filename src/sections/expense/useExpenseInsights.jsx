@@ -37,17 +37,17 @@ function useExpenseInsights(subtrip) {
 
   const alertContent = useMemo(
     () => ({
-      'driver-salary': [
+      'Driver Salary': [
         `Fixed Salary for this Trip is ${extractedResult.fixedSalary || 0}.`,
         `The Variable salary for this trip is calculated as Rate × Weight × Percentage = ${rate} × ${loadingWeight} × ${extractedResult.percentageSalary / 100} = ${rate * loadingWeight * (extractedResult.percentageSalary / 100)}.`,
       ],
-      diesel: [
+      Diesel: [
         `For trip ${extractedResult.routeName}, usual diesel consumption is ${extractedResult.diesel}Ltr.`,
       ],
-      adblue: [
+      Adblue: [
         `For trip ${extractedResult.routeName}, usual AdBlue consumption is ${extractedResult.adBlue}Ltr.`,
       ],
-      toll: [
+      Toll: [
         `For trip ${extractedResult.routeName}, usual toll expenses are ${fCurrency(extractedResult.tollAmt)}.`,
       ],
     }),
