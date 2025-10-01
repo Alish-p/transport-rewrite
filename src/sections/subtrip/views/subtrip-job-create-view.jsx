@@ -23,7 +23,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
-import { useCloseTrip , useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
+import { useCloseTrip, useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -38,7 +38,7 @@ import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-cust
 
 // Two-step vertical stepper
 const STEPS = [
-  { label: 'Vehicle • Trip • Load' },
+  { label: 'Vehicle Details' },
   { label: 'Job Details' },
 ];
 
