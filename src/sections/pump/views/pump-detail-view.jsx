@@ -53,21 +53,24 @@ export function PumpDetailView({ pump }) {
           }
         />
       </Box>
-      <Box sx={{ p: 3 }}>
-        <Grid container spacing={3}>
-          <Grid xs={12} md={6}>
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        <Grid container spacing={2}>
+          {/* Top row: 3 columns to better use width */}
+          <Grid xs={12} md={4}>
             <PumpBasicWidget pump={pump} />
           </Grid>
-          <Grid xs={12} md={6}>
+          <Grid xs={12} md={4}>
             <PumpFinanceWidget pump={pump} />
           </Grid>
-          <Grid xs={12} md={6}>
+          <Grid xs={12} md={4}>
             <PumpDieselPriceWidget pumpId={pump._id} />
           </Grid>
-          <Grid xs={12} md={6}>
+
+
+          <Grid xs={12} lg={5}>
             <PumpDieselPricesWidget pump={pump} />
           </Grid>
-          <Grid xs={12}>
+          <Grid xs={12} lg={7}>
             <PumpExpensesWidget pumpId={pump._id} />
           </Grid>
         </Grid>

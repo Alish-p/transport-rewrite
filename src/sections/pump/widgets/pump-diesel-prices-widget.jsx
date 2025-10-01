@@ -15,7 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate } from 'src/utils/format-time';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import {
   useDeleteDieselPrice,
@@ -86,13 +86,12 @@ export function PumpDieselPricesWidget({ pump, title = 'Diesel Prices', ...other
       />
 
       <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
-        <Table sx={{ minWidth: 680 }}>
+        <Table>
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
               { id: 'price', label: 'Price' },
-              { id: 'startDate', label: 'Start Date' },
-              { id: 'endDate', label: 'End Date' },
+              { id: 'time', label: 'Time' },
               { id: 'actions', label: 'Actions' },
             ]}
           />
@@ -105,8 +104,7 @@ export function PumpDieselPricesWidget({ pump, title = 'Diesel Prices', ...other
                 <TableRow key={row._id}>
                   <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
                   <TableCell>{row.price}</TableCell>
-                  <TableCell>{row.startDate ? fDate(new Date(row.startDate)) : '-'}</TableCell>
-                  <TableCell>{row.endDate ? fDate(new Date(row.endDate)) : '-'}</TableCell>
+                  <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
                       <IconButton onClick={() => handleOpenEdit(row)}>
