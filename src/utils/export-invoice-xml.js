@@ -1,4 +1,3 @@
-// Utility to build and download an XML for a single invoice
 
 function pad2(n) {
   return String(n).padStart(2, '0');
@@ -13,111 +12,123 @@ function escapeXml(unsafe = '') {
     .replace(/'/g, '&apos;');
 }
 
-function formatIssueDateSlash(date) {
+function formatDateYYYYMMDD(date) {
   try {
     const d = new Date(date);
     const dd = pad2(d.getDate());
     const mm = pad2(d.getMonth() + 1);
     const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
+    return `${yyyy}${mm}${dd}`;
   } catch (e) {
     return '';
   }
 }
 
-function formatRefDateShort(date) {
-  try {
-    const d = new Date(date);
-    const dd = pad2(d.getDate());
-    const yy = String(d.getFullYear()).slice(-2);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const mon = months[d.getMonth()];
-    return `${dd}-${mon}-${yy}`;
-  } catch (e) {
-    return '';
-  }
+function toFixed2(n) {
+  const v = Number(n || 0);
+  return v.toFixed(2);
 }
 
-function buildSheet(invoice) {
-  if (!invoice) return '';
-  const issueDate = invoice.issueDate || new Date();
-  const invoiceNo = invoice.invoiceNo || '';
-  const customer = invoice.customerId || {};
+// (Removed) Legacy generator for a custom <root><Sheet1> format.
 
-  const taxBreakup = invoice.taxBreakup || {};
-  const cgst = taxBreakup.cgst || { rate: 0, amount: 0 };
-  const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
-  const igst = taxBreakup.igst || { rate: 0, amount: 0 };
-
-  const taxableAmount = Number(invoice.totalAmountBeforeTax || 0);
-  const netTotal = Number(invoice.netTotal || 0);
-
-  const totalTaxRate = Number(cgst.rate || 0) + Number(sgst.rate || 0) + Number(igst.rate || 0);
-
-  const lines = [];
-  lines.push('  <Sheet1>');
-  lines.push(`    <DATE>${escapeXml(formatIssueDateSlash(issueDate))}</DATE>`);
-  lines.push('    <VOUCHERTYPE>Sales</VOUCHERTYPE>');
-  lines.push('    <NARRATION>Customer Payment</NARRATION>');
-  lines.push(`    <VOUCHERNO>${escapeXml(invoiceNo)}</VOUCHERNO>`);
-  lines.push(`    <REFERENCE>${escapeXml(invoice.reference || invoiceNo || '')}</REFERENCE>`);
-  lines.push(`    <REFERENCEDATE>${escapeXml(formatRefDateShort(issueDate))}</REFERENCEDATE>`);
-
-  // Ledger 1: Customer total as negative of net total
-  lines.push(`    <LEDGERNAMEDRCR-1>${escapeXml(customer.customerName || '')}</LEDGERNAMEDRCR-1>`);
-  lines.push(`    <LEDGERAMOUNTDRCR-1>-${Math.abs(netTotal).toFixed(2)}</LEDGERAMOUNTDRCR-1>`);
-
-  // Ledger 2: IGST
-  lines.push(`    <LEDGERNAMEDRCR-2>IGST OUT PUT@ ${Number(igst.rate || 0)}%</LEDGERNAMEDRCR-2>`);
-  const igstAmt = Number(igst.amount || 0);
-  lines.push(
-    `    <LEDGERAMOUNTDRCR-2>${igstAmt > 0 ? igstAmt.toFixed(2) : ' -   '}</LEDGERAMOUNTDRCR-2>`
-  );
-
-  // Ledger 3: SGST
-  lines.push(`    <LEDGERNAMEDRCR-3>SGST @${Number(sgst.rate || 0)}% OUT PUT</LEDGERNAMEDRCR-3>`);
-  const sgstAmt = Number(sgst.amount || 0);
-  lines.push(`    <LEDGERAMOUNTDRCR-3>${sgstAmt > 0 ? sgstAmt.toFixed(2) : ''}</LEDGERAMOUNTDRCR-3>`);
-
-  // Ledger 4: CGST
-  lines.push(`    <LEDGERNAMEDRCR-4>CGST @  ${Number(cgst.rate || 0)}% OUT PUT</LEDGERNAMEDRCR-4>`);
-  const cgstAmt = Number(cgst.amount || 0);
-  lines.push(`    <LEDGERAMOUNTDRCR-4>${cgstAmt > 0 ? cgstAmt.toFixed(2) : ''}</LEDGERAMOUNTDRCR-4>`);
-
-  // Ledger 5: Transportation taxable amount line
-  const shortName = (customer.customerName || '').split(' ').slice(0, 1).join(' ');
-  lines.push(
-    `    <LEDGERNAMEDRCR-5>Transporation Amount Received ${escapeXml(shortName)} (${totalTaxRate} %GST)</LEDGERNAMEDRCR-5>`
-  );
-  lines.push(`    <LEDGERAMOUNTDRCR-5>${taxableAmount.toFixed(2)}</LEDGERAMOUNTDRCR-5>`);
-
-  // Ledger 6: placeholders
-  lines.push('    <LEDGERNAMEDRCR-6 />');
-  lines.push('    <LEDGERAMOUNTDRCR-6 />');
-  lines.push('    <LEDGERNAMEDRCR-6 />');
-  lines.push('    <LEDGERAMOUNTDRCR-6 />');
-
-  // Party details
-  lines.push('    <PARTYDETAILSGSTTYPE>Regular</PARTYDETAILSGSTTYPE>');
-  lines.push(`    <PARTYDETAILSGSTNUMBER>${escapeXml(customer.GSTNo || '')}</PARTYDETAILSGSTNUMBER>`);
-  lines.push(`    <PARTYDETAILSSTATE>${escapeXml(customer.state || '')}</PARTYDETAILSSTATE>`);
-  lines.push('    <PARTYDETAILSCOUNTRY>INDIA</PARTYDETAILSCOUNTRY>');
-  lines.push(`    <PARTYDETAILSADDRESS-1>${escapeXml(customer.address || '')}</PARTYDETAILSADDRESS-1>`);
-  lines.push(`    <PARTYDETAILSPIN>${escapeXml(customer.pinCode || '')}</PARTYDETAILSPIN>`);
-
-  lines.push('  </Sheet1>');
-  return lines.join('\n');
-}
-
+// Build Tally ENVELOPE XML for a list of invoices
 export function buildInvoicesXml(invoices = []) {
-  const lines = [];
-  lines.push('<?xml version="1.0" encoding="utf-8"?>');
-  lines.push('<root>');
-  invoices.forEach((inv) => {
-    lines.push(buildSheet(inv));
+  const parts = [];
+  parts.push('<?xml version="1.0" encoding="utf-8"?>');
+  parts.push('<ENVELOPE>');
+  parts.push('  <HEADER>');
+  parts.push('    <TALLYREQUEST>Import</TALLYREQUEST>'); // fixed
+  parts.push('    <TYPE>Data</TYPE>'); // fixed
+  parts.push('    <ID>Vouchers</ID>'); // fixed
+  parts.push('  </HEADER>');
+  parts.push('  <BODY>');
+  parts.push('    <DESC>');
+  parts.push('      <STATICVARIABLES>');
+  parts.push('      </STATICVARIABLES>');
+  parts.push('    </DESC>');
+  parts.push('    <DATA>');
+
+  invoices.forEach((invoice) => {
+    if (!invoice) return;
+
+    const issueDate = invoice.issueDate || new Date();
+    const invoiceNo = invoice.invoiceNo || '';
+    const customer = invoice.customerId || {};
+
+    const taxBreakup = invoice.taxBreakup || {};
+    const cgst = taxBreakup.cgst || { rate: 0, amount: 0 };
+    const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
+    const igst = taxBreakup.igst || { rate: 0, amount: 0 };
+
+    const taxableAmount = Number(invoice.totalAmountBeforeTax || 0);
+    const netTotal = Number(invoice.netTotal || 0);
+
+    const isIGST = Number(igst.amount || 0) > 0;
+
+    parts.push('      <TALLYMESSAGE xmlns:UDF="TallyUDF">');
+    parts.push(
+      '        <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Accounting Voucher View" ISINVOICE="No">'
+    );
+    const yyyymmdd = escapeXml(formatDateYYYYMMDD(issueDate));
+    const customerName = escapeXml(customer.customerName || '');
+    const narration = escapeXml(invoice.narration || '');
+    parts.push(`          <DATE>${yyyymmdd}</DATE>`);
+    parts.push('          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>');
+    parts.push(`          <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>`);
+    parts.push(`          <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>`);
+    parts.push(`          <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>`);
+    parts.push(`          <NARRATION>${narration}</NARRATION>`);
+
+    // LEDGER 1: Party / Customer
+    parts.push('          <LEDGERENTRIES.LIST>');
+    parts.push(`            <LEDGERNAME>${escapeXml(customer.customerName || '')}</LEDGERNAME>`); // customerId.customerName
+    parts.push('            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>'); // fixed
+    parts.push('            <ISPARTYLEDGER>Yes</ISPARTYLEDGER>'); // fixed
+    parts.push(`            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>`); // -netTotal
+    parts.push('          </LEDGERENTRIES.LIST>');
+
+    // LEDGER 2: Transport_pay (taxable value)
+    parts.push('          <LEDGERENTRIES.LIST>');
+    parts.push('            <LEDGERNAME>Transport_pay</LEDGERNAME>'); // fixed
+    parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>'); // fixed
+    parts.push(`            <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>`); // totalBeforeTax
+    parts.push('          </LEDGERENTRIES.LIST>');
+
+    if (isIGST) {
+      // LEDGER 3: IGST (inter-state). Only three ledgers in this path.
+      const rate = Number(igst.rate || 0);
+      parts.push('          <LEDGERENTRIES.LIST>');
+      parts.push(`            <LEDGERNAME>IGST OUT PUT@ ${rate}%</LEDGERNAME>`);
+      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
+      parts.push(`            <AMOUNT>${toFixed2(igst.amount)}</AMOUNT>`);
+      parts.push('          </LEDGERENTRIES.LIST>');
+    } else {
+      // LEDGER 3: CGST
+      const cgstRate = Number(cgst.rate || 0);
+      parts.push('          <LEDGERENTRIES.LIST>');
+      parts.push(`            <LEDGERNAME>CGST @  ${cgstRate}% OUT PUT</LEDGERNAME>`);
+      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
+      parts.push(`            <AMOUNT>${toFixed2(cgst.amount)}</AMOUNT>`);
+      parts.push('          </LEDGERENTRIES.LIST>');
+
+      // LEDGER 4: SGST
+      const sgstRate = Number(sgst.rate || 0);
+      parts.push('          <LEDGERENTRIES.LIST>');
+      parts.push(`            <LEDGERNAME>SGST @${sgstRate}% OUT PUT</LEDGERNAME>`);
+      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
+      parts.push(`            <AMOUNT>${toFixed2(sgst.amount)}</AMOUNT>`);
+      parts.push('          </LEDGERENTRIES.LIST>');
+    }
+
+    parts.push('        </VOUCHER>');
+    parts.push('      </TALLYMESSAGE>');
   });
-  lines.push('</root>');
-  return lines.join('\n');
+
+  parts.push('    </DATA>');
+  parts.push('  </BODY>');
+  parts.push('</ENVELOPE>');
+
+  return parts.join('\n');
 }
 
 export function buildInvoiceXml(invoice) {
