@@ -87,6 +87,24 @@ export function useInvoiceStatusSummary() {
 }
 
 // ----------------------------------------------------------------------
+// Daily summary by date
+
+const getDailySummary = async (date) => {
+  const { data } = await axios.get(`${ENDPOINT}/daily-summary`, {
+    params: { date },
+  });
+  return data;
+};
+
+export function useDailySummary(date) {
+  return useQuery({
+    queryKey: ['dailySummary', date],
+    queryFn: () => getDailySummary(date),
+    enabled: Boolean(date),
+  });
+}
+
+// ----------------------------------------------------------------------
 // Financial = summary
 
 const getFinancialMonthlyData = async () => {

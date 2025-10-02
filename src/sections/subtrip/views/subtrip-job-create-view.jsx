@@ -258,6 +258,15 @@ export function SubtripJobCreateView() {
     if (loadType === 'empty') setSelectedCustomer(null);
   }, [loadType, selectedVehicle]);
 
+  // Prepopulate driver from active trip when attaching to it
+  useEffect(() => {
+    if (!selectedVehicle?.isOwn) return;
+    if (tripDecision !== 'attach') return;
+    if (activeTrip?.driverId) {
+      setSelectedDriver(activeTrip.driverId);
+    }
+  }, [tripDecision, activeTrip, selectedVehicle]);
+
   // UI helpers
 
   return (

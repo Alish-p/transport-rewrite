@@ -28,6 +28,7 @@ import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { TransporterInsightsTable } from '../app-transporter-insights-table';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
+import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 
 // ----------------------------------------------------------------------
 
@@ -185,23 +186,29 @@ export function OverviewAppView({
               series: [
                 subtripMonthlyData
                   ? {
-                      name: String(subtripMonthlyData.year),
-                      data: [
-                        { name: 'Own', data: subtripMonthlyData.own },
-                        { name: 'Market', data: subtripMonthlyData.market },
-                      ],
-                    }
+                    name: String(subtripMonthlyData.year),
+                    data: [
+                      { name: 'Own', data: subtripMonthlyData.own },
+                      { name: 'Market', data: subtripMonthlyData.market },
+                    ],
+                  }
                   : {
-                      name: 'Year',
-                      data: [
-                        { name: 'Own', data: Array(12).fill(0) },
-                        { name: 'Market', data: Array(12).fill(0) },
-                      ],
-                    },
+                    name: 'Year',
+                    data: [
+                      { name: 'Own', data: Array(12).fill(0) },
+                      { name: 'Market', data: Array(12).fill(0) },
+                    ],
+                  },
               ],
             }}
           />
         </Grid>
+
+
+        <Grid xs={12}>
+          <AppDailySummaryWidget />
+        </Grid>
+
 
         <Grid xs={12} lg={8}>
           <SubtripExpiryTable
