@@ -15,6 +15,9 @@ import {
   Typography,
   StepContent,
   Stepper as MuiStepper,
+  Chip,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -22,11 +25,15 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useCreateSubtrip, useCreateEmptySubtrip } from 'src/query/use-subtrip';
-import { useCloseTrip, useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
+import { useCreateSubtrip, useCreateEmptySubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
+import { useCloseTrip, useCreateTrip, useVehicleActiveTrip, useTrip } from 'src/query/use-trip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import Popover from '@mui/material/Popover';
+import IconButton from '@mui/material/IconButton';
+import Divider from '@mui/material/Divider';
+import { fDate } from 'src/utils/format-time';
 import { Form, Field } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -63,6 +70,7 @@ export function SubtripJobCreateView() {
     selectedVehicle?._id,
     { enabled: !!selectedVehicle?._id && !!selectedVehicle?.isOwn }
   );
+  const { data: activeTripDetails } = useTrip(activeTrip?._id);
   const createTrip = useCreateTrip();
   const closeTrip = useCloseTrip();
   const createSubtrip = useCreateSubtrip();
@@ -98,6 +106,33 @@ export function SubtripJobCreateView() {
   const handleDriverChange = (driver) => setSelectedDriver(driver);
   const handleCustomerChange = (customer) => setSelectedCustomer(customer);
   const handleRouteChange = (route) => setSelectedRoute(route);
+
+  // Popover for active trip subtrips
+  const [subtripAnchorEl, setSubtripAnchorEl] = useState(null);
+  const openSubtripPopover = Boolean(subtripAnchorEl);
+  const handleOpenSubtripPopover = (event) => setSubtripAnchorEl(event.currentTarget);
+  const handleCloseSubtripPopover = () => setSubtripAnchorEl(null);
+
+  // Recent drivers by selected vehicle (last few subtrips)
+  const { data: recentSubtripsData } = usePaginatedSubtrips(
+    selectedVehicle?._id
+      ? {
+          page: 1,
+          rowsPerPage: 10,
+          vehicleId: selectedVehicle._id,
+        }
+      : null,
+    { enabled: !!selectedVehicle?._id }
+  );
+
+  const recentDrivers = (recentSubtripsData?.results || [])
+    .filter((st) => st?.driverId?._id)
+    .reduce((acc, st) => {
+      const d = st.driverId;
+      if (!acc.find((x) => x._id === d._id)) acc.push(d);
+      return acc;
+    }, [])
+    .slice(0, 5);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -259,8 +294,56 @@ export function SubtripJobCreateView() {
                     <>
                       {fetchingActiveTrip && <Typography>Checking active trip…</Typography>}
                       {!fetchingActiveTrip && activeTrip && (
-                        <Alert severity="info">
-                          Active trip found: <strong>{activeTrip.tripNo}</strong>
+                        <Alert severity="info" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span>
+                            Active trip found: <strong>{activeTrip.tripNo}</strong>
+                          </span>
+                          <Tooltip title="View recent subtrips" arrow>
+                            <IconButton size="small" color="primary" onClick={handleOpenSubtripPopover}>
+                              <Iconify icon="mdi:format-list-bulleted" width={18} />
+                            </IconButton>
+                          </Tooltip>
+                          <Popover
+                            open={openSubtripPopover}
+                            anchorEl={subtripAnchorEl}
+                            onClose={handleCloseSubtripPopover}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{ sx: { width: 420, maxWidth: '90vw' } }}
+                          >
+                            <Box sx={{ p: 2 }}>
+                              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                                Subtrips in Trip {activeTrip.tripNo}
+                              </Typography>
+                              <Divider sx={{ mb: 1 }} />
+                              <Box sx={{ maxHeight: 320, overflow: 'auto' }}>
+                                {(activeTripDetails?.subtrips || []).length === 0 ? (
+                                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    No subtrips found in this trip.
+                                  </Typography>
+                                ) : (
+                                  <Stack spacing={1.5}>
+                                    {(activeTripDetails?.subtrips || [])
+                                      .slice()
+                                      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
+                                      .map((st) => (
+                                        <Box key={st._id}>
+                                          <Typography variant="body2">
+                                            <strong>LR:</strong> {st.subtripNo} • <strong>Customer:</strong> {st.customerId?.customerName || '-'}
+                                          </Typography>
+                                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                            <strong>Status:</strong> {st.subtripStatus?.replace('-', ' ') || '-'} • <strong>Route:</strong> {st.loadingPoint} → {st.unloadingPoint}
+                                          </Typography>
+                                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                                            <strong>Dispatch:</strong> {st.startDate ? fDate(new Date(st.startDate)) : '-'} • <strong>Driver:</strong> {st.driverId?.driverName || '-'}
+                                          </Typography>
+                                        </Box>
+                                      ))}
+                                  </Stack>
+                                )}
+                              </Box>
+                            </Box>
+                          </Popover>
                         </Alert>
                       )}
                       {!fetchingActiveTrip && !activeTrip && (
@@ -332,6 +415,32 @@ export function SubtripJobCreateView() {
                     selected={selectedDriver?.driverName}
                     iconName="mdi:account"
                   />
+
+                  {selectedVehicle?._id && recentDrivers.length > 0 && (
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Recent drivers for {selectedVehicle.vehicleNo}
+                      </Typography>
+                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                        {recentDrivers.map((d) => {
+                          const isSelected = selectedDriver?._id === d._id;
+                          return (
+                            <Tooltip key={d._id} title={d.driverCellNo || ''} arrow>
+                              <Chip
+                                clickable
+                                color={isSelected ? 'primary' : 'default'}
+                                variant={isSelected ? 'filled' : 'outlined'}
+                                onClick={() => handleDriverChange(d)}
+                                avatar={<Avatar>{(d.driverName || '?').charAt(0)}</Avatar>}
+                                label={d.driverName}
+                                sx={{ mb: 1 }}
+                              />
+                            </Tooltip>
+                          );
+                        })}
+                      </Stack>
+                    </Box>
+                  )}
 
                   {(!selectedVehicle?.isOwn || loadType === 'loaded') ? (
                     <DialogSelectButton
