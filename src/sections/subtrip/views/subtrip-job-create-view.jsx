@@ -2,38 +2,39 @@ import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 
+import Popover from '@mui/material/Popover';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Box,
   Card,
   Step,
+  Chip,
   Stack,
   Alert,
   Button,
+  Avatar,
+  Tooltip,
   MenuItem,
   StepLabel,
   Typography,
   StepContent,
   Stepper as MuiStepper,
-  Chip,
-  Avatar,
-  Tooltip,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDate } from 'src/utils/format-time';
+
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useCreateSubtrip, useCreateEmptySubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
-import { useCloseTrip, useCreateTrip, useVehicleActiveTrip, useTrip } from 'src/query/use-trip';
+import { useTrip, useCloseTrip, useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
+import { useCreateSubtrip, usePaginatedSubtrips, useCreateEmptySubtrip } from 'src/query/use-subtrip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import Popover from '@mui/material/Popover';
-import IconButton from '@mui/material/IconButton';
-import Divider from '@mui/material/Divider';
-import { fDate } from 'src/utils/format-time';
 import { Form, Field } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -117,10 +118,10 @@ export function SubtripJobCreateView() {
   const { data: recentSubtripsData } = usePaginatedSubtrips(
     selectedVehicle?._id
       ? {
-          page: 1,
-          rowsPerPage: 10,
-          vehicleId: selectedVehicle._id,
-        }
+        page: 1,
+        rowsPerPage: 10,
+        vehicleId: selectedVehicle._id,
+      }
       : null,
     { enabled: !!selectedVehicle?._id }
   );
@@ -294,7 +295,7 @@ export function SubtripJobCreateView() {
                     <>
                       {fetchingActiveTrip && <Typography>Checking active trip…</Typography>}
                       {!fetchingActiveTrip && activeTrip && (
-                        <Alert severity="info" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Alert severity="info" sx={{ display: 'flex', alignItems: 'center', }}>
                           <span>
                             Active trip found: <strong>{activeTrip.tripNo}</strong>
                           </span>
