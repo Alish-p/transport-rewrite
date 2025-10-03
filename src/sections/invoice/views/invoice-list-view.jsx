@@ -42,6 +42,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../invoice-table-config';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
@@ -69,6 +71,7 @@ export function InvoiceListView() {
   const router = useRouter();
   const confirm = useBoolean();
   const navigate = useNavigate();
+  const tenant = useTenantContext();
 
   const deleteInvoice = useDeleteInvoice();
   const table = useTable({ defaultOrderBy: 'createDate' });
@@ -368,24 +371,26 @@ export function InvoiceListView() {
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="XML">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        if (selectedRows.length === 0) return;
-                        const fileName =
-                          selectedRows.length === 1
-                            ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
-                            : 'invoices-selected.xml';
-                        downloadInvoicesXml(selectedRows, fileName);
-                      }}
-                    >
-                      <Iconify icon="mdi:code-brackets" />
-                    </IconButton>
-                  </Tooltip>
+                  {tenant?.integrations?.accounting?.enabled && (
+                    <Tooltip title="XML">
+                      <IconButton
+                        color="primary"
+                        onClick={() => {
+                          const selectedRows = tableData.filter((r) =>
+                            table.selected.includes(r._id)
+                          );
+                          if (selectedRows.length === 0) return;
+                          const fileName =
+                            selectedRows.length === 1
+                              ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
+                              : 'invoices-selected.xml';
+                          downloadInvoicesXml(selectedRows, fileName, tenant);
+                        }}
+                      >
+                        <Iconify icon="mdi:code-brackets" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
 
                   <Tooltip title="Print">
                     <IconButton color="primary">

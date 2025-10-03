@@ -20,6 +20,7 @@ import { FinancialMonthlyChart } from '../app-finance-charts';
 import { InvoicePiechartWidget } from '../app-invoice-pie-chart';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { DriverInsightsTable } from '../app-driver-insights-table';
+import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { VehicleInsightsTable } from '../app-vehicle-insights-table';
@@ -28,7 +29,6 @@ import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { TransporterInsightsTable } from '../app-transporter-insights-table';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
-import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 
 // ----------------------------------------------------------------------
 

@@ -32,7 +32,8 @@ function toFixed2(n) {
 // (Removed) Legacy generator for a custom <root><Sheet1> format.
 
 // Build Tally ENVELOPE XML for a list of invoices
-export function buildInvoicesXml(invoices = []) {
+// Accepts optional tenant to derive ledger names from accounting integration config
+export function buildInvoicesXml(invoices = [], tenant) {
   const parts = [];
   parts.push('<?xml version="1.0" encoding="utf-8"?>');
   parts.push('<ENVELOPE>');
@@ -47,6 +48,25 @@ export function buildInvoicesXml(invoices = []) {
   parts.push('      </STATICVARIABLES>');
   parts.push('    </DESC>');
   parts.push('    <DATA>');
+
+  // Resolve ledger names (fallback to legacy defaults if not configured)
+  const accountingEnabled = !!(
+    tenant?.integrations?.accounting && tenant?.integrations?.accounting?.enabled
+  );
+  const invoiceLedgersEnabled = !!(
+    tenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled
+  );
+
+  const configuredLedgers = accountingEnabled && invoiceLedgersEnabled
+    ? tenant?.integrations?.accounting?.config?.invoiceLedgerNames || {}
+    : {};
+
+  const LEDGER_NAMES = {
+    transport_pay: configuredLedgers.transport_pay || 'Transport_pay',
+    igst: configuredLedgers.igst || 'IGST OUT PUT@ ${rate}%',
+    cgst: configuredLedgers.cgst || 'CGST @  ${cgstRate}% OUT PUT',
+    sgst: configuredLedgers.sgst || 'SGST @${sgstRate}% OUT PUT',
+  };
 
   invoices.forEach((invoice) => {
     if (!invoice) return;
@@ -89,7 +109,7 @@ export function buildInvoicesXml(invoices = []) {
 
     // LEDGER 2: Transport_pay (taxable value)
     parts.push('          <LEDGERENTRIES.LIST>');
-    parts.push('            <LEDGERNAME>Transport_pay</LEDGERNAME>'); // fixed
+    parts.push(`            <LEDGERNAME>${escapeXml(LEDGER_NAMES.transport_pay)}</LEDGERNAME>`); // from config
     parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>'); // fixed
     parts.push(`            <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>`); // totalBeforeTax
     parts.push('          </LEDGERENTRIES.LIST>');
@@ -98,7 +118,11 @@ export function buildInvoicesXml(invoices = []) {
       // LEDGER 3: IGST (inter-state). Only three ledgers in this path.
       const rate = Number(igst.rate || 0);
       parts.push('          <LEDGERENTRIES.LIST>');
-      parts.push(`            <LEDGERNAME>IGST OUT PUT@ ${rate}%</LEDGERNAME>`);
+      // If configured ledger name exists, use it as-is; otherwise fall back to the legacy pattern with rate
+      const igstLedger = configuredLedgers.igst
+        ? configuredLedgers.igst
+        : `IGST OUT PUT@ ${rate}%`;
+      parts.push(`            <LEDGERNAME>${escapeXml(igstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
       parts.push(`            <AMOUNT>${toFixed2(igst.amount)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
@@ -106,7 +130,10 @@ export function buildInvoicesXml(invoices = []) {
       // LEDGER 3: CGST
       const cgstRate = Number(cgst.rate || 0);
       parts.push('          <LEDGERENTRIES.LIST>');
-      parts.push(`            <LEDGERNAME>CGST @  ${cgstRate}% OUT PUT</LEDGERNAME>`);
+      const cgstLedger = configuredLedgers.cgst
+        ? configuredLedgers.cgst
+        : `CGST @  ${cgstRate}% OUT PUT`;
+      parts.push(`            <LEDGERNAME>${escapeXml(cgstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
       parts.push(`            <AMOUNT>${toFixed2(cgst.amount)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
@@ -114,7 +141,10 @@ export function buildInvoicesXml(invoices = []) {
       // LEDGER 4: SGST
       const sgstRate = Number(sgst.rate || 0);
       parts.push('          <LEDGERENTRIES.LIST>');
-      parts.push(`            <LEDGERNAME>SGST @${sgstRate}% OUT PUT</LEDGERNAME>`);
+      const sgstLedger = configuredLedgers.sgst
+        ? configuredLedgers.sgst
+        : `SGST @${sgstRate}% OUT PUT`;
+      parts.push(`            <LEDGERNAME>${escapeXml(sgstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
       parts.push(`            <AMOUNT>${toFixed2(sgst.amount)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
@@ -131,12 +161,12 @@ export function buildInvoicesXml(invoices = []) {
   return parts.join('\n');
 }
 
-export function buildInvoiceXml(invoice) {
-  return buildInvoicesXml([invoice]);
+export function buildInvoiceXml(invoice, tenant) {
+  return buildInvoicesXml([invoice], tenant);
 }
 
-export function downloadInvoiceXml(invoice) {
-  const xml = buildInvoiceXml(invoice);
+export function downloadInvoiceXml(invoice, tenant) {
+  const xml = buildInvoiceXml(invoice, tenant);
   const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -148,8 +178,8 @@ export function downloadInvoiceXml(invoice) {
   URL.revokeObjectURL(url);
 }
 
-export function downloadInvoicesXml(invoices = [], fileName = 'invoices.xml') {
-  const xml = buildInvoicesXml(invoices);
+export function downloadInvoicesXml(invoices = [], fileName = 'invoices.xml', tenant) {
+  const xml = buildInvoicesXml(invoices, tenant);
   const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

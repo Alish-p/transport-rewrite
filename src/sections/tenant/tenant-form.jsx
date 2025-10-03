@@ -95,6 +95,40 @@ export const TenantSchema = zod
               .optional(),
           })
           .optional(),
+        accounting: zod
+          .object({
+            enabled: zod.boolean().optional(),
+            provider: zod
+              .preprocess((val) => (val === '' ? null : val), zod.enum(['Tally', 'Mark', 'Zoho']).nullable())
+              .optional(),
+            config: zod
+              .object({
+                invoiceLedgerNames: zod
+                  .object({
+                    enabled: zod.boolean().optional(),
+                    cgst: zod.string().optional(),
+                    igst: zod.string().optional(),
+                    sgst: zod.string().optional(),
+                    transport_pay: zod.string().optional(),
+                    shortage: zod.string().optional(),
+                  })
+                  .optional(),
+                transporterLedgerNames: zod
+                  .object({
+                    enabled: zod.boolean().optional(),
+                    cgst: zod.string().optional(),
+                    igst: zod.string().optional(),
+                    sgst: zod.string().optional(),
+                    tds: zod.string().optional(),
+                    diesel: zod.string().optional(),
+                    trip_advance: zod.string().optional(),
+                    shortage: zod.string().optional(),
+                  })
+                  .optional(),
+              })
+              .optional(),
+          })
+          .optional(),
       })
       .optional(),
   })
@@ -111,6 +145,45 @@ export const TenantSchema = zod
         path: ['integrations', 'vehicleGPS', 'provider'],
         code: zod.ZodIssueCode.custom,
         message: 'Provider is required when Vehicle GPS is enabled',
+      });
+    }
+    if (data.integrations?.accounting?.enabled && !data.integrations.accounting.provider) {
+      ctx.addIssue({
+        path: ['integrations', 'accounting', 'provider'],
+        code: zod.ZodIssueCode.custom,
+        message: 'Provider is required when Accounting is enabled',
+      });
+    }
+
+    // If invoice ledger group is enabled, all its ledger names are mandatory
+    const invoice = data.integrations?.accounting?.config?.invoiceLedgerNames;
+    if (invoice?.enabled) {
+      const invRequired = ['cgst', 'igst', 'sgst', 'transport_pay', 'shortage'];
+      invRequired.forEach((key) => {
+        const val = invoice?.[key];
+        if (typeof val !== 'string' || val.trim() === '') {
+          ctx.addIssue({
+            path: ['integrations', 'accounting', 'config', 'invoiceLedgerNames', key],
+            code: zod.ZodIssueCode.custom,
+            message: 'This field is required when Invoice Ledgers are enabled',
+          });
+        }
+      });
+    }
+
+    // If transporter ledger group is enabled, all its ledger names are mandatory
+    const transporter = data.integrations?.accounting?.config?.transporterLedgerNames;
+    if (transporter?.enabled) {
+      const trRequired = ['cgst', 'igst', 'sgst', 'tds', 'diesel', 'trip_advance', 'shortage'];
+      trRequired.forEach((key) => {
+        const val = transporter?.[key];
+        if (typeof val !== 'string' || val.trim() === '') {
+          ctx.addIssue({
+            path: ['integrations', 'accounting', 'config', 'transporterLedgerNames', key],
+            code: zod.ZodIssueCode.custom,
+            message: 'This field is required when Transport Payment Ledgers are enabled',
+          });
+        }
       });
     }
   });
@@ -162,6 +235,34 @@ export default function TenantForm({ currentTenant }) {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
           provider: currentTenant?.integrations?.vehicleGPS?.provider ?? null,
         },
+        accounting: {
+          enabled: currentTenant?.integrations?.accounting?.enabled || false,
+          provider: currentTenant?.integrations?.accounting?.provider ?? null,
+          config: {
+            invoiceLedgerNames: {
+              enabled:
+                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled ?? false,
+              cgst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.cgst || '',
+              igst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.igst || '',
+              sgst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.sgst || '',
+              transport_pay:
+                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.transport_pay || '',
+              shortage: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.shortage || '',
+            },
+            transporterLedgerNames: {
+              enabled:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.enabled ?? false,
+              cgst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.cgst || '',
+              igst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.igst || '',
+              sgst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.sgst || '',
+              tds: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.tds || '',
+              diesel: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.diesel || '',
+              trip_advance:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.trip_advance || '',
+              shortage: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.shortage || '',
+            },
+          },
+        },
       },
     }),
     [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
@@ -188,15 +289,41 @@ export default function TenantForm({ currentTenant }) {
           ...data.integrations,
           whatsapp: data.integrations?.whatsapp
             ? {
-                ...data.integrations.whatsapp,
-                provider: data.integrations.whatsapp.provider || null,
-              }
+              ...data.integrations.whatsapp,
+              provider: data.integrations.whatsapp.provider || null,
+            }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
             ? {
-                ...data.integrations.vehicleGPS,
-                provider: data.integrations.vehicleGPS.provider || null,
-              }
+              ...data.integrations.vehicleGPS,
+              provider: data.integrations.vehicleGPS.provider || null,
+            }
+            : undefined,
+          accounting: data.integrations?.accounting
+            ? (() => {
+                const acc = data.integrations.accounting;
+                const inv = acc?.config?.invoiceLedgerNames || {};
+                const tr = acc?.config?.transporterLedgerNames || {};
+                const invEnabled = !!inv.enabled;
+                const trEnabled = !!tr.enabled;
+
+                const pickNames = (obj) =>
+                  Object.fromEntries(
+                    Object.entries(obj).filter(
+                      ([k, v]) => k !== 'enabled' && typeof v === 'string' && v.trim() !== ''
+                    )
+                  );
+
+                const cleaned = {
+                  invoiceLedgerNames: invEnabled ? { enabled: true, ...pickNames(inv) } : { enabled: false },
+                  transporterLedgerNames: trEnabled ? { enabled: true, ...pickNames(tr) } : { enabled: false },
+                };
+                return {
+                  enabled: !!acc.enabled,
+                  provider: acc.provider || null,
+                  config: cleaned,
+                };
+              })()
             : undefined,
         },
       };
@@ -350,6 +477,128 @@ export default function TenantForm({ currentTenant }) {
               <MenuItem value="BlackBuck">BlackBuck</MenuItem>
               <MenuItem value="Other">Other</MenuItem>
             </Field.Select>
+          )}
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.accounting.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:calculator-variant" />
+                Accounting
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+          {values.integrations?.accounting?.enabled && (
+            <Stack spacing={2}>
+              <Field.Select name="integrations.accounting.provider" label="Provider">
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="Tally">
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:alpha-t-circle-outline" width={20} />
+                    Tally
+                  </Stack>
+                </MenuItem>
+                <MenuItem value="Mark">
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:alpha-m-circle-outline" width={20} />
+                    Mark
+                  </Stack>
+                </MenuItem>
+                <MenuItem value="Zoho">
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="simple-icons:zoho" width={20} />
+                    Zoho
+                  </Stack>
+                </MenuItem>
+              </Field.Select>
+
+              <Field.Switch
+                name="integrations.accounting.config.invoiceLedgerNames.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    Invoice Ledgers
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+
+              {values.integrations?.accounting?.config?.invoiceLedgerNames?.enabled && (
+                <Stack spacing={1}>
+                  <Field.Text
+                    name="integrations.accounting.config.invoiceLedgerNames.cgst"
+                    label="CGST Ledger Name"
+                    placeholder="e.g. CGST @9% Output, cgst9, cgst-9%"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.invoiceLedgerNames.igst"
+                    label="IGST Ledger Name"
+                    placeholder="e.g. IGST @18% Output"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.invoiceLedgerNames.sgst"
+                    label="SGST Ledger Name"
+                    placeholder="e.g. SGST @9% Output"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.invoiceLedgerNames.transport_pay"
+                    label="Transport Pay Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.invoiceLedgerNames.shortage"
+                    label="Shortage Ledger Name"
+                  />
+                </Stack>
+              )}
+
+              <Field.Switch
+                name="integrations.accounting.config.transporterLedgerNames.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    Transport Payment Ledgers
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+
+              {values.integrations?.accounting?.config?.transporterLedgerNames?.enabled && (
+                <Stack spacing={1}>
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.cgst"
+                    label="CGST Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.igst"
+                    label="IGST Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.sgst"
+                    label="SGST Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.tds"
+                    label="TDS Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.diesel"
+                    label="Diesel Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.trip_advance"
+                    label="Trip Advance Ledger Name"
+                  />
+                  <Field.Text
+                    name="integrations.accounting.config.transporterLedgerNames.shortage"
+                    label="Shortage Ledger Name"
+                  />
+                </Stack>
+              )}
+            </Stack>
           )}
         </Stack>
       </Stack>
