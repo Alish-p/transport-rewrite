@@ -27,6 +27,10 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
+import {
+  DEFAULT_SUBTRIP_EXPENSE_TYPES,
+  DEFAULT_VEHICLE_EXPENSE_TYPES,
+} from 'src/sections/expense/expense-config';
 
 // ----------------------------------------------------------------------
 
@@ -47,6 +51,8 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     const received = data?.subtrips?.received || { count: 0, list: [] };
     const invoices = data?.invoices || { count: 0, amount: 0, list: [] };
     const transporterPayments = data?.transporterPayments || { count: 0, amount: 0, list: [] };
+    const expenses = data?.expenses || { count: 0, amount: 0, list: [] };
+    const materials = data?.materials || { count: 0, weight: 0, list: [] };
 
     return [
       {
@@ -71,6 +77,13 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         amount: 0,
       },
       {
+        value: 'expenses',
+        label: 'Expenses Added',
+        icon: 'solar:bill-list-bold-duotone',
+        count: expenses.count || 0,
+        amount: expenses.amount || 0,
+      },
+      {
         value: 'invoices',
         label: 'Invoices Generated',
         icon: 'mdi:file-document-edit-outline',
@@ -83,6 +96,13 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         icon: 'ri:money-rupee-circle-line',
         count: transporterPayments.count || 0,
         amount: transporterPayments.amount || 0,
+      },
+      {
+        value: 'materials',
+        label: 'Materials',
+        icon: 'mdi:package-variant-closed',
+        count: fShortenNumber(materials.amount) || 0,
+        amount: materials.amount || 0,
       },
     ];
   }, [data]);
@@ -159,7 +179,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                 </Box>
 
                 <Box sx={{ typography: 'h6' }}>
-                  {['invoices', 'transporterPayments'].includes(tab.value)
+                  {['invoices', 'transporterPayments', 'expenses'].includes(tab.value)
                     ? fShortenNumber(tab.amount || 0)
                     : tab.count || 0}
                 </Box>
@@ -180,10 +200,14 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         return data?.subtrips?.loaded?.list || [];
       case 'received':
         return data?.subtrips?.received?.list || [];
+      case 'expenses':
+        return data?.expenses?.list || [];
       case 'invoices':
         return data?.invoices?.list || [];
       case 'transporterPayments':
         return data?.transporterPayments?.list || [];
+      case 'materials':
+        return data?.materials?.list || [];
       default:
         return [];
     }
@@ -214,6 +238,15 @@ export function AppDailySummaryWidget({ sx, ...other }) {
           { id: 'status', label: 'Status' },
           { id: 'total', label: 'Net Total' },
         ];
+      case 'expenses':
+        return [
+          { id: 'index', label: 'No.' },
+          { id: 'expenseType', label: 'Expense Type' },
+          { id: 'vehicleNo', label: 'Vehicle' },
+          { id: 'subtripNo', label: 'LR No' },
+          { id: 'date', label: 'Date' },
+          { id: 'amount', label: 'Amount' },
+        ];
       case 'transporterPayments':
         return [
           { id: 'index', label: 'No.' },
@@ -223,10 +256,33 @@ export function AppDailySummaryWidget({ sx, ...other }) {
           { id: 'status', label: 'Status' },
           { id: 'amount', label: 'Net Income' },
         ];
+      case 'materials':
+        return [
+          { id: 'index', label: 'No.' },
+          { id: 'material', label: 'Material' },
+          { id: 'weight', label: 'Total Weight (Ton)' },
+        ];
       default:
         return [];
     }
   }, [tabs.value]);
+
+  const allExpenseTypes = useMemo(
+    () => [...DEFAULT_SUBTRIP_EXPENSE_TYPES, ...DEFAULT_VEHICLE_EXPENSE_TYPES],
+    []
+  );
+
+  const renderExpenseTypeCell = (label) => {
+    const matched = allExpenseTypes.find((t) => t.label === label);
+    const icon = matched?.icon;
+    const display = matched?.label || label || '-';
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {icon ? <Iconify icon={icon} sx={{ color: 'primary.main' }} /> : null}
+        <span>{display}</span>
+      </Box>
+    );
+  };
 
   const renderTable = (
     <Scrollbar sx={{ minHeight: 340, maxHeight: 420 }}>
@@ -265,6 +321,36 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                       <TableCell>{fDate(row?.startDate)}</TableCell>
                       <TableCell>{row?.loadingWeight ?? '-'}</TableCell>
                       <TableCell>{row?.rate ? fCurrency(row.rate) : '-'}</TableCell>
+                    </TableRow>
+                  );
+                }
+
+                if (tabs.value === 'expenses') {
+                  const vehicleNo = row?.vehicleId?.vehicleNo || row?.vehicleNo || '-';
+                  const subtripId = row?.subtripId?._id;
+                  const subtripNo = row?.subtripId?.subtripNo || '-';
+                  return (
+                    <TableRow key={row?._id || idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{renderExpenseTypeCell(row?.expenseType)}</TableCell>
+                      <TableCell>{vehicleNo}</TableCell>
+                      <TableCell>
+                        {subtripId ? (
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.subtrip.details(subtripId)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'primary.main' }}
+                          >
+                            {subtripNo}
+                          </Link>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>{fDate(row?.date)}</TableCell>
+                      <TableCell>{row?.amount ? fCurrency(row.amount) : '-'}</TableCell>
                     </TableRow>
                   );
                 }
@@ -315,6 +401,16 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                   );
                 }
 
+                if (tabs.value === 'materials') {
+                  return (
+                    <TableRow key={row?.materialType || idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{row?.materialType || '-'}</TableCell>
+                      <TableCell>{fShortenNumber(row?.totalLoadingWeight) || '-'}</TableCell>
+                    </TableRow>
+                  );
+                }
+
                 return null;
               })}
             </>
@@ -336,4 +432,3 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     </Card>
   );
 }
-
