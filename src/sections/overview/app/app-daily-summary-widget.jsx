@@ -19,7 +19,7 @@ import { RouterLink } from 'src/routes/components';
 import { useTabs } from 'src/hooks/use-tabs';
 
 import { fDate } from 'src/utils/format-time';
-import { fCurrency, fNumber, fShortenNumber } from 'src/utils/format-number';
+import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { useDailySummary } from 'src/query/use-dashboard';
 
@@ -27,6 +27,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
+
 import {
   DEFAULT_SUBTRIP_EXPENSE_TYPES,
   DEFAULT_VEHICLE_EXPENSE_TYPES,
@@ -101,7 +102,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         value: 'materials',
         label: 'Materials',
         icon: 'mdi:package-variant-closed',
-        count: `${Number.parseInt(materials.amount)} Ton`,
+        count: `${Number(materials.amount)} Ton`,
         amount: materials.amount || 0,
       },
     ];
