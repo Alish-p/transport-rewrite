@@ -3,8 +3,9 @@ function pad2(n) {
   return String(n).padStart(2, '0');
 }
 
-function escapeXml(unsafe = '') {
-  return String(unsafe)
+function escapeXml(unsafe) {
+  const safe = unsafe == null ? '' : unsafe;
+  return String(safe)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -33,7 +34,8 @@ function toFixed2(n) {
 
 // Build Tally ENVELOPE XML for a list of invoices
 // Accepts optional tenant to derive ledger names from accounting integration config
-export function buildInvoicesXml(invoices = [], tenant) {
+export function buildInvoicesXml(invoicesInput, tenant) {
+  const invoices = invoicesInput || [];
   const parts = [];
   parts.push('<?xml version="1.0" encoding="utf-8"?>');
   parts.push('<ENVELOPE>');
@@ -63,9 +65,6 @@ export function buildInvoicesXml(invoices = [], tenant) {
 
   const LEDGER_NAMES = {
     transport_pay: configuredLedgers.transport_pay || 'Transport_pay',
-    igst: configuredLedgers.igst || 'IGST OUT PUT@ ${rate}%',
-    cgst: configuredLedgers.cgst || 'CGST @  ${cgstRate}% OUT PUT',
-    sgst: configuredLedgers.sgst || 'SGST @${sgstRate}% OUT PUT',
   };
 
   invoices.forEach((invoice) => {
@@ -178,7 +177,9 @@ export function downloadInvoiceXml(invoice, tenant) {
   URL.revokeObjectURL(url);
 }
 
-export function downloadInvoicesXml(invoices = [], fileName = 'invoices.xml', tenant) {
+export function downloadInvoicesXml(invoicesInput, fileNameInput, tenant) {
+  const invoices = invoicesInput || [];
+  const fileName = fileNameInput || 'invoices.xml';
   const xml = buildInvoicesXml(invoices, tenant);
   const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);

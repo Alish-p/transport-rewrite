@@ -30,8 +30,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDate } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useTrip, useCloseTrip, useCreateTrip, useVehicleActiveTrip } from 'src/query/use-trip';
-import { useCreateSubtrip, usePaginatedSubtrips, useCreateEmptySubtrip } from 'src/query/use-subtrip';
+import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
+import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -72,10 +72,7 @@ export function SubtripJobCreateView() {
     { enabled: !!selectedVehicle?._id && !!selectedVehicle?.isOwn }
   );
   const { data: activeTripDetails } = useTrip(activeTrip?._id);
-  const createTrip = useCreateTrip();
-  const closeTrip = useCloseTrip();
-  const createSubtrip = useCreateSubtrip();
-  const createEmptySubtrip = useCreateEmptySubtrip();
+  const createJob = useCreateJob();
 
   // Form state for job details + step selections
   const methods = useForm({
@@ -161,60 +158,27 @@ export function SubtripJobCreateView() {
         return;
       }
 
-      // Determine trip context
-      let tripId = null;
-      if (selectedVehicle.isOwn) {
-        if (activeTrip && tripDecision === 'attach') {
-          tripId = activeTrip._id;
-        } else {
-          // If active exists and user chose new, close previous first
-          if (activeTrip && tripDecision === 'new') {
-            await closeTrip(activeTrip._id);
-          }
-          const createdTrip = await createTrip({
-            vehicleId: selectedVehicle._id,
-            driverId: selectedDriver._id,
-            fromDate: data.startDate,
-            remarks: data.remarks || undefined,
-            closePreviousTrips: false,
-          });
-          tripId = createdTrip._id;
-        }
-      } else {
-        // Market vehicle: independent job (we still back it with a trip internally)
-        const createdTrip = await createTrip({
-          vehicleId: selectedVehicle._id,
-          driverId: selectedDriver._id,
-          fromDate: data.startDate,
-          remarks: data.remarks || undefined,
-          closePreviousTrips: true,
-        });
-        tripId = createdTrip._id;
-      }
+      // Compose payload for unified job creation API
+      const isEmpty = selectedVehicle.isOwn ? loadType === 'empty' : false;
+      const payload = {
+        vehicleId: selectedVehicle._id,
+        driverId: selectedDriver._id,
+        isEmpty,
+        tripDecision: selectedVehicle.isOwn ? (activeTrip ? tripDecision : 'new') : undefined,
+        tripId: selectedVehicle.isOwn && activeTrip && tripDecision === 'attach' ? activeTrip._id : undefined,
+        fromDate: data.startDate,
+        startDate: data.startDate,
+        remarks: data.remarks || undefined,
+        // empty fields
+        routeCd: isEmpty ? selectedRoute?._id : undefined,
+        loadingPoint: isEmpty ? selectedRoute?.fromPlace : undefined,
+        unloadingPoint: isEmpty ? selectedRoute?.toPlace : undefined,
+        startKm: isEmpty ? 0 : undefined,
+        // loaded fields
+        customerId: !isEmpty ? selectedCustomer?._id : undefined,
+      };
 
-      // Create subtrip/job
-      let createdSubtrip = null;
-      if (!selectedVehicle.isOwn || loadType === 'loaded') {
-        createdSubtrip = await createSubtrip({
-          tripId,
-          customerId: selectedCustomer._id,
-          diNumber: data.diNumber || '',
-          startDate: data.startDate,
-          isEmpty: false,
-          remarks: data.remarks || undefined,
-        });
-      } else {
-        createdSubtrip = await createEmptySubtrip({
-          tripId,
-          routeCd: selectedRoute._id,
-          loadingPoint: selectedRoute.fromPlace,
-          unloadingPoint: selectedRoute.toPlace,
-          startKm: 0,
-          startDate: data.startDate,
-          isEmpty: true,
-          remarks: data.remarks || undefined,
-        });
-      }
+      const createdSubtrip = await createJob(payload);
 
       toast.success('Job created successfully');
       window.location.assign(paths.dashboard.subtrip.details(createdSubtrip._id));

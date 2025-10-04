@@ -42,6 +42,12 @@ const createSubtrip = async (subtrip) => {
   return data;
 };
 
+// Unified Job creation (creates subtrip and handles trip logic server-side)
+const createJob = async (payload) => {
+  const { data } = await axios.post(`${ENDPOINT}/jobs`, payload);
+  return data;
+};
+
 const updateSubtrip = async (id, subtripData) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}`, subtripData);
   return data;
@@ -183,6 +189,22 @@ export function useCreateSubtrip() {
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Subtrip added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useCreateJob() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: createJob,
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success('Job created successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
