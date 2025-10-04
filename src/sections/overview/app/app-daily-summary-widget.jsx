@@ -19,7 +19,7 @@ import { RouterLink } from 'src/routes/components';
 import { useTabs } from 'src/hooks/use-tabs';
 
 import { fDate } from 'src/utils/format-time';
-import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fCurrency, fNumber, fShortenNumber } from 'src/utils/format-number';
 
 import { useDailySummary } from 'src/query/use-dashboard';
 
@@ -101,7 +101,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         value: 'materials',
         label: 'Materials',
         icon: 'mdi:package-variant-closed',
-        count: fShortenNumber(materials.amount) || 0,
+        count: `${Number.parseInt(materials.amount)} Ton`,
         amount: materials.amount || 0,
       },
     ];
@@ -406,7 +406,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                     <TableRow key={row?.materialType || idx}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{row?.materialType || '-'}</TableCell>
-                      <TableCell>{fShortenNumber(row?.totalLoadingWeight) || '-'}</TableCell>
+                      <TableCell>{fNumber(row?.totalLoadingWeight) || '-'}</TableCell>
                     </TableRow>
                   );
                 }
