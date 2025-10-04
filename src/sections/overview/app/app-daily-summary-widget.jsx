@@ -102,8 +102,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         value: 'materials',
         label: 'Materials',
         icon: 'mdi:package-variant-closed',
-        count: `${Number(materials.amount)} Ton`,
-        amount: materials.amount || 0,
+        count: `${parseInt(materials.amount, 10) || 0}  Ton`,
       },
     ];
   }, [data]);
