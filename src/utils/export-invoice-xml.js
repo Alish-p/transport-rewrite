@@ -102,6 +102,8 @@ export function buildInvoicesXml(invoicesInput, tenant) {
     parts.push(`          <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>`);
     parts.push(`          <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>`);
     parts.push(`          <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>`);
+    parts.push(`          <REFERENCEDATE>${yyyymmdd}</REFERENCEDATE>`);
+    parts.push(`          <REFERENCENUMBER>${escapeXml(invoiceNo)}</REFERENCENUMBER>`);
     parts.push(`          <NARRATION>${narration}</NARRATION>`);
 
     // LEDGER 1: Party / Customer
