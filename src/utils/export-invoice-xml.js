@@ -27,7 +27,9 @@ function formatDateYYYYMMDD(date) {
 
 function toFixed2(n) {
   const v = Number(n || 0);
-  return v.toFixed(2);
+  // Round to 2 decimals avoiding FP drift, then format
+  const rounded = Math.round(v * 100) / 100;
+  return rounded.toFixed(2);
 }
 
 // (Removed) Legacy generator for a custom <root><Sheet1> format.
@@ -79,10 +81,14 @@ export function buildInvoicesXml(invoicesInput, tenant) {
     const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
     const igst = taxBreakup.igst || { rate: 0, amount: 0 };
 
-    const taxableAmount = Number(invoice.totalAmountBeforeTax || 0);
-    const netTotal = Number(invoice.netTotal || 0);
-
-    const isIGST = Number(igst.amount || 0) > 0;
+    // Round components to 2 decimals and enforce netTotal consistency
+    const taxableAmount = Math.round(Number(invoice.totalAmountBeforeTax || 0) * 100) / 100;
+    const cgstAmt = Math.round(Number(cgst.amount || 0) * 100) / 100;
+    const sgstAmt = Math.round(Number(sgst.amount || 0) * 100) / 100;
+    const igstAmt = Math.round(Number(igst.amount || 0) * 100) / 100;
+    const isIGST = igstAmt > 0;
+    // Compute net as exact sum of components (2-decimal rounded)
+    const netTotal = Math.round((taxableAmount + cgstAmt + sgstAmt + igstAmt) * 100) / 100;
 
     parts.push('      <TALLYMESSAGE xmlns:UDF="TallyUDF">');
     parts.push(
@@ -103,7 +109,7 @@ export function buildInvoicesXml(invoicesInput, tenant) {
     parts.push(`            <LEDGERNAME>${escapeXml(customer.customerName || '')}</LEDGERNAME>`); // customerId.customerName
     parts.push('            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>'); // fixed
     parts.push('            <ISPARTYLEDGER>Yes</ISPARTYLEDGER>'); // fixed
-    parts.push(`            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>`); // -netTotal
+    parts.push(`            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>`); // -netTotal (sum of components)
     parts.push('          </LEDGERENTRIES.LIST>');
 
     // LEDGER 2: Transport_pay (taxable value)
@@ -123,7 +129,7 @@ export function buildInvoicesXml(invoicesInput, tenant) {
         : `IGST OUT PUT@ ${rate}%`;
       parts.push(`            <LEDGERNAME>${escapeXml(igstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(igst.amount)}</AMOUNT>`);
+      parts.push(`            <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
     } else {
       // LEDGER 3: CGST
@@ -134,7 +140,7 @@ export function buildInvoicesXml(invoicesInput, tenant) {
         : `CGST @  ${cgstRate}% OUT PUT`;
       parts.push(`            <LEDGERNAME>${escapeXml(cgstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(cgst.amount)}</AMOUNT>`);
+      parts.push(`            <AMOUNT>${toFixed2(cgstAmt)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
 
       // LEDGER 4: SGST
@@ -145,7 +151,7 @@ export function buildInvoicesXml(invoicesInput, tenant) {
         : `SGST @${sgstRate}% OUT PUT`;
       parts.push(`            <LEDGERNAME>${escapeXml(sgstLedger)}</LEDGERNAME>`);
       parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(sgst.amount)}</AMOUNT>`);
+      parts.push(`            <AMOUNT>${toFixed2(sgstAmt)}</AMOUNT>`);
       parts.push('          </LEDGERENTRIES.LIST>');
     }
 
