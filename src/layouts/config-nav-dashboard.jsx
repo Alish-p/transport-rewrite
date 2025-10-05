@@ -79,11 +79,13 @@ export const navData = [
         path: paths.dashboard.subtrip.new,
         icon: ICONS.subtrip,
       },
-      // {
-      //   title: 'Create Job',
-      //   path: paths.dashboard.subtrip.jobCreate,
-      //   icon: ICONS.job,
-      // },
+      {
+        title: 'Create Job',
+        path: paths.dashboard.subtrip.jobCreate,
+        icon: ICONS.job,
+        info: <Iconify icon="gravity-ui:star" />,
+
+      },
       {
         title: 'Add Expense',
         path: paths.dashboard.expense.new,
