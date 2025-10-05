@@ -58,6 +58,9 @@ export function SubtripDetailView({ subtrip }) {
 
   const { _id, subtripNo, vehicleId = {}, driverId = {}, subtripStatus } = subtrip;
 
+  // Trip may be absent for Market vehicles; guard trip-dependent UI
+  const hasTrip = Boolean(subtrip?.tripId?._id);
+
   return (
     <>
       <DashboardContent>
@@ -83,18 +86,23 @@ export function SubtripDetailView({ subtrip }) {
                 label: driverId?.driverName,
                 href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
               },
-              {
-                icon: 'mdi:routes',
-                label: `Trip #${subtrip.tripId.tripNo}`,
-                href: paths.dashboard.trip.details(subtrip.tripId._id),
-              },
+              // Show Trip only when associated (non-market vehicles)
+              ...(hasTrip
+                ? [
+                    {
+                      icon: 'mdi:routes',
+                      label: `Trip #${subtrip.tripId.tripNo}`,
+                      href: paths.dashboard.trip.details(subtrip.tripId._id),
+                    },
+                  ]
+                : []),
             ]}
           />
         </Box>
 
         <SubtripToolbar
-          backLink={paths.dashboard.trip.details(subtrip.tripId._id)}
-          tripId={subtrip.tripId._id}
+          backLink={hasTrip ? paths.dashboard.trip.details(subtrip.tripId._id) : undefined}
+          tripId={hasTrip ? subtrip.tripId._id : undefined}
           status={subtrip.subtripStatus}
           subtrip={subtrip}
           onAddMaterialInfo={() =>

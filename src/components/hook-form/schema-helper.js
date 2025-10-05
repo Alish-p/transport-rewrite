@@ -181,6 +181,33 @@ export const schemaHelper = {
       .pipe(zod.union([zod.number(), zod.string(), zod.date(), zod.null()])),
 
   // =========================================================================
+  // 6b. OPTIONAL DATE VALIDATOR
+  //     - Allows undefined/null/blank without error
+  //     - If present, coerces to Date and validates
+  //     - Returns formatted date string (consistent with `date`)
+  // =========================================================================
+  dateOptional: (props) =>
+    zod.union([
+      zod.undefined(),
+      zod.null(),
+      zod.literal(''),
+      zod.coerce
+        .date()
+        .transform((dateVal, ctx) => {
+          const formatted = dayjs(dateVal).format();
+          const parsed = zod.string().pipe(zod.coerce.date());
+          if (!parsed.safeParse(formatted).success) {
+            ctx.addIssue({
+              code: zod.ZodIssueCode.invalid_date,
+              message: props?.message?.invalid_type_error ?? 'Invalid Date!',
+            });
+            return undefined;
+          }
+          return formatted;
+        }),
+    ]),
+
+  // =========================================================================
   // 7. TEXT FIELD VALIDATORS
   //    - editor: string with minimum length (e.g., for rich-text editors)
   // =========================================================================

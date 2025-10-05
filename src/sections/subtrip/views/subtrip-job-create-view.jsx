@@ -1,11 +1,14 @@
+import { z } from 'zod';
 import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Popover from '@mui/material/Popover';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import {
   Box,
   Card,
@@ -26,6 +29,7 @@ import {
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { fDate } from 'src/utils/format-time';
 
@@ -35,7 +39,7 @@ import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -44,10 +48,91 @@ import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
-// Two-step vertical stepper
+// ---------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------
+const numericInputSchema = z.union([z.string(), z.number()]).optional();
+
+const consigneeOptionSchema = z
+  .object({ label: z.string().optional(), value: z.string().optional() })
+  .partial()
+  .nullish();
+
+const formSchema = z.object({
+  diNumber: z.string().optional(),
+  remarks: z.string().optional(),
+  startDate: z.date().nullable(),
+  tripDecision: z.enum(['attach', 'new']),
+  loadType: z.enum(['loaded', 'empty']),
+  startKm: numericInputSchema,
+  consignee: consigneeOptionSchema,
+  routeCd: z.string().optional(),
+  loadingPoint: z.string().optional(),
+  unloadingPoint: z.string().optional(),
+  loadingWeight: numericInputSchema,
+  rate: numericInputSchema,
+  invoiceNo: z.string().optional(),
+  ewayBill: z.string().optional(),
+  // Optional because empty subtrips won't have it
+  ewayExpiryDate: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid Eway Expiry Date!' } }),
+  materialType: z.string().optional(),
+  quantity: numericInputSchema,
+  grade: z.string().optional(),
+  shipmentNo: z.string().optional(),
+  orderNo: z.string().optional(),
+  referenceSubtripNo: z.string().optional(),
+  driverAdvance: numericInputSchema,
+  driverAdvanceGivenBy: z.string().optional(),
+  initialAdvanceDiesel: numericInputSchema,
+  pumpCd: z.string().optional(),
+});
+
+const createDefaultValues = () => ({
+  diNumber: '',
+  remarks: '',
+  startDate: new Date(),
+  tripDecision: 'attach',
+  loadType: 'loaded',
+  startKm: '',
+  consignee: null,
+  routeCd: '',
+  loadingPoint: '',
+  unloadingPoint: '',
+  loadingWeight: '',
+  rate: '',
+  invoiceNo: '',
+  ewayBill: '',
+  ewayExpiryDate: null,
+  materialType: '',
+  quantity: '',
+  grade: '',
+  shipmentNo: '',
+  orderNo: '',
+  referenceSubtripNo: '',
+  driverAdvance: '',
+  driverAdvanceGivenBy: 'Self',
+  initialAdvanceDiesel: '',
+  pumpCd: '',
+});
+
+const toNumber = (val) => {
+  if (val === null || val === undefined || val === '') return undefined;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : undefined;
+};
+
+const normalizeDriverAdvanceGivenBy = (val) => {
+  if (!val) return undefined;
+  const v = String(val).toLowerCase();
+  return v === 'self' ? 'self' : 'fuel-pump';
+};
+
+// Stepper
 const STEPS = [
   { label: 'Vehicle Details' },
   { label: 'Job Details' },
+  { label: 'Route Details' },
+  { label: 'Material Details' }, // Only for loaded jobs
 ];
 
 export function SubtripJobCreateView() {
@@ -65,6 +150,7 @@ export function SubtripJobCreateView() {
   const driverDialog = useBoolean(false);
   const customerDialog = useBoolean(false);
   const routeDialog = useBoolean(false);
+  const materialOptions = useMaterialOptions();
 
   // Queries & mutations
   const { data: activeTrip, isFetching: fetchingActiveTrip } = useVehicleActiveTrip(
@@ -75,35 +161,75 @@ export function SubtripJobCreateView() {
   const createJob = useCreateJob();
 
   // Form state for job details + step selections
+  const defaultFormValues = useMemo(createDefaultValues, []);
+
   const methods = useForm({
-    defaultValues: {
-      diNumber: '',
-      remarks: '',
-      startDate: new Date(),
-      tripDecision: 'attach',
-      loadType: 'loaded',
-    },
+    resolver: zodResolver(formSchema),
+    defaultValues: defaultFormValues,
     mode: 'onChange',
   });
 
-  const { watch, handleSubmit, formState, setValue } = methods;
-  const startDate = watch('startDate');
-  const tripDecision = watch('tripDecision');
-  const loadType = watch('loadType');
+  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger } = methods;
+  const watchedForm = watch();
+  const { tripDecision, loadType } = watchedForm;
 
   // Selection handlers
-  const handleVehicleChange = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    // Reset downstream selections when vehicle changes
-    setValue('tripDecision', 'attach');
-    setValue('loadType', 'loaded');
-    setSelectedCustomer(null);
-    setSelectedDriver(null);
-    setSelectedRoute(null);
-  };
-  const handleDriverChange = (driver) => setSelectedDriver(driver);
-  const handleCustomerChange = (customer) => setSelectedCustomer(customer);
-  const handleRouteChange = (route) => setSelectedRoute(route);
+  const syncRouteFields = useCallback(
+    (route) => {
+      setValue('routeCd', route?._id || '', { shouldValidate: true });
+      setValue('loadingPoint', route?.fromPlace || '', { shouldValidate: true });
+      setValue('unloadingPoint', route?.toPlace || '', { shouldValidate: true });
+    },
+    [setValue]
+  );
+
+  const handleVehicleChange = useCallback(
+    (vehicle) => {
+      setSelectedVehicle(vehicle);
+      // Reset downstream selections when vehicle changes
+      setValue('tripDecision', 'attach');
+      setValue('loadType', 'loaded');
+      setValue('startKm', '');
+      setValue('consignee', null);
+      setSelectedCustomer(null);
+      setSelectedDriver(null);
+      setSelectedRoute(null);
+      // reset material fields
+      syncRouteFields(null);
+      setValue('loadingWeight', '');
+      setValue('rate', '');
+      setValue('invoiceNo', '');
+      setValue('ewayBill', '');
+      setValue('ewayExpiryDate', null);
+      setValue('materialType', '');
+      setValue('quantity', '');
+      setValue('grade', '');
+      setValue('shipmentNo', '');
+      setValue('orderNo', '');
+      setValue('referenceSubtripNo', '');
+      setValue('driverAdvance', '');
+      setValue('driverAdvanceGivenBy', 'Self');
+      setValue('initialAdvanceDiesel', '');
+      setValue('pumpCd', '');
+    },
+    [setSelectedVehicle, setSelectedCustomer, setSelectedDriver, setSelectedRoute, setValue, syncRouteFields]
+  );
+
+  const handleDriverChange = useCallback((driver) => setSelectedDriver(driver), [setSelectedDriver]);
+
+  const handleCustomerChange = useCallback((customer) => setSelectedCustomer(customer), [setSelectedCustomer]);
+
+  const handleRouteChange = useCallback(
+    (route) => {
+      setSelectedRoute(route);
+      syncRouteFields(route);
+      if (activeStep === 2) {
+        trigger(['routeCd', 'loadingPoint', 'unloadingPoint']);
+      }
+    },
+    [activeStep, setSelectedRoute, trigger, syncRouteFields]
+  );
+
 
   // Popover for active trip subtrips
   const [subtripAnchorEl, setSubtripAnchorEl] = useState(null);
@@ -132,51 +258,178 @@ export function SubtripJobCreateView() {
     }, [])
     .slice(0, 5);
 
+  const consignees = useMemo(
+    () => selectedCustomer?.consignees || [],
+    [selectedCustomer]
+  );
+
+  const getVehicleStepError = useCallback(
+    (form) => {
+      if (!selectedVehicle) return 'Please select a vehicle';
+
+      if (!selectedVehicle?.isOwn) return null;
+
+      if (fetchingActiveTrip) return 'Validating active trip. Please wait…';
+
+      if (activeTrip && !(form.tripDecision === 'attach' || form.tripDecision === 'new')) {
+        return 'Trip decision must be attach or new';
+      }
+
+      if (!(form.loadType === 'loaded' || form.loadType === 'empty')) {
+        return 'Select load type (Loaded/Empty)';
+      }
+
+      if (activeTrip && form.tripDecision === 'new') {
+        const startKmValue = toNumber(form.startKm);
+        if (startKmValue === undefined) return 'Start Km is required to close previous trip';
+        if (startKmValue < 0) return 'Start Km cannot be negative';
+      }
+
+      return null;
+    },
+    [selectedVehicle, fetchingActiveTrip, activeTrip]
+  );
+
+  const getJobStepError = useCallback(
+    (form) => {
+      const vehicleStageError = getVehicleStepError(form);
+      if (vehicleStageError) return vehicleStageError;
+
+      if (!selectedDriver) return 'Please select a driver';
+      if (!form.startDate) return 'Please select a start date';
+
+      const isOwnVehicle = !!selectedVehicle?.isOwn;
+      const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
+
+      if (isLoaded && !selectedCustomer) return 'Please select a customer';
+
+      return null;
+    },
+    [getVehicleStepError, selectedDriver, selectedVehicle, selectedCustomer]
+  );
+
+  const getRouteStepError = useCallback(
+    (form) => {
+      const jobStageError = getJobStepError(form);
+      if (jobStageError) return jobStageError;
+
+      const isOwnVehicle = !!selectedVehicle?.isOwn;
+      const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
+
+      if (isLoaded) {
+        const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
+        if (!selectedCustomer) return 'Please select a customer';
+        if (!hasConsignee) return 'Please select a consignee';
+        if (!selectedRoute) return 'Please select a route';
+        if (!form.routeCd || !form.loadingPoint || !form.unloadingPoint) {
+          return 'Please select route for material';
+        }
+      } else if (!selectedRoute) {
+        return 'Please select a route';
+      }
+
+      return null;
+    },
+    [getJobStepError, selectedVehicle, selectedCustomer, selectedRoute]
+  );
+
+  const getMaterialStepError = useCallback(
+    (form) => {
+      const routeStageError = getRouteStepError(form);
+      if (routeStageError) return routeStageError;
+
+      const isOwnVehicle = !!selectedVehicle?.isOwn;
+      const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
+      if (!isLoaded) return null;
+
+      // Eway Expiry Date should be optional; require only if Eway Bill is present
+      if (!form.loadingWeight || !form.rate || !form.invoiceNo || !form.materialType || (form.ewayBill && !form.ewayExpiryDate)) {
+        return 'Please fill required material fields';
+      }
+
+      const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (!eway || eway < startOfToday) {
+        return 'Eway Expiry Date must be today or later';
+      }
+
+      return null;
+    },
+    [getRouteStepError, selectedVehicle]
+  );
+
+  // Build API payload consistently
+  const buildPayload = (form) => {
+    const isOwn = !!selectedVehicle?.isOwn;
+    const hasActive = !!activeTrip;
+    const isEmpty = isOwn ? form.loadType === 'empty' : false;
+    const closingPreviousTrip = isOwn && hasActive && form.tripDecision === 'new';
+
+    const base = {
+      vehicleId: selectedVehicle._id,
+      driverId: selectedDriver._id,
+      isEmpty,
+      tripDecision: isOwn ? (hasActive ? form.tripDecision : 'new') : undefined,
+      tripId: isOwn && hasActive && form.tripDecision === 'attach' ? activeTrip._id : undefined,
+      fromDate: form.startDate,
+      startDate: form.startDate,
+      remarks: form.remarks || undefined,
+      diNumber: form.diNumber || undefined,
+    };
+
+    const tripKm = closingPreviousTrip ? toNumber(form.startKm) : undefined;
+
+    const emptyRoute = isEmpty
+      ? {
+        routeCd: selectedRoute?._id,
+        loadingPoint: selectedRoute?.fromPlace,
+        unloadingPoint: selectedRoute?.toPlace,
+      }
+      : {};
+
+    const loadedFields = !isEmpty
+      ? {
+        customerId: selectedCustomer?._id,
+        consignee: form.consignee?.value || form.consignee?.label,
+        routeCd: form.routeCd,
+        loadingPoint: form.loadingPoint,
+        unloadingPoint: form.unloadingPoint,
+        loadingWeight: toNumber(form.loadingWeight),
+        rate: toNumber(form.rate),
+        invoiceNo: form.invoiceNo,
+        shipmentNo: form.shipmentNo || undefined,
+        orderNo: form.orderNo || undefined,
+        referenceSubtripNo: form.referenceSubtripNo || undefined,
+        ewayBill: form.ewayBill || undefined,
+        ewayExpiryDate: form.ewayExpiryDate,
+        materialType: form.materialType,
+        quantity: toNumber(form.quantity),
+        grade: form.grade || undefined,
+        driverAdvance: toNumber(form.driverAdvance),
+        driverAdvanceGivenBy: normalizeDriverAdvanceGivenBy(form.driverAdvanceGivenBy),
+        initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
+        pumpCd: form.pumpCd || undefined,
+      }
+      : {};
+
+    return {
+      ...base,
+      ...(tripKm !== undefined ? { startKm: tripKm } : {}),
+      ...emptyRoute,
+      ...loadedFields,
+    };
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (!selectedVehicle) {
-        toast.error('Please select a vehicle');
+      const err = getMaterialStepError(data);
+      if (err) {
+        toast.error(err);
         return;
       }
 
-      // Validate job details
-      const isLoaded = loadType === 'loaded' || !selectedVehicle.isOwn; // market => loaded only
-      if (!selectedDriver) {
-        toast.error('Please select a driver');
-        return;
-      }
-      if (!data.startDate) {
-        toast.error('Please select a start date');
-        return;
-      }
-      if (isLoaded && !selectedCustomer) {
-        toast.error('Please select a customer');
-        return;
-      }
-      if (!isLoaded && !selectedRoute) {
-        toast.error('Please select a route');
-        return;
-      }
-
-      // Compose payload for unified job creation API
-      const isEmpty = selectedVehicle.isOwn ? loadType === 'empty' : false;
-      const payload = {
-        vehicleId: selectedVehicle._id,
-        driverId: selectedDriver._id,
-        isEmpty,
-        tripDecision: selectedVehicle.isOwn ? (activeTrip ? tripDecision : 'new') : undefined,
-        tripId: selectedVehicle.isOwn && activeTrip && tripDecision === 'attach' ? activeTrip._id : undefined,
-        fromDate: data.startDate,
-        startDate: data.startDate,
-        remarks: data.remarks || undefined,
-        // empty fields
-        routeCd: isEmpty ? selectedRoute?._id : undefined,
-        loadingPoint: isEmpty ? selectedRoute?.fromPlace : undefined,
-        unloadingPoint: isEmpty ? selectedRoute?.toPlace : undefined,
-        startKm: isEmpty ? 0 : undefined,
-        // loaded fields
-        customerId: !isEmpty ? selectedCustomer?._id : undefined,
-      };
+      const payload = buildPayload(data);
 
       const createdSubtrip = await createJob(payload);
 
@@ -189,38 +442,35 @@ export function SubtripJobCreateView() {
   });
 
   // Step gating & submit availability
-  const canGoStep2 = useMemo(() => {
-    if (!selectedVehicle) return false;
-    if (selectedVehicle?.isOwn) {
-      if (fetchingActiveTrip) return false;
-      if (activeTrip && !(tripDecision === 'attach' || tripDecision === 'new')) return false;
-      if (!(loadType === 'loaded' || loadType === 'empty')) return false;
-    }
-    return true;
-  }, [selectedVehicle, fetchingActiveTrip, activeTrip, tripDecision, loadType]);
+  const canGoStep2 = !getVehicleStepError(watchedForm);
 
-  const canSubmit = useMemo(() => {
-    if (!selectedVehicle) return false;
-    if (!selectedDriver) return false;
-    if (!startDate) return false;
-    const isLoaded = loadType === 'loaded' || !selectedVehicle?.isOwn;
-    if (selectedVehicle?.isOwn) {
-      if (fetchingActiveTrip) return false;
-      if (activeTrip && !(tripDecision === 'attach' || tripDecision === 'new')) return false;
-      if (!(loadType === 'loaded' || loadType === 'empty')) return false;
-    }
-    if (isLoaded) {
-      if (!selectedCustomer) return false;
-    } else if (!selectedRoute) return false;
-    return true;
-  }, [selectedVehicle, selectedDriver, startDate, loadType, fetchingActiveTrip, activeTrip, tripDecision, selectedCustomer, selectedRoute]);
+  const isLoadedJob = useMemo(
+    () => (selectedVehicle ? loadType === 'loaded' || !selectedVehicle?.isOwn : false),
+    [selectedVehicle, loadType]
+  );
+
+  const canGoRouteStep = !getJobStepError(watchedForm);
+
+  const canGoMaterialStep = isLoadedJob ? !getRouteStepError(watchedForm) : false;
+
+  const canSubmit = isLoadedJob
+    ? activeStep === 3
+      ? !getMaterialStepError(watchedForm)
+      : false
+    : activeStep === 2
+      ? !getRouteStepError(watchedForm)
+      : false;
 
   // Clear irrelevant fields on load type change
   useEffect(() => {
     if (!selectedVehicle?.isOwn) return;
-    if (loadType === 'loaded') setSelectedRoute(null);
-    if (loadType === 'empty') setSelectedCustomer(null);
-  }, [loadType, selectedVehicle]);
+    // When toggling to empty, customer not needed
+    if (loadType === 'empty') {
+      setSelectedCustomer(null);
+      setValue('consignee', null);
+    }
+    // Keep route selection as it can be used in either case now
+  }, [loadType, selectedVehicle, setSelectedCustomer, setValue]);
 
   // Prepopulate driver from active trip when attaching to it
   useEffect(() => {
@@ -229,9 +479,11 @@ export function SubtripJobCreateView() {
     if (activeTrip?.driverId) {
       setSelectedDriver(activeTrip.driverId);
     }
-  }, [tripDecision, activeTrip, selectedVehicle]);
+  }, [tripDecision, activeTrip, selectedVehicle, setSelectedDriver]);
 
   // UI helpers
+
+  console.log({ errors })
 
   return (
     <DashboardContent>
@@ -343,6 +595,18 @@ export function SubtripJobCreateView() {
                         </Field.Select>
                       )}
 
+                      {selectedVehicle?.isOwn && activeTrip && tripDecision === 'new' && (
+                        <Field.Text
+                          name="startKm"
+                          label="Start Km"
+                          type="number"
+                          helperText="Previous trip will be closed with this starting km of current trip"
+                          InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+                          inputProps={{ min: 0 }}
+                          sx={{ mt: 1 }}
+                        />
+                      )}
+
                       <Field.Select name="loadType" label="Load Type" sx={{ mt: 1 }}>
                         <MenuItem value="loaded">
                           <Stack direction="row" alignItems="center" spacing={1}>
@@ -416,19 +680,12 @@ export function SubtripJobCreateView() {
                     </Box>
                   )}
 
-                  {(!selectedVehicle?.isOwn || loadType === 'loaded') ? (
+                  {isLoadedJob && (
                     <DialogSelectButton
                       onClick={customerDialog.onTrue}
                       placeholder="Select Customer *"
                       selected={selectedCustomer?.customerName}
                       iconName="mdi:office-building"
-                    />
-                  ) : (
-                    <DialogSelectButton
-                      onClick={routeDialog.onTrue}
-                      placeholder="Select Route *"
-                      selected={selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`}
-                      iconName="mdi:map-marker-path"
                     />
                   )}
 
@@ -443,10 +700,116 @@ export function SubtripJobCreateView() {
 
                 <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                   <Button onClick={() => setActiveStep(0)}>Back</Button>
-                  <LoadingButton type="submit" variant="contained" loading={formState.isSubmitting} disabled={!canSubmit}>
-                    Create Job
-                  </LoadingButton>
+                  <Button variant="contained" onClick={() => setActiveStep(2)} disabled={!canGoRouteStep}>
+                    Continue
+                  </Button>
                 </Stack>
+              </StepContent>
+            </Step>
+
+            {/* Step 3 - Route Details */}
+            <Step>
+              <StepLabel>{STEPS[2].label}</StepLabel>
+              <StepContent>
+                <>
+                  <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
+                    {isLoadedJob && (
+                      <Field.AutocompleteFreeSolo
+                        name="consignee"
+                        label="Consignee *"
+                        options={consignees.map(({ name }) => ({ label: name, value: name }))}
+                        disabled={!selectedCustomer}
+                      />
+                    )}
+                    <DialogSelectButton
+                      onClick={routeDialog.onTrue}
+                      placeholder="Select Route *"
+                      selected={selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`}
+                      iconName="mdi:map-marker-path"
+                    />
+
+                    <Field.Text name="loadingPoint" label="Loading Point *" InputProps={{ readOnly: true }} />
+                    <Field.Text
+                      name="unloadingPoint"
+                      label="Unloading Point *"
+                      InputProps={{ readOnly: true }}
+                      helperText={isLoadedJob ? "Consignee's Address" : undefined}
+                    />
+                  </Box>
+
+                  <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                    <Button onClick={() => setActiveStep(1)}>Back</Button>
+                    {isLoadedJob ? (
+                      <Button variant="contained" onClick={() => setActiveStep(3)} disabled={!canGoMaterialStep}>
+                        Continue
+                      </Button>
+                    ) : (
+                      <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!canSubmit}>
+                        Create Job
+                      </LoadingButton>
+                    )}
+                  </Stack>
+                </>
+              </StepContent>
+            </Step>
+
+            {/* Step 4 - Material Details (Loaded only) */}
+            <Step>
+              <StepLabel>{STEPS[3].label}</StepLabel>
+              <StepContent>
+                {isLoadedJob ? (
+                  <>
+                    <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
+                      <Field.Text
+                        name="loadingWeight"
+                        label="Loading Weight *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">Units</InputAdornment> }}
+                      />
+
+                      <Field.Text
+                        name="quantity"
+                        label="Quantity"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">Bags</InputAdornment> }}
+                      />
+
+                      <Field.Text
+                        name="rate"
+                        label="Rate *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                      />
+
+                      <Field.Text name="ewayBill" label="Eway Bill" />
+                      <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" minDate={dayjs()} />
+                      <Field.Text name="invoiceNo" label="Invoice No *" />
+                      <Field.Text name="shipmentNo" label="Shipment No" />
+                      <Field.Text name="orderNo" label="Order No" />
+                      <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" placeholder="Enter original subtrip no (if created by another transporter)" />
+
+                      <Field.Select name="materialType" label="Material Type *">
+                        <MenuItem value="">None</MenuItem>
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+                        {materialOptions.map(({ label, value }) => (
+                          <MenuItem key={value} value={value}>
+                            {label}
+                          </MenuItem>
+                        ))}
+                      </Field.Select>
+                      <Field.Text name="grade" label="Grade" />
+                    </Box>
+
+                    <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                      <Button onClick={() => setActiveStep(2)}>Back</Button>
+                      <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!canSubmit}>
+                        Create Job
+                      </LoadingButton>
+                    </Stack>
+                  </>
+                ) : (
+                  <Alert severity="info">Material details are only for loaded jobs.</Alert>
+                )}
               </StepContent>
             </Step>
           </MuiStepper>
@@ -478,7 +841,8 @@ export function SubtripJobCreateView() {
             open={routeDialog.value}
             onClose={routeDialog.onFalse}
             onRouteChange={handleRouteChange}
-            mode="generic"
+            mode={isLoadedJob ? 'genericAndCustomer' : 'generic'}
+            customerId={isLoadedJob ? selectedCustomer?._id : undefined}
           />
         </Form>
       </Card>
