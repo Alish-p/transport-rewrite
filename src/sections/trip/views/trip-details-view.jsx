@@ -91,7 +91,7 @@ export function TripDetailView({ trip }) {
             {
               icon: 'mdi:account',
               label: driverId?.driverName,
-              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+              href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
             },
 
             {
