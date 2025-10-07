@@ -33,6 +33,8 @@ export default function IndentPdf({ subtrip, tenant }) {
     startDate,
     expenses,
     initialAdvanceDiesel,
+    initialAdvanceDieselUnit,
+    initialTripAdvance,
     driverId,
     vehicleId,
     intentFuelPump,
@@ -42,14 +44,25 @@ export default function IndentPdf({ subtrip, tenant }) {
   const styles = useStyles();
 
   // Prepare table data
+  // Show diesel as per unit captured on subtrip
+  const isDieselAmount = String(initialAdvanceDieselUnit || '').toLowerCase() === 'amount';
+  const dieselHeader = isDieselAmount ? 'Diesel (₹)' : 'Diesel (Ltr)';
+  const dieselDisplayValue = initialAdvanceDiesel || '';
+
   const tableHeaders = [
     'Driver Name',
     'Driver Mobile No.',
     'Vehicle No.',
     'Vehicle Type',
-    'Diesel (Ltr)',
+    dieselHeader,
     'Advance Amount (₹)',
   ];
+
+  // Determine if advance is given by pump using enum values strictly
+  const isPumpAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP;
+
+  // Resolve advance amount only from initialTripAdvance (no expense derivation)
+  const advanceAmount = Number(initialTripAdvance || 0) || 0;
 
   const tableData = [
     [
@@ -57,10 +70,8 @@ export default function IndentPdf({ subtrip, tenant }) {
       driverId?.driverCellNo || '',
       vehicleId?.vehicleNo || '',
       `${vehicleId?.noOfTyres || ''} Tyre`,
-      initialAdvanceDiesel || '',
-      driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
-        ? expenses[0]?.amount || 0
-        : 0,
+      dieselDisplayValue,
+      isPumpAdvance ? advanceAmount : 0,
     ],
   ];
 

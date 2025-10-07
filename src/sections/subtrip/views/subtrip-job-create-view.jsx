@@ -99,10 +99,9 @@ const formSchema = z
     pumpCd: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    const advanceSource = String(data.driverAdvanceGivenBy || '').toLowerCase();
     const dieselAdvance = toNumber(data.initialAdvanceDiesel);
     const requiresPump =
-      advanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+      data.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
       (dieselAdvance !== undefined && dieselAdvance > 0);
 
     if (requiresPump && !data.pumpCd) {
@@ -143,11 +142,7 @@ const createDefaultValues = () => ({
   pumpCd: '',
 });
 
-const normalizeDriverAdvanceGivenBy = (val) => {
-  if (!val) return undefined;
-  const v = String(val).toLowerCase();
-  return v === 'self' ? 'self' : 'fuel-pump';
-};
+// driverAdvanceGivenBy uses enum values strictly: 'Self' | 'Fuel Pump'
 
 // Stepper
 const STEPS = [
@@ -201,10 +196,9 @@ export function SubtripJobCreateView() {
   const watchedForm = watch();
   const { tripDecision, loadType, driverAdvanceGivenBy, initialAdvanceDiesel, initialAdvanceDieselUnit, pumpCd } = watchedForm;
 
-  const normalizedAdvanceSource = String(driverAdvanceGivenBy || '').toLowerCase();
   const dieselAdvanceValue = toNumber(initialAdvanceDiesel);
   const requiresPumpSelection =
-    normalizedAdvanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+    driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
     (dieselAdvanceValue !== undefined && dieselAdvanceValue > 0);
 
   // Selection handlers
@@ -447,10 +441,9 @@ export function SubtripJobCreateView() {
       const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
       if (!isLoaded) return null;
 
-      const advanceSource = String(form.driverAdvanceGivenBy || '').toLowerCase();
       const dieselAdvance = toNumber(form.initialAdvanceDiesel);
       const pumpRequired =
-        advanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+        form.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
         (dieselAdvance !== undefined && dieselAdvance > 0);
 
       if (pumpRequired && !form.pumpCd) {
@@ -491,27 +484,28 @@ export function SubtripJobCreateView() {
       }
       : {};
 
-    const loadedFields = !isEmpty
-      ? {
-        customerId: selectedCustomer?._id,
-        consignee: form.consignee?.value || form.consignee?.label,
-        routeCd: form.routeCd,
-        loadingPoint: form.loadingPoint,
-        unloadingPoint: form.unloadingPoint,
-        loadingWeight: toNumber(form.loadingWeight),
-        rate: toNumber(form.rate),
-        invoiceNo: form.invoiceNo,
-        shipmentNo: form.shipmentNo || undefined,
-        orderNo: form.orderNo || undefined,
-        referenceSubtripNo: form.referenceSubtripNo || undefined,
-        ewayBill: form.ewayBill || undefined,
-        ewayExpiryDate: form.ewayExpiryDate,
-        materialType: form.materialType,
-        quantity: toNumber(form.quantity),
-        grade: form.grade || undefined,
-        driverAdvance: toNumber(form.driverAdvance),
-        driverAdvanceGivenBy: normalizeDriverAdvanceGivenBy(form.driverAdvanceGivenBy),
+      const loadedFields = !isEmpty
+        ? {
+          customerId: selectedCustomer?._id,
+          consignee: form.consignee?.value || form.consignee?.label,
+          routeCd: form.routeCd,
+          loadingPoint: form.loadingPoint,
+          unloadingPoint: form.unloadingPoint,
+          loadingWeight: toNumber(form.loadingWeight),
+          rate: toNumber(form.rate),
+          invoiceNo: form.invoiceNo,
+          shipmentNo: form.shipmentNo || undefined,
+          orderNo: form.orderNo || undefined,
+          referenceSubtripNo: form.referenceSubtripNo || undefined,
+          ewayBill: form.ewayBill || undefined,
+          ewayExpiryDate: form.ewayExpiryDate,
+          materialType: form.materialType,
+          quantity: toNumber(form.quantity),
+          grade: form.grade || undefined,
+          driverAdvance: toNumber(form.driverAdvance),
+        driverAdvanceGivenBy: form.driverAdvanceGivenBy,
         initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
+        initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
         pumpCd: form.pumpCd || undefined,
       }
       : {};
@@ -967,7 +961,7 @@ export function SubtripJobCreateView() {
                           </Typography>
                         )}
                         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {String(driverAdvanceGivenBy || '').toLowerCase() === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase()
+                          {driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
                             ? 'Given by Pump selected. Please ensure a pump is chosen below.'
                             : 'Record an optional advance provided to the driver.'}
                         </Typography>
