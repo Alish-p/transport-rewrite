@@ -1,14 +1,13 @@
+import { useNavigate } from 'react-router';
+
 import Box from '@mui/material/Box';
-import { Button } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
-import { HeroHeaderCard } from 'src/components/hero-header-card';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import {
   PumpBasicWidget,
@@ -19,20 +18,13 @@ import {
 } from '../widgets';
 
 export function PumpDetailView({ pump }) {
+  const navigate = useNavigate();
   const { name, ownerName, phone, address } = pump || {};
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 9,
-          bgcolor: 'background.default',
-          p: { xs: 2, md: 3 },
-        }}
-      >
-        <HeroHeaderCard
+      <HeroHeader
+        offsetTop={70}
           title={name}
           status="Active"
           icon="solar:gas-station-bold"
@@ -41,18 +33,14 @@ export function PumpDetailView({ pump }) {
             { icon: 'mdi:phone', label: phone },
             { icon: 'mdi:map-marker', label: address },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.pump.edit(pump._id)}
-              variant="contained"
-              startIcon={<Iconify icon="solar:pen-bold" />}
-            >
-              Edit Pump
-            </Button>
-          }
-        />
-      </Box>
+          actions={[
+            {
+              label: 'Edit',
+              icon: 'solar:pen-bold',
+              onClick: () => navigate(paths.dashboard.pump.edit(pump._id)),
+            },
+          ]}
+      />
       <Box sx={{ p: { xs: 2, md: 3 } }}>
         <Grid container spacing={2}>
           {/* Top row: 3 columns to better use width */}

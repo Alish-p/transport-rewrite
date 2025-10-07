@@ -1,6 +1,7 @@
+import { useNavigate } from 'react-router';
+
 import Box from '@mui/material/Box';
 import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
-import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
 
@@ -8,7 +9,7 @@ import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { HeroHeaderCard } from 'src/components/hero-header-card';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
 import { VehicleLocationMap } from '../widgets/vehicle-location-map';
@@ -182,16 +183,8 @@ export function VehicleDetailView({ vehicle }) {
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 9,
-          bgcolor: 'background.default',
-          p: { xs: 2, md: 3 },
-        }}
-      >
-        <HeroHeaderCard
+      <HeroHeader
+        offsetTop={70}
           title={vehicleNo}
           status={vehicle.isOwn ? 'Own Vehicle' : 'Market Vehicle'}
           icon="mdi:truck-outline"
@@ -206,8 +199,7 @@ export function VehicleDetailView({ vehicle }) {
               onClick: () => navigate(paths.dashboard.vehicle.edit(vehicle._id)),
             },
           ]}
-        />
-      </Box>
+      />
 
       <Grid container spacing={3} mt={3}>
         <Grid xs={12} md={7} container spacing={3} sx={{ p: 3 }} item>

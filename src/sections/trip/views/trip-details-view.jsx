@@ -12,7 +12,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useCloseTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { HeroHeaderCard } from 'src/components/hero-header-card';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -94,17 +94,9 @@ export function TripDetailView({ trip }) {
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 9,
-          bgcolor: 'background.default',
-          p: { xs: 2, md: 3 },
-        }}
-      >
-        <HeroHeaderCard
-          title={`Trip #${tripNo}`}
+      <HeroHeader
+        offsetTop={70}
+        title={`Trip #${tripNo}`}
           status={tripStatus}
           icon="mdi:routes"
           meta={[
@@ -151,8 +143,7 @@ export function TripDetailView({ trip }) {
               onClick: () => navigate(paths.dashboard.trip.edit(_id)),
             },
           ]}
-        />
-      </Box>
+      />
 
       {/* View Trip Sheet Dialog */}
       <Dialog fullScreen open={viewTripSheet.value}>

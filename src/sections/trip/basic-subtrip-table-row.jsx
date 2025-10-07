@@ -30,7 +30,7 @@ export default function SubtripListRow({ row }) {
                       navigate(paths.dashboard.subtrip.details(paramCase(row._id)));
                     }}
                   >
-                    # {row.subtripNo}
+                    {row.subtripNo}
                   </Link>
                 );
               case 'customerId':

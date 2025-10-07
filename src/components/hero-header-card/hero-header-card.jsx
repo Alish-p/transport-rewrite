@@ -32,9 +32,10 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, actions
       {...other}
     >
       <CardContent sx={{ position: 'relative', zIndex: 1 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ md: 'center' }}>
-          <Box sx={{ flex: 1 }}>
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+        {/* Top row: title + right-aligned actions (including hamburger on mobile) */}
+        <Stack spacing={1.5}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ minWidth: 0, flex: 1 }}>
               {icon && <Iconify icon={icon} width={32} height={32} />}
               <Typography variant="h3" component="h1" sx={{ fontWeight: 700 }}>
                 {title}
@@ -51,33 +52,35 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, actions
                 />
               )}
             </Stack>
-            {!!meta.length && (
-              <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
-                {meta.map((item) => (
-                  <Stack key={item.label} direction="row" spacing={1} alignItems="center">
-                    {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
-                    {item.href ? (
-                      <Link component={RouterLink} href={item.href} variant="body2" color="white" sx={{ opacity: 0.9 }}>
-                        {item.label}
-                      </Link>
-                    ) : (
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        {item.label}
-                      </Typography>
-                    )}
-                  </Stack>
-                ))}
-              </Stack>
-            )}
-          </Box>
 
-          {action ? (
-            <Box sx={{ flexShrink: 0 }}>{action}</Box>
-          ) : (menus || actions) ? (
-            <Box sx={{ flexShrink: 0 }}>
-              <ActionMenuBar menus={menus} actions={actions} />
-            </Box>
-          ) : null}
+            {action ? (
+              <Box sx={{ flexShrink: 0 }}>{action}</Box>
+            ) : (menus || actions) ? (
+              <Box sx={{ flexShrink: 0 }}>
+                <ActionMenuBar menus={menus} actions={actions} />
+              </Box>
+            ) : null}
+          </Stack>
+
+          {/* Meta row below title */}
+          {!!meta.length && (
+            <Stack direction="row" spacing={3} sx={{ mt: 0.5 }} flexWrap="wrap">
+              {meta.map((item) => (
+                <Stack key={item.label} direction="row" spacing={1} alignItems="center">
+                  {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
+                  {item.href ? (
+                    <Link component={RouterLink} href={item.href} variant="body2" color="white" sx={{ opacity: 0.9 }}>
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      {item.label}
+                    </Typography>
+                  )}
+                </Stack>
+              ))}
+            </Stack>
+          )}
         </Stack>
       </CardContent>
     </Card>

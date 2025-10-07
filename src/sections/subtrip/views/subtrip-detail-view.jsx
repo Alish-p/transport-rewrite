@@ -13,7 +13,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { Iconify } from 'src/components/iconify';
-import { HeroHeaderCard } from 'src/components/hero-header-card';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -126,15 +126,9 @@ export function SubtripDetailView({ subtrip }) {
   return (
     <>
       <DashboardContent>
-        <Box
-          sx={{
-            position: 'sticky',
-            top: 70,
-            zIndex: 9,
-          }}
-        >
-          <HeroHeaderCard
-            title={`Subtrip #${subtripNo}`}
+        <HeroHeader
+          offsetTop={70}
+          title={`Subtrip #${subtripNo}`}
             status={subtripStatus}
             icon="mdi:routes"
             meta={[
@@ -151,12 +145,12 @@ export function SubtripDetailView({ subtrip }) {
               // Show Trip only when associated (non-market vehicles)
               ...(hasTrip
                 ? [
-                    {
-                      icon: 'mdi:routes',
-                      label: `Trip #${subtrip.tripId.tripNo}`,
-                      href: paths.dashboard.trip.details(subtrip.tripId._id),
-                    },
-                  ]
+                  {
+                    icon: 'mdi:routes',
+                    label: `Trip #${subtrip.tripId.tripNo}`,
+                    href: paths.dashboard.trip.details(subtrip.tripId._id),
+                  },
+                ]
                 : []),
             ]}
             menus={[
@@ -304,8 +298,7 @@ export function SubtripDetailView({ subtrip }) {
                 disabled: !isEditingAllowed(),
               },
             ]}
-          />
-        </Box>
+        />
 
         {/* PDF Viewers */}
         <Dialog fullScreen open={viewLR.value}>
@@ -383,7 +376,7 @@ export function SubtripDetailView({ subtrip }) {
           </Box>
         </Dialog>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={3} mt={2}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
               {subtrip.isEmpty ? (

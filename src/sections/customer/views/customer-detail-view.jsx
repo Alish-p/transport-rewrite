@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { HeroHeaderCard } from 'src/components/hero-header-card';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import {
   CustomerBasicWidget,
@@ -21,25 +21,16 @@ export function CustomerDetailView({ customer }) {
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 9,
-          bgcolor: 'background.default',
-          p: { xs: 2, md: 3 },
-        }}
-      >
-        <HeroHeaderCard
-          title={customerName}
-          status={status || 'Active'}
-          icon="solar:user-bold"
-          meta={[
-            { icon: 'mdi:phone', label: cellNo },
-            { icon: 'mdi:map-marker', label: address },
-          ]}
-        />
-      </Box>
+      <HeroHeader
+        offsetTop={70}
+        title={customerName}
+        status={status || 'Active'}
+        icon="solar:user-bold"
+        meta={[
+          { icon: 'mdi:phone', label: cellNo },
+          { icon: 'mdi:map-marker', label: address },
+        ]}
+      />
       <Box sx={{ p: { xs: 2, md: 3 } }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
