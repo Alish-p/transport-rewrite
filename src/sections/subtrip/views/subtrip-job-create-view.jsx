@@ -53,6 +53,8 @@ import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
+import { loadingWeightUnit } from '../../vehicle/vehicle-config';
+
 // ---------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------
@@ -896,7 +898,13 @@ export function SubtripJobCreateView() {
                         name="loadingWeight"
                         label="Loading Weight *"
                         type="number"
-                        InputProps={{ endAdornment: <InputAdornment position="end">Units</InputAdornment> }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] || 'Units'}
+                            </InputAdornment>
+                          ),
+                        }}
                       />
 
                       <Field.Text
