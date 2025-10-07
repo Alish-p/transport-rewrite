@@ -17,7 +17,16 @@ Font.register({
 });
 
 export default function TripSheetPdf({ trip, tenant }) {
-  const { tripNo, fromDate, endDate, vehicleId, driverId, subtrips = [] } = trip || {};
+  const {
+    tripNo,
+    fromDate,
+    endDate,
+    vehicleId,
+    driverId,
+    startKm: tripStartKm,
+    endKm: tripEndKm,
+    subtrips = [],
+  } = trip || {};
 
   // Prepare subtrip table data
   const subtripColumns = [
@@ -30,14 +39,6 @@ export default function TripSheetPdf({ trip, tenant }) {
     {
       header: 'Time Taken (Days)',
       accessor: 'timeTaken',
-      width: '6%',
-      align: 'right',
-      showTotal: true,
-      formatter: (v) => fNumber(v),
-    },
-    {
-      header: 'Distance',
-      accessor: 'distance',
       width: '6%',
       align: 'right',
       showTotal: true,
@@ -100,7 +101,6 @@ export default function TripSheetPdf({ trip, tenant }) {
       startDate: fDate(st.startDate),
       endDate: fDate(st.endDate),
       timeTaken: fDaysDuration(st.startDate, st.endDate) || 0,
-      distance: st.endKm - st.startKm || 0,
       material: st.materialType || '-',
       weight: st.loadingWeight || 0,
       rate: st.rate || 0,
@@ -151,8 +151,8 @@ export default function TripSheetPdf({ trip, tenant }) {
     })
   );
 
-  // Calculate total distance and diesel consumption
-  const totalKm = subtrips.reduce((sum, st) => sum + (st.endKm - st.startKm || 0), 0);
+  // Calculate total distance (moved to Trip) and diesel consumption
+  const totalKm = (Number(tripEndKm) || 0) - (Number(tripStartKm) || 0);
   const totalDiesel = subtrips.reduce(
     (sum, st) =>
       sum +
@@ -171,11 +171,8 @@ export default function TripSheetPdf({ trip, tenant }) {
   // Exclude subtrips that don't have positive weight, distance, or rate
   const validForRate = subtrips.filter((st) => {
     const weight = Number(st?.loadingWeight) || 0;
-    const startKm = Number(st?.startKm) || 0;
-    const endKm = Number(st?.endKm) || 0;
-    const distance = endKm - startKm;
     const rate = Number(st?.rate) || 0;
-    return weight > 0 && distance > 0 && rate > 0;
+    return weight > 0 && rate > 0;
   });
 
   const totalFreightAmount = validForRate.reduce(
@@ -183,10 +180,8 @@ export default function TripSheetPdf({ trip, tenant }) {
     0
   );
   const totalWeight = validForRate.reduce((sum, st) => sum + (Number(st?.loadingWeight) || 0), 0);
-  const totalDistance = validForRate.reduce(
-    (sum, st) => sum + ((Number(st?.endKm) || 0) - (Number(st?.startKm) || 0)),
-    0
-  );
+  // Use Trip-level distance for rate per T-Km calculation
+  const totalDistance = totalKm;
   const ratePerTonKm = totalWeight > 0 && totalDistance > 0
     ? totalFreightAmount / (totalWeight * totalDistance)
     : 0;
@@ -204,6 +199,9 @@ export default function TripSheetPdf({ trip, tenant }) {
             <Text>Trip ID: {tripNo}</Text>
             <Text>Start Date: {fDate(fromDate)}</Text>
             <Text>End Date: {endDate ? fDate(endDate) : 'N/A'}</Text>
+            <Text>Start Km: {tripStartKm !== undefined ? fNumber(tripStartKm) : 'N/A'}</Text>
+            <Text>End Km: {tripEndKm !== undefined ? fNumber(tripEndKm) : 'N/A'}</Text>
+            <Text>Total Distance: {fNumber(totalKm)} Km</Text>
           </View>
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Vehicle Details</Text>
