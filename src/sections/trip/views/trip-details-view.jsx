@@ -1,17 +1,22 @@
 // @mui
 // components
 import { useNavigate } from 'react-router';
+import { PDFViewer } from '@react-pdf/renderer';
 
-import { Box, Card, Grid, Stack, Button, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Dialog, Typography, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useCloseTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { HeroHeaderCard } from 'src/components/hero-header-card';
 
-import TripToolbar from '../widgets/TripToolbar';
+import { useTenantContext } from 'src/auth/tenant';
+
+import TripSheetPdf from '../pdfs/trip-sheet-pdf';
 import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
@@ -72,6 +77,21 @@ export function TripDetailView({ trip }) {
 
   const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips, tripNo } = trip;
 
+  // Trip Sheet dialog state
+  const viewTripSheet = useBoolean();
+  const tenant = useTenantContext();
+
+  const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
+  const subtripsArr = Array.isArray(trip?.subtrips) ? trip.subtrips : [];
+  const allSubtripsBilled = subtripsArr.length > 0 && subtripsArr.every((st) => st?.subtripStatus === 'billed');
+  const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
+
+  const tripSheetTooltipTitle = !isOwnVehicle
+    ? 'Trip Sheet is only available for Own vehicles'
+    : !allSubtripsBilled
+      ? 'Trip Sheet is visible only when all subtrips are billed'
+      : '';
+
   return (
     <DashboardContent>
       <Box
@@ -100,18 +120,55 @@ export function TripDetailView({ trip }) {
               href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
             },
           ]}
+          menus={[
+            {
+              label: 'Actions',
+              icon: 'eva:settings-2-fill',
+              items: [
+                {
+                  label: 'Close Trip..',
+                  onClick: () => closeTrip(_id),
+                },
+              ],
+            },
+            {
+              label: 'View',
+              icon: 'solar:eye-bold',
+              items: [
+                {
+                  label: 'Trip Sheet',
+                  onClick: () => viewTripSheet.onTrue(),
+                  disabled: !canViewTripSheet,
+                  tooltip: tripSheetTooltipTitle,
+                },
+              ],
+            },
+          ]}
+          actions={[
+            {
+              label: 'Edit',
+              icon: 'solar:pen-bold',
+              onClick: () => navigate(paths.dashboard.trip.edit(_id)),
+            },
+          ]}
         />
       </Box>
 
-      <TripToolbar
-        backLink={paths.dashboard.trip.list}
-        status={tripStatus}
-        tripData={trip}
-        onTripClose={() => closeTrip(_id)}
-        onEdit={() => {
-          navigate(paths.dashboard.trip.edit(_id));
-        }}
-      />
+      {/* View Trip Sheet Dialog */}
+      <Dialog fullScreen open={viewTripSheet.value}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions sx={{ p: 1.5 }}>
+            <Button color="primary" variant="outlined" onClick={viewTripSheet.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <TripSheetPdf trip={trip} tenant={tenant} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>

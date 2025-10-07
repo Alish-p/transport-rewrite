@@ -1,22 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Stack } from '@mui/material';
+import { Box, Grid, Stack, Button, Dialog, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import IndentPdf from 'src/pdfs/petrol-pump-indent';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
+import { Iconify } from 'src/components/iconify';
 import { HeroHeaderCard } from 'src/components/hero-header-card';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { SUBTRIP_STATUS } from '../constants';
+// PDFs
+import LRPDF from '../pdfs/lorry-reciept-pdf';
+import EntryPassPdf from '../pdfs/entry-pass-pdf';
 import LRInfo from '../widgets/subtrip-info-widget';
-import SubtripToolbar from '../subtrip-detail-toolbar';
 import InsightsWidget from '../widgets/insights-widget';
+import DriverPaymentPdf from '../pdfs/driver-payment-pdf';
 import { SubtripTimeline } from '../widgets/subtrip-timeline';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
 import { ExpenseChart } from '../widgets/expense-chart-widget';
+import TransporterPayment from '../pdfs/transporter-payment-pdf';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
@@ -61,6 +72,57 @@ export function SubtripDetailView({ subtrip }) {
   // Trip may be absent for Market vehicles; guard trip-dependent UI
   const hasTrip = Boolean(subtrip?.tripId?._id);
 
+  const viewLR = useBoolean();
+  const viewIntent = useBoolean();
+  const viewEntryPass = useBoolean();
+  const viewDriverPayment = useBoolean();
+  const viewTransporterPayment = useBoolean();
+  const tenant = useTenantContext();
+
+  const hasDieselIntent = subtrip?.intentFuelPump;
+  const hasEntryPass = subtrip?.diNumber;
+  const hasTransporterPayment = !subtrip?.vehicleId?.isOwn;
+
+  const getActions = () => {
+    if (subtrip.isEmpty) {
+      return [
+        {
+          label: 'Close Empty Trip',
+          action: () => setShowCloseEmptyDialog(true),
+          disabled: !isEditingAllowed(),
+        },
+      ];
+    }
+    return [
+      {
+        label: 'Add Material Info',
+        action: () =>
+          navigate(
+            `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
+          ),
+        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.IN_QUEUE,
+      },
+      {
+        label: 'Receive',
+        action: () =>
+          navigate(
+            `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
+          ),
+        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.LOADED,
+      },
+      {
+        label: 'Resolve',
+        action: () => setShowResolveDialog(true),
+        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RECEIVED,
+      },
+      {
+        label: 'Close Subtrip',
+        action: () => setShowCloseDialog(true),
+        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RESOLVED,
+      },
+    ];
+  };
+
   return (
     <>
       <DashboardContent>
@@ -97,33 +159,229 @@ export function SubtripDetailView({ subtrip }) {
                   ]
                 : []),
             ]}
+            menus={[
+              {
+                label: 'Actions',
+                icon: 'eva:settings-2-fill',
+                items: getActions().map((a) => ({ label: a.label, onClick: a.action, disabled: a.disabled })),
+              },
+              {
+                label: 'View',
+                icon: 'solar:eye-bold',
+                items: [
+                  {
+                    label: 'Lorry Receipt (LR)',
+                    icon: 'mdi:file-document-outline',
+                    onClick: () => viewLR.onTrue(),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasDieselIntent && {
+                    label: 'Petrol Pump Intent',
+                    icon: 'mdi:file-document-outline',
+                    onClick: () => viewIntent.onTrue(),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasEntryPass && {
+                    label: 'Entry Pass',
+                    icon: 'mdi:file-document-outline',
+                    onClick: () => viewEntryPass.onTrue(),
+                  },
+                  {
+                    label: 'Driver Payment',
+                    icon: 'mdi:file-document-outline',
+                    onClick: () => viewDriverPayment.onTrue(),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasTransporterPayment && {
+                    label: 'Transporter Payment',
+                    icon: 'mdi:file-document-outline',
+                    onClick: () => viewTransporterPayment.onTrue(),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                ].filter(Boolean),
+              },
+              {
+                label: 'Download',
+                icon: 'material-symbols:download',
+                items: [
+                  {
+                    label: 'Lorry Receipt (LR)',
+                    render: () => (
+                      <PDFDownloadLink
+                        document={<LRPDF subtrip={subtrip} tenant={tenant} />}
+                        fileName={`${subtrip.subtripNo}_lr`}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      >
+                        {({ loading }) => (
+                          <>
+                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                            Lorry Receipt (LR)
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                    ),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasDieselIntent && {
+                    label: 'Petrol Pump Indent',
+                    render: () => (
+                      <PDFDownloadLink
+                        document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
+                        fileName={`${subtrip.subtripNo}_indent`}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      >
+                        {({ loading }) => (
+                          <>
+                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                            Petrol Pump Indent
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                    ),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasEntryPass && {
+                    label: 'Entry Pass',
+                    render: () => (
+                      <PDFDownloadLink
+                        document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
+                        fileName={`${subtrip.subtripNo}_entry_pass`}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      >
+                        {({ loading }) => (
+                          <>
+                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                            Entry Pass
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                    ),
+                  },
+                  {
+                    label: 'Driver Payment',
+                    render: () => (
+                      <PDFDownloadLink
+                        document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
+                        fileName={`${subtrip.subtripNo}_driver_payment`}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      >
+                        {({ loading }) => (
+                          <>
+                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                            Driver Payment
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                    ),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                  hasTransporterPayment && {
+                    label: 'Transporter Payment',
+                    render: () => (
+                      <PDFDownloadLink
+                        document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
+                        fileName={`${subtrip.subtripNo}_transporter_payment`}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      >
+                        {({ loading }) => (
+                          <>
+                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                            Transporter Payment
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                    ),
+                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                  },
+                ].filter(Boolean),
+              },
+            ]}
+            actions={[
+              {
+                label: 'Edit',
+                icon: 'solar:pen-bold',
+                onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+                disabled: !isEditingAllowed(),
+              },
+            ]}
           />
         </Box>
 
-        <SubtripToolbar
-          backLink={hasTrip ? paths.dashboard.trip.details(subtrip.tripId._id) : undefined}
-          tripId={hasTrip ? subtrip.tripId._id : undefined}
-          status={subtrip.subtripStatus}
-          subtrip={subtrip}
-          onAddMaterialInfo={() =>
-            navigate(
-              `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-            )
-          }
-          onRecieve={() =>
-            navigate(
-              `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-            )
-          }
-          onEdit={() => {
-            navigate(paths.dashboard.subtrip.edit(subtrip._id));
-          }}
-          onResolve={() => setShowResolveDialog(true)}
-          onSubtripClose={() => setShowCloseDialog(true)}
-          onCloseEmpty={() => setShowCloseEmptyDialog(true)}
-          isEditDisabled={!isEditingAllowed()}
-          isEmpty={subtrip.isEmpty}
-        />
+        {/* PDF Viewers */}
+        <Dialog fullScreen open={viewLR.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewLR.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <LRPDF subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
+
+        <Dialog fullScreen open={viewIntent.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewIntent.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <IndentPdf subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
+
+        <Dialog fullScreen open={viewEntryPass.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewEntryPass.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <EntryPassPdf subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
+
+        <Dialog fullScreen open={viewDriverPayment.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewDriverPayment.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <DriverPaymentPdf subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
+
+        <Dialog fullScreen open={viewTransporterPayment.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewTransporterPayment.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <TransporterPayment subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>

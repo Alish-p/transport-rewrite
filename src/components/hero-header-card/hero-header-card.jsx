@@ -12,8 +12,9 @@ import { RouterLink } from 'src/routes/components';
 import { bgGradient } from 'src/theme/styles';
 
 import { Iconify } from '../iconify';
+import { ActionMenuBar } from './action-menu-bar';
 
-export function HeroHeaderCard({ icon, title, status, meta = [], action, gradient, sx, ...other }) {
+export function HeroHeaderCard({ icon, title, status, meta = [], action, actions, menus, gradient, sx, ...other }) {
   const theme = useTheme();
 
   const background =
@@ -70,7 +71,13 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, gradien
             )}
           </Box>
 
-          {action && <Box sx={{ flexShrink: 0 }}>{action}</Box>}
+          {action ? (
+            <Box sx={{ flexShrink: 0 }}>{action}</Box>
+          ) : (menus || actions) ? (
+            <Box sx={{ flexShrink: 0 }}>
+              <ActionMenuBar menus={menus} actions={actions} />
+            </Box>
+          ) : null}
         </Stack>
       </CardContent>
     </Card>

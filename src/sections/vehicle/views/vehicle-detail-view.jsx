@@ -1,9 +1,8 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
+import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -20,6 +19,7 @@ import { VehicleSubtripsWidget } from '../widgets/vehicle-subtrips-widget';
 // ----------------------------------------------------------------------
 
 export function VehicleDetailView({ vehicle }) {
+  const navigate = useNavigate();
   const {
     vehicleNo,
     vehicleType,
@@ -199,16 +199,13 @@ export function VehicleDetailView({ vehicle }) {
             { icon: 'mdi:car', label: vehicleType },
             { icon: 'mdi:domain', label: vehicleCompany },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.vehicle.edit(vehicle._id)}
-              variant="contained"
-              startIcon={<Iconify icon="solar:pen-bold" />}
-            >
-              Edit Vehicle
-            </Button>
-          }
+          actions={[
+            {
+              label: 'Edit',
+              icon: 'solar:pen-bold',
+              onClick: () => navigate(paths.dashboard.vehicle.edit(vehicle._id)),
+            },
+          ]}
         />
       </Box>
 
