@@ -31,7 +31,6 @@ export default function IndentPdf({ subtrip, tenant }) {
     _id,
     subtripNo,
     startDate,
-    expenses,
     initialAdvanceDiesel,
     initialAdvanceDieselUnit,
     initialTripAdvance,
