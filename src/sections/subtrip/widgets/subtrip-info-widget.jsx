@@ -36,9 +36,6 @@ export default function LRInfoCard({ subtrip }) {
     unloadingWeight = '-',
     shortageWeight = '-',
     shortageAmount = '-',
-    startKm = '-',
-    endKm = '-',
-    tds = '-',
     invoiceNo = '-',
     orderNo = '-',
     shipmentNo = '-',
@@ -185,21 +182,7 @@ export default function LRInfoCard({ subtrip }) {
           <Typography>{unloadingPoint}</Typography>
         </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:speedometer" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Start KM
-          </Box>
-          <Typography>{startKm}</Typography>
-        </Stack>
-
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:speedometer-medium" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            End KM
-          </Box>
-          <Typography>{endKm}</Typography>
-        </Stack>
+        {/* Start/End KM removed from UI */}
       </Stack>
     </>
   );
@@ -258,17 +241,6 @@ export default function LRInfoCard({ subtrip }) {
           <Typography>
             {commissionRate}
             {commissionRate !== '-' && <span>&nbsp;₹</span>}
-          </Typography>
-        </Stack>
-
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:percent" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            TDS
-          </Box>
-          <Typography>
-            {tds}
-            {tds !== '-' && <span>&nbsp;%</span>}
           </Typography>
         </Stack>
       </Stack>

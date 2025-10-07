@@ -35,6 +35,7 @@ import { fDate } from 'src/utils/format-time';
 import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
 import { useRoute } from 'src/query/use-route';
+import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
@@ -192,7 +193,7 @@ export function SubtripJobCreateView() {
     mode: 'onChange',
   });
 
-  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger, clearErrors } = methods;
+  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger, clearErrors, getValues } = methods;
   const watchedForm = watch();
   const { tripDecision, loadType, driverAdvanceGivenBy, initialAdvanceDiesel, initialAdvanceDieselUnit, pumpCd } = watchedForm;
 
@@ -335,6 +336,21 @@ export function SubtripJobCreateView() {
     () => selectedCustomer?.consignees || [],
     [selectedCustomer]
   );
+
+  // Auto-fill startKm for own vehicles using GPS when closing previous trip
+  const vehicleNo = selectedVehicle?.vehicleNo;
+  const { data: gpsData } = useGps(vehicleNo, { enabled: !!selectedVehicle?.isOwn && !!vehicleNo });
+  useEffect(() => {
+    if (!selectedVehicle?.isOwn) return;
+    if (!activeTrip) return;
+    if (tripDecision !== 'new') return;
+    if (!gpsData?.totalOdometer) return;
+
+    const current = toNumber(getValues('startKm'));
+    if (current === undefined) {
+      setValue('startKm', Math.round(gpsData.totalOdometer), { shouldValidate: true, shouldDirty: true });
+    }
+  }, [gpsData, selectedVehicle, activeTrip, tripDecision, setValue, getValues]);
 
   const getVehicleStepError = useCallback(
     (form) => {

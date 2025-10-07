@@ -6,7 +6,6 @@ export const receiveSchema = zod
   .object({
     subtripId: zod.string().min(1, { message: 'Subtrip is required' }),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
-    endKm: zod.number({ required_error: 'End Km is required' }).optional(),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionRate: zod
       .number()

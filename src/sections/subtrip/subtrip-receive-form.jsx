@@ -20,7 +20,6 @@ import {
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useGps } from 'src/query/use-gps';
 import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
@@ -38,7 +37,6 @@ const defaultValues = {
   subtripId: '',
   endDate: new Date(),
   unloadingWeight: 0,
-  endKm: 0,
   commissionRate: 0,
   hasShortage: false,
   hasError: false,
@@ -49,7 +47,7 @@ const defaultValues = {
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch } = methods;
-  const { hasError, hasShortage, unloadingWeight, endKm, commissionRate } = watch();
+  const { hasError, hasShortage, unloadingWeight, commissionRate } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
 
   return (
@@ -88,17 +86,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               }}
             />
 
-            {isOwn ? (
-              <Field.Text
-                name="endKm"
-                label="End Km"
-                type="number"
-                required
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">KM</InputAdornment>,
-                }}
-              />
-            ) : (
+            {isOwn ? null : (
               <Field.Text
                 name="commissionRate"
                 label="Transporter Commission Rate"
@@ -180,11 +168,6 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             Unloading weight cannot be more than loading weight
           </Alert>
         )}
-        {endKm < selectedSubtrip?.startKm && (
-          <Alert severity="error" variant="outlined">
-            End Km cannot be less than start Km.
-          </Alert>
-        )}
         {commissionRate > selectedSubtrip?.rate && (
           <Alert severity="error" variant="outlined">
             Commission rate cannot be more than the freight rate
@@ -224,12 +207,8 @@ export function SubtripReceiveForm() {
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
-  const { unloadingWeight, endKm, commissionRate } = watch();
+  const { unloadingWeight, commissionRate } = watch();
   const { isOwn } = selectedSubtripData?.vehicleId || {};
-  const vehicleNo = selectedSubtripData?.vehicleId?.vehicleNo;
-  const { data: gpsData } = useGps(vehicleNo, {
-    enabled: selectedSubtripData?.vehicleId?.isOwn,
-  });
   const handleSubtripChange = useCallback(
     (subtrip) => {
       setSelectedSubtripId(subtrip._id);
@@ -261,14 +240,7 @@ export function SubtripReceiveForm() {
     }
   }, [currentSubtripId, handleSubtripChange]);
 
-  useEffect(() => {
-    if (gpsData?.totalOdometer) {
-      const current = getValues('endKm');
-      if (!current) {
-        setValue('endKm', Math.round(gpsData.totalOdometer));
-      }
-    }
-  }, [gpsData, setValue, getValues]);
+  // Removed endKm auto-fill via GPS as endKm is no longer captured
 
   return (
     <>
@@ -304,7 +276,6 @@ export function SubtripReceiveForm() {
                   isSubmitting ||
                   // local errors
                   unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  (isOwn && endKm < selectedSubtripData?.startKm) ||
                   (!isOwn && commissionRate > selectedSubtripData?.rate)
                 }
               >
