@@ -201,8 +201,6 @@ export function SubtripReceiveForm() {
   const {
     reset,
     watch,
-    getValues,
-    setValue,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = methods;

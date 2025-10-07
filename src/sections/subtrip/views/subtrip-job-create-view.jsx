@@ -34,8 +34,8 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 import { fDate } from 'src/utils/format-time';
 import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
-import { useRoute } from 'src/query/use-route';
 import { useGps } from 'src/query/use-gps';
+import { useRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
@@ -337,13 +337,13 @@ export function SubtripJobCreateView() {
     [selectedCustomer]
   );
 
-  // Auto-fill startKm for own vehicles using GPS when closing previous trip
+  // Auto-fill startKm for own vehicles using GPS when creating a new trip
   const vehicleNo = selectedVehicle?.vehicleNo;
   const { data: gpsData } = useGps(vehicleNo, { enabled: !!selectedVehicle?.isOwn && !!vehicleNo });
   useEffect(() => {
     if (!selectedVehicle?.isOwn) return;
-    if (!activeTrip) return;
-    if (tripDecision !== 'new') return;
+    // If there is an active trip, only prefill when creating a new one
+    if (activeTrip && tripDecision !== 'new') return;
     if (!gpsData?.totalOdometer) return;
 
     const current = toNumber(getValues('startKm'));
@@ -368,9 +368,11 @@ export function SubtripJobCreateView() {
         return 'Select load type (Loaded/Empty)';
       }
 
-      if (activeTrip && form.tripDecision === 'new') {
+      // Require Start Km when creating a new trip (no active trip, or choosing to create new)
+      const requiresStartKm = (!activeTrip) || (activeTrip && form.tripDecision === 'new');
+      if (requiresStartKm) {
         const startKmValue = toNumber(form.startKm);
-        if (startKmValue === undefined) return 'Start Km is required to close previous trip';
+        if (startKmValue === undefined) return 'Start Km is required to create a new trip';
         if (startKmValue < 0) return 'Start Km cannot be negative';
       }
 
@@ -476,7 +478,7 @@ export function SubtripJobCreateView() {
     const isOwn = !!selectedVehicle?.isOwn;
     const hasActive = !!activeTrip;
     const isEmpty = isOwn ? form.loadType === 'empty' : false;
-    const closingPreviousTrip = isOwn && hasActive && form.tripDecision === 'new';
+    const creatingNewTrip = isOwn && (!hasActive || (hasActive && form.tripDecision === 'new'));
 
     const base = {
       vehicleId: selectedVehicle._id,
@@ -490,7 +492,7 @@ export function SubtripJobCreateView() {
       diNumber: form.diNumber || undefined,
     };
 
-    const tripKm = closingPreviousTrip ? toNumber(form.startKm) : undefined;
+    const tripKm = creatingNewTrip ? toNumber(form.startKm) : undefined;
 
     const emptyRoute = isEmpty
       ? {
@@ -500,25 +502,25 @@ export function SubtripJobCreateView() {
       }
       : {};
 
-      const loadedFields = !isEmpty
-        ? {
-          customerId: selectedCustomer?._id,
-          consignee: form.consignee?.value || form.consignee?.label,
-          routeCd: form.routeCd,
-          loadingPoint: form.loadingPoint,
-          unloadingPoint: form.unloadingPoint,
-          loadingWeight: toNumber(form.loadingWeight),
-          rate: toNumber(form.rate),
-          invoiceNo: form.invoiceNo,
-          shipmentNo: form.shipmentNo || undefined,
-          orderNo: form.orderNo || undefined,
-          referenceSubtripNo: form.referenceSubtripNo || undefined,
-          ewayBill: form.ewayBill || undefined,
-          ewayExpiryDate: form.ewayExpiryDate,
-          materialType: form.materialType,
-          quantity: toNumber(form.quantity),
-          grade: form.grade || undefined,
-          driverAdvance: toNumber(form.driverAdvance),
+    const loadedFields = !isEmpty
+      ? {
+        customerId: selectedCustomer?._id,
+        consignee: form.consignee?.value || form.consignee?.label,
+        routeCd: form.routeCd,
+        loadingPoint: form.loadingPoint,
+        unloadingPoint: form.unloadingPoint,
+        loadingWeight: toNumber(form.loadingWeight),
+        rate: toNumber(form.rate),
+        invoiceNo: form.invoiceNo,
+        shipmentNo: form.shipmentNo || undefined,
+        orderNo: form.orderNo || undefined,
+        referenceSubtripNo: form.referenceSubtripNo || undefined,
+        ewayBill: form.ewayBill || undefined,
+        ewayExpiryDate: form.ewayExpiryDate,
+        materialType: form.materialType,
+        quantity: toNumber(form.quantity),
+        grade: form.grade || undefined,
+        driverAdvance: toNumber(form.driverAdvance),
         driverAdvanceGivenBy: form.driverAdvanceGivenBy,
         initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
         initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
@@ -725,7 +727,7 @@ export function SubtripJobCreateView() {
                         </Field.Select>
                       )}
 
-                      {selectedVehicle?.isOwn && activeTrip && tripDecision === 'new' && (
+                      {selectedVehicle?.isOwn && ((activeTrip && tripDecision === 'new') || !activeTrip) && (
                         <Field.Text
                           name="startKm"
                           label="Start Km"
@@ -976,11 +978,6 @@ export function SubtripJobCreateView() {
                             Auto-filled from route configuration
                           </Typography>
                         )}
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
-                            ? 'Given by Pump selected. Please ensure a pump is chosen below.'
-                            : 'Record an optional advance provided to the driver.'}
-                        </Typography>
                       </Stack>
                     </Box>
 
@@ -1019,14 +1016,10 @@ export function SubtripJobCreateView() {
                             Auto-filled from route configuration
                           </Typography>
                         )}
-                        {initialAdvanceDieselUnit === 'litre' ? (
+                        {initialAdvanceDieselUnit === 'litre' && (
                           <Alert variant="outlined" severity="info">
                             In case of Litre Diesel Intent, expense will not be added automatically. Actuals need to be added.
                           </Alert>
-                        ) : (
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Provide diesel as litres or amount. Selecting a pump ensures the indent captures both the advance and diesel instructions.
-                          </Typography>
                         )}
                       </Stack>
                     </Box>
