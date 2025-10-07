@@ -5,7 +5,7 @@ import { createFilterOptions } from '@mui/material/Autocomplete';
 
 const filter = createFilterOptions();
 
-export default function RHFMultiAutocompleteFreeSolo({
+export function RHFMultiAutocompleteFreeSolo({
   name,
   label,
   options = [],

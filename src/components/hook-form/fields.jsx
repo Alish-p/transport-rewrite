@@ -7,15 +7,15 @@ import { RHFRadioGroup } from './rhf-radio-group';
 import { RHFPhoneInput } from './rhf-phone-input';
 import { RHFNumberField } from './rhf-number-field';
 import { RHFAutocomplete } from './rhf-autocomplete';
-import RHFInputWithUnit from './rhf-input-with-unit';
 import { RHFCountrySelect } from './rhf-country-select';
+import { RHFInputWithUnit } from './rhf-input-with-unit';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
 import { RHFSelect, RHFMultiSelect } from './rhf-select';
 import { RHFCheckbox, RHFMultiCheckbox } from './rhf-checkbox';
-import RHFFreeSoloAutocomplete from './rhf-autocomplete-freesolo';
+import { RHFFreeSoloAutocomplete } from './rhf-autocomplete-freesolo';
 import { RHFUpload, RHFUploadBox, RHFUploadAvatar } from './rhf-upload';
 import { RHFDatePicker, RHFMobileDateTimePicker } from './rhf-date-picker';
-import RHFMultiAutocompleteFreeSolo from './rhf-autocomplete-multiple-freesolo';
+import { RHFMultiAutocompleteFreeSolo } from './rhf-autocomplete-multiple-freesolo';
 
 // ----------------------------------------------------------------------
 

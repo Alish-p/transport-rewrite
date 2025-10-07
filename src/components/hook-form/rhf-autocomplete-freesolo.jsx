@@ -14,7 +14,7 @@ const filter = createFilterOptions();
  * @param {Array} options - Array of options to suggest (each should have label and value properties)
  * @param {Object} other - Other props to pass to the Autocomplete component
  */
-export default function RHFFreeSoloAutocomplete({
+export function RHFFreeSoloAutocomplete({
   name,
   label,
   options = [],
