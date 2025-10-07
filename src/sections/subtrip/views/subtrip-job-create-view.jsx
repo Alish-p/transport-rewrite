@@ -32,7 +32,9 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { fDate } from 'src/utils/format-time';
+import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
+import { useRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
@@ -43,6 +45,8 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from 'src/sections/subtrip/constants';
+import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
@@ -51,6 +55,12 @@ import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-cust
 // ---------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------
+const toNumber = (val) => {
+  if (val === null || val === undefined || val === '') return undefined;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : undefined;
+};
+
 const numericInputSchema = z.union([z.string(), z.number()]).optional();
 
 const consigneeOptionSchema = z
@@ -58,34 +68,51 @@ const consigneeOptionSchema = z
   .partial()
   .nullish();
 
-const formSchema = z.object({
-  diNumber: z.string().optional(),
-  remarks: z.string().optional(),
-  startDate: z.date().nullable(),
-  tripDecision: z.enum(['attach', 'new']),
-  loadType: z.enum(['loaded', 'empty']),
-  startKm: numericInputSchema,
-  consignee: consigneeOptionSchema,
-  routeCd: z.string().optional(),
-  loadingPoint: z.string().optional(),
-  unloadingPoint: z.string().optional(),
-  loadingWeight: numericInputSchema,
-  rate: numericInputSchema,
-  invoiceNo: z.string().optional(),
-  ewayBill: z.string().optional(),
-  // Optional because empty subtrips won't have it
-  ewayExpiryDate: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid Eway Expiry Date!' } }),
-  materialType: z.string().optional(),
-  quantity: numericInputSchema,
-  grade: z.string().optional(),
-  shipmentNo: z.string().optional(),
-  orderNo: z.string().optional(),
-  referenceSubtripNo: z.string().optional(),
-  driverAdvance: numericInputSchema,
-  driverAdvanceGivenBy: z.string().optional(),
-  initialAdvanceDiesel: numericInputSchema,
-  pumpCd: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    diNumber: z.string().optional(),
+    remarks: z.string().optional(),
+    startDate: z.date().nullable(),
+    tripDecision: z.enum(['attach', 'new']),
+    loadType: z.enum(['loaded', 'empty']),
+    startKm: numericInputSchema,
+    consignee: consigneeOptionSchema,
+    routeCd: z.string().optional(),
+    loadingPoint: z.string().optional(),
+    unloadingPoint: z.string().optional(),
+    loadingWeight: numericInputSchema,
+    rate: numericInputSchema,
+    invoiceNo: z.string().optional(),
+    ewayBill: z.string().optional(),
+    // Optional because empty subtrips won't have it
+    ewayExpiryDate: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid Eway Expiry Date!' } }),
+    materialType: z.string().optional(),
+    quantity: numericInputSchema,
+    grade: z.string().optional(),
+    shipmentNo: z.string().optional(),
+    orderNo: z.string().optional(),
+    referenceSubtripNo: z.string().optional(),
+    driverAdvance: numericInputSchema,
+    driverAdvanceGivenBy: z.string().optional(),
+    initialAdvanceDiesel: numericInputSchema,
+    initialAdvanceDieselUnit: z.enum(['litre', 'amount']).optional(),
+    pumpCd: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const advanceSource = String(data.driverAdvanceGivenBy || '').toLowerCase();
+    const dieselAdvance = toNumber(data.initialAdvanceDiesel);
+    const requiresPump =
+      advanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+      (dieselAdvance !== undefined && dieselAdvance > 0);
+
+    if (requiresPump && !data.pumpCd) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Pump selection is required when advance or diesel is provided by the pump',
+        path: ['pumpCd'],
+      });
+    }
+  });
 
 const createDefaultValues = () => ({
   diNumber: '',
@@ -110,16 +137,11 @@ const createDefaultValues = () => ({
   orderNo: '',
   referenceSubtripNo: '',
   driverAdvance: '',
-  driverAdvanceGivenBy: 'Self',
+  driverAdvanceGivenBy: DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF,
   initialAdvanceDiesel: '',
+  initialAdvanceDieselUnit: 'litre',
   pumpCd: '',
 });
-
-const toNumber = (val) => {
-  if (val === null || val === undefined || val === '') return undefined;
-  const n = Number(val);
-  return Number.isFinite(n) ? n : undefined;
-};
 
 const normalizeDriverAdvanceGivenBy = (val) => {
   if (!val) return undefined;
@@ -133,6 +155,7 @@ const STEPS = [
   { label: 'Job Details' },
   { label: 'Route Details' },
   { label: 'Material Details' }, // Only for loaded jobs
+  { label: 'Driver Advance' }, // Only for loaded jobs
 ];
 
 export function SubtripJobCreateView() {
@@ -144,13 +167,18 @@ export function SubtripJobCreateView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(null);
+  const [routeSuggestedAdvance, setRouteSuggestedAdvance] = useState(false);
+  const [routeSuggestedDiesel, setRouteSuggestedDiesel] = useState(false);
 
   // Dialogs
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
   const customerDialog = useBoolean(false);
   const routeDialog = useBoolean(false);
+  const pumpDialog = useBoolean(false);
   const materialOptions = useMaterialOptions();
+  const { data: detailedRoute } = useRoute(selectedRoute?._id);
 
   // Queries & mutations
   const { data: activeTrip, isFetching: fetchingActiveTrip } = useVehicleActiveTrip(
@@ -169,9 +197,15 @@ export function SubtripJobCreateView() {
     mode: 'onChange',
   });
 
-  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger } = methods;
+  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger, clearErrors } = methods;
   const watchedForm = watch();
-  const { tripDecision, loadType } = watchedForm;
+  const { tripDecision, loadType, driverAdvanceGivenBy, initialAdvanceDiesel, initialAdvanceDieselUnit, pumpCd } = watchedForm;
+
+  const normalizedAdvanceSource = String(driverAdvanceGivenBy || '').toLowerCase();
+  const dieselAdvanceValue = toNumber(initialAdvanceDiesel);
+  const requiresPumpSelection =
+    normalizedAdvanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+    (dieselAdvanceValue !== undefined && dieselAdvanceValue > 0);
 
   // Selection handlers
   const syncRouteFields = useCallback(
@@ -208,11 +242,23 @@ export function SubtripJobCreateView() {
       setValue('orderNo', '');
       setValue('referenceSubtripNo', '');
       setValue('driverAdvance', '');
-      setValue('driverAdvanceGivenBy', 'Self');
+      setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF);
       setValue('initialAdvanceDiesel', '');
+      setValue('initialAdvanceDieselUnit', 'litre');
       setValue('pumpCd', '');
+      setSelectedPump(null);
+      setRouteSuggestedAdvance(false);
+      setRouteSuggestedDiesel(false);
     },
-    [setSelectedVehicle, setSelectedCustomer, setSelectedDriver, setSelectedRoute, setValue, syncRouteFields]
+    [
+      setSelectedVehicle,
+      setSelectedCustomer,
+      setSelectedDriver,
+      setSelectedRoute,
+      setSelectedPump,
+      setValue,
+      syncRouteFields,
+    ]
   );
 
   const handleDriverChange = useCallback((driver) => setSelectedDriver(driver), [setSelectedDriver]);
@@ -223,12 +269,45 @@ export function SubtripJobCreateView() {
     (route) => {
       setSelectedRoute(route);
       syncRouteFields(route);
+      setRouteSuggestedAdvance(false);
+      setRouteSuggestedDiesel(false);
       if (activeStep === 2) {
         trigger(['routeCd', 'loadingPoint', 'unloadingPoint']);
       }
     },
     [activeStep, setSelectedRoute, trigger, syncRouteFields]
   );
+
+  const handlePumpChange = useCallback(
+    (pump) => {
+      setSelectedPump(pump);
+      setValue('pumpCd', pump?._id || '', { shouldValidate: true });
+    },
+    [setSelectedPump, setValue]
+  );
+
+  // Auto-populate step 5 values from Route vehicleConfiguration when available
+  useEffect(() => {
+    try {
+      if (!detailedRoute || !selectedVehicle) return;
+      const cfg = getFixedExpensesByVehicleType(detailedRoute, selectedVehicle);
+
+      const currentAdvance = toNumber(watchedForm.driverAdvance);
+      if (currentAdvance === undefined && cfg?.advanceAmt != null) {
+        setValue('driverAdvance', cfg.advanceAmt, { shouldValidate: true, shouldDirty: true });
+        setRouteSuggestedAdvance(true);
+      }
+
+      const currentDiesel = toNumber(watchedForm.initialAdvanceDiesel);
+      if (currentDiesel === undefined && cfg?.diesel != null) {
+        setValue('initialAdvanceDiesel', cfg.diesel, { shouldValidate: true, shouldDirty: true });
+        setValue('initialAdvanceDieselUnit', 'litre', { shouldValidate: false, shouldDirty: true });
+        setRouteSuggestedDiesel(true);
+      }
+    } catch (err) {
+      // No matching vehicle configuration for this route; ignore
+    }
+  }, [detailedRoute, selectedVehicle, setValue, watchedForm.driverAdvance, watchedForm.initialAdvanceDiesel]);
 
 
   // Popover for active trip subtrips
@@ -359,6 +438,30 @@ export function SubtripJobCreateView() {
     [getRouteStepError, selectedVehicle]
   );
 
+  const getAdvanceStepError = useCallback(
+    (form) => {
+      const materialStageError = getMaterialStepError(form);
+      if (materialStageError) return materialStageError;
+
+      const isOwnVehicle = !!selectedVehicle?.isOwn;
+      const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
+      if (!isLoaded) return null;
+
+      const advanceSource = String(form.driverAdvanceGivenBy || '').toLowerCase();
+      const dieselAdvance = toNumber(form.initialAdvanceDiesel);
+      const pumpRequired =
+        advanceSource === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase() ||
+        (dieselAdvance !== undefined && dieselAdvance > 0);
+
+      if (pumpRequired && !form.pumpCd) {
+        return 'Please select a pump for driver advance or diesel intent';
+      }
+
+      return null;
+    },
+    [getMaterialStepError, selectedVehicle]
+  );
+
   // Build API payload consistently
   const buildPayload = (form) => {
     const isOwn = !!selectedVehicle?.isOwn;
@@ -423,7 +526,7 @@ export function SubtripJobCreateView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const err = getMaterialStepError(data);
+      const err = getAdvanceStepError(data);
       if (err) {
         toast.error(err);
         return;
@@ -453,9 +556,11 @@ export function SubtripJobCreateView() {
 
   const canGoMaterialStep = isLoadedJob ? !getRouteStepError(watchedForm) : false;
 
+  const canGoAdvanceStep = isLoadedJob ? !getMaterialStepError(watchedForm) : false;
+
   const canSubmit = isLoadedJob
-    ? activeStep === 3
-      ? !getMaterialStepError(watchedForm)
+    ? activeStep === 4
+      ? !getAdvanceStepError(watchedForm)
       : false
     : activeStep === 2
       ? !getRouteStepError(watchedForm)
@@ -481,9 +586,24 @@ export function SubtripJobCreateView() {
     }
   }, [tripDecision, activeTrip, selectedVehicle, setSelectedDriver]);
 
-  // UI helpers
+  useEffect(() => {
+    if (!isLoadedJob) {
+      clearErrors('pumpCd');
+      return;
+    }
 
-  console.log({ errors })
+    if (requiresPumpSelection) {
+      trigger('pumpCd');
+    } else {
+      clearErrors('pumpCd');
+    }
+  }, [isLoadedJob, requiresPumpSelection, trigger, clearErrors]);
+
+  useEffect(() => {
+    if (!pumpCd) {
+      setSelectedPump(null);
+    }
+  }, [pumpCd, setSelectedPump]);
 
   return (
     <DashboardContent>
@@ -802,9 +922,13 @@ export function SubtripJobCreateView() {
 
                     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                       <Button onClick={() => setActiveStep(2)}>Back</Button>
-                      <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!canSubmit}>
-                        Create Job
-                      </LoadingButton>
+                      <Button
+                        variant="contained"
+                        onClick={() => setActiveStep(4)}
+                        disabled={!canGoAdvanceStep}
+                      >
+                        Continue
+                      </Button>
                     </Stack>
                   </>
                 ) : (
@@ -812,6 +936,106 @@ export function SubtripJobCreateView() {
                 )}
               </StepContent>
             </Step>
+
+            {/* Step 5 - Driver Advance (Loaded only) */}
+            {isLoadedJob && (
+              <Step>
+                <StepLabel>{STEPS[4].label}</StepLabel>
+                <StepContent>
+                  <Stack spacing={2.5}>
+                    <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.default' }}>
+                      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
+                        <Field.Text
+                          name="driverAdvance"
+                          label="Driver Advance (Amount)"
+                          type="number"
+                          placeholder="0"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                        <Field.Select name="driverAdvanceGivenBy" label="Given By">
+                          {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((option) => (
+                            <MenuItem key={option} value={option}>
+                              {option}
+                            </MenuItem>
+                          ))}
+                        </Field.Select>
+                      </Box>
+                      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                        {routeSuggestedAdvance && (
+                          <Typography variant="caption" sx={{ color: 'success.main' }}>
+                            Auto-filled from route configuration
+                          </Typography>
+                        )}
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          {String(driverAdvanceGivenBy || '').toLowerCase() === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP.toLowerCase()
+                            ? 'Given by Pump selected. Please ensure a pump is chosen below.'
+                            : 'Record an optional advance provided to the driver.'}
+                        </Typography>
+                      </Stack>
+                    </Box>
+
+                    <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.default' }}>
+                      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
+                        <Field.InputWithUnit
+                          name="initialAdvanceDiesel"
+                          unitName="initialAdvanceDieselUnit"
+                          label="Diesel Intent"
+                          placeholder="0"
+                          textFieldProps={{}}
+                          unitOptions={[
+                            { label: 'Litre', value: 'litre' },
+                            { label: 'Amount', value: 'amount' },
+                          ]}
+                          defaultUnit="litre"
+                        />
+                        <Box>
+                          <DialogSelectButton
+                            onClick={pumpDialog.onTrue}
+                            placeholder={`Select Pump${requiresPumpSelection ? ' *' : ''}`}
+                            selected={selectedPump?.name}
+                            iconName="mdi:gas-station"
+                            error={Boolean(errors.pumpCd)}
+                          />
+                          {errors.pumpCd && (
+                            <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
+                              {errors.pumpCd.message}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                      <Stack spacing={0.75} sx={{ mt: 1 }}>
+                        {routeSuggestedDiesel && (
+                          <Typography variant="caption" sx={{ color: 'success.main' }}>
+                            Auto-filled from route configuration
+                          </Typography>
+                        )}
+                        {initialAdvanceDieselUnit === 'litre' ? (
+                          <Alert variant="outlined" severity="info">
+                            In case of Litre Diesel Intent, expense will not be added automatically. Actuals need to be added.
+                          </Alert>
+                        ) : (
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Provide diesel as litres or amount. Selecting a pump ensures the indent captures both the advance and diesel instructions.
+                          </Typography>
+                        )}
+                      </Stack>
+                    </Box>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
+                    <Button onClick={() => setActiveStep(3)}>Back</Button>
+                    <LoadingButton
+                      type="submit"
+                      variant="contained"
+                      loading={isSubmitting}
+                      disabled={!canSubmit}
+                    >
+                      Create Job
+                    </LoadingButton>
+                  </Stack>
+                </StepContent>
+              </Step>
+            )}
           </MuiStepper>
 
           {/* Dialogs */}
@@ -843,6 +1067,13 @@ export function SubtripJobCreateView() {
             onRouteChange={handleRouteChange}
             mode={isLoadedJob ? 'genericAndCustomer' : 'generic'}
             customerId={isLoadedJob ? selectedCustomer?._id : undefined}
+          />
+
+          <KanbanPumpDialog
+            open={pumpDialog.value}
+            onClose={pumpDialog.onFalse}
+            selectedPump={selectedPump}
+            onPumpChange={handlePumpChange}
           />
         </Form>
       </Card>

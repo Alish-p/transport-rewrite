@@ -7,6 +7,7 @@ import { RHFRadioGroup } from './rhf-radio-group';
 import { RHFPhoneInput } from './rhf-phone-input';
 import { RHFNumberField } from './rhf-number-field';
 import { RHFAutocomplete } from './rhf-autocomplete';
+import RHFInputWithUnit from './rhf-input-with-unit';
 import { RHFCountrySelect } from './rhf-country-select';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
 import { RHFSelect, RHFMultiSelect } from './rhf-select';
@@ -42,4 +43,5 @@ export const Field = {
   MobileDateTimePicker: RHFMobileDateTimePicker,
   AutocompleteFreeSolo: RHFFreeSoloAutocomplete,
   MultiAutocompleteFreeSolo: RHFMultiAutocompleteFreeSolo,
+  InputWithUnit: RHFInputWithUnit,
 };

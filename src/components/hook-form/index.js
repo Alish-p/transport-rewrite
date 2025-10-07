@@ -33,3 +33,4 @@ export * from './rhf-autocomplete';
 export * from './rhf-number-field';
 
 export * from './rhf-country-select';
+export * from './rhf-input-with-unit';
