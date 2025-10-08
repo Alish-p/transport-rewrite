@@ -10,7 +10,6 @@ export default function TripTableRow({
   onSelectRow,
   onViewRow,
   onEditRow,
-  onDeleteRow,
   visibleColumns,
   disabledColumns,
   columnOrder,

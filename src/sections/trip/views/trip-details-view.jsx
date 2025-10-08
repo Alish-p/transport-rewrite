@@ -9,7 +9,6 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useCloseTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { HeroHeader } from 'src/components/hero-header-card';
@@ -69,8 +68,6 @@ function getTripDashboardData(trip) {
 
 export function TripDetailView({ trip }) {
   const navigate = useNavigate();
-
-  const closeTrip = useCloseTrip();
 
   const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalKm } =
     getTripDashboardData(trip);
