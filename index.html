@@ -13,17 +13,19 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      // Ensure old service workers don't cache-bust our app.
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/service-worker.js')
-            .then(() => {
-              console.log('ServiceWorker registration successful');
-            })
-            .catch((err) => {
-              console.log('ServiceWorker registration failed: ', err);
-            });
+        // Unregister any existing service workers from previous deployments
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
         });
+      }
+
+      // Clear any caches that might hold outdated assets
+      if (typeof caches !== 'undefined' && caches.keys) {
+        caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
       }
     </script>
   </body>
