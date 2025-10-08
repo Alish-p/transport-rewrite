@@ -31,11 +31,6 @@ const updateInvoiceStatus = async (id, status, amount) => {
   return data;
 };
 
-const deleteInvoice = async (id) => {
-  const { data } = await axios.delete(`${ENDPOINT}/${id}`);
-  return data;
-};
-
 const cancelInvoice = async (id) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}/cancel`);
   return data;
@@ -138,19 +133,4 @@ export function usePayInvoice() {
   return mutateAsync;
 }
 
-export function useDeleteInvoice() {
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: (id) => deleteInvoice(id),
-    onSuccess: (_) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Invoice deleted successfully!');
-    },
-    onError: (error) => {
-      console.log({ error });
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-  return mutate;
-}
+// Note: Hard delete of invoices is intentionally disabled in UI

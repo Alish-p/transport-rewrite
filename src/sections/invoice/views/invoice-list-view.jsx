@@ -27,7 +27,7 @@ import { downloadInvoicesXml } from 'src/utils/export-invoice-xml';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteInvoice, usePaginatedInvoices } from 'src/query/use-invoice';
+import { useCancelInvoice, usePaginatedInvoices } from 'src/query/use-invoice';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -73,7 +73,7 @@ export function InvoiceListView() {
   const navigate = useNavigate();
   const tenant = useTenantContext();
 
-  const deleteInvoice = useDeleteInvoice();
+  const cancelInvoice = useCancelInvoice();
   const table = useTable({ defaultOrderBy: 'createDate' });
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
@@ -433,7 +433,7 @@ export function InvoiceListView() {
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
                       onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deleteInvoice(row._id)}
+                      onDeleteRow={() => cancelInvoice(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}
