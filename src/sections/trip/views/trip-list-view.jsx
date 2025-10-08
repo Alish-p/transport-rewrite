@@ -170,16 +170,6 @@ export function TripListView() {
             name: 'Trip List',
           },
         ]}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.trip.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Trip
-          </Button>
-        }
         sx={{
           mb: { xs: 3, md: 5 },
         }}

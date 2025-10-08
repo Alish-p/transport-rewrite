@@ -97,52 +97,43 @@ export function TripDetailView({ trip }) {
       <HeroHeader
         offsetTop={70}
         title={`Trip #${tripNo}`}
-          status={tripStatus}
-          icon="mdi:routes"
-          meta={[
-            {
-              icon: 'mdi:account',
-              label: driverId?.driverName,
-              href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
-            },
+        status={tripStatus}
+        icon="mdi:routes"
+        meta={[
+          {
+            icon: 'mdi:account',
+            label: driverId?.driverName,
+            href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
+          },
 
-            {
-              icon: 'mdi:truck-outline',
-              label: vehicleId?.vehicleNo,
-              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
-            },
-          ]}
-          menus={[
-            {
-              label: 'Actions',
-              icon: 'eva:settings-2-fill',
-              items: [
-                {
-                  label: 'Close Trip..',
-                  onClick: () => closeTrip(_id),
-                },
-              ],
-            },
-            {
-              label: 'View',
-              icon: 'solar:eye-bold',
-              items: [
-                {
-                  label: 'Trip Sheet',
-                  onClick: () => viewTripSheet.onTrue(),
-                  disabled: !canViewTripSheet,
-                  tooltip: tripSheetTooltipTitle,
-                },
-              ],
-            },
-          ]}
-          actions={[
-            {
-              label: 'Edit',
-              icon: 'solar:pen-bold',
-              onClick: () => navigate(paths.dashboard.trip.edit(_id)),
-            },
-          ]}
+          {
+            icon: 'mdi:truck-outline',
+            label: vehicleId?.vehicleNo,
+            href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+          },
+        ]}
+        menus={[
+
+          {
+            label: 'View',
+            icon: 'solar:eye-bold',
+            items: [
+              {
+                label: 'Trip Sheet',
+                onClick: () => viewTripSheet.onTrue(),
+                disabled: !canViewTripSheet,
+                tooltip: tripSheetTooltipTitle,
+              },
+            ],
+          },
+        ]}
+        actions={[
+          {
+            label: 'Edit',
+            icon: 'solar:pen-bold',
+            onClick: () => navigate(paths.dashboard.trip.edit(_id)),
+          },
+        ]}
       />
 
       {/* View Trip Sheet Dialog */}
