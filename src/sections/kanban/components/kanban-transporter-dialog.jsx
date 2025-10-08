@@ -66,7 +66,10 @@ export function KanbanTransporterDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Transporters <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
+        Transporters{' '}
+        <Typography component="span" sx={{ color: 'text.secondary' }}>
+          ({data?.pages?.[0]?.total || 0})
+        </Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>

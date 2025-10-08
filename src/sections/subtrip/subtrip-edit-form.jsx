@@ -44,18 +44,14 @@ const baseSchema = z.object({
   startDate: schemaHelper.date(),
 });
 
-// Schema for In-queue status
-const inQueueSchema = baseSchema;
-
-// Schema for Loaded status (extends in-queue)
-const loadedSchema = inQueueSchema.extend({
+// Schema for Loaded status
+const loadedSchema = baseSchema.extend({
   consignee: z.string().max(100),
   routeCd: z.string(),
   loadingPoint: z.string().max(100),
   unloadingPoint: z.string().max(100),
   loadingWeight: z.number().nonnegative('Loading weight must be positive'),
   quantity: z.number().nonnegative('Quantity must be positive').optional(),
-  startKm: z.number().nonnegative('Start Km must be positive').optional(),
   rate: z.number().min(0, 'Rate must be at least 0'),
   ewayBill: z.string().max(100).optional(),
   ewayExpiryDate: z.string(),
@@ -74,7 +70,6 @@ const loadedSchema = inQueueSchema.extend({
 // Schema for Received status (extends loaded)
 const receivedSchema = loadedSchema.extend({
   unloadingWeight: z.number().nonnegative('Unloading weight must be positive'),
-  endKm: z.number().nonnegative('End Km must be positive').optional(),
   endDate: z.string(),
   hasShortage: z.boolean().optional(),
   shortageWeight: z.number().nonnegative('Shortage weight must be non-negative').optional(),
@@ -88,8 +83,6 @@ const receivedSchema = loadedSchema.extend({
 // Get the appropriate schema based on status
 const getSchemaForStatus = (status) => {
   switch (status) {
-    case SUBTRIP_STATUS.IN_QUEUE:
-      return inQueueSchema;
     case SUBTRIP_STATUS.LOADED:
       return loadedSchema;
     case SUBTRIP_STATUS.RECEIVED:
@@ -170,11 +163,13 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const onSubmit = async (data) => {
     try {
-      // only send the data that has changed
-      const changedFields = Object.keys(dirtyFields).reduce((acc, key) => {
-        acc[key] = data[key];
-        return acc;
-      }, {});
+      // only send the data that has changed, excluding trip-only fields (startKm/endKm)
+      const changedFields = Object.keys(dirtyFields)
+        .filter((key) => key !== 'startKm' && key !== 'endKm')
+        .reduce((acc, key) => {
+          acc[key] = data[key];
+          return acc;
+        }, {});
 
       await updateSubtrip({
         id: currentSubtrip._id,
@@ -285,16 +280,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     />
                   )}
 
-                  {isOwn && (
-                    <Field.Text
-                      name="startKm"
-                      label="Start Km"
-                      type="number"
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">KM</InputAdornment>,
-                      }}
-                    />
-                  )}
+                  {/* Start Km moved to Trip; removed from Subtrip edit */}
 
                   <Field.Text
                     name="rate"
@@ -395,16 +381,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       ),
                     }}
                   />
-                  {isOwn && (
-                    <Field.Text
-                      name="endKm"
-                      label="End Km"
-                      type="number"
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">KM</InputAdornment>,
-                      }}
-                    />
-                  )}
+                  {/* End Km moved to Trip; removed from Subtrip edit */}
                   {!isOwn && (
                     <Field.Text
                       name="commissionRate"

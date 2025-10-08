@@ -54,7 +54,10 @@ export function KanbanContactsDialog({ assignees = [], open, onClose, onAssignee
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Contacts <Typography component="span">({users?.length})</Typography>
+        Contacts{' '}
+        <Typography component="span" sx={{ color: 'text.secondary' }}>
+          ({users?.length})
+        </Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>

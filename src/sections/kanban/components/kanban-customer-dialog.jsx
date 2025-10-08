@@ -88,7 +88,10 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Customers <Typography component="span">({data?.pages?.[0]?.total || 0})</Typography>
+        Customers{' '}
+        <Typography component="span" sx={{ color: 'text.secondary' }}>
+          ({data?.pages?.[0]?.total || 0})
+        </Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>

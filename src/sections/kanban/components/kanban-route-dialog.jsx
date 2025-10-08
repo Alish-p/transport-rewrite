@@ -89,7 +89,7 @@ export function KanbanRouteDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Routes <Typography component="span">({total})</Typography>
+        Routes <Typography component="span" sx={{ color: 'text.secondary' }}>({total})</Typography>
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>
