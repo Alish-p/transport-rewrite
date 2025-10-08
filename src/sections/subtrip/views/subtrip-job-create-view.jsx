@@ -75,7 +75,12 @@ const formSchema = z
   .object({
     diNumber: z.string().optional(),
     remarks: z.string().optional(),
-    startDate: z.date().nullable(),
+    startDate: schemaHelper.date({
+      message: {
+        required_error: 'Start date is required!',
+        invalid_type_error: 'Invalid Start Date!',
+      },
+    }),
     tripDecision: z.enum(['attach', 'new']),
     loadType: z.enum(['loaded', 'empty']),
     startKm: numericInputSchema,
@@ -825,9 +830,7 @@ export function SubtripJobCreateView() {
 
                   <Field.DatePicker name="startDate" label="Start Date *" maxDate={dayjs()} />
 
-                  {(!selectedVehicle?.isOwn || loadType === 'loaded') && (
-                    <Field.Text name="diNumber" label="DI/DO No" />
-                  )}
+                  {/* DI/DO moved to Step 4 as last field for loaded jobs */}
 
                   <Field.Text name="remarks" label="Remarks" />
                 </Box>
@@ -938,6 +941,9 @@ export function SubtripJobCreateView() {
                         ))}
                       </Field.Select>
                       <Field.Text name="grade" label="Grade" />
+
+                      {/* DI/DO No as the last field in Step 4 */}
+                      <Field.Text name="diNumber" label="DI/DO No" />
                     </Box>
 
                     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
