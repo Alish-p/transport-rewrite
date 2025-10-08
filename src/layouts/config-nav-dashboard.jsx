@@ -67,19 +67,6 @@ export const navData = [
     subheader: 'Quick Links',
     items: [
       {
-        title: 'Create Trip',
-        path: paths.dashboard.trip.new,
-        icon: ICONS.trip,
-        info: <Iconify icon="gravity-ui:star" />,
-        resource: 'trip',
-        action: 'create',
-      },
-      {
-        title: 'Create Subtrip',
-        path: paths.dashboard.subtrip.new,
-        icon: ICONS.subtrip,
-      },
-      {
         title: 'Create Job',
         path: paths.dashboard.subtrip.jobCreate,
         icon: ICONS.job,
@@ -108,7 +95,6 @@ export const navData = [
         resource: 'trip',
         children: [
           { title: 'List', path: paths.dashboard.trip.root, action: 'view' },
-          { title: 'Create', path: paths.dashboard.trip.new, action: 'create' },
         ],
       },
       {
@@ -118,22 +104,10 @@ export const navData = [
         resource: 'subtrip',
         children: [
           {
-            title: 'Create',
-            path: paths.dashboard.subtrip.new,
-            action: 'create',
-            info: <Iconify icon="material-symbols:add" />,
-          },
-          {
             title: 'Create Job',
             path: paths.dashboard.subtrip.jobCreate,
             action: 'create',
             info: <Iconify icon="mdi:briefcase-plus" />,
-          },
-          {
-            title: 'Load',
-            path: paths.dashboard.subtrip.load,
-            action: 'update',
-            info: <Iconify icon="mdi:truck-fast" />,
           },
           {
             title: 'Receive',
