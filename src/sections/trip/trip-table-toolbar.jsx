@@ -169,11 +169,7 @@ export default function TripTableToolbar({
           sx={{ maxWidth: { md: 200 } }}
         />
 
-        <FormControlLabel
-          label="Own"
-          labelPlacement="top"
-          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} />}
-        />
+        {/* Removed 'Own' filter toggle as Trips won't be created for market vehicles */}
 
         <Stack direction="row" spacing={1}>
           <Tooltip title="Column Settings">
@@ -276,6 +272,7 @@ export default function TripTableToolbar({
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
+        onlyOwn
       />
 
       <KanbanSubtripDialog

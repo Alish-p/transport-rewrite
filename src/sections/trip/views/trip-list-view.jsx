@@ -57,7 +57,6 @@ const defaultFilters = {
   tripStatus: 'all',
   fromDate: null,
   toDate: null,
-  isOwn: false,
 };
 
 // ----------------------------------------------------------------------
@@ -101,7 +100,6 @@ export function TripListView() {
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
     status: filters.tripStatus !== 'all' ? [filters.tripStatus] : undefined,
-    isOwn: filters.isOwn ? true : undefined,
   });
 
   const [tableData, setTableData] = useState([]);

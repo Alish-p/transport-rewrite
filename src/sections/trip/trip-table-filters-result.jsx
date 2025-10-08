@@ -47,9 +47,7 @@ export default function TripTableFiltersResult({
     onFilters('toDate', null);
   };
 
-  const handleRemoveIsOwn = () => {
-    onFilters('isOwn', false);
-  };
+  // Removed Ownership filter handler as 'Own' filter is no longer used
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
 
@@ -111,11 +109,7 @@ export default function TripTableFiltersResult({
           </Block>
         )}
 
-        {filters.isOwn && (
-          <Block label="Ownership:">
-            <Chip size="small" label="Own trips" onDelete={handleRemoveIsOwn} />
-          </Block>
-        )}
+        {/* Ownership filter chip removed */}
 
         <Button
           color="error"
