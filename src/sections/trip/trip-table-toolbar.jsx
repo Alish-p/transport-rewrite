@@ -124,7 +124,7 @@ export default function TripTableToolbar({
           fullWidth
           value={filters.tripNo}
           onChange={handleFilterTripNo}
-          placeholder="Search Trip-NO..."
+          placeholder="Search Trip No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
