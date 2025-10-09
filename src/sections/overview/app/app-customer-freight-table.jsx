@@ -62,13 +62,12 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
             headLabel={[
               { id: 'index', label: 'No.' },
               { id: 'customer', label: 'Customer' },
-              { id: 'totalWeight', label: 'Total Weight', align: 'right' },
-              { id: 'freightAmount', label: 'Freight Amount', align: 'right' },
-              { id: 'inQueue', label: 'Waiting to Load', align: 'right' },
-              { id: 'loaded', label: 'POD Pending', align: 'right' },
-              { id: 'error', label: 'Error', align: 'right' },
-              { id: 'received', label: 'Received', align: 'right' },
-              { id: 'billed', label: 'Invoice Generated', align: 'right' },
+              { id: 'totalWeight', label: 'Total Weight', align: 'center' },
+              { id: 'freightAmount', label: 'Freight Amount', align: 'center' },
+              { id: 'loaded', label: 'POD Pending', align: 'center' },
+              { id: 'error', label: 'Error', align: 'center' },
+              { id: 'received', label: 'Received', align: 'center' },
+              { id: 'billed', label: 'Invoice Generated', align: 'center' },
             ]}
           />
           <TableBody>
@@ -90,36 +89,32 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                         {row.customerName}
                       </Link>
                     </TableCell>
-                    <TableCell align="right">{fNumber(row.totalLoadingWeight)}</TableCell>
-                    <TableCell align="right">{fShortenNumber(row.totalFreightAmount)}</TableCell>
-                    <TableCell align="right">{row.subtripCounts?.inQueue || '-'}</TableCell>
-                    <TableCell align="right">{row.subtripCounts?.loaded || '-'}</TableCell>
-                    <TableCell align="right">{row.subtripCounts?.error || '-'}</TableCell>
-                    <TableCell align="right">{row.subtripCounts?.received || '-'}</TableCell>
-                    <TableCell align="right">{row.subtripCounts?.billed || '-'}</TableCell>
+                    <TableCell align="center">{fNumber(row.totalLoadingWeight)}</TableCell>
+                    <TableCell align="center">{fShortenNumber(row.totalFreightAmount)}</TableCell>
+                    <TableCell align="center">{row.subtripCounts?.loaded || '-'}</TableCell>
+                    <TableCell align="center">{row.subtripCounts?.error || '-'}</TableCell>
+                    <TableCell align="center">{row.subtripCounts?.received || '-'}</TableCell>
+                    <TableCell align="center">{row.subtripCounts?.billed || '-'}</TableCell>
                   </TableRow>
                 ))}
                 <TableRow>
                   <TableCell colSpan={2}>Totals</TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fNumber(summary.reduce((sum, r) => sum + r.totalLoadingWeight, 0))}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fShortenNumber(summary.reduce((sum, r) => sum + r.totalFreightAmount, 0))}
                   </TableCell>
-                  <TableCell align="right">
-                    {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.inQueue || 0), 0))}
-                  </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.loaded || 0), 0))}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.error || 0), 0))}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.received || 0), 0))}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {fNumber(summary.reduce((sum, r) => sum + (r.subtripCounts?.billed || 0), 0))}
                   </TableCell>
                 </TableRow>
