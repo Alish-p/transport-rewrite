@@ -64,7 +64,15 @@ const toNumber = (val) => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-const numericInputSchema = z.union([z.string(), z.number()]).optional();
+// Accept number-like values; coerce to number; treat empty/NaN as undefined
+const numericInputSchema = z.preprocess(
+  (val) => {
+    if (val === '' || val === null || val === undefined) return undefined;
+    const n = typeof val === 'number' ? val : Number(val);
+    return Number.isFinite(n) ? n : undefined;
+  },
+  z.number().optional()
+);
 
 const consigneeOptionSchema = z
   .object({ label: z.string().optional(), value: z.string().optional() })
@@ -288,28 +296,42 @@ export function SubtripJobCreateView() {
     [setSelectedPump, setValue]
   );
 
-  // Auto-populate step 5 values from Route vehicleConfiguration when available
+  // Auto-populate step 5 values from Route vehicleConfiguration when available, only once per route selection
   useEffect(() => {
     try {
       if (!detailedRoute || !selectedVehicle) return;
       const cfg = getFixedExpensesByVehicleType(detailedRoute, selectedVehicle);
 
-      const currentAdvance = toNumber(watchedForm.driverAdvance);
-      if (currentAdvance === undefined && cfg?.advanceAmt != null) {
-        setValue('driverAdvance', cfg.advanceAmt, { shouldValidate: true, shouldDirty: true });
-        setRouteSuggestedAdvance(true);
+      // Driver advance: populate only if not already suggested this selection
+      if (!routeSuggestedAdvance) {
+        const currentAdvance = toNumber(watchedForm.driverAdvance);
+        if (currentAdvance === undefined && cfg?.advanceAmt != null) {
+          setValue('driverAdvance', cfg.advanceAmt, { shouldValidate: true, shouldDirty: true });
+          setRouteSuggestedAdvance(true);
+        }
       }
 
-      const currentDiesel = toNumber(watchedForm.initialAdvanceDiesel);
-      if (currentDiesel === undefined && cfg?.diesel != null) {
-        setValue('initialAdvanceDiesel', cfg.diesel, { shouldValidate: true, shouldDirty: true });
-        setValue('initialAdvanceDieselUnit', 'litre', { shouldValidate: false, shouldDirty: true });
-        setRouteSuggestedDiesel(true);
+      // Diesel intent: populate only if not already suggested this selection
+      if (!routeSuggestedDiesel) {
+        const currentDiesel = toNumber(watchedForm.initialAdvanceDiesel);
+        if (currentDiesel === undefined && cfg?.diesel != null) {
+          setValue('initialAdvanceDiesel', cfg.diesel, { shouldValidate: true, shouldDirty: true });
+          setValue('initialAdvanceDieselUnit', 'litre', { shouldValidate: false, shouldDirty: true });
+          setRouteSuggestedDiesel(true);
+        }
       }
     } catch (err) {
       // No matching vehicle configuration for this route; ignore
     }
-  }, [detailedRoute, selectedVehicle, setValue, watchedForm.driverAdvance, watchedForm.initialAdvanceDiesel]);
+  }, [
+    detailedRoute,
+    selectedVehicle,
+    setValue,
+    watchedForm.driverAdvance,
+    watchedForm.initialAdvanceDiesel,
+    routeSuggestedAdvance,
+    routeSuggestedDiesel,
+  ]);
 
 
   // Popover for active trip subtrips

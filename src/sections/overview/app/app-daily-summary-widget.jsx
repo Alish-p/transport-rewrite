@@ -48,7 +48,6 @@ export function AppDailySummaryWidget({ sx, ...other }) {
 
   const tabsConfig = useMemo(() => {
     const created = data?.subtrips?.created || { count: 0, list: [] };
-    const loaded = data?.subtrips?.loaded || { count: 0, list: [] };
     const received = data?.subtrips?.received || { count: 0, list: [] };
     const invoices = data?.invoices || { count: 0, amount: 0, list: [] };
     const transporterPayments = data?.transporterPayments || { count: 0, amount: 0, list: [] };
@@ -61,13 +60,6 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         label: 'Subtrips Created',
         icon: 'solar:document-add-bold-duotone',
         count: created.count || 0,
-        amount: 0,
-      },
-      {
-        value: 'loaded',
-        label: 'Subtrips Loaded',
-        icon: 'mdi:cube-send',
-        count: loaded.count || 0,
         amount: 0,
       },
       {
@@ -196,8 +188,6 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     switch (tabs.value) {
       case 'created':
         return data?.subtrips?.created?.list || [];
-      case 'loaded':
-        return data?.subtrips?.loaded?.list || [];
       case 'received':
         return data?.subtrips?.received?.list || [];
       case 'expenses':
@@ -216,7 +206,6 @@ export function AppDailySummaryWidget({ sx, ...other }) {
   const headLabel = useMemo(() => {
     switch (tabs.value) {
       case 'created':
-      case 'loaded':
       case 'received':
         return [
           { id: 'index', label: 'No.' },
@@ -294,7 +283,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
           ) : currentList && currentList.length ? (
             <>
               {currentList.map((row, idx) => {
-                if (['created', 'loaded', 'received'].includes(tabs.value)) {
+                if (['created', 'received'].includes(tabs.value)) {
                   const subtripId = row?._id;
                   const vehicleNo = row?.vehicleId?.vehicleNo || '-';
                   const driverName = row?.driverId?.driverName || '-';
