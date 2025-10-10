@@ -41,6 +41,19 @@ export default defineConfig({
       },
     ],
   },
-  server: { port: PORT, host: true },
+  server: {
+    port: PORT,
+    host: true,
+    proxy: {
+      // Forward client requests to local Tally HTTP server
+      '/tally': {
+        target: 'http://localhost:9000',
+        changeOrigin: true,
+        secure: false,
+        // Keep path as root for Tally; it accepts POST at '/'
+        rewrite: (path) => path.replace(/^\/tally/, '/'),
+      },
+    },
+  },
   preview: { port: PORT, host: true },
 });

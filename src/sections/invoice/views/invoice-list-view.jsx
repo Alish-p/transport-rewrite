@@ -23,7 +23,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { downloadInvoicesXml } from 'src/utils/export-invoice-xml';
+import { postInvoicesToTally } from 'src/utils/export-invoice-xml';
+import { toast } from 'sonner';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -372,22 +373,42 @@ export function InvoiceListView() {
                   </Tooltip>
 
                   {tenant?.integrations?.accounting?.enabled && (
-                    <Tooltip title="XML">
+                    <Tooltip title="Push to Tally (XML)">
                       <IconButton
                         color="primary"
-                        onClick={() => {
+                        onClick={async () => {
                           const selectedRows = tableData.filter((r) =>
                             table.selected.includes(r._id)
                           );
                           if (selectedRows.length === 0) return;
-                          const fileName =
-                            selectedRows.length === 1
-                              ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
-                              : 'invoices-selected.xml';
-                          downloadInvoicesXml(selectedRows, fileName, tenant);
+
+                          await toast.promise(
+                            (async () => {
+                              const res = await postInvoicesToTally(selectedRows, tenant);
+                              if (!res.ok) {
+                                // Try to surface useful errors from Tally response when available
+                                const msg = res.text || `HTTP ${res.status}`;
+                                throw new Error(
+                                  `Failed to push to Tally. ${msg.includes('LINEERROR') ? msg : msg}`
+                                );
+                              }
+                              return res.text || 'Uploaded';
+                            })(),
+                            {
+                              loading:
+                                selectedRows.length === 1
+                                  ? `Sending ${selectedRows[0].invoiceNo || 'invoice'} to Tally...`
+                                  : `Sending ${selectedRows.length} invoices to Tally...`,
+                              success: (text) =>
+                                text && /CREATED|IMPORTED|ALTERED/i.test(text)
+                                  ? 'Tally: Import succeeded'
+                                  : 'Sent to Tally',
+                              error: (err) => err.message || 'Failed to push to Tally',
+                            }
+                          );
                         }}
                       >
-                        <Iconify icon="mdi:code-brackets" />
+                        <Iconify icon="mdi:cloud-upload-outline" />
                       </IconButton>
                     </Tooltip>
                   )}

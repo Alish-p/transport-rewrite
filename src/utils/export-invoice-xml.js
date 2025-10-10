@@ -206,3 +206,47 @@ export default {
   downloadInvoiceXml,
   downloadInvoicesXml,
 };
+
+// ----------------------------------
+// Tally POST helpers
+// ----------------------------------
+
+/**
+ * Post one or more invoices to a Tally HTTP server.
+ * - In dev, configure Vite proxy to forward '/tally' to 'http://localhost:9000'.
+ * - In production, you may point `tallyUrl` to a reachable Tally endpoint.
+ * @param {Array|Object} invoicesInput One invoice or an array of invoices
+ * @param {Object} tenant Current tenant (for ledger config)
+ * @param {Object} opts { tallyUrl?: string }
+ * @returns {Promise<{ ok: boolean, status: number, text: string }>} Response summary
+ */
+export async function postInvoicesToTally(invoicesInput, tenant, opts = {}) {
+  const invoices = Array.isArray(invoicesInput) ? invoicesInput : [invoicesInput];
+  const xml = buildInvoicesXml(invoices, tenant);
+
+  // Default to a relative path that can be proxied by Vite/dev server
+  const tallyUrl = opts.tallyUrl || '/tally';
+
+  try {
+    const res = await fetch(tallyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/xml',
+      },
+      body: xml,
+    });
+    const text = await res.text().catch(() => '');
+    return { ok: res.ok, status: res.status, text };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      text:
+        (err && (err.message || String(err))) || 'Failed to reach Tally server. Check CORS/proxy.',
+    };
+  }
+}
+
+export const tally = {
+  postInvoicesToTally,
+};
