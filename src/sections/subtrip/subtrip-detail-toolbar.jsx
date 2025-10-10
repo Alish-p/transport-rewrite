@@ -158,7 +158,7 @@ export default function SubtripToolbar({
         <Stack spacing={1} direction="row" alignItems="flex-start">
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="h4">Subtrip #{subtrip.subtripNo} </Typography>
+              <Typography variant="h4">Job #{subtrip.subtripNo} </Typography>
               <Label variant="soft" color={SUBTRIP_STATUS_COLORS[status] || 'default'}>
                 {status}
               </Label>
@@ -166,7 +166,7 @@ export default function SubtripToolbar({
                 variant="soft"
                 color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}
               >
-                {subtrip.vehicleId?.isOwn ? 'Own Subtrip' : 'Market Subtrip'}
+                {subtrip.vehicleId?.isOwn ? 'Own Job' : 'Market Job'}
               </Label>
             </Stack>
           </Stack>

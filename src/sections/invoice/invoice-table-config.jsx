@@ -52,7 +52,7 @@ export const TABLE_COLUMNS = [
 
   {
     id: 'subtrips',
-    label: 'Subtrips',
+    label: 'Jobs',
     defaultVisible: false,
     disabled: false,
     align: 'center',

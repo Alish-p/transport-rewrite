@@ -32,13 +32,13 @@ export const exportBillingSummaryToExcel = async (
   const mapSubtrips = (subtrips) =>
     (subtrips || []).map((st, idx) => ({
       'S.No': idx + 1,
-      'Subtrip No': st.subtripNo,
+      'Job No': st.subtripNo,
       'Customer Name': st.customerName,
       'Vehicle No': st.vehicleNo,
       Driver: st.driver,
       'Start Date': fDateTime(st.startDate),
       'Received Date': fDateTime(st.receivedDate),
-      'Subtrip Type': st.subtripType,
+      'Job Type': st.subtripType,
 
       'Loading Point': st.loadingPoint,
       'Unloading Point': st.unloadingPoint,
@@ -86,13 +86,13 @@ export const exportBillingSummaryToExcel = async (
     );
     data.push({
       'S.No': '',
-      'Subtrip No': 'Total',
+      'Job No': 'Total',
       'Customer Name': '',
       'Vehicle No': '',
       Driver: '',
       'Start Date': '',
       'Received Date': '',
-      'Subtrip Type': '',
+      'Job Type': '',
       'Loading Point': '',
       'Unloading Point': '',
       'Loading Weight': totals.loadingWeight,
@@ -113,7 +113,7 @@ export const exportBillingSummaryToExcel = async (
         options: { highlightColumns: ['Pending Amount'] },
       },
       { name: 'Received Invoices', data: receivedInvoices },
-      { name: 'Unbilled Subtrips', data: unbilledSubtrips },
+      { name: 'Unbilled Jobs', data: unbilledSubtrips },
     ],
     fileName
   );

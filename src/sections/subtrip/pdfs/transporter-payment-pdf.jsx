@@ -53,7 +53,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Transporter Payment For Subtrip {subtripNo}</Text>
+      <Text style={[styles.h3, styles.mb4]}>Transporter Payment For Job {subtripNo}</Text>
     </View>
   );
 

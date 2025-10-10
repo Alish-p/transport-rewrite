@@ -149,7 +149,7 @@ export default function TripTableToolbar({
 
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
-          placeholder="Subtrip"
+          placeholder="Job"
           selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
           sx={{ maxWidth: { md: 200 } }}

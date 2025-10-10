@@ -62,7 +62,7 @@ export function DriverInsightsTable({ title, subheader, ...other }) {
             headLabel={[
               { id: 'index', label: 'No.' },
               { id: 'driverName', label: 'Driver' },
-              { id: 'subtripCount', label: 'Subtrips' },
+              { id: 'subtripCount', label: 'Jobs' },
               { id: 'totalWeight', label: 'Total Weight' },
             ]}
           />

@@ -184,7 +184,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
         navigate(paths.dashboard.subtrip.details(paramCase(currentSubtrip._id)));
       }
     } catch (error) {
-      toast.error('Failed to update subtrip!');
+      toast.error('Failed to update job!');
       console.error(error);
     }
   };
@@ -197,7 +197,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       <>
         {/* Creation fields - always visible */}
         <Typography variant="h6" sx={{ my: 2 }}>
-          Create Subtrip Details
+          Create Job Details
         </Typography>
         <Card sx={{ p: 3 }}>
           <Box sx={{ mb: 3 }}>
@@ -214,7 +214,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 />
               </Tooltip>
               <Field.Text name="diNumber" label="DI/DO No" />
-              <Field.DatePicker name="startDate" label="Subtrip Start Date" />
+              <Field.DatePicker name="startDate" label="Job Start Date" />
             </Box>
           </Box>
         </Card>
@@ -223,7 +223,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
         {[SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED].includes(status) && (
           <>
             <Typography variant="h6" sx={{ my: 2 }}>
-              Loaded Subtrip Details
+              Loaded Job Details
             </Typography>
             <Card sx={{ p: 3 }}>
               <Box sx={{ mb: 3 }}>
@@ -295,7 +295,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <Field.Text name="invoiceNo" label="Invoice No *" />
                   <Field.Text name="shipmentNo" label="Shipment No" />
                   <Field.Text name="orderNo" label="Order No" />
-                  <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" />
+                  <Field.Text name="referenceSubtripNo" label="Reference Job No" />
 
                   <Field.Select name="materialType" label="Material Type">
                     <MenuItem value="">None</MenuItem>
@@ -364,7 +364,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
         {status === SUBTRIP_STATUS.RECEIVED && (
           <>
             <Typography variant="h6" sx={{ my: 2 }}>
-              Received Subtrip Details
+              Received Job Details
             </Typography>
             <Card sx={{ p: 3 }}>
               <Box sx={{ mb: 3 }}>
@@ -446,9 +446,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
         <Grid container spacing={3} sx={{ pt: 10 }}>
           <Grid item xs={12} md={3}>
             <Box sx={{ pt: 2, pb: 5, px: 3 }}>
-              <Typography variant="h6">Edit Subtrip</Typography>
+              <Typography variant="h6">Edit Job</Typography>
               <Typography variant="subtitle1" sx={{ mt: 1 }}>
-                Edit subtrip details.
+                Edit job details.
               </Typography>
             </Box>
           </Grid>

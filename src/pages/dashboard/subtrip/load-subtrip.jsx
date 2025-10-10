@@ -8,7 +8,7 @@ import { SubtripLoadView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Load Subtrip | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Load Job | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const searchParams = useSearchParams();

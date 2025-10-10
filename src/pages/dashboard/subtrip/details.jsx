@@ -12,7 +12,7 @@ import { SubtripDetailView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Subtrip details | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Job details | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id } = useParams();

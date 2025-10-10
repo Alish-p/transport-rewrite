@@ -127,7 +127,7 @@ export function ExpenseListView() {
     { value: 'all', label: 'All', color: 'default', count: totalCount },
     {
       value: 'subtrip',
-      label: 'Subtrip Expenses',
+      label: 'Job Expenses',
       color: 'primary',
       count: totals.subtrip?.count || 0,
     },
@@ -228,7 +228,7 @@ export function ExpenseListView() {
             />
 
             <ExpenseAnalytic
-              title="Subtrip Expenses"
+              title="Job Expenses"
               total={totals.subtrip?.count || 0}
               percent={getPercentByCategory('subtrip')}
               price={totals.subtrip?.amount || 0}

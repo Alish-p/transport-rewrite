@@ -87,7 +87,7 @@ export function SubtripDetailView({ subtrip }) {
     if (subtrip.isEmpty) {
       return [
         {
-          label: 'Close Empty Trip',
+          label: 'Close Empty Job',
           action: () => setShowCloseEmptyDialog(true),
           disabled: !isEditingAllowed(),
         },
@@ -116,7 +116,7 @@ export function SubtripDetailView({ subtrip }) {
         disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RECEIVED,
       },
       {
-        label: 'Close Subtrip',
+        label: 'Close Job',
         action: () => setShowCloseDialog(true),
         disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RESOLVED,
       },
@@ -128,7 +128,7 @@ export function SubtripDetailView({ subtrip }) {
       <DashboardContent>
         <HeroHeader
           offsetTop={70}
-          title={`Subtrip #${subtripNo}`}
+          title={`Job #${subtripNo}`}
             status={subtripStatus}
             icon="mdi:routes"
             meta={[

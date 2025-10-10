@@ -88,7 +88,7 @@ export default function SubtripTableFiltersResult({
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.subtripStatus !== 'all' && (
-          <Block label="Subtrip Status :">
+          <Block label="Job Status :">
             <Chip size="small" label={filters.subtripStatus} onDelete={handleRemoveSubtripStatus} />
           </Block>
         )}
@@ -144,13 +144,13 @@ export default function SubtripTableFiltersResult({
         )}
 
         {filters.subtripNo && (
-          <Block label="Subtrip No:">
+          <Block label="Job No:">
             <Chip size="small" label={filters.subtripNo} onDelete={handleRemoveSubtripNo} />
           </Block>
         )}
 
         {filters.referenceSubtripNo && (
-          <Block label="Reference Subtrip No:">
+          <Block label="Reference Job No:">
             <Chip
               size="small"
               label={filters.referenceSubtripNo}
@@ -185,7 +185,7 @@ export default function SubtripTableFiltersResult({
 
         {filters.isOwn && (
           <Block label="Ownership:">
-            <Chip size="small" label="Own subtrips" onDelete={handleRemoveIsOwn} />
+            <Chip size="small" label="Own jobs" onDelete={handleRemoveIsOwn} />
           </Block>
         )}
 

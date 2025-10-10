@@ -188,7 +188,7 @@ export function useCreateSubtrip() {
     mutationFn: createSubtrip,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Subtrip added successfully!');
+      toast.success('Job added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -222,7 +222,7 @@ export function useUpdateSubtrip() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
-      toast.success('Subtrip updated successfully!');
+      toast.success('Job updated successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -240,7 +240,7 @@ export function useDeleteSubtrip() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.removeQueries([QUERY_KEY, id]);
-      toast.success('Subtrip deleted successfully!');
+      toast.success('Job deleted successfully!');
     },
     onError: (error) => {
       console.log({ error });
@@ -259,7 +259,7 @@ export function useUpdateSubtripMaterialInfo() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.invalidateQueries([QUERY_KEY, updatedSubtrip._id]);
 
-      toast.success('Subtrip Material Info added successfully!');
+      toast.success('Job Material Info added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -278,7 +278,7 @@ export function useUpdateSubtripReceiveInfo() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
-      toast.success('Subtrip Receive Info added successfully!');
+      toast.success('Job Receive Info added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -297,7 +297,7 @@ export function useUpdateSubtripResolveInfo() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
-      toast.success('Subtrip Resolve Info added successfully!');
+      toast.success('Job Resolve Info added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -316,7 +316,7 @@ export function useUpdateSubtripCloseInfo() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
-      toast.success('Subtrip Close Info added successfully!');
+      toast.success('Job Close Info added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -333,7 +333,7 @@ export function useCreateEmptySubtrip() {
     mutationFn: createEmptySubtrip,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Empty subtrip added successfully!');
+      toast.success('Empty job added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -350,7 +350,7 @@ export function useCloseEmptySubtrip() {
     onSuccess: (updatedSubtrip) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
-      toast.success('Empty subtrip closed successfully!');
+      toast.success('Empty job closed successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';

@@ -74,12 +74,12 @@ export function SubtripCloseDialog({ showDialog, setShowDialog, subtripId }) {
       maxWidth={false}
       PaperProps={{ sx: { maxWidth: 720 } }}
     >
-      <DialogTitle> Close Subtrip </DialogTitle>
+      <DialogTitle> Close Job </DialogTitle>
       <DialogContent>
         <Form methods={methods} onSubmit={onSubmit}>
           <List sx={{ listStyle: 'decimal', pl: 4 }}>
             <ListItem sx={{ display: 'list-item' }}>
-              <ListItemText primary="Please confirm that you have added all the related information and expenses to the sub-trip." />
+              <ListItemText primary="Please confirm that you have added all the related information and expenses to the job." />
             </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
               <ListItemText primary="The signed LR is received without any errors." />

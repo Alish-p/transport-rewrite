@@ -15,7 +15,7 @@ const mapPayments = (payments) =>
 const mapSubtrips = (subtrips) =>
   (subtrips || []).map((st, idx) => ({
     'S.No': idx + 1,
-    'Subtrip No': st.subtripNo,
+    'Job No': st.subtripNo,
     'Customer Name': st.customerName,
     'Loading Point': st.loadingPoint,
     'Unloading Point': st.unloadingPoint,
@@ -54,7 +54,7 @@ export const exportTransporterPaymentSummaryToExcel = async (
 
     pendingTransporterPayments.push({
       'S.No': '',
-      'Subtrip No': 'Total',
+      'Job No': 'Total',
       'Customer Name': '',
       'Loading Point': '',
       'Unloading Point': '',
@@ -99,7 +99,7 @@ export const exportTransporterPaymentSummaryToExcel = async (
 
   await exportToExcel(
     [
-      { name: 'Pending Subtrips', data: pendingTransporterPayments },
+      { name: 'Pending Jobs', data: pendingTransporterPayments },
       { name: 'Payable Payments', data: payablePayments },
       { name: 'Paid Payments', data: paidPayments },
     ],

@@ -12,22 +12,22 @@ export function SubtripEditView({ subtrip }) {
   return (
     <>
       <Helmet>
-        <title>Subtrip: Edit Subtrip | Dashboard</title>
+        <title>Job: Edit Job | Dashboard</title>
       </Helmet>
 
       <Container>
         <CustomBreadcrumbs
-          heading="Edit Subtrip"
+          heading="Edit Job"
           links={[
             {
               name: 'Dashboard',
               href: paths.dashboard.root,
             },
             {
-              name: 'Subtrip List',
+              name: 'Job List',
               href: paths.dashboard.subtrip.list,
             },
-            { name: 'Edit Subtrip' },
+            { name: 'Edit Job' },
           ]}
           sx={{
             mb: { xs: 3, md: 5 },

@@ -6,7 +6,7 @@ export const SubtripExpenseSchema = zod
   .object({
     date: schemaHelper.date({ message: { required_error: 'Date is required!' } }),
     expenseType: zod.string({ required_error: 'Expense Type is required' }),
-    subtripId: zod.string({ required_error: 'Subtrip is required' }),
+    subtripId: zod.string({ required_error: 'Job is required' }),
     amount: zod.number().min(1, { message: 'Amount must be a positive number' }),
     pumpCd: zod.string().optional(),
     dieselLtr: zod.number().optional(),

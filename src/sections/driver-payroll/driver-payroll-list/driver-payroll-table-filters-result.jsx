@@ -50,7 +50,7 @@ export default function DriverPayrollTableFiltersResult({
         )}
 
         {filters.subtrip && (
-          <Block label="Subtrip:">
+          <Block label="Job:">
             <Chip size="small" label={filters.subtrip} onDelete={handleRemoveSubtrip} />
           </Block>
         )}

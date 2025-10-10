@@ -74,7 +74,7 @@ export default function TransporterPayrollTableFiltersResult({
         )}
 
         {filters.subtripId && (
-          <Block label="Subtrip:">
+          <Block label="Job:">
             <Chip
               size="small"
               label={subtrip?.subtripNo}

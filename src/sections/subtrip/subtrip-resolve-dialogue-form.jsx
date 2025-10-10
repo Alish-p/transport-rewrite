@@ -69,7 +69,7 @@ export function ResolveSubtripDialog({ showDialog, setShowDialog, subtripId }) {
       maxWidth={false}
       PaperProps={{ sx: { maxWidth: 720 } }}
     >
-      <DialogTitle>Resolve Subtrip</DialogTitle>
+      <DialogTitle>Resolve Job</DialogTitle>
       <DialogContent>
         <Box sx={{ marginTop: '6px' }}>
           <Form methods={methods} onSubmit={onSubmit}>

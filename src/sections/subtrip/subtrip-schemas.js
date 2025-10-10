@@ -4,7 +4,7 @@ import { schemaHelper } from 'src/components/hook-form';
 
 export const receiveSchema = zod
   .object({
-    subtripId: zod.string().min(1, { message: 'Subtrip is required' }),
+    subtripId: zod.string().min(1, { message: 'Job is required' }),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionRate: zod

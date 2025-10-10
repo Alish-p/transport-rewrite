@@ -31,7 +31,7 @@ import {
 
 import { SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
 
-export function VehicleSubtripsWidget({ vehicleId, title = 'Subtrips', ...other }) {
+export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
   const today = dayjs();
   const currentMonthIndex = today.month();
   const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
@@ -66,7 +66,7 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Subtrips', ...other 
     <Card {...other}>
       <CardHeader
         title={title}
-        subheader="Subtrips completed by this vehicle"
+        subheader="Jobs completed by this vehicle"
         sx={{ mb: 3 }}
         action={
           <FormControl size="small" sx={{ minWidth: 140 }}>

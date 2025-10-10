@@ -98,7 +98,7 @@ export const navData = [
         ],
       },
       {
-        title: 'Subtrip',
+        title: 'Jobs',
         path: paths.dashboard.subtrip.root,
         icon: ICONS.subtrip,
         resource: 'subtrip',
@@ -127,7 +127,7 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.expense.root, action: 'view' },
           {
-            title: 'Add Expense to Subtrip',
+            title: 'Add Expense to Job',
             path: paths.dashboard.expense.new,
             action: 'create',
           },

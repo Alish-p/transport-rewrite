@@ -109,7 +109,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'referenceSubtripNo',
-    label: 'Reference Subtrip No',
+    label: 'Reference Job No',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.referenceSubtripNo || '-',
@@ -305,7 +305,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'subtripStatus',
-    label: 'Subtrip Status',
+    label: 'Job Status',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row?.subtripStatus || '-',

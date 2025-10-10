@@ -11,7 +11,7 @@ export const exportToExcel = async (data, fileName) => {
   workbook.creator = 'Tranzit';
   workbook.created = new Date();
 
-  const sheetName = 'Subtrip Report';
+  const sheetName = 'Job Report';
   const ws = workbook.addWorksheet(sheetName, {
     properties: { defaultRowHeight: 18 },
     views: [{ state: 'frozen', ySplit: 1 }],

@@ -82,7 +82,7 @@ export default function DriverPayrollTableToolbar({ filters, onFilters, tableDat
           fullWidth
           value={filters.subtrip}
           onChange={handleFilterSubtrip}
-          placeholder="Search subtrip..."
+          placeholder="Search job..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

@@ -74,7 +74,7 @@ const InvoiceSchema = zod.object({
       },
       { message: 'End date must be after or equal to start date', path: ['end'] }
     ),
-  subtrips: zod.array(zod.any()).min(1, 'Select at least one subtrip'),
+  subtrips: zod.array(zod.any()).min(1, 'Select at least one job'),
   additionalItems: zod
     .array(
       zod.object({

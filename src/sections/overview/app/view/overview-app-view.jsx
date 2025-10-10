@@ -132,7 +132,7 @@ export function OverviewAppView({
 
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
-              title="Total Subtrips Completed"
+              title="Total Jobs Completed"
               total={subtrips}
               color="success"
               icon={ICONS.subtrip}
@@ -166,7 +166,7 @@ export function OverviewAppView({
 
         <Grid xs={12} md={6} lg={8}>
           <AppSubtripCompletedChart
-            title="Subtrips Completed"
+            title="Jobs Completed"
             subheader="(+23%) than last year"
             chart={{
               categories: [
@@ -213,7 +213,7 @@ export function OverviewAppView({
         <Grid xs={12} lg={8}>
           <SubtripExpiryTable
             title="⚠️ Expiring Eway Bills"
-            subheader="Active subtrips with Eway Bills expiring within the next 24 hours. Please take timely action."
+            subheader="Active jobs with Eway Bills expiring within the next 24 hours. Please take timely action."
           />
         </Grid>
 

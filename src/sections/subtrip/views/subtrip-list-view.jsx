@@ -298,14 +298,14 @@ export function SubtripListView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Subtrip List"
+        heading="Job List"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Subtrip List',
+            name: 'Job List',
           },
         ]}
         action={
@@ -316,7 +316,7 @@ export function SubtripListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Subtrip
+              New Job
             </Button>
           </Stack>
         }
@@ -451,7 +451,7 @@ export function SubtripListView() {
                         />
                       );
                     })()}
-                    fileName="Subtrip-list.pdf"
+                    fileName="Job-list.pdf"
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
                     {({ loading }) => (

@@ -59,13 +59,13 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       )}
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
-        <Typography variant="h6">Subtrip Receive Details</Typography>
+        <Typography variant="h6">Job Receive Details</Typography>
       </Stack>
 
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
-          placeholder="Select Subtrip *"
+          placeholder="Select Job *"
           selected={selectedSubtrip?.subtripNo}
           error={!!errors.subtripId?.message}
           iconName="mdi:truck-fast"
@@ -310,14 +310,14 @@ export function SubtripReceiveForm() {
                   sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }}
                 />
                 <Typography variant="h6" color="text.secondary">
-                  Select a subtrip to view details
+                  Select a job to view details
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ mt: 1, textAlign: 'center' }}
                 >
-                  Choose a subtrip from the form to see its details and expenses
+                  Choose a job from the form to see its details and expenses
                 </Typography>
               </Paper>
             )}
@@ -331,7 +331,7 @@ export function SubtripReceiveForm() {
         selectedSubtrip={selectedSubtripData}
         onSubtripChange={handleSubtripChange}
         statusList={[SUBTRIP_STATUS.LOADED]}
-        dialogTitle="Select Subtrip to Receive"
+        dialogTitle="Select Job to Receive"
       />
     </>
   );

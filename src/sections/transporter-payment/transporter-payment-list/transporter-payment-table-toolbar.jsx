@@ -110,7 +110,7 @@ export default function TransporterPaymentTableToolbar({
 
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
-          placeholder="Search subtrip"
+          placeholder="Search job"
           selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
         />

@@ -40,14 +40,14 @@ export function DriverSubtripsTable({ driver }) {
 
   return (
     <Card>
-      <CardHeader title="🧾 Subtrips" subheader="Subtrips done by this driver" sx={{ mb: 3 }} />
+      <CardHeader title="🧾 Jobs" subheader="Jobs done by this driver" sx={{ mb: 3 }} />
 
       <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
         <Table sx={{ minWidth: 720 }}>
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
-              { id: 'id', label: 'Subtrip' },
+              { id: 'id', label: 'Job' },
               { id: 'vehicleNo', label: 'Vehicle' },
               { id: 'driverName', label: 'Driver' },
               { id: 'loadingPoint', label: 'Loading' },

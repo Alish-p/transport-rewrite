@@ -109,7 +109,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     <Card>
       <CardHeader
         title="P&L Report"
-        subheader="Only subtrips with completed billing are listed below. Subtrips still in receive or loaded status are not included."
+        subheader="Only jobs with completed billing are listed below. Jobs still in receive or loaded status are not included."
         action={
           <Stack direction={{ sm: 'column', md: 'row' }} spacing={1}>
             <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -156,7 +156,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                 const status = overall >= 0 ? 'Profit' : 'Loss';
 
                 const summaryData = [
-                  { Metric: 'Total Net Profit (Subtrips)', Value: totalNetProfit },
+                  { Metric: 'Total Net Profit (Jobs)', Value: totalNetProfit },
                   { Metric: 'Total Vehicle Expenses', Value: totalLoss },
                   { Metric: 'Overall (Profit - Loss)', Value: overall },
                   { Metric: 'Status', Value: status },

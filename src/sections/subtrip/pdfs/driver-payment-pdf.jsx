@@ -49,7 +49,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
 
   const renderDocumentTitle = () => (
     <View style={[styles.gridContainer]}>
-      <Text style={[styles.h3, styles.mb4]}>Driver Payment For Subtrip {subtripNo}</Text>
+      <Text style={[styles.h3, styles.mb4]}>Driver Payment For Job {subtripNo}</Text>
     </View>
   );
 
@@ -99,7 +99,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
     <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
       <View style={[styles.col12]}>
         <Text style={[styles.p4, styles.subtitle2]}>
-          The total driver payment amount for this subtrip {subtripNo} is as follows:
+          The total driver payment amount for this job {subtripNo} is as follows:
         </Text>
       </View>
     </View>

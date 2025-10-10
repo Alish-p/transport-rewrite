@@ -76,7 +76,7 @@ const SalarySchema = zod.object({
       },
       { message: 'End date must be after or equal to start date', path: ['end'] }
     ),
-  associatedSubtrips: zod.array(zod.any()).min(1, 'Select at least one subtrip'),
+  associatedSubtrips: zod.array(zod.any()).min(1, 'Select at least one job'),
   additionalCharges: zod
     .array(
       zod.object({
@@ -337,7 +337,7 @@ export default function DriverSalarySimpleForm() {
           <Table sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow>
-                {['Select', '#', 'Date', 'Subtrip No', 'From', 'Destination', 'Trip Salary'].map(
+                {['Select', '#', 'Date', 'Job No', 'From', 'Destination', 'Trip Salary'].map(
                   (h) => (
                     <StyledTableCell key={h}>{h}</StyledTableCell>
                   )

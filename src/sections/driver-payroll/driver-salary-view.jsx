@@ -114,7 +114,7 @@ function RenderTable({ driverSalary }) {
           <TableRow>
             <StyledTableCell>SR.NO</StyledTableCell>
             <StyledTableCell>Date</StyledTableCell>
-            <StyledTableCell>Subtrip No</StyledTableCell>
+            <StyledTableCell>Job No</StyledTableCell>
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell align="right">Trip Salary</StyledTableCell>

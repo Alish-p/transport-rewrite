@@ -94,7 +94,7 @@ export default function TripTableFiltersResult({
         )}
 
         {filters.subtripId && (
-          <Block label="Subtrip:">
+          <Block label="Job:">
             <Chip
               size="small"
               label={selectedSubtripNo}

@@ -12,7 +12,7 @@ import { SubtripEditView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Subtrip edit | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Job edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id = '' } = useParams();

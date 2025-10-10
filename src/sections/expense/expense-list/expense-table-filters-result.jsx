@@ -74,7 +74,7 @@ export default function ExpenseTableFiltersResult({
           <Block label="Category :">
             <Chip
               size="small"
-              label={filters.expenseCategory === 'subtrip' ? 'Subtrip Expense' : 'Vehicle Expense'}
+            label={filters.expenseCategory === 'subtrip' ? 'Job Expense' : 'Vehicle Expense'}
               onDelete={handleRemoveExpenseCategory}
             />
           </Block>
@@ -121,7 +121,7 @@ export default function ExpenseTableFiltersResult({
         )}
 
         {filters.subtrip && (
-          <Block label="Subtrip">
+          <Block label="Job">
             <Chip size="small" label={filters.subtrip.subtripNo} onDelete={handleRemoveSubtrip} />
           </Block>
         )}

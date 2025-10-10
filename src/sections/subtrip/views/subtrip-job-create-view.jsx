@@ -652,7 +652,7 @@ export function SubtripJobCreateView() {
         heading="Create New Job"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Subtrip List', href: paths.dashboard.subtrip.list },
+          { name: 'Job List', href: paths.dashboard.subtrip.list },
           { name: 'Create Job' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
@@ -685,7 +685,7 @@ export function SubtripJobCreateView() {
                           <span>
                             Active trip found: <strong>{activeTrip.tripNo}</strong>
                           </span>
-                          <Tooltip title="View recent subtrips" arrow>
+                          <Tooltip title="View recent jobs" arrow>
                             <IconButton size="small" color="primary" onClick={handleOpenSubtripPopover}>
                               <Iconify icon="mdi:format-list-bulleted" width={18} />
                             </IconButton>
@@ -700,13 +700,13 @@ export function SubtripJobCreateView() {
                           >
                             <Box sx={{ p: 2 }}>
                               <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                                Subtrips in Trip {activeTrip.tripNo}
+                                Jobs in Trip {activeTrip.tripNo}
                               </Typography>
                               <Divider sx={{ mb: 1 }} />
                               <Box sx={{ maxHeight: 320, overflow: 'auto' }}>
                                 {(activeTripDetails?.subtrips || []).length === 0 ? (
                                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    No subtrips found in this trip.
+                                    No jobs found in this trip.
                                   </Typography>
                                 ) : (
                                   <Stack spacing={1.5}>
@@ -951,7 +951,7 @@ export function SubtripJobCreateView() {
                       <Field.Text name="invoiceNo" label="Invoice No *" />
                       <Field.Text name="shipmentNo" label="Shipment No" />
                       <Field.Text name="orderNo" label="Order No" />
-                      <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" placeholder="Enter original subtrip no (if created by another transporter)" />
+                      <Field.Text name="referenceSubtripNo" label="Reference Job No" placeholder="Enter original job no (if created by another transporter)" />
 
                       <Field.Select name="materialType" label="Material Type *">
                         <MenuItem value="">None</MenuItem>

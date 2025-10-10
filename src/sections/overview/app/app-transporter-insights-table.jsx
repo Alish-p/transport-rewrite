@@ -62,7 +62,7 @@ export function TransporterInsightsTable({ title, subheader, ...other }) {
             headLabel={[
               { id: 'index', label: 'No.' },
               { id: 'transporterName', label: 'Transporter' },
-              { id: 'subtripCount', label: 'Subtrips' },
+              { id: 'subtripCount', label: 'Jobs' },
               { id: 'totalWeight', label: 'Total Weight' },
               { id: 'paymentDone', label: 'Paid' },
               { id: 'pendingForPayment', label: 'Pending' },

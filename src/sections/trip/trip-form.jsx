@@ -244,7 +244,7 @@ export default function TripForm({ currentTrip }) {
             {/* Add First Subtrip Toggle */}
             {!currentTrip && (
               <Box sx={{ mt: 3 }}>
-                <Field.Checkbox name="addFirstSubtrip" label="Add First Subtrip?" />
+                <Field.Checkbox name="addFirstSubtrip" label="Add First Job?" />
               </Box>
             )}
 
@@ -262,7 +262,7 @@ export default function TripForm({ currentTrip }) {
                 <Field.Text name="diNumber" label="DI/DO No" required />
                 <Field.Text
                   name="subtripRemarks"
-                  label="Subtrip Remarks (Optional)"
+                  label="Job Remarks (Optional)"
                   fullWidth
                   sx={{ gridColumn: '1 / -1' }}
                 />

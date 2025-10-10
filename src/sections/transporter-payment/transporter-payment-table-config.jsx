@@ -67,7 +67,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'subtrips',
-    label: 'Subtrips',
+    label: 'Jobs',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row.subtripSnapshot?.map((st) => st.subtripNo).join(', '),

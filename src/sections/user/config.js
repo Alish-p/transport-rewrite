@@ -53,8 +53,8 @@ export const PERMISSIONS = [
     name: 'route',
   },
   {
-    subheader: 'Subtrip',
-    caption: 'Permissions for managing and tracking subtrips as part of larger trip assignments.',
+    subheader: 'Jobs',
+    caption: 'Permissions for managing and tracking jobs as part of larger trip assignments.',
     name: 'subtrip',
   },
   {

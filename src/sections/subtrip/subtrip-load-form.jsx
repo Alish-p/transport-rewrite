@@ -57,7 +57,7 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 // ----------------------------------------------------------------------
 
 const STEPS = [
-  { label: 'Select Subtrip', icon: 'mdi:truck' },
+  { label: 'Select Job', icon: 'mdi:truck' },
   { label: 'Route Details', icon: 'mdi:map-marker-path' },
   { label: 'Material Details', icon: 'mdi:package-variant-closed' },
   { label: 'Driver Advance', icon: 'mdi:cash-multiple' },
@@ -77,7 +77,7 @@ const STEP_FIELDS = [
 
 const LoadSubtripSchema = zod
   .object({
-    subtripId: zod.string().min(1, { message: 'Subtrip selection is required' }),
+    subtripId: zod.string().min(1, { message: 'Job selection is required' }),
     consignee: zod
       .any()
       .nullable()
@@ -409,11 +409,11 @@ export function SubtripLoadForm() {
         </Box>
       )}
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Select Subtrip to Load
+        Select Job to Load
       </Typography>
       <DialogSelectButton
         onClick={subtripDialog.onTrue}
-        placeholder="Select Subtrip *"
+        placeholder="Select Job *"
         selected={selectedSubtrip?.subtripNo}
         error={!!errors.subtripId}
         iconName="mdi:truck"
@@ -426,7 +426,7 @@ export function SubtripLoadForm() {
       )}
       {subtripDetailError && !isLoadingSubtripDetails && (
         <Alert severity="error" sx={{ mt: 2 }}>
-          Failed to load subtrip details. Please try selecting again.
+          Failed to load job details. Please try selecting again.
         </Alert>
       )}
     </Card>
@@ -554,7 +554,7 @@ export function SubtripLoadForm() {
 
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
-      <Field.Text name="referenceSubtripNo" label="Reference Subtrip No" placeholder='Enter original subtrip no (if created by another transporter)' />
+      <Field.Text name="referenceSubtripNo" label="Reference Job No" placeholder='Enter original job no (if created by another transporter)' />
 
       <Field.Select name="materialType" label="Material Type *">
         <MenuItem value="">None</MenuItem>
@@ -738,7 +738,7 @@ export function SubtripLoadForm() {
                         loading={isSubmitting}
                         disabled={isLoadingSubtripDetails || !isValid || isSubmitting}
                       >
-                        Load Subtrip & Save Changes
+                        Load Job & Save Changes
                       </LoadingButton>
                     )}
                   </Box>

@@ -132,7 +132,7 @@ export default function InvoiceTableToolbar({
 
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
-          placeholder="Search subtrip"
+          placeholder="Search job"
           selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
         />

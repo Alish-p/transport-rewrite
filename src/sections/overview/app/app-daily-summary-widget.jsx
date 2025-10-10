@@ -57,7 +57,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     return [
       {
         value: 'created',
-        label: 'Subtrips Created',
+        label: 'Jobs Created',
         icon: 'solar:document-add-bold-duotone',
         count: created.count || 0,
         amount: 0,
@@ -209,7 +209,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
       case 'received':
         return [
           { id: 'index', label: 'No.' },
-          { id: 'subtripNo', label: 'Subtrip No' },
+              { id: 'subtripNo', label: 'Job No' },
           { id: 'vehicleNo', label: 'Vehicle' },
           { id: 'driver', label: 'Driver' },
           { id: 'customer', label: 'Customer' },

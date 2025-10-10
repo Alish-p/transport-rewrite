@@ -262,7 +262,7 @@ export default function SubtripTableToolbar({
           label="Own"
           labelPlacement="top"
 
-          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} placeholder="Own Subtrips" />}
+          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} placeholder="Own Jobs" />}
         />
 
         <Stack direction="row" spacing={1}>
@@ -322,7 +322,7 @@ export default function SubtripTableToolbar({
                   />
                 );
               })()}
-              fileName="Subtrip-list.pdf"
+              fileName="Job-list.pdf"
               style={{
                 textDecoration: 'none',
                 color: 'inherit',

@@ -8,7 +8,7 @@ import { SubtripReceiveView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Receive Subtrip | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Receive Job | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const searchParams = useSearchParams();

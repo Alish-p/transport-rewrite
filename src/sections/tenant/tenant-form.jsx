@@ -418,7 +418,7 @@ export default function TenantForm({ currentTenant }) {
         />
         <Field.MultiAutocompleteFreeSolo
           name="config.subtripExpenseTypes"
-          label="Subtrip Expense Types"
+          label="Job Expense Types"
           options={subtripExpenseTypes.map((t) => ({ ...t, value: t.label }))}
         />
         <Field.MultiAutocompleteFreeSolo

@@ -183,7 +183,7 @@ export function KanbanSubtripDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Subtrips{' '}
+        Jobs{' '}
         <Typography component="span" sx={{ color: 'text.secondary' }}>
           ({data?.pages?.[0]?.total || 0})
         </Typography>

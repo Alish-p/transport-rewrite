@@ -261,7 +261,7 @@ export default function LRInfoCard({ subtrip }) {
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:link-variant" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Reference Subtrip No
+            Reference Job No
           </Box>
           <Typography>{referenceSubtripNo}</Typography>
         </Stack>

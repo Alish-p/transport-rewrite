@@ -10,11 +10,11 @@ export function SubtripCreateView({ currentTrip }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={currentTrip ? `Add New Subtrip to Existing Trip` : 'Create New Subtrip'}
+        heading={currentTrip ? `Add New Job to Existing Trip` : 'Create New Job'}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Subtrip List', href: paths.dashboard.subtrip.list },
-          { name: 'Add New Subtrip' },
+          { name: 'Job List', href: paths.dashboard.subtrip.list },
+          { name: 'Add New Job' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

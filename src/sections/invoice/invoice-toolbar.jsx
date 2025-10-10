@@ -171,7 +171,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
         open={confirmCancel.value}
         onClose={confirmCancel.onFalse}
         title="Cancel invoice"
-        content="Are you sure you want to cancel this invoice? All linked subtrips will be available for billing."
+        content="Are you sure you want to cancel this invoice? All linked jobs will be available for billing."
         action={
           <Button variant="contained" color="error" onClick={handleCancelInvoice}>
             Cancel invoice

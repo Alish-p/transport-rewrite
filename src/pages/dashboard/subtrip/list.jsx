@@ -5,7 +5,7 @@ import { CONFIG } from 'src/config-global';
 import { SubtripListView } from 'src/sections/subtrip/views';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Subtrip list | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Job list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   return (

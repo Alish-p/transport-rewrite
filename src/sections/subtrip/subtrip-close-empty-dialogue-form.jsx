@@ -53,7 +53,7 @@ export function SubtripCloseEmptyDialog({ showDialog, setShowDialog, subtripId }
 
   return (
     <Dialog fullWidth maxWidth="xs" open={showDialog} onClose={() => setShowDialog(false)}>
-      <DialogTitle>Close Empty Subtrip</DialogTitle>
+      <DialogTitle>Close Empty Job</DialogTitle>
 
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
@@ -75,7 +75,7 @@ export function SubtripCloseEmptyDialog({ showDialog, setShowDialog, subtripId }
             Cancel
           </Button>
           <Button type="submit" variant="contained" loading={isSubmitting}>
-            Close Subtrip
+            Close Job
           </Button>
         </DialogActions>
       </Form>

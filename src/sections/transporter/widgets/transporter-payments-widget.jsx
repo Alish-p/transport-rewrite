@@ -45,7 +45,7 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
           <TableHeadCustom
             headLabel={[
               { id: 'paymentId', label: 'Payment ID' },
-              { id: 'subtrips', label: 'Subtrips' },
+              { id: 'subtrips', label: 'Jobs' },
               { id: 'status', label: 'Status', align: 'center' },
               { id: 'issueDate', label: 'Issue Date' },
               { id: 'amount', label: 'Amount', align: 'right' },

@@ -9,7 +9,7 @@ export default function SubtripListPdf({ subtrips, visibleColumns = [], tenant }
 
   return (
     <GenericListPdf
-      title="Subtrip List"
+      title="Job List"
       rows={subtrips}
       columns={columnsToShow}
       orientation="landscape"

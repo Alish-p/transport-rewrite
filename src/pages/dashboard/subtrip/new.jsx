@@ -8,7 +8,7 @@ import { SubtripCreateView } from 'src/sections/subtrip/views';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Create a new Subtrip | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Create a new Job | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const searchParams = useSearchParams();

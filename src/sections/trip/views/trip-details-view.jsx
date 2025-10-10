@@ -200,7 +200,7 @@ export function TripDetailView({ trip }) {
             <Grid item xs={12} md={12}>
               <Card sx={{ minHeight: 400, padding: '10px' }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" m={2}>
-                  <Typography variant="h5"> Subtrip List </Typography>
+                  <Typography variant="h5"> Job List </Typography>
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -211,7 +211,7 @@ export function TripDetailView({ trip }) {
                     }}
                     disabled={tripStatus === 'billed'}
                   >
-                    New Subtrip
+                    New Job
                   </Button>
                 </Stack>
                 <SimpleSubtripList subtrips={subtrips} />
@@ -222,8 +222,8 @@ export function TripDetailView({ trip }) {
               <Grid item xs={5} md={6}>
                 <ProfitExpenseChart
                   subtrips={subtrips}
-                  title="Subtrip Profit/Expense"
-                  subheader="Profit and expense Subtrip Wise"
+                  title="Job Profit/Expense"
+                  subheader="Profit and expense Job wise"
                 />
               </Grid>
             </Grid>

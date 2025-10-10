@@ -236,7 +236,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
   const renderExpenseTable = () => {
     const columns = [
       { header: 'S.No', accessor: 'sno', width: '6%' },
-      { header: 'Subtrip No', accessor: 'subtripNo', width: '18%' },
+      { header: 'Job No', accessor: 'subtripNo', width: '18%' },
       { header: 'Expense Type', accessor: 'expenseType', width: '22%' },
       {
         header: 'Amount',

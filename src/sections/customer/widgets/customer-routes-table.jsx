@@ -39,7 +39,7 @@ export function CustomerRoutesTable({ customer, title, subheader, ...other }) {
               { id: 'routeName', label: 'Route' },
               { id: 'fromPlace', label: 'From' },
               { id: 'toPlace', label: 'To' },
-              { id: 'count', label: 'Subtrips' },
+              { id: 'count', label: 'Jobs' },
             ]}
           />
           <TableBody>
@@ -107,4 +107,3 @@ export function CustomerRoutesTable({ customer, title, subheader, ...other }) {
 }
 
 export default CustomerRoutesTable;
-

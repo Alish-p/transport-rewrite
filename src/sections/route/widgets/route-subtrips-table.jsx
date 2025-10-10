@@ -30,7 +30,7 @@ import { getVehicleTypeTyreColor } from '../constants';
 import { SUBTRIP_STATUS_COLORS } from '../../subtrip/constants';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
-export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...other }) {
+export function RouteSubtripsTable({ route, title = 'Jobs', subheader, ...other }) {
   const { _id: routeId } = route || {};
   const table = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
 
@@ -52,7 +52,7 @@ export function RouteSubtripsTable({ route, title = 'Subtrips', subheader, ...ot
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
-              { id: 'id', label: 'Subtrip' },
+              { id: 'id', label: 'Job' },
               { id: 'vehicleNo', label: 'Vehicle' },
               { id: 'vehicleType', label: 'Vehicle Type' },
               { id: 'driverName', label: 'Driver' },

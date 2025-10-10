@@ -44,7 +44,7 @@ export function CustomerSubtripCompletedWidget({ customer }) {
     ],
   };
 
-  return <AppSubtripCompletedChart title="Subtrips Completed" chart={chart} sx={{ height: 1 }} />;
+  return <AppSubtripCompletedChart title="Jobs Completed" chart={chart} sx={{ height: 1 }} />;
 }
 
 export default CustomerSubtripCompletedWidget;

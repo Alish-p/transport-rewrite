@@ -371,7 +371,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Iconify icon="mdi:truck-fast-outline" sx={{ color: 'primary.main' }} />
-          Subtrip Data
+          Job Data
         </Typography>
         <Tooltip title="Edit Details">
           <IconButton

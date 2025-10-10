@@ -30,7 +30,7 @@ export function TopRoutesTable({ title, subheader, ...other }) {
               { id: 'routeName', label: 'Route' },
               { id: 'fromPlace', label: 'From' },
               { id: 'toPlace', label: 'To' },
-              { id: 'count', label: 'Subtrips' },
+              { id: 'count', label: 'Jobs' },
             ]}
           />
           <TableBody>

@@ -65,7 +65,7 @@ export function VehicleInsightsTable({ title, subheader, ...other }) {
               { id: 'vehicleNo', label: 'Vehicle' },
               { id: 'totalKm', label: 'Total Km' },
               { id: 'totalDiesel', label: 'Total Diesel' },
-              { id: 'subtripCount', label: 'Subtrips' },
+              { id: 'subtripCount', label: 'Jobs' },
               { id: 'totalWeight', label: 'Total Weight' },
             ]}
           />

@@ -225,15 +225,15 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      {/* Subtrip Info */}
+      {/* Job Info */}
       <Grid container spacing={3} sx={{ pt: 10 }}>
         <Grid item xs={12} md={3}>
           <Box sx={{ pt: 2, pb: 5, px: 3 }}>
             <Typography variant="h6" sx={{ color: 'text.primary' }}>
-              Subtrip Info
+              Job Info
             </Typography>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 1 }}>
-              Please provide the details of the subtrip.
+              Please provide the details of the job.
             </Typography>
           </Box>
         </Grid>
@@ -308,7 +308,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                   />
                   <Field.DatePicker
                     name="startDate"
-                    label="Subtrip Start Date *"
+                    label="Job Start Date *"
                     maxDate={dayjs()}
                   />
                 </>
@@ -321,7 +321,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                   />
                   <Field.DatePicker
                     name="startDate"
-                    label="Subtrip Start Date *"
+                    label="Job Start Date *"
                     maxDate={dayjs()}
                   />
                 </>
@@ -331,7 +331,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
 
           <Stack alignItems="flex-end" sx={{ mt: 3, mb: 5 }}>
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-              Create Subtrip
+              Create Job
             </LoadingButton>
           </Stack>
 
@@ -343,9 +343,9 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                   Trip Details
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
-                  This trip has {selectedTripDetails.subtrips.length} subtrip
+                  This trip has {selectedTripDetails.subtrips.length} job
                   {selectedTripDetails.subtrips.length > 1 ? 's' : ''}. Below are the details of
-                  each subtrip:
+                  each job:
                 </Typography>
                 <Stack spacing={2}>
                   {selectedTripDetails.subtrips.map((subtrip) => (
@@ -360,7 +360,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                           >
                             <Stack direction="row" alignItems="center" spacing={1}>
                               <Iconify icon="mdi:truck-fast" sx={{ color: 'primary.main' }} />
-                              <Typography variant="subtitle1">Subtrip #{subtrip.subtripNo} </Typography>
+                              <Typography variant="subtitle1">Job #{subtrip.subtripNo} </Typography>
                             </Stack>
                             <Stack direction="row" alignItems="center" spacing={1}>
                               {subtrip.isEmpty && (

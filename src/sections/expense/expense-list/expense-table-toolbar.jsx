@@ -161,7 +161,7 @@ export default function ExpenseTableToolbar({
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           selected={filters.subtrip?.subtripNo}
-          placeholder="Subtrip"
+          placeholder="Job"
           iconName="mdi:map-marker-path"
           sx={{ maxWidth: { md: 200 } }}
         />
