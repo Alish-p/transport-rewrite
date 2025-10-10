@@ -384,7 +384,10 @@ export function InvoiceListView() {
 
                           await toast.promise(
                             (async () => {
-                              const res = await postInvoicesToTally(selectedRows, tenant);
+                              const res = await postInvoicesToTally(selectedRows, tenant, {
+                                // When set in prod to 'http://localhost:9000', it targets user machine
+                                tallyUrl: 'http://localhost:9000' || undefined,
+                              });
                               if (!res.ok) {
                                 // Try to surface useful errors from Tally response when available
                                 const msg = res.text || `HTTP ${res.status}`;

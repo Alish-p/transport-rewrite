@@ -224,8 +224,9 @@ export async function postInvoicesToTally(invoicesInput, tenant, opts = {}) {
   const invoices = Array.isArray(invoicesInput) ? invoicesInput : [invoicesInput];
   const xml = buildInvoicesXml(invoices, tenant);
 
-  // Default to a relative path that can be proxied by Vite/dev server
-  const tallyUrl = opts.tallyUrl || '/tally';
+  // Resolve URL: explicit option > env var > dev proxy path
+  const envUrl = typeof import.meta !== 'undefined' ? import.meta.env?.VITE_TALLY_URL : undefined;
+  const tallyUrl = opts.tallyUrl || envUrl || '/tally';
 
   try {
     const res = await fetch(tallyUrl, {
