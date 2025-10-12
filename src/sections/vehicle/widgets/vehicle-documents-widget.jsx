@@ -1,48 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import {
   Box,
   Tab,
   Card,
   Tabs,
-  Link,
   Stack,
   Table,
   Button,
   Dialog,
   TableRow,
+  MenuItem,
   TableHead,
   TableCell,
+  TableBody,
+  CardHeader,
+  Typography,
   DialogTitle,
   DialogActions,
   DialogContent,
-  TableBody,
-  CardHeader,
-  MenuItem,
-  Typography,
   CircularProgress,
 } from '@mui/material';
 
-import { fDate } from 'src/utils/format-time';
-import axios from 'src/utils/axios';
-import { toast } from 'sonner';
-
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Iconify } from 'src/components/iconify';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import { TableNoData, TableSkeleton } from 'src/components/table';
-import { Form } from 'src/components/hook-form/form-provider';
-import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
-import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
-import { RHFSelect } from 'src/components/hook-form/rhf-select';
-import { RHFUpload } from 'src/components/hook-form/rhf-upload';
-import { RHFSwitch } from 'src/components/hook-form/rhf-switch';
-
-import { useForm } from 'react-hook-form';
-import { z as zod } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'src/utils/axios';
+import { fDate } from 'src/utils/format-time';
 
 import {
   getPresignedUploadUrl,
@@ -52,7 +41,16 @@ import {
   useVehicleActiveDocuments,
   useVehicleDocumentHistory,
 } from 'src/query/use-vehicle-document';
+
+import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { Form } from 'src/components/hook-form/form-provider';
+import { RHFSelect } from 'src/components/hook-form/rhf-select';
+import { RHFUpload } from 'src/components/hook-form/rhf-upload';
+import { RHFSwitch } from 'src/components/hook-form/rhf-switch';
+import { TableNoData, TableSkeleton } from 'src/components/table';
+import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
+import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
 
 const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 
@@ -65,7 +63,7 @@ const AddDocSchema = zod
     file: zod.any().optional().nullable(),
   })
   .superRefine((val, ctx) => {
-    const file = val.file;
+    const { file } = val;
     if (!file) return; // optional
     // If file is a string (prefilled URL), skip validations
     const isFileObject = typeof file === 'object' && 'type' in file;
@@ -95,7 +93,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   } = useVehicleDocumentHistory(vehicleId);
 
   const loading = loadingActive || loadingHistory;
-  const fetching = fetchingActive || fetchingHistory;
+  // const fetching = fetchingActive || fetchingHistory;
 
   return (
     <Card>
@@ -155,7 +153,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
             <DocumentsTable
               rows={historyDocs || []}
               vehicleId={vehicleId}
-              showActive={true}
+              showActive
               emptyLabel="No history"
             />
           )}
@@ -264,13 +262,13 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
           ))}
         </TableBody>
       </Table>
-    <VehicleDocumentFormDialog
-      open={!!editing}
-      onClose={() => setEditing(null)}
-      vehicleId={vehicleId}
-      doc={editing}
-      mode="edit"
-    />
+      <VehicleDocumentFormDialog
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        vehicleId={vehicleId}
+        doc={editing}
+        mode="edit"
+      />
       <ConfirmDeleteDocument
         open={confirmDelete.value}
         onClose={confirmDelete.onFalse}
@@ -342,7 +340,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
 
       if (values.file && typeof values.file !== 'string') {
         // user selected a new file
-        const file = values.file;
+        const { file } = values;
         const contentType = file.type;
         const { key, uploadUrl } = await getPresignedUploadUrl({
           vehicleId,
@@ -376,7 +374,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
         // create
         let createFileKey;
         if (values.file && typeof values.file !== 'string') {
-          const file = values.file;
+          const { file } = values;
           const contentType = file.type;
           const { key, uploadUrl } = await getPresignedUploadUrl({
             vehicleId,
