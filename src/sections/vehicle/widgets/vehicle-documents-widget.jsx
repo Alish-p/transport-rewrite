@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { LoadingButton } from '@mui/lab';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import {
@@ -27,7 +28,6 @@ import {
   DialogContent,
   CircularProgress,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -43,11 +43,11 @@ import {
   useVehicleDocumentHistory,
 } from 'src/query/use-vehicle-document';
 
-import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { TableNoData, TableSkeleton } from 'src/components/table';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 
@@ -82,16 +82,13 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   const {
     data: activeDocs,
     isLoading: loadingActive,
-    isFetching: fetchingActive,
   } = useVehicleActiveDocuments(vehicleId);
   const {
     data: historyDocs,
     isLoading: loadingHistory,
-    isFetching: fetchingHistory,
   } = useVehicleDocumentHistory(vehicleId);
 
   const loading = loadingActive || loadingHistory;
-  // const fetching = fetchingActive || fetchingHistory;
 
   return (
     <Card>

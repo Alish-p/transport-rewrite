@@ -11,7 +11,6 @@ import {
   Card,
   Grid,
   Stack,
-  Button,
   Divider,
   MenuItem,
   Typography,
@@ -30,6 +29,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 // assets
@@ -119,7 +119,7 @@ export default function VehicleForm({ currentVehicle }) {
     watch,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const values = watch();
@@ -318,26 +318,13 @@ export default function VehicleForm({ currentVehicle }) {
               </Field.Select>
               {!values.isOwn && (
                 <Box>
-                  <Button
-                    fullWidth
-                    variant="outlined"
+                  <DialogSelectButton
                     onClick={transporterDialog.onTrue}
-                    sx={{
-                      height: 56,
-                      justifyContent: 'flex-start',
-                      typography: 'body2',
-                    }}
-                    startIcon={
-                      <Iconify
-                        icon={selectedTransporter ? 'mdi:truck' : 'mdi:truck-outline'}
-                        sx={{ color: selectedTransporter ? 'primary.main' : 'text.disabled' }}
-                      />
-                    }
-                  >
-                    {selectedTransporter
-                      ? selectedTransporter.transportName
-                      : `Select Transport Company${values.isOwn ? ' (Optional)' : ''}`}
-                  </Button>
+                    placeholder={`Select Transport Company${values.isOwn ? ' (Optional)' : ''}`}
+                    selected={selectedTransporter?.transportName}
+                    error={!!errors.transporter?.message}
+                    iconName="mdi:truck"
+                  />
                 </Box>
               )}
               <Field.Text name="trackingLink" label="Tracking Link (Optional)" />
