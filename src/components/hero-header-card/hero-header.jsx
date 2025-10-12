@@ -10,7 +10,7 @@ import { HeroHeaderCard } from './hero-header-card';
 // - padding: responsive padding for the sticky area (default { xs: 2, md: 3 })
 // - wrapperSx: extra sx for the sticky Box
 // - All other props are forwarded to HeroHeaderCard
-export function HeroHeader({ offsetTop = 70, padding = { xs: 2, md: 3 }, wrapperSx, ...cardProps }) {
+export function HeroHeader({ offsetTop = 70, wrapperSx, ...cardProps }) {
   return (
     <Box
       sx={{
@@ -18,7 +18,6 @@ export function HeroHeader({ offsetTop = 70, padding = { xs: 2, md: 3 }, wrapper
         top: offsetTop,
         zIndex: 9,
         bgcolor: 'background.default',
-        p: padding,
         ...wrapperSx,
       }}
     >

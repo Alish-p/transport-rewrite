@@ -303,6 +303,15 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
   const [loadingFile, setLoadingFile] = useState(false);
   const [initialFileSet, setInitialFileSet] = useState(false);
 
+  // Reset form state and flags when dialog closes so it opens fresh next time
+  useEffect(() => {
+    if (!open) {
+      methods.reset(defaultValues);
+      setInitialFileSet(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const handlePrefillFile = async () => {
     if (!isEdit || !doc?._id || initialFileSet) return;
     try {
@@ -338,26 +347,30 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
       let fileKeyChanged;
       let nextFileKey;
 
-      if (values.file && typeof values.file !== 'string') {
-        // user selected a new file
-        const { file } = values;
-        const contentType = file.type;
-        const { key, uploadUrl } = await getPresignedUploadUrl({
-          vehicleId,
-          docType: values.docType,
-          contentType,
-        });
-        await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': contentType },
-          body: file,
-        });
-        fileKeyChanged = true;
-        nextFileKey = key;
-      } else if (!values.file && isEdit) {
-        // user removed the file
-        fileKeyChanged = true;
-        nextFileKey = null;
+      // Only pre-compute upload/removal for edit flow.
+      // For create flow, handle upload inside the create branch below.
+      if (isEdit) {
+        if (values.file && typeof values.file !== 'string') {
+          // user selected a new file
+          const { file } = values;
+          const contentType = file.type;
+          const { key, uploadUrl } = await getPresignedUploadUrl({
+            vehicleId,
+            docType: values.docType,
+            contentType,
+          });
+          await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': contentType },
+            body: file,
+          });
+          fileKeyChanged = true;
+          nextFileKey = key;
+        } else if (!values.file) {
+          // user removed the file
+          fileKeyChanged = true;
+          nextFileKey = null;
+        }
       }
 
       if (isEdit) {
