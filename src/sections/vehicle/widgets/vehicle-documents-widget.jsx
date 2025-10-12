@@ -1,0 +1,499 @@
+import { useEffect, useMemo, useState } from 'react';
+
+import {
+  Box,
+  Tab,
+  Card,
+  Tabs,
+  Link,
+  Stack,
+  Table,
+  Button,
+  Dialog,
+  TableRow,
+  TableHead,
+  TableCell,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  TableBody,
+  CardHeader,
+  MenuItem,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
+
+import { fDate } from 'src/utils/format-time';
+import axios from 'src/utils/axios';
+import { toast } from 'sonner';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { Iconify } from 'src/components/iconify';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import { TableNoData, TableSkeleton } from 'src/components/table';
+import { Form } from 'src/components/hook-form/form-provider';
+import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
+import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
+import { RHFSelect } from 'src/components/hook-form/rhf-select';
+import { RHFUpload } from 'src/components/hook-form/rhf-upload';
+import { RHFSwitch } from 'src/components/hook-form/rhf-switch';
+
+import { useForm } from 'react-hook-form';
+import { z as zod } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import {
+  getPresignedUploadUrl,
+  useCreateVehicleDocument,
+  useUpdateVehicleDocument,
+  useDeleteVehicleDocument,
+  useVehicleActiveDocuments,
+  useVehicleDocumentHistory,
+} from 'src/query/use-vehicle-document';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+
+const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
+
+const AddDocSchema = zod
+  .object({
+    docType: zod.string().min(1, 'Type is required'),
+    docNumber: zod.string().min(1, 'Document number is required'),
+    issueDate: zod.string().optional().or(zod.null()),
+    expiryDate: zod.string().optional().or(zod.null()),
+    file: zod.any().optional().nullable(),
+  })
+  .superRefine((val, ctx) => {
+    const file = val.file;
+    if (!file) return; // optional
+    // If file is a string (prefilled URL), skip validations
+    const isFileObject = typeof file === 'object' && 'type' in file;
+    if (!isFileObject) return;
+    if ((file.size || 0) > 5 * 1024 * 1024) {
+      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Max file size is 5 MB', path: ['file'] });
+    }
+    const isValidType = /^image\//.test(file.type) || file.type === 'application/pdf';
+    if (!isValidType) {
+      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Only images or PDF are allowed', path: ['file'] });
+    }
+  });
+
+export function VehicleDocumentsWidget({ vehicleId }) {
+  const addDialog = useBoolean();
+  const [tab, setTab] = useState('current');
+
+  const {
+    data: activeDocs,
+    isLoading: loadingActive,
+    isFetching: fetchingActive,
+  } = useVehicleActiveDocuments(vehicleId);
+  const {
+    data: historyDocs,
+    isLoading: loadingHistory,
+    isFetching: fetchingHistory,
+  } = useVehicleDocumentHistory(vehicleId);
+
+  const loading = loadingActive || loadingHistory;
+  const fetching = fetchingActive || fetchingHistory;
+
+  return (
+    <Card>
+      <CardHeader
+        title="Documents"
+        action={
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={addDialog.onTrue}
+          >
+            Add Document
+          </Button>
+        }
+      />
+
+      <Tabs
+        value={tab}
+        onChange={(_e, v) => setTab(v)}
+        sx={{ px: 3, mt: 1 }}
+        variant="scrollable"
+        allowScrollButtonsMobile
+      >
+        <Tab
+          value="current"
+          label="Current"
+          icon={<Iconify icon="mdi:file-check-outline" sx={{ color: 'success.main' }} />}
+          iconPosition="start"
+        />
+        <Tab
+          value="history"
+          label="History"
+          icon={<Iconify icon="mdi:archive-clock-outline" sx={{ color: 'text.secondary' }} />}
+          iconPosition="start"
+        />
+      </Tabs>
+
+      {tab === 'current' && (
+        <Box sx={{ p: 3, pt: 2 }}>
+          {loading ? (
+            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={5} />
+          ) : (
+            <DocumentsTable
+              rows={activeDocs || []}
+              vehicleId={vehicleId}
+              emptyLabel="No active documents"
+            />
+          )}
+        </Box>
+      )}
+
+      {tab === 'history' && (
+        <Box sx={{ p: 3, pt: 2 }}>
+          {loading ? (
+            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={6} />
+          ) : (
+            <DocumentsTable
+              rows={historyDocs || []}
+              vehicleId={vehicleId}
+              showActive={true}
+              emptyLabel="No history"
+            />
+          )}
+        </Box>
+      )}
+
+      <VehicleDocumentFormDialog
+        open={addDialog.value}
+        onClose={addDialog.onFalse}
+        vehicleId={vehicleId}
+        mode="create"
+      />
+    </Card>
+  );
+}
+
+function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No data' }) {
+  const hasRows = Array.isArray(rows) && rows.length > 0;
+  const [editing, setEditing] = useState(null);
+  const confirmDelete = useBoolean();
+  const [selectedDoc, setSelectedDoc] = useState(null);
+
+  const onEdit = (row) => setEditing(row);
+  const onDelete = (row) => {
+    setSelectedDoc(row);
+    confirmDelete.onTrue();
+  };
+  const handleDownload = async (row) => {
+    try {
+      const { data } = await axios.get(
+        `/api/vehicles/${vehicleId}/documents/${row._id}/download`
+      );
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast.error('No download URL received');
+      }
+    } catch (e) {
+      const msg = e?.message || 'Failed to get download link';
+      toast.error(msg);
+    }
+  };
+  return (
+    <>
+      <Table size="small" sx={{ minWidth: 720 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Type</TableCell>
+            <TableCell>Number</TableCell>
+            <TableCell>Issue Date</TableCell>
+            <TableCell>Expiry Date</TableCell>
+            <TableCell>File</TableCell>
+            <TableCell align="right">Actions</TableCell>
+            {showActive && <TableCell>Active</TableCell>}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {!hasRows && <TableNoData notFound title={emptyLabel} />}
+          {rows?.map((d) => (
+            <TableRow key={d._id} hover>
+              <TableCell sx={{ textTransform: 'capitalize' }}>{d.docType}</TableCell>
+              <TableCell>{d.docNumber || '-'}</TableCell>
+              <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
+              <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
+              <TableCell>
+                {d._id ? (
+                  <Tooltip title="Download">
+                    <IconButton size="small" onClick={() => handleDownload(d)}>
+                      <Iconify icon="eva:download-outline" />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  '-'
+                )}
+              </TableCell>
+              <TableCell align="right">
+                <Tooltip title="Edit">
+                  <IconButton size="small" onClick={() => onEdit(d)}>
+                    <Iconify icon="eva:edit-2-outline" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton size="small" color="error" onClick={() => onDelete(d)}>
+                    <Iconify icon="eva:trash-2-outline" />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+              {showActive && (
+                <TableCell>
+                  <Box
+                    component="span"
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 1,
+                      bgcolor: d.isActive ? 'success.soft' : 'grey.200',
+                      color: d.isActive ? 'success.main' : 'text.secondary',
+                      fontSize: 12,
+                    }}
+                  >
+                    {d.isActive ? 'Yes' : 'No'}
+                  </Box>
+                </TableCell>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    <VehicleDocumentFormDialog
+      open={!!editing}
+      onClose={() => setEditing(null)}
+      vehicleId={vehicleId}
+      doc={editing}
+      mode="edit"
+    />
+      <ConfirmDeleteDocument
+        open={confirmDelete.value}
+        onClose={confirmDelete.onFalse}
+        vehicleId={vehicleId}
+        doc={selectedDoc}
+      />
+    </>
+  );
+}
+
+function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
+  const createDocument = useCreateVehicleDocument();
+  const updateDocument = useUpdateVehicleDocument();
+  const [submitting, setSubmitting] = useState(false);
+  const isEdit = mode === 'edit';
+
+  const defaultValues = useMemo(
+    () => ({
+      docType: doc?.docType || '',
+      docNumber: doc?.docNumber || '',
+      issueDate: doc?.issueDate || '',
+      expiryDate: doc?.expiryDate || '',
+      isActive: !!doc?.isActive,
+      file: null,
+    }),
+    [doc]
+  );
+
+  const methods = useForm({ resolver: zodResolver(AddDocSchema), defaultValues, values: defaultValues });
+
+  // pre-populate existing file for edit by fetching a temporary download URL
+  const [loadingFile, setLoadingFile] = useState(false);
+  const [initialFileSet, setInitialFileSet] = useState(false);
+
+  const handlePrefillFile = async () => {
+    if (!isEdit || !doc?._id || initialFileSet) return;
+    try {
+      setLoadingFile(true);
+      const { data } = await axios.get(`/api/vehicles/${vehicleId}/documents/${doc._id}/download`);
+      if (data?.url) {
+        methods.setValue('file', data.url, { shouldValidate: false });
+      }
+    } catch (e) {
+      // ignore; file may not be available
+    } finally {
+      setInitialFileSet(true);
+      setLoadingFile(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open && isEdit && !initialFileSet && !loadingFile) {
+      handlePrefillFile();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEdit, doc?._id]);
+
+  const handleClose = () => {
+    if (!submitting) onClose();
+  };
+
+  const onSubmit = async (values) => {
+    try {
+      setSubmitting(true);
+
+      // compute file change state
+      let fileKeyChanged;
+      let nextFileKey;
+
+      if (values.file && typeof values.file !== 'string') {
+        // user selected a new file
+        const file = values.file;
+        const contentType = file.type;
+        const { key, uploadUrl } = await getPresignedUploadUrl({
+          vehicleId,
+          docType: values.docType,
+          contentType,
+        });
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': contentType },
+          body: file,
+        });
+        fileKeyChanged = true;
+        nextFileKey = key;
+      } else if (!values.file && isEdit) {
+        // user removed the file
+        fileKeyChanged = true;
+        nextFileKey = null;
+      }
+
+      if (isEdit) {
+        const payload = {
+          docType: values.docType,
+          docNumber: values.docNumber,
+          issueDate: values.issueDate || undefined,
+          expiryDate: values.expiryDate || undefined,
+          isActive: values.isActive,
+          ...(fileKeyChanged ? { fileKey: nextFileKey } : {}),
+        };
+        await updateDocument({ vehicleId, docId: doc?._id, payload });
+      } else {
+        // create
+        let createFileKey;
+        if (values.file && typeof values.file !== 'string') {
+          const file = values.file;
+          const contentType = file.type;
+          const { key, uploadUrl } = await getPresignedUploadUrl({
+            vehicleId,
+            docType: values.docType,
+            contentType,
+          });
+          await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': contentType },
+            body: file,
+          });
+          createFileKey = key;
+        }
+        await createDocument({
+          vehicleId,
+          payload: {
+            docType: values.docType,
+            docNumber: values.docNumber,
+            issueDate: values.issueDate || undefined,
+            expiryDate: values.expiryDate || undefined,
+            ...(createFileKey ? { fileKey: createFileKey } : {}),
+          },
+        });
+      }
+
+      onClose();
+    } catch (err) {
+      // handled by hooks; upload errors logged
+      // eslint-disable-next-line no-console
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{isEdit ? 'Edit Vehicle Document' : 'Add Vehicle Document'}</DialogTitle>
+      <DialogContent dividers>
+        <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
+          <Stack spacing={2} sx={{ py: 1 }}>
+            <RHFSelect name="docType" label="Type">
+              <MenuItem value="">Select type</MenuItem>
+              {DOC_TYPES.map((t) => (
+                <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>
+                  {t}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFTextField name="docNumber" label="Document Number" />
+
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <RHFDatePicker name="issueDate" label="Issue Date" slotProps={{ textField: { label: 'Issue Date' } }} />
+              <RHFDatePicker name="expiryDate" label="Expiry Date" slotProps={{ textField: { label: 'Expiry Date' } }} />
+            </Stack>
+
+            {isEdit && <RHFSwitch name="isActive" label="Mark as active" />}
+
+            <RHFUpload
+              name="file"
+              multiple={false}
+              accept={{ 'image/*': [], 'application/pdf': [] }}
+              maxSize={5 * 1024 * 1024}
+              helperText={
+                <Typography variant="caption" color="text.secondary">
+                  File is optional. Accepted: images or PDF. Max size 5MB.
+                </Typography>
+              }
+            />
+          </Stack>
+        </Form>
+      </DialogContent>
+      <DialogActions>
+        <Button color="inherit" onClick={handleClose} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          onClick={methods.handleSubmit(onSubmit)}
+          disabled={submitting}
+          startIcon={submitting ? <CircularProgress size={18} /> : <Iconify icon="eva:checkmark-circle-2-outline" />}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function ConfirmDeleteDocument({ open, onClose, vehicleId, doc }) {
+  const del = useDeleteVehicleDocument();
+  const [loading, setLoading] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      await del({ vehicleId, docId: doc?._id });
+      onClose();
+    } catch (e) {
+      // handled by hook toast
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <ConfirmDialog
+      open={open}
+      onClose={onClose}
+      title="Delete document?"
+      content={`This will remove ${doc?.docType || 'document'} record. File on storage is not deleted.`}
+      action={
+        <Button color="error" variant="contained" onClick={handleDelete} disabled={loading}>
+          {loading ? <CircularProgress size={18} /> : 'Delete'}
+        </Button>
+      }
+    />
+  );
+}
