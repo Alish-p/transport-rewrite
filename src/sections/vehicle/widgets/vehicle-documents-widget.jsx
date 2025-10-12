@@ -132,7 +132,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       </Tabs>
 
       {tab === 'current' && (
-        <Box sx={{ p: 3, pt: 2 }}>
+        <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
           {loading ? (
             <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={5} />
           ) : (
@@ -146,7 +146,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       )}
 
       {tab === 'history' && (
-        <Box sx={{ p: 3, pt: 2 }}>
+        <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
           {loading ? (
             <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={6} />
           ) : (

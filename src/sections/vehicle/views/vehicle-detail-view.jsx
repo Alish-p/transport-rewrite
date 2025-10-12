@@ -186,20 +186,20 @@ export function VehicleDetailView({ vehicle }) {
     <DashboardContent>
       <HeroHeader
         offsetTop={70}
-          title={vehicleNo}
-          status={vehicle.isOwn ? 'Own Vehicle' : 'Market Vehicle'}
-          icon="mdi:truck-outline"
-          meta={[
-            { icon: 'mdi:car', label: vehicleType },
-            { icon: 'mdi:domain', label: vehicleCompany },
-          ]}
-          actions={[
-            {
-              label: 'Edit',
-              icon: 'solar:pen-bold',
-              onClick: () => navigate(paths.dashboard.vehicle.edit(vehicle._id)),
-            },
-          ]}
+        title={vehicleNo}
+        status={vehicle.isOwn ? 'Own' : 'Market'}
+        icon="mdi:truck-outline"
+        meta={[
+          { icon: 'mdi:car', label: vehicleType },
+          { icon: 'mdi:domain', label: vehicleCompany },
+        ]}
+        actions={[
+          {
+            label: 'Edit',
+            icon: 'solar:pen-bold',
+            onClick: () => navigate(paths.dashboard.vehicle.edit(vehicle._id)),
+          },
+        ]}
       />
 
       <Grid container spacing={3} mt={3}>
@@ -210,7 +210,7 @@ export function VehicleDetailView({ vehicle }) {
           <Grid xs={12} sm={6} item>
             <VehicleFuelWidget value={fuelValue} total={400} />
           </Grid>
-          <Grid sm={12} item>
+          <Grid xs={12} item>
             <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
           </Grid>
         </Grid>
