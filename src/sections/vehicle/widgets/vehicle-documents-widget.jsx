@@ -27,6 +27,7 @@ import {
   DialogContent,
   CircularProgress,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -43,14 +44,10 @@ import {
 } from 'src/query/use-vehicle-document';
 
 import { Iconify } from 'src/components/iconify';
+import { Label } from 'src/components/label';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { Form } from 'src/components/hook-form/form-provider';
-import { RHFSelect } from 'src/components/hook-form/rhf-select';
-import { RHFUpload } from 'src/components/hook-form/rhf-upload';
-import { RHFSwitch } from 'src/components/hook-form/rhf-switch';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { TableNoData, TableSkeleton } from 'src/components/table';
-import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
-import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
 
 const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 
@@ -58,8 +55,9 @@ const AddDocSchema = zod
   .object({
     docType: zod.string().min(1, 'Type is required'),
     docNumber: zod.string().min(1, 'Document number is required'),
-    issueDate: zod.string().optional().or(zod.null()),
-    expiryDate: zod.string().optional().or(zod.null()),
+    issueDate: schemaHelper.date().optional(),
+    expiryDate: schemaHelper.date().optional(),
+    isActive: zod.boolean().optional(),
     file: zod.any().optional().nullable(),
   })
   .superRefine((val, ctx) => {
@@ -134,7 +132,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       {tab === 'current' && (
         <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
           {loading ? (
-            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={5} />
+            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={6} />
           ) : (
             <DocumentsTable
               rows={activeDocs || []}
@@ -148,7 +146,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       {tab === 'history' && (
         <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
           {loading ? (
-            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={6} />
+            <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={7} />
           ) : (
             <DocumentsTable
               rows={historyDocs || []}
@@ -196,6 +194,32 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
       toast.error(msg);
     }
   };
+  const getStatus = (expiryDate) => {
+    if (!expiryDate) return null;
+    const now = new Date();
+    const exp = new Date(expiryDate);
+    const diffMs = exp.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'Expired';
+    if (diffDays <= 15) return 'Expiring';
+    return 'Valid';
+  };
+
+  const renderStatus = (status) => {
+    if (!status) return '-';
+    const map = {
+      Expired: { color: 'error', icon: 'mdi:alert-circle-outline' },
+      Expiring: { color: 'warning', icon: 'mdi:alert-outline' },
+      Valid: { color: 'success', icon: 'mdi:check-circle-outline' },
+    };
+    const cfg = map[status];
+    return (
+      <Label color={cfg.color} startIcon={<Iconify icon={cfg.icon} />}>
+        {status}
+      </Label>
+    );
+  };
+
   return (
     <>
       <Table size="small" sx={{ minWidth: 720 }}>
@@ -205,8 +229,8 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
             <TableCell>Number</TableCell>
             <TableCell>Issue Date</TableCell>
             <TableCell>Expiry Date</TableCell>
-            <TableCell>File</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell align='center' >Actions</TableCell>
             {showActive && <TableCell>Active</TableCell>}
           </TableRow>
         </TableHead>
@@ -218,18 +242,15 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
               <TableCell>{d.docNumber || '-'}</TableCell>
               <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
               <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
-              <TableCell>
-                {d._id ? (
-                  <Tooltip title="Download">
-                    <IconButton size="small" onClick={() => handleDownload(d)}>
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  '-'
-                )}
-              </TableCell>
-              <TableCell align="right">
+              <TableCell>{renderStatus(getStatus(d.expiryDate))}</TableCell>
+              <TableCell align='center' >
+
+                <Tooltip title="Download">
+                  <IconButton size="small" onClick={() => handleDownload(d)}>
+                    <Iconify icon="eva:download-outline" />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Edit">
                   <IconButton size="small" onClick={() => onEdit(d)}>
                     <Iconify icon="eva:edit-2-outline" />
@@ -240,6 +261,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
                     <Iconify icon="eva:trash-2-outline" />
                   </IconButton>
                 </Tooltip>
+
               </TableCell>
               {showActive && (
                 <TableCell>
@@ -282,22 +304,28 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
 function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
   const createDocument = useCreateVehicleDocument();
   const updateDocument = useUpdateVehicleDocument();
-  const [submitting, setSubmitting] = useState(false);
   const isEdit = mode === 'edit';
 
   const defaultValues = useMemo(
     () => ({
       docType: doc?.docType || '',
       docNumber: doc?.docNumber || '',
-      issueDate: doc?.issueDate || '',
-      expiryDate: doc?.expiryDate || '',
+      issueDate: doc?.issueDate ? new Date(doc.issueDate) : new Date(),
+      expiryDate: doc?.expiryDate
+        ? new Date(doc.expiryDate)
+        : new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       isActive: !!doc?.isActive,
       file: null,
     }),
     [doc]
   );
 
-  const methods = useForm({ resolver: zodResolver(AddDocSchema), defaultValues, values: defaultValues });
+  const methods = useForm({
+    resolver: zodResolver(AddDocSchema),
+    defaultValues,
+    values: defaultValues,
+    mode: 'all',
+  });
 
   // pre-populate existing file for edit by fetching a temporary download URL
   const [loadingFile, setLoadingFile] = useState(false);
@@ -336,12 +364,11 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
   }, [open, isEdit, doc?._id]);
 
   const handleClose = () => {
-    if (!submitting) onClose();
+    if (!methods.formState.isSubmitting) onClose();
   };
 
   const onSubmit = async (values) => {
     try {
-      setSubmitting(true);
 
       // compute file change state
       let fileKeyChanged;
@@ -419,7 +446,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
       // eslint-disable-next-line no-console
       console.error(err);
     } finally {
-      setSubmitting(false);
+      // react-hook-form manages isSubmitting
     }
   };
 
@@ -429,25 +456,25 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
       <DialogContent dividers>
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
-            <RHFSelect name="docType" label="Type">
+            <Field.Select name="docType" label="Type">
               <MenuItem value="">Select type</MenuItem>
               {DOC_TYPES.map((t) => (
                 <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>
                   {t}
                 </MenuItem>
               ))}
-            </RHFSelect>
+            </Field.Select>
 
-            <RHFTextField name="docNumber" label="Document Number" />
+            <Field.Text name="docNumber" label="Document Number" />
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <RHFDatePicker name="issueDate" label="Issue Date" slotProps={{ textField: { label: 'Issue Date' } }} />
-              <RHFDatePicker name="expiryDate" label="Expiry Date" slotProps={{ textField: { label: 'Expiry Date' } }} />
+              <Field.DatePicker name="issueDate" label="Issue Date" />
+              <Field.DatePicker name="expiryDate" label="Expiry Date" />
             </Stack>
 
-            {isEdit && <RHFSwitch name="isActive" label="Mark as active" />}
+            {isEdit && <Field.Switch name="isActive" label="Mark as active" />}
 
-            <RHFUpload
+            <Field.Upload
               name="file"
               multiple={false}
               accept={{ 'image/*': [], 'application/pdf': [] }}
@@ -462,17 +489,18 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
         </Form>
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={handleClose} disabled={submitting}>
+        <Button color="inherit" onClick={handleClose} disabled={methods.formState.isSubmitting}>
           Cancel
         </Button>
-        <Button
+        <LoadingButton
           variant="contained"
           onClick={methods.handleSubmit(onSubmit)}
-          disabled={submitting}
-          startIcon={submitting ? <CircularProgress size={18} /> : <Iconify icon="eva:checkmark-circle-2-outline" />}
+          loading={methods.formState.isSubmitting}
+          disabled={methods.formState.isSubmitting || !methods.formState.isValid}
+          startIcon={!methods.formState.isSubmitting ? <Iconify icon="eva:checkmark-circle-2-outline" /> : null}
         >
           Save
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );
