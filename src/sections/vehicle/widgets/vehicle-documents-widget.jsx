@@ -55,6 +55,7 @@ const AddDocSchema = zod
   .object({
     docType: zod.string().min(1, 'Type is required'),
     docNumber: zod.string().min(1, 'Document number is required'),
+    issuer: zod.string().optional(),
     issueDate: schemaHelper.date().optional(),
     expiryDate: schemaHelper.date().optional(),
     isActive: zod.boolean().optional(),
@@ -307,6 +308,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
     () => ({
       docType: doc?.docType || '',
       docNumber: doc?.docNumber || '',
+      issuer: doc?.issuer || '',
       issueDate: doc?.issueDate ? new Date(doc.issueDate) : new Date(),
       expiryDate: doc?.expiryDate
         ? new Date(doc.expiryDate)
@@ -401,6 +403,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
         const payload = {
           docType: values.docType,
           docNumber: values.docNumber,
+          issuer: values.issuer?.trim() ? values.issuer.trim() : undefined,
           issueDate: values.issueDate || undefined,
           expiryDate: values.expiryDate || undefined,
           isActive: values.isActive,
@@ -430,6 +433,7 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
           payload: {
             docType: values.docType,
             docNumber: values.docNumber,
+            issuer: values.issuer?.trim() ? values.issuer.trim() : undefined,
             issueDate: values.issueDate || undefined,
             expiryDate: values.expiryDate || undefined,
             ...(createFileKey ? { fileKey: createFileKey } : {}),
@@ -463,6 +467,12 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
             </Field.Select>
 
             <Field.Text name="docNumber" label="Document Number" />
+
+            <Field.Text
+              name="issuer"
+              label="Issuer"
+              placeholder="ICICI, RTO Karnataka, Govt. of India"
+            />
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <Field.DatePicker name="issueDate" label="Issue Date" />
