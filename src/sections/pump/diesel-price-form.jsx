@@ -6,7 +6,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Stack,
+  Button,
+  Divider,
+  InputAdornment,
+  CardHeader,
+} from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -73,7 +81,7 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
   const onSubmit = async (data) => {
     const transformedData = {
       ...data,
-      pump: pump ? pump._id : data.pump.value, // Transform pump to save only the value
+      pump: pump ? pump._id : data.pump.value,
     };
 
     try {
@@ -89,9 +97,7 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
 
       if (newDieselPrice) {
         reset();
-        if (onSuccess) {
-          onSuccess(newDieselPrice);
-        }
+        if (onSuccess) onSuccess(newDieselPrice);
       }
     } catch (error) {
       console.error(error);
@@ -100,74 +106,84 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
 
   const selectedPump = watch('pump');
 
+  const renderDetails = (
+    <Card>
+      <Stack spacing={3}>
+        <Box
+          display="grid"
+          columnGap={2}
+          rowGap={3}
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+        >
+          <Box>
+            {pump ? (
+              <Button
+                fullWidth
+                variant="outlined"
+                disabled
+                sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
+                startIcon={<Iconify icon="mdi:gas-station" sx={{ color: 'primary.main' }} />}
+              >
+                {pump.name}
+              </Button>
+            ) : (
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={pumpDialog.onTrue}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                  borderColor: errors.pump?.message ? 'error.main' : 'text.disabled',
+                }}
+                startIcon={
+                  <Iconify
+                    icon={selectedPump?.label ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
+                    sx={{ color: selectedPump?.label ? 'primary.main' : 'text.disabled' }}
+                  />
+                }
+              >
+                {selectedPump?.label ? selectedPump.label : 'Select Pump *'}
+              </Button>
+            )}
+          </Box>
+
+          <Field.Text
+            name="price"
+            label="Price"
+            type="number"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
+          <Field.DatePicker name="startDate" label="Start Date" />
+          <Field.DatePicker name="endDate" label="End Date" />
+        </Box>
+      </Stack>
+    </Card>
+  );
+
+  const renderActions = (
+    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+        {!currentDieselPrice ? 'Create Diesel Price' : 'Save Changes'}
+      </LoadingButton>
+    </Stack>
+  );
+
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            Diesel Price Details
-          </Typography>
-          <Card sx={{ p: 3, mb: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <Box>
-                {pump ? (
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    disabled
-                    sx={{
-                      height: 56,
-                      justifyContent: 'flex-start',
-                      typography: 'body2',
-                    }}
-                    startIcon={<Iconify icon="mdi:gas-station" sx={{ color: 'primary.main' }} />}
-                  >
-                    {pump.name}
-                  </Button>
-                ) : (
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    onClick={pumpDialog.onTrue}
-                    sx={{
-                      height: 56,
-                      justifyContent: 'flex-start',
-                      typography: 'body2',
-                      borderColor: errors.pump?.message ? 'error.main' : 'text.disabled',
-                    }}
-                    startIcon={
-                      <Iconify
-                        icon={selectedPump?.label ? 'mdi:gas-station' : 'mdi:gas-station-outline'}
-                        sx={{ color: selectedPump?.label ? 'primary.main' : 'text.disabled' }}
-                      />
-                    }
-                  >
-                    {selectedPump?.label ? selectedPump.label : 'Select Pump *'}
-                  </Button>
-                )}
-              </Box>
-              <Field.Text name="price" label="Price" type="number" />
-              <Field.DatePicker name="startDate" label="Start Date" />
-              <Field.DatePicker name="endDate" label="End Date" />
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 3 }} />
-
-      <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-          {!currentDieselPrice ? 'Create Diesel Price' : 'Save Changes'}
-        </LoadingButton>
+      <Stack spacing={{ xs: 3, md: 4 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderDetails}
+        {renderActions}
       </Stack>
 
       {!pump && (
@@ -181,3 +197,4 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
     </Form>
   );
 }
+

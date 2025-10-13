@@ -32,7 +32,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import DieselPriceForm from '../../diesel-price/diesel-price-form';
+import DieselPriceForm from '../diesel-price-form';
 
 export function PumpDieselPricesWidget({ pump, title = 'Diesel Prices', ...other }) {
   const table = useTable({ defaultOrderBy: 'startDate', defaultRowsPerPage: 5 });
