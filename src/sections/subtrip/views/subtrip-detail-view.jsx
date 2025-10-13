@@ -95,14 +95,6 @@ export function SubtripDetailView({ subtrip }) {
     }
     return [
       {
-        label: 'Add Material Info',
-        action: () =>
-          navigate(
-            `${paths.dashboard.subtrip.load}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
-          ),
-        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.IN_QUEUE,
-      },
-      {
         label: 'Receive',
         action: () =>
           navigate(
@@ -113,12 +105,7 @@ export function SubtripDetailView({ subtrip }) {
       {
         label: 'Resolve',
         action: () => setShowResolveDialog(true),
-        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RECEIVED,
-      },
-      {
-        label: 'Close Job',
-        action: () => setShowCloseDialog(true),
-        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.RESOLVED,
+        disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.ERROR,
       },
     ];
   };
@@ -129,175 +116,175 @@ export function SubtripDetailView({ subtrip }) {
         <HeroHeader
           offsetTop={70}
           title={`Job #${subtripNo}`}
-            status={subtripStatus}
-            icon="mdi:routes"
-            meta={[
-              {
-                icon: 'mdi:truck-outline',
-                label: vehicleId?.vehicleNo,
-                href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
-              },
-              {
-                icon: 'mdi:account',
-                label: driverId?.driverName,
-                href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
-              },
-              // Show Trip only when associated (non-market vehicles)
-              ...(hasTrip
-                ? [
-                  {
-                    icon: 'mdi:routes',
-                    label: `Trip #${subtrip.tripId.tripNo}`,
-                    href: paths.dashboard.trip.details(subtrip.tripId._id),
-                  },
-                ]
-                : []),
-            ]}
-            menus={[
-              {
-                label: 'Actions',
-                icon: 'eva:settings-2-fill',
-                items: getActions().map((a) => ({ label: a.label, onClick: a.action, disabled: a.disabled })),
-              },
-              {
-                label: 'View',
-                icon: 'solar:eye-bold',
-                items: [
-                  {
-                    label: 'Lorry Receipt (LR)',
-                    icon: 'mdi:file-document-outline',
-                    onClick: () => viewLR.onTrue(),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasDieselIntent && {
-                    label: 'Petrol Pump Intent',
-                    icon: 'mdi:file-document-outline',
-                    onClick: () => viewIntent.onTrue(),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasEntryPass && {
-                    label: 'Entry Pass',
-                    icon: 'mdi:file-document-outline',
-                    onClick: () => viewEntryPass.onTrue(),
-                  },
-                  {
-                    label: 'Driver Payment',
-                    icon: 'mdi:file-document-outline',
-                    onClick: () => viewDriverPayment.onTrue(),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasTransporterPayment && {
-                    label: 'Transporter Payment',
-                    icon: 'mdi:file-document-outline',
-                    onClick: () => viewTransporterPayment.onTrue(),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                ].filter(Boolean),
-              },
-              {
-                label: 'Download',
-                icon: 'material-symbols:download',
-                items: [
-                  {
-                    label: 'Lorry Receipt (LR)',
-                    render: () => (
-                      <PDFDownloadLink
-                        document={<LRPDF subtrip={subtrip} tenant={tenant} />}
-                        fileName={`${subtrip.subtripNo}_lr`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
-                      >
-                        {({ loading }) => (
-                          <>
-                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
-                            Lorry Receipt (LR)
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                    ),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasDieselIntent && {
-                    label: 'Petrol Pump Indent',
-                    render: () => (
-                      <PDFDownloadLink
-                        document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
-                        fileName={`${subtrip.subtripNo}_indent`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
-                      >
-                        {({ loading }) => (
-                          <>
-                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
-                            Petrol Pump Indent
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                    ),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasEntryPass && {
-                    label: 'Entry Pass',
-                    render: () => (
-                      <PDFDownloadLink
-                        document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
-                        fileName={`${subtrip.subtripNo}_entry_pass`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
-                      >
-                        {({ loading }) => (
-                          <>
-                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
-                            Entry Pass
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                    ),
-                  },
-                  {
-                    label: 'Driver Payment',
-                    render: () => (
-                      <PDFDownloadLink
-                        document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
-                        fileName={`${subtrip.subtripNo}_driver_payment`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
-                      >
-                        {({ loading }) => (
-                          <>
-                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
-                            Driver Payment
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                    ),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                  hasTransporterPayment && {
-                    label: 'Transporter Payment',
-                    render: () => (
-                      <PDFDownloadLink
-                        document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
-                        fileName={`${subtrip.subtripNo}_transporter_payment`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
-                      >
-                        {({ loading }) => (
-                          <>
-                            <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
-                            Transporter Payment
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                    ),
-                    disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
-                  },
-                ].filter(Boolean),
-              },
-            ]}
-            actions={[
-              {
-                label: 'Edit',
-                icon: 'solar:pen-bold',
-                onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-                disabled: !isEditingAllowed(),
-              },
-            ]}
+          status={subtripStatus}
+          icon="mdi:routes"
+          meta={[
+            {
+              icon: 'mdi:truck-outline',
+              label: vehicleId?.vehicleNo,
+              href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
+            },
+            {
+              icon: 'mdi:account',
+              label: driverId?.driverName,
+              href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
+            },
+            // Show Trip only when associated (non-market vehicles)
+            ...(hasTrip
+              ? [
+                {
+                  icon: 'mdi:routes',
+                  label: `Trip #${subtrip.tripId.tripNo}`,
+                  href: paths.dashboard.trip.details(subtrip.tripId._id),
+                },
+              ]
+              : []),
+          ]}
+          menus={[
+            {
+              label: 'Actions',
+              icon: 'eva:settings-2-fill',
+              items: getActions().map((a) => ({ label: a.label, onClick: a.action, disabled: a.disabled })),
+            },
+            {
+              label: 'View',
+              icon: 'solar:eye-bold',
+              items: [
+                {
+                  label: 'Lorry Receipt (LR)',
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => viewLR.onTrue(),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasDieselIntent && {
+                  label: 'Petrol Pump Intent',
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => viewIntent.onTrue(),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasEntryPass && {
+                  label: 'Entry Pass',
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => viewEntryPass.onTrue(),
+                },
+                {
+                  label: 'Driver Payment',
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => viewDriverPayment.onTrue(),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasTransporterPayment && {
+                  label: 'Transporter Payment',
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => viewTransporterPayment.onTrue(),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+              ].filter(Boolean),
+            },
+            {
+              label: 'Download',
+              icon: 'material-symbols:download',
+              items: [
+                {
+                  label: 'Lorry Receipt (LR)',
+                  render: () => (
+                    <PDFDownloadLink
+                      document={<LRPDF subtrip={subtrip} tenant={tenant} />}
+                      fileName={`${subtrip.subtripNo}_lr`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          Lorry Receipt (LR)
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasDieselIntent && {
+                  label: 'Petrol Pump Indent',
+                  render: () => (
+                    <PDFDownloadLink
+                      document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
+                      fileName={`${subtrip.subtripNo}_indent`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          Petrol Pump Indent
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasEntryPass && {
+                  label: 'Entry Pass',
+                  render: () => (
+                    <PDFDownloadLink
+                      document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
+                      fileName={`${subtrip.subtripNo}_entry_pass`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          Entry Pass
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                },
+                {
+                  label: 'Driver Payment',
+                  render: () => (
+                    <PDFDownloadLink
+                      document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
+                      fileName={`${subtrip.subtripNo}_driver_payment`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          Driver Payment
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+                hasTransporterPayment && {
+                  label: 'Transporter Payment',
+                  render: () => (
+                    <PDFDownloadLink
+                      document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
+                      fileName={`${subtrip.subtripNo}_transporter_payment`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          Transporter Payment
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                  disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
+                },
+              ].filter(Boolean),
+            },
+          ]}
+          actions={[
+            {
+              label: 'Edit',
+              icon: 'solar:pen-bold',
+              onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+              disabled: !isEditingAllowed(),
+            },
+          ]}
         />
 
         {/* PDF Viewers */}
