@@ -17,11 +17,6 @@ const getTransporterPayment = async (id) => {
   return data;
 };
 
-const getTransporterPayments = async (transporterId) => {
-  const { data } = await axios.get(`/api/transporters/${transporterId}/payments`);
-  return data;
-};
-
 const createTransporterPayment = async (transporterPayment) => {
   const { data } = await axios.post(ENDPOINT, transporterPayment);
   return data;
@@ -58,15 +53,6 @@ export function useTransporterPayment(id) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => getTransporterPayment(id),
     enabled: !!id,
-  });
-}
-
-export function useTransporterPayments(transporterId, options = {}) {
-  return useQuery({
-    queryKey: [QUERY_KEY, 'by-transporter', transporterId],
-    queryFn: () => getTransporterPayments(transporterId),
-    enabled: !!transporterId,
-    ...options,
   });
 }
 

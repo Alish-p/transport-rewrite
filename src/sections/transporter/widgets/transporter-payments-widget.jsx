@@ -20,7 +20,7 @@ import { fDate } from 'src/utils/format-time';
 import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 
-import { useTransporterPayments } from 'src/query/use-transporter-payment';
+import { usePaginatedTransporterPayments } from 'src/query/use-transporter-payment';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -28,7 +28,12 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
 export function TransporterPaymentsWidget({ transporterId, title = 'Payments', ...other }) {
-  const { data: payments = [], isLoading } = useTransporterPayments(transporterId);
+  const { data, isLoading } = usePaginatedTransporterPayments({
+    transporterId,
+    page: 1,
+    rowsPerPage: 50,
+  });
+  const payments = data?.receipts || [];
   const [showAll, setShowAll] = useState(false);
   const displayed = showAll ? payments : payments.slice(0, 6);
 
@@ -73,12 +78,17 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
                       </Label>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title={row.associatedSubtrips?.join(', ')}>
-                        <ListItemText
-                          primary={wrapText(row.associatedSubtrips?.join(', ') || '-', 30)}
-                          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-                        />
-                      </Tooltip>
+                      {(() => {
+                        const jobs = row.subtripSnapshot?.map((st) => st.subtripNo)?.join(', ');
+                        return (
+                          <Tooltip title={jobs}>
+                            <ListItemText
+                              primary={wrapText(jobs || '-', 30)}
+                              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+                            />
+                          </Tooltip>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell align="center">
                       <Label variant="soft" color={row.status === 'paid' ? 'success' : 'error'}>

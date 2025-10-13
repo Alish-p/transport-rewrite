@@ -30,7 +30,7 @@ export function TransporterDetailView({ transporter }) {
           { icon: 'mdi:phone', label: cellNo },
         ]}
       />
-      <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Box sx={{ mt: 3 }}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
             <TransporterBasicWidget transporter={transporter} />
