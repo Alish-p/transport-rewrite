@@ -25,23 +25,23 @@ export function PumpDetailView({ pump }) {
     <DashboardContent>
       <HeroHeader
         offsetTop={70}
-          title={name}
-          status="Active"
-          icon="solar:gas-station-bold"
-          meta={[
-            { icon: 'mdi:account', label: ownerName },
-            { icon: 'mdi:phone', label: phone },
-            { icon: 'mdi:map-marker', label: address },
-          ]}
-          actions={[
-            {
-              label: 'Edit',
-              icon: 'solar:pen-bold',
-              onClick: () => navigate(paths.dashboard.pump.edit(pump._id)),
-            },
-          ]}
+        title={name}
+        status="Active"
+        icon="solar:gas-station-bold"
+        meta={[
+          { icon: 'mdi:account', label: ownerName },
+          { icon: 'mdi:phone', label: phone },
+          { icon: 'mdi:map-marker', label: address },
+        ]}
+        actions={[
+          {
+            label: 'Edit',
+            icon: 'solar:pen-bold',
+            onClick: () => navigate(paths.dashboard.pump.edit(pump._id)),
+          },
+        ]}
       />
-      <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Box sx={{ mt: 3 }}>
         <Grid container spacing={2}>
           {/* Top row: 3 columns to better use width */}
           <Grid xs={12} md={4}>

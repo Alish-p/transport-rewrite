@@ -17,6 +17,11 @@ const getDocumentHistory = async (vehicleId) => {
   return data;
 };
 
+const getMissingDocuments = async (vehicleId) => {
+  const { data } = await axios.get(`${VEHICLE_ENDPOINT}/${vehicleId}/documents/missing`);
+  return data; // { required: string[], missing: string[] }
+};
+
 export const getPresignedUploadUrl = async ({ vehicleId, docType, contentType }) => {
   const { data } = await axios.get(
     `${VEHICLE_ENDPOINT}/${vehicleId}/documents/upload-url`,
@@ -55,6 +60,16 @@ export function useVehicleDocumentHistory(vehicleId, options = {}) {
     queryKey: [QUERY_KEY, vehicleId, 'history'],
     queryFn: () => getDocumentHistory(vehicleId),
     enabled: !!vehicleId,
+    ...options,
+  });
+}
+
+export function useVehicleMissingDocuments(vehicleId, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, vehicleId, 'missing'],
+    queryFn: () => getMissingDocuments(vehicleId),
+    enabled: !!vehicleId,
+    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }

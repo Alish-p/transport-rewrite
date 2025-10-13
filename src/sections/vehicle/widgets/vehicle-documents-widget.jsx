@@ -41,10 +41,12 @@ import {
   useDeleteVehicleDocument,
   useVehicleActiveDocuments,
   useVehicleDocumentHistory,
+  useVehicleMissingDocuments,
 } from 'src/query/use-vehicle-document';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { getExpiryStatus, getStatusMeta } from 'src/sections/vehicle/utils/document-utils';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -91,6 +93,12 @@ export function VehicleDocumentsWidget({ vehicleId }) {
 
   const loading = loadingActive || loadingHistory;
 
+  // Required vs present summary (simple chips)
+  const { data: missingData, isLoading: loadingMissing } = useVehicleMissingDocuments(vehicleId);
+  const requiredTypes = missingData?.required && missingData.required.length > 0 ? missingData.required : DOC_TYPES;
+
+  const getDocByType = (type) => (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
+
   return (
     <Card>
       <CardHeader
@@ -126,6 +134,52 @@ export function VehicleDocumentsWidget({ vehicleId }) {
           iconPosition="start"
         />
       </Tabs>
+
+      {/* Required documents quick status */}
+      <Box sx={{ px: 3, pt: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+          {(loading || loadingMissing) && (
+            <Typography variant="caption" color="text.secondary">Checking…</Typography>
+          )}
+        </Stack>
+        <Stack direction="row" flexWrap="wrap" gap={1}>
+          {requiredTypes.map((t) => {
+            const doc = getDocByType(t);
+            const status = doc ? getExpiryStatus(doc.expiryDate) || 'Valid' : 'Missing';
+            const meta = getStatusMeta(status);
+
+            // Tooltip message
+            let tip = 'Required document';
+            if (!doc) {
+              tip = `Missing — add ${t}`;
+            } else if (!doc.expiryDate) {
+              tip = 'Present — no expiry date';
+            } else {
+              const now = new Date();
+              const exp = new Date(doc.expiryDate);
+              const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+              if (diffDays < 0) tip = `Expired ${Math.abs(diffDays)} days ago on ${fDate(exp)}`;
+              else if (diffDays <= 15) tip = `Expiring in ${diffDays} days on ${fDate(exp)}`;
+              else tip = `Valid — expires in ${diffDays} days on ${fDate(exp)}`;
+            }
+
+            return (
+              <Tooltip key={t} title={tip} arrow placement="top">
+                <span>
+                  <Label
+                    color={meta?.color || 'default'}
+                    variant="soft"
+                    startIcon={<Iconify icon={meta?.icon || 'mdi:minus-circle-outline'} />}
+                    sx={{ textTransform: 'capitalize' }}
+                  >
+                    {t}
+                  </Label>
+                </span>
+              </Tooltip>
+            );
+          })}
+        </Stack>
+      </Box>
 
       {tab === 'current' && (
         <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
@@ -192,25 +246,10 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
       toast.error(msg);
     }
   };
-  const getStatus = (expiryDate) => {
-    if (!expiryDate) return null;
-    const now = new Date();
-    const exp = new Date(expiryDate);
-    const diffMs = exp.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) return 'Expired';
-    if (diffDays <= 15) return 'Expiring';
-    return 'Valid';
-  };
-
   const renderStatus = (status) => {
     if (!status) return '-';
-    const map = {
-      Expired: { color: 'error', icon: 'mdi:alert-circle-outline' },
-      Expiring: { color: 'warning', icon: 'mdi:alert-outline' },
-      Valid: { color: 'success', icon: 'mdi:check-circle-outline' },
-    };
-    const cfg = map[status];
+    const cfg = getStatusMeta(status);
+    if (!cfg) return '-';
     return (
       <Label color={cfg.color} startIcon={<Iconify icon={cfg.icon} />}>
         {status}
@@ -240,7 +279,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
               <TableCell>{d.docNumber || '-'}</TableCell>
               <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
               <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
-              <TableCell>{renderStatus(getStatus(d.expiryDate))}</TableCell>
+              <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
               <TableCell align='center' >
 
                 <Tooltip title="Download">
