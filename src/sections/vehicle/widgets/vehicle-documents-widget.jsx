@@ -46,10 +46,11 @@ import {
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { getExpiryStatus, getStatusMeta } from 'src/sections/vehicle/utils/document-utils';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
 const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 

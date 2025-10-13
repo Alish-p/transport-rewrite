@@ -1,4 +1,3 @@
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -7,11 +6,10 @@ import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
 
-import { SvgColor, svgColorClasses } from 'src/components/svg-color';
+import { SvgColor } from 'src/components/svg-color';
 
 import { useAuthContext } from 'src/auth/hooks';
 
-import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
 import { TopRoutesTable } from '../app-top-routes-table';
@@ -28,6 +26,7 @@ import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
 import { TransporterInsightsTable } from '../app-transporter-insights-table';
+import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
 // ----------------------------------------------------------------------
@@ -49,6 +48,7 @@ export function OverviewAppView({
   invoiceStatusSummary,
   invoiceAmountSummary,
   transporterPaymentSummary,
+  vehicleDocsSummary,
 }) {
   const { user } = useAuthContext();
 
@@ -59,8 +59,6 @@ export function OverviewAppView({
     customers,
     drivers,
     subtrips,
-    totalPendingTransporterPayment,
-    totalPendingSalary,
   } = counts;
 
   return (
@@ -217,23 +215,21 @@ export function OverviewAppView({
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          {/* <AppSubtripStatusWidget title="Subtrip Status" summary={subtripStatusSummary} /> */}
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <AppWidget
-              title="Pending Transporter Payment"
-              total={totalPendingTransporterPayment}
-              icon="ri:money-rupee-circle-line"
+        {vehicleDocsSummary && (
+          <Grid xs={12} md={6} lg={4}>
+            <VehicleDocumentsPieChart
+              title="Vehicle Documents"
+              chart={{
+                series: [
+                  { label: 'Missing', value: vehicleDocsSummary?.missing ?? 0 },
+                  { label: 'Expired', value: vehicleDocsSummary?.expired ?? 0 },
+                  { label: 'Expiring', value: vehicleDocsSummary?.expiring ?? 0 },
+                  { label: 'Valid', value: vehicleDocsSummary?.valid ?? 0 },
+                ],
+              }}
             />
-
-            <AppWidget
-              title="Pending Driver Salary"
-              total={totalPendingSalary}
-              icon="healthicons:truck-driver"
-              sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
-            />
-          </Box>
-        </Grid>
+          </Grid>
+        )}
 
         <Grid xs={12} md={12}>
           <CustomerFreightTable

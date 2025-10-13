@@ -32,6 +32,14 @@ const getInvoiceStatusSummary = async () => {
   return data;
 };
 
+// Vehicle documents summary
+const getVehicleDocumentsSummary = async (days = 30) => {
+  const { data } = await axios.get(`${ENDPOINT}/vehicle-documents-summary`, {
+    params: { days },
+  });
+  return data; // { missing, expiring, expired, valid, meta }
+};
+
 // Queries & Mutations
 export function useCustomerMonthlyFreight(month) {
   return useQuery({
@@ -84,6 +92,13 @@ export function useSubtripStatusSummary() {
 
 export function useInvoiceStatusSummary() {
   return useQuery({ queryKey: ['invoiceStatusSummary'], queryFn: getInvoiceStatusSummary });
+}
+
+export function useVehicleDocumentsSummary(days = 30) {
+  return useQuery({
+    queryKey: ['vehicleDocumentsSummary', days],
+    queryFn: () => getVehicleDocumentsSummary(days),
+  });
 }
 
 // ----------------------------------------------------------------------
