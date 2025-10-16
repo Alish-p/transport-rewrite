@@ -38,20 +38,6 @@ function toFixed2(n) {
 // Accepts optional tenant to derive ledger names from accounting integration config
 export function buildInvoicesXml(invoicesInput, tenant) {
   const invoices = invoicesInput || [];
-  const parts = [];
-  parts.push('<?xml version="1.0" encoding="utf-8"?>');
-  parts.push('<ENVELOPE>');
-  parts.push('  <HEADER>');
-  parts.push('    <TALLYREQUEST>Import</TALLYREQUEST>'); // fixed
-  parts.push('    <TYPE>Data</TYPE>'); // fixed
-  parts.push('    <ID>Vouchers</ID>'); // fixed
-  parts.push('  </HEADER>');
-  parts.push('  <BODY>');
-  parts.push('    <DESC>');
-  parts.push('      <STATICVARIABLES>');
-  parts.push('      </STATICVARIABLES>');
-  parts.push('    </DESC>');
-  parts.push('    <DATA>');
 
   // Resolve ledger names (fallback to legacy defaults if not configured)
   const accountingEnabled = !!(
@@ -66,106 +52,143 @@ export function buildInvoicesXml(invoicesInput, tenant) {
     : {};
 
   const LEDGER_NAMES = {
-    transport_pay: configuredLedgers.transport_pay || 'Transport_pay',
+    income: configuredLedgers.income || 'Freight Income',
   };
 
-  invoices.forEach((invoice) => {
-    if (!invoice) return;
+  // Company / dispatch-from info from tenant or CONFIG
+  const companyName = tenant?.name || tenant?.company?.name || 'Shree Enterprises';
+  const companyGstin = tenant?.company?.gstin || tenant?.gstin || '';
+  const companyStateCode = (companyGstin || '').slice(0, 2) || '';
 
-    const issueDate = invoice.issueDate || new Date();
-    const invoiceNo = invoice.invoiceNo || '';
-    const customer = invoice.customerId || {};
+  const vouchers = (invoices || [])
+    .filter(Boolean)
+    .map((invoice) => {
+      const issueDate = invoice.issueDate || new Date();
+      const invoiceNo = invoice.invoiceNo || '';
+      const customer = invoice.customerId || {};
 
-    const taxBreakup = invoice.taxBreakup || {};
-    const cgst = taxBreakup.cgst || { rate: 0, amount: 0 };
-    const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
-    const igst = taxBreakup.igst || { rate: 0, amount: 0 };
+      const taxBreakup = invoice.taxBreakup || {};
+      const cgst = taxBreakup.cgst || { rate: 0, amount: 0 };
+      const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
+      const igst = taxBreakup.igst || { rate: 0, amount: 0 };
 
-    // Round components to 2 decimals and enforce netTotal consistency
-    const taxableAmount = Math.round(Number(invoice.totalAmountBeforeTax || 0) * 100) / 100;
-    const cgstAmt = Math.round(Number(cgst.amount || 0) * 100) / 100;
-    const sgstAmt = Math.round(Number(sgst.amount || 0) * 100) / 100;
-    const igstAmt = Math.round(Number(igst.amount || 0) * 100) / 100;
-    const isIGST = igstAmt > 0;
-    // Compute net as exact sum of components (2-decimal rounded)
-    const netTotal = Math.round((taxableAmount + cgstAmt + sgstAmt + igstAmt) * 100) / 100;
+      // Rounded values and net total
+      const taxableAmount = Math.round(Number(invoice.totalAmountBeforeTax || 0) * 100) / 100;
+      const cgstAmt = Math.round(Number(cgst.amount || 0) * 100) / 100;
+      const sgstAmt = Math.round(Number(sgst.amount || 0) * 100) / 100;
+      const igstAmt = Math.round(Number(igst.amount || 0) * 100) / 100;
+      const isIGST = igstAmt > 0;
+      const netTotal = Math.round((taxableAmount + cgstAmt + sgstAmt + igstAmt) * 100) / 100;
 
-    parts.push('      <TALLYMESSAGE xmlns:UDF="TallyUDF">');
-    parts.push(
-      '        <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Accounting Voucher View" ISINVOICE="No">'
-    );
-    const yyyymmdd = escapeXml(formatDateYYYYMMDD(issueDate));
-    const customerName = escapeXml(customer.customerName || '');
-    const narration = escapeXml(invoice.narration || '');
-    parts.push(`          <DATE>${yyyymmdd}</DATE>`);
-    parts.push('          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>');
-    parts.push(`          <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>`);
-    parts.push(`          <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>`);
-    parts.push(`          <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>`);
-    parts.push(`          <REFERENCEDATE>${yyyymmdd}</REFERENCEDATE>`);
-    parts.push(`          <REFERENCE>${escapeXml(invoiceNo)}</REFERENCE>`);
-    parts.push(`          <NARRATION>${narration}</NARRATION>`);
+      const yyyymmdd = escapeXml(formatDateYYYYMMDD(issueDate));
+      const customerName = escapeXml(customer.customerName || '');
+      const customerGST = customer.GSTNo || '';
+      const customerStateCode = (customerGST || '').slice(0, 2) || '';
+      const placeOfSupply = customerStateCode || companyStateCode || '';
+      const partyGstType = customerStateCode && companyStateCode && customerStateCode !== companyStateCode
+        ? 'Inter-State'
+        : 'Intra-State';
+      const narration = escapeXml(
+        invoice.narration || 'Freight charges for delivery of goods.'
+      );
 
-    // LEDGER 1: Party / Customer
-    parts.push('          <LEDGERENTRIES.LIST>');
-    parts.push(`            <LEDGERNAME>${escapeXml(customer.customerName || '')}</LEDGERNAME>`); // customerId.customerName
-    parts.push('            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>'); // fixed
-    parts.push('            <ISPARTYLEDGER>Yes</ISPARTYLEDGER>'); // fixed
-    parts.push(`            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>`); // -netTotal (sum of components)
-    parts.push('          </LEDGERENTRIES.LIST>');
-
-    // LEDGER 2: Transport_pay (taxable value)
-    parts.push('          <LEDGERENTRIES.LIST>');
-    parts.push(`            <LEDGERNAME>${escapeXml(LEDGER_NAMES.transport_pay)}</LEDGERNAME>`); // from config
-    parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>'); // fixed
-    parts.push(`            <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>`); // totalBeforeTax
-    parts.push('          </LEDGERENTRIES.LIST>');
-
-    if (isIGST) {
-      // LEDGER 3: IGST (inter-state). Only three ledgers in this path.
-      const rate = Number(igst.rate || 0);
-      parts.push('          <LEDGERENTRIES.LIST>');
-      // If configured ledger name exists, use it as-is; otherwise fall back to the legacy pattern with rate
-      const igstLedger = configuredLedgers.igst
-        ? configuredLedgers.igst
-        : `IGST OUT PUT@ ${rate}%`;
-      parts.push(`            <LEDGERNAME>${escapeXml(igstLedger)}</LEDGERNAME>`);
-      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>`);
-      parts.push('          </LEDGERENTRIES.LIST>');
-    } else {
-      // LEDGER 3: CGST
+      // Ledger names for taxes as per rates
       const cgstRate = Number(cgst.rate || 0);
-      parts.push('          <LEDGERENTRIES.LIST>');
-      const cgstLedger = configuredLedgers.cgst
-        ? configuredLedgers.cgst
-        : `CGST @  ${cgstRate}% OUT PUT`;
-      parts.push(`            <LEDGERNAME>${escapeXml(cgstLedger)}</LEDGERNAME>`);
-      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(cgstAmt)}</AMOUNT>`);
-      parts.push('          </LEDGERENTRIES.LIST>');
-
-      // LEDGER 4: SGST
       const sgstRate = Number(sgst.rate || 0);
-      parts.push('          <LEDGERENTRIES.LIST>');
-      const sgstLedger = configuredLedgers.sgst
-        ? configuredLedgers.sgst
-        : `SGST @${sgstRate}% OUT PUT`;
-      parts.push(`            <LEDGERNAME>${escapeXml(sgstLedger)}</LEDGERNAME>`);
-      parts.push('            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>');
-      parts.push(`            <AMOUNT>${toFixed2(sgstAmt)}</AMOUNT>`);
-      parts.push('          </LEDGERENTRIES.LIST>');
-    }
+      const igstRate = Number(igst.rate || 0);
+      const cgstLedgerName = configuredLedgers.cgst || `Output CGST @${cgstRate}%`;
+      const sgstLedgerName = configuredLedgers.sgst || `Output SGST @${sgstRate}%`;
+      const igstLedgerName = configuredLedgers.igst || `Output IGST @${igstRate}%`;
 
-    parts.push('        </VOUCHER>');
-    parts.push('      </TALLYMESSAGE>');
-  });
+      // HSN/SAC for freight services (996511 is common); allow override
+      const hsn = invoice.hsnCode || configuredLedgers.hsn || '996511';
+      const totalTaxRate = isIGST ? igstRate : cgstRate + sgstRate;
 
-  parts.push('    </DATA>');
-  parts.push('  </BODY>');
-  parts.push('</ENVELOPE>');
+      // Build parts using template literals
+      const partyLedger = `
+          <LEDGERENTRIES.LIST>
+            <LEDGERNAME>${customerName}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
+            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>
+          </LEDGERENTRIES.LIST>`;
 
-  return parts.join('\n');
+      const incomeLedger = `
+          <LEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(LEDGER_NAMES.income)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>
+            <HSNCODE>${escapeXml(hsn)}</HSNCODE>
+            <GSTCLASSIFICATIONDETAILS.LIST>
+              <TAXABILITY>Taxable</TAXABILITY>
+              <TAXRATEDETAILS.LIST>
+                <TAXRATE>${String(totalTaxRate)}</TAXRATE>
+              </TAXRATEDETAILS.LIST>
+            </GSTCLASSIFICATIONDETAILS.LIST>
+          </LEDGERENTRIES.LIST>`;
+
+      const taxLedgers = isIGST
+        ? `
+          <LEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(igstLedgerName)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>
+          </LEDGERENTRIES.LIST>`
+        : `
+          <LEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(cgstLedgerName)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${toFixed2(cgstAmt)}</AMOUNT>
+          </LEDGERENTRIES.LIST>
+          <LEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(sgstLedgerName)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${toFixed2(sgstAmt)}</AMOUNT>
+          </LEDGERENTRIES.LIST>`;
+
+      return `
+      <TALLYMESSAGE xmlns:UDF="TallyUDF">
+        <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Invoice Voucher View" ISINVOICE="Yes">
+          <DATE>${yyyymmdd}</DATE>
+          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+          <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>
+          <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>
+
+          <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>
+          <PARTYNAME>${customerName}</PARTYNAME>
+          <PLACEOFSUPPLY>${escapeXml(placeOfSupply)}</PLACEOFSUPPLY>
+          <PARTYGSTTYPE>${partyGstType}</PARTYGSTTYPE>
+          <PARTYGSTIN>${escapeXml(customerGST)}</PARTYGSTIN>
+          <PARTYSTATENAME>${escapeXml(placeOfSupply)}</PARTYSTATENAME>
+          <PARTYCOUNTRYNAME>India</PARTYCOUNTRYNAME>
+
+          <DISPATCHFROMNAME>${escapeXml(companyName)}</DISPATCHFROMNAME>
+          <DISPATCHFROMSTATE>${escapeXml(companyStateCode)}</DISPATCHFROMSTATE>
+          <DISPATCHFROMGSTIN>${escapeXml(companyGstin)}</DISPATCHFROMGSTIN>
+
+          <NARRATION>${narration}</NARRATION>
+
+${partyLedger}
+${incomeLedger}
+${taxLedgers}
+        </VOUCHER>
+      </TALLYMESSAGE>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="utf-8"?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import</TALLYREQUEST>
+    <TYPE>Data</TYPE>
+    <ID>Vouchers</ID>
+  </HEADER>
+  <BODY>
+    <DATA>
+${vouchers}
+    </DATA>
+  </BODY>
+</ENVELOPE>`;
 }
 
 export function buildInvoiceXml(invoice, tenant) {
