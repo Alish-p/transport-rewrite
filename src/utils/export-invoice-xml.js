@@ -53,26 +53,31 @@ export function buildInvoicesXml(invoicesInput, tenant) {
 
   const LEDGER_NAMES = {
     income: configuredLedgers.income || 'Freight Income',
+    cgst: configuredLedgers.cgst,
+    sgst: configuredLedgers.sgst,
+    igst: configuredLedgers.igst,
   };
 
-  // Company / dispatch-from info from tenant or CONFIG
-  const companyName = tenant?.name || tenant?.company?.name || 'Shree Enterprises';
-  const companyGstin = tenant?.company?.gstin || tenant?.gstin || '';
-  const companyStateCode = (companyGstin || '').slice(0, 2) || '';
+  // Company info
+  const companyName = tenant?.name || tenant?.company?.name || 'Shree Enterprises ( Mudhol)';
+  const companyGstin = tenant?.company?.gstin || tenant?.gstin || '29AVEPS8011L2Z3';
+  const companyStateName = tenant?.company?.state || tenant?.state || 'Karnataka';
+  const numberingStyle = 'Auto Retain';
 
   const vouchers = (invoices || [])
     .filter(Boolean)
     .map((invoice) => {
       const issueDate = invoice.issueDate || new Date();
       const invoiceNo = invoice.invoiceNo || '';
+      const reference = invoice.reference || invoice.invoiceNo || '';
       const customer = invoice.customerId || {};
+      const address = customer.address || customer.city || '';
 
       const taxBreakup = invoice.taxBreakup || {};
       const cgst = taxBreakup.cgst || { rate: 0, amount: 0 };
       const sgst = taxBreakup.sgst || { rate: 0, amount: 0 };
       const igst = taxBreakup.igst || { rate: 0, amount: 0 };
 
-      // Rounded values and net total
       const taxableAmount = Math.round(Number(invoice.totalAmountBeforeTax || 0) * 100) / 100;
       const cgstAmt = Math.round(Number(cgst.amount || 0) * 100) / 100;
       const sgstAmt = Math.round(Number(sgst.amount || 0) * 100) / 100;
@@ -83,111 +88,218 @@ export function buildInvoicesXml(invoicesInput, tenant) {
       const yyyymmdd = escapeXml(formatDateYYYYMMDD(issueDate));
       const customerName = escapeXml(customer.customerName || '');
       const customerGST = customer.GSTNo || '';
-      const customerStateCode = (customerGST || '').slice(0, 2) || '';
-      const placeOfSupply = customerStateCode || companyStateCode || '';
-      const partyGstType = customerStateCode && companyStateCode && customerStateCode !== companyStateCode
-        ? 'Inter-State'
-        : 'Intra-State';
-      const narration = escapeXml(
-        invoice.narration || 'Freight charges for delivery of goods.'
-      );
+      const customerStateName = customer.state || companyStateName;
+      const narration = escapeXml(invoice.narration || 'Sale of Cement');
 
-      // Ledger names for taxes as per rates
       const cgstRate = Number(cgst.rate || 0);
       const sgstRate = Number(sgst.rate || 0);
       const igstRate = Number(igst.rate || 0);
-      const cgstLedgerName = configuredLedgers.cgst || `Output CGST @${cgstRate}%`;
-      const sgstLedgerName = configuredLedgers.sgst || `Output SGST @${sgstRate}%`;
-      const igstLedgerName = configuredLedgers.igst || `Output IGST @${igstRate}%`;
+      const cgstLedgerName = LEDGER_NAMES.cgst || `Output CGST @${cgstRate}%`;
+      const sgstLedgerName = LEDGER_NAMES.sgst || `Output SGST @${sgstRate}%`;
+      const igstLedgerName = LEDGER_NAMES.igst || `Output IGST @${igstRate}%`;
 
-      // HSN/SAC for freight services (996511 is common); allow override
       const hsn = invoice.hsnCode || configuredLedgers.hsn || '996511';
-      const totalTaxRate = isIGST ? igstRate : cgstRate + sgstRate;
+      const hsnDesc = invoice.hsnDescription || 'Transport Service';
 
-      // Build parts using template literals
-      const partyLedger = `
-          <LEDGERENTRIES.LIST>
-            <LEDGERNAME>${customerName}</LEDGERNAME>
-            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
-            <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
-            <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>
-          </LEDGERENTRIES.LIST>`;
+      const partyAllLedger = `
+      <ALLLEDGERENTRIES.LIST>
+       <OLDAUDITENTRYIDS.LIST TYPE="Number">
+        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+       </OLDAUDITENTRYIDS.LIST>
+       <LEDGERNAME>${customerName}</LEDGERNAME>
+       <GSTCLASS>&#4; Not Applicable</GSTCLASS>
+       <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+       <LEDGERFROMITEM>No</LEDGERFROMITEM>
+       <REMOVEZEROENTRIES>No</REMOVEZEROENTRIES>
+       <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
+       <GSTOVERRIDDEN>No</GSTOVERRIDDEN>
+       <ISLASTDEEMEDPOSITIVE>Yes</ISLASTDEEMEDPOSITIVE>
+       <ISCAPVATTAXALTERED>No</ISCAPVATTAXALTERED>
+       <ISCAPVATNOTCLAIMED>No</ISCAPVATNOTCLAIMED>
+       <AMOUNT>-${toFixed2(netTotal)}</AMOUNT>
+      </ALLLEDGERENTRIES.LIST>`;
 
-      const incomeLedger = `
-          <LEDGERENTRIES.LIST>
-            <LEDGERNAME>${escapeXml(LEDGER_NAMES.income)}</LEDGERNAME>
-            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
-            <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>
-            <HSNCODE>${escapeXml(hsn)}</HSNCODE>
-            <GSTCLASSIFICATIONDETAILS.LIST>
-              <TAXABILITY>Taxable</TAXABILITY>
-              <TAXRATEDETAILS.LIST>
-                <TAXRATE>${String(totalTaxRate)}</TAXRATE>
-              </TAXRATEDETAILS.LIST>
-            </GSTCLASSIFICATIONDETAILS.LIST>
-          </LEDGERENTRIES.LIST>`;
+      const incomeAllLedger = `
+      <ALLLEDGERENTRIES.LIST>
+       <OLDAUDITENTRYIDS.LIST TYPE="Number">
+        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+       </OLDAUDITENTRYIDS.LIST>
+       <APPROPRIATEFOR>&#4; Not Applicable</APPROPRIATEFOR>
+       <LEDGERNAME>${escapeXml(LEDGER_NAMES.income)}</LEDGERNAME>
+       <GSTCLASS>&#4; Not Applicable</GSTCLASS>
+       <GSTOVRDNISREVCHARGEAPPL>&#4; Not Applicable</GSTOVRDNISREVCHARGEAPPL>
+       <GSTOVRDNTAXABILITY>Taxable</GSTOVRDNTAXABILITY>
+       <GSTSOURCETYPE>Ledger</GSTSOURCETYPE>
+       <GSTLEDGERSOURCE>${escapeXml(LEDGER_NAMES.income)}</GSTLEDGERSOURCE>
+       <HSNSOURCETYPE>Company</HSNSOURCETYPE>
+       <GSTOVRDNSTOREDNATURE/>
+       <GSTOVRDNTYPEOFSUPPLY>Services</GSTOVRDNTYPEOFSUPPLY>
+       <GSTRATEINFERAPPLICABILITY>As per Masters/Company</GSTRATEINFERAPPLICABILITY>
+       <GSTHSNNAME>${escapeXml(hsn)}</GSTHSNNAME>
+       <GSTHSNDESCRIPTION>${escapeXml(hsnDesc)}</GSTHSNDESCRIPTION>
+       <GSTHSNINFERAPPLICABILITY>As per Masters/Company</GSTHSNINFERAPPLICABILITY>
+       <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+       <ISLASTDEEMEDPOSITIVE>No</ISLASTDEEMEDPOSITIVE>
+       <AMOUNT>${toFixed2(taxableAmount)}</AMOUNT>
+       <RATEDETAILS.LIST>
+        <GSTRATEDUTYHEAD>CGST</GSTRATEDUTYHEAD>
+        <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+        <GSTRATE>${String(cgstRate)}</GSTRATE>
+       </RATEDETAILS.LIST>
+       <RATEDETAILS.LIST>
+        <GSTRATEDUTYHEAD>SGST/UTGST</GSTRATEDUTYHEAD>
+        <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+        <GSTRATE>${String(sgstRate)}</GSTRATE>
+       </RATEDETAILS.LIST>
+       <RATEDETAILS.LIST>
+        <GSTRATEDUTYHEAD>IGST</GSTRATEDUTYHEAD>
+        <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+        <GSTRATE>${String(igstRate)}</GSTRATE>
+       </RATEDETAILS.LIST>
+       <RATEDETAILS.LIST>
+        <GSTRATEDUTYHEAD>Cess</GSTRATEDUTYHEAD>
+        <GSTRATEVALUATIONTYPE>&#4; Not Applicable</GSTRATEVALUATIONTYPE>
+       </RATEDETAILS.LIST>
+       <RATEDETAILS.LIST>
+        <GSTRATEDUTYHEAD>State Cess</GSTRATEDUTYHEAD>
+        <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+       </RATEDETAILS.LIST>
+      </ALLLEDGERENTRIES.LIST>`;
 
-      const taxLedgers = isIGST
-        ? `
-          <LEDGERENTRIES.LIST>
-            <LEDGERNAME>${escapeXml(igstLedgerName)}</LEDGERNAME>
-            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
-            <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>
-          </LEDGERENTRIES.LIST>`
-        : `
-          <LEDGERENTRIES.LIST>
-            <LEDGERNAME>${escapeXml(cgstLedgerName)}</LEDGERNAME>
-            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
-            <AMOUNT>${toFixed2(cgstAmt)}</AMOUNT>
-          </LEDGERENTRIES.LIST>
-          <LEDGERENTRIES.LIST>
-            <LEDGERNAME>${escapeXml(sgstLedgerName)}</LEDGERNAME>
-            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
-            <AMOUNT>${toFixed2(sgstAmt)}</AMOUNT>
-          </LEDGERENTRIES.LIST>`;
+      const cgstAllLedger = `
+      <ALLLEDGERENTRIES.LIST>
+       <OLDAUDITENTRYIDS.LIST TYPE="Number">
+        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+       </OLDAUDITENTRYIDS.LIST>
+       <LEDGERNAME>${escapeXml(cgstLedgerName)}</LEDGERNAME>
+       <GSTCLASS>&#4; Not Applicable</GSTCLASS>
+       <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+       <LEDGERFROMITEM>No</LEDGERFROMITEM>
+       <REMOVEZEROENTRIES>No</REMOVEZEROENTRIES>
+       <ISPARTYLEDGER>No</ISPARTYLEDGER>
+       <GSTOVERRIDDEN>No</GSTOVERRIDDEN>
+       <AMOUNT>${toFixed2(cgstAmt)}</AMOUNT>
+       <RATEDETAILS.LIST>       </RATEDETAILS.LIST>
+      </ALLLEDGERENTRIES.LIST>`;
+
+      const sgstAllLedger = `
+      <ALLLEDGERENTRIES.LIST>
+       <OLDAUDITENTRYIDS.LIST TYPE="Number">
+        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+       </OLDAUDITENTRYIDS.LIST>
+       <LEDGERNAME>${escapeXml(sgstLedgerName)}</LEDGERNAME>
+       <GSTCLASS>&#4; Not Applicable</GSTCLASS>
+       <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+       <LEDGERFROMITEM>No</LEDGERFROMITEM>
+       <REMOVEZEROENTRIES>No</REMOVEZEROENTRIES>
+       <ISPARTYLEDGER>No</ISPARTYLEDGER>
+       <AMOUNT>${toFixed2(sgstAmt)}</AMOUNT>
+      </ALLLEDGERENTRIES.LIST>`;
+
+      const igstAllLedger = `
+      <ALLLEDGERENTRIES.LIST>
+       <OLDAUDITENTRYIDS.LIST TYPE="Number">
+        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+       </OLDAUDITENTRYIDS.LIST>
+       <LEDGERNAME>${escapeXml(igstLedgerName)}</LEDGERNAME>
+       <GSTCLASS>&#4; Not Applicable</GSTCLASS>
+       <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+       <LEDGERFROMITEM>No</LEDGERFROMITEM>
+       <REMOVEZEROENTRIES>No</REMOVEZEROENTRIES>
+       <ISPARTYLEDGER>No</ISPARTYLEDGER>
+       <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>
+      </ALLLEDGERENTRIES.LIST>`;
+
+      const taxLines = isIGST ? igstAllLedger : `${cgstAllLedger}
+${sgstAllLedger}`;
 
       return `
-      <TALLYMESSAGE xmlns:UDF="TallyUDF">
-        <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Invoice Voucher View" ISINVOICE="Yes">
-          <DATE>${yyyymmdd}</DATE>
-          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
-          <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>
-          <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>
-
-          <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>
-          <PARTYNAME>${customerName}</PARTYNAME>
-          <PLACEOFSUPPLY>${escapeXml(placeOfSupply)}</PLACEOFSUPPLY>
-          <PARTYGSTTYPE>${partyGstType}</PARTYGSTTYPE>
-          <PARTYGSTIN>${escapeXml(customerGST)}</PARTYGSTIN>
-          <PARTYSTATENAME>${escapeXml(placeOfSupply)}</PARTYSTATENAME>
-          <PARTYCOUNTRYNAME>India</PARTYCOUNTRYNAME>
-
-          <DISPATCHFROMNAME>${escapeXml(companyName)}</DISPATCHFROMNAME>
-          <DISPATCHFROMSTATE>${escapeXml(companyStateCode)}</DISPATCHFROMSTATE>
-          <DISPATCHFROMGSTIN>${escapeXml(companyGstin)}</DISPATCHFROMGSTIN>
-
-          <NARRATION>${narration}</NARRATION>
-
-${partyLedger}
-${incomeLedger}
-${taxLedgers}
-        </VOUCHER>
-      </TALLYMESSAGE>`;
+    <TALLYMESSAGE xmlns:UDF="TallyUDF">
+     <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Accounting Voucher View" ISINVOICE="No">
+		 <ADDRESS.LIST TYPE="String">
+       <ADDRESS>${escapeXml(address)}</ADDRESS>
+      </ADDRESS.LIST>
+      <OLDAUDITENTRYIDS.LIST TYPE="Number">
+       <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
+      </OLDAUDITENTRYIDS.LIST>
+      <DATE>${yyyymmdd}</DATE>
+      <REFERENCEDATE>${yyyymmdd}</REFERENCEDATE>
+      <VCHSTATUSDATE>${yyyymmdd}</VCHSTATUSDATE>
+      
+      <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
+      <VATDEALERTYPE>Regular</VATDEALERTYPE>
+      <STATENAME>${escapeXml(companyStateName)}</STATENAME>
+      <NARRATION>${narration}</NARRATION>
+      <COUNTRYOFRESIDENCE>India</COUNTRYOFRESIDENCE>
+      <PARTYGSTIN>${escapeXml(customerGST)}</PARTYGSTIN>
+      <PLACEOFSUPPLY>${escapeXml(customerStateName)}</PLACEOFSUPPLY>
+      <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+      <PARTYNAME>${customerName}</PARTYNAME>
+      <GSTREGISTRATION TAXTYPE="GST" TAXREGISTRATION="${escapeXml(companyGstin)}">${escapeXml(companyStateName)} Registration</GSTREGISTRATION>
+      <CMPGSTIN>${escapeXml(companyGstin)}</CMPGSTIN>
+      <PARTYLEDGERNAME>${customerName}</PARTYLEDGERNAME>
+      <VOUCHERNUMBER>${escapeXml(invoiceNo)}</VOUCHERNUMBER>
+      <CMPGSTREGISTRATIONTYPE>Regular</CMPGSTREGISTRATIONTYPE>
+      <REFERENCE>${escapeXml(reference)}</REFERENCE>
+      <PARTYMAILINGNAME>${customerName}</PARTYMAILINGNAME>
+      <CMPGSTSTATE>${escapeXml(companyStateName)}</CMPGSTSTATE>
+      <BASICBASEPARTYNAME>${customerName}</BASICBASEPARTYNAME>
+      <NUMBERINGSTYLE>${numberingStyle}</NUMBERINGSTYLE>
+      <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>
+      <VCHSTATUSTAXADJUSTMENT>Default</VCHSTATUSTAXADJUSTMENT>
+      <VCHSTATUSVOUCHERTYPE>Sales</VCHSTATUSVOUCHERTYPE>
+      <VCHSTATUSTAXUNIT>${escapeXml(companyStateName)} Registration</VCHSTATUSTAXUNIT>
+      <VCHGSTCLASS>&#4; Not Applicable</VCHGSTCLASS>
+      <VOUCHERTYPEORIGNAME>Sales</VOUCHERTYPEORIGNAME>
+      
+      <EFFECTIVEDATE>${yyyymmdd}</EFFECTIVEDATE>
+      
+      <ISSYSTEM>No</ISSYSTEM>
+${partyAllLedger}
+${incomeAllLedger}
+${taxLines}
+      <GST.LIST>
+       <PURPOSETYPE>GST</PURPOSETYPE>
+       <STAT.LIST>
+        <PURPOSETYPE>GST</PURPOSETYPE>
+       
+       </STAT.LIST>
+      </GST.LIST>
+      
+     </VOUCHER>
+    </TALLYMESSAGE>`;
     })
     .join('\n');
 
+  const companyMessage = `
+    <TALLYMESSAGE xmlns:UDF="TallyUDF">
+     <COMPANY>
+      <REMOTECMPINFO.LIST MERGE="Yes">
+       <REMOTECMPNAME>${escapeXml(companyName)}</REMOTECMPNAME>
+       <REMOTECMPSTATE>${escapeXml(companyStateName)}</REMOTECMPSTATE>
+      </REMOTECMPINFO.LIST>
+     </COMPANY>
+    </TALLYMESSAGE>`;
+
   return `<?xml version="1.0" encoding="utf-8"?>
 <ENVELOPE>
-  <HEADER>
-    <TALLYREQUEST>Import</TALLYREQUEST>
-    <TYPE>Data</TYPE>
-    <ID>Vouchers</ID>
-  </HEADER>
-  <BODY>
-    <DATA>
+ <HEADER>
+  <TALLYREQUEST>Import Data</TALLYREQUEST>
+ </HEADER>
+ <BODY>
+  <IMPORTDATA>
+   <REQUESTDESC>
+    <REPORTNAME>Vouchers</REPORTNAME>
+    <STATICVARIABLES>
+     <SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY>
+    </STATICVARIABLES>
+   </REQUESTDESC>
+   <REQUESTDATA>
 ${vouchers}
-    </DATA>
-  </BODY>
+${companyMessage}
+   </REQUESTDATA>
+  </IMPORTDATA>
+ </BODY>
 </ENVELOPE>`;
 }
 
