@@ -150,7 +150,7 @@ export function SubtripListView() {
   const notFound = !isLoading && !tableData.length;
 
   const statusCounts = {
-    'in-queue': data?.totalInqueue || 0,
+    // 'in-queue': data?.totalInqueue || 0, // Commented out: In-queue count no longer displayed in tabs
     loaded: data?.totalLoaded || 0,
     received: data?.totalReceived || 0,
     error: data?.totalError || 0,
@@ -159,12 +159,13 @@ export function SubtripListView() {
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
-    {
-      value: 'in-queue',
-      label: 'In-queue',
-      color: 'error',
-      count: statusCounts['in-queue'],
-    },
+    // Commented out: Hide In-queue tab from list view
+    // {
+    //   value: 'in-queue',
+    //   label: 'In-queue',
+    //   color: 'error',
+    //   count: statusCounts['in-queue'],
+    // },
     {
       value: 'loaded',
       label: 'Loaded',
