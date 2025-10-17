@@ -55,12 +55,12 @@ const STORAGE_KEY = 'expense-table-columns';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
-  vehicle: null,
-  subtrip: null,
-  pump: null,
-  transporter: null,
-  route: null,
-  trip: null,
+  vehicleId: '',
+  subtripId: '',
+  pumpId: '',
+  transporterId: '',
+  routeId: '',
+  tripId: '',
   expenseCategory: 'all',
   expenseType: [],
   fromDate: null,
@@ -72,13 +72,22 @@ const defaultFilters = {
 export function ExpenseListView() {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({});
+  const table = useTable({ syncToUrl: true });
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const vehicleExpenseTypes = useVehicleExpenseTypes();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, setFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(null);
+  const [selectedTransporter, setSelectedTransporter] = useState(null);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
 
   const {
     visibleColumns,
@@ -93,12 +102,12 @@ export function ExpenseListView() {
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedExpenses({
-    vehicleId: filters.vehicle?._id || undefined,
-    subtripId: filters.subtrip?._id || undefined,
-    pumpId: filters.pump?._id || undefined,
-    transporterId: filters.transporter?._id || undefined,
-    routeId: filters.route?._id || undefined,
-    tripId: filters.trip?._id || undefined,
+    vehicleId: filters.vehicleId || undefined,
+    subtripId: filters.subtripId || undefined,
+    pumpId: filters.pumpId || undefined,
+    transporterId: filters.transporterId || undefined,
+    routeId: filters.routeId || undefined,
+    tripId: filters.tripId || undefined,
     expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
     expenseType: filters.expenseType.length ? filters.expenseType : undefined,
     startDate: filters.fromDate || undefined,
@@ -152,11 +161,31 @@ export function ExpenseListView() {
 
   const handleFilterExpenseCategory = useCallback(
     (event, newValue) => {
-      handleFilters('expenseCategory', newValue);
-      handleFilters('expenseType', []);
+      // Batch update to avoid race between two URL updates
+      setFilters({ expenseCategory: newValue });
     },
-    [handleFilters]
+    [setFilters]
   );
+
+  // Clear local selected objects when filters cleared via chips/url
+  useEffect(() => {
+    if (!filters.vehicleId) setSelectedVehicle(null);
+  }, [filters.vehicleId]);
+  useEffect(() => {
+    if (!filters.subtripId) setSelectedSubtrip(null);
+  }, [filters.subtripId]);
+  useEffect(() => {
+    if (!filters.pumpId) setSelectedPump(null);
+  }, [filters.pumpId]);
+  useEffect(() => {
+    if (!filters.transporterId) setSelectedTransporter(null);
+  }, [filters.transporterId]);
+  useEffect(() => {
+    if (!filters.tripId) setSelectedTrip(null);
+  }, [filters.tripId]);
+  useEffect(() => {
+    if (!filters.routeId) setSelectedRoute(null);
+  }, [filters.routeId]);
 
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
@@ -300,14 +329,60 @@ export function ExpenseListView() {
           columnOrder={columnOrder}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
+          selectedVehicle={selectedVehicle}
+          onSelectVehicle={(v) => {
+            setSelectedVehicle(v);
+            handleFilters('vehicleId', v?._id || '');
+          }}
+          selectedSubtrip={selectedSubtrip}
+          onSelectSubtrip={(s) => {
+            setSelectedSubtrip(s);
+            handleFilters('subtripId', s?._id || '');
+          }}
+          selectedPump={selectedPump}
+          onSelectPump={(p) => {
+            setSelectedPump(p);
+            handleFilters('pumpId', p?._id || '');
+          }}
+          selectedTransporter={selectedTransporter}
+          onSelectTransporter={(t) => {
+            setSelectedTransporter(t);
+            handleFilters('transporterId', t?._id || '');
+          }}
+          selectedTrip={selectedTrip}
+          onSelectTrip={(t) => {
+            setSelectedTrip(t);
+            handleFilters('tripId', t?._id || '');
+          }}
+          selectedRoute={selectedRoute}
+          onSelectRoute={(r) => {
+            setSelectedRoute(r);
+            handleFilters('routeId', r?._id || '');
+          }}
         />
 
         {canReset && (
           <ExpenseTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
+            onResetFilters={() => {
+              handleResetFilters();
+              setSelectedVehicle(null);
+              setSelectedSubtrip(null);
+              setSelectedPump(null);
+              setSelectedTransporter(null);
+              setSelectedTrip(null);
+              setSelectedRoute(null);
+            }}
             results={totalCount}
+            selectedVehicleNo={selectedVehicle?.vehicleNo}
+            selectedSubtripNo={selectedSubtrip?.subtripNo}
+            selectedPumpName={selectedPump?.name}
+            selectedTransporterName={selectedTransporter?.transportName}
+            selectedTripNo={selectedTrip?.tripNo}
+            selectedRouteName={
+              selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
+            }
             sx={{ p: 2.5, pt: 0 }}
           />
         )}

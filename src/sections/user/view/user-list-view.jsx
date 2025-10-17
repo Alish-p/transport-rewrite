@@ -52,7 +52,7 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 export function UserListView({ users }) {
-  const table = useTable();
+  const table = useTable({ syncToUrl: true });
 
   const router = useRouter();
 

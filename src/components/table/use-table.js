@@ -1,17 +1,41 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams as _useSearchParams } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
 export function useTable(props) {
+  const [searchParams, setSearchParams] = _useSearchParams();
+
+  const syncToUrl = !!props?.syncToUrl;
+  const initialPageParam = syncToUrl ? Number.parseInt(searchParams.get('page') || '', 10) : NaN;
+  const initialRowsParam = syncToUrl
+    ? Number.parseInt(searchParams.get('rowsPerPage') || '', 10)
+    : NaN;
+  const initialOrderByParam = syncToUrl ? searchParams.get('orderBy') : null;
+  const initialOrderParam = syncToUrl ? searchParams.get('order') : null;
+
   const [dense, setDense] = useState(!!props?.defaultDense || true);
 
-  const [page, setPage] = useState(props?.defaultCurrentPage || 0);
+  // page in state is 0-based; URL uses 1-based
+  const [page, setPage] = useState(
+    Number.isFinite(initialPageParam) && initialPageParam > 0
+      ? initialPageParam - 1
+      : props?.defaultCurrentPage || 0
+  );
 
-  const [orderBy, setOrderBy] = useState(props?.defaultOrderBy || 'name');
+  const [orderBy, setOrderBy] = useState(initialOrderByParam || props?.defaultOrderBy || 'name');
 
-  const [rowsPerPage, setRowsPerPage] = useState(props?.defaultRowsPerPage || 10);
+  const [rowsPerPage, setRowsPerPage] = useState(
+    Number.isFinite(initialRowsParam) && initialRowsParam > 0
+      ? initialRowsParam
+      : props?.defaultRowsPerPage || 10
+  );
 
-  const [order, setOrder] = useState(props?.defaultOrder || 'asc');
+  const [order, setOrder] = useState(
+    initialOrderParam === 'asc' || initialOrderParam === 'desc'
+      ? initialOrderParam
+      : props?.defaultOrder || 'asc'
+  );
 
   const [selected, setSelected] = useState(props?.defaultSelected || []);
 
@@ -94,6 +118,30 @@ export function useTable(props) {
     },
     [page, rowsPerPage, selected.length]
   );
+
+  // Sync table state to URL query params so list pages persist/share state
+  useEffect(() => {
+    if (!syncToUrl) return;
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      // Only include when meaningful to keep URLs clean
+      if (page > 0) params.set('page', String(page + 1));
+      else params.delete('page');
+
+      if (rowsPerPage && rowsPerPage !== (props?.defaultRowsPerPage || 10))
+        params.set('rowsPerPage', String(rowsPerPage));
+      else params.delete('rowsPerPage');
+
+      if (orderBy && orderBy !== (props?.defaultOrderBy || 'name')) params.set('orderBy', orderBy);
+      else params.delete('orderBy');
+
+      if (order && order !== (props?.defaultOrder || 'asc')) params.set('order', order);
+      else params.delete('order');
+
+      return params;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, order, orderBy, syncToUrl]);
 
   return {
     dense,

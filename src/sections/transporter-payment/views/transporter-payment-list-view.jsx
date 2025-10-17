@@ -62,7 +62,7 @@ export function TransporterPaymentListView() {
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);

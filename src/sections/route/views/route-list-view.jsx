@@ -57,7 +57,7 @@ const defaultFilters = {
 
 export function RouteListView() {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const theme = useTheme();
   const navigate = useNavigate();
   const deleteRoute = useDeleteRoute();

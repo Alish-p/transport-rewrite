@@ -55,6 +55,18 @@ export default function ExpenseTableToolbar({
   columnOrder = [],
   onResetColumns,
   canResetColumns,
+  selectedVehicle,
+  onSelectVehicle,
+  selectedSubtrip,
+  onSelectSubtrip,
+  selectedPump,
+  onSelectPump,
+  selectedTransporter,
+  onSelectTransporter,
+  selectedTrip,
+  onSelectTrip,
+  selectedRoute,
+  onSelectRoute,
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
@@ -71,44 +83,50 @@ export default function ExpenseTableToolbar({
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
-      onFilters('vehicle', vehicle);
+      if (onSelectVehicle) onSelectVehicle(vehicle);
+      onFilters('vehicleId', vehicle?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectVehicle]
   );
 
   const handleSelectPump = useCallback(
     (pump) => {
-      onFilters('pump', pump);
+      if (onSelectPump) onSelectPump(pump);
+      onFilters('pumpId', pump?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectPump]
   );
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
-      onFilters('transporter', transporter);
+      if (onSelectTransporter) onSelectTransporter(transporter);
+      onFilters('transporterId', transporter?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectTransporter]
   );
 
   const handleSelectTrip = useCallback(
     (trip) => {
-      onFilters('trip', trip);
+      if (onSelectTrip) onSelectTrip(trip);
+      onFilters('tripId', trip?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectTrip]
   );
 
   const handleSelectSubtrip = useCallback(
     (subtrip) => {
-      onFilters('subtrip', subtrip);
+      if (onSelectSubtrip) onSelectSubtrip(subtrip);
+      onFilters('subtripId', subtrip?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectSubtrip]
   );
 
   const handleSelectRoute = useCallback(
     (route) => {
-      onFilters('route', route);
+      if (onSelectRoute) onSelectRoute(route);
+      onFilters('routeId', route?._id || '');
     },
-    [onFilters]
+    [onFilters, onSelectRoute]
   );
 
   const handleFilterFromDate = useCallback(
@@ -152,7 +170,7 @@ export default function ExpenseTableToolbar({
       >
         <DialogSelectButton
           onClick={vehicleDialog.onTrue}
-          selected={filters.vehicle?.vehicleNo}
+          selected={selectedVehicle?.vehicleNo}
           placeholder="Vehicle"
           iconName="mdi:truck"
           sx={{ maxWidth: { md: 200 } }}
@@ -160,7 +178,7 @@ export default function ExpenseTableToolbar({
 
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
-          selected={filters.subtrip?.subtripNo}
+          selected={selectedSubtrip?.subtripNo}
           placeholder="Job"
           iconName="mdi:map-marker-path"
           sx={{ maxWidth: { md: 200 } }}
@@ -168,7 +186,7 @@ export default function ExpenseTableToolbar({
 
         <DialogSelectButton
           onClick={pumpDialog.onTrue}
-          selected={filters.pump?.name}
+          selected={selectedPump?.name}
           placeholder="Pump"
           iconName="mdi:gas-station"
           sx={{ maxWidth: { md: 200 } }}
@@ -176,7 +194,7 @@ export default function ExpenseTableToolbar({
 
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
-          selected={filters.transporter?.transportName}
+          selected={selectedTransporter?.transportName}
           placeholder="Transporter"
           iconName="mdi:truck-delivery"
           sx={{ maxWidth: { md: 200 } }}
@@ -184,7 +202,7 @@ export default function ExpenseTableToolbar({
 
         <DialogSelectButton
           onClick={tripDialog.onTrue}
-          selected={filters.trip?.tripNo}
+          selected={selectedTrip?.tripNo}
           placeholder="Trip"
           iconName="mdi:truck-fast"
           sx={{ maxWidth: { md: 200 } }}
@@ -193,7 +211,7 @@ export default function ExpenseTableToolbar({
         <DialogSelectButton
           onClick={routeDialog.onTrue}
           selected={
-            filters.route ? `${filters.route.fromPlace} → ${filters.route.toPlace}` : undefined
+            selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
           }
           placeholder="Route"
           iconName="mdi:map-marker-path"
@@ -342,14 +360,14 @@ export default function ExpenseTableToolbar({
       <KanbanVehicleDialog
         open={vehicleDialog.value}
         onClose={vehicleDialog.onFalse}
-        selectedVehicle={filters.vehicle}
+        selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
       />
 
       <KanbanSubtripDialog
         open={subtripDialog.value}
         onClose={subtripDialog.onFalse}
-        selectedSubtrip={filters.subtrip}
+        selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
         statusList={[
           SUBTRIP_STATUS.IN_QUEUE,
@@ -363,21 +381,21 @@ export default function ExpenseTableToolbar({
       <KanbanPumpDialog
         open={pumpDialog.value}
         onClose={pumpDialog.onFalse}
-        selectedPump={filters.pump}
+        selectedPump={selectedPump}
         onPumpChange={handleSelectPump}
       />
 
       <KanbanTransporterDialog
         open={transporterDialog.value}
         onClose={transporterDialog.onFalse}
-        selectedTransporter={filters.transporter}
+        selectedTransporter={selectedTransporter}
         onTransporterChange={handleSelectTransporter}
       />
 
       <KanbanRouteDialog
         open={routeDialog.value}
         onClose={routeDialog.onFalse}
-        selectedRoute={filters.route}
+        selectedRoute={selectedRoute}
         onRouteChange={handleSelectRoute}
         mode="all"
       />
@@ -385,7 +403,7 @@ export default function ExpenseTableToolbar({
       <KanbanTripDialog
         open={tripDialog.value}
         onClose={tripDialog.onFalse}
-        selectedTrip={filters.trip}
+        selectedTrip={selectedTrip}
         onTripChange={handleSelectTrip}
         status={['open', 'closed']}
       />

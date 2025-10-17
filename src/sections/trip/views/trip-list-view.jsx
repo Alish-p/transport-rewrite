@@ -62,7 +62,7 @@ const defaultFilters = {
 export function TripListView() {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
   const deleteTrip = useDeleteTrip();
 

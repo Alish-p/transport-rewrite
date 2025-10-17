@@ -18,6 +18,12 @@ export default function ExpenseTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedVehicleNo,
+  selectedSubtripNo,
+  selectedPumpName,
+  selectedTransporterName,
+  selectedTripNo,
+  selectedRouteName,
   ...other
 }) {
   const handleRemoveExpenseType = (value) => {
@@ -30,27 +36,27 @@ export default function ExpenseTableFiltersResult({
   };
 
   const handleRemovePump = () => {
-    onFilters('pump', null);
+    onFilters('pumpId', '');
   };
 
   const handleRemoveTransporter = () => {
-    onFilters('transporter', null);
+    onFilters('transporterId', '');
   };
 
   const handleRemoveTripId = () => {
-    onFilters('trip', null);
+    onFilters('tripId', '');
   };
 
   const handleRemoveVehicleNo = () => {
-    onFilters('vehicle', null);
+    onFilters('vehicleId', '');
   };
 
   const handleRemoveSubtrip = () => {
-    onFilters('subtrip', null);
+    onFilters('subtripId', '');
   };
 
   const handleRemoveRoute = () => {
-    onFilters('route', null);
+    onFilters('routeId', '');
   };
 
   const handleRemoveDate = () => {
@@ -92,47 +98,39 @@ export default function ExpenseTableFiltersResult({
           </Block>
         )}
 
-        {filters.pump && (
+        {filters.pumpId && (
           <Block label="Pump">
-            <Chip size="small" label={filters.pump.name} onDelete={handleRemovePump} />
+            <Chip size="small" label={selectedPumpName || filters.pumpId} onDelete={handleRemovePump} />
           </Block>
         )}
 
-        {filters.transporter && (
+        {filters.transporterId && (
           <Block label="Transporter">
-            <Chip
-              size="small"
-              label={filters.transporter.transportName}
-              onDelete={handleRemoveTransporter}
-            />
+            <Chip size="small" label={selectedTransporterName || filters.transporterId} onDelete={handleRemoveTransporter} />
           </Block>
         )}
 
-        {filters.trip && (
+        {filters.tripId && (
           <Block label="Trip">
-            <Chip size="small" label={filters.trip.tripNo} onDelete={handleRemoveTripId} />
+            <Chip size="small" label={selectedTripNo || filters.tripId} onDelete={handleRemoveTripId} />
           </Block>
         )}
 
-        {filters.vehicle && (
+        {filters.vehicleId && (
           <Block label="Vehicle:">
-            <Chip size="small" label={filters.vehicle.vehicleNo} onDelete={handleRemoveVehicleNo} />
+            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicleNo} />
           </Block>
         )}
 
-        {filters.subtrip && (
+        {filters.subtripId && (
           <Block label="Job">
-            <Chip size="small" label={filters.subtrip.subtripNo} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 
-        {filters.route && (
+        {filters.routeId && (
           <Block label="Route">
-            <Chip
-              size="small"
-              label={`${filters.route.fromPlace} → ${filters.route.toPlace}`}
-              onDelete={handleRemoveRoute}
-            />
+            <Chip size="small" label={selectedRouteName || filters.routeId} onDelete={handleRemoveRoute} />
           </Block>
         )}
 

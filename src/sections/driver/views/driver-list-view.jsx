@@ -57,7 +57,7 @@ export function DriverListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const deleteDriver = useDeleteDriver();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,

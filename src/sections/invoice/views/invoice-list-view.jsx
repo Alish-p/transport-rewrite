@@ -75,7 +75,7 @@ export function InvoiceListView() {
   const tenant = useTenantContext();
 
   const cancelInvoice = useCancelInvoice();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,

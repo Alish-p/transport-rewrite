@@ -21,6 +21,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+import { useFilters } from 'src/hooks/use-filters';
 
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -72,10 +73,12 @@ export function SubtripListView() {
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const deleteSubtrip = useDeleteSubtrip();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -126,19 +129,22 @@ export function SubtripListView() {
   const totalCount = data?.total || 0;
   const isCountLoading = isFetching;
 
-  const canReset =
-    !!filters.vehicleNo ||
-    !!filters.subtripNo ||
-    !!filters.referenceSubtripNo ||
-    !!filters.customerId ||
-    !!filters.driverId ||
-    !!filters.routeId ||
-    !!filters.transportName ||
-    filters.materials.length > 0 ||
-    filters.subtripStatus !== 'all' ||
-    filters.isOwn ||
-    (!!filters.fromDate && !!filters.toDate) ||
-    (!!filters.subtripEndFromDate && !!filters.subtripEndToDate);
+  // Clear local selected objects when corresponding filter is removed (including via URL)
+  useEffect(() => {
+    if (!filters.customerId) setSelectedCustomer(null);
+  }, [filters.customerId]);
+  useEffect(() => {
+    if (!filters.vehicleNo) setSelectedVehicle(null);
+  }, [filters.vehicleNo]);
+  useEffect(() => {
+    if (!filters.driverId) setSelectedDriver(null);
+  }, [filters.driverId]);
+  useEffect(() => {
+    if (!filters.transportName) setSelectedTransporter(null);
+  }, [filters.transportName]);
+  useEffect(() => {
+    if (!filters.routeId) setSelectedRoute(null);
+  }, [filters.routeId]);
 
   const notFound = !isLoading && !tableData.length;
 
@@ -184,30 +190,18 @@ export function SubtripListView() {
     },
   ];
 
-  const handleFilters = useCallback(
+  const handleFilterChange = useCallback(
     (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-      if (name === 'customerId' && !value) {
-        setSelectedCustomer(null);
-      }
-      if (name === 'vehicleNo' && !value) {
-        setSelectedVehicle(null);
-      }
-      if (name === 'driverId' && !value) {
-        setSelectedDriver(null);
-      }
-      if (name === 'transportName' && !value) {
-        setSelectedTransporter(null);
-      }
-      if (name === 'routeId' && !value) {
-        setSelectedRoute(null);
+      handleFilters(name, value);
+      if (!value) {
+        if (name === 'customerId') setSelectedCustomer(null);
+        if (name === 'vehicleNo') setSelectedVehicle(null);
+        if (name === 'driverId') setSelectedDriver(null);
+        if (name === 'transportName') setSelectedTransporter(null);
+        if (name === 'routeId') setSelectedRoute(null);
       }
     },
-    [table]
+    [handleFilters]
   );
 
   const handleEditRow = (id) => {
@@ -223,59 +217,59 @@ export function SubtripListView() {
 
   const handleFilterSubtripStatus = useCallback(
     (event, newValue) => {
-      handleFilters('subtripStatus', newValue);
+      handleFilterChange('subtripStatus', newValue);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
   const handleSelectCustomer = useCallback(
     (customer) => {
       setSelectedCustomer(customer);
-      handleFilters('customerId', customer._id);
+      handleFilterChange('customerId', customer._id);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
       setSelectedVehicle(vehicle);
-      handleFilters('vehicleNo', vehicle._id);
+      handleFilterChange('vehicleNo', vehicle._id);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
   const handleSelectDriver = useCallback(
     (driver) => {
       setSelectedDriver(driver);
-      handleFilters('driverId', driver._id);
+      handleFilterChange('driverId', driver._id);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
       setSelectedTransporter(transporter);
-      handleFilters('transportName', transporter._id);
+      handleFilterChange('transportName', transporter._id);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
   const handleSelectRoute = useCallback(
     (route) => {
       setSelectedRoute(route);
-      handleFilters('routeId', route._id);
+      handleFilterChange('routeId', route._id);
     },
-    [handleFilters]
+    [handleFilterChange]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
+  const handleResetAll = useCallback(() => {
+    handleResetFilters();
     setSelectedCustomer(null);
     setSelectedVehicle(null);
     setSelectedDriver(null);
     setSelectedTransporter(null);
     setSelectedRoute(null);
-  }, []);
+  }, [handleResetFilters]);
 
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
@@ -362,7 +356,7 @@ export function SubtripListView() {
 
         <SubtripTableToolbar
           filters={filters}
-          onFilters={handleFilters}
+          onFilters={handleFilterChange}
           tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
@@ -387,7 +381,7 @@ export function SubtripListView() {
           <SubtripTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
+            onResetFilters={handleResetAll}
             selectedTransporterName={selectedTransporter?.transportName}
             selectedCustomerName={selectedCustomer?.customerName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}

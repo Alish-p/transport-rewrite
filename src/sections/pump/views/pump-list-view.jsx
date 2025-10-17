@@ -58,7 +58,7 @@ const defaultFilters = {
 
 export function PumpListView() {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
 
   const deletePump = useDeletePump();

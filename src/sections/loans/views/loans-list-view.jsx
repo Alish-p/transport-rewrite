@@ -69,7 +69,7 @@ const defaultFilters = {
 
 export function LoansListView({ loans }) {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
   const deleteLoan = useDeleteLoan();
 

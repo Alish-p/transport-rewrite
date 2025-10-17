@@ -11,8 +11,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { HeroHeader } from 'src/components/hero-header-card';
 import { Iconify } from 'src/components/iconify';
+import { HeroHeader } from 'src/components/hero-header-card';
 
 import { useTenantContext } from 'src/auth/tenant';
 

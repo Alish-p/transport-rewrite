@@ -61,7 +61,7 @@ export function VehicleListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const deleteVehicle = useDeleteVehicle();
-  const table = useTable();
+  const table = useTable({ syncToUrl: true });
 
   // Use custom filters hook
   const {

@@ -68,7 +68,7 @@ const defaultFilters = {
 
 export function DriverPayrollListView({ driversPayrolls }) {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate' });
+  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
 
   const navigate = useNavigate();
