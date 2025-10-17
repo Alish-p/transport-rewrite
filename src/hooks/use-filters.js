@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
+import { useRef, useEffect, useCallback } from 'react';
 import { useSearchParams as _useSearchParams } from 'react-router-dom';
 
-import { useSetState } from './use-set-state';
 import { isEqual } from 'src/utils/helper';
+
+import { useSetState } from './use-set-state';
 
 export function useFilters(initialFilters, options = {}) {
   const { onResetPage } = options;
