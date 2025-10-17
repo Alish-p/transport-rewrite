@@ -1,7 +1,7 @@
 // @mui
 // components
 import { useNavigate } from 'react-router';
-import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Box, Card, Grid, Stack, Button, Dialog, Typography, DialogActions } from '@mui/material';
 
@@ -12,6 +12,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { HeroHeader } from 'src/components/hero-header-card';
+import { Iconify } from 'src/components/iconify';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -120,6 +121,31 @@ export function TripDetailView({ trip }) {
                 onClick: () => viewTripSheet.onTrue(),
                 disabled: !canViewTripSheet,
                 tooltip: tripSheetTooltipTitle,
+              },
+            ],
+          },
+          {
+            label: 'Download',
+            icon: 'material-symbols:download',
+            items: [
+              {
+                label: 'Trip Sheet',
+                render: ({ close }) => (
+                  <PDFDownloadLink
+                    document={<TripSheetPdf trip={trip} tenant={tenant} />}
+                    fileName={`${trip.tripNo}_trip_sheet.pdf`}
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    onClick={() => setTimeout(close, 0)}
+                  >
+                    {({ loading }) => (
+                      <>
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                        Trip Sheet
+                      </>
+                    )}
+                  </PDFDownloadLink>
+                ),
+                disabled: !canViewTripSheet,
               },
             ],
           },
