@@ -187,11 +187,12 @@ export function SubtripDetailView({ subtrip }) {
               items: [
                 {
                   label: 'Lorry Receipt (LR)',
-                  render: () => (
+                  render: ({ close }) => (
                     <PDFDownloadLink
                       document={<LRPDF subtrip={subtrip} tenant={tenant} />}
-                      fileName={`${subtrip.subtripNo}_lr`}
+                      fileName={`${subtrip.subtripNo}_lr.pdf`}
                       style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
@@ -205,11 +206,12 @@ export function SubtripDetailView({ subtrip }) {
                 },
                 hasDieselIntent && {
                   label: 'Petrol Pump Indent',
-                  render: () => (
+                  render: ({ close }) => (
                     <PDFDownloadLink
                       document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
-                      fileName={`${subtrip.subtripNo}_indent`}
+                      fileName={`${subtrip.subtripNo}_indent.pdf`}
                       style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
@@ -223,11 +225,12 @@ export function SubtripDetailView({ subtrip }) {
                 },
                 hasEntryPass && {
                   label: 'Entry Pass',
-                  render: () => (
+                  render: ({ close }) => (
                     <PDFDownloadLink
                       document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
-                      fileName={`${subtrip.subtripNo}_entry_pass`}
+                      fileName={`${subtrip.subtripNo}_entry_pass.pdf`}
                       style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
@@ -240,11 +243,12 @@ export function SubtripDetailView({ subtrip }) {
                 },
                 {
                   label: 'Driver Payment',
-                  render: () => (
+                  render: ({ close }) => (
                     <PDFDownloadLink
                       document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
-                      fileName={`${subtrip.subtripNo}_driver_payment`}
+                      fileName={`${subtrip.subtripNo}_driver_payment.pdf`}
                       style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
@@ -258,11 +262,12 @@ export function SubtripDetailView({ subtrip }) {
                 },
                 hasTransporterPayment && {
                   label: 'Transporter Payment',
-                  render: () => (
+                  render: ({ close }) => (
                     <PDFDownloadLink
                       document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
-                      fileName={`${subtrip.subtripNo}_transporter_payment`}
+                      fileName={`${subtrip.subtripNo}_transporter_payment.pdf`}
                       style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>

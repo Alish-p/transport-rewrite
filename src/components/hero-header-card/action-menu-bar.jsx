@@ -82,17 +82,19 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                   </>
                 );
 
+                const handleClick = () => {
+                  if (item.onClick) item.onClick();
+                  setActiveMenuIndex(null);
+                  popover.onClose();
+                };
+
                 const node = (
                   <MenuItem
                     key={item.label}
                     disabled={item.disabled}
-                    onClick={() => {
-                      if (item.onClick) item.onClick();
-                      setActiveMenuIndex(null);
-                      popover.onClose();
-                    }}
+                    onClick={item.render ? undefined : handleClick}
                   >
-                    {item.render ? item.render({ close: popover.onClose }) : content}
+                    {item.render ? item.render({ close: () => { setActiveMenuIndex(null); popover.onClose(); } }) : content}
                   </MenuItem>
                 );
 
@@ -148,17 +150,19 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                   </>
                 );
 
+                const handleClick = () => {
+                  if (item.onClick) item.onClick();
+                  setActiveMenuIndex(null);
+                  popover.onClose();
+                };
+
                 const node = (
                   <MenuItem
                     key={item.label}
                     disabled={item.disabled}
-                    onClick={() => {
-                      if (item.onClick) item.onClick();
-                      setActiveMenuIndex(null);
-                      popover.onClose();
-                    }}
+                    onClick={item.render ? undefined : handleClick}
                   >
-                    {item.render ? item.render({ close: popover.onClose }) : content}
+                    {item.render ? item.render({ close: () => { setActiveMenuIndex(null); popover.onClose(); } }) : content}
                   </MenuItem>
                 );
 
