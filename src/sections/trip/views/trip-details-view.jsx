@@ -174,7 +174,7 @@ export function TripDetailView({ trip }) {
           </Box>
         </Box>
       </Dialog>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} mt={3}>
         <Grid item xs={12} md={8}>
           <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
