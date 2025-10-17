@@ -31,7 +31,7 @@ export function CustomerDetailView({ customer }) {
           { icon: 'mdi:map-marker', label: address },
         ]}
       />
-      <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Box mt={2}>
         <Grid container spacing={3}>
           <Grid xs={12} md={4}>
             <CustomerBasicWidget customer={customer} />

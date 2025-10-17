@@ -14,7 +14,7 @@ export function HeroHeader({ offsetTop = 70, wrapperSx, ...cardProps }) {
   return (
     <Box
       sx={{
-        position: 'sticky',
+        // position: 'sticky',
         top: offsetTop,
         zIndex: 9,
         bgcolor: 'background.default',
