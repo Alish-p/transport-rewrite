@@ -59,7 +59,7 @@ export function buildInvoicesXml(invoicesInput, tenant) {
   };
 
   // Company info
-  const companyName = tenant?.name || tenant?.company?.name || 'Shree Enterprises ( Mudhol)';
+  const companyName = tenant?.name || tenant?.company?.name || 'Shree Enterprises (Mudhol)';
   const companyGstin = tenant?.company?.gstin || tenant?.gstin || '29AVEPS8011L2Z3';
   const companyStateName = tenant?.company?.state || tenant?.state || 'Karnataka';
   const numberingStyle = 'Auto Retain';
