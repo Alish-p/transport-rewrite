@@ -245,21 +245,21 @@ export function OverviewAppView({
         <Grid xs={12} md={12}>
           <TransporterInsightsTable
             title="🚛 Transporter Insights"
-            subheader="Trips completed by each transporter"
+            subheader="Jobs completed by each transporter"
           />
         </Grid>
 
         <Grid xs={12} md={12}>
           <VehicleInsightsTable
             title="🚚 Vehicle Insights"
-            subheader="Trips completed by each vehicle"
+            subheader="Jobs completed by each vehicle"
           />
         </Grid>
 
         <Grid xs={12} md={12}>
           <DriverInsightsTable
             title="👷 Driver Insights"
-            subheader="Trips completed by each driver"
+            subheader="Jobs completed by each driver"
           />
         </Grid>
 
