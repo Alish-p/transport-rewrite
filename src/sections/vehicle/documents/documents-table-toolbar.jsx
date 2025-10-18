@@ -1,17 +1,18 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
+
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
+import { Tooltip, MenuList } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -26,8 +27,8 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { TABLE_COLUMNS } from './config/table-columns';
 import { DOC_TYPES } from './config/constants';
+import { TABLE_COLUMNS } from './config/table-columns';
 
 export default function DocumentsTableToolbar({
   filters,

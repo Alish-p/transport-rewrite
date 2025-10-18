@@ -10,7 +10,7 @@ import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
-import { getExpiryStatus, getStatusMeta } from '../../utils/document-utils';
+import { getStatusMeta, getExpiryStatus } from '../../utils/document-utils';
 
 export const TABLE_COLUMNS = [
   {

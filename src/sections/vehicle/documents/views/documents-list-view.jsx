@@ -36,8 +36,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
 import DocumentsTableRow from '../documents-table-row';
+import { TABLE_COLUMNS } from '../config/table-columns';
 import DocumentsTableToolbar from '../documents-table-toolbar';
 import DocumentsFiltersResult from '../documents-filters-result';
 
