@@ -91,10 +91,50 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                     </TableCell>
                     <TableCell align="center">{fNumber(row.totalLoadingWeight)}</TableCell>
                     <TableCell align="center">{fShortenNumber(row.totalFreightAmount)}</TableCell>
-                    <TableCell align="center">{row.subtripCounts?.loaded || '-'}</TableCell>
-                    <TableCell align="center">{row.subtripCounts?.error || '-'}</TableCell>
-                    <TableCell align="center">{row.subtripCounts?.received || '-'}</TableCell>
-                    <TableCell align="center">{row.subtripCounts?.billed || '-'}</TableCell>
+                    <TableCell align="center">
+                      <Link
+                        component={RouterLink}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=loaded`}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
+                      >
+                        {row.subtripCounts?.loaded || '-'}
+                      </Link>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Link
+                        component={RouterLink}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=error`}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
+                      >
+                        {row.subtripCounts?.error || '-'}
+                      </Link>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Link
+                        component={RouterLink}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=received`}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
+                      >
+                        {row.subtripCounts?.received || '-'}
+                      </Link>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Link
+                        component={RouterLink}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=billed`}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
+                      >
+                        {row.subtripCounts?.billed || '-'}
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
                 <TableRow>
