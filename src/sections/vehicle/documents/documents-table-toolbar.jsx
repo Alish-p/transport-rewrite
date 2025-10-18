@@ -283,6 +283,7 @@ export default function DocumentsTableToolbar({
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
+        onlyOwn
       />
 
       <CustomDateRangePicker

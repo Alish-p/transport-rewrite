@@ -35,14 +35,12 @@ import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
 import {
+  usePaginatedDocuments,
   getPresignedUploadUrl,
   useCreateVehicleDocument,
   useUpdateVehicleDocument,
   useDeleteVehicleDocument,
-  useVehicleActiveDocuments,
-  useVehicleDocumentHistory,
-  useVehicleMissingDocuments,
-} from 'src/query/use-vehicle-document';
+} from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -83,20 +81,21 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   const addDialog = useBoolean();
   const [tab, setTab] = useState('current');
 
-  const {
-    data: activeDocs,
-    isLoading: loadingActive,
-  } = useVehicleActiveDocuments(vehicleId);
-  const {
-    data: historyDocs,
-    isLoading: loadingHistory,
-  } = useVehicleDocumentHistory(vehicleId);
+  // Use the unified paginated documents API and filter locally
+  const { data: docsResp, isLoading } = usePaginatedDocuments({
+    page: 1,
+    rowsPerPage: 1000,
+    vehicleId,
+  });
 
-  const loading = loadingActive || loadingHistory;
+  const allDocs = docsResp?.results || [];
+  const activeDocs = allDocs.filter((d) => d?.isActive);
+  const historyDocs = allDocs.filter((d) => !d?.isActive);
+
+  const loading = isLoading;
 
   // Required vs present summary (simple chips)
-  const { data: missingData, isLoading: loadingMissing } = useVehicleMissingDocuments(vehicleId);
-  const requiredTypes = missingData?.required && missingData.required.length > 0 ? missingData.required : DOC_TYPES;
+  const requiredTypes = DOC_TYPES;
 
   const getDocByType = (type) => (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
 
@@ -139,7 +138,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       {/* Required documents quick status */}
       <Box sx={{ px: 3, pt: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-          {(loading || loadingMissing) && (
+          {loading && (
             <Typography variant="caption" color="text.secondary">Checking…</Typography>
           )}
         </Stack>
@@ -235,7 +234,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
   const handleDownload = async (row) => {
     try {
       const { data } = await axios.get(
-        `/api/vehicles/${vehicleId}/documents/${row._id}/download`
+        `/api/documents/${vehicleId}/${row._id}/download`
       );
       if (data?.url) {
         window.open(data.url, '_blank');
