@@ -107,6 +107,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/vehicle`,
       new: `${ROOTS.DASHBOARD}/vehicle/new`,
       list: `${ROOTS.DASHBOARD}/vehicle/list`,
+      documents: `${ROOTS.DASHBOARD}/vehicle/documents`,
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
     },
