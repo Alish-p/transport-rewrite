@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -24,6 +25,7 @@ export default function SubtripTableFiltersResult({
   selectedRouteName,
   ...other
 }) {
+  const { data: customers = [] } = useCustomersSummary();
   const handleRemoveSubtripStatus = () => {
     onFilters('subtripStatus', 'all');
   };
@@ -76,6 +78,12 @@ export default function SubtripTableFiltersResult({
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
+  const resolvedCustomerName = (() => {
+    if (selectedCustomerName) return selectedCustomerName;
+    if (!filters.customerId) return '';
+    const found = customers.find((c) => c._id === filters.customerId);
+    return found?.customerName || '';
+  })();
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -97,7 +105,7 @@ export default function SubtripTableFiltersResult({
           <Block label="Customer">
             <Chip
               size="small"
-              label={selectedCustomerName || filters.customerId}
+              label={resolvedCustomerName || filters.customerId}
               onDelete={handleRemoveCustomer}
             />
           </Block>
