@@ -5,6 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -16,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
@@ -35,6 +37,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import DocumentsTableRow from '../documents-table-row';
 import { TABLE_COLUMNS } from '../config/table-columns';
@@ -65,6 +69,7 @@ export function VehicleDocumentsListView() {
   });
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const addDialog = useBoolean();
 
   const {
     visibleColumns,
@@ -135,6 +140,15 @@ export function VehicleDocumentsListView() {
           { name: 'Vehicle', href: paths.dashboard.vehicle.root },
           { name: 'Documents' },
         ]}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={addDialog.onTrue}
+          >
+            Add Document
+          </Button>
+        }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
@@ -271,7 +285,13 @@ export function VehicleDocumentsListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
+
+      <VehicleDocumentFormDialog
+        open={addDialog.value}
+        onClose={addDialog.onFalse}
+        mode="create"
+        initialVehicle={selectedVehicle || null}
+      />
     </DashboardContent>
   );
 }
-

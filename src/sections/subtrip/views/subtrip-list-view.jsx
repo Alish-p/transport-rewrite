@@ -26,8 +26,8 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteSubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
 import { useCustomersSummary } from 'src/query/use-customer';
+import { useDeleteSubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';

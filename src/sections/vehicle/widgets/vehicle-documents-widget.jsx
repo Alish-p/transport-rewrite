@@ -1,10 +1,6 @@
 import { toast } from 'sonner';
-import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 
-import { LoadingButton } from '@mui/lab';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import {
@@ -15,16 +11,12 @@ import {
   Stack,
   Table,
   Button,
-  Dialog,
   TableRow,
   TableHead,
   TableCell,
   TableBody,
   CardHeader,
   Typography,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
   CircularProgress,
 } from '@mui/material';
 
@@ -33,49 +25,20 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
-import {
-  usePaginatedDocuments,
-  getPresignedUploadUrl,
-  useCreateVehicleDocument,
-  useUpdateVehicleDocument,
-  useDeleteVehicleDocument,
-} from 'src/query/use-documents';
+import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { TableNoData, TableSkeleton } from 'src/components/table';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
+import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
+
 import { DOC_TYPES } from '../documents/config/constants';
 
 
-const AddDocSchema = zod
-  .object({
-    // Accept null from Autocomplete when nothing selected, but require non-empty on submit
-    docType: zod.preprocess((v) => (v == null ? '' : v), zod.string().min(1, 'Type is required')),
-    docNumber: zod.string().min(1, 'Document number is required'),
-    issuer: zod.string().optional(),
-    issueDate: schemaHelper.date().optional(),
-    expiryDate: schemaHelper.date().optional(),
-    isActive: zod.boolean().optional(),
-    file: zod.any().optional().nullable(),
-  })
-  .superRefine((val, ctx) => {
-    const { file } = val;
-    if (!file) return; // optional
-    // If file is a string (prefilled URL), skip validations
-    const isFileObject = typeof file === 'object' && 'type' in file;
-    if (!isFileObject) return;
-    if ((file.size || 0) > 5 * 1024 * 1024) {
-      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Max file size is 5 MB', path: ['file'] });
-    }
-    const isValidType = /^image\//.test(file.type) || file.type === 'application/pdf';
-    if (!isValidType) {
-      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Only images or PDF are allowed', path: ['file'] });
-    }
-  });
+// Document add/edit form moved to a reusable component
 
 export function VehicleDocumentsWidget({ vehicleId }) {
   const addDialog = useBoolean();
@@ -335,224 +298,6 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
         doc={selectedDoc}
       />
     </>
-  );
-}
-
-function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
-  const createDocument = useCreateVehicleDocument();
-  const updateDocument = useUpdateVehicleDocument();
-  const isEdit = mode === 'edit';
-
-  const defaultValues = useMemo(
-    () => ({
-      // Autocomplete expects null for no selection
-      docType: doc?.docType || null,
-      docNumber: doc?.docNumber || '',
-      issuer: doc?.issuer || '',
-      issueDate: doc?.issueDate ? new Date(doc.issueDate) : new Date(),
-      expiryDate: doc?.expiryDate
-        ? new Date(doc.expiryDate)
-        : new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      isActive: !!doc?.isActive,
-      file: null,
-    }),
-    [doc]
-  );
-
-  const methods = useForm({
-    resolver: zodResolver(AddDocSchema),
-    defaultValues,
-    values: defaultValues,
-    mode: 'all',
-  });
-
-  // pre-populate existing file for edit by fetching a temporary download URL
-  const [loadingFile, setLoadingFile] = useState(false);
-  const [initialFileSet, setInitialFileSet] = useState(false);
-
-  // Reset form state and flags when dialog closes so it opens fresh next time
-  useEffect(() => {
-    if (!open) {
-      methods.reset(defaultValues);
-      setInitialFileSet(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const handlePrefillFile = async () => {
-    if (!isEdit || !doc?._id || initialFileSet) return;
-    try {
-      setLoadingFile(true);
-      const { data } = await axios.get(`/api/vehicles/${vehicleId}/documents/${doc._id}/download`);
-      if (data?.url) {
-        methods.setValue('file', data.url, { shouldValidate: false });
-      }
-    } catch (e) {
-      // ignore; file may not be available
-    } finally {
-      setInitialFileSet(true);
-      setLoadingFile(false);
-    }
-  };
-
-  useEffect(() => {
-    if (open && isEdit && !initialFileSet && !loadingFile) {
-      handlePrefillFile();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, isEdit, doc?._id]);
-
-  const handleClose = () => {
-    if (!methods.formState.isSubmitting) onClose();
-  };
-
-  const onSubmit = async (values) => {
-    try {
-
-      // compute file change state
-      let fileKeyChanged;
-      let nextFileKey;
-
-      // Only pre-compute upload/removal for edit flow.
-      // For create flow, handle upload inside the create branch below.
-      if (isEdit) {
-        if (values.file && typeof values.file !== 'string') {
-          // user selected a new file
-          const { file } = values;
-          const contentType = file.type;
-          const { key, uploadUrl } = await getPresignedUploadUrl({
-            vehicleId,
-            docType: values.docType,
-            contentType,
-          });
-          await fetch(uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': contentType },
-            body: file,
-          });
-          fileKeyChanged = true;
-          nextFileKey = key;
-        } else if (!values.file) {
-          // user removed the file
-          fileKeyChanged = true;
-          nextFileKey = null;
-        }
-      }
-
-      if (isEdit) {
-        const payload = {
-          docType: values.docType,
-          docNumber: values.docNumber,
-          issuer: values.issuer?.trim() ? values.issuer.trim() : undefined,
-          issueDate: values.issueDate || undefined,
-          expiryDate: values.expiryDate || undefined,
-          isActive: values.isActive,
-          ...(fileKeyChanged ? { fileKey: nextFileKey } : {}),
-        };
-        await updateDocument({ vehicleId, docId: doc?._id, payload });
-      } else {
-        // create
-        let createFileKey;
-        if (values.file && typeof values.file !== 'string') {
-          const { file } = values;
-          const contentType = file.type;
-          const { key, uploadUrl } = await getPresignedUploadUrl({
-            vehicleId,
-            docType: values.docType,
-            contentType,
-          });
-          await fetch(uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': contentType },
-            body: file,
-          });
-          createFileKey = key;
-        }
-        await createDocument({
-          vehicleId,
-          payload: {
-            docType: values.docType,
-            docNumber: values.docNumber,
-            issuer: values.issuer?.trim() ? values.issuer.trim() : undefined,
-            issueDate: values.issueDate || undefined,
-            expiryDate: values.expiryDate || undefined,
-            ...(createFileKey ? { fileKey: createFileKey } : {}),
-          },
-        });
-      }
-
-      onClose();
-    } catch (err) {
-      // handled by hooks; upload errors logged
-      // eslint-disable-next-line no-console
-      console.error(err);
-    } finally {
-      // react-hook-form manages isSubmitting
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Vehicle Document' : 'Add Vehicle Document'}</DialogTitle>
-      <DialogContent dividers>
-        <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
-          <Stack spacing={2} sx={{ py: 1 }}>
-            <Field.Autocomplete
-              name="docType"
-              label="Type"
-              options={DOC_TYPES}
-              getOptionLabel={(o) => o || ''}
-              isOptionEqualToValue={(o, v) => o === v}
-              placeholder="Select type"
-              disableClearable={false}
-              autoHighlight
-              fullWidth
-            />
-
-            <Field.Text name="docNumber" label="Document Number" />
-
-            <Field.Text
-              name="issuer"
-              label="Issuer"
-              placeholder="ICICI, RTO Karnataka, Govt. of India"
-            />
-
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <Field.DatePicker name="issueDate" label="Issue Date" />
-              <Field.DatePicker name="expiryDate" label="Expiry Date" />
-            </Stack>
-
-            {isEdit && <Field.Switch name="isActive" label="Mark as active" />}
-
-            <Field.Upload
-              name="file"
-              multiple={false}
-              accept={{ 'image/*': [], 'application/pdf': [] }}
-              maxSize={5 * 1024 * 1024}
-              helperText={
-                <Typography variant="caption" color="text.secondary">
-                  File is optional. Accepted: images or PDF. Max size 5MB.
-                </Typography>
-              }
-            />
-          </Stack>
-        </Form>
-      </DialogContent>
-      <DialogActions>
-        <Button color="inherit" onClick={handleClose} disabled={methods.formState.isSubmitting}>
-          Cancel
-        </Button>
-        <LoadingButton
-          variant="contained"
-          onClick={methods.handleSubmit(onSubmit)}
-          loading={methods.formState.isSubmitting}
-          disabled={methods.formState.isSubmitting || !methods.formState.isValid}
-          startIcon={!methods.formState.isSubmitting ? <Iconify icon="eva:checkmark-circle-2-outline" /> : null}
-        >
-          Save
-        </LoadingButton>
-      </DialogActions>
-    </Dialog>
   );
 }
 
