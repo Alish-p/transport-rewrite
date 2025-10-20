@@ -18,6 +18,10 @@ export default function DocumentsFiltersResult({
   onRemoveVehicle,
   ...other
 }) {
+  const handleRemoveStatus = () => {
+    onFilters('status', 'all');
+  };
+
   const handleRemoveDocType = () => {
     onFilters('docType', '');
   };
@@ -59,6 +63,16 @@ export default function DocumentsFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.status && filters.status !== 'all' && (
+          <Block label="Status:">
+            <Chip
+              size="small"
+              label={`${filters.status.charAt(0).toUpperCase()}${filters.status.slice(1)}`}
+              onDelete={handleRemoveStatus}
+            />
+          </Block>
+        )}
+
         {filters.docType && (
           <Block label="Type:">
             <Chip size="small" label={filters.docType} onDelete={handleRemoveDocType} />

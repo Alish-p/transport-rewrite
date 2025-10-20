@@ -95,10 +95,9 @@ export function DashboardLayout({ sx, children, data }) {
               helpLink: false,
             }}
             slots={{
-              topArea: showSubscriptionExpired ? (
-                <Alert severity="info" sx={{ borderRadius: 0 }}>
-                  Your subscription has ended. Renew today to keep enjoying seamless transport
-                  management support. 😊
+              topArea: true ? (
+                <Alert severity="info" sx={{ borderRadius: 0 }} icon={false} >
+                  🪔 Team Tranzit wishes you a sparkling Diwali!
                 </Alert>
               ) : null,
               bottomArea: isNavHorizontal ? (

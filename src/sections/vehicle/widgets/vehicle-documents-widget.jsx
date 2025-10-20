@@ -17,7 +17,6 @@ import {
   Button,
   Dialog,
   TableRow,
-  MenuItem,
   TableHead,
   TableCell,
   TableBody,
@@ -49,12 +48,13 @@ import { TableNoData, TableSkeleton } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
+import { DOC_TYPES } from '../documents/config/constants';
 
-const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 
 const AddDocSchema = zod
   .object({
-    docType: zod.string().min(1, 'Type is required'),
+    // Accept null from Autocomplete when nothing selected, but require non-empty on submit
+    docType: zod.preprocess((v) => (v == null ? '' : v), zod.string().min(1, 'Type is required')),
     docNumber: zod.string().min(1, 'Document number is required'),
     issuer: zod.string().optional(),
     issueDate: schemaHelper.date().optional(),
@@ -345,7 +345,8 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
 
   const defaultValues = useMemo(
     () => ({
-      docType: doc?.docType || '',
+      // Autocomplete expects null for no selection
+      docType: doc?.docType || null,
       docNumber: doc?.docNumber || '',
       issuer: doc?.issuer || '',
       issueDate: doc?.issueDate ? new Date(doc.issueDate) : new Date(),
@@ -496,14 +497,17 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
       <DialogContent dividers>
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
-            <Field.Select name="docType" label="Type">
-              <MenuItem value="">Select type</MenuItem>
-              {DOC_TYPES.map((t) => (
-                <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>
-                  {t}
-                </MenuItem>
-              ))}
-            </Field.Select>
+            <Field.Autocomplete
+              name="docType"
+              label="Type"
+              options={DOC_TYPES}
+              getOptionLabel={(o) => o || ''}
+              isOptionEqualToValue={(o, v) => o === v}
+              placeholder="Select type"
+              disableClearable={false}
+              autoHighlight
+              fullWidth
+            />
 
             <Field.Text name="docNumber" label="Document Number" />
 
