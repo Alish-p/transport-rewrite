@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-import { GenericTableRow } from 'src/components/table';
+import Checkbox from '@mui/material/Checkbox';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import ListItemText from '@mui/material/ListItemText';
 
 import { TABLE_COLUMNS } from './config/table-columns';
 
@@ -8,30 +11,49 @@ export default function DocumentsTableRow({
   row,
   selected,
   onSelectRow,
-  onViewRow,
-  onEditRow,
-  onDeleteRow,
+  onOpenDetails,
   visibleColumns,
   disabledColumns,
   columnOrder,
 }) {
-  const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
-  const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
-  const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
+  const orderedColumns = useMemo(
+    () => (columnOrder?.length ? columnOrder.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean) : TABLE_COLUMNS),
+    [columnOrder]
+  );
+
+  const handleRowClick = (e) => {
+    const {target} = e;
+    if (target && typeof target.closest === 'function') {
+      const isInteractive = target.closest(
+        'a, button, input, textarea, select, [role="button"], .MuiIconButton-root, .MuiCheckbox-root, .MuiLink-root'
+      );
+      if (isInteractive) return;
+    }
+    if (onOpenDetails) onOpenDetails(row);
+  };
 
   return (
-    <GenericTableRow
-      row={row}
-      columns={TABLE_COLUMNS}
-      selected={selected}
-      onSelectRow={onSelectRow}
-      onViewRow={handleView}
-      onEditRow={handleEdit}
-      onDeleteRow={handleDelete}
-      visibleColumns={visibleColumns}
-      disabledColumns={disabledColumns}
-      columnOrder={columnOrder}
-    />
+    <TableRow hover selected={!!selected} onClick={handleRowClick} sx={{ cursor: 'pointer' }}>
+      {onSelectRow ? (
+        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+          <Checkbox checked={!!selected} onClick={onSelectRow} />
+        </TableCell>
+      ) : null}
+
+      {orderedColumns.map((column) =>
+        (visibleColumns[column.id] || disabledColumns[column.id]) ? (
+          <TableCell key={column.id} align={column.align}>
+            {column.render ? (
+              column.render(row)
+            ) : (
+              <ListItemText
+                primary={column.getter(row) || '-'}
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+              />
+            )}
+          </TableCell>
+        ) : null
+      )}
+    </TableRow>
   );
 }
-

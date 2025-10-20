@@ -18,51 +18,49 @@ const FORMAT_VIDEO = ['m4v', 'avi', 'mpg', 'mp4', 'webm'];
 const iconUrl = (icon) => `${CONFIG.site.basePath}/assets/icons/files/${icon}.svg`;
 
 // ----------------------------------------------------------------------
+// Helpers
+// ----------------------------------------------------------------------
+
+function stripQueryAndHash(url = '') {
+  if (typeof url !== 'string') return '';
+  // Remove hash first, then query string
+  const noHash = url.split('#')[0];
+  return noHash.split('?')[0];
+}
+
+// ----------------------------------------------------------------------
 
 export function fileFormat(fileUrl) {
-  let format;
+  // Support both URLs/paths and MIME types
+  if (!fileUrl) return '';
 
-  const fileByUrl = fileTypeByUrl(fileUrl);
+  const value = String(fileUrl).toLowerCase();
 
-  switch (fileUrl.includes(fileByUrl)) {
-    case FORMAT_TEXT.includes(fileByUrl):
-      format = 'txt';
-      break;
-    case FORMAT_ZIP.includes(fileByUrl):
-      format = 'zip';
-      break;
-    case FORMAT_AUDIO.includes(fileByUrl):
-      format = 'audio';
-      break;
-    case FORMAT_IMG.includes(fileByUrl):
-      format = 'image';
-      break;
-    case FORMAT_VIDEO.includes(fileByUrl):
-      format = 'video';
-      break;
-    case FORMAT_WORD.includes(fileByUrl):
-      format = 'word';
-      break;
-    case FORMAT_EXCEL.includes(fileByUrl):
-      format = 'excel';
-      break;
-    case FORMAT_POWERPOINT.includes(fileByUrl):
-      format = 'powerpoint';
-      break;
-    case FORMAT_PDF.includes(fileByUrl):
-      format = 'pdf';
-      break;
-    case FORMAT_PHOTOSHOP.includes(fileByUrl):
-      format = 'photoshop';
-      break;
-    case FORMAT_ILLUSTRATOR.includes(fileByUrl):
-      format = 'illustrator';
-      break;
-    default:
-      format = fileTypeByUrl(fileUrl);
+  // If looks like a MIME type (e.g., image/png, application/pdf)
+  if (value.includes('/') && !value.startsWith('http') && !value.startsWith('blob:')) {
+    const [type, subtype] = value.split('/');
+    if (type === 'image') return 'image';
+    if (type === 'audio') return 'audio';
+    if (type === 'video') return 'video';
+    if (subtype === 'pdf') return 'pdf';
+    return subtype || type;
   }
 
-  return format;
+  const ext = fileTypeByUrl(value);
+
+  if (FORMAT_TEXT.includes(ext)) return 'txt';
+  if (FORMAT_ZIP.includes(ext)) return 'zip';
+  if (FORMAT_AUDIO.includes(ext)) return 'audio';
+  if (FORMAT_IMG.includes(ext)) return 'image';
+  if (FORMAT_VIDEO.includes(ext)) return 'video';
+  if (FORMAT_WORD.includes(ext)) return 'word';
+  if (FORMAT_EXCEL.includes(ext)) return 'excel';
+  if (FORMAT_POWERPOINT.includes(ext)) return 'powerpoint';
+  if (FORMAT_PDF.includes(ext)) return 'pdf';
+  if (FORMAT_PHOTOSHOP.includes(ext)) return 'photoshop';
+  if (FORMAT_ILLUSTRATOR.includes(ext)) return 'illustrator';
+
+  return ext;
 }
 
 // ----------------------------------------------------------------------
@@ -116,19 +114,28 @@ export function fileThumb(fileUrl) {
 // ----------------------------------------------------------------------
 
 export function fileTypeByUrl(fileUrl) {
-  return (fileUrl && fileUrl.split('.').pop()) || '';
+  if (!fileUrl) return '';
+  const clean = stripQueryAndHash(String(fileUrl));
+  const ext = clean.split('.').pop();
+  return (ext || '').toLowerCase();
 }
 
 // ----------------------------------------------------------------------
 
 export function fileNameByUrl(fileUrl) {
-  return fileUrl.split('/').pop();
+  if (!fileUrl) return '';
+  const clean = stripQueryAndHash(String(fileUrl));
+  try {
+    return decodeURIComponent(clean.split('/').pop());
+  } catch (e) {
+    return clean.split('/').pop();
+  }
 }
 
 // ----------------------------------------------------------------------
 
 export function fileData(file) {
-  // From url
+  // From url string
   if (typeof file === 'string') {
     return {
       preview: file,
@@ -141,14 +148,18 @@ export function fileData(file) {
     };
   }
 
-  // From file
+  // From object (File or remote file-like object)
+  const path = file?.path || file?.url || undefined;
+  const rawName = file?.name || (path ? fileNameByUrl(path) : undefined);
+  const safeName = rawName && rawName.includes('?') ? fileNameByUrl(rawName) : rawName;
+
   return {
-    name: file.name,
-    size: file.size,
-    path: file.path,
-    type: file.type,
-    preview: file.preview,
-    lastModified: file.lastModified,
-    lastModifiedDate: file.lastModifiedDate,
+    name: safeName,
+    size: file?.size,
+    path,
+    type: file?.type,
+    preview: file?.preview,
+    lastModified: file?.lastModified,
+    lastModifiedDate: file?.lastModifiedDate,
   };
 }

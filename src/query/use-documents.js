@@ -13,10 +13,10 @@ const getPaginatedDocuments = async (params) => {
 };
 
 
-export const getPresignedUploadUrl = async ({ vehicleId, docType, contentType }) => {
+export const getPresignedUploadUrl = async ({ vehicleId, docType, contentType, extension }) => {
   const { data } = await axios.get(
     `${ENDPOINT}/${vehicleId}/upload-url`,
-    { params: { docType, contentType } }
+    { params: { docType, contentType, extension } }
   );
   return data; // { key, uploadUrl }
 };

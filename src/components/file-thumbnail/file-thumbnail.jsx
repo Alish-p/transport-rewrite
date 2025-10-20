@@ -22,7 +22,9 @@ export function FileThumbnail({
 
   const { name, path } = fileData(file);
 
-  const format = fileFormat(path || previewUrl);
+  const format = fileFormat((typeof file === 'object' && file?.type) || path || previewUrl);
+
+  console.log({ format, name, path })
 
   const renderImg = (
     <Box

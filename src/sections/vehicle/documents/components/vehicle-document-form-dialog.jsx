@@ -152,7 +152,8 @@ export default function VehicleDocumentFormDialog({
         if (values.file && typeof values.file !== 'string') {
           const { file } = values;
           const contentType = file.type;
-          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType });
+          const extension = (file?.name ?? '').split('.').pop()?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
+          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType, extension });
           await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: file });
           fileKeyChanged = true;
           nextFileKey = key;
@@ -178,7 +179,8 @@ export default function VehicleDocumentFormDialog({
         if (values.file && typeof values.file !== 'string') {
           const { file } = values;
           const contentType = file.type;
-          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType });
+          const extension = (file?.name ?? '').split('.').pop()?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
+          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType, extension });
           await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: file });
           createFileKey = key;
         }
@@ -294,4 +296,3 @@ export default function VehicleDocumentFormDialog({
     </Dialog >
   );
 }
-

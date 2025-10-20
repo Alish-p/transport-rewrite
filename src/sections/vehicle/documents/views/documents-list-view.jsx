@@ -4,11 +4,8 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,8 +16,6 @@ import { paths } from 'src/routes/paths';
 import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { usePaginatedDocuments } from 'src/query/use-documents';
@@ -34,10 +29,10 @@ import {
   TableNoData,
   TableSkeleton,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { DocumentDetailsDrawer } from 'src/sections/vehicle/documents/document-details-drawer';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import DocumentsTableRow from '../documents-table-row';
@@ -99,6 +94,7 @@ export function VehicleDocumentsListView() {
   });
 
   const [tableData, setTableData] = useState([]);
+  const [detailsDoc, setDetailsDoc] = useState(null);
 
   useEffect(() => {
     if (data?.results) setTableData(data.results);
@@ -208,54 +204,12 @@ export function VehicleDocumentsListView() {
         )}
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-          <TableSelectedAction
-            dense={table.dense}
-            numSelected={table.selected.length}
-            rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
-              table.onSelectAllRows(
-                checked,
-                tableData.map((row) => row._id)
-              )
-            }
-            action={
-              <Stack direction="row">
-                <Tooltip title="Download">
-                  <IconButton
-                    color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Vehicle-documents-selected-list'
-                      );
-                    }}
-                  >
-                    <Iconify icon="eva:download-outline" />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            }
-          />
 
           <Scrollbar>
             <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
               <TableHeadCustom
-                order={table.order}
-                orderBy={table.orderBy}
                 headLabel={visibleHeaders}
-                rowCount={tableData.length}
-                numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
-                onSelectAllRows={(checked) =>
-                  table.onSelectAllRows(
-                    checked,
-                    tableData.map((row) => row._id)
-                  )
-                }
               />
               <TableBody>
                 {isLoading
@@ -264,8 +218,7 @@ export function VehicleDocumentsListView() {
                     <DocumentsTableRow
                       key={row._id}
                       row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onOpenDetails={(r) => setDetailsDoc(r)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}
@@ -292,6 +245,8 @@ export function VehicleDocumentsListView() {
         mode="create"
         initialVehicle={selectedVehicle || null}
       />
+
+      <DocumentDetailsDrawer open={!!detailsDoc} onClose={() => setDetailsDoc(null)} doc={detailsDoc} />
     </DashboardContent>
   );
 }
