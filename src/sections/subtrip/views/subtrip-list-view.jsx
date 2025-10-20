@@ -27,6 +27,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteSubtrip, usePaginatedSubtrips } from 'src/query/use-subtrip';
+import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -86,6 +87,7 @@ export function SubtripListView() {
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const tenant = useTenantContext();
+  const { data: customers = [] } = useCustomersSummary();
 
   // Column visibility logic handled via custom hook
   const {
@@ -134,6 +136,13 @@ export function SubtripListView() {
   useEffect(() => {
     if (!filters.customerId) setSelectedCustomer(null);
   }, [filters.customerId]);
+  // Initialize selected customer from URL filter when present
+  useEffect(() => {
+    if (filters.customerId && !selectedCustomer) {
+      const found = customers.find((c) => c._id === filters.customerId);
+      if (found) setSelectedCustomer(found);
+    }
+  }, [filters.customerId, selectedCustomer, customers]);
   useEffect(() => {
     if (!filters.vehicleNo) setSelectedVehicle(null);
   }, [filters.vehicleNo]);

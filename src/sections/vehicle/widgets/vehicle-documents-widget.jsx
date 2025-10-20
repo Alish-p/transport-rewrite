@@ -17,7 +17,6 @@ import {
   Button,
   Dialog,
   TableRow,
-  MenuItem,
   TableHead,
   TableCell,
   TableBody,
@@ -35,14 +34,12 @@ import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
 import {
+  usePaginatedDocuments,
   getPresignedUploadUrl,
   useCreateVehicleDocument,
   useUpdateVehicleDocument,
   useDeleteVehicleDocument,
-  useVehicleActiveDocuments,
-  useVehicleDocumentHistory,
-  useVehicleMissingDocuments,
-} from 'src/query/use-vehicle-document';
+} from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -51,12 +48,13 @@ import { TableNoData, TableSkeleton } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
+import { DOC_TYPES } from '../documents/config/constants';
 
-const DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax', 'Other'];
 
 const AddDocSchema = zod
   .object({
-    docType: zod.string().min(1, 'Type is required'),
+    // Accept null from Autocomplete when nothing selected, but require non-empty on submit
+    docType: zod.preprocess((v) => (v == null ? '' : v), zod.string().min(1, 'Type is required')),
     docNumber: zod.string().min(1, 'Document number is required'),
     issuer: zod.string().optional(),
     issueDate: schemaHelper.date().optional(),
@@ -83,20 +81,21 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   const addDialog = useBoolean();
   const [tab, setTab] = useState('current');
 
-  const {
-    data: activeDocs,
-    isLoading: loadingActive,
-  } = useVehicleActiveDocuments(vehicleId);
-  const {
-    data: historyDocs,
-    isLoading: loadingHistory,
-  } = useVehicleDocumentHistory(vehicleId);
+  // Use the unified paginated documents API and filter locally
+  const { data: docsResp, isLoading } = usePaginatedDocuments({
+    page: 1,
+    rowsPerPage: 1000,
+    vehicleId,
+  });
 
-  const loading = loadingActive || loadingHistory;
+  const allDocs = docsResp?.results || [];
+  const activeDocs = allDocs.filter((d) => d?.isActive);
+  const historyDocs = allDocs.filter((d) => !d?.isActive);
+
+  const loading = isLoading;
 
   // Required vs present summary (simple chips)
-  const { data: missingData, isLoading: loadingMissing } = useVehicleMissingDocuments(vehicleId);
-  const requiredTypes = missingData?.required && missingData.required.length > 0 ? missingData.required : DOC_TYPES;
+  const requiredTypes = DOC_TYPES;
 
   const getDocByType = (type) => (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
 
@@ -139,7 +138,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       {/* Required documents quick status */}
       <Box sx={{ px: 3, pt: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-          {(loading || loadingMissing) && (
+          {loading && (
             <Typography variant="caption" color="text.secondary">Checking…</Typography>
           )}
         </Stack>
@@ -235,7 +234,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
   const handleDownload = async (row) => {
     try {
       const { data } = await axios.get(
-        `/api/vehicles/${vehicleId}/documents/${row._id}/download`
+        `/api/documents/${vehicleId}/${row._id}/download`
       );
       if (data?.url) {
         window.open(data.url, '_blank');
@@ -346,7 +345,8 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
 
   const defaultValues = useMemo(
     () => ({
-      docType: doc?.docType || '',
+      // Autocomplete expects null for no selection
+      docType: doc?.docType || null,
       docNumber: doc?.docNumber || '',
       issuer: doc?.issuer || '',
       issueDate: doc?.issueDate ? new Date(doc.issueDate) : new Date(),
@@ -497,14 +497,17 @@ function VehicleDocumentFormDialog({ open, onClose, vehicleId, mode, doc }) {
       <DialogContent dividers>
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
-            <Field.Select name="docType" label="Type">
-              <MenuItem value="">Select type</MenuItem>
-              {DOC_TYPES.map((t) => (
-                <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>
-                  {t}
-                </MenuItem>
-              ))}
-            </Field.Select>
+            <Field.Autocomplete
+              name="docType"
+              label="Type"
+              options={DOC_TYPES}
+              getOptionLabel={(o) => o || ''}
+              isOptionEqualToValue={(o, v) => o === v}
+              placeholder="Select type"
+              disableClearable={false}
+              autoHighlight
+              fullWidth
+            />
 
             <Field.Text name="docNumber" label="Document Number" />
 
