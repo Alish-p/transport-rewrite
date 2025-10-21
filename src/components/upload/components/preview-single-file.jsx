@@ -4,14 +4,11 @@ import IconButton from '@mui/material/IconButton';
 import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from '../../iconify';
+import { FileThumbnail } from '../../file-thumbnail';
 
 // ----------------------------------------------------------------------
 
 export function SingleFilePreview({ file }) {
-  const fileName = typeof file === 'string' ? file : file.name;
-
-  const previewUrl = typeof file === 'string' ? file : URL.createObjectURL(file);
-
   return (
     <Box
       sx={{
@@ -23,15 +20,13 @@ export function SingleFilePreview({ file }) {
         position: 'absolute',
       }}
     >
-      <Box
-        component="img"
-        alt={fileName}
-        src={previewUrl}
-        sx={{
-          width: 1,
-          height: 1,
-          borderRadius: 1,
-          objectFit: 'cover',
+      <FileThumbnail
+        file={file}
+        imageView
+        sx={{ width: 1, height: 1, borderRadius: 1 }}
+        slotProps={{
+          img: { width: '100%', height: '100%', objectFit: 'cover' },
+          icon: { width: 64, height: 64 },
         }}
       />
     </Box>

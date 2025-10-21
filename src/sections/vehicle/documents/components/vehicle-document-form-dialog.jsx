@@ -117,7 +117,8 @@ export default function VehicleDocumentFormDialog({
     if (!isEdit || !doc?._id || initialFileSet || !effectiveVehicleId) return;
     try {
       setLoadingFile(true);
-      const { data } = await axios.get(`/api/vehicles/${effectiveVehicleId}/documents/${doc._id}/download`);
+      // Use the same download route used elsewhere in the app
+      const { data } = await axios.get(`/api/documents/${effectiveVehicleId}/${doc._id}/download`);
       if (data?.url) {
         methods.setValue('file', data.url, { shouldValidate: false });
       }
@@ -218,6 +219,7 @@ export default function VehicleDocumentFormDialog({
             placeholder="Choose vehicle"
             selected={selectedVehicle?.vehicleNo}
             iconName="mdi:truck"
+            disabled={isEdit}
           />
         )}
 
@@ -233,7 +235,7 @@ export default function VehicleDocumentFormDialog({
               disableClearable={false}
               autoHighlight
               fullWidth
-              disabled={showVehiclePicker && !effectiveVehicleId}
+              disabled={isEdit || (showVehiclePicker && !effectiveVehicleId)}
             />
 
             <Field.Text name="docNumber" label="Document Number" disabled={showVehiclePicker && !effectiveVehicleId} />
