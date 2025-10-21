@@ -18,6 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
 
+import { useVehicle } from 'src/query/use-vehicle';
 import {
   getPresignedUploadUrl,
   useCreateVehicleDocument,
@@ -63,6 +64,7 @@ export default function VehicleDocumentFormDialog({
   mode,
   doc,
   initialVehicle = null,
+  disableVehicleSelection = false,
 }) {
   const isEdit = mode === 'edit';
 
@@ -78,6 +80,7 @@ export default function VehicleDocumentFormDialog({
   }, [open, initialVehicle]);
 
   const effectiveVehicleId = providedVehicleId || selectedVehicle?._id || null;
+  const { data: providedVehicle } = useVehicle(providedVehicleId);
 
   const defaultValues = useMemo(
     () => ({
@@ -206,22 +209,20 @@ export default function VehicleDocumentFormDialog({
     }
   };
 
-  const showVehiclePicker = !providedVehicleId;
-  const canSubmit = methods.formState.isValid && !!(providedVehicleId || selectedVehicle?._id);
+  const selectedVehicleLabel = selectedVehicle?.vehicleNo || providedVehicle?.vehicleNo || '';
+  const canSubmit = methods.formState.isValid && !!effectiveVehicleId;
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{isEdit ? 'Edit Vehicle Document' : 'Add Vehicle Document'}</DialogTitle>
       <DialogContent dividers>
-        {showVehiclePicker && (
-          <DialogSelectButton
-            onClick={vehicleDialog.onTrue}
-            placeholder="Choose vehicle"
-            selected={selectedVehicle?.vehicleNo}
-            iconName="mdi:truck"
-            disabled={isEdit}
-          />
-        )}
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          placeholder="Choose vehicle"
+          selected={selectedVehicleLabel}
+          iconName="mdi:truck"
+          disabled={isEdit || disableVehicleSelection}
+        />
 
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
@@ -235,24 +236,24 @@ export default function VehicleDocumentFormDialog({
               disableClearable={false}
               autoHighlight
               fullWidth
-              disabled={isEdit || (showVehiclePicker && !effectiveVehicleId)}
+              disabled={isEdit || !effectiveVehicleId}
             />
 
-            <Field.Text name="docNumber" label="Document Number" disabled={showVehiclePicker && !effectiveVehicleId} />
+            <Field.Text name="docNumber" label="Document Number" disabled={!effectiveVehicleId} />
 
             <Field.Text
               name="issuer"
               label="Issuer"
               placeholder="ICICI, RTO Karnataka, Govt. of India"
-              disabled={showVehiclePicker && !effectiveVehicleId}
+              disabled={!effectiveVehicleId}
             />
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <Field.DatePicker name="issueDate" label="Issue Date" disabled={showVehiclePicker && !effectiveVehicleId} />
-              <Field.DatePicker name="expiryDate" label="Expiry Date" disabled={showVehiclePicker && !effectiveVehicleId} />
+              <Field.DatePicker name="issueDate" label="Issue Date" disabled={!effectiveVehicleId} />
+              <Field.DatePicker name="expiryDate" label="Expiry Date" disabled={!effectiveVehicleId} />
             </Stack>
 
-            {isEdit && <Field.Switch name="isActive" label="Mark as active" disabled={showVehiclePicker && !effectiveVehicleId} />}
+            {isEdit && <Field.Switch name="isActive" label="Mark as active" disabled={!effectiveVehicleId} />}
 
             <Field.Upload
               name="file"
@@ -264,7 +265,7 @@ export default function VehicleDocumentFormDialog({
                   File is optional. Accepted: images or PDF. Max size 5MB.
                 </Typography>
               }
-              disabled={showVehiclePicker && !effectiveVehicleId}
+              disabled={!effectiveVehicleId}
             />
           </Stack>
         </Form>
@@ -285,7 +286,7 @@ export default function VehicleDocumentFormDialog({
       </DialogActions>
 
       {
-        showVehiclePicker && (
+        !disableVehicleSelection && !isEdit && (
           <KanbanVehicleDialog
             open={vehicleDialog.value}
             onClose={vehicleDialog.onFalse}

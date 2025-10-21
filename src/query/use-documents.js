@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -51,6 +51,25 @@ export function usePaginatedDocuments(params, options = {}) {
   return useQuery({
     queryKey: [...baseKey, 'paginated', params],
     queryFn: () => getPaginatedDocuments(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}
+
+// Infinite list (e.g., for overlay tables with infinite scroll)
+export function useInfiniteDocuments(params, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 1 }) => getPaginatedDocuments({ ...(params || {}), page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + (page?.results ? page.results.length : 0),
+        0
+      );
+      const total = lastPage?.total || 0;
+      return totalFetched < total ? allPages.length + 1 : undefined;
+    },
     keepPreviousData: true,
     enabled: !!params,
     ...options,

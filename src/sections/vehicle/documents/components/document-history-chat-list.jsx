@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Avatar from '@mui/material/Avatar';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -13,8 +12,6 @@ import axios from 'src/utils/axios';
 import { fToNow, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { FileThumbnail } from 'src/components/file-thumbnail';
-
-import { getExpiryStatus } from '../../utils/document-utils';
 
 export function DocumentHistoryChatList({ vehicleId, items = [] }) {
   const openDownload = async (doc) => {
@@ -30,15 +27,12 @@ export function DocumentHistoryChatList({ vehicleId, items = [] }) {
   return (
     <Stack component="ul" spacing={2.5} sx={{ listStyle: 'none', px: 0, m: 0 }}>
       {items.map((h) => {
-        const status = getExpiryStatus(h?.expiryDate);
         const author = h?.createdBy?.name || 'User';
 
         return (
           <Stack spacing={0.5} flexGrow={1} minWidth={0} mb={2} key={h._id} component="li">
             <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Stack direction="row" alignItems="center" spacing={1}>
-
-              </Stack>
+              <Stack direction="row" alignItems="center" spacing={1} />
               <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                 {h?.createdAt ? `${fToNow(h?.createdAt)} ago by ${author}` : ''}
               </Typography>

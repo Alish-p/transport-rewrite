@@ -108,6 +108,7 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/vehicle/new`,
       list: `${ROOTS.DASHBOARD}/vehicle/list`,
       documents: `${ROOTS.DASHBOARD}/vehicle/documents`,
+      documentsGrid: `${ROOTS.DASHBOARD}/vehicle/documents-grid`,
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
     },

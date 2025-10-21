@@ -178,6 +178,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
         onClose={addDialog.onFalse}
         vehicleId={vehicleId}
         mode="create"
+        disableVehicleSelection
       />
     </Card>
   );
@@ -290,6 +291,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
         vehicleId={vehicleId}
         doc={editing}
         mode="edit"
+        disableVehicleSelection
       />
       <ConfirmDeleteDocument
         open={confirmDelete.value}

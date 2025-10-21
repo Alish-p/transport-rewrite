@@ -19,6 +19,7 @@ const VehicleListPage = lazy(() => import('src/pages/dashboard/vehicle/list'));
 const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
 const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
 const VehicleDocumentsListPage = lazy(() => import('src/pages/dashboard/vehicle/documents'));
+const VehicleDocumentsGridPage = lazy(() => import('src/pages/dashboard/vehicle/documents-grid'));
 
 // Driver
 const DriverDetailsPage = lazy(() => import('src/pages/dashboard/driver/details'));
@@ -173,6 +174,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="vehicle" action="view" hasContent>
                 <VehicleDocumentsListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'documents-grid',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="view" hasContent>
+                <VehicleDocumentsGridPage />
               </PermissionBasedGuard>
             ),
           },
