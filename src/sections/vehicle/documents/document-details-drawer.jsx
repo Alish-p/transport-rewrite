@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fDateTime, fTime } from 'src/utils/format-time';
 
 import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
@@ -124,7 +124,7 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
       onClose={onClose}
       anchor="right"
       slotProps={{ backdrop: { invisible: true } }}
-      PaperProps={{ sx: { width: 320 } }}
+      PaperProps={{ sx: { width: 420 } }}
     >
       <Scrollbar>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
@@ -177,15 +177,15 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
               <PropRow label="Type" value={doc?.docType || '-'} />
               <PropRow label="Number" value={doc?.docNumber || '-'} />
               <PropRow label="Issuer" value={doc?.issuer || '-'} />
-              <PropRow label="Issue" value={doc?.issueDate ? fDate(doc.issueDate) : '-'} right={doc?.issueDate ? fTime(doc.issueDate) : ''} />
-              <PropRow label="Expiry" value={doc?.expiryDate ? fDate(doc.expiryDate) : '-'} right={doc?.expiryDate ? fTime(doc.expiryDate) : ''} />
+              <PropRow label="Issue" value={doc?.issueDate ? fDateTime(doc.issueDate) : '-'} />
+              <PropRow label="Expiry" value={doc?.expiryDate ? fDateTime(doc.expiryDate) : '-'} />
               <PropRow
                 label="Status"
                 value={
                   statusMeta ? (
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Iconify icon={statusMeta.icon} sx={{ color: `${statusMeta.color}.main` }} />
-                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                      <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
                         {status}
                       </Typography>
                     </Stack>
@@ -300,24 +300,19 @@ function SectionHeader({ title }) {
   );
 }
 
-function PropRow({ label, value, right }) {
+function PropRow({ label, value }) {
   return (
     <Stack direction="row" sx={{ typography: 'caption', textTransform: 'capitalize' }}>
       <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
         {label}
       </Box>
       {typeof value === 'string' || typeof value === 'number' ? (
-        <Typography variant="body2" sx={{ flexGrow: 1 }}>
+        <Typography variant="caption" sx={{ flexGrow: 1 }}>
           {value}
         </Typography>
       ) : (
         <Box sx={{ flexGrow: 1 }}>{value}</Box>
       )}
-      {right ? (
-        <Typography variant="caption" color="text.secondary">
-          {right}
-        </Typography>
-      ) : null}
     </Stack>
   );
 }

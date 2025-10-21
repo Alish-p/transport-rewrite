@@ -2,6 +2,12 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
 
 import axios from 'src/utils/axios';
 import { fToNow, fDateRangeShortLabel } from 'src/utils/format-time';
@@ -62,73 +68,66 @@ export function DocumentHistoryChatList({ vehicleId, items = [] }) {
                 </Typography>
               </Stack>
 
-              <Stack spacing={1.5} alignItems="flex-start">
-                <FileThumbnail
-                  file={h?.fileUrl}
-                  tooltip
-                  onDownload={() => openDownload(h)}
-                  sx={{ width: 56, height: 56 }}
-                  slotProps={{ icon: { width: 56, height: 56 } }}
-                />
 
-                <Box
-                  sx={{
-                    bgcolor: 'background.neutral',
-                    borderRadius: 2,
-                    p: 1.5,
-                    width: '100%',
-                  }}
-                >
-                  <Stack spacing={1.25}>
-                    {/* Document Type and Number */}
-                    {(h?.docType || h?.docNumber) && (
-                      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                        {h?.docNumber && (
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {h.docNumber}
+              <Box
+                sx={{
+                  bgcolor: 'background.neutral',
+                  borderRadius: 2,
+                  p: 1.5,
+                  width: '100%',
+                }}
+              >
+                <TableContainer component={Box} sx={{ bgcolor: 'transparent' }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ width: 80 }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>File</Typography>
+                        </TableCell>
+                        <TableCell sx={{ width: 140 }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>Doc Number</Typography>
+                        </TableCell>
+                        <TableCell sx={{ width: 180 }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>Validity</Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>Issuer</Typography>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <FileThumbnail
+                            file={h?.fileUrl}
+                            tooltip
+                            onDownload={() => openDownload(h)}
+                            sx={{ width: 36, height: 36 }}
+                            slotProps={{ icon: { width: 36, height: 36 } }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption">
+                            {h?.docNumber || '-'}
                           </Typography>
-                        )}
-                      </Stack>
-                    )}
-
-                    {/* Issuer */}
-                    {h?.issuer && (
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Iconify icon="solar:user-check-bold-duotone" width={16} sx={{ color: 'text.secondary' }} />
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          Issued by:
-                        </Typography>
-                        <Typography variant="caption" fontWeight={500}>
-                          {h.issuer}
-                        </Typography>
-                      </Stack>
-                    )}
-
-                    {/* Validity Period */}
-                    {(h?.issueDate || h?.expiryDate) && (
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Iconify icon="solar:calendar-bold-duotone" width={16} sx={{ color: 'text.secondary' }} />
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          Valid:
-                        </Typography>
-                        <Typography variant="caption" fontWeight={500}>
-                          {fDateRangeShortLabel(h?.issueDate, h?.expiryDate)}
-                        </Typography>
-                      </Stack>
-                    )}
-
-                    {/* Status Chip */}
-                    {status && (
-                      <Box sx={{ pt: 0.5 }}>
-                        <Label variant="soft" color={getStatusColor(status)}>
-                          {status}
-                        </Label>
-
-                      </Box>
-                    )}
-                  </Stack>
-                </Box>
-              </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption">
+                            {(h?.issueDate || h?.expiryDate)
+                              ? fDateRangeShortLabel(h?.issueDate, h?.expiryDate)
+                              : '-'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption">
+                            {h?.issuer || '-'}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
             </Stack>
           </Stack>
         );
