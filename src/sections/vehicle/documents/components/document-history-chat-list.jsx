@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -16,7 +16,7 @@ import { FileThumbnail } from 'src/components/file-thumbnail';
 
 import { openDocumentDownload } from '../utils/download';
 
-const DocumentHistoryItem = memo(function DocumentHistoryItem({ h, onDownload }) {
+const DocumentHistoryItem = ({ h, onDownload }) => {
   const author = h?.createdBy?.name || 'User';
   return (
     <Stack spacing={0.5} flexGrow={1} minWidth={0} mb={2} component="li">
@@ -87,7 +87,7 @@ const DocumentHistoryItem = memo(function DocumentHistoryItem({ h, onDownload })
       </Box>
     </Stack>
   );
-});
+};
 
 export function DocumentHistoryChatList({ vehicleId, items = [] }) {
   const handleDownload = useCallback(async (doc) => {
