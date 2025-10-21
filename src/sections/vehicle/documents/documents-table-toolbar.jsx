@@ -99,13 +99,7 @@ export default function DocumentsTableToolbar({
     [onFilters]
   );
 
-  const handleChangeDays = useCallback(
-    (event) => {
-      const v = event.target.value;
-      onFilters('days', v === '' ? '' : Number(v));
-    },
-    [onFilters]
-  );
+  
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
@@ -198,22 +192,6 @@ export default function DocumentsTableToolbar({
               : undefined
           }
           iconName="mdi:calendar-clock"
-        />
-
-        <TextField
-          fullWidth
-          type="number"
-          value={filters.days || ''}
-          onChange={handleChangeDays}
-          placeholder="Expiring in (days)"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="mdi:counter" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ maxWidth: { xs: 1, md: 200 } }}
         />
 
         <Stack direction="row" spacing={1}>

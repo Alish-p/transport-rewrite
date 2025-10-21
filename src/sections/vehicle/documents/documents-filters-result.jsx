@@ -49,9 +49,7 @@ export default function DocumentsFiltersResult({
     onFilters('expiryTo', null);
   };
 
-  const handleRemoveDays = () => {
-    onFilters('days', '');
-  };
+
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -114,12 +112,6 @@ export default function DocumentsFiltersResult({
               label={fDateRangeShortLabel(filters.expiryFrom, filters.expiryTo)}
               onDelete={handleRemoveExpiryRange}
             />
-          </Block>
-        )}
-
-        {filters.days && (
-          <Block label="Expiring in:">
-            <Chip size="small" label={`${filters.days} days`} onDelete={handleRemoveDays} />
           </Block>
         )}
 
