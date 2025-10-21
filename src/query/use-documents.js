@@ -38,8 +38,18 @@ export const deleteVehicleDocument = async ({ vehicleId, docId }) => {
 
 // Queries
 export function usePaginatedDocuments(params, options = {}) {
+  const vehicleId = params?.vehicleId || params?.vehicle;
+  const isHistory =
+    params?.isActive === false ||
+    params?.isActive === 0 ||
+    params?.isActive === 'false' ||
+    params?.isActive === '0';
+
+  // Structure query key so mutations can invalidate by [documents, vehicleId, 'active'|'history']
+  const baseKey = vehicleId ? [QUERY_KEY, vehicleId, isHistory ? 'history' : 'active'] : [QUERY_KEY];
+
   return useQuery({
-    queryKey: [QUERY_KEY, 'paginated', params],
+    queryKey: [...baseKey, 'paginated', params],
     queryFn: () => getPaginatedDocuments(params),
     keepPreviousData: true,
     enabled: !!params,
@@ -55,8 +65,9 @@ export function useCreateVehicleDocument() {
     onSuccess: (doc) => {
       toast.success('Document added successfully');
       // Invalidate both active and history for this vehicle
-      queryClient.invalidateQueries([QUERY_KEY, doc?.vehicle, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, doc?.vehicle, 'history']);
+      const vid = doc?.vehicle?._id || doc?.vehicle;
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
       // Also invalidate unified documents listing
       queryClient.invalidateQueries(['documents']);
     },
@@ -74,8 +85,9 @@ export function useUpdateVehicleDocument() {
     mutationFn: updateVehicleDocument,
     onSuccess: (doc) => {
       toast.success('Document updated successfully');
-      queryClient.invalidateQueries([QUERY_KEY, doc?.vehicle, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, doc?.vehicle, 'history']);
+      const vid = doc?.vehicle?._id || doc?.vehicle;
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
       // Also invalidate unified documents listing
       queryClient.invalidateQueries(['documents']);
     },
@@ -93,8 +105,9 @@ export function useDeleteVehicleDocument() {
     mutationFn: deleteVehicleDocument,
     onSuccess: (res, vars) => {
       toast.success('Document deleted');
-      queryClient.invalidateQueries([QUERY_KEY, vars?.vehicleId, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, vars?.vehicleId, 'history']);
+      const vid = vars?.vehicleId;
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
+      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
       // Also invalidate unified documents listing
       queryClient.invalidateQueries(['documents']);
     },

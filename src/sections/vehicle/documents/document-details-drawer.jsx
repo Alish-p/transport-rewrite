@@ -15,7 +15,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import axios from 'src/utils/axios';
 import { fDate, fTime } from 'src/utils/format-time';
 
-import { useDeleteVehicleDocument } from 'src/query/use-documents';
+import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -26,6 +26,7 @@ import { FileThumbnail } from 'src/components/file-thumbnail';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import { getStatusMeta, getExpiryStatus } from '../utils/document-utils';
+import { DocumentHistoryChatList } from './components/document-history-chat-list';
 
 export function DocumentDetailsDrawer({ open, onClose, doc }) {
   const [tab, setTab] = useState('overview');
@@ -69,6 +70,34 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
 
   const status = getExpiryStatus(doc?.expiryDate);
   const statusMeta = status ? getStatusMeta(status) : null;
+
+  // History (inactive documents of same type for this vehicle)
+  const [histPage, setHistPage] = useState(1);
+  const rowsPerPage = 10;
+  useEffect(() => {
+    if (open) setHistPage(1);
+  }, [open, vehicleId, doc?.docType, tab]);
+  const {
+    data: historyResp,
+    isLoading: historyLoading,
+    isFetching: historyFetching,
+  } = usePaginatedDocuments(
+    vehicleId && doc?.docType
+      ? {
+        vehicleId,
+        docType: doc?.docType,
+        page: histPage,
+        rowsPerPage,
+        isActive: false, // fetch inactive only
+      }
+      : undefined,
+    {
+      enabled: open && tab === 'history' && !!vehicleId && !!doc?.docType,
+      keepPreviousData: true,
+    }
+  );
+  const historyList = historyResp?.results || [];
+  const historyTotal = historyResp?.total || 0;
 
   const handleDelete = async () => {
     try {
@@ -120,61 +149,98 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
 
         {tab === 'overview' && (
           <Stack spacing={2.5} justifyContent="center" sx={{ p: 2.5, }}>
-              {loadingUrl ? (
-                <CircularProgress size={24} />
-              ) : previewUrl ? (
-                <FileThumbnail
-                  imageView
-                  file={previewUrl}
-                  sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
-                  slotProps={{ img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' }, icon: { width: 64, height: 64 } }}
-                />
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No file attached
-                </Typography>
-              )}
-
-              <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
-                {doc?.docType || 'Document'}
+            {loadingUrl ? (
+              <CircularProgress size={24} />
+            ) : previewUrl ? (
+              <FileThumbnail
+                imageView
+                file={previewUrl}
+                sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
+                slotProps={{ img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' }, icon: { width: 64, height: 64 } }}
+              />
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No file attached
               </Typography>
+            )}
 
-              <Divider sx={{ borderStyle: 'dashed' }} />
+            <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
+              {doc?.docType || 'Document'}
+            </Typography>
 
-              <Stack spacing={1.5}>
-                <SectionHeader title="Properties" />
+            <Divider sx={{ borderStyle: 'dashed' }} />
 
-                <PropRow label="Vehicle" value={doc?.vehicle?.vehicleNo || doc?.vehicleNo || '-'} />
-                <PropRow label="Type" value={doc?.docType || '-'} />
-                <PropRow label="Number" value={doc?.docNumber || '-'} />
-                <PropRow label="Issuer" value={doc?.issuer || '-'} />
-                <PropRow label="Issue" value={doc?.issueDate ? fDate(doc.issueDate) : '-'} right={doc?.issueDate ? fTime(doc.issueDate) : ''} />
-                <PropRow label="Expiry" value={doc?.expiryDate ? fDate(doc.expiryDate) : '-'} right={doc?.expiryDate ? fTime(doc.expiryDate) : ''} />
-                <PropRow
-                  label="Status"
-                  value={
-                    statusMeta ? (
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Iconify icon={statusMeta.icon} sx={{ color: `${statusMeta.color}.main` }} />
-                        <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                          {status}
-                        </Typography>
-                      </Stack>
-                    ) : (
-                      '-'
-                    )
-                  }
-                />
-                <PropRow label="Created By" value={doc?.createdBy?.name || doc?.createdByName || '-'} />
-              </Stack>
+            <Stack spacing={1.5}>
+              <SectionHeader title="Properties" />
+
+              <PropRow label="Vehicle" value={doc?.vehicle?.vehicleNo || doc?.vehicleNo || '-'} />
+              <PropRow label="Type" value={doc?.docType || '-'} />
+              <PropRow label="Number" value={doc?.docNumber || '-'} />
+              <PropRow label="Issuer" value={doc?.issuer || '-'} />
+              <PropRow label="Issue" value={doc?.issueDate ? fDate(doc.issueDate) : '-'} right={doc?.issueDate ? fTime(doc.issueDate) : ''} />
+              <PropRow label="Expiry" value={doc?.expiryDate ? fDate(doc.expiryDate) : '-'} right={doc?.expiryDate ? fTime(doc.expiryDate) : ''} />
+              <PropRow
+                label="Status"
+                value={
+                  statusMeta ? (
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Iconify icon={statusMeta.icon} sx={{ color: `${statusMeta.color}.main` }} />
+                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                        {status}
+                      </Typography>
+                    </Stack>
+                  ) : (
+                    '-'
+                  )
+                }
+              />
+              <PropRow label="Created By" value={doc?.createdBy?.name || doc?.createdByName || '-'} />
             </Stack>
+          </Stack>
         )}
 
         {tab === 'history' && (
           <Box sx={{ p: 2.5 }}>
-            <Typography variant="body2" color="text.secondary">
-              No history available.
-            </Typography>
+            {historyLoading && (
+              <Stack alignItems="center" sx={{ py: 3 }}>
+                <CircularProgress size={24} />
+              </Stack>
+            )}
+
+            {!historyLoading && historyList.length === 0 && (
+              <Typography variant="body2" color="text.secondary">
+                No history available.
+              </Typography>
+            )}
+
+            {!historyLoading && historyList.length > 0 && (
+              <>
+                <DocumentHistoryChatList vehicleId={vehicleId} items={historyList} />
+                {historyTotal > rowsPerPage && (
+                  <Stack direction="row" alignItems="center" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={histPage <= 1 || historyFetching}
+                      onClick={() => setHistPage((p) => Math.max(1, p - 1))}
+                    >
+                      Prev
+                    </Button>
+                    <Typography variant="caption" color="text.secondary">
+                      Page {histPage} of {Math.max(1, Math.ceil(historyTotal / rowsPerPage))}
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={histPage >= Math.ceil(historyTotal / rowsPerPage) || historyFetching}
+                      onClick={() => setHistPage((p) => p + 1)}
+                    >
+                      Next
+                    </Button>
+                  </Stack>
+                )}
+              </>
+            )}
           </Box>
         )}
       </Scrollbar>
