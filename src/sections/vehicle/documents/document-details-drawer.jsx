@@ -124,14 +124,14 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
       onClose={onClose}
       anchor="right"
       slotProps={{ backdrop: { invisible: true } }}
-      PaperProps={{ sx: { width: 420 } }}
+      PaperProps={{ sx: { width: 360 } }}
     >
       <Scrollbar>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
           <Typography variant="h6"> Info </Typography>
           <Stack direction="row" spacing={1}>
-            <IconButton onClick={handleDownload} disabled={!previewUrl || loadingUrl}>
-              <Iconify icon="eva:download-outline" />
+            <IconButton onClick={onClose}>
+              <Iconify icon="eva:close-fill" />
             </IconButton>
           </Stack>
         </Stack>
@@ -154,6 +154,8 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
             ) : previewUrl ? (
               <FileThumbnail
                 imageView
+                tooltip
+                onDownload={handleDownload}
                 file={previewUrl}
                 sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
                 slotProps={{ img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' }, icon: { width: 64, height: 64 } }}
