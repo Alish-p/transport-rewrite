@@ -35,7 +35,7 @@ import { TableNoData, TableSkeleton } from 'src/components/table';
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
-import { DOC_TYPES } from '../documents/config/constants';
+import { REQUIRED_DOC_TYPES } from '../documents/config/constants';
 
 
 // Document add/edit form moved to a reusable component
@@ -58,7 +58,7 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   const loading = isLoading;
 
   // Required vs present summary (simple chips)
-  const requiredTypes = DOC_TYPES;
+  const requiredTypes = REQUIRED_DOC_TYPES;
 
   const getDocByType = (type) => (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
 

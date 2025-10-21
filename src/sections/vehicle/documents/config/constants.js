@@ -39,3 +39,12 @@ export const DOC_TYPES = [
   'Uttarakhand Permit',
   'West Bengal Permit',
 ];
+
+export const REQUIRED_DOC_TYPES = [
+  'Insurance',
+  'PUC',
+  'RC',
+  'Fitness',
+  'Permit',
+  'Tax',
+];
