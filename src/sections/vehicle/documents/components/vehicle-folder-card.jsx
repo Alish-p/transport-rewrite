@@ -6,8 +6,7 @@ import Typography from '@mui/material/Typography';
 
 import { CONFIG } from 'src/config-global';
 
-export const VehicleFolderCard = memo(function VehicleFolderCard({ vehicle, onOpen }) {
-  return (
+export const VehicleFolderCard = memo(({ vehicle, onOpen }) => (
     <Paper
       variant="outlined"
       onClick={() => onOpen(vehicle)}
@@ -48,6 +47,5 @@ export const VehicleFolderCard = memo(function VehicleFolderCard({ vehicle, onOp
         </Typography>
       </Box>
     </Paper>
-  );
-});
+  ));
 

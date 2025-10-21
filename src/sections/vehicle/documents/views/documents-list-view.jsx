@@ -35,8 +35,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
 import { DocumentDetailsDrawer } from 'src/sections/vehicle/documents/document-details-drawer';
+import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import DocumentsTableRow from '../documents-table-row';

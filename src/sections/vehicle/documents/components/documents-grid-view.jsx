@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useInfiniteVehicles } from 'src/query/use-vehicle';
 
