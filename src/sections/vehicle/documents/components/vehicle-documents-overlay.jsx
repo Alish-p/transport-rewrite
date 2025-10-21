@@ -1,8 +1,7 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -15,74 +14,21 @@ import TableHead from '@mui/material/TableHead';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
-import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
-
-import { CONFIG } from 'src/config-global';
-import { DashboardContent } from 'src/layouts/dashboard';
-import { useInfiniteVehicles } from 'src/query/use-vehicle';
 import { useInfiniteDocuments } from 'src/query/use-documents';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
+import { openDocumentDownload } from '../utils/download';
 
-const VEHICLE_PAGE_SIZE = 20;
 const DOCS_PAGE_SIZE = 20;
 
-function VehicleFolderCard({ vehicle, onOpen }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <Paper
-      variant="outlined"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => onOpen(vehicle)}
-      sx={(theme) => ({
-        gap: 1,
-        p: 2.5,
-        maxWidth: 222,
-        display: 'flex',
-        borderRadius: 2,
-        cursor: 'pointer',
-        position: 'relative',
-        bgcolor: hovered ? 'background.paper' : 'transparent',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        boxShadow: hovered ? theme.customShadows.z20 : 'none',
-        transition: theme.transitions.create(['background-color', 'box-shadow'], {
-          duration: theme.transitions.duration.shorter,
-        }),
-      })}
-    >
-      <Box sx={{ width: 36, height: 36 }}>
-        <Box
-          component="img"
-          src={`${CONFIG.site.basePath}/assets/icons/files/ic-folder.svg`}
-          sx={{ width: 1, height: 1 }}
-        />
-      </Box>
-      <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="subtitle1" noWrap>
-          {vehicle?.vehicleNo || 'Vehicle'}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {vehicle?.vehicleType || '-'}
-        </Typography>
-      </Box>
-    </Paper>
-  );
-}
-
-function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
+export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
   const vehicleId = useMemo(() => vehicle?._id, [vehicle]);
   const [includeInactive, setIncludeInactive] = useState(false);
 
@@ -161,14 +107,10 @@ function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
     ? fetchingNextActive || fetchingNextInactive
     : fetchingNextSingle;
 
-  const handleDownload = async (doc) => {
-    try {
-      const { data: resp } = await axios.get(`/api/documents/${vehicleId}/${doc._id}/download`);
-      if (resp?.url) window.open(resp.url, '_blank');
-    } catch (e) {
-      // swallow; other places toast errors
-    }
-  };
+  const handleDownload = useCallback(async (doc) => {
+    if (!vehicleId || !doc?._id) return;
+    await openDocumentDownload({ vehicleId, docId: doc._id });
+  }, [vehicleId]);
 
   const renderStatus = (status) => {
     if (!status) return '-';
@@ -236,7 +178,7 @@ function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
                   </TableRow>
                 ))}
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={7}>
                     <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
                       {isFetchingNextPage && <LoadingSpinner />}
                     </Box>
@@ -251,79 +193,3 @@ function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
   );
 }
 
-export function VehicleDocumentsGridView() {
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [overlayOpen, setOverlayOpen] = useState(false);
-
-  const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteVehicles(
-    { rowsPerPage: VEHICLE_PAGE_SIZE, isOwn: true },
-    { enabled: true }
-  );
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const vehicles = data ? data.pages.flatMap((p) => p.results || []) : [];
-  const total = data?.pages?.[0]?.total || 0;
-
-  const handleOpenVehicle = (v) => {
-    setSelectedVehicle(v);
-    setOverlayOpen(true);
-  };
-
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Documents Grid"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicle', href: paths.dashboard.vehicle.root },
-          { name: 'Documents Grid' },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-
-      {isLoading ? (
-        <LoadingSpinner sx={{ height: 320 }} />
-      ) : (
-        <>
-          <Box
-            gap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(2, 1fr)',
-              sm: 'repeat(3, 1fr)',
-              md: 'repeat(4, 1fr)',
-              lg: 'repeat(5, 1fr)',
-            }}
-          >
-            {vehicles.map((v) => (
-              <VehicleFolderCard key={v._id} vehicle={v} onOpen={handleOpenVehicle} />)
-            )}
-          </Box>
-          <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-            {isFetchingNextPage && <LoadingSpinner />}
-            {!hasNextPage && (
-              <Typography variant="caption" color="text.secondary">
-                Showing {vehicles.length} of {total}
-              </Typography>
-            )}
-          </Box>
-        </>
-      )}
-
-      <VehicleDocumentsOverlay
-        open={overlayOpen}
-        onClose={() => setOverlayOpen(false)}
-        vehicle={selectedVehicle}
-      />
-    </DashboardContent>
-  );
-}
-
-export default VehicleDocumentsGridView;

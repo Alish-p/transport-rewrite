@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
@@ -32,6 +32,22 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
 import { DOC_TYPES } from '../config/constants';
+
+async function uploadViaPresigned({ vehicleId, docType, file }) {
+  const contentType = file?.type || 'application/octet-stream';
+  const extension = (file?.name ?? '')
+    .split('.')
+    .pop()
+    ?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
+  const { key, uploadUrl } = await getPresignedUploadUrl({
+    vehicleId,
+    docType,
+    contentType,
+    extension,
+  });
+  await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: file });
+  return key;
+}
 
 const AddDocSchema = zod
   .object({
@@ -100,7 +116,6 @@ export default function VehicleDocumentFormDialog({
   const methods = useForm({
     resolver: zodResolver(AddDocSchema),
     defaultValues,
-    values: defaultValues,
     mode: 'all',
   });
 
@@ -109,36 +124,41 @@ export default function VehicleDocumentFormDialog({
   const [initialFileSet, setInitialFileSet] = useState(false);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
       methods.reset(defaultValues);
       setInitialFileSet(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, defaultValues, methods]);
 
-  const handlePrefillFile = async () => {
+  const handlePrefillFile = useCallback(async (signal) => {
     if (!isEdit || !doc?._id || initialFileSet || !effectiveVehicleId) return;
     try {
       setLoadingFile(true);
-      // Use the same download route used elsewhere in the app
-      const { data } = await axios.get(`/api/documents/${effectiveVehicleId}/${doc._id}/download`);
-      if (data?.url) {
+      const { data } = await axios.get(
+        `/api/documents/${effectiveVehicleId}/${doc._id}/download`,
+        { signal }
+      );
+      if (!signal?.aborted && data?.url) {
         methods.setValue('file', data.url, { shouldValidate: false });
       }
     } catch (e) {
-      // ignore; file may not be available
+      // ignore; file may not be available or request aborted
     } finally {
-      setInitialFileSet(true);
-      setLoadingFile(false);
+      if (!signal?.aborted) {
+        setInitialFileSet(true);
+        setLoadingFile(false);
+      }
     }
-  };
+  }, [isEdit, doc?._id, initialFileSet, effectiveVehicleId, methods]);
 
   useEffect(() => {
     if (open && isEdit && !initialFileSet && !loadingFile) {
-      handlePrefillFile();
+      const controller = new AbortController();
+      handlePrefillFile(controller.signal);
+      return () => controller.abort();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, isEdit, doc?._id, effectiveVehicleId]);
+    return undefined;
+  }, [open, isEdit, initialFileSet, loadingFile, handlePrefillFile]);
 
   const handleClose = () => {
     if (!methods.formState.isSubmitting) onClose();
@@ -155,10 +175,7 @@ export default function VehicleDocumentFormDialog({
       if (isEdit) {
         if (values.file && typeof values.file !== 'string') {
           const { file } = values;
-          const contentType = file.type;
-          const extension = (file?.name ?? '').split('.').pop()?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
-          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType, extension });
-          await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: file });
+          const key = await uploadViaPresigned({ vehicleId, docType: values.docType, file });
           fileKeyChanged = true;
           nextFileKey = key;
         } else if (!values.file) {
@@ -182,11 +199,7 @@ export default function VehicleDocumentFormDialog({
         let createFileKey;
         if (values.file && typeof values.file !== 'string') {
           const { file } = values;
-          const contentType = file.type;
-          const extension = (file?.name ?? '').split('.').pop()?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
-          const { key, uploadUrl } = await getPresignedUploadUrl({ vehicleId, docType: values.docType, contentType, extension });
-          await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: file });
-          createFileKey = key;
+          createFileKey = await uploadViaPresigned({ vehicleId, docType: values.docType, file });
         }
         await createDocument({
           vehicleId,

@@ -148,7 +148,6 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.vehicle.root, action: 'view' },
           { title: 'Documents', path: paths.dashboard.vehicle.documents, action: 'view' },
-          { title: 'Documents Grid', path: paths.dashboard.vehicle.documentsGrid, action: 'view' },
           { title: 'Create', path: paths.dashboard.vehicle.new, action: 'create' },
         ],
       },

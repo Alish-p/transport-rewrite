@@ -3,13 +3,16 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
+import ToggleButton from '@mui/material/ToggleButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
@@ -32,6 +35,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
 import { DocumentDetailsDrawer } from 'src/sections/vehicle/documents/document-details-drawer';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
@@ -58,6 +62,7 @@ const defaultFilters = {
 export function VehicleDocumentsListView() {
   const theme = useTheme();
   const table = useTable({ syncToUrl: true });
+  const [view, setView] = useState('list');
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -91,7 +96,7 @@ export function VehicleDocumentsListView() {
     expiryFrom: filters.expiryFrom || undefined,
     expiryTo: filters.expiryTo || undefined,
     days: filters.days || undefined,
-  });
+  }, { enabled: view === 'list' });
 
   const [tableData, setTableData] = useState([]);
   const [detailsDoc, setDetailsDoc] = useState(null);
@@ -137,6 +142,8 @@ export function VehicleDocumentsListView() {
           { name: 'Documents' },
         ]}
         action={
+
+
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
@@ -145,99 +152,119 @@ export function VehicleDocumentsListView() {
             Add Document
           </Button>
         }
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 2, md: 2 } }}
       />
-
-      <Card>
-        <Tabs
-          value={filters.status}
-          onChange={handleFilterStatus}
-          sx={{ px: 2.5, boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}` }}
+      <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ mb: 1 }}>
+        <ToggleButtonGroup
+          exclusive
+          size="small"
+          value={view}
+          onChange={(_e, v) => v && setView(v)}
         >
-          {TABS.map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              label={tab.label}
-              iconPosition="end"
-              icon={
-                isLoading ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <Label variant={tab.value === filters.status ? 'filled' : 'soft'} color={tab.color}>
-                    {tab.count}
-                  </Label>
-                )
-              }
-            />
-          ))}
-        </Tabs>
+          <ToggleButton value="list" aria-label="List view">
+            <Iconify icon="material-symbols:list-rounded" />
+          </ToggleButton>
+          <ToggleButton value="grid" aria-label="Grid view">
+            <Iconify icon="ph:dots-nine-bold" />
+          </ToggleButton>
+        </ToggleButtonGroup>
 
-        <DocumentsTableToolbar
-          filters={filters}
-          onFilters={handleFilters}
-          tableData={tableData}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          onToggleColumn={toggleColumnVisibility}
-          onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
-          selectedVehicle={selectedVehicle}
-          onSelectVehicle={handleSelectVehicle}
-          onResetColumns={resetColumns}
-          canResetColumns={canResetColumns}
-        />
+      </Stack>
 
-        {canReset && (
-          <DocumentsFiltersResult
+      {view === 'list' ? (
+        <Card>
+          <Tabs
+            value={filters.status}
+            onChange={handleFilterStatus}
+            sx={{ px: 2.5, boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}` }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label variant={tab.value === filters.status ? 'filled' : 'soft'} color={tab.color}>
+                      {tab.count}
+                    </Label>
+                  )
+                }
+              />
+            ))}
+          </Tabs>
+
+          <DocumentsTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            onResetFilters={() => {
-              handleResetFilters();
-              setSelectedVehicle(null);
-            }}
-            selectedVehicleNo={selectedVehicle?.vehicleNo}
-            onRemoveVehicle={handleClearVehicle}
-            results={totalCount}
-            sx={{ p: 2.5, pt: 0 }}
+            tableData={tableData}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
+            columnOrder={columnOrder}
+            selectedVehicle={selectedVehicle}
+            onSelectVehicle={handleSelectVehicle}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
-        )}
 
-        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          {canReset && (
+            <DocumentsFiltersResult
+              filters={filters}
+              onFilters={handleFilters}
+              onResetFilters={() => {
+                handleResetFilters();
+                setSelectedVehicle(null);
+              }}
+              selectedVehicleNo={selectedVehicle?.vehicleNo}
+              onRemoveVehicle={handleClearVehicle}
+              results={totalCount}
+              sx={{ p: 2.5, pt: 0 }}
+            />
+          )}
 
-          <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-              <TableHeadCustom
-                headLabel={visibleHeaders}
-                onOrderChange={moveColumn}
-              />
-              <TableBody>
-                {isLoading
-                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
-                  : tableData.map((row) => (
-                    <DocumentsTableRow
-                      key={row._id}
-                      row={row}
-                      onOpenDetails={(r) => setDetailsDoc(r)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
-                <TableNoData notFound={!tableData.length && canReset} />
-              </TableBody>
-            </Table>
-          </Scrollbar>
-        </TableContainer>
+          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
 
-        <TablePaginationCustom
-          count={totalCount}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-        />
-      </Card>
+            <Scrollbar>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                <TableHeadCustom
+                  headLabel={visibleHeaders}
+                  onOrderChange={moveColumn}
+                />
+                <TableBody>
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
+                    : tableData.map((row) => (
+                      <DocumentsTableRow
+                        key={row._id}
+                        row={row}
+                        onOpenDetails={(r) => setDetailsDoc(r)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
+                  <TableNoData notFound={!tableData.length && canReset} />
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </TableContainer>
+
+          <TablePaginationCustom
+            count={totalCount}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Card>
+      ) : (
+        <VehicleDocumentsGridContent />
+      )}
 
       <VehicleDocumentFormDialog
         open={addDialog.value}
@@ -246,7 +273,9 @@ export function VehicleDocumentsListView() {
         initialVehicle={selectedVehicle || null}
       />
 
-      <DocumentDetailsDrawer open={!!detailsDoc} onClose={() => setDetailsDoc(null)} doc={detailsDoc} />
+      {view === 'list' && (
+        <DocumentDetailsDrawer open={!!detailsDoc} onClose={() => setDetailsDoc(null)} doc={detailsDoc} />
+      )}
     </DashboardContent>
   );
 }
