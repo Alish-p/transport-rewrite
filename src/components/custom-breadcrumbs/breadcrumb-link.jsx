@@ -5,7 +5,7 @@ import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
-export function BreadcrumbsLink({ link, activeLast, disabled }) {
+export function BreadcrumbsLink({ link, activeLast, disabled, disableLinks = false }) {
   const styles = {
     typography: 'body2',
     alignItems: 'center',
@@ -37,7 +37,7 @@ export function BreadcrumbsLink({ link, activeLast, disabled }) {
     </>
   );
 
-  if (link.href) {
+  if (link.href && !disableLinks) {
     return (
       <Link component={RouterLink} href={link.href} sx={styles}>
         {renderContent}

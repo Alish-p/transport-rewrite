@@ -9,16 +9,17 @@ import { BreadcrumbsLink } from './breadcrumb-link';
 // ----------------------------------------------------------------------
 
 export function CustomBreadcrumbs({
-  links,
+  links = [],
   action,
   heading,
   moreLink,
   activeLast,
   slotProps,
   sx,
+  disableLinks = false,
   ...other
 }) {
-  const lastLink = links[links.length - 1].name;
+  const lastLink = links.length ? links[links.length - 1].name : undefined;
 
   const renderHeading = (
     <Typography variant="h4" sx={{ mb: 2, ...slotProps?.heading }}>
@@ -33,6 +34,7 @@ export function CustomBreadcrumbs({
           key={link.name ?? index}
           link={link}
           activeLast={activeLast}
+          disableLinks={disableLinks}
           disabled={link.name === lastLink}
         />
       ))}

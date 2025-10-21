@@ -139,13 +139,13 @@ export function OverviewAppView({
         </>
 
         {invoiceAmountSummary && (
-          <Grid xs={12} md={6}>
+          <Grid xs={12} sm={6}>
             <AppInvoiceAmountSummary summary={invoiceAmountSummary} />
           </Grid>
         )}
 
         {transporterPaymentSummary && (
-          <Grid xs={12} md={6}>
+          <Grid xs={12} sm={6}>
             <AppTransporterPaymentSummary summary={transporterPaymentSummary} />
           </Grid>
         )}

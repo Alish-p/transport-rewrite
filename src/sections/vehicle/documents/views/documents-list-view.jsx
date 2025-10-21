@@ -14,8 +14,6 @@ import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { paths } from 'src/routes/paths';
-
 import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
@@ -83,20 +81,23 @@ export function VehicleDocumentsListView() {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const { data, isLoading } = usePaginatedDocuments({
-    page: table.page + 1,
-    rowsPerPage: table.rowsPerPage,
-    status: filters.status !== 'all' ? filters.status : undefined,
-    vehicleId: filters.vehicleId || undefined,
-    docType: filters.docType || undefined,
-    docNumber: filters.docNumber || undefined,
-    issuer: filters.issuer || undefined,
-    issueFrom: filters.issueFrom || undefined,
-    issueTo: filters.issueTo || undefined,
-    expiryFrom: filters.expiryFrom || undefined,
-    expiryTo: filters.expiryTo || undefined,
-    days: filters.days || undefined,
-  }, { enabled: view === 'list' });
+  const { data, isLoading } = usePaginatedDocuments(
+    {
+      page: table.page + 1,
+      rowsPerPage: table.rowsPerPage,
+      status: filters.status !== 'all' ? filters.status : undefined,
+      vehicleId: filters.vehicleId || undefined,
+      docType: filters.docType || undefined,
+      docNumber: filters.docNumber || undefined,
+      issuer: filters.issuer || undefined,
+      issueFrom: filters.issueFrom || undefined,
+      issueTo: filters.issueTo || undefined,
+      expiryFrom: filters.expiryFrom || undefined,
+      expiryTo: filters.expiryTo || undefined,
+      days: filters.days || undefined,
+    },
+    { enabled: view === 'list' }
+  );
 
   const [tableData, setTableData] = useState([]);
   const [detailsDoc, setDetailsDoc] = useState(null);
@@ -136,38 +137,34 @@ export function VehicleDocumentsListView() {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Vehicle Documents"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicle', href: paths.dashboard.vehicle.root },
-          { name: 'Documents' },
-        ]}
         action={
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="bytesize:upload" />}
-            onClick={addDialog.onTrue}
-          >
-            Upload
-          </Button>
-        }
-        sx={{ mb: { xs: 2, md: 2 } }}
-      />
-      <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={view}
-          onChange={(_e, v) => v && setView(v)}
-        >
-          <ToggleButton value="list" aria-label="List view">
-            <Iconify icon="material-symbols:list-rounded" />
-          </ToggleButton>
-          <ToggleButton value="grid" aria-label="Grid view">
-            <Iconify icon="ph:dots-nine-bold" />
-          </ToggleButton>
-        </ToggleButtonGroup>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="bytesize:upload" />}
+              onClick={addDialog.onTrue}
+              size='small'
+            >
+              Upload
+            </Button>
 
-      </Stack>
+            <ToggleButtonGroup
+              exclusive
+              size="small"
+              value={view}
+              onChange={(_e, v) => v && setView(v)}
+            >
+              <ToggleButton value="list" aria-label="List view">
+                <Iconify icon="material-symbols:list-rounded" />
+              </ToggleButton>
+              <ToggleButton value="grid" aria-label="Grid view">
+                <Iconify icon="ph:dots-nine-bold" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        }
+        sx={{ mb: { xs: 1, md: 1 } }}
+      />
 
       {view === 'list' ? (
         <Card>
@@ -186,7 +183,10 @@ export function VehicleDocumentsListView() {
                   isLoading ? (
                     <CircularProgress size={16} />
                   ) : (
-                    <Label variant={tab.value === filters.status ? 'filled' : 'soft'} color={tab.color}>
+                    <Label
+                      variant={tab.value === filters.status ? 'filled' : 'soft'}
+                      color={tab.color}
+                    >
                       {tab.count}
                     </Label>
                   )
@@ -226,16 +226,14 @@ export function VehicleDocumentsListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  headLabel={visibleHeaders}
-                  onOrderChange={moveColumn}
-                />
+                <TableHeadCustom headLabel={visibleHeaders} onOrderChange={moveColumn} />
                 <TableBody>
                   {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
                       <DocumentsTableRow
                         key={row._id}
@@ -272,7 +270,11 @@ export function VehicleDocumentsListView() {
       />
 
       {view === 'list' && (
-        <DocumentDetailsDrawer open={!!detailsDoc} onClose={() => setDetailsDoc(null)} doc={detailsDoc} />
+        <DocumentDetailsDrawer
+          open={!!detailsDoc}
+          onClose={() => setDetailsDoc(null)}
+          doc={detailsDoc}
+        />
       )}
     </DashboardContent>
   );
