@@ -142,14 +142,12 @@ export function VehicleDocumentsListView() {
           { name: 'Documents' },
         ]}
         action={
-
-
           <Button
             variant="contained"
-            startIcon={<Iconify icon="eva:plus-fill" />}
+            startIcon={<Iconify icon="bytesize:upload" />}
             onClick={addDialog.onTrue}
           >
-            Add Document
+            Upload
           </Button>
         }
         sx={{ mb: { xs: 2, md: 2 } }}
