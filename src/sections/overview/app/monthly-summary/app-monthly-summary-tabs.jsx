@@ -86,12 +86,12 @@ export function AppMonthlySummaryTabs() {
           key={t.value}
           value={t.value}
           label={
-            <Box sx={{ width: 1, display: 'flex', gap: { xs: 1, md: 2 }, flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'center', md: 'flex-start' } }}>
+            <Box sx={{ width: 1, display: 'flex', gap: { xs: 1, md: 2 }, flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'center', md: 'center' } }}>
               <Box sx={{ alignItems: 'center', justifyContent: 'center', color: 'primary.main', display: { xs: 'none', md: 'inline-flex' } }}>
                 {t.icon}
               </Box>
               <div>
-                <Box sx={{ mb: 0.5, gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}>{t.label}</Box>
+                <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}>{t.label}</Box>
               </div>
             </Box>
           }

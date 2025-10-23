@@ -14,6 +14,8 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 
+import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
+
 import { useTenantContext } from 'src/auth/tenant';
 
 import TripSheetPdf from '../pdfs/trip-sheet-pdf';
@@ -23,7 +25,6 @@ import SimpleSubtripList from '../basic-subtrip-table';
 import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
-import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
 
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
