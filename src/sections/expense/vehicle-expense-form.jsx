@@ -36,7 +36,6 @@ export const ExpenseSchema = zod.object({
   slipNo: zod.string().min(1, { message: 'Slip No is required' }),
   remarks: zod.string().optional(),
   paidThrough: zod.string().min(1, { message: 'Paid Through is required' }),
-  authorisedBy: zod.string().min(1, { message: 'Authorised By is required' }),
 });
 // ------------------------------------------------------------------------
 
@@ -62,7 +61,6 @@ export default function VehicleExpenseForm({ currentExpense }) {
       slipNo: currentExpense?.slipNo || '',
       remarks: currentExpense?.remarks || '',
       paidThrough: currentExpense?.paidThrough || '',
-      authorisedBy: currentExpense?.authorisedBy || '',
     }),
     [currentExpense]
   );
@@ -173,7 +171,6 @@ export default function VehicleExpenseForm({ currentExpense }) {
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Text name="authorisedBy" label="Authorised By" />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
