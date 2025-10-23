@@ -1,12 +1,9 @@
 import dayjs from 'dayjs';
-import { useState } from 'react';
 
-import Card from '@mui/material/Card';
+import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
-import MenuItem from '@mui/material/MenuItem';
 import TableBody from '@mui/material/TableBody';
-import CardHeader from '@mui/material/CardHeader';
-import { Link, Select, TableRow, TableCell, FormControl } from '@mui/material';
+import { Link, TableRow, TableCell } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -18,43 +15,13 @@ import { useCustomerMonthlyFreight } from 'src/query/use-dashboard';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-export function CustomerFreightTable({ title, subheader, ...other }) {
-  // get current year/month
-  const today = dayjs();
-  const currentMonthIndex = today.month(); // 0-based
+export function CustomerFreightTable({ month, ...other }) {
+  const effectiveMonth = month || dayjs().format('YYYY-MM');
 
-  // build list of { label: 'Jan-2025', value: '2025-01' } up to current month
-  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-    const m = today.month(i);
-    return {
-      label: m.format('MMM-YYYY'),
-      value: m.format('YYYY-MM'),
-    };
-  });
-
-  // selected value is the API format 'YYYY-MM'
-  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
-
-  const { data: summary = [], isLoading } = useCustomerMonthlyFreight(selectedMonth);
+  const { data: summary = [], isLoading } = useCustomerMonthlyFreight(effectiveMonth);
 
   return (
-    <Card {...other}>
-      <CardHeader
-        title={title}
-        subheader={subheader}
-        sx={{ mb: 3 }}
-        action={
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-              {monthOptions.map(({ label, value }) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        }
-      />
+    <Box {...other}>
 
       <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
         <Table sx={{ minWidth: 680 }}>
@@ -94,7 +61,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                     <TableCell align="center">
                       <Link
                         component={RouterLink}
-                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=loaded`}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}&subtripStatus=loaded`}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}
@@ -105,7 +72,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                     <TableCell align="center">
                       <Link
                         component={RouterLink}
-                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=error`}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}&subtripStatus=error`}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}
@@ -116,7 +83,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                     <TableCell align="center">
                       <Link
                         component={RouterLink}
-                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=received`}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}&subtripStatus=received`}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}
@@ -127,7 +94,7 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
                     <TableCell align="center">
                       <Link
                         component={RouterLink}
-                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${selectedMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${selectedMonth}-01`).endOf('month').toISOString()}&subtripStatus=billed`}
+                        to={`${paths.dashboard.subtrip.list}?customerId=${row.customerId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}&subtripStatus=billed`}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}
@@ -165,6 +132,6 @@ export function CustomerFreightTable({ title, subheader, ...other }) {
           </TableBody>
         </Table>
       </Scrollbar>
-    </Card>
+    </Box>
   );
 }

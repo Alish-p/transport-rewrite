@@ -12,20 +12,16 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import { AppWelcome } from '../app-welcome';
 import { AppFeatured } from '../app-featured';
-import { TopRoutesTable } from '../app-top-routes-table';
 import { DashboardTotalWidget } from '../app-total-widget';
+import { AppMonthlySummaryTabs } from '../monthly-summary';
 import { FinancialMonthlyChart } from '../app-finance-charts';
 import { InvoicePiechartWidget } from '../app-invoice-pie-chart';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
-import { DriverInsightsTable } from '../app-driver-insights-table';
 import { AppDailySummaryWidget } from '../app-daily-summary-widget';
-import { CustomerFreightTable } from '../app-customer-freight-table';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
-import { VehicleInsightsTable } from '../app-vehicle-insights-table';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
-import { TransporterInsightsTable } from '../app-transporter-insights-table';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
@@ -219,6 +215,7 @@ export function OverviewAppView({
           <Grid xs={12} md={6} lg={4}>
             <VehicleDocumentsPieChart
               title="Vehicle Documents"
+              subheader="Status of vehicle documents in the fleet"
               chart={{
                 series: [
                   { label: 'Missing', value: vehicleDocsSummary?.missing ?? 0 },
@@ -232,35 +229,7 @@ export function OverviewAppView({
         )}
 
         <Grid xs={12} md={12}>
-          <CustomerFreightTable
-            title="📦 Customer-wise Summary"
-            subheader="Shows total weight transferred and freight amount for each customer."
-          />
-        </Grid>
-
-        <Grid xs={12} md={12}>
-          <TopRoutesTable title="🛣️ Top Routes" subheader="Most frequently travelled routes" />
-        </Grid>
-
-        <Grid xs={12} md={12}>
-          <TransporterInsightsTable
-            title="🚛 Transporter Insights"
-            subheader="Jobs completed by each transporter"
-          />
-        </Grid>
-
-        <Grid xs={12} md={12}>
-          <VehicleInsightsTable
-            title="🚚 Vehicle Insights"
-            subheader="Jobs completed by each vehicle"
-          />
-        </Grid>
-
-        <Grid xs={12} md={12}>
-          <DriverInsightsTable
-            title="👷 Driver Insights"
-            subheader="Jobs completed by each driver"
-          />
+          <AppMonthlySummaryTabs />
         </Grid>
 
         <Grid xs={12} lg={6}>

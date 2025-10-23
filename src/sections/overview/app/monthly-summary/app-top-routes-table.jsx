@@ -1,11 +1,10 @@
+import Box from '@mui/material/Box';
 import { Link } from '@mui/material';
-import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import CardHeader from '@mui/material/CardHeader';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -15,12 +14,11 @@ import { useTopRoutes } from 'src/query/use-dashboard';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-export function TopRoutesTable({ title, subheader, ...other }) {
+export function TopRoutesTable({ ...other }) {
   const { data: routes = [], isLoading } = useTopRoutes();
 
   return (
-    <Card {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
+    <Box {...other}>
 
       <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
         <Table sx={{ minWidth: 680 }}>
@@ -70,6 +68,6 @@ export function TopRoutesTable({ title, subheader, ...other }) {
           </TableBody>
         </Table>
       </Scrollbar>
-    </Card>
+    </Box>
   );
 }
