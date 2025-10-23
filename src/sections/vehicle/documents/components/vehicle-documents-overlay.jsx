@@ -23,6 +23,7 @@ import { useInfiniteDocuments } from 'src/query/use-documents';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
+import { TableNoData } from 'src/components/table/table-no-data';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
@@ -130,14 +131,12 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
 
   return (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
-      <DialogTitle sx={{ pr: 2.5 }}>
+      <DialogTitle  >
         Documents — {vehicle?.vehicleNo}
         <Typography component="span" sx={{ color: 'text.secondary', ml: 1 }}>
           ({total})
         </Typography>
-      </DialogTitle>
-      <DialogContent sx={{ pt: 1 }}>
-        <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ mb: 2 }}>
+        <Stack direction="row" alignItems="center" justifyContent="flex-end" >
           <FormControlLabel
             sx={{ ml: 'auto' }}
             control={
@@ -149,49 +148,57 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
             label="Include inactive"
           />
         </Stack>
+
+      </DialogTitle>
+      <DialogContent sx={{ height: 400, display: 'flex', flexDirection: 'column' }}>
+
         {isLoading ? (
           <LoadingSpinner sx={{ height: 320 }} />
         ) : (
-          <Scrollbar sx={{ maxHeight: 520, px: 0.5 }}>
-            <Table size="small" sx={{ minWidth: 960 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Number</TableCell>
-                  <TableCell>Issue</TableCell>
-                  <TableCell>Expiry</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Active</TableCell>
-                  <TableCell align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {docs.map((d) => (
-                  <TableRow key={d._id} hover>
-                    <TableCell sx={{ textTransform: 'capitalize' }}>{d.docType}</TableCell>
-                    <TableCell>{d.docNumber || '-'}</TableCell>
-                    <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
-                    <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
-                    <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
-                    <TableCell>{d.isActive ? 'Yes' : 'No'}</TableCell>
-                    <TableCell align="center">
-                      <Button size="small" onClick={() => handleDownload(d)} startIcon={<Iconify icon="eva:download-outline" />}>Download</Button>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <Scrollbar fillContent sx={{ height: 1, px: 0.5 }}>
+              <Table size="small" sx={{ minWidth: 960 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Number</TableCell>
+                    <TableCell>Issue</TableCell>
+                    <TableCell>Expiry</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Active</TableCell>
+                    <TableCell align="center">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {docs.map((d) => (
+                    <TableRow key={d._id} hover>
+                      <TableCell sx={{ textTransform: 'capitalize' }}>{d.docType}</TableCell>
+                      <TableCell>{d.docNumber || '-'}</TableCell>
+                      <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
+                      <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
+                      <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
+                      <TableCell>{d.isActive ? 'Yes' : 'No'}</TableCell>
+                      <TableCell align="center">
+                        <Button size="small" onClick={() => handleDownload(d)} startIcon={<Iconify icon="eva:download-outline" />}>Download</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  {docs.length === 0 && <TableNoData notFound />}
+
+                  <TableRow>
+                    <TableCell colSpan={7}>
+                      <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
+                        {isFetchingNextPage && <LoadingSpinner />}
+                      </Box>
                     </TableCell>
                   </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell colSpan={7}>
-                    <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
-                      {isFetchingNextPage && <LoadingSpinner />}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Scrollbar>
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </Box>
         )}
       </DialogContent>
     </Dialog>
   );
 }
-
