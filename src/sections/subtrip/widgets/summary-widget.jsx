@@ -15,6 +15,7 @@ import { Iconify } from 'src/components/iconify';
 export default function AnalyticsWidgetSummary({
   title,
   total,
+  subtext,
   icon,
   color = 'primary',
   sx,
@@ -56,6 +57,12 @@ export default function AnalyticsWidgetSummary({
       <Typography variant="subtitle2" sx={{ opacity: 0.64 }}>
         {title}
       </Typography>
+
+      {subtext ? (
+        <Typography variant="body2" sx={{ opacity: 0.56 }}>
+          {subtext}
+        </Typography>
+      ) : null}
     </Card>
   );
 }

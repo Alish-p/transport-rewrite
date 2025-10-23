@@ -23,6 +23,7 @@ import SimpleSubtripList from '../basic-subtrip-table';
 import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
+import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
 
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
@@ -44,9 +45,18 @@ function getTripDashboardData(trip) {
     trip?.subtrips?.reduce((sum, subtrip) => {
       const dieselExpenses =
         subtrip.expenses
-          ?.filter((expense) => expense.expenseType === 'fuel')
-          .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
+          ?.filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
+          .reduce((subSum, expense) => subSum + (expense.amount || 0), 0) || 0;
       return sum + dieselExpenses;
+    }, 0) || 0;
+
+  const totalDieselLtr =
+    trip?.subtrips?.reduce((sum, subtrip) => {
+      const dieselLtrs =
+        subtrip.expenses
+          ?.filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
+          .reduce((subSum, expense) => subSum + (expense.dieselLtr || 0), 0) || 0;
+      return sum + dieselLtrs;
     }, 0) || 0;
 
   const totalKm =
@@ -61,6 +71,7 @@ function getTripDashboardData(trip) {
     totalExpenses,
     totalIncome,
     totalDieselAmt,
+    totalDieselLtr,
     totalKm,
   };
 }
@@ -70,7 +81,7 @@ function getTripDashboardData(trip) {
 export function TripDetailView({ trip }) {
   const navigate = useNavigate();
 
-  const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalKm } =
+  const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalDieselLtr, totalKm } =
     getTripDashboardData(trip);
 
   const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips, tripNo } = trip;
@@ -211,6 +222,7 @@ export function TripDetailView({ trip }) {
               <AnalyticsWidgetSummary
                 title="Total Diesel Amount"
                 total={totalDieselAmt}
+                subtext={`${totalDieselLtr || 0} Ltr`}
                 color="warning"
                 icon="ant-design:fire-filled"
                 sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
