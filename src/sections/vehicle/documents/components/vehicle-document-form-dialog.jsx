@@ -229,16 +229,17 @@ export default function VehicleDocumentFormDialog({
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{isEdit ? 'Edit Vehicle Document' : 'Add Vehicle Document'}</DialogTitle>
       <DialogContent dividers>
-        <DialogSelectButton
-          onClick={vehicleDialog.onTrue}
-          placeholder="Choose vehicle"
-          selected={selectedVehicleLabel}
-          iconName="mdi:truck"
-          disabled={isEdit || disableVehicleSelection}
-        />
 
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
+            <DialogSelectButton
+              onClick={vehicleDialog.onTrue}
+              placeholder="Choose vehicle"
+              selected={selectedVehicleLabel}
+              iconName="mdi:truck"
+              disabled={isEdit || disableVehicleSelection}
+            />
+
             <Field.Autocomplete
               name="docType"
               label="Type"
