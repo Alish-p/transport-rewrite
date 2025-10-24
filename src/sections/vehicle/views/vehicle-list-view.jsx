@@ -278,7 +278,7 @@ export function VehicleListView() {
                   >
                     {({ loading }) => (
                       <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
                       </IconButton>
                     )}
                   </PDFDownloadLink>

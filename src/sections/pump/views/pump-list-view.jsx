@@ -108,7 +108,7 @@ export function PumpListView() {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -217,7 +217,7 @@ export function PumpListView() {
                         );
                       }}
                     >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                      <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
                   </Tooltip>
 
@@ -244,13 +244,11 @@ export function PumpListView() {
                     >
                       {({ loading }) => (
                         <IconButton color="primary">
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
                         </IconButton>
                       )}
                     </PDFDownloadLink>
                   </Tooltip>
-
-                  
 
                   <Tooltip title="Delete">
                     <IconButton color="primary" onClick={confirm.onTrue}>
@@ -281,22 +279,22 @@ export function PumpListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
-                        <PumpTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deletePump(row._id)}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
-                          columnOrder={columnOrder}
-                        />
-                      ))}
+                      <PumpTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deletePump(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
