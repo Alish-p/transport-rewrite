@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -21,6 +22,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import BankListPdf from 'src/pdfs/bank-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteBank, usePaginatedBanks } from 'src/query/use-bank';
 
@@ -37,6 +39,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import BankTableRow from '../bank-table-row';
 import BankTableToolbar from '../bank-table-toolbar';
 import { TABLE_COLUMNS } from '../bank-table-config';
@@ -49,6 +53,7 @@ const defaultFilters = {
 };
 
 export function BankListView() {
+  const tenant = useTenantContext();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
@@ -90,6 +95,14 @@ export function BankListView() {
   const totalCount = data?.total || 0;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.bank.edit(paramCase(id)));
@@ -171,16 +184,14 @@ export function BankListView() {
               }
               action={
                 <Stack direction="row">
-                  <Tooltip title="Download">
+                  <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
                       onClick={() => {
                         const selectedRows = tableData.filter((r) =>
                           table.selected.includes(r._id)
                         );
-                        const visibleCols = Object.keys(visibleColumns).filter(
-                          (c) => visibleColumns[c]
-                        );
+                        const visibleCols = getVisibleColumnsForExport();
                         exportToExcel(
                           prepareDataForExport(
                             selectedRows,
@@ -192,8 +203,36 @@ export function BankListView() {
                         );
                       }}
                     >
-                      <Iconify icon="eva:download-outline" />
+                      <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        return (
+                          <BankListPdf
+                            banks={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Bank-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'}
+                          />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
                   </Tooltip>
                 </Stack>
               }

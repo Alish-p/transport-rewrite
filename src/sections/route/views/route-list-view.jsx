@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -24,6 +25,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import RouteListPdf from 'src/pdfs/route-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteRoute, usePaginatedRoutes } from 'src/query/use-route';
 
@@ -39,6 +41,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import RouteTableRow from '../route-table-row';
 import { TABLE_COLUMNS } from '../route-table-config';
@@ -56,6 +60,7 @@ const defaultFilters = {
 };
 
 export function RouteListView() {
+  const tenant = useTenantContext();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const theme = useTheme();
@@ -242,7 +247,7 @@ export function RouteListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
@@ -258,8 +263,27 @@ export function RouteListView() {
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      return <RouteListPdf routes={selectedRows} tenant={tenant} />;
+                    })()}
+                    fileName="Route-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }

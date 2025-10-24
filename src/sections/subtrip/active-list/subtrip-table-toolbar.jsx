@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -17,9 +16,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import SubtripListPdf from 'src/pdfs/subtrip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -35,8 +31,6 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { useTenantContext } from 'src/auth/tenant';
-
 import { TABLE_COLUMNS } from '../config/table-columns';
 
 // ----------------------------------------------------------------------
@@ -44,12 +38,10 @@ import { TABLE_COLUMNS } from '../config/table-columns';
 export default function SubtripTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
   selectedCustomer,
@@ -63,10 +55,8 @@ export default function SubtripTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
   const materialPopover = usePopover();
-  const tenant = useTenantContext();
 
   const materialOptions = useMaterialOptions();
 
@@ -281,10 +271,6 @@ export default function SubtripTableToolbar({
               </IconButton>
             </span>
           </Tooltip>
-
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
         </Stack>
       </Stack>
 
@@ -303,60 +289,7 @@ export default function SubtripTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={(() => {
-                const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-                return (
-                  <SubtripListPdf
-                    subtrips={tableData}
-                    visibleColumns={visibleCols}
-                    tenant={tenant}
-                  />
-                );
-              })()}
-              fileName="Job-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'subtrip-list'
-              );
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      
 
       <CustomPopover
         open={materialPopover.open}

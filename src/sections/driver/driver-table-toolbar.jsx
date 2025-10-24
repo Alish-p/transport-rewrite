@@ -1,23 +1,15 @@
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
+import { Tooltip } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import { Tooltip, MenuList } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import DriverListPdf from 'src/pdfs/driver-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from './driver-table-config';
 
@@ -33,9 +25,7 @@ export default function DriverTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
 
   const handleFilterSearch = useCallback(
     (event) => {
@@ -86,9 +76,7 @@ export default function DriverTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -107,52 +95,7 @@ export default function DriverTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={<DriverListPdf drivers={tableData} tenant={tenant} />}
-              fileName="Driver-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Drivers-list'
-              );
-
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
     </>
   );
 }

@@ -14,6 +14,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 
+import { getTripTotalKm } from 'src/sections/trip/utils/trip-utils';
 import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
 
 import { useTenantContext } from 'src/auth/tenant';
@@ -60,11 +61,7 @@ function getTripDashboardData(trip) {
       return sum + dieselLtrs;
     }, 0) || 0;
 
-  const totalKm =
-    trip?.subtrips?.reduce((sum, subtrip) => {
-      const kmCovered = (subtrip.endKm || 0) - (subtrip.startKm || 0);
-      return sum + kmCovered;
-    }, 0) || 0;
+  const totalKm = getTripTotalKm(trip);
 
   return {
     totalTrips,

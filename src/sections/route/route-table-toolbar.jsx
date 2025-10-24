@@ -1,20 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import { Tooltip } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Tooltip, MenuList, MenuItem } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import RouteListPdf from 'src/pdfs/route-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
@@ -22,8 +17,6 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from './route-table-config';
 
@@ -41,9 +34,7 @@ export default function RouteTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
   const customerDialog = useBoolean();
 
   const handleFilterRouteName = useCallback(
@@ -151,9 +142,7 @@ export default function RouteTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -172,51 +161,7 @@ export default function RouteTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={<RouteListPdf routes={tableData} tenant={tenant} />}
-              fileName="Route-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Routes-list'
-              );
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
 
       <KanbanCustomerDialog
         open={customerDialog.value}

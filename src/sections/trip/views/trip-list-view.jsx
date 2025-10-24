@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -22,6 +23,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import TripListPdf from 'src/pdfs/trip-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteTrip, usePaginatedTrips } from 'src/query/use-trip';
 
@@ -37,6 +39,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import TripTableRow from '../trip-table-row';
 import TripTableToolbar from '../trip-table-toolbar';
@@ -60,6 +64,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function TripListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
@@ -111,6 +116,14 @@ export function TripListView() {
   const totalCount = data?.total || 0;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: data?.total },
@@ -255,23 +268,21 @@ export function TripListView() {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = getVisibleColumnsForExport();
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Trips-selected'
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
                 </Tooltip>
 
@@ -279,6 +290,28 @@ export function TripListView() {
                   <IconButton color="primary">
                     <Iconify icon="solar:printer-minimalistic-bold" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const visibleCols = getVisibleColumnsForExport();
+                      return (
+                        <TripListPdf trips={selectedRows} visibleColumns={visibleCols} tenant={tenant} />
+                      );
+                    })()}
+                    fileName="Trip-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
 
                 <Tooltip title="Delete">

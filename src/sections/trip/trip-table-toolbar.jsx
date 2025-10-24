@@ -1,29 +1,21 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 // components
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
+import { Tooltip } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import { Tooltip, MenuList } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import TripListPdf from 'src/pdfs/trip-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from './trip-table-config';
 import { fDateRangeShortLabel } from '../../utils/format-time';
@@ -51,9 +43,7 @@ export default function TripTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
   const subtripDialog = useBoolean();
@@ -186,9 +176,7 @@ export default function TripTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -207,56 +195,7 @@ export default function TripTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={
-                <TripListPdf
-                  trips={tableData}
-                  visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
-                  tenant={tenant}
-                />
-              }
-              fileName="Trip-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Trips-list'
-              );
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
 
       <KanbanDriverDialog
         open={driverDialog.value}

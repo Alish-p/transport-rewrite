@@ -17,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 // _mock
 
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -29,6 +30,7 @@ import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import TransporterListPdf from 'src/pdfs/transport-list-pdf';
 import { useDeleteTransporter, usePaginatedTransporters } from 'src/query/use-transporter';
 
 import { Label } from 'src/components/label';
@@ -43,6 +45,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import TransporterTableRow from '../transport-table-row';
 import { TABLE_COLUMNS } from '../transporter-table-config';
@@ -60,6 +64,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function TransporterListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
@@ -109,6 +114,14 @@ export function TransporterListView() {
   const TABS = [{ value: 'all', label: 'All', color: 'default', count: totalCount }];
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporter.edit(paramCase(id)));
@@ -216,22 +229,46 @@ export function TransporterListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = getVisibleColumnsForExport();
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporters-selected'
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = getVisibleColumnsForExport();
+                      return (
+                        <TransporterListPdf
+                          transporters={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Transporter-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }

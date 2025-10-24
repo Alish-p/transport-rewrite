@@ -1,53 +1,22 @@
-import { Page, Font, Document } from '@react-pdf/renderer';
+import { TABLE_COLUMNS } from 'src/sections/bank/bank-table-config';
 
-import { fDate } from 'src/utils/format-time';
-
-import {
-  PDFTitle,
-  PDFTable,
-  PDFHeader,
-  PDFFooter,
-  PDFStyles,
-  PDFEmptyLine,
-  PDFDeclaration,
-} from 'src/pdfs/common';
+import GenericListPdf from './generic-list-pdf';
 
 // ----------------------------------------------------------------------
 
-Font.register({
-  family: 'Roboto',
-  fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
-});
-
-export default function BankListPdf({ banks, tenant }) {
-  const renderBankTable = () => {
-    const headers = ['S.No', 'Bank Name', 'Branch', 'Place', 'IFSC'];
-
-    const data = banks.map((bank, index) => [
-      index + 1,
-      bank.name,
-      bank.branch,
-      bank.place,
-      bank.ifsc,
-    ]);
-
-    const columnWidths = [1, 3, 3, 3, 2];
-
-    return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
-  };
+export default function BankListPdf({ banks, tenant, visibleColumns = [] }) {
+  const defaultIds = ['name', 'branch', 'place', 'ifsc'];
+  const ids = visibleColumns.length ? visibleColumns : defaultIds;
+  const columnsToShow = ids.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean);
 
   return (
-    <Document>
-      <Page size="A4" style={PDFStyles.page} orientation="portrait">
-        <PDFTitle title="Bank List" />
-        <PDFHeader company={tenant} />
-        <PDFDeclaration
-          content={`This report contains a list of all banks in the system as of ${fDate(new Date())}.`}
-        />
-        <PDFEmptyLine />
-        {renderBankTable()}
-        <PDFFooter additionalInfo={`Total Banks: ${banks.length}`} />
-      </Page>
-    </Document>
+    <GenericListPdf
+      title="Bank List"
+      rows={banks}
+      columns={columnsToShow}
+      orientation="portrait"
+      tenant={tenant}
+      visibleColumns={ids}
+    />
   );
 }

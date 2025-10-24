@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -24,6 +25,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import DriverListPdf from 'src/pdfs/driver-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteDriver, usePaginatedDrivers } from 'src/query/use-driver';
 
@@ -40,6 +42,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import DriverTableRow from '../driver-table-row';
 import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
@@ -53,6 +57,7 @@ const defaultFilters = {
 };
 
 export function DriverListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
@@ -227,14 +232,12 @@ export function DriverListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = getVisibleColumnsForExport();
 
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
@@ -244,6 +247,32 @@ export function DriverListView() {
                   >
                     <Iconify icon="eva:download-outline" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = getVisibleColumnsForExport();
+                      return (
+                        <DriverListPdf
+                          drivers={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Driver-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }
@@ -307,3 +336,10 @@ export function DriverListView() {
     </DashboardContent>
   );
 }
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };

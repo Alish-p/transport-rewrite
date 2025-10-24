@@ -203,6 +203,10 @@ export function OverviewAppView({
           <AppDailySummaryWidget />
         </Grid>
 
+        <Grid xs={12} md={12}>
+          <AppMonthlySummaryTabs />
+        </Grid>
+
 
         <Grid xs={12} lg={8}>
           <SubtripExpiryTable
@@ -227,10 +231,6 @@ export function OverviewAppView({
             />
           </Grid>
         )}
-
-        <Grid xs={12} md={12}>
-          <AppMonthlySummaryTabs />
-        </Grid>
 
         <Grid xs={12} lg={6}>
           <AppMaterialWeightSummary title="Material summary" />

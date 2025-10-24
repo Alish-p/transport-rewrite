@@ -1,13 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import { Tooltip } from '@mui/material';
 import Switch from '@mui/material/Switch';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { Tooltip, MenuList } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -15,11 +13,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useTransporter } from 'src/query/use-transporter';
-import TransporterPaymentListPdf from 'src/pdfs/transporter-payment-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
@@ -30,8 +26,6 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 
@@ -49,9 +43,7 @@ export default function TransporterPaymentTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
   const dateDialog = useBoolean();
@@ -166,9 +158,7 @@ export default function TransporterPaymentTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -187,51 +177,7 @@ export default function TransporterPaymentTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={<TransporterPaymentListPdf payments={tableData} tenant={tenant} />}
-              fileName="Transporter-payment-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Transporter-payment-list'
-              );
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
 
       <KanbanTransporterDialog
         open={transporterDialog.value}

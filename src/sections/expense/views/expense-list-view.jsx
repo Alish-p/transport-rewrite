@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -27,6 +28,7 @@ import { paramCase } from 'src/utils/change-case';
 import { fShortenNumber } from 'src/utils/format-number';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteExpense, usePaginatedExpenses } from 'src/query/use-expense';
 
@@ -42,6 +44,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from '../expense-table-config';
 import ExpenseAnalytic from '../expense-list/expense-analytic';
@@ -70,6 +74,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function ExpenseListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ syncToUrl: true });
@@ -128,6 +133,13 @@ export function ExpenseListView() {
   const totalCount = totals.all?.count || 0;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const getPercentByCategory = (category) =>
     totalCount ? ((totals[category]?.count || 0) / totalCount) * 100 : 0;
@@ -405,23 +417,21 @@ export function ExpenseListView() {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter(({ _id }) =>
                         table.selected.includes(_id)
                       );
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = getVisibleColumnsForExport();
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Expense-selected-list'
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
                 </Tooltip>
 
@@ -429,6 +439,32 @@ export function ExpenseListView() {
                   <IconButton color="primary">
                     <Iconify icon="solar:printer-minimalistic-bold" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter(({ _id }) =>
+                        table.selected.includes(_id)
+                      );
+                      const visibleCols = getVisibleColumnsForExport();
+                      return (
+                        <ExpenseListPdf
+                          expenses={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Expense-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }

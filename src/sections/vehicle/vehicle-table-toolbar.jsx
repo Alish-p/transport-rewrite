@@ -1,26 +1,21 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import { Tooltip } from '@mui/material';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
-import { Tooltip, MenuList } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
@@ -28,8 +23,6 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { vehicleTypes } from './vehicle-config';
 import { TABLE_COLUMNS } from './vehicle-table-config';
@@ -50,9 +43,7 @@ export default function VehicleTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
   const transporterDialog = useBoolean();
 
   const handleSelectTransporter = useCallback(
@@ -173,9 +164,7 @@ export default function VehicleTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -194,52 +183,7 @@ export default function VehicleTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-        anchorEl={popover.anchorEl}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={<VehicleListPdf vehicles={tableData} tenant={tenant} />}
-              fileName="Vehicle-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Vehicles-list'
-              );
-
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
 
       <KanbanTransporterDialog
         open={transporterDialog.value}

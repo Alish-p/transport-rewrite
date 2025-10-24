@@ -6,6 +6,8 @@ import { fDate, fDateTime, fDaysDuration } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { getTripTotalKm } from 'src/sections/trip/utils/trip-utils';
+
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 
 Font.register({
@@ -152,7 +154,7 @@ export default function TripSheetPdf({ trip, tenant }) {
   );
 
   // Calculate total distance (moved to Trip) and diesel consumption
-  const totalKm = (Number(tripEndKm) || 0) - (Number(tripStartKm) || 0);
+  const totalKm = getTripTotalKm(trip);
   const totalDiesel = subtrips.reduce(
     (sum, st) =>
       sum +

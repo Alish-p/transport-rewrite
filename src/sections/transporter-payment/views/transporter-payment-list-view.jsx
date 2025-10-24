@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -23,6 +24,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import TransporterPaymentListPdf from 'src/pdfs/transporter-payment-list-pdf';
 import {
   useDeleteTransporterPayment,
   usePaginatedTransporterPayments,
@@ -40,6 +42,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
@@ -59,6 +63,7 @@ const defaultFilters = {
 };
 
 export function TransporterPaymentListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
@@ -216,22 +221,52 @@ export function TransporterPaymentListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = (columnOrder && columnOrder.length
+                        ? columnOrder
+                        : Object.keys(visibleColumns))
+                        .filter((id) => visibleColumns[id]);
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporter-payment-selected'
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = (columnOrder && columnOrder.length
+                        ? columnOrder
+                        : Object.keys(visibleColumns))
+                        .filter((id) => visibleColumns[id]);
+                      return (
+                        <TransporterPaymentListPdf
+                          payments={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Transporter-payment-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }

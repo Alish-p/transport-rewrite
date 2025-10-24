@@ -19,7 +19,9 @@ export default function PDFTable({
   };
 
   const renderHeader = () => (
-    <View style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight]}>
+    <View
+      style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight, { justifyContent: 'flex-start' }]}
+    >
       {headers.map((header, index) => (
         <View
           key={index}
@@ -43,6 +45,7 @@ export default function PDFTable({
         PDFStyles.border,
         PDFStyles.noBorderTop,
         !showBorders && PDFStyles.noBorder,
+        { justifyContent: 'flex-start' },
       ]}
     >
       {rowData.map((cell, cellIndex) => (
@@ -63,7 +66,13 @@ export default function PDFTable({
   const renderFooter = () =>
     tableFooter ? (
       <View
-        style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.noBorderTop, PDFStyles.bgDark]}
+        style={[
+          PDFStyles.gridContainer,
+          PDFStyles.border,
+          PDFStyles.noBorderTop,
+          PDFStyles.bgDark,
+          { justifyContent: 'flex-start' },
+        ]}
       >
         {tableFooter.map((footerCell, index) => (
           <View

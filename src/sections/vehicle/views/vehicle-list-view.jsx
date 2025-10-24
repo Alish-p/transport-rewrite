@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -25,6 +26,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
 
@@ -40,6 +42,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import VehicleTableRow from '../vehicle-table-row';
 import { TABLE_COLUMNS } from '../vehicle-table-config';
@@ -57,6 +61,7 @@ const defaultFilters = {
 };
 
 export function VehicleListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
@@ -126,6 +131,14 @@ export function VehicleListView() {
     resetFilters();
     setSelectedTransporter(null);
   }, [resetFilters]);
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   // Render tabs
   const renderTabs = () => {
@@ -230,14 +243,12 @@ export function VehicleListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Download">
+                <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = Object.keys(visibleColumns).filter(
-                        (c) => visibleColumns[c]
-                      );
+                      const visibleCols = getVisibleColumnsForExport();
 
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
@@ -245,8 +256,34 @@ export function VehicleListView() {
                       );
                     }}
                   >
-                    <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = getVisibleColumnsForExport();
+                      return (
+                        <VehicleListPdf
+                          vehicles={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Vehicle-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
                 </Tooltip>
               </Stack>
             }

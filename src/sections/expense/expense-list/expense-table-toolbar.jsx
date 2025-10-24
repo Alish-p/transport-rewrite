@@ -10,16 +10,12 @@ import ListItemText from '@mui/material/ListItemText';
 // @mui
 // components
 
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { Tooltip, MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -68,7 +64,6 @@ export default function ExpenseTableToolbar({
   selectedRoute,
   onSelectRoute,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
   const tenant = useTenantContext();
@@ -266,9 +261,7 @@ export default function ExpenseTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -305,57 +298,7 @@ export default function ExpenseTableToolbar({
         </Scrollbar>
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem>
-            <PDFDownloadLink
-              document={
-                <ExpenseListPdf
-                  expenses={tableData}
-                  visibleColumns={Object.keys(visibleColumns).filter((c) => visibleColumns[c])}
-                  tenant={tenant}
-                />
-              }
-              fileName="Expense-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Expense-list'
-              );
-
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
 
       <KanbanVehicleDialog
         open={vehicleDialog.value}

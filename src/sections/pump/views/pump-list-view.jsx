@@ -1,3 +1,4 @@
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -25,6 +26,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import PumpListPdf from 'src/pdfs/pump-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeletePump, usePaginatedPumps } from 'src/query/use-pump';
 
@@ -40,6 +42,8 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import PumpTableRow from '../pump-table-row';
 import PumpTableToolbar from '../pump-table-toolbar';
@@ -57,6 +61,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function PumpListView() {
+  const tenant = useTenantContext();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
@@ -197,16 +202,17 @@ export function PumpListView() {
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Download">
+                  <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
                       onClick={() => {
                         const selectedRows = tableData.filter((r) =>
                           table.selected.includes(r._id)
                         );
-                        const visibleCols = Object.keys(visibleColumns).filter(
-                          (c) => visibleColumns[c]
-                        );
+                        const visibleCols = (columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns))
+                          .filter((id) => visibleColumns[id]);
                         exportToExcel(
                           prepareDataForExport(
                             selectedRows,
@@ -218,8 +224,37 @@ export function PumpListView() {
                         );
                       }}
                     >
-                      <Iconify icon="eva:download-outline" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = (columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns))
+                          .filter((id) => visibleColumns[id]);
+                        return (
+                          <PumpListPdf
+                            pumps={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Pump-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-outline'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
                   </Tooltip>
 
                   <Tooltip title="Print">

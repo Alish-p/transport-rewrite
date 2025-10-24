@@ -297,8 +297,13 @@ export function SubtripListView() {
   // Filter the table head based on visible columns and order
   const visibleTableHead = visibleHeaders;
 
-  const getVisibleColumnsForExport = () =>
-    TABLE_COLUMNS.filter((column) => visibleColumns[column.id]).map((column) => column.id);
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   return (
     <DashboardContent>
@@ -437,7 +442,7 @@ export function SubtripListView() {
                       );
                     }}
                   >
-                    <Iconify icon="vscode-icons:file-type-excel" />
+                    <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
                 </Tooltip>
 

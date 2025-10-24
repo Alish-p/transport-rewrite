@@ -1,68 +1,20 @@
-import { Page, Font, Document } from '@react-pdf/renderer';
+import { TABLE_COLUMNS } from 'src/sections/transporter/transporter-table-config';
 
-import { fDate } from 'src/utils/format-time';
+import GenericListPdf from './generic-list-pdf';
 
-import {
-  PDFTitle,
-  PDFTable,
-  PDFHeader,
-  PDFFooter,
-  PDFStyles,
-  PDFEmptyLine,
-  PDFDeclaration,
-} from 'src/pdfs/common';
-
-// ----------------------------------------------------------------------
-Font.register({
-  family: 'Roboto',
-  fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
-});
-
-export default function TransporterListPdf({ transporters, tenant }) {
-  const renderTransporterTable = () => {
-    const headers = [
-      'S.No',
-      'Transporter Name',
-      'Address',
-      'Place',
-      'Pin No',
-      'Cell No',
-      'Pan No',
-      'Owner Name',
-      'GST No',
-      'TDS Percentage',
-    ];
-
-    const data = transporters.map((transporter, index) => [
-      index + 1,
-      transporter.transportName,
-      transporter.address,
-      transporter.place,
-      transporter.pinNo,
-      transporter.cellNo,
-      transporter.panNo,
-      transporter.ownerName,
-      transporter.gstNo,
-      transporter.tdsPercentage,
-    ]);
-
-    const columnWidths = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
-
-    return <PDFTable headers={headers} data={data} columnWidths={columnWidths} />;
-  };
+export default function TransporterListPdf({ transporters, tenant, visibleColumns = [] }) {
+  const columnsToShow = (visibleColumns && visibleColumns.length
+    ? visibleColumns.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean)
+    : TABLE_COLUMNS.filter((c) => c.defaultVisible)) || [];
 
   return (
-    <Document>
-      <Page size="A3" style={PDFStyles.page} orientation="landscape">
-        <PDFTitle title="Transporter List" />
-        <PDFHeader company={tenant} />
-        <PDFDeclaration
-          content={`This report contains a list of all transporters in the system as of ${fDate(new Date())}.`}
-        />
-        <PDFEmptyLine />
-        {renderTransporterTable()}
-        <PDFFooter additionalInfo={`Total Transporters: ${transporters.length}`} />
-      </Page>
-    </Document>
+    <GenericListPdf
+      title="Transporter List"
+      rows={transporters}
+      columns={columnsToShow}
+      orientation="landscape"
+      tenant={tenant}
+      visibleColumns={visibleColumns}
+    />
   );
 }

@@ -192,7 +192,7 @@ export function LoansListView({ loans }) {
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Download">
+                  <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
                       onClick={() => {
@@ -202,7 +202,7 @@ export function LoansListView({ loans }) {
                         exportToExcel(selectedRows, 'filtered');
                       }}
                     >
-                      <Iconify icon="eva:download-outline" />
+                      <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
                   </Tooltip>
 

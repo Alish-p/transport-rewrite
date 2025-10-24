@@ -1,25 +1,17 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
+import { Tooltip } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import { Tooltip, MenuList } from '@mui/material';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
-
-import TransporterListPdf from 'src/pdfs/transport-list-pdf';
 
 import { Iconify } from 'src/components/iconify/';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-
-import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from './transporter-table-config';
 
@@ -37,9 +29,7 @@ export default function TransporterTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
-  const tenant = useTenantContext();
 
   const handleFilterSearch = useCallback(
     (event) => {
@@ -93,9 +83,7 @@ export default function TransporterTableToolbar({
             </span>
           </Tooltip>
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -114,52 +102,7 @@ export default function TransporterTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <PDFDownloadLink
-              document={<TransporterListPdf transporters={tableData} tenant={tenant} />}
-              fileName="Transporter-list.pdf"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <Iconify
-                    icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
-                    sx={{ mr: 2 }}
-                  />
-                  PDF
-                </>
-              )}
-            </PDFDownloadLink>
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              const visibleCols = Object.keys(visibleColumns).filter((c) => visibleColumns[c]);
-              exportToExcel(
-                prepareDataForExport(tableData, TABLE_COLUMNS, visibleCols, columnOrder),
-                'Transporters-list'
-              );
-
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="eva:download-fill" />
-            Excel
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {/* Removed export popover */}
     </>
   );
 }
