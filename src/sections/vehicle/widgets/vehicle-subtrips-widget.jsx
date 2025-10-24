@@ -115,7 +115,10 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
                     <TableCell>{row.customerId?.customerName || '-'}</TableCell>
                     <TableCell>{row.routeCd?.routeName || '-'}</TableCell>
                     <TableCell align="center">
-                      <Label variant="soft" color={SUBTRIP_STATUS_COLORS[row.subtripStatus] || 'default'}>
+                      <Label
+                        variant="soft"
+                        color={SUBTRIP_STATUS_COLORS[row.subtripStatus] || 'default'}
+                      >
                         {row.subtripStatus}
                       </Label>
                     </TableCell>

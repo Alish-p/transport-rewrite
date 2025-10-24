@@ -19,7 +19,6 @@ export function TopRoutesTable({ ...other }) {
 
   return (
     <Box {...other}>
-
       <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
         <Table sx={{ minWidth: 680 }}>
           <TableHeadCustom

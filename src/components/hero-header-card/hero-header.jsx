@@ -27,4 +27,3 @@ export function HeroHeader({ offsetTop = 70, wrapperSx, ...cardProps }) {
 }
 
 export default HeroHeader;
-

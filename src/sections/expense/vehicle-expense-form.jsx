@@ -148,9 +148,7 @@ export default function VehicleExpenseForm({ currentExpense }) {
                 {expenseTypes.map(({ label, icon }) => (
                   <MenuItem key={label} value={label}>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      {icon ? (
-                        <Iconify icon={icon} />
-                      ) : null}
+                      {icon ? <Iconify icon={icon} /> : null}
                       <Typography variant="body2" noWrap>
                         {label}
                       </Typography>

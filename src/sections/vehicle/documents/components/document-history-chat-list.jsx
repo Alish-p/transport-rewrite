@@ -39,16 +39,24 @@ const DocumentHistoryItem = ({ h, onDownload }) => {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: 80 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>File</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    File
+                  </Typography>
                 </TableCell>
                 <TableCell sx={{ width: 140 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>Doc#</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    Doc#
+                  </Typography>
                 </TableCell>
                 <TableCell sx={{ width: 180 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>Validity</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    Validity
+                  </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>Issuer</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    Issuer
+                  </Typography>
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -64,21 +72,17 @@ const DocumentHistoryItem = ({ h, onDownload }) => {
                   />
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption">
-                    {h?.docNumber || '-'}
-                  </Typography>
+                  <Typography variant="caption">{h?.docNumber || '-'}</Typography>
                 </TableCell>
                 <TableCell>
                   <Typography variant="caption">
-                    {(h?.issueDate || h?.expiryDate)
+                    {h?.issueDate || h?.expiryDate
                       ? fDateRangeShortLabel(h?.issueDate, h?.expiryDate)
                       : '-'}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption">
-                    {h?.issuer || '-'}
-                  </Typography>
+                  <Typography variant="caption">{h?.issuer || '-'}</Typography>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -90,10 +94,13 @@ const DocumentHistoryItem = ({ h, onDownload }) => {
 };
 
 export function DocumentHistoryChatList({ vehicleId, items = [] }) {
-  const handleDownload = useCallback(async (doc) => {
-    if (!doc?._id || !vehicleId) return;
-    await openDocumentDownload({ vehicleId, docId: doc._id, fallbackUrl: doc?.fileUrl });
-  }, [vehicleId]);
+  const handleDownload = useCallback(
+    async (doc) => {
+      if (!doc?._id || !vehicleId) return;
+      await openDocumentDownload({ vehicleId, docId: doc._id, fallbackUrl: doc?.fileUrl });
+    },
+    [vehicleId]
+  );
 
   return (
     <Stack component="ul" spacing={2.5} sx={{ listStyle: 'none', px: 0, m: 0 }}>

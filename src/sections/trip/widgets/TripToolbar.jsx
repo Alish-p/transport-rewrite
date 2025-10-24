@@ -32,7 +32,8 @@ export default function TripToolbar({ status, backLink, tripData, onTripClose, o
 
   const isOwnVehicle = Boolean(tripData?.vehicleId?.isOwn);
   const subtrips = Array.isArray(tripData?.subtrips) ? tripData.subtrips : [];
-  const allSubtripsBilled = subtrips.length > 0 && subtrips.every((st) => st?.subtripStatus === SUBTRIP_STATUS.BILLED);
+  const allSubtripsBilled =
+    subtrips.length > 0 && subtrips.every((st) => st?.subtripStatus === SUBTRIP_STATUS.BILLED);
   const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
 
   const tripSheetTooltipTitle = !isOwnVehicle

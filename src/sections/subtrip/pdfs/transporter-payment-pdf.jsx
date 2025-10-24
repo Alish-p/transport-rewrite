@@ -299,7 +299,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
 
       <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
         <View style={[styles.col10, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellContent]}>{ }</Text>
+          <Text style={[styles.horizontalCellContent]}>{}</Text>
         </View>
 
         <View style={[styles.col2, styles.horizontalCell]}>

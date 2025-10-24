@@ -162,10 +162,7 @@ export default function SubtripToolbar({
               <Label variant="soft" color={SUBTRIP_STATUS_COLORS[status] || 'default'}>
                 {status}
               </Label>
-              <Label
-                variant="soft"
-                color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}
-              >
+              <Label variant="soft" color={subtrip.vehicleId?.isOwn ? 'success' : 'warning'}>
                 {subtrip.vehicleId?.isOwn ? 'Own Job' : 'Market Job'}
               </Label>
             </Stack>

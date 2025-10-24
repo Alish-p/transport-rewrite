@@ -59,8 +59,8 @@ export function VehicleDocumentsGridContent() {
             }}
           >
             {vehicles.map((v) => (
-              <VehicleFolderCard key={v._id} vehicle={v} onOpen={handleOpenVehicle} />)
-            )}
+              <VehicleFolderCard key={v._id} vehicle={v} onOpen={handleOpenVehicle} />
+            ))}
           </Box>
           <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
             {isFetchingNextPage && <LoadingSpinner />}

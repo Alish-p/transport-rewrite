@@ -20,7 +20,6 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-
 export function VehicleInsightsTable({ month, ...other }) {
   const [showAll, setShowAll] = useState(false);
   const { data: summary = [], isLoading } = useMonthlyVehicleSubtrips(month);
@@ -28,7 +27,6 @@ export function VehicleInsightsTable({ month, ...other }) {
 
   return (
     <Box {...other}>
-
       <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
         <Table sx={{ minWidth: 480 }}>
           <TableHeadCustom
@@ -96,7 +94,6 @@ export function VehicleInsightsTable({ month, ...other }) {
           </Box>
         </>
       )}
-
     </Box>
   );
 }

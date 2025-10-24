@@ -118,10 +118,9 @@ export function TripListView() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -260,7 +259,6 @@ export function TripListView() {
             }
             action={
               <Stack direction="row">
-
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
@@ -279,8 +277,6 @@ export function TripListView() {
                   </IconButton>
                 </Tooltip>
 
-                
-
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink
                     document={(() => {
@@ -289,7 +285,11 @@ export function TripListView() {
                       );
                       const visibleCols = getVisibleColumnsForExport();
                       return (
-                        <TripListPdf trips={selectedRows} visibleColumns={visibleCols} tenant={tenant} />
+                        <TripListPdf
+                          trips={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
                       );
                     })()}
                     fileName="Trip-list.pdf"
@@ -320,7 +320,6 @@ export function TripListView() {
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
@@ -332,22 +331,22 @@ export function TripListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                    <TableSkeleton key={index} />
-                  ))
+                      <TableSkeleton key={index} />
+                    ))
                   : tableData.map((row) => (
-                    <TripTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={handleViewRow}
-                      onEditRow={handleEditRow}
-                      onDeleteRow={deleteTrip}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <TripTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={handleViewRow}
+                        onEditRow={handleEditRow}
+                        onDeleteRow={deleteTrip}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

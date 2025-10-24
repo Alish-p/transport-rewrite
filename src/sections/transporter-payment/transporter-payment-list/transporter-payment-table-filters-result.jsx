@@ -55,11 +55,7 @@ export default function TransporterPayrollTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.status !== 'all' && (
           <Block label="Status:">
-            <Chip
-              size="small"
-              label={filters.status}
-              onDelete={() => onFilters('status', 'all')}
-            />
+            <Chip size="small" label={filters.status} onDelete={() => onFilters('status', 'all')} />
           </Block>
         )}
 
@@ -75,11 +71,7 @@ export default function TransporterPayrollTableFiltersResult({
 
         {filters.subtripId && (
           <Block label="Job:">
-            <Chip
-              size="small"
-              label={subtrip?.subtripNo}
-              onDelete={handleRemoveSubtrip}
-            />
+            <Chip size="small" label={subtrip?.subtripNo} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 

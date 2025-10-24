@@ -18,16 +18,8 @@ import { Iconify } from 'src/components/iconify';
 import { InfoItem } from './info-item';
 
 export function DriverAdditionalWidget({ driver }) {
-  const {
-    _id,
-    licenseFrom,
-    licenseTo,
-    experience,
-    dob,
-    aadharNo,
-    guarantorName,
-    guarantorCellNo,
-  } = driver || {};
+  const { _id, licenseFrom, licenseTo, experience, dob, aadharNo, guarantorName, guarantorCellNo } =
+    driver || {};
 
   const handleCopy = useCallback(() => {
     const text = JSON.stringify(

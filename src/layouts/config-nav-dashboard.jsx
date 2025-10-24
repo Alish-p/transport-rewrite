@@ -71,7 +71,6 @@ export const navData = [
         path: paths.dashboard.subtrip.jobCreate,
         icon: ICONS.job,
         info: <Iconify icon="gravity-ui:star" />,
-
       },
       {
         title: 'Add Expense',
@@ -93,9 +92,7 @@ export const navData = [
         path: paths.dashboard.trip.root,
         icon: ICONS.trip,
         resource: 'trip',
-        children: [
-          { title: 'List', path: paths.dashboard.trip.root, action: 'view' },
-        ],
+        children: [{ title: 'List', path: paths.dashboard.trip.root, action: 'view' }],
       },
       {
         title: 'Jobs',

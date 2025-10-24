@@ -79,8 +79,15 @@ function getTripDashboardData(trip) {
 export function TripDetailView({ trip }) {
   const navigate = useNavigate();
 
-  const { totalTrips, totalAdblueAmt, totalExpenses, totalIncome, totalDieselAmt, totalDieselLtr, totalKm } =
-    getTripDashboardData(trip);
+  const {
+    totalTrips,
+    totalAdblueAmt,
+    totalExpenses,
+    totalIncome,
+    totalDieselAmt,
+    totalDieselLtr,
+    totalKm,
+  } = getTripDashboardData(trip);
 
   const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips, tripNo } = trip;
 
@@ -90,7 +97,8 @@ export function TripDetailView({ trip }) {
 
   const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
   const subtripsArr = Array.isArray(trip?.subtrips) ? trip.subtrips : [];
-  const allSubtripsBilled = subtripsArr.length > 0 && subtripsArr.every((st) => st?.subtripStatus === 'billed');
+  const allSubtripsBilled =
+    subtripsArr.length > 0 && subtripsArr.every((st) => st?.subtripStatus === 'billed');
   const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
 
   const tripSheetTooltipTitle = !isOwnVehicle
@@ -120,7 +128,6 @@ export function TripDetailView({ trip }) {
           },
         ]}
         menus={[
-
           {
             label: 'View',
             icon: 'solar:eye-bold',
@@ -143,12 +150,21 @@ export function TripDetailView({ trip }) {
                   <PDFDownloadLink
                     document={<TripSheetPdf trip={trip} tenant={tenant} />}
                     fileName={`${trip.tripNo}_trip_sheet.pdf`}
-                    style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                    style={{
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      display: 'flex',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
                     onClick={() => setTimeout(close, 0)}
                   >
                     {({ loading }) => (
                       <>
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                        <Iconify
+                          icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                          sx={{ mr: 2 }}
+                        />
                         Trip Sheet
                       </>
                     )}

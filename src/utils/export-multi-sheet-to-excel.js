@@ -11,7 +11,8 @@ const C = {
 };
 
 const isNumericLike = (val) =>
-  typeof val === 'number' || (typeof val === 'string' && val.trim() !== '' && !Number.isNaN(Number(val)));
+  typeof val === 'number' ||
+  (typeof val === 'string' && val.trim() !== '' && !Number.isNaN(Number(val)));
 
 const shouldWrap = (val) => {
   if (val == null) return false;

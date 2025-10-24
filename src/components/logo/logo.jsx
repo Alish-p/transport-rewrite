@@ -37,7 +37,9 @@ export const Logo = forwardRef(
         role="img"
       >
         <title id={`${gradientId}-title`}>T Logo</title>
-        <desc id={`${gradientId}-desc`}>Professional letter T logo with modern geometric design</desc>
+        <desc id={`${gradientId}-desc`}>
+          Professional letter T logo with modern geometric design
+        </desc>
 
         <defs>
           <linearGradient id={`${gradientId}-1`} x1="100%" x2="50%" y1="9.946%" y2="50%">
@@ -58,33 +60,13 @@ export const Logo = forwardRef(
 
         <g fillRule="evenodd">
           {/* Top horizontal bar of T - premium feel with subtle roundedness */}
-          <rect
-            x="64"
-            y="64"
-            width="384"
-            height="88"
-            rx="16"
-            fill={`url(#${gradientId}-1)`}
-          />
+          <rect x="64" y="64" width="384" height="88" rx="16" fill={`url(#${gradientId}-1)`} />
 
           {/* Vertical stem of T - clean and bold */}
-          <rect
-            x="212"
-            y="128"
-            width="88"
-            height="320"
-            rx="16"
-            fill={`url(#${gradientId}-2)`}
-          />
+          <rect x="212" y="128" width="88" height="320" rx="16" fill={`url(#${gradientId}-2)`} />
 
           {/* Accent dot - sophisticated detail element */}
-          <circle
-            cx="256"
-            cy="408"
-            r="24"
-            fill={`url(#${gradientId}-3)`}
-            opacity="0.9"
-          />
+          <circle cx="256" cy="408" r="24" fill={`url(#${gradientId}-3)`} opacity="0.9" />
         </g>
       </svg>
     );

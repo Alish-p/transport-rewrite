@@ -251,9 +251,7 @@ export default function TransporterPaymentSimpleForm() {
               <Typography variant="body2">{tenant?.address?.line1}</Typography>
               <Typography variant="body2">{tenant?.address?.line2}</Typography>
               <Typography variant="body2">{tenant?.address?.state}</Typography>
-              <Typography variant="body2">
-                Phone: {tenant?.contactDetails?.phone}
-              </Typography>
+              <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
             </Stack>
           </Stack>
 

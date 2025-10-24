@@ -46,8 +46,7 @@ export function DashboardLayout({ sx, children, data }) {
 
   // Read optional announcement banner from env (Vite: VITE_*)
   const announcementMessage = import.meta.env.VITE_ANNOUNCEMENT_MESSAGE?.trim?.();
-  const announcementSeverity =
-    import.meta.env.VITE_ANNOUNCEMENT_SEVERITY?.trim?.() || 'info';
+  const announcementSeverity = import.meta.env.VITE_ANNOUNCEMENT_SEVERITY?.trim?.() || 'info';
 
   const showSubscriptionExpired = useMemo(() => {
     const validTill = tenant?.subscription?.validTill;

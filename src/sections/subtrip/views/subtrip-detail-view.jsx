@@ -132,19 +132,23 @@ export function SubtripDetailView({ subtrip }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                {
-                  icon: 'mdi:routes',
-                  label: `Trip #${subtrip.tripId.tripNo}`,
-                  href: paths.dashboard.trip.details(subtrip.tripId._id),
-                },
-              ]
+                  {
+                    icon: 'mdi:routes',
+                    label: `Trip #${subtrip.tripId.tripNo}`,
+                    href: paths.dashboard.trip.details(subtrip.tripId._id),
+                  },
+                ]
               : []),
           ]}
           menus={[
             {
               label: 'Actions',
               icon: 'eva:settings-2-fill',
-              items: getActions().map((a) => ({ label: a.label, onClick: a.action, disabled: a.disabled })),
+              items: getActions().map((a) => ({
+                label: a.label,
+                onClick: a.action,
+                disabled: a.disabled,
+              })),
             },
             {
               label: 'View',
@@ -191,12 +195,21 @@ export function SubtripDetailView({ subtrip }) {
                     <PDFDownloadLink
                       document={<LRPDF subtrip={subtrip} tenant={tenant} />}
                       fileName={`${subtrip.subtripNo}_lr.pdf`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
                       onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
                           Lorry Receipt (LR)
                         </>
                       )}
@@ -210,12 +223,21 @@ export function SubtripDetailView({ subtrip }) {
                     <PDFDownloadLink
                       document={<IndentPdf subtrip={subtrip} tenant={tenant} />}
                       fileName={`${subtrip.subtripNo}_indent.pdf`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
                       onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
                           Petrol Pump Indent
                         </>
                       )}
@@ -229,12 +251,21 @@ export function SubtripDetailView({ subtrip }) {
                     <PDFDownloadLink
                       document={<EntryPassPdf subtrip={subtrip} tenant={tenant} />}
                       fileName={`${subtrip.subtripNo}_entry_pass.pdf`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
                       onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
                           Entry Pass
                         </>
                       )}
@@ -247,12 +278,21 @@ export function SubtripDetailView({ subtrip }) {
                     <PDFDownloadLink
                       document={<DriverPaymentPdf subtrip={subtrip} tenant={tenant} />}
                       fileName={`${subtrip.subtripNo}_driver_payment.pdf`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
                       onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
                           Driver Payment
                         </>
                       )}
@@ -266,12 +306,21 @@ export function SubtripDetailView({ subtrip }) {
                     <PDFDownloadLink
                       document={<TransporterPayment subtrip={subtrip} tenant={tenant} />}
                       fileName={`${subtrip.subtripNo}_transporter_payment.pdf`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
                       onClick={() => setTimeout(close, 0)}
                     >
                       {({ loading }) => (
                         <>
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'} sx={{ mr: 2 }} />
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
                           Transporter Payment
                         </>
                       )}

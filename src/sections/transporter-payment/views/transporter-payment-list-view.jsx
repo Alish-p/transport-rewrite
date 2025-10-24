@@ -224,10 +224,11 @@ export function TransporterPaymentListView() {
                     color="primary"
                     onClick={() => {
                       const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = (columnOrder && columnOrder.length
-                        ? columnOrder
-                        : Object.keys(visibleColumns))
-                        .filter((id) => visibleColumns[id]);
+                      const visibleCols = (
+                        columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns)
+                      ).filter((id) => visibleColumns[id]);
                       exportToExcel(
                         prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
                         'Transporter-payment-selected'
@@ -241,13 +242,12 @@ export function TransporterPaymentListView() {
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink
                     document={(() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
-                      const visibleCols = (columnOrder && columnOrder.length
-                        ? columnOrder
-                        : Object.keys(visibleColumns))
-                        .filter((id) => visibleColumns[id]);
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                      const visibleCols = (
+                        columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns)
+                      ).filter((id) => visibleColumns[id]);
                       return (
                         <TransporterPaymentListPdf
                           payments={selectedRows}
@@ -278,7 +278,6 @@ export function TransporterPaymentListView() {
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
@@ -290,22 +289,22 @@ export function TransporterPaymentListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <TransporterPaymentTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <TransporterPaymentTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

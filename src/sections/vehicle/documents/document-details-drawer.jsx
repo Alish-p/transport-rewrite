@@ -84,12 +84,12 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
   } = usePaginatedDocuments(
     vehicleId && doc?.docType
       ? {
-        vehicleId,
-        docType: doc?.docType,
-        page: histPage,
-        rowsPerPage,
-        isActive: false, // fetch inactive only
-      }
+          vehicleId,
+          docType: doc?.docType,
+          page: histPage,
+          rowsPerPage,
+          isActive: false, // fetch inactive only
+        }
       : undefined,
     {
       enabled: open && tab === 'history' && !!vehicleId && !!doc?.docType,
@@ -143,12 +143,22 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
           allowScrollButtonsMobile
           sx={{ px: 2.5 }}
         >
-          <Tab label="Overview" value="overview" icon={<Iconify icon="solar:info-circle-bold" />} iconPosition="start" />
-          <Tab label="History" value="history" icon={<Iconify icon="mdi:history" />} iconPosition="start" />
+          <Tab
+            label="Overview"
+            value="overview"
+            icon={<Iconify icon="solar:info-circle-bold" />}
+            iconPosition="start"
+          />
+          <Tab
+            label="History"
+            value="history"
+            icon={<Iconify icon="mdi:history" />}
+            iconPosition="start"
+          />
         </CustomTabs>
 
         {tab === 'overview' && (
-          <Stack spacing={2.5} justifyContent="center" sx={{ p: 2.5, }}>
+          <Stack spacing={2.5} justifyContent="center" sx={{ p: 2.5 }}>
             {loadingUrl ? (
               <CircularProgress size={24} />
             ) : previewUrl ? (
@@ -158,7 +168,10 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
                 onDownload={handleDownload}
                 file={previewUrl}
                 sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
-                slotProps={{ img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' }, icon: { width: 64, height: 64 } }}
+                slotProps={{
+                  img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' },
+                  icon: { width: 64, height: 64 },
+                }}
               />
             ) : (
               <Typography variant="body2" color="text.secondary">
@@ -196,7 +209,10 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
                   )
                 }
               />
-              <PropRow label="Created By" value={doc?.createdBy?.name || doc?.createdByName || '-'} />
+              <PropRow
+                label="Created By"
+                value={doc?.createdBy?.name || doc?.createdByName || '-'}
+              />
             </Stack>
           </Stack>
         )}
@@ -219,7 +235,13 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
               <>
                 <DocumentHistoryChatList vehicleId={vehicleId} items={historyList} />
                 {historyTotal > rowsPerPage && (
-                  <Stack direction="row" alignItems="center" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    justifyContent="center"
+                    sx={{ mt: 2 }}
+                  >
                     <Button
                       size="small"
                       variant="outlined"
@@ -234,7 +256,9 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
                     <Button
                       size="small"
                       variant="outlined"
-                      disabled={histPage >= Math.ceil(historyTotal / rowsPerPage) || historyFetching}
+                      disabled={
+                        histPage >= Math.ceil(historyTotal / rowsPerPage) || historyFetching
+                      }
                       onClick={() => setHistPage((p) => p + 1)}
                     >
                       Next
@@ -296,7 +320,12 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
 
 function SectionHeader({ title }) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      sx={{ typography: 'subtitle2' }}
+    >
       {title}
     </Stack>
   );

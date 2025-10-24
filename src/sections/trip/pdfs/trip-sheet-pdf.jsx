@@ -160,9 +160,9 @@ export default function TripSheetPdf({ trip, tenant }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-          0
-        )
+            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+            0
+          )
         : 0),
     0
   );
@@ -184,9 +184,8 @@ export default function TripSheetPdf({ trip, tenant }) {
   const totalWeight = validForRate.reduce((sum, st) => sum + (Number(st?.loadingWeight) || 0), 0);
   // Use Trip-level distance for rate per T-Km calculation
   const totalDistance = totalKm;
-  const ratePerTonKm = totalWeight > 0 && totalDistance > 0
-    ? totalFreightAmount / (totalWeight * totalDistance)
-    : 0;
+  const ratePerTonKm =
+    totalWeight > 0 && totalDistance > 0 ? totalFreightAmount / (totalWeight * totalDistance) : 0;
 
   return (
     <Document>

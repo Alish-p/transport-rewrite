@@ -19,7 +19,6 @@ export function VehicleDocumentsPieChart({ title, subheader, chart, ...other }) 
     theme.palette.primary.darker,
   ];
 
-
   const chartSeries = chart.series.map((item) => item.value);
 
   const chartOptions = useChart({
@@ -75,4 +74,3 @@ export function VehicleDocumentsPieChart({ title, subheader, chart, ...other }) 
     </Card>
   );
 }
-

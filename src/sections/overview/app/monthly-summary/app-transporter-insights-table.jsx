@@ -37,7 +37,6 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
 
   return (
     <Box {...other}>
-
       <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
         <Table sx={{ minWidth: 680 }}>
           <TableHeadCustom

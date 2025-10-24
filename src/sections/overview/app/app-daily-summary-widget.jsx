@@ -100,7 +100,14 @@ export function AppDailySummaryWidget({ sx, ...other }) {
   }, [data]);
 
   const renderHeader = (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'flex-start', flexDirection: { xs: 'column', md: 'row' } }}>
+    <Box
+      sx={{
+        gap: 2,
+        display: 'flex',
+        alignItems: 'flex-start',
+        flexDirection: { xs: 'column', md: 'row' },
+      }}
+    >
       <Box sx={{ flexGrow: 1 }}>
         <Box
           sx={{
@@ -138,7 +145,10 @@ export function AppDailySummaryWidget({ sx, ...other }) {
       variant="scrollable"
       allowScrollButtonsMobile
       sx={{ my: 3, borderRadius: 2 }}
-      slotProps={{ indicator: { borderRadius: 1.5, boxShadow: theme.customShadows.z4 }, tab: { p: 2.5 } }}
+      slotProps={{
+        indicator: { borderRadius: 1.5, boxShadow: theme.customShadows.z4 },
+        tab: { p: 2.5 },
+      }}
     >
       {tabsConfig.map((tab) => (
         <Tab
@@ -166,7 +176,15 @@ export function AppDailySummaryWidget({ sx, ...other }) {
               </Box>
 
               <div>
-                <Box sx={{ mb: 0.5, gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}>
+                <Box
+                  sx={{
+                    mb: 0.5,
+                    gap: 0.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    typography: 'subtitle2',
+                  }}
+                >
                   {tab.label}
                 </Box>
 
@@ -209,7 +227,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
       case 'received':
         return [
           { id: 'index', label: 'No.' },
-              { id: 'subtripNo', label: 'Job No' },
+          { id: 'subtripNo', label: 'Job No' },
           { id: 'vehicleNo', label: 'Vehicle' },
           { id: 'driver', label: 'Driver' },
           { id: 'customer', label: 'Customer' },

@@ -117,10 +117,9 @@ export function InvoiceListView() {
   });
 
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : Object.keys(visibleColumns))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -347,29 +346,27 @@ export function InvoiceListView() {
                   tableData.map((row) => row._id)
                 )
               }
-                  action={
-                    <Stack direction="row">
-                      {/* Download XML of selected invoices */}
-                      <Tooltip title="Download XML">
-                        <IconButton
-                          color="primary"
-                          onClick={() => {
-                            const selectedRows = tableData.filter((r) =>
-                              table.selected.includes(r._id)
-                            );
-                            if (selectedRows.length === 0) return;
-                            const fileName =
-                              selectedRows.length === 1
-                                ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
-                                : `invoices-${selectedRows.length}.xml`;
-                            downloadInvoicesXml(selectedRows, fileName, tenant);
-                          }}
-                        >
-                          <Iconify icon="mdi:file-xml-box" />
-                        </IconButton>
-                      </Tooltip>
-
-                      
+              action={
+                <Stack direction="row">
+                  {/* Download XML of selected invoices */}
+                  <Tooltip title="Download XML">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        if (selectedRows.length === 0) return;
+                        const fileName =
+                          selectedRows.length === 1
+                            ? `${selectedRows[0].invoiceNo || 'invoice'}.xml`
+                            : `invoices-${selectedRows.length}.xml`;
+                        downloadInvoicesXml(selectedRows, fileName, tenant);
+                      }}
+                    >
+                      <Iconify icon="mdi:file-xml-box" />
+                    </IconButton>
+                  </Tooltip>
 
                   <Tooltip title="Download Excel">
                     <IconButton
@@ -464,8 +461,6 @@ export function InvoiceListView() {
                     </Tooltip>
                   )}
 
-                  
-
                   <Tooltip title="Delete">
                     <IconButton color="primary" onClick={confirm.onTrue}>
                       <Iconify icon="solar:trash-bin-trash-bold" />
@@ -483,7 +478,6 @@ export function InvoiceListView() {
                   headLabel={visibleHeaders}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
                   onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(

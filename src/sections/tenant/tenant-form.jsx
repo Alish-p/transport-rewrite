@@ -99,7 +99,10 @@ export const TenantSchema = zod
           .object({
             enabled: zod.boolean().optional(),
             provider: zod
-              .preprocess((val) => (val === '' ? null : val), zod.enum(['Tally', 'Mark', 'Zoho']).nullable())
+              .preprocess(
+                (val) => (val === '' ? null : val),
+                zod.enum(['Tally', 'Mark', 'Zoho']).nullable()
+              )
               .optional(),
             config: zod
               .object({
@@ -241,25 +244,38 @@ export default function TenantForm({ currentTenant }) {
           config: {
             invoiceLedgerNames: {
               enabled:
-                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled ?? false,
+                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled ??
+                false,
               cgst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.cgst || '',
               igst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.igst || '',
               sgst: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.sgst || '',
               transport_pay:
-                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.transport_pay || '',
-              shortage: currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.shortage || '',
+                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames
+                  ?.transport_pay || '',
+              shortage:
+                currentTenant?.integrations?.accounting?.config?.invoiceLedgerNames?.shortage || '',
             },
             transporterLedgerNames: {
               enabled:
-                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.enabled ?? false,
-              cgst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.cgst || '',
-              igst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.igst || '',
-              sgst: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.sgst || '',
-              tds: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.tds || '',
-              diesel: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.diesel || '',
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.enabled ??
+                false,
+              cgst:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.cgst || '',
+              igst:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.igst || '',
+              sgst:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.sgst || '',
+              tds:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.tds || '',
+              diesel:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.diesel ||
+                '',
               trip_advance:
-                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.trip_advance || '',
-              shortage: currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.shortage || '',
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames
+                  ?.trip_advance || '',
+              shortage:
+                currentTenant?.integrations?.accounting?.config?.transporterLedgerNames?.shortage ||
+                '',
             },
           },
         },
@@ -289,15 +305,15 @@ export default function TenantForm({ currentTenant }) {
           ...data.integrations,
           whatsapp: data.integrations?.whatsapp
             ? {
-              ...data.integrations.whatsapp,
-              provider: data.integrations.whatsapp.provider || null,
-            }
+                ...data.integrations.whatsapp,
+                provider: data.integrations.whatsapp.provider || null,
+              }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
             ? {
-              ...data.integrations.vehicleGPS,
-              provider: data.integrations.vehicleGPS.provider || null,
-            }
+                ...data.integrations.vehicleGPS,
+                provider: data.integrations.vehicleGPS.provider || null,
+              }
             : undefined,
           accounting: data.integrations?.accounting
             ? (() => {
@@ -315,8 +331,12 @@ export default function TenantForm({ currentTenant }) {
                   );
 
                 const cleaned = {
-                  invoiceLedgerNames: invEnabled ? { enabled: true, ...pickNames(inv) } : { enabled: false },
-                  transporterLedgerNames: trEnabled ? { enabled: true, ...pickNames(tr) } : { enabled: false },
+                  invoiceLedgerNames: invEnabled
+                    ? { enabled: true, ...pickNames(inv) }
+                    : { enabled: false },
+                  transporterLedgerNames: trEnabled
+                    ? { enabled: true, ...pickNames(tr) }
+                    : { enabled: false },
                 };
                 return {
                   enabled: !!acc.enabled,

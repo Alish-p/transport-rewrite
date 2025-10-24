@@ -59,7 +59,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.subtripSnapshot?.map((st) => st.subtripNo).join(', '),
 
     render: (row) => {
-      const value = row.subtripSnapshot?.map((st) => st.subtripNo).join(', ')
+      const value = row.subtripSnapshot?.map((st) => st.subtripNo).join(', ');
       return (
         <Tooltip title={value}>
           <ListItemText

@@ -17,12 +17,15 @@ export default function DocumentsTableRow({
   columnOrder,
 }) {
   const orderedColumns = useMemo(
-    () => (columnOrder?.length ? columnOrder.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean) : TABLE_COLUMNS),
+    () =>
+      columnOrder?.length
+        ? columnOrder.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean)
+        : TABLE_COLUMNS,
     [columnOrder]
   );
 
   const handleRowClick = (e) => {
-    const {target} = e;
+    const { target } = e;
     if (target && typeof target.closest === 'function') {
       const isInteractive = target.closest(
         'a, button, input, textarea, select, [role="button"], .MuiIconButton-root, .MuiCheckbox-root, .MuiLink-root'
@@ -41,7 +44,7 @@ export default function DocumentsTableRow({
       ) : null}
 
       {orderedColumns.map((column) =>
-        (visibleColumns[column.id] || disabledColumns[column.id]) ? (
+        visibleColumns[column.id] || disabledColumns[column.id] ? (
           <TableCell key={column.id} align={column.align}>
             {column.render ? (
               column.render(row)

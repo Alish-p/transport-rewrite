@@ -34,7 +34,6 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 
-
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
   { id: '_id', label: 'ID' },
@@ -47,7 +46,6 @@ const TABLE_HEAD = [
   { id: 'totalExpense', label: 'Expense' },
   { id: 'netProfit', label: 'Net Profit' },
 ];
-
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const today = dayjs();
@@ -129,8 +127,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                   'S.No': idx + 1,
                   ID: st._id,
                   Customer: st.customerName || '-',
-                  Route: st.routeName || '-'
-                  ,
+                  Route: st.routeName || '-',
                   Date: fDateRangeShortLabel(st.startDate, st.endDate),
                   Weight: st.loadingWeight || 0,
                   Rate: st.rate || 0,
@@ -165,7 +162,11 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                 await exportToExcel(
                   [
                     { name: 'Income', data: profitsData, options: { prependInfoRows: [infoText] } },
-                    { name: 'Vehicle Expenses', data: lossesData, options: { prependInfoRows: [infoText] } },
+                    {
+                      name: 'Vehicle Expenses',
+                      data: lossesData,
+                      options: { prependInfoRows: [infoText] },
+                    },
                     { name: 'P&L', data: summaryData, options: { prependInfoRows: [infoText] } },
                   ],
                   `Vehicle-P&L-${vehicleNo}`
@@ -199,16 +200,9 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         />
       </Tabs>
 
-      {currentTab === 'profits' && (
-        <ProfitsTable
-          subtrips={subtrips}
-          isLoading={isLoading}
-        />
-      )}
+      {currentTab === 'profits' && <ProfitsTable subtrips={subtrips} isLoading={isLoading} />}
 
-      {currentTab === 'loss' && (
-        <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />
-      )}
+      {currentTab === 'loss' && <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />}
 
       {/* Month selector replaces date range calendar */}
     </Card>
@@ -285,7 +279,10 @@ function ProfitsTable({ subtrips, isLoading }) {
                   {fCurrency(subtrips.reduce((sum, r) => sum + (r.totalExpense || 0), 0))}
                 </TableCell>
                 {(() => {
-                  const totalNet = subtrips.reduce((sum, r) => sum + (r.amt || 0) - (r.totalExpense || 0), 0);
+                  const totalNet = subtrips.reduce(
+                    (sum, r) => sum + (r.amt || 0) - (r.totalExpense || 0),
+                    0
+                  );
                   return (
                     <TableCell
                       sx={{

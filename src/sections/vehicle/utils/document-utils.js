@@ -22,4 +22,3 @@ export function getStatusMeta(status) {
   };
   return map[status] || null;
 }
-

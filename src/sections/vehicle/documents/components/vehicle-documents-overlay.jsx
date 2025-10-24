@@ -110,10 +110,13 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
     ? fetchingNextActive || fetchingNextInactive
     : fetchingNextSingle;
 
-  const handleDownload = useCallback(async (doc) => {
-    if (!vehicleId || !doc?._id) return;
-    await openDocumentDownload({ vehicleId, docId: doc._id });
-  }, [vehicleId]);
+  const handleDownload = useCallback(
+    async (doc) => {
+      if (!vehicleId || !doc?._id) return;
+      await openDocumentDownload({ vehicleId, docId: doc._id });
+    },
+    [vehicleId]
+  );
 
   const renderStatus = (status) => {
     if (!status) return '-';
@@ -131,12 +134,12 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
 
   return (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
-      <DialogTitle  >
+      <DialogTitle>
         Documents — {vehicle?.vehicleNo}
         <Typography component="span" sx={{ color: 'text.secondary', ml: 1 }}>
           ({total})
         </Typography>
-        <Stack direction="row" alignItems="center" justifyContent="flex-end" >
+        <Stack direction="row" alignItems="center" justifyContent="flex-end">
           <FormControlLabel
             sx={{ ml: 'auto' }}
             control={
@@ -148,10 +151,8 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
             label="Include inactive"
           />
         </Stack>
-
       </DialogTitle>
       <DialogContent sx={{ height: 400, display: 'flex', flexDirection: 'column' }}>
-
         {isLoading ? (
           <LoadingSpinner sx={{ height: 320 }} />
         ) : (
@@ -179,7 +180,13 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
                       <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
                       <TableCell>{d.isActive ? 'Yes' : 'No'}</TableCell>
                       <TableCell align="center">
-                        <Button size="small" onClick={() => handleDownload(d)} startIcon={<Iconify icon="eva:download-outline" />}>Download</Button>
+                        <Button
+                          size="small"
+                          onClick={() => handleDownload(d)}
+                          startIcon={<Iconify icon="eva:download-outline" />}
+                        >
+                          Download
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -188,7 +195,10 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
 
                   <TableRow>
                     <TableCell colSpan={7}>
-                      <Box ref={loadMoreRef} sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
+                      <Box
+                        ref={loadMoreRef}
+                        sx={{ display: 'flex', justifyContent: 'center', py: 1 }}
+                      >
                         {isFetchingNextPage && <LoadingSpinner />}
                       </Box>
                     </TableCell>

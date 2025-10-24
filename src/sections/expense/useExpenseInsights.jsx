@@ -3,12 +3,7 @@ import { useMemo } from 'react';
 import { fCurrency } from 'src/utils/format-number';
 
 function useExpenseInsights(subtrip) {
-  const {
-    routeCd: routeInfo,
-    vehicleId: vehicleInfo,
-    rate = 0,
-    loadingWeight = 0,
-  } = subtrip || {};
+  const { routeCd: routeInfo, vehicleId: vehicleInfo, rate = 0, loadingWeight = 0 } = subtrip || {};
 
   const extractedData = useMemo(() => {
     if (vehicleInfo && routeInfo?.vehicleConfiguration) {

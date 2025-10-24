@@ -191,20 +191,18 @@ export const schemaHelper = {
       zod.undefined(),
       zod.null(),
       zod.literal(''),
-      zod.coerce
-        .date()
-        .transform((dateVal, ctx) => {
-          const formatted = dayjs(dateVal).format();
-          const parsed = zod.string().pipe(zod.coerce.date());
-          if (!parsed.safeParse(formatted).success) {
-            ctx.addIssue({
-              code: zod.ZodIssueCode.invalid_date,
-              message: props?.message?.invalid_type_error ?? 'Invalid Date!',
-            });
-            return undefined;
-          }
-          return formatted;
-        }),
+      zod.coerce.date().transform((dateVal, ctx) => {
+        const formatted = dayjs(dateVal).format();
+        const parsed = zod.string().pipe(zod.coerce.date());
+        if (!parsed.safeParse(formatted).success) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.invalid_date,
+            message: props?.message?.invalid_type_error ?? 'Invalid Date!',
+          });
+          return undefined;
+        }
+        return formatted;
+      }),
     ]),
 
   // =========================================================================

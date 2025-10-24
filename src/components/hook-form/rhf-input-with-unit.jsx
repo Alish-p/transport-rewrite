@@ -36,7 +36,10 @@ export function RHFInputWithUnit({
   const [menuEl, setMenuEl] = useState(null);
   const unit = watch(unitName) || defaultUnit;
 
-  const unitLabel = useMemo(() => unitOptions.find((u) => u.value === unit)?.label || '', [unit, unitOptions]);
+  const unitLabel = useMemo(
+    () => unitOptions.find((u) => u.value === unit)?.label || '',
+    [unit, unitOptions]
+  );
 
   const handleOpenMenu = (e) => setMenuEl(e.currentTarget);
   const handleCloseMenu = () => setMenuEl(null);
@@ -57,9 +60,7 @@ export function RHFInputWithUnit({
         InputLabelProps={{ shrink: true }}
         InputProps={{
           startAdornment:
-            unit === 'amount' ? (
-              <InputAdornment position="start">₹</InputAdornment>
-            ) : undefined,
+            unit === 'amount' ? <InputAdornment position="start">₹</InputAdornment> : undefined,
           endAdornment: (
             <InputAdornment position="end">
               <Tooltip title="Change unit" arrow>
@@ -81,7 +82,9 @@ export function RHFInputWithUnit({
                   }}
                 >
                   {unitLabel}
-                  <span aria-hidden="true" style={{ paddingLeft: 4 }}>▾</span>
+                  <span aria-hidden="true" style={{ paddingLeft: 4 }}>
+                    ▾
+                  </span>
                 </Button>
               </Tooltip>
             </InputAdornment>
@@ -93,18 +96,18 @@ export function RHFInputWithUnit({
           autoComplete: 'off',
           onWheel: (e) => e.currentTarget.blur(),
         }}
-        {
-          ...register(name, {
-            valueAsNumber: true,
-            setValueAs: (v) => {
-              if (v === '' || Number.isNaN(Number(v))) return undefined;
-              if (!v.includes('.')) return Number(v.replace(/^0+(?=\d)/, ''));
-              return Number(v);
-            },
-            validate: (n) =>
-              n === undefined || (!Number.isNaN(n) && typeof n === 'number') || 'Must be a valid number',
-          })
-        }
+        {...register(name, {
+          valueAsNumber: true,
+          setValueAs: (v) => {
+            if (v === '' || Number.isNaN(Number(v))) return undefined;
+            if (!v.includes('.')) return Number(v.replace(/^0+(?=\d)/, ''));
+            return Number(v);
+          },
+          validate: (n) =>
+            n === undefined ||
+            (!Number.isNaN(n) && typeof n === 'number') ||
+            'Must be a valid number',
+        })}
         {...textFieldProps}
       />
       <Menu

@@ -32,7 +32,10 @@ export const TABLE_COLUMNS = [
                 to={id ? paths.dashboard.vehicle.details(id) : '#'}
                 variant="body2"
                 noWrap
-                sx={{ color: id ? 'primary.main' : 'text.primary', pointerEvents: id ? 'auto' : 'none' }}
+                sx={{
+                  color: id ? 'primary.main' : 'text.primary',
+                  pointerEvents: id ? 'auto' : 'none',
+                }}
               >
                 {vehicleNo}
               </Link>
@@ -130,4 +133,3 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.createdBy?.name || row?.createdByName || '-',
   },
 ];
-

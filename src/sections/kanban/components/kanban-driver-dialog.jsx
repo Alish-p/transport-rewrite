@@ -119,7 +119,10 @@ export function KanbanDriverDialog({
           'Create New Driver'
         ) : (
           <>
-            Drivers <Typography component="span" sx={{ color: 'text.secondary' }}>({total})</Typography>
+            Drivers{' '}
+            <Typography component="span" sx={{ color: 'text.secondary' }}>
+              ({total})
+            </Typography>
           </>
         )}
       </DialogTitle>

@@ -124,4 +124,3 @@ export function TransporterExpensesWidget({ transporterId, title = 'Expenses', .
 }
 
 export default TransporterExpensesWidget;
-

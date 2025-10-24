@@ -1,4 +1,3 @@
-
 export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'Diesel', icon: 'mdi:gas-station' },
   { label: 'Adblue', icon: 'mdi:water' },

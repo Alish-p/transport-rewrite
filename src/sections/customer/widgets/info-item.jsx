@@ -10,11 +10,7 @@ export function InfoItem({ label, value, width = 140 }) {
       <Box component="span" sx={{ color: 'text.secondary', width, flexShrink: 0 }}>
         {label}
       </Box>
-      {isString ? (
-        <Typography>{value || '-'}</Typography>
-      ) : (
-        value ?? <Typography>-</Typography>
-      )}
+      {isString ? <Typography>{value || '-'}</Typography> : (value ?? <Typography>-</Typography>)}
     </Stack>
   );
 }

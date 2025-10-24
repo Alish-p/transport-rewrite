@@ -37,7 +37,6 @@ import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components
 
 import { REQUIRED_DOC_TYPES } from '../documents/config/constants';
 
-
 // Document add/edit form moved to a reusable component
 
 export function VehicleDocumentsWidget({ vehicleId }) {
@@ -60,7 +59,8 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   // Required vs present summary (simple chips)
   const requiredTypes = REQUIRED_DOC_TYPES;
 
-  const getDocByType = (type) => (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
+  const getDocByType = (type) =>
+    (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
 
   return (
     <Card>
@@ -102,7 +102,9 @@ export function VehicleDocumentsWidget({ vehicleId }) {
       <Box sx={{ px: 3, pt: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
           {loading && (
-            <Typography variant="caption" color="text.secondary">Checking…</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Checking…
+            </Typography>
           )}
         </Stack>
         <Stack direction="row" flexWrap="wrap" gap={1}>
@@ -197,9 +199,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
   };
   const handleDownload = async (row) => {
     try {
-      const { data } = await axios.get(
-        `/api/documents/${vehicleId}/${row._id}/download`
-      );
+      const { data } = await axios.get(`/api/documents/${vehicleId}/${row._id}/download`);
       if (data?.url) {
         window.open(data.url, '_blank');
       } else {
@@ -231,7 +231,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
             <TableCell>Issue Date</TableCell>
             <TableCell>Expiry Date</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell align='center' >Actions</TableCell>
+            <TableCell align="center">Actions</TableCell>
             {showActive && <TableCell>Active</TableCell>}
           </TableRow>
         </TableHead>
@@ -244,8 +244,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
               <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
               <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
               <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
-              <TableCell align='center' >
-
+              <TableCell align="center">
                 <Tooltip title="Download">
                   <IconButton size="small" onClick={() => handleDownload(d)}>
                     <Iconify icon="eva:download-outline" />
@@ -262,7 +261,6 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
                     <Iconify icon="eva:trash-2-outline" />
                   </IconButton>
                 </Tooltip>
-
               </TableCell>
               {showActive && (
                 <TableCell>

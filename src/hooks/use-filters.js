@@ -71,18 +71,21 @@ export function useFilters(initialFilters, options = {}) {
       if (onResetPage) onResetPage();
       setField(name, value);
 
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        const serialized = serializeForQuery(name, value);
-        if (serialized == null || isEqual(value, initialFilters[name])) {
-          params.delete(name);
-        } else {
-          params.set(name, serialized);
-        }
-        // Reset page when filters change
-        params.delete('page');
-        return params;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          const serialized = serializeForQuery(name, value);
+          if (serialized == null || isEqual(value, initialFilters[name])) {
+            params.delete(name);
+          } else {
+            params.set(name, serialized);
+          }
+          // Reset page when filters change
+          params.delete('page');
+          return params;
+        },
+        { replace: true }
+      );
     },
     [onResetPage, setField, setSearchParams, serializeForQuery, initialFilters]
   );
@@ -91,30 +94,36 @@ export function useFilters(initialFilters, options = {}) {
     onResetState();
     if (onResetPage) onResetPage();
 
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      Object.keys(initialFilters).forEach((key) => params.delete(key));
-      params.delete('page');
-      return params;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        Object.keys(initialFilters).forEach((key) => params.delete(key));
+        params.delete('page');
+        return params;
+      },
+      { replace: true }
+    );
   }, [onResetState, onResetPage, setSearchParams, initialFilters]);
 
   const setFilters = useCallback(
     (update) => {
       setState(update);
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        Object.keys(update || {}).forEach((key) => {
-          const serialized = serializeForQuery(key, update[key]);
-          if (serialized == null || isEqual(update[key], initialFilters[key])) {
-            params.delete(key);
-          } else {
-            params.set(key, serialized);
-          }
-        });
-        params.delete('page');
-        return params;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          Object.keys(update || {}).forEach((key) => {
+            const serialized = serializeForQuery(key, update[key]);
+            if (serialized == null || isEqual(update[key], initialFilters[key])) {
+              params.delete(key);
+            } else {
+              params.set(key, serialized);
+            }
+          });
+          params.delete('page');
+          return params;
+        },
+        { replace: true }
+      );
     },
     [setState, setSearchParams, serializeForQuery, initialFilters]
   );

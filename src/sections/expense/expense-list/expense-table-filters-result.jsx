@@ -80,7 +80,7 @@ export default function ExpenseTableFiltersResult({
           <Block label="Category :">
             <Chip
               size="small"
-            label={filters.expenseCategory === 'subtrip' ? 'Job Expense' : 'Vehicle Expense'}
+              label={filters.expenseCategory === 'subtrip' ? 'Job Expense' : 'Vehicle Expense'}
               onDelete={handleRemoveExpenseCategory}
             />
           </Block>
@@ -100,37 +100,61 @@ export default function ExpenseTableFiltersResult({
 
         {filters.pumpId && (
           <Block label="Pump">
-            <Chip size="small" label={selectedPumpName || filters.pumpId} onDelete={handleRemovePump} />
+            <Chip
+              size="small"
+              label={selectedPumpName || filters.pumpId}
+              onDelete={handleRemovePump}
+            />
           </Block>
         )}
 
         {filters.transporterId && (
           <Block label="Transporter">
-            <Chip size="small" label={selectedTransporterName || filters.transporterId} onDelete={handleRemoveTransporter} />
+            <Chip
+              size="small"
+              label={selectedTransporterName || filters.transporterId}
+              onDelete={handleRemoveTransporter}
+            />
           </Block>
         )}
 
         {filters.tripId && (
           <Block label="Trip">
-            <Chip size="small" label={selectedTripNo || filters.tripId} onDelete={handleRemoveTripId} />
+            <Chip
+              size="small"
+              label={selectedTripNo || filters.tripId}
+              onDelete={handleRemoveTripId}
+            />
           </Block>
         )}
 
         {filters.vehicleId && (
           <Block label="Vehicle:">
-            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicleNo} />
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicleNo}
+            />
           </Block>
         )}
 
         {filters.subtripId && (
           <Block label="Job">
-            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={selectedSubtripNo || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 
         {filters.routeId && (
           <Block label="Route">
-            <Chip size="small" label={selectedRouteName || filters.routeId} onDelete={handleRemoveRoute} />
+            <Chip
+              size="small"
+              label={selectedRouteName || filters.routeId}
+              onDelete={handleRemoveRoute}
+            />
           </Block>
         )}
 

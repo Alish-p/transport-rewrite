@@ -251,8 +251,13 @@ export default function SubtripTableToolbar({
         <FormControlLabel
           label="Own"
           labelPlacement="top"
-
-          control={<Switch checked={!!filters.isOwn} onChange={(e) => onFilters('isOwn', e.target.checked)} placeholder="Own Jobs" />}
+          control={
+            <Switch
+              checked={!!filters.isOwn}
+              onChange={(e) => onFilters('isOwn', e.target.checked)}
+              placeholder="Own Jobs"
+            />
+          }
         />
 
         <Stack direction="row" spacing={1}>
@@ -288,8 +293,6 @@ export default function SubtripTableToolbar({
           handleToggleAllColumns={onToggleAllColumns}
         />
       </CustomPopover>
-
-      
 
       <CustomPopover
         open={materialPopover.open}

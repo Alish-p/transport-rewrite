@@ -20,7 +20,12 @@ export default function PDFTable({
 
   const renderHeader = () => (
     <View
-      style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.bgLight, { justifyContent: 'flex-start' }]}
+      style={[
+        PDFStyles.gridContainer,
+        PDFStyles.border,
+        PDFStyles.bgLight,
+        { justifyContent: 'flex-start' },
+      ]}
     >
       {headers.map((header, index) => (
         <View

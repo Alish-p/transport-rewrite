@@ -35,10 +35,9 @@ import { DOC_TYPES } from '../config/constants';
 
 async function uploadViaPresigned({ vehicleId, docType, file }) {
   const contentType = file?.type || 'application/octet-stream';
-  const extension = (file?.name ?? '')
-    .split('.')
-    .pop()
-    ?.toLowerCase() || (contentType.split('/')[1] || '').toLowerCase();
+  const extension =
+    (file?.name ?? '').split('.').pop()?.toLowerCase() ||
+    (contentType.split('/')[1] || '').toLowerCase();
   const { key, uploadUrl } = await getPresignedUploadUrl({
     vehicleId,
     docType,
@@ -65,11 +64,19 @@ const AddDocSchema = zod
     const isFileObject = typeof file === 'object' && 'type' in file;
     if (!isFileObject) return; // allow prefilled url
     if ((file.size || 0) > 5 * 1024 * 1024) {
-      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Max file size is 5 MB', path: ['file'] });
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Max file size is 5 MB',
+        path: ['file'],
+      });
     }
     const isValidType = /^image\//.test(file.type) || file.type === 'application/pdf';
     if (!isValidType) {
-      ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Only images or PDF are allowed', path: ['file'] });
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Only images or PDF are allowed',
+        path: ['file'],
+      });
     }
   });
 
@@ -130,26 +137,29 @@ export default function VehicleDocumentFormDialog({
     }
   }, [open, defaultValues, methods]);
 
-  const handlePrefillFile = useCallback(async (signal) => {
-    if (!isEdit || !doc?._id || initialFileSet || !effectiveVehicleId) return;
-    try {
-      setLoadingFile(true);
-      const { data } = await axios.get(
-        `/api/documents/${effectiveVehicleId}/${doc._id}/download`,
-        { signal }
-      );
-      if (!signal?.aborted && data?.url) {
-        methods.setValue('file', data.url, { shouldValidate: false });
+  const handlePrefillFile = useCallback(
+    async (signal) => {
+      if (!isEdit || !doc?._id || initialFileSet || !effectiveVehicleId) return;
+      try {
+        setLoadingFile(true);
+        const { data } = await axios.get(
+          `/api/documents/${effectiveVehicleId}/${doc._id}/download`,
+          { signal }
+        );
+        if (!signal?.aborted && data?.url) {
+          methods.setValue('file', data.url, { shouldValidate: false });
+        }
+      } catch (e) {
+        // ignore; file may not be available or request aborted
+      } finally {
+        if (!signal?.aborted) {
+          setInitialFileSet(true);
+          setLoadingFile(false);
+        }
       }
-    } catch (e) {
-      // ignore; file may not be available or request aborted
-    } finally {
-      if (!signal?.aborted) {
-        setInitialFileSet(true);
-        setLoadingFile(false);
-      }
-    }
-  }, [isEdit, doc?._id, initialFileSet, effectiveVehicleId, methods]);
+    },
+    [isEdit, doc?._id, initialFileSet, effectiveVehicleId, methods]
+  );
 
   useEffect(() => {
     if (open && isEdit && !initialFileSet && !loadingFile) {
@@ -229,7 +239,6 @@ export default function VehicleDocumentFormDialog({
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{isEdit ? 'Edit Vehicle Document' : 'Add Vehicle Document'}</DialogTitle>
       <DialogContent dividers>
-
         <Form methods={methods} onSubmit={methods.handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={{ py: 1 }}>
             <DialogSelectButton
@@ -263,11 +272,21 @@ export default function VehicleDocumentFormDialog({
             />
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <Field.DatePicker name="issueDate" label="Issue Date" disabled={!effectiveVehicleId} />
-              <Field.DatePicker name="expiryDate" label="Expiry Date" disabled={!effectiveVehicleId} />
+              <Field.DatePicker
+                name="issueDate"
+                label="Issue Date"
+                disabled={!effectiveVehicleId}
+              />
+              <Field.DatePicker
+                name="expiryDate"
+                label="Expiry Date"
+                disabled={!effectiveVehicleId}
+              />
             </Stack>
 
-            {isEdit && <Field.Switch name="isActive" label="Mark as active" disabled={!effectiveVehicleId} />}
+            {isEdit && (
+              <Field.Switch name="isActive" label="Mark as active" disabled={!effectiveVehicleId} />
+            )}
 
             <Field.Upload
               name="file"
@@ -293,23 +312,25 @@ export default function VehicleDocumentFormDialog({
           onClick={methods.handleSubmit(onSubmit)}
           loading={methods.formState.isSubmitting}
           disabled={methods.formState.isSubmitting || !canSubmit}
-          startIcon={!methods.formState.isSubmitting ? <Iconify icon="eva:checkmark-circle-2-outline" /> : null}
+          startIcon={
+            !methods.formState.isSubmitting ? (
+              <Iconify icon="eva:checkmark-circle-2-outline" />
+            ) : null
+          }
         >
           Save
         </LoadingButton>
       </DialogActions>
 
-      {
-        !disableVehicleSelection && !isEdit && (
-          <KanbanVehicleDialog
-            open={vehicleDialog.value}
-            onClose={vehicleDialog.onFalse}
-            selectedVehicle={selectedVehicle}
-            onVehicleChange={setSelectedVehicle}
-            onlyOwn
-          />
-        )
-      }
-    </Dialog >
+      {!disableVehicleSelection && !isEdit && (
+        <KanbanVehicleDialog
+          open={vehicleDialog.value}
+          onClose={vehicleDialog.onFalse}
+          selectedVehicle={selectedVehicle}
+          onVehicleChange={setSelectedVehicle}
+          onlyOwn
+        />
+      )}
+    </Dialog>
   );
 }

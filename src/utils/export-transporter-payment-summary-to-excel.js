@@ -30,12 +30,11 @@ const mapSubtrips = (subtrips) =>
     'Total Expense': st.totalExpense,
     'Total Shortage Amount': st.totalShortageAmount,
     'Total Transporter Payment': st.totalTransporterPayment,
-
   }));
 
 export const exportTransporterPaymentSummaryToExcel = async (
   summary,
-  fileName = 'transporter-payment-summary',
+  fileName = 'transporter-payment-summary'
 ) => {
   const pendingTransporterPayments = mapSubtrips(summary?.pendingTransporterPayments);
   const payablePayments = mapPayments(summary?.payablePayments);
@@ -49,7 +48,7 @@ export const exportTransporterPaymentSummaryToExcel = async (
         shortage: acc.shortage + (st.totalShortageAmount || 0),
         payment: acc.payment + (st.totalTransporterPayment || 0),
       }),
-      { freight: 0, expense: 0, shortage: 0, payment: 0 },
+      { freight: 0, expense: 0, shortage: 0, payment: 0 }
     );
 
     pendingTransporterPayments.push({
@@ -103,7 +102,7 @@ export const exportTransporterPaymentSummaryToExcel = async (
       { name: 'Payable Payments', data: payablePayments },
       { name: 'Paid Payments', data: paidPayments },
     ],
-    fileName,
+    fileName
   );
 };
 

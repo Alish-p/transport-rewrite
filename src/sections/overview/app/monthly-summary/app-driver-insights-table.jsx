@@ -37,7 +37,6 @@ export function DriverInsightsTable({ month: controlledMonth, ...other }) {
 
   return (
     <Box {...other}>
-
       <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
         <Table sx={{ minWidth: 480 }}>
           <TableHeadCustom

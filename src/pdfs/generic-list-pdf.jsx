@@ -46,9 +46,10 @@ export default function GenericListPdf({
   let orderedColumns;
   if (!isPrebuilt) {
     // columns are table-config; respect visibleColumns ordering when provided
-    const base = Array.isArray(visibleColumns) && visibleColumns.length
-      ? visibleColumns.map((id) => columns.find((c) => c.id === id)).filter(Boolean)
-      : columns;
+    const base =
+      Array.isArray(visibleColumns) && visibleColumns.length
+        ? visibleColumns.map((id) => columns.find((c) => c.id === id)).filter(Boolean)
+        : columns;
     orderedColumns = base.map((c) => ({
       header: c.label,
       accessor: c.id,
@@ -109,9 +110,7 @@ export default function GenericListPdf({
   });
 
   const showTotals =
-    typeof includeTotals === 'boolean'
-      ? includeTotals
-      : tableColumns.some((c) => c.showTotal);
+    typeof includeTotals === 'boolean' ? includeTotals : tableColumns.some((c) => c.showTotal);
 
   return (
     <Document>
@@ -120,7 +119,12 @@ export default function GenericListPdf({
         <PDFHeader company={tenant} />
         <PDFDeclaration content={`Report generated on ${fDate(new Date())}.`} />
 
-        <NewPDFTable columns={tableColumns} data={data} showTotals={showTotals} totalRowLabel="TOTAL" />
+        <NewPDFTable
+          columns={tableColumns}
+          data={data}
+          showTotals={showTotals}
+          totalRowLabel="TOTAL"
+        />
 
         <PDFFooter additionalInfo={`Total ${title}: ${rows.length}`} />
       </Page>

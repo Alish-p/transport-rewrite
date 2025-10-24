@@ -298,10 +298,9 @@ export function SubtripListView() {
   const visibleTableHead = visibleHeaders;
 
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -483,7 +482,6 @@ export function SubtripListView() {
                 headLabel={visibleTableHead}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(

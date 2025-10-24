@@ -25,4 +25,3 @@ export async function getDocumentDownloadUrl({ vehicleId, docId, signal } = {}) 
     return null;
   }
 }
-

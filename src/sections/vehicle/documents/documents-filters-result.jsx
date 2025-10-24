@@ -49,8 +49,6 @@ export default function DocumentsFiltersResult({
     onFilters('expiryTo', null);
   };
 
-
-
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -79,7 +77,11 @@ export default function DocumentsFiltersResult({
 
         {filters.vehicleId && (
           <Block label="Vehicle:">
-            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicle}
+            />
           </Block>
         )}
 
@@ -115,7 +117,11 @@ export default function DocumentsFiltersResult({
           </Block>
         )}
 
-        <Button color="error" onClick={onResetFilters} startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}>
+        <Button
+          color="error"
+          onClick={onResetFilters}
+          startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+        >
           Clear
         </Button>
       </Stack>

@@ -144,10 +144,9 @@ export function DriverListView() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -258,9 +257,7 @@ export function DriverListView() {
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink
                     document={(() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const visibleCols = getVisibleColumnsForExport();
                       return (
                         <DriverListPdf
@@ -292,7 +289,6 @@ export function DriverListView() {
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(

@@ -94,7 +94,14 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
                   >
-                    {item.render ? item.render({ close: () => { setActiveMenuIndex(null); popover.onClose(); } }) : content}
+                    {item.render
+                      ? item.render({
+                          close: () => {
+                            setActiveMenuIndex(null);
+                            popover.onClose();
+                          },
+                        })
+                      : content}
                   </MenuItem>
                 );
 
@@ -162,7 +169,14 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
                   >
-                    {item.render ? item.render({ close: () => { setActiveMenuIndex(null); popover.onClose(); } }) : content}
+                    {item.render
+                      ? item.render({
+                          close: () => {
+                            setActiveMenuIndex(null);
+                            popover.onClose();
+                          },
+                        })
+                      : content}
                   </MenuItem>
                 );
 

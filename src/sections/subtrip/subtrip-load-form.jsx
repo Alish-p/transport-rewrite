@@ -382,7 +382,7 @@ export function SubtripLoadForm() {
         setExpenseError(null);
         setExpenseMessage(
           `Fixed expenses are available for ${vehicleData.vehicleType} [${vehicleData.noOfTyres} tyres]. ` +
-          `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
+            `These expenses will be applied automatically: Advance ₹${expenses.advanceAmt}, Toll ₹${expenses.tollAmt}, Fixed Salary ₹${expenses.fixedSalary}.`
         );
       } catch (error) {
         setExpenseMessage(null);
@@ -554,7 +554,11 @@ export function SubtripLoadForm() {
 
       <Field.Text name="shipmentNo" label="Shipment No" />
       <Field.Text name="orderNo" label="Order No" />
-      <Field.Text name="referenceSubtripNo" label="Reference Job No" placeholder='Enter original job no (if created by another transporter)' />
+      <Field.Text
+        name="referenceSubtripNo"
+        label="Reference Job No"
+        placeholder="Enter original job no (if created by another transporter)"
+      />
 
       <Field.Select name="materialType" label="Material Type *">
         <MenuItem value="">None</MenuItem>

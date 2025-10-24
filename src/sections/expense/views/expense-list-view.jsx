@@ -83,9 +83,12 @@ export function ExpenseListView() {
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const vehicleExpenseTypes = useVehicleExpenseTypes();
 
-  const { filters, handleFilters, handleResetFilters, setFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, handleFilters, handleResetFilters, setFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
@@ -134,10 +137,9 @@ export function ExpenseListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -411,7 +413,6 @@ export function ExpenseListView() {
             }
             action={
               <Stack direction="row">
-
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
@@ -429,8 +430,6 @@ export function ExpenseListView() {
                     <Iconify icon="file-icons:microsoft-excel" />
                   </IconButton>
                 </Tooltip>
-
-                
 
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink

@@ -122,24 +122,28 @@ export function useTable(props) {
   // Sync table state to URL query params so list pages persist/share state
   useEffect(() => {
     if (!syncToUrl) return;
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      // Only include when meaningful to keep URLs clean
-      if (page > 0) params.set('page', String(page + 1));
-      else params.delete('page');
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        // Only include when meaningful to keep URLs clean
+        if (page > 0) params.set('page', String(page + 1));
+        else params.delete('page');
 
-      if (rowsPerPage && rowsPerPage !== (props?.defaultRowsPerPage || 10))
-        params.set('rowsPerPage', String(rowsPerPage));
-      else params.delete('rowsPerPage');
+        if (rowsPerPage && rowsPerPage !== (props?.defaultRowsPerPage || 10))
+          params.set('rowsPerPage', String(rowsPerPage));
+        else params.delete('rowsPerPage');
 
-      if (orderBy && orderBy !== (props?.defaultOrderBy || 'name')) params.set('orderBy', orderBy);
-      else params.delete('orderBy');
+        if (orderBy && orderBy !== (props?.defaultOrderBy || 'name'))
+          params.set('orderBy', orderBy);
+        else params.delete('orderBy');
 
-      if (order && order !== (props?.defaultOrder || 'asc')) params.set('order', order);
-      else params.delete('order');
+        if (order && order !== (props?.defaultOrder || 'asc')) params.set('order', order);
+        else params.delete('order');
 
-      return params;
-    }, { replace: true });
+        return params;
+      },
+      { replace: true }
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, order, orderBy, syncToUrl]);
 

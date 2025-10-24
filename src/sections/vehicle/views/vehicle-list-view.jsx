@@ -133,10 +133,9 @@ export function VehicleListView() {
   }, [resetFilters]);
 
   const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
 
@@ -261,9 +260,7 @@ export function VehicleListView() {
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink
                     document={(() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const visibleCols = getVisibleColumnsForExport();
                       return (
                         <VehicleListPdf
@@ -295,7 +292,6 @@ export function VehicleListView() {
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
-                onSort={table.onSort}
                 onOrderChange={moveColumn}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
@@ -307,22 +303,22 @@ export function VehicleListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <VehicleTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
-                      onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
-                      onDeleteRow={() => deleteVehicle(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <VehicleTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
+                        onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
+                        onDeleteRow={() => deleteVehicle(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={!tableData.length && canReset} />
               </TableBody>
             </Table>

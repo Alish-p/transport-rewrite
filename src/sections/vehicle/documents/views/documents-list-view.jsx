@@ -143,7 +143,7 @@ export function VehicleDocumentsListView() {
               variant="contained"
               startIcon={<Iconify icon="bytesize:upload" />}
               onClick={addDialog.onTrue}
-              size='small'
+              size="small"
             >
               Upload
             </Button>
@@ -230,18 +230,18 @@ export function VehicleDocumentsListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                        <TableSkeleton key={i} />
+                      ))
                     : tableData.map((row) => (
-                      <DocumentsTableRow
-                        key={row._id}
-                        row={row}
-                        onOpenDetails={(r) => setDetailsDoc(r)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                        <DocumentsTableRow
+                          key={row._id}
+                          row={row}
+                          onOpenDetails={(r) => setDetailsDoc(r)}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
+                        />
+                      ))}
                   <TableNoData notFound={!tableData.length && canReset} />
                 </TableBody>
               </Table>

@@ -27,7 +27,13 @@ export function AppMonthlySummaryTabs() {
   const monthParam = useMemo(() => selectedMonth?.format('YYYY-MM'), [selectedMonth]);
 
   // Track which tabs have been opened to control initial mounting/fetching
-  const [mounted, setMounted] = useState({ customer: true, vehicle: false, transporter: false, driver: false, route: false });
+  const [mounted, setMounted] = useState({
+    customer: true,
+    vehicle: false,
+    transporter: false,
+    driver: false,
+    route: false,
+  });
 
   const handleChange = (_e, value) => {
     setTab(value);
@@ -35,7 +41,10 @@ export function AppMonthlySummaryTabs() {
   };
 
   const icon = (name) => (
-    <SvgColor sx={{ width: 36, height: 36, color: 'primary.main' }} src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />
+    <SvgColor
+      sx={{ width: 36, height: 36, color: 'primary.main' }}
+      src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`}
+    />
   );
 
   const tabs = useMemo(
@@ -50,9 +59,25 @@ export function AppMonthlySummaryTabs() {
   );
 
   const renderHeader = (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'flex-start', flexDirection: { xs: 'column', md: 'row' } }}>
+    <Box
+      sx={{
+        gap: 2,
+        display: 'flex',
+        alignItems: 'flex-start',
+        flexDirection: { xs: 'column', md: 'row' },
+      }}
+    >
       <Box sx={{ flexGrow: 1 }}>
-        <Box sx={{ mb: 1, gap: 0.5, display: 'flex', alignItems: 'center', color: 'text.secondary', typography: 'subtitle2' }}>
+        <Box
+          sx={{
+            mb: 1,
+            gap: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            color: 'text.secondary',
+            typography: 'subtitle2',
+          }}
+        >
           Monthly summary
         </Box>
         <Box sx={{ typography: 'h4' }}>{selectedMonth.format('MMM YYYY')}</Box>
@@ -61,7 +86,7 @@ export function AppMonthlySummaryTabs() {
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <DatePicker
           label="Select month"
-          views={["year", "month"]}
+          views={['year', 'month']}
           openTo="month"
           value={selectedMonth}
           onChange={(value) => value && setSelectedMonth(value)}
@@ -79,19 +104,41 @@ export function AppMonthlySummaryTabs() {
       variant="scrollable"
       allowScrollButtonsMobile
       sx={{ my: 3, borderRadius: 2 }}
-      slotProps={{ indicator: { borderRadius: 1.5, boxShadow: theme.customShadows.z4 }, tab: { p: 2.5 } }}
+      slotProps={{
+        indicator: { borderRadius: 1.5, boxShadow: theme.customShadows.z4 },
+        tab: { p: 2.5 },
+      }}
     >
       {tabs.map((t) => (
         <Tab
           key={t.value}
           value={t.value}
           label={
-            <Box sx={{ width: 1, display: 'flex', gap: { xs: 1, md: 2 }, flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'center', md: 'center' } }}>
-              <Box sx={{ alignItems: 'center', justifyContent: 'center', color: 'primary.main', display: { xs: 'none', md: 'inline-flex' } }}>
+            <Box
+              sx={{
+                width: 1,
+                display: 'flex',
+                gap: { xs: 1, md: 2 },
+                flexDirection: { xs: 'column', md: 'row' },
+                alignItems: { xs: 'center', md: 'center' },
+              }}
+            >
+              <Box
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'primary.main',
+                  display: { xs: 'none', md: 'inline-flex' },
+                }}
+              >
                 {t.icon}
               </Box>
               <div>
-                <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}>{t.label}</Box>
+                <Box
+                  sx={{ gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}
+                >
+                  {t.label}
+                </Box>
               </div>
             </Box>
           }
@@ -107,19 +154,35 @@ export function AppMonthlySummaryTabs() {
 
       <Box sx={{ px: 2, pb: 3 }}>
         {tab === 'customer' && (
-          <CustomerFreightTable month={monthParam} title="📦 Customer-wise Summary" subheader="Shows total weight transferred and freight amount for each customer." />
+          <CustomerFreightTable
+            month={monthParam}
+            title="📦 Customer-wise Summary"
+            subheader="Shows total weight transferred and freight amount for each customer."
+          />
         )}
 
         {tab === 'vehicle' && mounted.vehicle && (
-          <VehicleInsightsTable month={monthParam} title="🚚 Vehicle Insights" subheader="Jobs completed by each vehicle" />
+          <VehicleInsightsTable
+            month={monthParam}
+            title="🚚 Vehicle Insights"
+            subheader="Jobs completed by each vehicle"
+          />
         )}
 
         {tab === 'transporter' && mounted.transporter && (
-          <TransporterInsightsTable month={monthParam} title="🚛 Transporter Insights" subheader="Jobs completed by each transporter" />
+          <TransporterInsightsTable
+            month={monthParam}
+            title="🚛 Transporter Insights"
+            subheader="Jobs completed by each transporter"
+          />
         )}
 
         {tab === 'driver' && mounted.driver && (
-          <DriverInsightsTable month={monthParam} title="👷 Driver Insights" subheader="Jobs completed by each driver" />
+          <DriverInsightsTable
+            month={monthParam}
+            title="👷 Driver Insights"
+            subheader="Jobs completed by each driver"
+          />
         )}
 
         {tab === 'route' && mounted.route && (

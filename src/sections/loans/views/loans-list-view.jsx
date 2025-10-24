@@ -186,7 +186,6 @@ export function LoansListView({ loans }) {
               }
               action={
                 <Stack direction="row">
-
                   <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
@@ -200,8 +199,6 @@ export function LoansListView({ loans }) {
                       <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
                   </Tooltip>
-
-                  
 
                   <Tooltip title="Delete">
                     <IconButton color="primary" onClick={confirm.onTrue}>
@@ -220,7 +217,6 @@ export function LoansListView({ loans }) {
                   headLabel={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,

@@ -1,4 +1,4 @@
-# tranzit 
+# tranzit
 
 tranzit is a logistics management dashboard built with React and Vite. It helps track trips, vehicles, invoices and other day‑to‑day operations for transport companies.
 

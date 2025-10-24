@@ -17,10 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import {
-  useDeleteDieselPrice,
-  usePaginatedDieselPrices,
-} from 'src/query/use-diesel-prices';
+import { useDeleteDieselPrice, usePaginatedDieselPrices } from 'src/query/use-diesel-prices';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

@@ -48,14 +48,7 @@ export function OverviewAppView({
 }) {
   const { user } = useAuthContext();
 
-  const {
-    invoices,
-    vehicles,
-    transporters,
-    customers,
-    drivers,
-    subtrips,
-  } = counts;
+  const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
 
   return (
     <DashboardContent>
@@ -180,24 +173,23 @@ export function OverviewAppView({
               series: [
                 subtripMonthlyData
                   ? {
-                    name: String(subtripMonthlyData.year),
-                    data: [
-                      { name: 'Own', data: subtripMonthlyData.own },
-                      { name: 'Market', data: subtripMonthlyData.market },
-                    ],
-                  }
+                      name: String(subtripMonthlyData.year),
+                      data: [
+                        { name: 'Own', data: subtripMonthlyData.own },
+                        { name: 'Market', data: subtripMonthlyData.market },
+                      ],
+                    }
                   : {
-                    name: 'Year',
-                    data: [
-                      { name: 'Own', data: Array(12).fill(0) },
-                      { name: 'Market', data: Array(12).fill(0) },
-                    ],
-                  },
+                      name: 'Year',
+                      data: [
+                        { name: 'Own', data: Array(12).fill(0) },
+                        { name: 'Market', data: Array(12).fill(0) },
+                      ],
+                    },
               ],
             }}
           />
         </Grid>
-
 
         <Grid xs={12}>
           <AppDailySummaryWidget />
@@ -206,7 +198,6 @@ export function OverviewAppView({
         <Grid xs={12} md={12}>
           <AppMonthlySummaryTabs />
         </Grid>
-
 
         <Grid xs={12} lg={8}>
           <SubtripExpiryTable

@@ -260,14 +260,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
 
     const tableData = expenseRows.map((row, idx) => ({ ...row, sno: idx + 1 }));
 
-    return (
-      <NewPDFTable
-        columns={columns}
-        data={tableData}
-        showTotals
-        totalRowLabel="TOTAL"
-      />
-    );
+    return <NewPDFTable columns={columns} data={tableData} showTotals totalRowLabel="TOTAL" />;
   };
 
   return (

@@ -191,7 +191,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
               }
               action={
                 <Stack direction="row">
-
                   <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
@@ -205,8 +204,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
                       <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
                   </Tooltip>
-
-                  
 
                   <Tooltip title="Delete">
                     <IconButton color="primary" onClick={confirm.onTrue}>
@@ -225,7 +222,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
                   headLabel={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,

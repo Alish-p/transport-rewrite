@@ -6,11 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Stack,
-  InputAdornment
-} from '@mui/material';
+import { Box, Stack, InputAdornment } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 // components

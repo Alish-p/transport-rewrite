@@ -40,11 +40,4 @@ export const DOC_TYPES = [
   'West Bengal Permit',
 ];
 
-export const REQUIRED_DOC_TYPES = [
-  'Insurance',
-  'PUC',
-  'RC',
-  'Fitness',
-  'Permit',
-  'Tax',
-];
+export const REQUIRED_DOC_TYPES = ['Insurance', 'PUC', 'RC', 'Fitness', 'Permit', 'Tax'];

@@ -1,4 +1,3 @@
-
 function pad2(n) {
   return String(n).padStart(2, '0');
 }
@@ -43,13 +42,13 @@ export function buildInvoicesXml(invoicesInput, tenant) {
   const accountingEnabled = !!(
     tenant?.integrations?.accounting && tenant?.integrations?.accounting?.enabled
   );
-  const invoiceLedgersEnabled = !!(
-    tenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled
-  );
+  const invoiceLedgersEnabled =
+    !!tenant?.integrations?.accounting?.config?.invoiceLedgerNames?.enabled;
 
-  const configuredLedgers = accountingEnabled && invoiceLedgersEnabled
-    ? tenant?.integrations?.accounting?.config?.invoiceLedgerNames || {}
-    : {};
+  const configuredLedgers =
+    accountingEnabled && invoiceLedgersEnabled
+      ? tenant?.integrations?.accounting?.config?.invoiceLedgerNames || {}
+      : {};
 
   const LEDGER_NAMES = {
     income: configuredLedgers.income || 'Freight Income',
@@ -210,7 +209,9 @@ export function buildInvoicesXml(invoicesInput, tenant) {
        <AMOUNT>${toFixed2(igstAmt)}</AMOUNT>
       </ALLLEDGERENTRIES.LIST>`;
 
-      const taxLines = isIGST ? igstAllLedger : `${cgstAllLedger}
+      const taxLines = isIGST
+        ? igstAllLedger
+        : `${cgstAllLedger}
 ${sgstAllLedger}`;
 
       return `

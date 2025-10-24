@@ -189,21 +189,21 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
       const submitData =
         currentTab === 'loaded'
           ? {
-            tripId: data?.tripId,
-            customerId: data?.customerId?.value,
-            startDate: data?.startDate,
-            diNumber: data?.diNumber,
-            isEmpty: false,
-          }
+              tripId: data?.tripId,
+              customerId: data?.customerId?.value,
+              startDate: data?.startDate,
+              diNumber: data?.diNumber,
+              isEmpty: false,
+            }
           : {
-            tripId: data?.tripId,
-            routeCd: data?.routeCd,
-            loadingPoint: data?.loadingPoint,
-            unloadingPoint: data?.unloadingPoint,
-            startKm: data?.startKm,
-            startDate: data?.startDate,
-            isEmpty: true,
-          };
+              tripId: data?.tripId,
+              routeCd: data?.routeCd,
+              loadingPoint: data?.loadingPoint,
+              unloadingPoint: data?.unloadingPoint,
+              startKm: data?.startKm,
+              startDate: data?.startDate,
+              isEmpty: true,
+            };
 
       const createdSubtrip =
         currentTab === 'empty' ? await addEmptySubtrip(submitData) : await addSubtrip(submitData);
@@ -306,11 +306,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                     helperText="Please Enter the reading of the odometer at the start of the trip"
                     required
                   />
-                  <Field.DatePicker
-                    name="startDate"
-                    label="Job Start Date *"
-                    maxDate={dayjs()}
-                  />
+                  <Field.DatePicker name="startDate" label="Job Start Date *" maxDate={dayjs()} />
                 </>
               ) : (
                 <>
@@ -319,11 +315,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
                     label="DI/DO No"
                     helperText="Please Enter DI/DO Number to Generate Entry Pass"
                   />
-                  <Field.DatePicker
-                    name="startDate"
-                    label="Job Start Date *"
-                    maxDate={dayjs()}
-                  />
+                  <Field.DatePicker name="startDate" label="Job Start Date *" maxDate={dayjs()} />
                 </>
               )}
             </Box>

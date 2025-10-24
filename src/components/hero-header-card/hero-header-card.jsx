@@ -14,7 +14,18 @@ import { bgGradient } from 'src/theme/styles';
 import { Iconify } from '../iconify';
 import { ActionMenuBar } from './action-menu-bar';
 
-export function HeroHeaderCard({ icon, title, status, meta = [], action, actions, menus, gradient, sx, ...other }) {
+export function HeroHeaderCard({
+  icon,
+  title,
+  status,
+  meta = [],
+  action,
+  actions,
+  menus,
+  gradient,
+  sx,
+  ...other
+}) {
   const theme = useTheme();
 
   const background =
@@ -55,7 +66,7 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, actions
 
             {action ? (
               <Box sx={{ flexShrink: 0 }}>{action}</Box>
-            ) : (menus || actions) ? (
+            ) : menus || actions ? (
               <Box sx={{ flexShrink: 0 }}>
                 <ActionMenuBar menus={menus} actions={actions} />
               </Box>
@@ -69,7 +80,13 @@ export function HeroHeaderCard({ icon, title, status, meta = [], action, actions
                 <Stack key={item.label} direction="row" spacing={1} alignItems="center">
                   {item.icon && <Iconify icon={item.icon} width={16} height={16} />}
                   {item.href ? (
-                    <Link component={RouterLink} href={item.href} variant="body2" color="white" sx={{ opacity: 0.9 }}>
+                    <Link
+                      component={RouterLink}
+                      href={item.href}
+                      variant="body2"
+                      color="white"
+                      sx={{ opacity: 0.9 }}
+                    >
                       {item.label}
                     </Link>
                   ) : (

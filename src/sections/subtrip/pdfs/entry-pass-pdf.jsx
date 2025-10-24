@@ -20,15 +20,7 @@ export default function EntryPassPdf({ subtrip, tenant }) {
   const phone = COMPANY.contacts?.[0] || COMPANY.contactDetails?.phone;
   const email = COMPANY.email || COMPANY.contactDetails?.email;
   const website = COMPANY.website || COMPANY.contactDetails?.website;
-  const {
-    _id,
-    subtripNo,
-    diNumber,
-    customerId,
-    startDate,
-    driverId,
-    vehicleId,
-  } = subtrip;
+  const { _id, subtripNo, diNumber, customerId, startDate, driverId, vehicleId } = subtrip;
 
   console.log(subtrip);
 

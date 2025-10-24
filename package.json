@@ -17,7 +17,8 @@
     "re:start": "npm run rm:all && npm install && npm run dev",
     "re:build": "npm run rm:all && npm install && npm run build",
     "re:build-npm": "npm run rm:all && npm install && npm run build",
-    "dev:host": "vite --host"
+    "dev:host": "vite --host",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

@@ -65,14 +65,11 @@ const toNumber = (val) => {
 };
 
 // Accept number-like values; coerce to number; treat empty/NaN as undefined
-const numericInputSchema = z.preprocess(
-  (val) => {
-    if (val === '' || val === null || val === undefined) return undefined;
-    const n = typeof val === 'number' ? val : Number(val);
-    return Number.isFinite(n) ? n : undefined;
-  },
-  z.number().optional()
-);
+const numericInputSchema = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  const n = typeof val === 'number' ? val : Number(val);
+  return Number.isFinite(n) ? n : undefined;
+}, z.number().optional());
 
 const consigneeOptionSchema = z
   .object({ label: z.string().optional(), value: z.string().optional() })
@@ -101,7 +98,9 @@ const formSchema = z
     invoiceNo: z.string().optional(),
     ewayBill: z.string().optional(),
     // Optional because empty subtrips won't have it
-    ewayExpiryDate: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid Eway Expiry Date!' } }),
+    ewayExpiryDate: schemaHelper.dateOptional({
+      message: { invalid_type_error: 'Invalid Eway Expiry Date!' },
+    }),
     materialType: z.string().optional(),
     quantity: numericInputSchema,
     grade: z.string().optional(),
@@ -208,9 +207,24 @@ export function SubtripJobCreateView() {
     mode: 'onChange',
   });
 
-  const { watch, handleSubmit, formState: { errors, isSubmitting }, setValue, trigger, clearErrors, getValues } = methods;
+  const {
+    watch,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    trigger,
+    clearErrors,
+    getValues,
+  } = methods;
   const watchedForm = watch();
-  const { tripDecision, loadType, driverAdvanceGivenBy, initialAdvanceDiesel, initialAdvanceDieselUnit, pumpCd } = watchedForm;
+  const {
+    tripDecision,
+    loadType,
+    driverAdvanceGivenBy,
+    initialAdvanceDiesel,
+    initialAdvanceDieselUnit,
+    pumpCd,
+  } = watchedForm;
 
   const dieselAdvanceValue = toNumber(initialAdvanceDiesel);
   const requiresPumpSelection =
@@ -271,9 +285,15 @@ export function SubtripJobCreateView() {
     ]
   );
 
-  const handleDriverChange = useCallback((driver) => setSelectedDriver(driver), [setSelectedDriver]);
+  const handleDriverChange = useCallback(
+    (driver) => setSelectedDriver(driver),
+    [setSelectedDriver]
+  );
 
-  const handleCustomerChange = useCallback((customer) => setSelectedCustomer(customer), [setSelectedCustomer]);
+  const handleCustomerChange = useCallback(
+    (customer) => setSelectedCustomer(customer),
+    [setSelectedCustomer]
+  );
 
   const handleRouteChange = useCallback(
     (route) => {
@@ -316,7 +336,10 @@ export function SubtripJobCreateView() {
         const currentDiesel = toNumber(watchedForm.initialAdvanceDiesel);
         if (currentDiesel === undefined && cfg?.diesel != null) {
           setValue('initialAdvanceDiesel', cfg.diesel, { shouldValidate: true, shouldDirty: true });
-          setValue('initialAdvanceDieselUnit', 'litre', { shouldValidate: false, shouldDirty: true });
+          setValue('initialAdvanceDieselUnit', 'litre', {
+            shouldValidate: false,
+            shouldDirty: true,
+          });
           setRouteSuggestedDiesel(true);
         }
       }
@@ -333,7 +356,6 @@ export function SubtripJobCreateView() {
     routeSuggestedDiesel,
   ]);
 
-
   // Popover for active trip subtrips
   const [subtripAnchorEl, setSubtripAnchorEl] = useState(null);
   const openSubtripPopover = Boolean(subtripAnchorEl);
@@ -344,10 +366,10 @@ export function SubtripJobCreateView() {
   const { data: recentSubtripsData } = usePaginatedSubtrips(
     selectedVehicle?._id
       ? {
-        page: 1,
-        rowsPerPage: 10,
-        vehicleId: selectedVehicle._id,
-      }
+          page: 1,
+          rowsPerPage: 10,
+          vehicleId: selectedVehicle._id,
+        }
       : null,
     { enabled: !!selectedVehicle?._id }
   );
@@ -361,10 +383,7 @@ export function SubtripJobCreateView() {
     }, [])
     .slice(0, 5);
 
-  const consignees = useMemo(
-    () => selectedCustomer?.consignees || [],
-    [selectedCustomer]
-  );
+  const consignees = useMemo(() => selectedCustomer?.consignees || [], [selectedCustomer]);
 
   // Auto-fill startKm for own vehicles using GPS when creating a new trip
   const vehicleNo = selectedVehicle?.vehicleNo;
@@ -377,7 +396,10 @@ export function SubtripJobCreateView() {
 
     const current = toNumber(getValues('startKm'));
     if (current === undefined) {
-      setValue('startKm', Math.round(gpsData.totalOdometer), { shouldValidate: true, shouldDirty: true });
+      setValue('startKm', Math.round(gpsData.totalOdometer), {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   }, [gpsData, selectedVehicle, activeTrip, tripDecision, setValue, getValues]);
 
@@ -398,7 +420,7 @@ export function SubtripJobCreateView() {
       }
 
       // Require Start Km when creating a new trip (no active trip, or choosing to create new)
-      const requiresStartKm = (!activeTrip) || (activeTrip && form.tripDecision === 'new');
+      const requiresStartKm = !activeTrip || (activeTrip && form.tripDecision === 'new');
       if (requiresStartKm) {
         const startKmValue = toNumber(form.startKm);
         if (startKmValue === undefined) return 'Start Km is required to create a new trip';
@@ -463,7 +485,13 @@ export function SubtripJobCreateView() {
       if (!isLoaded) return null;
 
       // Eway Expiry Date should be optional; require only if Eway Bill is present
-      if (!form.loadingWeight || !form.rate || !form.invoiceNo || !form.materialType || (form.ewayBill && !form.ewayExpiryDate)) {
+      if (
+        !form.loadingWeight ||
+        !form.rate ||
+        !form.invoiceNo ||
+        !form.materialType ||
+        (form.ewayBill && !form.ewayExpiryDate)
+      ) {
         return 'Please fill required material fields';
       }
 
@@ -525,36 +553,36 @@ export function SubtripJobCreateView() {
 
     const emptyRoute = isEmpty
       ? {
-        routeCd: selectedRoute?._id,
-        loadingPoint: selectedRoute?.fromPlace,
-        unloadingPoint: selectedRoute?.toPlace,
-      }
+          routeCd: selectedRoute?._id,
+          loadingPoint: selectedRoute?.fromPlace,
+          unloadingPoint: selectedRoute?.toPlace,
+        }
       : {};
 
     const loadedFields = !isEmpty
       ? {
-        customerId: selectedCustomer?._id,
-        consignee: form.consignee?.value || form.consignee?.label,
-        routeCd: form.routeCd,
-        loadingPoint: form.loadingPoint,
-        unloadingPoint: form.unloadingPoint,
-        loadingWeight: toNumber(form.loadingWeight),
-        rate: toNumber(form.rate),
-        invoiceNo: form.invoiceNo,
-        shipmentNo: form.shipmentNo || undefined,
-        orderNo: form.orderNo || undefined,
-        referenceSubtripNo: form.referenceSubtripNo || undefined,
-        ewayBill: form.ewayBill || undefined,
-        ewayExpiryDate: form.ewayExpiryDate,
-        materialType: form.materialType,
-        quantity: toNumber(form.quantity),
-        grade: form.grade || undefined,
-        driverAdvance: toNumber(form.driverAdvance),
-        driverAdvanceGivenBy: form.driverAdvanceGivenBy,
-        initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
-        initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
-        pumpCd: form.pumpCd || undefined,
-      }
+          customerId: selectedCustomer?._id,
+          consignee: form.consignee?.value || form.consignee?.label,
+          routeCd: form.routeCd,
+          loadingPoint: form.loadingPoint,
+          unloadingPoint: form.unloadingPoint,
+          loadingWeight: toNumber(form.loadingWeight),
+          rate: toNumber(form.rate),
+          invoiceNo: form.invoiceNo,
+          shipmentNo: form.shipmentNo || undefined,
+          orderNo: form.orderNo || undefined,
+          referenceSubtripNo: form.referenceSubtripNo || undefined,
+          ewayBill: form.ewayBill || undefined,
+          ewayExpiryDate: form.ewayExpiryDate,
+          materialType: form.materialType,
+          quantity: toNumber(form.quantity),
+          grade: form.grade || undefined,
+          driverAdvance: toNumber(form.driverAdvance),
+          driverAdvanceGivenBy: form.driverAdvanceGivenBy,
+          initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
+          initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
+          pumpCd: form.pumpCd || undefined,
+        }
       : {};
 
     return {
@@ -681,12 +709,16 @@ export function SubtripJobCreateView() {
                     <>
                       {fetchingActiveTrip && <Typography>Checking active trip…</Typography>}
                       {!fetchingActiveTrip && activeTrip && (
-                        <Alert severity="info" sx={{ display: 'flex', alignItems: 'center', }}>
+                        <Alert severity="info" sx={{ display: 'flex', alignItems: 'center' }}>
                           <span>
                             Active trip found: <strong>{activeTrip.tripNo}</strong>
                           </span>
                           <Tooltip title="View recent jobs" arrow>
-                            <IconButton size="small" color="primary" onClick={handleOpenSubtripPopover}>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={handleOpenSubtripPopover}
+                            >
                               <Iconify icon="mdi:format-list-bulleted" width={18} />
                             </IconButton>
                           </Tooltip>
@@ -716,13 +748,27 @@ export function SubtripJobCreateView() {
                                       .map((st) => (
                                         <Box key={st._id}>
                                           <Typography variant="body2">
-                                            <strong>LR:</strong> {st.subtripNo} • <strong>Customer:</strong> {st.customerId?.customerName || '-'}
+                                            <strong>LR:</strong> {st.subtripNo} •{' '}
+                                            <strong>Customer:</strong>{' '}
+                                            {st.customerId?.customerName || '-'}
                                           </Typography>
-                                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                            <strong>Status:</strong> {st.subtripStatus?.replace('-', ' ') || '-'} • <strong>Route:</strong> {st.loadingPoint} → {st.unloadingPoint}
+                                          <Typography
+                                            variant="caption"
+                                            sx={{ color: 'text.secondary' }}
+                                          >
+                                            <strong>Status:</strong>{' '}
+                                            {st.subtripStatus?.replace('-', ' ') || '-'} •{' '}
+                                            <strong>Route:</strong> {st.loadingPoint} →{' '}
+                                            {st.unloadingPoint}
                                           </Typography>
-                                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                                            <strong>Dispatch:</strong> {st.startDate ? fDate(new Date(st.startDate)) : '-'} • <strong>Driver:</strong> {st.driverId?.driverName || '-'}
+                                          <Typography
+                                            variant="caption"
+                                            sx={{ color: 'text.secondary', display: 'block' }}
+                                          >
+                                            <strong>Dispatch:</strong>{' '}
+                                            {st.startDate ? fDate(new Date(st.startDate)) : '-'} •{' '}
+                                            <strong>Driver:</strong>{' '}
+                                            {st.driverId?.driverName || '-'}
                                           </Typography>
                                         </Box>
                                       ))}
@@ -735,7 +781,8 @@ export function SubtripJobCreateView() {
                       )}
                       {!fetchingActiveTrip && !activeTrip && (
                         <Alert severity="success" variant="outlined">
-                          No active trip found. A new trip will be created and the job attached to it.
+                          No active trip found. A new trip will be created and the job attached to
+                          it.
                         </Alert>
                       )}
 
@@ -756,17 +803,20 @@ export function SubtripJobCreateView() {
                         </Field.Select>
                       )}
 
-                      {selectedVehicle?.isOwn && ((activeTrip && tripDecision === 'new') || !activeTrip) && (
-                        <Field.Text
-                          name="startKm"
-                          label="Start Km"
-                          type="number"
-                          helperText="Previous trip will be closed with this starting km of current trip"
-                          InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
-                          inputProps={{ min: 0 }}
-                          sx={{ mt: 1 }}
-                        />
-                      )}
+                      {selectedVehicle?.isOwn &&
+                        ((activeTrip && tripDecision === 'new') || !activeTrip) && (
+                          <Field.Text
+                            name="startKm"
+                            label="Start Km"
+                            type="number"
+                            helperText="Previous trip will be closed with this starting km of current trip"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                            }}
+                            inputProps={{ min: 0 }}
+                            sx={{ mt: 1 }}
+                          />
+                        )}
 
                       <Field.Select name="loadType" label="Load Type" sx={{ mt: 1 }}>
                         <MenuItem value="loaded">
@@ -796,7 +846,11 @@ export function SubtripJobCreateView() {
                 </Box>
 
                 <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" onClick={() => setActiveStep(1)} disabled={!canGoStep2}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setActiveStep(1)}
+                    disabled={!canGoStep2}
+                  >
                     Continue
                   </Button>
                 </Box>
@@ -859,7 +913,11 @@ export function SubtripJobCreateView() {
 
                 <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                   <Button onClick={() => setActiveStep(0)}>Back</Button>
-                  <Button variant="contained" onClick={() => setActiveStep(2)} disabled={!canGoRouteStep}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setActiveStep(2)}
+                    disabled={!canGoRouteStep}
+                  >
                     Continue
                   </Button>
                 </Stack>
@@ -883,11 +941,17 @@ export function SubtripJobCreateView() {
                     <DialogSelectButton
                       onClick={routeDialog.onTrue}
                       placeholder="Select Route *"
-                      selected={selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`}
+                      selected={
+                        selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
+                      }
                       iconName="mdi:map-marker-path"
                     />
 
-                    <Field.Text name="loadingPoint" label="Loading Point *" InputProps={{ readOnly: true }} />
+                    <Field.Text
+                      name="loadingPoint"
+                      label="Loading Point *"
+                      InputProps={{ readOnly: true }}
+                    />
                     <Field.Text
                       name="unloadingPoint"
                       label="Unloading Point *"
@@ -899,11 +963,20 @@ export function SubtripJobCreateView() {
                   <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                     <Button onClick={() => setActiveStep(1)}>Back</Button>
                     {isLoadedJob ? (
-                      <Button variant="contained" onClick={() => setActiveStep(3)} disabled={!canGoMaterialStep}>
+                      <Button
+                        variant="contained"
+                        onClick={() => setActiveStep(3)}
+                        disabled={!canGoMaterialStep}
+                      >
                         Continue
                       </Button>
                     ) : (
-                      <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!canSubmit}>
+                      <LoadingButton
+                        type="submit"
+                        variant="contained"
+                        loading={isSubmitting}
+                        disabled={!canSubmit}
+                      >
                         Create Job
                       </LoadingButton>
                     )}
@@ -926,7 +999,9 @@ export function SubtripJobCreateView() {
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
-                              {loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] || 'Units'}
+                              {loadingWeightUnit[
+                                (selectedVehicle?.vehicleType || '').toLowerCase()
+                              ] || 'Units'}
                             </InputAdornment>
                           ),
                         }}
@@ -936,22 +1011,34 @@ export function SubtripJobCreateView() {
                         name="quantity"
                         label="Quantity"
                         type="number"
-                        InputProps={{ endAdornment: <InputAdornment position="end">Bags</InputAdornment> }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                        }}
                       />
 
                       <Field.Text
                         name="rate"
                         label="Rate *"
                         type="number"
-                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                        }}
                       />
 
                       <Field.Text name="ewayBill" label="Eway Bill" />
-                      <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date" minDate={dayjs()} />
+                      <Field.DatePicker
+                        name="ewayExpiryDate"
+                        label="Eway Expiry Date"
+                        minDate={dayjs()}
+                      />
                       <Field.Text name="invoiceNo" label="Invoice No *" />
                       <Field.Text name="shipmentNo" label="Shipment No" />
                       <Field.Text name="orderNo" label="Order No" />
-                      <Field.Text name="referenceSubtripNo" label="Reference Job No" placeholder="Enter original job no (if created by another transporter)" />
+                      <Field.Text
+                        name="referenceSubtripNo"
+                        label="Reference Job No"
+                        placeholder="Enter original job no (if created by another transporter)"
+                      />
 
                       <Field.Select name="materialType" label="Material Type *">
                         <MenuItem value="">None</MenuItem>
@@ -991,14 +1078,28 @@ export function SubtripJobCreateView() {
                 <StepLabel>{STEPS[4].label}</StepLabel>
                 <StepContent>
                   <Stack spacing={2.5}>
-                    <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.default' }}>
-                      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 1.5,
+                        bgcolor: 'background.default',
+                      }}
+                    >
+                      <Box
+                        display="grid"
+                        gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
+                        gap={1.5}
+                      >
                         <Field.Text
                           name="driverAdvance"
                           label="Driver Advance (Amount)"
                           type="number"
                           placeholder="0"
-                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
                         />
                         <Field.Select name="driverAdvanceGivenBy" label="Given By">
                           {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((option) => (
@@ -1017,8 +1118,20 @@ export function SubtripJobCreateView() {
                       </Stack>
                     </Box>
 
-                    <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.default' }}>
-                      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 1.5,
+                        bgcolor: 'background.default',
+                      }}
+                    >
+                      <Box
+                        display="grid"
+                        gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
+                        gap={1.5}
+                      >
                         <Field.InputWithUnit
                           name="initialAdvanceDiesel"
                           unitName="initialAdvanceDieselUnit"
@@ -1040,7 +1153,11 @@ export function SubtripJobCreateView() {
                             error={Boolean(errors.pumpCd)}
                           />
                           {errors.pumpCd && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
+                            <Typography
+                              variant="caption"
+                              color="error"
+                              sx={{ mt: 0.75, display: 'block' }}
+                            >
                               {errors.pumpCd.message}
                             </Typography>
                           )}
@@ -1054,7 +1171,8 @@ export function SubtripJobCreateView() {
                         )}
                         {initialAdvanceDieselUnit === 'litre' && (
                           <Alert variant="outlined" severity="info">
-                            In case of Litre Diesel Intent, expense will not be added automatically. Actuals need to be added.
+                            In case of Litre Diesel Intent, expense will not be added automatically.
+                            Actuals need to be added.
                           </Alert>
                         )}
                       </Stack>

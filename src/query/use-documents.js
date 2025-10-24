@@ -12,12 +12,10 @@ const getPaginatedDocuments = async (params) => {
   return data;
 };
 
-
 export const getPresignedUploadUrl = async ({ vehicleId, docType, contentType, extension }) => {
-  const { data } = await axios.get(
-    `${ENDPOINT}/${vehicleId}/upload-url`,
-    { params: { docType, contentType, extension } }
-  );
+  const { data } = await axios.get(`${ENDPOINT}/${vehicleId}/upload-url`, {
+    params: { docType, contentType, extension },
+  });
   return data; // { key, uploadUrl }
 };
 
@@ -46,7 +44,9 @@ export function usePaginatedDocuments(params, options = {}) {
     params?.isActive === '0';
 
   // Structure query key so mutations can invalidate by [documents, vehicleId, 'active'|'history']
-  const baseKey = vehicleId ? [QUERY_KEY, vehicleId, isHistory ? 'history' : 'active'] : [QUERY_KEY];
+  const baseKey = vehicleId
+    ? [QUERY_KEY, vehicleId, isHistory ? 'history' : 'active']
+    : [QUERY_KEY];
 
   return useQuery({
     queryKey: [...baseKey, 'paginated', params],

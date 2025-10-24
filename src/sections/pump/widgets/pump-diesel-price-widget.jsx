@@ -21,4 +21,3 @@ export function PumpDieselPriceWidget({ pumpId }) {
 }
 
 export default PumpDieselPriceWidget;
-

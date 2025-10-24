@@ -33,7 +33,6 @@ const PumpListPage = lazy(() => import('src/pages/dashboard/pump/list'));
 const PumpCreatePage = lazy(() => import('src/pages/dashboard/pump/new'));
 const PumpEditPage = lazy(() => import('src/pages/dashboard/pump/edit'));
 
-
 // Customer
 const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customer/details'));
 const CustomerListPage = lazy(() => import('src/pages/dashboard/customer/list'));
