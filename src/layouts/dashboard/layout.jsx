@@ -44,6 +44,11 @@ export function DashboardLayout({ sx, children, data }) {
 
   const tenant = useTenantContext();
 
+  // Read optional announcement banner from env (Vite: VITE_*)
+  const announcementMessage = import.meta.env.VITE_ANNOUNCEMENT_MESSAGE?.trim?.();
+  const announcementSeverity =
+    import.meta.env.VITE_ANNOUNCEMENT_SEVERITY?.trim?.() || 'info';
+
   const showSubscriptionExpired = useMemo(() => {
     const validTill = tenant?.subscription?.validTill;
     if (!validTill) return false;
@@ -95,11 +100,21 @@ export function DashboardLayout({ sx, children, data }) {
               helpLink: false,
             }}
             slots={{
-              topArea: true ? (
-                <Alert severity="info" sx={{ borderRadius: 0 }} icon={false} >
-                  🪔 Team Tranzit wishes you a sparkling Diwali!
-                </Alert>
-              ) : null,
+              topArea:
+                showSubscriptionExpired || announcementMessage ? (
+                  <>
+                    {showSubscriptionExpired && (
+                      <Alert severity="warning" sx={{ borderRadius: 0 }} icon={false}>
+                        Your subscription has expired. Please renew to continue using Tranzit.
+                      </Alert>
+                    )}
+                    {announcementMessage && (
+                      <Alert severity={announcementSeverity} sx={{ borderRadius: 0 }} icon={false}>
+                        {announcementMessage}
+                      </Alert>
+                    )}
+                  </>
+                ) : null,
               bottomArea: isNavHorizontal ? (
                 <NavHorizontal
                   data={navData}
