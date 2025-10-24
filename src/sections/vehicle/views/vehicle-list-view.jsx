@@ -206,12 +206,10 @@ export function VehicleListView() {
         <VehicleTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={handleSelectTransporter}
           onResetColumns={resetColumns}

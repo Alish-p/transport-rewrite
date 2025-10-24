@@ -207,12 +207,10 @@ export function RouteListView() {
         <RouteTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
           selectedCustomer={selectedCustomer}
           onSelectCustomer={handleSelectCustomer}
           onResetColumns={resetColumns}

@@ -221,12 +221,10 @@ export function TripListView() {
         <TripTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
           selectedVehicle={selectedVehicle}
           onSelectVehicle={setSelectedVehicle}
           selectedDriver={selectedDriver}

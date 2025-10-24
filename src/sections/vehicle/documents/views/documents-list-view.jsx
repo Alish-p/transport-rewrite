@@ -198,12 +198,10 @@ export function VehicleDocumentsListView() {
           <DocumentsTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
             onToggleAllColumns={toggleAllColumnsVisibility}
-            columnOrder={columnOrder}
             selectedVehicle={selectedVehicle}
             onSelectVehicle={handleSelectVehicle}
             onResetColumns={resetColumns}

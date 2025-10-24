@@ -20,12 +20,10 @@ import { TABLE_COLUMNS } from './pump-table-config';
 export default function PumpTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

@@ -34,12 +34,10 @@ import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 export default function TransporterPaymentTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

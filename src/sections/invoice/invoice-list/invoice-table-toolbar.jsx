@@ -32,12 +32,10 @@ import { TABLE_COLUMNS } from '../invoice-table-config';
 export default function InvoiceTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedSubtrip,
   onSelectSubtrip,
   onResetColumns,

@@ -16,12 +16,10 @@ import { TABLE_COLUMNS } from './driver-table-config';
 export default function DriverTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

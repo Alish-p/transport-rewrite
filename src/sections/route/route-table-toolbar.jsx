@@ -23,12 +23,10 @@ import { TABLE_COLUMNS } from './route-table-config';
 export default function RouteTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedCustomer,
   onSelectCustomer,
   onResetColumns,

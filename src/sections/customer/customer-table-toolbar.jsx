@@ -19,12 +19,10 @@ import { TABLE_COLUMNS } from './customer-table-config';
 export default function CustomerTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

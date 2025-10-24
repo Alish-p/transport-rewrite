@@ -32,12 +32,10 @@ import { TABLE_COLUMNS } from './config/table-columns';
 export default function DocumentsTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedVehicle,
   onSelectVehicle,
   onResetColumns,

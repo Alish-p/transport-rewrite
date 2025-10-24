@@ -20,12 +20,10 @@ import { TABLE_COLUMNS } from './transporter-table-config';
 export default function TransporterTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

@@ -32,12 +32,10 @@ import { TABLE_COLUMNS } from './vehicle-table-config';
 export default function VehicleTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedTransporter,
   onSelectTransporter,
   onResetColumns,

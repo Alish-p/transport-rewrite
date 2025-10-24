@@ -188,12 +188,10 @@ export function TransporterPaymentListView() {
         <TransporterPaymentTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}
           onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
         />

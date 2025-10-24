@@ -17,12 +17,10 @@ import { TABLE_COLUMNS } from './bank-table-config';
 export default function BankTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   onResetColumns,
   canResetColumns,
 }) {

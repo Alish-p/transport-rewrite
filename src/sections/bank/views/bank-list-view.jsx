@@ -151,12 +151,10 @@ export function BankListView() {
           <BankTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={tableData}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={handleToggleColumn}
             onToggleAllColumns={toggleAllColumnsVisibility}
-            columnOrder={columnOrder}
             onResetColumns={resetColumns}
             canResetColumns={canResetColumns}
           />

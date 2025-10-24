@@ -28,12 +28,10 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 export default function TripTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
   onToggleAllColumns,
-  columnOrder = [],
   selectedVehicle,
   onSelectVehicle,
   selectedDriver,

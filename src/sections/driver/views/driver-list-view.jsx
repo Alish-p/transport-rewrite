@@ -143,6 +143,14 @@ export function DriverListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (columnOrder && columnOrder.length
+      ? columnOrder
+      : TABLE_COLUMNS.map((c) => c.id))
+      .filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -199,12 +207,10 @@ export function DriverListView() {
         <DriverTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}
           onToggleAllColumns={toggleAllColumnsVisibility}
-          columnOrder={columnOrder}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
         />
@@ -336,10 +342,3 @@ export function DriverListView() {
     </DashboardContent>
   );
 }
-  const getVisibleColumnsForExport = () => {
-    const orderedIds = (columnOrder && columnOrder.length
-      ? columnOrder
-      : TABLE_COLUMNS.map((c) => c.id))
-      .filter((id) => visibleColumns[id]);
-    return orderedIds;
-  };
