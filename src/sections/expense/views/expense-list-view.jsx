@@ -411,11 +411,6 @@ export function ExpenseListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Sent">
-                  <IconButton color="primary">
-                    <Iconify icon="iconamoon:send-fill" />
-                  </IconButton>
-                </Tooltip>
 
                 <Tooltip title="Download Excel">
                   <IconButton
@@ -435,11 +430,7 @@ export function ExpenseListView() {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Print">
-                  <IconButton color="primary">
-                    <Iconify icon="solar:printer-minimalistic-bold" />
-                  </IconButton>
-                </Tooltip>
+                
 
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink

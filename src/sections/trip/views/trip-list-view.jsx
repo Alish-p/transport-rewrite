@@ -260,11 +260,6 @@ export function TripListView() {
             }
             action={
               <Stack direction="row">
-                <Tooltip title="Sent">
-                  <IconButton color="primary">
-                    <Iconify icon="iconamoon:send-fill" />
-                  </IconButton>
-                </Tooltip>
 
                 <Tooltip title="Download Excel">
                   <IconButton
@@ -284,11 +279,7 @@ export function TripListView() {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Print">
-                  <IconButton color="primary">
-                    <Iconify icon="solar:printer-minimalistic-bold" />
-                  </IconButton>
-                </Tooltip>
+                
 
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink

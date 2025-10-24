@@ -191,11 +191,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
               }
               action={
                 <Stack direction="row">
-                  <Tooltip title="Sent">
-                    <IconButton color="primary">
-                      <Iconify icon="iconamoon:send-fill" />
-                    </IconButton>
-                  </Tooltip>
 
                   <Tooltip title="Download Excel">
                     <IconButton
@@ -211,11 +206,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Print">
-                    <IconButton color="primary">
-                      <Iconify icon="solar:printer-minimalistic-bold" />
-                    </IconButton>
-                  </Tooltip>
+                  
 
                   <Tooltip title="Delete">
                     <IconButton color="primary" onClick={confirm.onTrue}>
