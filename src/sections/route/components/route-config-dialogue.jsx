@@ -23,6 +23,7 @@ const vehicleTypeSuggestions = [
   { type: 'Trailer', tyres: [12, 16, 20] },
   { type: 'Bulker', tyres: [14, 16, 20] },
   { type: 'Tanker', tyres: [16, 20] },
+  { type: 'Canter', tyres: [6, 12, 14, 16] },
 ];
 
 function TabPanel({ children, value, index, ...other }) {

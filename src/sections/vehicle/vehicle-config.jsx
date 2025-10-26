@@ -11,6 +11,7 @@ export const loadingWeightUnit = {
   trailer: 'Ton', // bags
   bulker: 'Ton', // loose
   tanker: 'KL', // fluid
+  canter: 'Ton', // light truck
 };
 
 export const modelType = [

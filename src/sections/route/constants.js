@@ -4,6 +4,10 @@ export const VEHICLE_TYPE_TYRE_COLORS = {
   'bulker-12': 'warning',
   'bulker-14': 'error',
   'body-12': 'secondary',
+  'canter-6': 'success',
+  'canter-12': 'secondary',
+  'canter-14': 'info',
+  'canter-16': 'warning',
 };
 
 export const getVehicleTypeTyreColor = (vehicleType, noOfTyres) =>
