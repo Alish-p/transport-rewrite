@@ -46,18 +46,18 @@ export const NewVehicleSchema = zod
         message: 'Invalid Vehicle No format. Example: KA01AB0001, KA01A0001, or KA010001',
       }),
     vehicleType: zod.string().min(1, { message: 'Vehicle Type is required' }),
-    modelType: zod.string().min(1, { message: 'Model Type is required' }),
-    vehicleCompany: zod.string().min(1, { message: 'Vehicle Company is required' }),
+    modelType: zod.string().optional(),
+    vehicleCompany: zod.string().optional(),
     noOfTyres: zod
       .number()
       .min(3, { message: 'No Of Tyres must be at least 3' })
       .max(30, { message: 'No Of Tyres cannot exceed 30' }),
     chasisNo: zod.string().optional(),
     engineNo: zod.string().optional(),
-    manufacturingYear: zod.number().min(1900, { message: 'Manufacturing Year is required' }),
-    loadingCapacity: zod.number().min(1, { message: 'Loading Capacity is required' }),
-    engineType: zod.string().min(1, { message: 'Engine Type is required' }),
-    fuelTankCapacity: zod.number().min(1, { message: 'Fuel Tank Capacity is required' }),
+    manufacturingYear: zod.number().optional(),
+    loadingCapacity: zod.number().optional(),
+    engineType: zod.string().optional(),
+    fuelTankCapacity: zod.number().optional(),
     isActive: zod.boolean().default(true),
     isOwn: zod.boolean().default(true),
     transporter: zod.string().optional(),
@@ -267,8 +267,8 @@ export default function VehicleForm({ currentVehicle }) {
                 ))}
               </Field.Select>
 
-              <Field.Text name="modelType" label="Model Type" />
-              <Field.Select name="vehicleCompany" label="Vehicle Company">
+              <Field.Text name="modelType" label="Model Type (Optional)" />
+              <Field.Select name="vehicleCompany" label="Vehicle Company (Optional)">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {vehicleCompany.map(({ key, value }) => (
@@ -280,20 +280,20 @@ export default function VehicleForm({ currentVehicle }) {
               <Field.Text name="noOfTyres" label="No Of Tyres" type="number" />
               <Field.Text name="chasisNo" label="Chasis No (Optional)" />
               <Field.Text name="engineNo" label="Engine No (Optional)" />
-              <Field.Text name="manufacturingYear" label="Manufacturing Year" type="number" />
+              <Field.Text name="manufacturingYear" label="Manufacturing Year (Optional)" type="number" />
               <Field.Text
                 name="loadingCapacity"
-                label="Loading Capacity"
+                label="Loading Capacity (Optional)"
                 type="number"
                 InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
               />
               <Field.Text
                 name="fuelTankCapacity"
-                label="Fuel Tank Capacity"
+                label="Fuel Tank Capacity (Optional)"
                 type="number"
                 InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
               />
-              <Field.Select name="engineType" label="Engine Type">
+              <Field.Select name="engineType" label="Engine Type (Optional)">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
                 {engineType.map(({ key, value }) => (
