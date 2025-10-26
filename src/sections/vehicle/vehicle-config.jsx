@@ -3,6 +3,7 @@ export const vehicleTypes = [
   { key: 'trailer', value: 'Trailer' },
   { key: 'bulker', value: 'Bulker' },
   { key: 'tanker', value: 'Tanker' },
+  { key: 'canter', value: 'Canter' },
 ];
 
 export const loadingWeightUnit = {
@@ -43,4 +44,5 @@ export const vehicleTypeIcon = {
   bulker: 'mdi:truck-cargo-container',
   localBulker: 'mdi:truck-fast',
   tanker: 'mdi:tanker-truck',
+  canter: 'streamline-cyber:delivery-truck-5'
 };

@@ -33,13 +33,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 // assets
-import {
-  modelType,
-  engineType,
-  vehicleTypes,
-  vehicleCompany,
-  vehicleTypeIcon,
-} from './vehicle-config';
+import { engineType, vehicleTypes, vehicleCompany, vehicleTypeIcon } from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -273,15 +267,7 @@ export default function VehicleForm({ currentVehicle }) {
                 ))}
               </Field.Select>
 
-              <Field.Select name="modelType" label="Model Type">
-                <MenuItem value="">None</MenuItem>
-                <Divider sx={{ borderStyle: 'dashed' }} />
-                {modelType.map(({ key, value }) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Field.Select>
+              <Field.Text name="modelType" label="Model Type" />
               <Field.Select name="vehicleCompany" label="Vehicle Company">
                 <MenuItem value="">None</MenuItem>
                 <Divider sx={{ borderStyle: 'dashed' }} />
