@@ -163,10 +163,8 @@ export default function VehicleForm({ currentVehicle }) {
           name="noOfTyres"
           label="No Of Tyres"
           type="number"
-          placeholder="e.g. 10"
-          helperText="Minimum 3. Common: 6, 10, 12"
         />
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} alignItems="center" >
           <Field.Switch
             name="isOwn"
             labelPlacement="start"
@@ -177,19 +175,16 @@ export default function VehicleForm({ currentVehicle }) {
                 onChange: (_e, checked) => setValue('isOwn', !checked, { shouldValidate: true }),
               },
             }}
-            sx={{ mx: 0, my: 1, justifyContent: 'flex-start' }}
           />
 
           {!values.isOwn && (
-            <Box sx={{ flex: 1 }}>
-              <DialogSelectButton
-                onClick={transporterDialog.onTrue}
-                placeholder="Select Transport Company"
-                selected={selectedTransporter?.transportName}
-                error={!!errors.transporter?.message}
-                iconName="mdi:truck"
-              />
-            </Box>
+            <DialogSelectButton
+              onClick={transporterDialog.onTrue}
+              placeholder="Select Transport Company"
+              selected={selectedTransporter?.transportName}
+              error={!!errors.transporter?.message}
+              iconName="mdi:truck"
+            />
           )}
         </Stack>
       </Stack>
@@ -201,14 +196,14 @@ export default function VehicleForm({ currentVehicle }) {
   const renderAdditional = (
     <Card>
       <CardHeader
-        title="Additional Details (Optional)"
+        title="Additional Details"
         sx={{ mb: 3 }}
       />
       <Divider />
       <Collapse in={optionalOpen.value} timeout="auto">
         <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Text name="modelType" label="Model Type (Optional)" placeholder="e.g. 4923 (variant/trim)" />
-          <Field.Select name="vehicleCompany" label="Vehicle Company (Optional)" helperText="Choose manufacturer e.g., Tata, Ashok Leyland">
+          <Field.Text name="modelType" label="Model Type (Optional)" placeholder="e.g. 4923,3713..." />
+          <Field.Select name="vehicleCompany" label="Vehicle Company (Optional)">
             <MenuItem value="">None</MenuItem>
             <Divider sx={{ borderStyle: 'dashed' }} />
             {vehicleCompany.map(({ key, value }) => (
@@ -225,7 +220,7 @@ export default function VehicleForm({ currentVehicle }) {
             type="number"
             placeholder="e.g. 2021"
           />
-          <Field.Select name="engineType" label="Engine Type (Optional)" helperText="Fuel type e.g., Diesel, Petrol, CNG">
+          <Field.Select name="engineType" label="Engine Type (Optional)">
             <MenuItem value="">None</MenuItem>
             <Divider sx={{ borderStyle: 'dashed' }} />
             {engineType.map(({ key, value }) => (
@@ -238,14 +233,14 @@ export default function VehicleForm({ currentVehicle }) {
             name="loadingCapacity"
             label="Loading Capacity (Optional)"
             type="number"
-            placeholder="e.g. 16"
+            placeholder="30 Ton"
             InputProps={{ endAdornment: <InputAdornment position="end">Ton</InputAdornment> }}
           />
           <Field.Text
             name="fuelTankCapacity"
             label="Fuel Tank Capacity (Optional)"
             type="number"
-            placeholder="e.g. 200"
+            placeholder="e.g. 200 Ltr"
             InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
           />
           <Field.Text name="trackingLink" label="Tracking Link (Optional)" placeholder="Paste GPS tracking URL" />
@@ -255,7 +250,7 @@ export default function VehicleForm({ currentVehicle }) {
   );
 
   const renderActions = (
-    <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+    <Stack alignItems="flex-end">
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
         {!currentVehicle ? 'Create Vehicle' : 'Save Changes'}
       </LoadingButton>
@@ -267,7 +262,17 @@ export default function VehicleForm({ currentVehicle }) {
       <Stack spacing={{ xs: 2, }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderBasicDetails}
 
-        <Button size="small" variant='text' color='primary' onClick={optionalOpen.onToggle} sx={{ alignSelf: 'flex-end' }}>
+        <Button
+          size="small"
+          variant='text'
+          color='primary'
+          onClick={optionalOpen.onToggle}
+          sx={{ alignSelf: 'flex-start' }}
+          startIcon={
+            <Iconify icon={optionalOpen.value ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
+          }
+          aria-expanded={optionalOpen.value}
+        >
           {optionalOpen.value ? 'Hide Additional Fields' : 'Show Additional Fields'}
         </Button>
 
