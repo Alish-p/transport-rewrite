@@ -37,7 +37,7 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
       !blockedPrefixes.some((prefix) => debouncedSearch.startsWith(prefix)));
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteCustomers(
-    { search: debouncedSearch || undefined, rowsPerPage: 50 },
+    { customerName: debouncedSearch || undefined, rowsPerPage: 50 },
     { enabled: shouldFetch }
   );
 
@@ -99,7 +99,7 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
           fullWidth
           value={searchCustomer}
           onChange={handleSearchCustomers}
-          placeholder="Search..."
+          placeholder="Search by customer name..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

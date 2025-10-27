@@ -52,7 +52,9 @@ const STORAGE_KEY = 'customer-table-columns';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
-  search: '',
+  customerName: '',
+  cellNo: '',
+  gstIn: '',
 };
 
 // ----------------------------------------------------------------------
@@ -83,7 +85,9 @@ export function CustomerListView() {
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedCustomers({
-    search: filters.search || undefined,
+    customerName: filters.customerName || undefined,
+    cellNo: filters.cellNo || undefined,
+    gstIn: filters.gstIn || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });

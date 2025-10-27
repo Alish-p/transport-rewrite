@@ -28,9 +28,23 @@ export default function CustomerTableToolbar({
 }) {
   const columnsPopover = usePopover();
 
-  const handleFilterSearch = useCallback(
+  const handleFilterCustomerName = useCallback(
     (event) => {
-      onFilters('search', event.target.value);
+      onFilters('customerName', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterCellNo = useCallback(
+    (event) => {
+      onFilters('cellNo', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterGstIn = useCallback(
+    (event) => {
+      onFilters('gstIn', event.target.value);
     },
     [onFilters]
   );
@@ -45,13 +59,41 @@ export default function CustomerTableToolbar({
       >
         <TextField
           fullWidth
-          value={filters.search}
-          onChange={handleFilterSearch}
-          placeholder="Search by Name or Mobile No..."
+          value={filters.customerName}
+          onChange={handleFilterCustomerName}
+          placeholder="Filter by customer name..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.cellNo}
+          onChange={handleFilterCellNo}
+          placeholder="Filter by mobile no..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="mdi:cellphone" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.gstIn}
+          onChange={handleFilterGstIn}
+          placeholder="Filter by GSTIN..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="mdi:file-document" sx={{ color: 'text.disabled' }} />
               </InputAdornment>
             ),
           }}

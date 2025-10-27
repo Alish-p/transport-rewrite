@@ -16,9 +16,9 @@ export default function CustomerTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveSearch = () => {
-    onFilters('search', '');
-  };
+  const handleRemoveCustomerName = () => onFilters('customerName', '');
+  const handleRemoveCellNo = () => onFilters('cellNo', '');
+  const handleRemoveGstIn = () => onFilters('gstIn', '');
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -30,9 +30,19 @@ export default function CustomerTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.search && (
-          <Block label="Search :">
-            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
+        {filters.customerName && (
+          <Block label="Customer Name:">
+            <Chip size="small" label={filters.customerName} onDelete={handleRemoveCustomerName} />
+          </Block>
+        )}
+        {filters.cellNo && (
+          <Block label="Mobile:">
+            <Chip size="small" label={filters.cellNo} onDelete={handleRemoveCellNo} />
+          </Block>
+        )}
+        {filters.gstIn && (
+          <Block label="GSTIN:">
+            <Chip size="small" label={filters.gstIn} onDelete={handleRemoveGstIn} />
           </Block>
         )}
 
