@@ -9,6 +9,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
   Card,
@@ -31,12 +32,14 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
+import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 import { getFixedExpensesByVehicleType } from 'src/utils/utils';
 
 import { useGps } from 'src/query/use-gps';
 import { useRoute } from 'src/query/use-route';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useSearchCustomer } from 'src/query/use-customer';
 import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
 import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
@@ -52,6 +55,8 @@ import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-d
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
@@ -180,6 +185,8 @@ const STEPS = [
 ];
 
 export function SubtripJobCreateView() {
+  const tenant = useTenantContext();
+  const isEwayIntegrationEnabled = Boolean(tenant?.integrations?.ewayBill?.enabled);
   // Step state
   const [activeStep, setActiveStep] = useState(0);
 
@@ -191,6 +198,9 @@ export function SubtripJobCreateView() {
   const [selectedPump, setSelectedPump] = useState(null);
   const [routeSuggestedAdvance, setRouteSuggestedAdvance] = useState(false);
   const [routeSuggestedDiesel, setRouteSuggestedDiesel] = useState(false);
+  const [ewayFetchLoading, setEwayFetchLoading] = useState(false);
+  const [ewayFetchError, setEwayFetchError] = useState('');
+  const [searchCustomerParams, setSearchCustomerParams] = useState(null);
 
   // Dialogs
   const vehicleDialog = useBoolean(false);
@@ -236,11 +246,172 @@ export function SubtripJobCreateView() {
     initialAdvanceDieselUnit,
     pumpCd,
   } = watchedForm;
+  const ewayValue = watchedForm?.ewayBill;
+  const isEwayValid = useMemo(
+    () => /^\d{12}$/.test(String(ewayValue || '').trim()),
+    [ewayValue]
+  );
 
   const dieselAdvanceValue = toNumber(initialAdvanceDiesel);
   const requiresPumpSelection =
     driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP ||
     (dieselAdvanceValue !== undefined && dieselAdvanceValue > 0);
+
+  const parseEwayDate = (str) => {
+    if (!str || typeof str !== 'string') return undefined;
+    const datePart = str.split(' ')[0];
+    const parts = datePart.split('/');
+    if (parts.length !== 3) return undefined;
+    const [dd, mm, yyyy] = parts.map((p) => Number(p));
+    if (!dd || !mm || !yyyy) return undefined;
+    return new Date(yyyy, mm - 1, dd);
+  };
+
+  const fetchVehicleByNo = async (vehicleNo) => {
+    try {
+      const { data } = await axios.get('/api/vehicles', { params: { vehicleNo, rowsPerPage: 1 } });
+      const results = data?.results || [];
+      return results[0];
+    } catch (e) {
+      return undefined;
+    }
+  };
+
+  // Customer lookup using dedicated search API (GSTIN prioritized)
+  const { data: customerLookupData } = useSearchCustomer(
+    searchCustomerParams,
+    { enabled: Boolean(searchCustomerParams && (searchCustomerParams.gstinNumber || searchCustomerParams.name)) }
+  );
+
+  useEffect(() => {
+    if (!searchCustomerParams) return;
+    let candidate = null;
+    // Accept several shapes: array, {results:[]}, {customers:[]}, {customer:{}}, or direct object
+    const arr = customerLookupData?.customers || customerLookupData?.results;
+    if (Array.isArray(arr) && arr.length > 0) {
+      candidate = arr[0];
+    } else if (customerLookupData?.customer) {
+      candidate = customerLookupData.customer;
+    } else if (customerLookupData && typeof customerLookupData === 'object' && customerLookupData._id) {
+      candidate = customerLookupData;
+    }
+
+    if (candidate) {
+      setSelectedCustomer(candidate);
+      setSearchCustomerParams(null);
+    }
+  }, [customerLookupData, searchCustomerParams, setSelectedCustomer]);
+
+  const handleFetchEwayDetails = async () => {
+    try {
+      setEwayFetchError('');
+      const ewayNo = getValues('ewayBill');
+      if (!ewayNo) {
+        setEwayFetchError('Enter an eWay Bill number');
+        return;
+      }
+      setEwayFetchLoading(true);
+      const { data } = await axios.get(`/api/ewaybill/${encodeURIComponent(ewayNo)}`);
+      // Support both shapes: { results: { message: {...} }} or direct payload {...}
+      let message = data?.results?.message ?? data?.message ?? null;
+      if (!message && data && typeof data === 'object') {
+        const looksLikeEwb =
+          'eway_bill_number' in data || 'document_number' in data || 'itemList' in data;
+        if (looksLikeEwb) message = data;
+      }
+      if (!message) throw new Error('No eWay Bill details found');
+
+      // Try pre-selecting vehicle first to avoid form resets clearing fields
+      const vehicleNoFromEwb = message?.VehiclListDetails?.[0]?.vehicle_number;
+      if (vehicleNoFromEwb) {
+        const foundVehicle = await fetchVehicleByNo(vehicleNoFromEwb);
+        if (foundVehicle) {
+          handleVehicleChange(foundVehicle);
+        }
+      }
+
+      // Prefill fields
+      const expiry = parseEwayDate(message?.eway_bill_valid_date);
+      const billDate = parseEwayDate(message?.eway_bill_date);
+      const firstItem = Array.isArray(message?.itemList) ? message.itemList[0] : undefined;
+      const qty = firstItem?.quantity;
+      const desc = firstItem?.product_description;
+
+      setValue('ewayBill', String(message?.eway_bill_number ?? ewayNo), {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      if (expiry) {
+        setValue('ewayExpiryDate', expiry, { shouldDirty: true, shouldValidate: true });
+      }
+      if (billDate) {
+        setValue('startDate', billDate, { shouldDirty: true, shouldValidate: true });
+      }
+
+      // Prefill invoice
+      if (message?.document_number) {
+        setValue('invoiceNo', String(message.document_number), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+
+      // Prefill loading/unloading points from consignor/consignee places
+      if (message?.place_of_consignor) {
+        setValue('loadingPoint', message.place_of_consignor, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+      if (message?.place_of_consignee) {
+        setValue('unloadingPoint', message.place_of_consignee, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+
+      // Prefill consignee display (free-solo autocomplete expects {label,value})
+      if (message?.legal_name_of_consignee) {
+        setValue(
+          'consignee',
+          { label: message.legal_name_of_consignee, value: message.legal_name_of_consignee },
+          { shouldDirty: true, shouldValidate: false }
+        );
+      }
+
+      // Prefill material and weights if possible
+      if (qty !== undefined) {
+        setValue('loadingWeight', qty, { shouldDirty: true, shouldValidate: true });
+        setValue('quantity', qty, { shouldDirty: true, shouldValidate: false });
+      }
+      if (desc) {
+        // Only set if the description matches configured options
+        const opt = (materialOptions || []).find(
+          (o) => o?.value === desc || o?.label === desc
+        );
+        if (opt) {
+          setValue('materialType', opt.value, { shouldDirty: true, shouldValidate: true });
+        }
+        // Also map description into grade as requested
+        setValue('grade', desc, { shouldDirty: true, shouldValidate: false });
+      }
+
+      // Prefill customer via search (GSTIN prioritized; fallback to consignor name)
+      const consignorGstin = message?.gstin_of_consignor || message?.userGstin;
+      const consignorName = message?.legal_name_of_consignor || message?.legal_name_of_supply;
+      if (consignorGstin || consignorName) {
+        setSearchCustomerParams({ gstinNumber: consignorGstin || undefined, name: consignorName || undefined });
+      }
+
+      toast.success('eWay Bill details fetched');
+    } catch (err) {
+      const msg = err?.message || 'Failed to fetch eWay Bill';
+      setEwayFetchError(msg);
+      toast.error(msg);
+    } finally {
+      setEwayFetchLoading(false);
+    }
+  };
 
   // Selection handlers
   const syncRouteFields = useCallback(
@@ -705,6 +876,62 @@ export function SubtripJobCreateView() {
               <StepLabel>{STEPS[0].label}</StepLabel>
               <StepContent>
                 <Box display="grid" gridTemplateColumns="repeat(1, 1fr)" rowGap={2}>
+                  {isEwayIntegrationEnabled && (
+                    <Box>
+                      <Field.Text
+                        name="ewayBill"
+                        label="eWay Bill Number"
+                        placeholder="Enter eWay Bill number"
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {ewayFetchLoading ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <Tooltip
+                                  title={
+                                    isEwayValid
+                                      ? 'Fetch eWay Bill details'
+                                      : 'Enter 12-digit eWay Bill number'
+                                  }
+                                  arrow
+                                >
+                                  <span>
+                                    <IconButton
+                                      size="small"
+                                      onClick={handleFetchEwayDetails}
+                                      disabled={!isEwayValid || ewayFetchLoading}
+                                      color={isEwayValid ? 'success' : 'default'}
+                                    >
+                                      <Iconify
+                                        icon={isEwayValid ? 'mdi:cloud-download' : 'mdi:cloud-outline'}
+                                        width={20}
+                                      />
+                                    </IconButton>
+                                  </span>
+                                </Tooltip>
+                              )}
+                            </InputAdornment>
+                          ),
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (isEwayValid && !ewayFetchLoading) {
+                              handleFetchEwayDetails();
+                            } else if (!isEwayValid) {
+                              setEwayFetchError('Enter a 12-digit eWay Bill number');
+                            }
+                          }
+                        }}
+                      />
+                      {ewayFetchError && (
+                        <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
+                          {ewayFetchError}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
                   <DialogSelectButton
                     onClick={vehicleDialog.onTrue}
                     placeholder="Select Vehicle *"
@@ -1037,7 +1264,7 @@ export function SubtripJobCreateView() {
                         }}
                       />
 
-                      <Field.Text name="ewayBill" label="Eway Bill" />
+                      {!isEwayIntegrationEnabled && <Field.Text name="ewayBill" label="Eway Bill" />}
                       <Field.DatePicker
                         name="ewayExpiryDate"
                         label="Eway Expiry Date"

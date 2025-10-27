@@ -46,6 +46,20 @@ const getCustomerInvoiceAmountSummary = async (id) => {
   return data;
 };
 
+// Search by GSTIN (priority) or fuzzy name
+// Expects params: { gstinNumber?: string, name?: string }
+const searchCustomer = async (params) => {
+  const { gstinNumber, name } = params || {};
+  const { data } = await axios.get(`${ENDPOINT}/search`, {
+    params: {
+      // Only send when present; backend prioritizes gstinNumber
+      ...(gstinNumber ? { gstinNumber } : {}),
+      ...(name ? { name } : {}),
+    },
+  });
+  return data;
+};
+
 const createCustomer = async (customer) => {
   const { data } = await axios.post(ENDPOINT, customer);
   return data;
@@ -69,6 +83,17 @@ export function usePaginatedCustomers(params, options = {}) {
     queryFn: () => getPaginatedCustomers(params),
     keepPreviousData: true,
     enabled: !!params,
+    ...options,
+  });
+}
+
+// Customer search (by gstinNumber or name)
+export function useSearchCustomer(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'search', params],
+    queryFn: () => searchCustomer(params),
+    enabled: Boolean(params && (params.gstinNumber || params.name)),
+    staleTime: 0,
     ...options,
   });
 }
