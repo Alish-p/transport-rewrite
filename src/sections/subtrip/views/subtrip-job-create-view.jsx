@@ -71,6 +71,17 @@ const numericInputSchema = z.preprocess((val) => {
   return Number.isFinite(n) ? n : undefined;
 }, z.number().optional());
 
+// Loading weight: 0 to 60 inclusive
+const loadingWeightSchema = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  const n = typeof val === 'number' ? val : Number(val);
+  return Number.isFinite(n) ? n : undefined;
+}, z
+  .number()
+  .min(0, { message: 'Loading weight must be at least 0' })
+  .max(60, { message: 'Loading weight must be at most 60' })
+  .optional());
+
 const consigneeOptionSchema = z
   .object({ label: z.string().optional(), value: z.string().optional() })
   .partial()
@@ -93,7 +104,7 @@ const formSchema = z
     routeCd: z.string().optional(),
     loadingPoint: z.string().optional(),
     unloadingPoint: z.string().optional(),
-    loadingWeight: numericInputSchema,
+    loadingWeight: loadingWeightSchema,
     rate: numericInputSchema,
     invoiceNo: z.string().optional(),
     ewayBill: z.string().optional(),
@@ -1005,6 +1016,7 @@ export function SubtripJobCreateView() {
                             </InputAdornment>
                           ),
                         }}
+                        inputProps={{ min: 0, max: 60 }}
                       />
 
                       <Field.Text
