@@ -321,7 +321,7 @@ export function SubtripListView() {
           <Stack direction="row" spacing={2}>
             <Button
               component={RouterLink}
-              href={paths.dashboard.subtrip.new}
+              href={paths.dashboard.subtrip.jobCreate}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >

@@ -257,7 +257,7 @@ export function TripDetailView({ trip }) {
                     variant="contained"
                     onClick={() => {
                       navigate({
-                        pathname: paths.dashboard.subtrip.new,
+                        pathname: paths.dashboard.subtrip.jobCreate,
                         search: `?id=${_id}`,
                       });
                     }}
