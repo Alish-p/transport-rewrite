@@ -34,7 +34,6 @@ import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
-import { SubtripCloseEmptyDialog } from '../subtrip-close-empty-dialogue-form';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
@@ -45,7 +44,6 @@ export function SubtripDetailView({ subtrip }) {
   // State for dialog visibility
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
-  const [showCloseEmptyDialog, setShowCloseEmptyDialog] = useState(false);
 
   // Function to check if editing is allowed based on status
   const isEditingAllowed = () => {
@@ -84,13 +82,7 @@ export function SubtripDetailView({ subtrip }) {
 
   const getActions = () => {
     if (subtrip.isEmpty) {
-      return [
-        {
-          label: 'Close Empty Job',
-          action: () => setShowCloseEmptyDialog(true),
-          disabled: !isEditingAllowed(),
-        },
-      ];
+      return [];
     }
     return [
       {
@@ -512,12 +504,7 @@ export function SubtripDetailView({ subtrip }) {
         subtripId={subtrip._id}
       />
 
-      {/* Close Empty Subtrip Dialogue */}
-      <SubtripCloseEmptyDialog
-        showDialog={showCloseEmptyDialog}
-        setShowDialog={setShowCloseEmptyDialog}
-        subtripId={subtrip._id}
-      />
+      {/* Empty job close flow has been removed */}
     </>
   );
 }

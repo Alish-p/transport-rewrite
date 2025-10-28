@@ -37,11 +37,6 @@ const getSubtripsByStatus = async (params) => {
   return data;
 };
 
-const createSubtrip = async (subtrip) => {
-  const { data } = await axios.post(ENDPOINT, subtrip);
-  return data;
-};
-
 // Unified Job creation (creates subtrip and handles trip logic server-side)
 const createJob = async (payload) => {
   const { data } = await axios.post(`${ENDPOINT}/jobs`, payload);
@@ -53,10 +48,7 @@ const updateSubtrip = async (id, subtripData) => {
   return data;
 };
 
-const updateSubtripMaterialInfo = async (id, subtripData) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/material-info`, subtripData);
-  return data;
-};
+// material-info endpoint deprecated/removed on backend
 
 const updateSubtripReceiveInfo = async (id, subtripData) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}/receive`, subtripData);
@@ -78,15 +70,7 @@ const deleteSubtrip = async (id) => {
   return data;
 };
 
-const createEmptySubtrip = async (subtrip) => {
-  const { data } = await axios.post(`${ENDPOINT}/empty`, subtrip);
-  return data;
-};
-
-const closeEmptySubtrip = async (id, subtripData) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/close-empty`, subtripData);
-  return data;
-};
+// empty subtrip endpoints deprecated/removed on backend
 
 export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
   return useQuery({
@@ -182,13 +166,14 @@ export function useSubtrip(id) {
   });
 }
 
+// Backward-compatible wrapper: maps to unified createJob
 export function useCreateSubtrip() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: createSubtrip,
+    mutationFn: createJob,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Job added successfully!');
+      toast.success('Job created successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -251,24 +236,7 @@ export function useDeleteSubtrip() {
   return mutate;
 }
 
-export function useUpdateSubtripMaterialInfo() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: ({ id, data }) => updateSubtripMaterialInfo(id, data),
-    onSuccess: (updatedSubtrip) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.invalidateQueries([QUERY_KEY, updatedSubtrip._id]);
-
-      toast.success('Job Material Info added successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutateAsync;
-}
+// useUpdateSubtripMaterialInfo removed — material-info flow merged into job creation
 
 export function useUpdateSubtripReceiveInfo() {
   const queryClient = useQueryClient();
@@ -327,38 +295,7 @@ export function useUpdateSubtripCloseInfo() {
   return mutateAsync;
 }
 
-export function useCreateEmptySubtrip() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: createEmptySubtrip,
-    onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Empty job added successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-  return mutateAsync;
-}
-
-export function useCloseEmptySubtrip() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: ({ id, data }) => closeEmptySubtrip(id, data),
-    onSuccess: (updatedSubtrip) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
-      toast.success('Empty job closed successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-  return mutateAsync;
-}
+// useCreateEmptySubtrip/useCloseEmptySubtrip removed — empty job flow deprecated
 
 const getSubtripsByTransporter = async ({ queryKey }) => {
   const [, , { startDate, endDate }] = queryKey;

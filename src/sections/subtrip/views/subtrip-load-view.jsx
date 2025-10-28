@@ -4,9 +4,11 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { SubtripLoadForm } from '../subtrip-load-form';
+import { Button, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-export function SubtripLoadView({ currentSubtrip }) {
+export function SubtripLoadView() {
+  const navigate = useNavigate();
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -16,12 +18,22 @@ export function SubtripLoadView({ currentSubtrip }) {
           { name: 'Job List', href: paths.dashboard.subtrip.list },
           { name: 'Load Job' },
         ]}
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
+        sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <SubtripLoadForm currentSubtrip={currentSubtrip} />
+      <Stack spacing={2} sx={{ p: 3 }}>
+        <Typography variant="body1">
+          Loading flow has been merged into the unified Job Create experience.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate(paths.dashboard.subtrip.jobCreate)}
+          sx={{ alignSelf: 'flex-start' }}
+        >
+          Go to Create Job
+        </Button>
+      </Stack>
     </DashboardContent>
   );
 }
