@@ -33,7 +33,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
-import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
+// Route dialog removed
 import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
@@ -47,7 +47,6 @@ const baseSchema = z.object({
 // Schema for Loaded status
 const loadedSchema = baseSchema.extend({
   consignee: z.string().max(100),
-  routeCd: z.string(),
   loadingPoint: z.string().max(100),
   unloadingPoint: z.string().max(100),
   loadingWeight: z.number().nonnegative('Loading weight must be positive'),
@@ -104,10 +103,10 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const customerDialog = useBoolean();
   const pumpDialog = useBoolean();
-  const routeDialog = useBoolean();
+  // Route dialog removed
 
   const [selectedPump, setSelectedPump] = useState(currentSubtrip?.intentFuelPump);
-  const [selectedRoute, setSelectedRoute] = useState(currentSubtrip?.routeCd);
+  // Route selection removed
   const [selectedCustomer, setSelectedCustomer] = useState(currentSubtrip?.customerId);
 
   const defaultValues = useMemo(
@@ -116,7 +115,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       hasShortage: currentSubtrip?.shortageWeight > 0 || false,
       customerId: currentSubtrip?.customerId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
-      routeCd: currentSubtrip?.routeCd?._id,
+      
     }),
     [currentSubtrip]
   );
@@ -156,10 +155,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
     setValue('intentFuelPump', pump._id, { shouldDirty: true });
   };
 
-  const handleRouteChange = (route) => {
-    setSelectedRoute(route);
-    setValue('routeCd', route._id, { shouldDirty: true });
-  };
+  // Route change removed
 
   const onSubmit = async (data) => {
     try {
@@ -233,15 +229,6 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 </Typography>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
                   <Field.Text name="consignee" label="Consignee" />
-                  <DialogSelectButton
-                    variant="outlined"
-                    placeholder="Select Route"
-                    selected={selectedRoute?.routeName}
-                    onClick={routeDialog.onTrue}
-                    iconName="mdi:map-marker-path"
-                    sx={{ mb: 2 }}
-                    disabled
-                  />
                   <Field.Text name="loadingPoint" label="Loading Point" />
                   <Field.Text
                     name="unloadingPoint"
@@ -486,12 +473,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
         onCustomerChange={handleCustomerChange}
       />
 
-      <KanbanRouteDialog
-        open={routeDialog.value}
-        onClose={routeDialog.onFalse}
-        selectedRoute={selectedRoute}
-        onRouteChange={handleRouteChange}
-      />
+      {/* Route dialog removed */}
 
       <KanbanPumpDialog
         open={pumpDialog.value}

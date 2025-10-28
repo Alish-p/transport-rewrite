@@ -148,13 +148,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/transporter/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/transporter/${id}`,
     },
-    route: {
-      root: `${ROOTS.DASHBOARD}/route`,
-      new: `${ROOTS.DASHBOARD}/route/new`,
-      list: `${ROOTS.DASHBOARD}/route/list`,
-      edit: (id) => `${ROOTS.DASHBOARD}/route/${id}/edit`,
-      details: (id) => `${ROOTS.DASHBOARD}/route/${id}`,
-    },
+    
     expense: {
       root: `${ROOTS.DASHBOARD}/expense`,
       new: `${ROOTS.DASHBOARD}/expense/new-subtrip-expense`,

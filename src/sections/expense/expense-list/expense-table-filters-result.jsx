@@ -23,7 +23,6 @@ export default function ExpenseTableFiltersResult({
   selectedPumpName,
   selectedTransporterName,
   selectedTripNo,
-  selectedRouteName,
   ...other
 }) {
   const handleRemoveExpenseType = (value) => {
@@ -55,9 +54,7 @@ export default function ExpenseTableFiltersResult({
     onFilters('subtripId', '');
   };
 
-  const handleRemoveRoute = () => {
-    onFilters('routeId', '');
-  };
+  // Route filter removed
 
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
@@ -148,15 +145,7 @@ export default function ExpenseTableFiltersResult({
           </Block>
         )}
 
-        {filters.routeId && (
-          <Block label="Route">
-            <Chip
-              size="small"
-              label={selectedRouteName || filters.routeId}
-              onDelete={handleRemoveRoute}
-            />
-          </Block>
-        )}
+        {/* Route filter removed */}
 
         {filters.fromDate && filters.endDate && (
           <Block label="Date:">

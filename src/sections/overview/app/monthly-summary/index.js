@@ -1,4 +1,3 @@
-export { TopRoutesTable } from './app-top-routes-table';
 export { DriverInsightsTable } from './app-driver-insights-table';
 export { AppMonthlySummaryTabs } from './app-monthly-summary-tabs';
 export { CustomerFreightTable } from './app-customer-freight-table';

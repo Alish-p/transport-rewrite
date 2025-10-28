@@ -15,7 +15,6 @@ import { Iconify } from 'src/components/iconify';
 
 export default function LRInfoCard({ subtrip }) {
   const {
-    routeCd = {},
     customerId = {},
     ewayBill,
     ewayExpiryDate,
@@ -44,7 +43,8 @@ export default function LRInfoCard({ subtrip }) {
     referenceSubtripNo = '-',
   } = subtrip;
 
-  const routeName = routeCd?.routeName || '-';
+  const routeName =
+    loadingPoint && unloadingPoint ? `${loadingPoint} → ${unloadingPoint}` : '-';
   const customerName = customerId?.customerName || '-';
   const tripNo = tripId?.tripNo || '-';
   const vehicleNo = vehicleId?.vehicleNo || '-';

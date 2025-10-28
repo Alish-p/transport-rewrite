@@ -12,7 +12,6 @@ import { CONFIG } from 'src/config-global';
 import { SvgColor } from 'src/components/svg-color';
 import { CustomTabs } from 'src/components/custom-tabs';
 
-import { TopRoutesTable } from './app-top-routes-table';
 import { DriverInsightsTable } from './app-driver-insights-table';
 import { CustomerFreightTable } from './app-customer-freight-table';
 import { VehicleInsightsTable } from './app-vehicle-insights-table';
@@ -32,7 +31,6 @@ export function AppMonthlySummaryTabs() {
     vehicle: false,
     transporter: false,
     driver: false,
-    route: false,
   });
 
   const handleChange = (_e, value) => {
@@ -53,7 +51,6 @@ export function AppMonthlySummaryTabs() {
       { value: 'vehicle', label: 'Vehicle', icon: icon('ic_vehicle') },
       { value: 'transporter', label: 'Transporter', icon: icon('ic_transporter') },
       { value: 'driver', label: 'Driver', icon: icon('ic-user') },
-      { value: 'route', label: 'Route', icon: icon('ic_map') },
     ],
     []
   );
@@ -185,9 +182,7 @@ export function AppMonthlySummaryTabs() {
           />
         )}
 
-        {tab === 'route' && mounted.route && (
-          <TopRoutesTable title="🛣️ Top Routes" subheader="Most frequently travelled routes" />
-        )}
+        {/* Route tab removed; backend API removed */}
       </Box>
     </Card>
   );

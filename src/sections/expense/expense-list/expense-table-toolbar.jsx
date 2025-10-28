@@ -25,7 +25,6 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dialog';
-import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
@@ -56,8 +55,6 @@ export default function ExpenseTableToolbar({
   onSelectTransporter,
   selectedTrip,
   onSelectTrip,
-  selectedRoute,
-  onSelectRoute,
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
@@ -68,7 +65,7 @@ export default function ExpenseTableToolbar({
   const transporterDialog = useBoolean();
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
-  const routeDialog = useBoolean();
+  // Route dialog removed
   const typePopover = usePopover();
 
   const handleSelectVehicle = useCallback(
@@ -111,13 +108,7 @@ export default function ExpenseTableToolbar({
     [onFilters, onSelectSubtrip]
   );
 
-  const handleSelectRoute = useCallback(
-    (route) => {
-      if (onSelectRoute) onSelectRoute(route);
-      onFilters('routeId', route?._id || '');
-    },
-    [onFilters, onSelectRoute]
-  );
+  // Route selection removed
 
   const handleFilterFromDate = useCallback(
     (newValue) => {
@@ -198,15 +189,7 @@ export default function ExpenseTableToolbar({
           sx={{ maxWidth: { md: 200 } }}
         />
 
-        <DialogSelectButton
-          onClick={routeDialog.onTrue}
-          selected={
-            selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
-          }
-          placeholder="Route"
-          iconName="mdi:map-marker-path"
-          sx={{ maxWidth: { md: 200 } }}
-        />
+        {/* Route filter removed */}
 
         <DialogSelectButton
           sx={{ maxWidth: { md: 200 } }}
@@ -330,13 +313,7 @@ export default function ExpenseTableToolbar({
         onTransporterChange={handleSelectTransporter}
       />
 
-      <KanbanRouteDialog
-        open={routeDialog.value}
-        onClose={routeDialog.onFalse}
-        selectedRoute={selectedRoute}
-        onRouteChange={handleSelectRoute}
-        mode="all"
-      />
+      {/* Route dialog removed */}
 
       <KanbanTripDialog
         open={tripDialog.value}

@@ -38,7 +38,7 @@ const TABLE_HEAD = [
   { id: 'index', label: '#' },
   { id: '_id', label: 'ID' },
   { id: 'customerName', label: 'Customer' },
-  { id: 'routeName', label: 'Route' },
+  { id: 'route', label: 'Route' },
   { id: 'date', label: 'Date' },
   { id: 'loadingWeight', label: 'Weight' },
   { id: 'rate', label: 'Rate' },
@@ -82,7 +82,10 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     return {
       ...row,
       customerName: row?.customerId?.customerName,
-      routeName: row?.routeCd?.routeName,
+      route:
+        row?.loadingPoint && row?.unloadingPoint
+          ? `${row.loadingPoint} → ${row.unloadingPoint}`
+          : '-',
       totalExpense,
       amt: amount,
     };
@@ -127,7 +130,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                   'S.No': idx + 1,
                   ID: st._id,
                   Customer: st.customerName || '-',
-                  Route: st.routeName || '-',
+                  Route: st.route || '-',
                   Date: fDateRangeShortLabel(st.startDate, st.endDate),
                   Weight: st.loadingWeight || 0,
                   Rate: st.rate || 0,

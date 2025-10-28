@@ -243,15 +243,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
                   </Typography>
                 </Tooltip>
               </Box>
-              {/* Route */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2">Route</Typography>
-                <Tooltip title={selectedSubtrip?.routeCd?.routeName}>
-                  <Typography variant="body2" fontWeight="bold">
-                    {wrapText(selectedSubtrip?.routeCd?.routeName || '-', 20)}
-                  </Typography>
-                </Tooltip>
-              </Box>
+
               {/* Loading Point */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Loading Point</Typography>

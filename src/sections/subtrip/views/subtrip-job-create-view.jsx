@@ -34,10 +34,10 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
-import { getFixedExpensesByVehicleType } from 'src/utils/utils';
+// Route expenses logic removed
 
 import { useGps } from 'src/query/use-gps';
-import { useRoute } from 'src/query/use-route';
+// Route API not needed
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useSearchCustomer } from 'src/query/use-customer';
 import { useTrip, useVehicleActiveTrip } from 'src/query/use-trip';
@@ -51,7 +51,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from 'src/sections/subtrip/constants';
 import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
-import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
+// Route selection dialog removed
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
@@ -106,7 +106,6 @@ const formSchema = z
     loadType: z.enum(['loaded', 'empty']),
     startKm: numericInputSchema,
     consignee: consigneeOptionSchema,
-    routeCd: z.string().optional(),
     loadingPoint: z.string().optional(),
     unloadingPoint: z.string().optional(),
     loadingWeight: loadingWeightSchema,
@@ -152,7 +151,6 @@ const createDefaultValues = () => ({
   loadType: 'loaded',
   startKm: '',
   consignee: null,
-  routeCd: '',
   loadingPoint: '',
   unloadingPoint: '',
   loadingWeight: '',
@@ -194,10 +192,7 @@ export function SubtripJobCreateView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
-  const [routeSuggestedAdvance, setRouteSuggestedAdvance] = useState(false);
-  const [routeSuggestedDiesel, setRouteSuggestedDiesel] = useState(false);
   const [ewayFetchLoading, setEwayFetchLoading] = useState(false);
   const [ewayFetchError, setEwayFetchError] = useState('');
   const [searchCustomerParams, setSearchCustomerParams] = useState(null);
@@ -206,10 +201,10 @@ export function SubtripJobCreateView() {
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
   const customerDialog = useBoolean(false);
-  const routeDialog = useBoolean(false);
+  // Route dialog removed
   const pumpDialog = useBoolean(false);
   const materialOptions = useMaterialOptions();
-  const { data: detailedRoute } = useRoute(selectedRoute?._id);
+  // Removed route lookup
 
   // Queries & mutations
   const { data: activeTrip, isFetching: fetchingActiveTrip } = useVehicleActiveTrip(
@@ -414,14 +409,7 @@ export function SubtripJobCreateView() {
   };
 
   // Selection handlers
-  const syncRouteFields = useCallback(
-    (route) => {
-      setValue('routeCd', route?._id || '', { shouldValidate: true });
-      setValue('loadingPoint', route?.fromPlace || '', { shouldValidate: true });
-      setValue('unloadingPoint', route?.toPlace || '', { shouldValidate: true });
-    },
-    [setValue]
-  );
+  // Route syncing removed; enter points directly
 
   const handleVehicleChange = useCallback(
     (vehicle) => {
@@ -433,9 +421,7 @@ export function SubtripJobCreateView() {
       setValue('consignee', null);
       setSelectedCustomer(null);
       setSelectedDriver(null);
-      setSelectedRoute(null);
       // reset material fields
-      syncRouteFields(null);
       setValue('loadingWeight', '');
       setValue('rate', '');
       setValue('invoiceNo', '');
@@ -453,17 +439,13 @@ export function SubtripJobCreateView() {
       setValue('initialAdvanceDieselUnit', 'litre');
       setValue('pumpCd', '');
       setSelectedPump(null);
-      setRouteSuggestedAdvance(false);
-      setRouteSuggestedDiesel(false);
     },
     [
       setSelectedVehicle,
       setSelectedCustomer,
       setSelectedDriver,
-      setSelectedRoute,
       setSelectedPump,
       setValue,
-      syncRouteFields,
     ]
   );
 
@@ -477,18 +459,7 @@ export function SubtripJobCreateView() {
     [setSelectedCustomer]
   );
 
-  const handleRouteChange = useCallback(
-    (route) => {
-      setSelectedRoute(route);
-      syncRouteFields(route);
-      setRouteSuggestedAdvance(false);
-      setRouteSuggestedDiesel(false);
-      if (activeStep === 2) {
-        trigger(['routeCd', 'loadingPoint', 'unloadingPoint']);
-      }
-    },
-    [activeStep, setSelectedRoute, trigger, syncRouteFields]
-  );
+  // Route change handler removed
 
   const handlePumpChange = useCallback(
     (pump) => {
@@ -498,45 +469,7 @@ export function SubtripJobCreateView() {
     [setSelectedPump, setValue]
   );
 
-  // Auto-populate step 5 values from Route vehicleConfiguration when available, only once per route selection
-  useEffect(() => {
-    try {
-      if (!detailedRoute || !selectedVehicle) return;
-      const cfg = getFixedExpensesByVehicleType(detailedRoute, selectedVehicle);
-
-      // Driver advance: populate only if not already suggested this selection
-      if (!routeSuggestedAdvance) {
-        const currentAdvance = toNumber(watchedForm.driverAdvance);
-        if (currentAdvance === undefined && cfg?.advanceAmt != null) {
-          setValue('driverAdvance', cfg.advanceAmt, { shouldValidate: true, shouldDirty: true });
-          setRouteSuggestedAdvance(true);
-        }
-      }
-
-      // Diesel intent: populate only if not already suggested this selection
-      if (!routeSuggestedDiesel) {
-        const currentDiesel = toNumber(watchedForm.initialAdvanceDiesel);
-        if (currentDiesel === undefined && cfg?.diesel != null) {
-          setValue('initialAdvanceDiesel', cfg.diesel, { shouldValidate: true, shouldDirty: true });
-          setValue('initialAdvanceDieselUnit', 'litre', {
-            shouldValidate: false,
-            shouldDirty: true,
-          });
-          setRouteSuggestedDiesel(true);
-        }
-      }
-    } catch (err) {
-      // No matching vehicle configuration for this route; ignore
-    }
-  }, [
-    detailedRoute,
-    selectedVehicle,
-    setValue,
-    watchedForm.driverAdvance,
-    watchedForm.initialAdvanceDiesel,
-    routeSuggestedAdvance,
-    routeSuggestedDiesel,
-  ]);
+  // Route-based auto-population removed
 
   // Popover for active trip subtrips
   const [subtripAnchorEl, setSubtripAnchorEl] = useState(null);
@@ -548,10 +481,10 @@ export function SubtripJobCreateView() {
   const { data: recentSubtripsData } = usePaginatedSubtrips(
     selectedVehicle?._id
       ? {
-          page: 1,
-          rowsPerPage: 10,
-          vehicleId: selectedVehicle._id,
-        }
+        page: 1,
+        rowsPerPage: 10,
+        vehicleId: selectedVehicle._id,
+      }
       : null,
     { enabled: !!selectedVehicle?._id }
   );
@@ -640,21 +573,19 @@ export function SubtripJobCreateView() {
       const isOwnVehicle = !!selectedVehicle?.isOwn;
       const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
 
+      const hasLoading = Boolean((form.loadingPoint || '').trim());
+      const hasUnloading = Boolean((form.unloadingPoint || '').trim());
+
       if (isLoaded) {
         const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
         if (!selectedCustomer) return 'Please select a customer';
         if (!hasConsignee) return 'Please select a consignee';
-        if (!selectedRoute) return 'Please select a route';
-        if (!form.routeCd || !form.loadingPoint || !form.unloadingPoint) {
-          return 'Please select route for material';
-        }
-      } else if (!selectedRoute) {
-        return 'Please select a route';
-      }
+        if (!hasLoading || !hasUnloading) return 'Enter loading and unloading points';
+      } else if (!hasLoading || !hasUnloading) return 'Enter loading and unloading points';
 
       return null;
     },
-    [getJobStepError, selectedVehicle, selectedCustomer, selectedRoute]
+    [getJobStepError, selectedVehicle, selectedCustomer]
   );
 
   const getMaterialStepError = useCallback(
@@ -735,36 +666,34 @@ export function SubtripJobCreateView() {
 
     const emptyRoute = isEmpty
       ? {
-          routeCd: selectedRoute?._id,
-          loadingPoint: selectedRoute?.fromPlace,
-          unloadingPoint: selectedRoute?.toPlace,
-        }
+        loadingPoint: (form.loadingPoint || '').trim() || undefined,
+        unloadingPoint: (form.unloadingPoint || '').trim() || undefined,
+      }
       : {};
 
     const loadedFields = !isEmpty
       ? {
-          customerId: selectedCustomer?._id,
-          consignee: form.consignee?.value || form.consignee?.label,
-          routeCd: form.routeCd,
-          loadingPoint: form.loadingPoint,
-          unloadingPoint: form.unloadingPoint,
-          loadingWeight: toNumber(form.loadingWeight),
-          rate: toNumber(form.rate),
-          invoiceNo: form.invoiceNo,
-          shipmentNo: form.shipmentNo || undefined,
-          orderNo: form.orderNo || undefined,
-          referenceSubtripNo: form.referenceSubtripNo || undefined,
-          ewayBill: form.ewayBill || undefined,
-          ewayExpiryDate: form.ewayExpiryDate,
-          materialType: form.materialType,
-          quantity: toNumber(form.quantity),
-          grade: form.grade || undefined,
-          driverAdvance: toNumber(form.driverAdvance),
-          driverAdvanceGivenBy: form.driverAdvanceGivenBy,
-          initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
-          initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
-          pumpCd: form.pumpCd || undefined,
-        }
+        customerId: selectedCustomer?._id,
+        consignee: form.consignee?.value || form.consignee?.label,
+        loadingPoint: form.loadingPoint,
+        unloadingPoint: form.unloadingPoint,
+        loadingWeight: toNumber(form.loadingWeight),
+        rate: toNumber(form.rate),
+        invoiceNo: form.invoiceNo,
+        shipmentNo: form.shipmentNo || undefined,
+        orderNo: form.orderNo || undefined,
+        referenceSubtripNo: form.referenceSubtripNo || undefined,
+        ewayBill: form.ewayBill || undefined,
+        ewayExpiryDate: form.ewayExpiryDate,
+        materialType: form.materialType,
+        quantity: toNumber(form.quantity),
+        grade: form.grade || undefined,
+        driverAdvance: toNumber(form.driverAdvance),
+        driverAdvanceGivenBy: form.driverAdvanceGivenBy,
+        initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
+        initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
+        pumpCd: form.pumpCd || undefined,
+      }
       : {};
 
     return {
@@ -1176,24 +1105,13 @@ export function SubtripJobCreateView() {
                         disabled={!selectedCustomer}
                       />
                     )}
-                    <DialogSelectButton
-                      onClick={routeDialog.onTrue}
-                      placeholder="Select Route *"
-                      selected={
-                        selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
-                      }
-                      iconName="mdi:map-marker-path"
-                    />
-
                     <Field.Text
                       name="loadingPoint"
                       label="Loading Point *"
-                      InputProps={{ readOnly: true }}
                     />
                     <Field.Text
                       name="unloadingPoint"
                       label="Unloading Point *"
-                      InputProps={{ readOnly: true }}
                       helperText={isLoadedJob ? "Consignee's Address" : undefined}
                     />
                   </Box>
@@ -1349,11 +1267,7 @@ export function SubtripJobCreateView() {
                         </Field.Select>
                       </Box>
                       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                        {routeSuggestedAdvance && (
-                          <Typography variant="caption" sx={{ color: 'success.main' }}>
-                            Auto-filled from route configuration
-                          </Typography>
-                        )}
+                        {/* Route-based suggestions removed */}
                       </Stack>
                     </Box>
 
@@ -1403,11 +1317,7 @@ export function SubtripJobCreateView() {
                         </Box>
                       </Box>
                       <Stack spacing={0.75} sx={{ mt: 1 }}>
-                        {routeSuggestedDiesel && (
-                          <Typography variant="caption" sx={{ color: 'success.main' }}>
-                            Auto-filled from route configuration
-                          </Typography>
-                        )}
+                        {/* Route-based suggestions removed */}
                         {initialAdvanceDieselUnit === 'litre' && (
                           <Alert variant="outlined" severity="info">
                             In case of Litre Diesel Intent, expense will not be added automatically.
@@ -1457,13 +1367,7 @@ export function SubtripJobCreateView() {
             onCustomerChange={handleCustomerChange}
           />
 
-          <KanbanRouteDialog
-            open={routeDialog.value}
-            onClose={routeDialog.onFalse}
-            onRouteChange={handleRouteChange}
-            mode={isLoadedJob ? 'genericAndCustomer' : 'generic'}
-            customerId={isLoadedJob ? selectedCustomer?._id : undefined}
-          />
+          {/* Route selection removed */}
 
           <KanbanPumpDialog
             open={pumpDialog.value}

@@ -45,11 +45,7 @@ const TransporterListPage = lazy(() => import('src/pages/dashboard/transporter/l
 const TransporterCreatePage = lazy(() => import('src/pages/dashboard/transporter/new'));
 const TransporterEditPage = lazy(() => import('src/pages/dashboard/transporter/edit'));
 
-// Route
-const RouteDetailsPage = lazy(() => import('src/pages/dashboard/route/details'));
-const RouteListPage = lazy(() => import('src/pages/dashboard/route/list'));
-const RouteCreatePage = lazy(() => import('src/pages/dashboard/route/new'));
-const RouteEditPage = lazy(() => import('src/pages/dashboard/route/edit'));
+// Route (removed)
 
 // Bank
 const BankDetailsPage = lazy(() => import('src/pages/dashboard/bank/details'));
@@ -395,51 +391,7 @@ export const dashboardRoutes = [
         ],
       },
 
-      {
-        path: 'route',
-        children: [
-          {
-            element: (
-              <PermissionBasedGuard resource="route" action="view" hasContent>
-                <RouteListPage />
-              </PermissionBasedGuard>
-            ),
-            index: true,
-          },
-          {
-            path: 'list',
-            element: (
-              <PermissionBasedGuard resource="route" action="view" hasContent>
-                <RouteListPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <PermissionBasedGuard resource="route" action="view" hasContent>
-                <RouteDetailsPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: 'new',
-            element: (
-              <PermissionBasedGuard resource="route" action="create" hasContent>
-                <RouteCreatePage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <PermissionBasedGuard resource="route" action="update" hasContent>
-                <RouteEditPage />
-              </PermissionBasedGuard>
-            ),
-          },
-        ],
-      },
+      
       {
         path: 'bank',
         children: [

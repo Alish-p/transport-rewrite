@@ -36,10 +36,6 @@ const getCustomerSubtripMonthlyData = async (id, year) => {
   return data;
 };
 
-const getCustomerRoutes = async (id) => {
-  const { data } = await axios.get(`${ENDPOINT}/${id}/routes`);
-  return data;
-};
 
 const getCustomerInvoiceAmountSummary = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}/invoice-amount-summary`);
@@ -140,13 +136,7 @@ export function useCustomerSubtripMonthlyData(id, year) {
   });
 }
 
-export function useCustomerRoutes(id) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id, 'routes'],
-    queryFn: () => getCustomerRoutes(id),
-    enabled: Boolean(id),
-  });
-}
+// useCustomerRoutes removed (backend API removed)
 
 export function useCustomerInvoiceAmountSummary(id) {
   return useQuery({

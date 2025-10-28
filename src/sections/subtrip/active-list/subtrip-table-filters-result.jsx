@@ -23,7 +23,6 @@ export default function SubtripTableFiltersResult({
   selectedVehicleNo,
   selectedDriverName,
   selectedTransporterName,
-  selectedRouteName,
   ...other
 }) {
   const { data: customers = [] } = useCustomersSummary();
@@ -65,9 +64,7 @@ export default function SubtripTableFiltersResult({
     onFilters('driverId', '');
   };
 
-  const handleRemoveRoute = () => {
-    onFilters('routeId', '');
-  };
+  // Route filter removed
 
   const handleRemoveMaterials = (value) => {
     const newValues = filters.materials.filter((v) => v !== value);
@@ -142,15 +139,7 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
-        {filters.routeId && (
-          <Block label="Route:">
-            <Chip
-              size="small"
-              label={selectedRouteName || filters.routeId}
-              onDelete={handleRemoveRoute}
-            />
-          </Block>
-        )}
+        {/* Route filter removed */}
 
         {filters.subtripNo && (
           <Block label="Job No:">

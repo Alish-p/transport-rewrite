@@ -77,11 +77,14 @@ export const TABLE_COLUMNS = [
     align: 'center',
   },
   {
-    id: 'routeName',
+    id: 'route',
     label: 'Route',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row?.routeCd?.routeName || '-',
+    getter: (row) =>
+      row?.loadingPoint && row?.unloadingPoint
+        ? `${row.loadingPoint} → ${row.unloadingPoint}`
+        : '-',
     align: 'center',
   },
   {

@@ -25,7 +25,6 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 // components
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { KanbanRouteDialog } from 'src/sections/kanban/components/kanban-route-dialog';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
@@ -50,8 +49,6 @@ export default function SubtripTableToolbar({
   onSelectVehicle,
   selectedDriver,
   onSelectDriver,
-  selectedRoute,
-  onSelectRoute,
   onResetColumns,
   canResetColumns,
 }) {
@@ -67,7 +64,7 @@ export default function SubtripTableToolbar({
   const customerDialog = useBoolean();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
-  const routeDialog = useBoolean();
+  // Route dialog removed
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -109,15 +106,7 @@ export default function SubtripTableToolbar({
     [onFilters, onSelectDriver]
   );
 
-  const handleSelectRoute = useCallback(
-    (route) => {
-      onFilters('routeId', route._id);
-      if (onSelectRoute) {
-        onSelectRoute(route);
-      }
-    },
-    [onFilters, onSelectRoute]
-  );
+  // Route selection removed
 
   const handleToggleMaterial = useCallback(
     (value) => {
@@ -208,14 +197,7 @@ export default function SubtripTableToolbar({
           iconName="mdi:account"
         />
 
-        <DialogSelectButton
-          onClick={routeDialog.onTrue}
-          selected={
-            selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
-          }
-          placeholder="Route"
-          iconName="mdi:map-marker-path"
-        />
+        {/* Route filter removed */}
 
         <DialogSelectButton
           onClick={startRange.onTrue}
@@ -353,13 +335,7 @@ export default function SubtripTableToolbar({
         onVehicleChange={handleSelectVehicle}
       />
 
-      <KanbanRouteDialog
-        open={routeDialog.value}
-        onClose={routeDialog.onFalse}
-        selectedRoute={selectedRoute}
-        onRouteChange={handleSelectRoute}
-        mode="all"
-      />
+      {/* Route dialog removed */}
 
       <KanbanDriverDialog
         open={driverDialog.value}

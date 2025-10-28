@@ -59,7 +59,6 @@ const defaultFilters = {
   vehicleNo: '',
   transportName: '',
   driverId: '',
-  routeId: '',
   subtripStatus: 'all',
   fromDate: null,
   toDate: null,
@@ -85,7 +84,7 @@ export function SubtripListView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
-  const [selectedRoute, setSelectedRoute] = useState(null);
+  // Route selection removed
   const tenant = useTenantContext();
   const { data: customers = [] } = useCustomersSummary();
 
@@ -114,7 +113,7 @@ export function SubtripListView() {
     customerId: filters.customerId || undefined,
     vehicleId: filters.vehicleNo || undefined,
     driverId: filters.driverId || undefined,
-    routeId: filters.routeId || undefined,
+    
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
     subtripEndFromDate: filters.subtripEndFromDate || undefined,
@@ -152,9 +151,7 @@ export function SubtripListView() {
   useEffect(() => {
     if (!filters.transportName) setSelectedTransporter(null);
   }, [filters.transportName]);
-  useEffect(() => {
-    if (!filters.routeId) setSelectedRoute(null);
-  }, [filters.routeId]);
+  // Route filter removed
 
   const notFound = !isLoading && !tableData.length;
 
@@ -209,7 +206,7 @@ export function SubtripListView() {
         if (name === 'vehicleNo') setSelectedVehicle(null);
         if (name === 'driverId') setSelectedDriver(null);
         if (name === 'transportName') setSelectedTransporter(null);
-        if (name === 'routeId') setSelectedRoute(null);
+        
       }
     },
     [handleFilters]
@@ -265,13 +262,7 @@ export function SubtripListView() {
     [handleFilterChange]
   );
 
-  const handleSelectRoute = useCallback(
-    (route) => {
-      setSelectedRoute(route);
-      handleFilterChange('routeId', route._id);
-    },
-    [handleFilterChange]
-  );
+  // Route selection removed
 
   const handleResetAll = useCallback(() => {
     handleResetFilters();
@@ -279,7 +270,6 @@ export function SubtripListView() {
     setSelectedVehicle(null);
     setSelectedDriver(null);
     setSelectedTransporter(null);
-    setSelectedRoute(null);
   }, [handleResetFilters]);
 
   // Add handler for toggling column visibility
@@ -386,8 +376,7 @@ export function SubtripListView() {
           onSelectVehicle={handleSelectVehicle}
           selectedDriver={selectedDriver}
           onSelectDriver={handleSelectDriver}
-          selectedRoute={selectedRoute}
-          onSelectRoute={handleSelectRoute}
+          
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
         />
@@ -401,9 +390,7 @@ export function SubtripListView() {
             selectedCustomerName={selectedCustomer?.customerName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedDriverName={selectedDriver?.driverName}
-            selectedRouteName={
-              selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
-            }
+            
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />

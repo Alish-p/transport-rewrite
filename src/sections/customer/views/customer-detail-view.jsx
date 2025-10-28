@@ -7,7 +7,6 @@ import { HeroHeader } from 'src/components/hero-header-card';
 
 import {
   CustomerBasicWidget,
-  CustomerRoutesTable,
   CustomerFinanceWidget,
   CustomerInvoicesTable,
   CustomerAdditionalWidget,
@@ -60,13 +59,7 @@ export function CustomerDetailView({ customer }) {
           <Grid xs={12} md={6}>
             <CustomerMaterialSummaryWidget customer={customer} />
           </Grid>
-          <Grid xs={12} md={12}>
-            <CustomerRoutesTable
-              customer={customer}
-              title="🛣️ Top Routes"
-              subheader="Most frequently travelled routes"
-            />
-          </Grid>
+          {/* Top Routes table removed (backend API removed) */}
         </Grid>
       </Box>
     </DashboardContent>

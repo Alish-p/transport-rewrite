@@ -131,17 +131,7 @@ export function useFinancialMonthlyData() {
   return useQuery({ queryKey: ['financialMonthlyData'], queryFn: getFinancialMonthlyData });
 }
 
-// ----------------------------------------------------------------------
-// Top routes summary
-
-const getTopRoutes = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/top-routes`);
-  return data;
-};
-
-export function useTopRoutes() {
-  return useQuery({ queryKey: ['topRoutes'], queryFn: getTopRoutes });
-}
+// Top routes removed (backend API removed)
 
 // ----------------------------------------------------------------------
 // Invoice amount summary

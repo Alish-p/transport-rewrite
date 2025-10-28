@@ -113,7 +113,11 @@ export function TransporterSubtripsWidget({ transporterId, title = 'Jobs', ...ot
                       </Link>
                     </TableCell>
                     <TableCell>{row.customerId?.customerName || '-'}</TableCell>
-                    <TableCell>{row.routeCd?.routeName || '-'}</TableCell>
+                    <TableCell>
+                      {row.loadingPoint && row.unloadingPoint
+                        ? `${row.loadingPoint} → ${row.unloadingPoint}`
+                        : '-'}
+                    </TableCell>
                     <TableCell align="center">
                       <Label
                         variant="soft"

@@ -37,7 +37,6 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { SUBTRIP_STATUS_COLORS } from './constants';
 import { KanbanTripDialog } from '../kanban/components/kanban-trip-dialog';
-import { KanbanRouteDialog } from '../kanban/components/kanban-route-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 const NewTripSchema = zod
@@ -52,7 +51,6 @@ const NewTripSchema = zod
     diNumber: zod.string(),
     startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
     isEmpty: zod.boolean().default(false),
-    routeCd: zod.string().optional(),
     loadingPoint: zod.string().optional(),
     unloadingPoint: zod.string().optional(),
     startKm: zod.number().optional(),
@@ -60,16 +58,12 @@ const NewTripSchema = zod
   .refine(
     (data) => {
       if (data.isEmpty) {
-        // For empty trips, routeCd is required
-        return !!data.routeCd;
+        // For empty trips, loading and unloading are required
+        return Boolean((data.loadingPoint || '').trim()) && Boolean((data.unloadingPoint || '').trim());
       }
-      // For loaded trips, customerId is required
-      return !!data.customerId;
+      return true;
     },
-    {
-      message: 'Route is required for empty trips',
-      path: ['routeCd'],
-    }
+    { message: 'Loading and Unloading are required', path: ['loadingPoint'] }
   )
   .refine(
     (data) => {
@@ -88,7 +82,7 @@ const NewTripSchema = zod
 export default function SubtripCreateForm({ currentTrip, onSuccess }) {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('loaded');
-  const [selectedRoute, setSelectedRoute] = useState(null);
+  // Route selection removed
   const [selectedTripId, setSelectedTripId] = useState(currentTrip || null);
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -97,7 +91,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
   const addEmptySubtrip = useCreateEmptySubtrip();
   const customerDialog = useBoolean(false);
   const tripDialog = useBoolean(false);
-  const routeDialog = useBoolean(false);
+  // Route dialog removed
 
   // Fetch trip details including subtrips when a trip is selected
   const { data: selectedTripDetails } = useTrip(selectedTripId);
@@ -114,7 +108,6 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
       startDate: new Date(),
       diNumber: '',
       isEmpty: false,
-      routeCd: '',
       loadingPoint: '',
       unloadingPoint: '',
       startKm: 0,
@@ -146,7 +139,6 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
       setSelectedCustomer(null);
     } else {
       // Switching to “loaded” tab → clear empty‐trip fields
-      setValue('routeCd', '');
       setValue('loadingPoint', '');
       setValue('unloadingPoint', '');
       setValue('startKm', 0);
@@ -167,12 +159,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
     }
   };
 
-  const handleRouteChange = (route) => {
-    setSelectedRoute(route);
-    setValue('routeCd', route._id);
-    setValue('loadingPoint', route.fromPlace);
-    setValue('unloadingPoint', route.toPlace);
-  };
+  // Route change removed; input points directly
 
   useEffect(() => {
     if (currentTab === 'empty' && gpsData?.totalOdometer) {
@@ -197,7 +184,6 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
             }
           : {
               tripId: data?.tripId,
-              routeCd: data?.routeCd,
               loadingPoint: data?.loadingPoint,
               unloadingPoint: data?.unloadingPoint,
               startKm: data?.startKm,
@@ -284,18 +270,8 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
 
               {currentTab === 'empty' ? (
                 <>
-                  <Box>
-                    <DialogSelectButton
-                      onClick={routeDialog.onTrue}
-                      placeholder="Select Route *"
-                      selected={
-                        selectedRoute && `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}`
-                      }
-                      error={!!errors.routeCd?.message}
-                      iconName="mdi:map-marker-path"
-                    />
-                  </Box>
-
+                  <Field.Text name="loadingPoint" label="Loading Point *" />
+                  <Field.Text name="unloadingPoint" label="Unloading Point *" />
                   <Field.Text
                     name="startKm"
                     label="Start Kilometer"
@@ -436,12 +412,7 @@ export default function SubtripCreateForm({ currentTrip, onSuccess }) {
         status={['open']}
       />
 
-      <KanbanRouteDialog
-        open={routeDialog.value}
-        onClose={routeDialog.onFalse}
-        onRouteChange={handleRouteChange}
-        mode="generic"
-      />
+      {/* Route dialog removed */}
     </Form>
   );
 }

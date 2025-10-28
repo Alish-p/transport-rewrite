@@ -63,7 +63,6 @@ const defaultFilters = {
   subtripId: '',
   pumpId: '',
   transporterId: '',
-  routeId: '',
   tripId: '',
   expenseCategory: 'all',
   expenseType: [],
@@ -95,7 +94,7 @@ export function ExpenseListView() {
   const [selectedPump, setSelectedPump] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [selectedRoute, setSelectedRoute] = useState(null);
+  // Route selection removed
 
   const {
     visibleColumns,
@@ -114,7 +113,6 @@ export function ExpenseListView() {
     subtripId: filters.subtripId || undefined,
     pumpId: filters.pumpId || undefined,
     transporterId: filters.transporterId || undefined,
-    routeId: filters.routeId || undefined,
     tripId: filters.tripId || undefined,
     expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
     expenseType: filters.expenseType.length ? filters.expenseType : undefined,
@@ -197,9 +195,7 @@ export function ExpenseListView() {
   useEffect(() => {
     if (!filters.tripId) setSelectedTrip(null);
   }, [filters.tripId]);
-  useEffect(() => {
-    if (!filters.routeId) setSelectedRoute(null);
-  }, [filters.routeId]);
+  // Route filter removed
 
   // Add handler for toggling column visibility
   const handleToggleColumn = useCallback(
@@ -368,11 +364,6 @@ export function ExpenseListView() {
             setSelectedTrip(t);
             handleFilters('tripId', t?._id || '');
           }}
-          selectedRoute={selectedRoute}
-          onSelectRoute={(r) => {
-            setSelectedRoute(r);
-            handleFilters('routeId', r?._id || '');
-          }}
         />
 
         {canReset && (
@@ -386,19 +377,15 @@ export function ExpenseListView() {
               setSelectedPump(null);
               setSelectedTransporter(null);
               setSelectedTrip(null);
-              setSelectedRoute(null);
             }}
             results={totalCount}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedSubtripNo={selectedSubtrip?.subtripNo}
-            selectedPumpName={selectedPump?.name}
-            selectedTransporterName={selectedTransporter?.transportName}
-            selectedTripNo={selectedTrip?.tripNo}
-            selectedRouteName={
-              selectedRoute ? `${selectedRoute.fromPlace} → ${selectedRoute.toPlace}` : undefined
-            }
-            sx={{ p: 2.5, pt: 0 }}
-          />
+          selectedPumpName={selectedPump?.name}
+          selectedTransporterName={selectedTransporter?.transportName}
+          selectedTripNo={selectedTrip?.tripNo}
+          sx={{ p: 2.5, pt: 0 }}
+        />
         )}
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

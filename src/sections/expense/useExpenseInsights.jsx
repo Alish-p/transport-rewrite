@@ -1,58 +1,6 @@
-import { useMemo } from 'react';
-
-import { fCurrency } from 'src/utils/format-number';
-
-function useExpenseInsights(subtrip) {
-  const { routeCd: routeInfo, vehicleId: vehicleInfo, rate = 0, loadingWeight = 0 } = subtrip || {};
-
-  const extractedData = useMemo(() => {
-    if (vehicleInfo && routeInfo?.vehicleConfiguration) {
-      return routeInfo.vehicleConfiguration.find(
-        (s) =>
-          s.vehicleType.toLowerCase() === vehicleInfo.vehicleType.toLowerCase() &&
-          s.noOfTyres === vehicleInfo.noOfTyres
-      );
-    }
-    return null;
-  }, [vehicleInfo, routeInfo]);
-
-  const extractedResult = useMemo(
-    () => ({
-      tollAmt: extractedData?.tollAmt || 0,
-      routeName: routeInfo?.routeName || '',
-      fixedSalary: extractedData?.fixedSalary || 0,
-      percentageSalary: extractedData?.percentageSalary || 0,
-      performanceMilage: extractedData?.performanceMilage || 0,
-      diesel: extractedData?.diesel || 0,
-      adBlue: extractedData?.adBlue || 0,
-      advanceAmt: extractedData?.advanceAmt || 0,
-    }),
-    [routeInfo, extractedData]
-  );
-
-  const alertContent = useMemo(
-    () => ({
-      'Driver Salary': [
-        `Fixed Salary for this Trip is ${extractedResult.fixedSalary || 0}.`,
-        `The Variable salary for this trip is calculated as Rate × Weight × Percentage = ${rate} × ${loadingWeight} × ${extractedResult.percentageSalary / 100} = ${rate * loadingWeight * (extractedResult.percentageSalary / 100)}.`,
-      ],
-      Diesel: [
-        `For trip ${extractedResult.routeName}, usual diesel consumption is ${extractedResult.diesel}Ltr.`,
-      ],
-      Adblue: [
-        `For trip ${extractedResult.routeName}, usual AdBlue consumption is ${extractedResult.adBlue}Ltr.`,
-      ],
-      Toll: [
-        `For trip ${extractedResult.routeName}, usual toll expenses are ${fCurrency(extractedResult.tollAmt)}.`,
-      ],
-    }),
-    [rate, loadingWeight, extractedResult]
-  );
-
-  return {
-    alertContent,
-    extractedResult,
-  };
+// Route-based expense insights disabled
+function useExpenseInsights() {
+  return { alertContent: {}, extractedResult: {} };
 }
 
 export default useExpenseInsights;

@@ -99,7 +99,10 @@ export default function TripSheetPdf({ trip, tenant }) {
       sno: idx + 1,
       id: st.subtripNo || '-',
       customer: st.customerId?.customerName || '-',
-      route: st.routeCd?.routeName || '-',
+      route:
+        st.loadingPoint && st.unloadingPoint
+          ? `${st.loadingPoint} → ${st.unloadingPoint}`
+          : '-',
       startDate: fDate(st.startDate),
       endDate: fDate(st.endDate),
       timeTaken: fDaysDuration(st.startDate, st.endDate) || 0,

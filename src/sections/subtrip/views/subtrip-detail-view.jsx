@@ -21,8 +21,8 @@ import { SUBTRIP_STATUS } from '../constants';
 // PDFs
 import LRPDF from '../pdfs/lorry-reciept-pdf';
 import EntryPassPdf from '../pdfs/entry-pass-pdf';
+import { mapExpensesToChartData } from '../utils';
 import LRInfo from '../widgets/subtrip-info-widget';
-import InsightsWidget from '../widgets/insights-widget';
 import DriverPaymentPdf from '../pdfs/driver-payment-pdf';
 import { SubtripTimeline } from '../widgets/subtrip-timeline';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
@@ -34,7 +34,6 @@ import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
-import { mapExpensesToChartData, generateInsightsForSubtrip } from '../utils';
 import { SubtripCloseEmptyDialog } from '../subtrip-close-empty-dialogue-form';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
@@ -65,7 +64,7 @@ export function SubtripDetailView({ subtrip }) {
 
   const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
 
-  const insights = generateInsightsForSubtrip(subtrip);
+  // Route-based insights removed
 
   const { _id, subtripNo, vehicleId = {}, driverId = {}, subtripStatus } = subtrip;
 
@@ -426,7 +425,7 @@ export function SubtripDetailView({ subtrip }) {
                 <SubtripStatusStepper status={subtrip?.subtripStatus} />
               )}
 
-              <InsightsWidget insights={insights} />
+              {/* Insights removed as route-based analysis is deprecated */}
 
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <IncomeWidgetSummary

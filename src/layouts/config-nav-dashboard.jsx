@@ -192,16 +192,7 @@ export const navData = [
       },
 
       // Other Management Items
-      {
-        title: 'Route',
-        path: paths.dashboard.route.root,
-        icon: ICONS.route,
-        resource: 'route',
-        children: [
-          { title: 'List', path: paths.dashboard.route.root, action: 'view' },
-          { title: 'Create', path: paths.dashboard.route.new, action: 'create' },
-        ],
-      },
+      
       {
         title: 'Bank',
         path: paths.dashboard.bank.root,
