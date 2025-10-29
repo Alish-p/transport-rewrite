@@ -30,7 +30,6 @@ import { ExpenseChart } from '../widgets/expense-chart-widget';
 import TransporterPayment from '../pdfs/transporter-payment-pdf';
 import IncomeWidgetSummary from '../widgets/income-expense-widget';
 import { BasicExpenseTable } from '../widgets/basic-expense-table';
-import { SubtripCloseDialog } from '../subtrip-close-dialogue-form';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
@@ -43,7 +42,7 @@ export function SubtripDetailView({ subtrip }) {
 
   // State for dialog visibility
   const [showResolveDialog, setShowResolveDialog] = useState(false);
-  const [showCloseDialog, setShowCloseDialog] = useState(false);
+  // Close dialog removed
 
   // Function to check if editing is allowed based on status
   const isEditingAllowed = () => {
@@ -497,12 +496,7 @@ export function SubtripDetailView({ subtrip }) {
         subtripId={subtrip._id}
       />
 
-      {/* Close Subtrip Dialogue */}
-      <SubtripCloseDialog
-        showDialog={showCloseDialog}
-        setShowDialog={setShowCloseDialog}
-        subtripId={subtrip._id}
-      />
+      {/* Close Subtrip Dialogue removed */}
 
       {/* Empty job close flow has been removed */}
     </>

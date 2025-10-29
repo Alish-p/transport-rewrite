@@ -67,7 +67,6 @@ const SubtripListPage = lazy(() => import('src/pages/dashboard/subtrip/list'));
 const SubtripCreatePage = lazy(() => import('src/pages/dashboard/subtrip/new'));
 const SubtripEditPage = lazy(() => import('src/pages/dashboard/subtrip/edit'));
 const SubtripReceivePage = lazy(() => import('src/pages/dashboard/subtrip/receive-subtrip'));
-const SubtripLoadPage = lazy(() => import('src/pages/dashboard/subtrip/load-subtrip'));
 const SubtripJobCreatePage = lazy(() => import('src/pages/dashboard/subtrip/job-create'));
 
 // Trip
@@ -541,14 +540,7 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
           },
-          {
-            path: 'load',
-            element: (
-              <PermissionBasedGuard resource="subtrip" action="update" hasContent>
-                <SubtripLoadPage />
-              </PermissionBasedGuard>
-            ),
-          },
+          
         ],
       },
       {
