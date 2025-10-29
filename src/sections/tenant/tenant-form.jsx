@@ -76,12 +76,6 @@ export const TenantSchema = zod
         whatsapp: zod
           .object({
             enabled: zod.boolean().optional(),
-            provider: zod
-              .preprocess(
-                (val) => (val === '' ? null : val),
-                zod.enum(['Twilio', 'Gupshup', 'Kaleyra']).nullable()
-              )
-              .optional(),
           })
           .optional(),
         vehicleGPS: zod
@@ -136,13 +130,6 @@ export const TenantSchema = zod
       .optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.integrations?.whatsapp?.enabled && !data.integrations.whatsapp.provider) {
-      ctx.addIssue({
-        path: ['integrations', 'whatsapp', 'provider'],
-        code: zod.ZodIssueCode.custom,
-        message: 'Provider is required when WhatsApp is enabled',
-      });
-    }
     if (data.integrations?.vehicleGPS?.enabled && !data.integrations.vehicleGPS.provider) {
       ctx.addIssue({
         path: ['integrations', 'vehicleGPS', 'provider'],
@@ -232,7 +219,6 @@ export default function TenantForm({ currentTenant }) {
       integrations: {
         whatsapp: {
           enabled: currentTenant?.integrations?.whatsapp?.enabled || false,
-          provider: currentTenant?.integrations?.whatsapp?.provider ?? null,
         },
         vehicleGPS: {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
@@ -306,7 +292,6 @@ export default function TenantForm({ currentTenant }) {
           whatsapp: data.integrations?.whatsapp
             ? {
                 ...data.integrations.whatsapp,
-                provider: data.integrations.whatsapp.provider || null,
               }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
@@ -467,14 +452,6 @@ export default function TenantForm({ currentTenant }) {
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
           />
-          {values.integrations?.whatsapp?.enabled && (
-            <Field.Select name="integrations.whatsapp.provider" label="Provider">
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="Twilio">Twilio</MenuItem>
-              <MenuItem value="Gupshup">Gupshup</MenuItem>
-              <MenuItem value="Kaleyra">Kaleyra</MenuItem>
-            </Field.Select>
-          )}
         </Stack>
 
         <Stack spacing={1}>
