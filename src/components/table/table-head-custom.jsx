@@ -33,10 +33,12 @@ const visuallyHidden = {
 
 // ----------------------------------------------------------------------
 
-function DraggableHeaderCell({ headCell, order, orderBy, onSort }) {
+function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: headCell.id,
   });
+
+  const dragProps = isDraggable ? { ...attributes, ...listeners } : {};
 
   return (
     <TableCell
@@ -48,9 +50,19 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort }) {
         minWidth: headCell.minWidth,
         transition,
         transform: CSS.Translate.toString(transform),
+        // Visual affordance for draggable header cells
+        cursor: isDraggable ? 'grab' : 'default',
+        userSelect: isDraggable ? 'none' : 'auto',
+        '&:active': {
+          cursor: isDraggable ? 'grabbing' : 'default',
+        },
+        // Keep pointer cursor on sortable label text
+        '& .MuiTableSortLabel-root': {
+          cursor: onSort ? 'pointer' : 'inherit',
+        },
       }}
-      {...attributes}
-      {...listeners}
+      title={isDraggable ? 'Drag to reorder columns' : undefined}
+      {...dragProps}
     >
       {onSort ? (
         <TableSortLabel
@@ -125,6 +137,7 @@ export function TableHeadCustom({
                 order={order}
                 orderBy={orderBy}
                 onSort={onSort}
+                isDraggable={!!onOrderChange}
               />
             ))}
           </TableRow>
