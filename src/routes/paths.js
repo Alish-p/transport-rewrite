@@ -34,6 +34,11 @@ export const paths = {
   minimalStore: '/',
   freeUI: '/',
   figma: '',
+  public: {
+    root: `/public`,
+    subtrip: (id) => `/public/subtrip/${id}`,
+    transporterPayment: (id) => `/public/transporter-payment/${id}`,
+  },
   product: {
     root: `/product`,
     checkout: `/product/checkout`,

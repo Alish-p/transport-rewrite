@@ -37,7 +37,7 @@ import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepp
 
 // ----------------------------------------------------------------------
 
-export function SubtripDetailView({ subtrip }) {
+export function SubtripDetailView({ subtrip, publicMode = false }) {
   const navigate = useNavigate();
 
   // State for dialog visibility
@@ -81,6 +81,9 @@ export function SubtripDetailView({ subtrip }) {
 
   const getActions = () => {
     if (subtrip.isEmpty) {
+      return [];
+    }
+    if (publicMode) {
       return [];
     }
     return [
@@ -129,7 +132,7 @@ export function SubtripDetailView({ subtrip }) {
                   },
                 ]
               : []),
-          ]}
+          ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
             {
               label: 'Actions',
@@ -321,14 +324,18 @@ export function SubtripDetailView({ subtrip }) {
               ].filter(Boolean),
             },
           ]}
-          actions={[
-            {
-              label: 'Edit',
-              icon: 'solar:pen-bold',
-              onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-              disabled: !isEditingAllowed(),
-            },
-          ]}
+          actions={
+            !publicMode
+              ? [
+                  {
+                    label: 'Edit',
+                    icon: 'solar:pen-bold',
+                    onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+                    disabled: !isEditingAllowed(),
+                  },
+                ]
+              : undefined
+          }
         />
 
         {/* PDF Viewers */}
@@ -464,7 +471,7 @@ export function SubtripDetailView({ subtrip }) {
                 />
               </Stack>
               <Grid item>
-                <BasicExpenseTable selectedSubtrip={subtrip} withAdd />
+                <BasicExpenseTable selectedSubtrip={subtrip} withAdd={!publicMode} />
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart
@@ -490,11 +497,13 @@ export function SubtripDetailView({ subtrip }) {
       </DashboardContent>
 
       {/* Resolve Subtrip Dialogue */}
-      <ResolveSubtripDialog
-        showDialog={showResolveDialog}
-        setShowDialog={setShowResolveDialog}
-        subtripId={subtrip._id}
-      />
+      {!publicMode && (
+        <ResolveSubtripDialog
+          showDialog={showResolveDialog}
+          setShowDialog={setShowResolveDialog}
+          subtripId={subtrip._id}
+        />
+      )}
 
       {/* Close Subtrip Dialogue removed */}
 

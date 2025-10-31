@@ -15,6 +15,11 @@ const PricingPage = lazy(() => import('src/pages/pricing'));
 const PaymentPage = lazy(() => import('src/pages/payment'));
 const ComingSoonPage = lazy(() => import('src/pages/coming-soon'));
 const MaintenancePage = lazy(() => import('src/pages/maintenance'));
+// Public detail pages
+const PublicSubtripDetailsPage = lazy(() => import('src/pages/public/subtrip/details'));
+const PublicTransporterPaymentDetailsPage = lazy(
+  () => import('src/pages/public/transporter-payment/details')
+);
 
 // Error
 const Page500 = lazy(() => import('src/pages/error/500'));
@@ -56,6 +61,18 @@ export const mainRoutes = [
             path: 'blank',
             element: <BlankPage />,
           },
+        ],
+      },
+      {
+        path: 'public',
+        element: (
+          <SimpleLayout>
+            <Outlet />
+          </SimpleLayout>
+        ),
+        children: [
+          { path: 'subtrip/:id', element: <PublicSubtripDetailsPage /> },
+          { path: 'transporter-payment/:id', element: <PublicTransporterPaymentDetailsPage /> },
         ],
       },
       {

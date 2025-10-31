@@ -30,7 +30,7 @@ export default function LRPDF({ subtrip, tenant }) {
     startDate,
     unloadingPoint,
     grade,
-    quantity,
+    materialType,
     driverId,
     vehicleId,
   } = subtrip;
@@ -71,11 +71,11 @@ export default function LRPDF({ subtrip, tenant }) {
       'Order No.',
       'Vehicle No.',
       `Qty. in (${loadingWeightUnit[vehicleType]})`,
-      'No. of Bags',
+      'Material',
       'Grade',
     ];
     const goodsData = [
-      [customerId?.transporterCode, orderNo, vehicleId?.vehicleNo, loadingWeight, quantity, grade],
+      [customerId?.transporterCode, orderNo, vehicleId?.vehicleNo, loadingWeight, materialType, grade],
     ];
 
     const driverHeaders = ['Driver Name', 'Mobile No.', 'DL No.', 'Vehicle Type', 'Signature'];
