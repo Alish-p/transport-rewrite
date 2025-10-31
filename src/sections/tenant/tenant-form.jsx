@@ -78,6 +78,11 @@ export const TenantSchema = zod
             enabled: zod.boolean().optional(),
           })
           .optional(),
+        ewayBill: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
         vehicleGPS: zod
           .object({
             enabled: zod.boolean().optional(),
@@ -220,6 +225,9 @@ export default function TenantForm({ currentTenant }) {
         whatsapp: {
           enabled: currentTenant?.integrations?.whatsapp?.enabled || false,
         },
+        ewayBill: {
+          enabled: currentTenant?.integrations?.ewayBill?.enabled || false,
+        },
         vehicleGPS: {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
           provider: currentTenant?.integrations?.vehicleGPS?.provider ?? null,
@@ -292,6 +300,11 @@ export default function TenantForm({ currentTenant }) {
           whatsapp: data.integrations?.whatsapp
             ? {
                 ...data.integrations.whatsapp,
+              }
+            : undefined,
+          ewayBill: data.integrations?.ewayBill
+            ? {
+                ...data.integrations.ewayBill,
               }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
@@ -448,6 +461,20 @@ export default function TenantForm({ currentTenant }) {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Iconify icon="prime:whatsapp" />
                 WhatsApp
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.ewayBill.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:file-document-outline" />
+                eWay Bill
               </Stack>
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
