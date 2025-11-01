@@ -1,50 +1,41 @@
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
+import { pdf } from '@react-pdf/renderer';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { useSubtrip } from 'src/query/use-subtrip';
 
-import { EmptyContent } from 'src/components/empty-content';
-import { LoadingScreen } from 'src/components/loading-screen';
-
-import { TenantContext } from 'src/auth/tenant';
-import { SubtripDetailView } from 'src/sections/subtrip/views';
-
-// ----------------------------------------------------------------------
-
-const metadata = { title: `Job Details | Public - ${CONFIG.site.name}` };
+import LRPDF from 'src/sections/subtrip/pdfs/lorry-reciept-pdf';
 
 export default function PublicSubtripDetailsPage() {
   const { id } = useParams();
 
-  const { data: subtrip, isLoading, isError } = useSubtrip(id);
+  const { data: subtrip } = useSubtrip(id);
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  useEffect(() => {
+    const run = async () => {
+      if (!subtrip) return;
+      try {
+        const doc = <LRPDF subtrip={subtrip} tenant={CONFIG.company} />;
+        const blob = await pdf(doc).toBlob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const fileBase = subtrip?.subtripNo || id || 'lorry_receipt';
+        a.download = `${fileBase}_lr.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        // silently fail
+        // eslint-disable-next-line no-console
+        console.error('Failed to download LR PDF', e);
+      }
+    };
+    run();
+  }, [id, subtrip]);
 
-  if (isError || !subtrip) {
-    return (
-      <EmptyContent
-        filled
-        title="Unable to load job details"
-        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
-      />
-    );
-  }
-
-  return (
-    <>
-      <Helmet>
-        <title> {metadata.title}</title>
-      </Helmet>
-
-      {/* Provide a default tenant for PDFs and headers when not authenticated */}
-      <TenantContext.Provider value={CONFIG.company}>
-        <SubtripDetailView subtrip={subtrip} publicMode />
-      </TenantContext.Provider>
-    </>
-  );
+  return null;
 }
-

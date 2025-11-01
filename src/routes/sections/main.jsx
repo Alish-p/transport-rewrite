@@ -65,11 +65,7 @@ export const mainRoutes = [
       },
       {
         path: 'public',
-        element: (
-          <SimpleLayout>
-            <Outlet />
-          </SimpleLayout>
-        ),
+        element: <Outlet />,
         children: [
           { path: 'subtrip/:id', element: <PublicSubtripDetailsPage /> },
           { path: 'transporter-payment/:id', element: <PublicTransporterPaymentDetailsPage /> },
