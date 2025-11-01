@@ -191,7 +191,16 @@ export function VehicleDetailView({ vehicle }) {
         icon="mdi:truck-outline"
         meta={[
           { icon: 'mdi:car', label: vehicleType },
-          { icon: 'mdi:domain', label: vehicleCompany },
+          // Show transporter (linked) only for non-own vehicles
+          ...(!vehicle.isOwn && transporter?._id
+            ? [
+                {
+                  icon: 'mdi:account',
+                  label: transporter?.transportName,
+                  href: paths.dashboard.transporter.details(transporter._id),
+                },
+              ]
+            : []),
         ]}
         actions={[
           {
