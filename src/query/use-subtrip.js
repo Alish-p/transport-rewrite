@@ -6,11 +6,17 @@ import axios from 'src/utils/axios';
 import { SUBTRIP_STATUS } from '../sections/subtrip/constants';
 
 const ENDPOINT = '/api/subtrips';
+const PUBLIC_ENDPOINT = '/api/public/subtrips';
 const QUERY_KEY = 'subtrips';
 
 // Fetchers
 const getSubtrip = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
+  return data;
+};
+
+const getPublicSubtrip = async (id) => {
+  const { data } = await axios.get(`${PUBLIC_ENDPOINT}/${id}`);
   return data;
 };
 
@@ -162,6 +168,14 @@ export function useSubtrip(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => getSubtrip(id),
+    enabled: !!id,
+  });
+}
+
+export function usePublicSubtrip(id) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'public', id],
+    queryFn: () => getPublicSubtrip(id),
     enabled: !!id,
   });
 }

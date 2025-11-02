@@ -10,7 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useSubtrip } from 'src/query/use-subtrip';
+import { usePublicSubtrip } from 'src/query/use-subtrip';
 
 import LRPDF from 'src/sections/subtrip/pdfs/lorry-reciept-pdf';
 import { Iconify } from 'src/components/iconify';
@@ -18,7 +18,7 @@ import { Iconify } from 'src/components/iconify';
 export default function PublicSubtripDetailsPage() {
   const { id } = useParams();
 
-  const { data: subtrip } = useSubtrip(id);
+  const { data: subtrip } = usePublicSubtrip(id);
 
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);

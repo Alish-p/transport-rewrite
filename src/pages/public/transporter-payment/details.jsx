@@ -10,7 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useTransporterPayment } from 'src/query/use-transporter-payment';
+import { usePublicTransporterPayment } from 'src/query/use-transporter-payment';
 
 import TransporterPaymentPdf from 'src/pdfs/transporter-payment-pdf';
 import { Iconify } from 'src/components/iconify';
@@ -18,7 +18,7 @@ import { Iconify } from 'src/components/iconify';
 export default function PublicTransporterPaymentDetailsPage() {
   const { id } = useParams();
 
-  const { data: transporterPayment } = useTransporterPayment(id);
+  const { data: transporterPayment } = usePublicTransporterPayment(id);
 
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);

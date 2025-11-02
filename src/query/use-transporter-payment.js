@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'src/utils/axios';
 
 const ENDPOINT = '/api/transporter-payments';
+const PUBLIC_ENDPOINT = '/api/public/transporter-payments';
 const QUERY_KEY = 'transporterPayments';
 
 // Fetchers
@@ -14,6 +15,11 @@ const getPaginatedTransporterPayments = async (params) => {
 
 const getTransporterPayment = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
+  return data;
+};
+
+const getPublicTransporterPayment = async (id) => {
+  const { data } = await axios.get(`${PUBLIC_ENDPOINT}/${id}`);
   return data;
 };
 
@@ -52,6 +58,14 @@ export function useTransporterPayment(id) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => getTransporterPayment(id),
+    enabled: !!id,
+  });
+}
+
+export function usePublicTransporterPayment(id) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'public', id],
+    queryFn: () => getPublicTransporterPayment(id),
     enabled: !!id,
   });
 }
