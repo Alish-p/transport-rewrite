@@ -1,183 +1,219 @@
+import React from 'react';
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import Chip from '@mui/material/Chip';
+import { alpha } from '@mui/material/styles';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components/router-link';
 
 // ----------------------------------------------------------------------
 
 export default function VehicleCard({ vehicle, onVehicleEdit }) {
   const {
+    _id,
     vehicleNo,
     vehicleType,
-    modelType,
-    vehicleCompany,
     noOfTyres,
-    chasisNo,
-    engineNo,
-    manufacturingYear,
-    loadingCapacity,
-    engineType,
-    fuelTankCapacity,
     trackingLink,
     isActive,
     isOwn,
     transporter,
   } = vehicle || {};
 
-  const renderHeader = (
-    <>
-      <CardHeader
-        title="Vehicle Details"
-        action={
-          <IconButton onClick={onVehicleEdit}>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
-      <Stack direction="row" sx={{ p: 3 }}>
-        <Avatar
-          src="/assets/truck.png"
-          sx={{ width: 100, height: 100, mr: 2, backgroundColor: 'primary' }}
-        />
-
-        <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2' }}>
-          <Typography variant="subtitle2">{vehicleNo || '-'}</Typography>
-          <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
-            {isOwn ? 'Own' : 'Market'}
-          </Label>
-
-          <Box>
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {!isOwn ? `Owner: ${transporter?.transportName}` : ''}
-            </Box>
-          </Box>
-        </Stack>
-      </Stack>
-    </>
-  );
-
-  const renderInfo = (
-    <>
-      <CardHeader title="Details" />
-      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Vehicle Type
-          </Box>
-          {vehicleType || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Model
-          </Box>
-          {modelType || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Company
-          </Box>
-          {vehicleCompany || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            NO Of Tyres
-          </Box>
-          {noOfTyres ?? '-'}
-        </Stack>
-
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Chasis No
-          </Box>
-          {chasisNo || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Engine No
-          </Box>
-          <Link underline="always" color="inherit">
-            {engineNo || '-'}
-          </Link>
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Manufacturing Year
-          </Box>
-          {manufacturingYear || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Loading Capacity
-          </Box>
-          {loadingCapacity ?? '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Fuel Tank Capacity
-          </Box>
-          {fuelTankCapacity ?? '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Engine Type
-          </Box>
-          {engineType || '-'}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Tracking Link
-          </Box>
-          {trackingLink ? (
-            <Link
-              underline="always"
-              color="inherit"
-              href={trackingLink}
-              target="_blank"
-              rel="noopener"
-            >
-              Track Vehicle
-            </Link>
-          ) : (
-            '-'
-          )}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Ownership
-          </Box>
-          <Label variant="soft" color={isOwn ? 'secondary' : 'warning'}>
-            {isOwn ? 'Own' : 'Market'}
-          </Label>
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Status
-          </Box>
-          <Label variant="soft" color={isActive ? 'success' : 'error'}>
-            {isActive ? 'Active' : 'Disabled'}
-          </Label>
-        </Stack>
-      </Stack>
-    </>
-  );
+  const handleTracking = () => {
+    if (trackingLink) {
+      window.open(trackingLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
-    <Card>
-      {renderHeader}
+    <Card
+      sx={{
+        p: 2.5,
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          boxShadow: (theme) => theme.shadows[8],
+          transform: 'translateY(-2px)',
+        }
+      }}
+    >
+      <Stack spacing={2}>
+        {/* Category Badge */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5
+            }}
+          >
+            Vehicle Information
+          </Typography>
+        </Box>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+        {/* Header Section */}
+        <Stack direction="row" alignItems="flex-start" spacing={2}>
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.16)}`
+            }}
+          >
+            <Iconify
+              icon="mdi:truck-outline"
+              width={32}
+              sx={{ color: 'primary.main' }}
+            />
+          </Box>
 
-      {renderInfo}
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{
+                fontWeight: 600,
+                fontSize: '1.125rem',
+                mb: 0.5
+              }}
+            >
+              {vehicleNo || 'Unknown Vehicle'}
+            </Typography>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+            {/* Vehicle Type & Tyres */}
+            {vehicleType && (
+              <Stack direction="row" alignItems="center" sx={{ mb: 0.5 }}>
+                <Iconify
+                  icon="solar:car-bold"
+                  width={16}
+                  sx={{ color: 'text.secondary' }}
+                />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {vehicleType}
+                  {noOfTyres && ` • ${noOfTyres} Tyres`}
+                </Typography>
+              </Stack>
+            )}
+
+            {/* Ownership Badge */}
+            <Chip
+              label={isOwn ? 'Own Vehicle' : 'Market Vehicle'}
+              size="small"
+              variant="soft"
+              color={isOwn ? 'secondary' : 'warning'}
+              sx={{ height: 22, fontWeight: 600 }}
+            />
+          </Box>
+
+          {_id && (
+            <Tooltip title="View details" arrow>
+              <IconButton
+                size="small"
+                component={RouterLink}
+                href={paths.dashboard.vehicle.details(_id)}
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08)
+                  }
+                }}
+              >
+                <Iconify icon="solar:arrow-right-linear" width={20} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
+
+        {/* Transporter Info */}
+        {!isOwn && transporter?.transportName && (
+          <Box
+            sx={{
+              bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08),
+              borderRadius: 1.5,
+              border: 1,
+              borderColor: (theme) => alpha(theme.palette.warning.main, 0.24)
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Iconify
+                icon="solar:user-bold"
+                width={18}
+                sx={{ color: 'warning.main' }}
+              />
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                  Transporter
+                </Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {transporter.transportName}
+                </Typography>
+              </Box>
+            </Stack>
+          </Box>
+        )}
+
+        {/* Action Button */}
+        {trackingLink && (
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}
+          >
+            <Tooltip title="Track vehicle location" arrow>
+              <Box sx={{ flex: 1 }}>
+                <IconButton
+                  fullWidth
+                  onClick={handleTracking}
+                  sx={{
+                    width: '100%',
+                    py: 1,
+                    borderRadius: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: 'info.main',
+                      bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
+                      '& .MuiSvgIcon-root': {
+                        color: 'info.main'
+                      }
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Iconify
+                      icon="solar:map-point-bold"
+                      width={20}
+                      sx={{ color: 'text.secondary' }}
+                    />
+                    <Typography variant="body2" fontWeight={600}>
+                      Track Vehicle
+                    </Typography>
+                  </Stack>
+                </IconButton>
+              </Box>
+            </Tooltip>
+          </Stack>
+        )}
+      </Stack>
     </Card>
   );
 }

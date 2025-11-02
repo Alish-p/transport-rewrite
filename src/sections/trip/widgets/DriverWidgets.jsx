@@ -1,143 +1,236 @@
-// @mui
+import React from 'react';
+
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
+import { alpha } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
-import { fDate } from 'src/utils/format-time';
-
-import { _mock } from 'src/_mock';
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components/router-link';
 
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 export default function DriverCard({ driver, onDriverEdit }) {
-  const {
-    driverName,
-    driverLicenceNo,
-    driverPresentAddress,
-    driverCellNo,
-    aadharNo,
-    guarantorName,
-    guarantorCellNo,
-    experience,
-    dob,
-    permanentAddress,
-  } = driver;
+  const { _id, driverName, driverCellNo } = driver || {};
 
-  const renderHeader = (
-    <>
-      <CardHeader
-        title="Driver Details"
-        action={
-          <IconButton onClick={onDriverEdit}>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
-      <Stack direction="row" sx={{ p: 3 }}>
-        <Avatar color="sucess" sx={{ width: 100, height: 100, mr: 2 }}>
-          <Avatar src={_mock.image.avatar(1)} sx={{ width: 100, height: 100, mr: 2 }} />
-        </Avatar>
+  const initials = (driverName || '?')
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
-        <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2' }}>
-          <Typography variant="subtitle2">{driverName}</Typography>
+  const whatsappNumber = (driverCellNo || '').replace(/\D/g, '');
+  const hasPhone = Boolean(driverCellNo);
 
-          <Box>
-            License:{' '}
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {driverLicenceNo}
-            </Box>
-          </Box>
-          <Box>
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              +91 {driverCellNo}
-            </Box>
-          </Box>
+  const handleCall = () => {
+    if (driverCellNo) {
+      window.location.href = `tel:${driverCellNo}`;
+    }
+  };
 
-          <Button
-            size="small"
-            color="success"
-            startIcon={<Iconify icon="prime:whatsapp" />}
-            sx={{ mt: 1 }}
-            onClick={() => window.open(`https://wa.me/${driverCellNo}`, '_blank')}
-          >
-            Whatsapp
-          </Button>
-        </Stack>
-      </Stack>
-    </>
-  );
-
-  const renderInfo = (
-    <>
-      <CardHeader title="Details" />
-      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Adhar No
-          </Box>
-          {aadharNo}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Years of Experience
-          </Box>
-          {experience}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Date Of Birth
-          </Box>
-          {fDate(dob)}
-        </Stack>
-
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Guarantor
-          </Box>
-          {guarantorName}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Guarantor No
-          </Box>
-          <Link underline="always" color="inherit">
-            {guarantorCellNo}
-          </Link>
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Current Address
-          </Box>
-          {driverPresentAddress}
-        </Stack>
-        <Stack direction="row" alignItems="center">
-          <Box component="span" sx={{ color: 'text.secondary', width: 200, flexShrink: 0 }}>
-            Permanent Address
-          </Box>
-          {permanentAddress}
-        </Stack>
-      </Stack>
-    </>
-  );
+  const handleWhatsApp = () => {
+    if (whatsappNumber) {
+      window.open(`https://wa.me/${whatsappNumber}`, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
-    <Card>
-      {renderHeader}
+    <Card
+      sx={{
+        p: 2.5,
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          boxShadow: (theme) => theme.shadows[8],
+          transform: 'translateY(-2px)',
+        }
+      }}
+    >
+      <Stack spacing={2}>
+        {/* Category Badge */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Iconify
+            icon="solar:steering-wheel-bold"
+            width={18}
+            sx={{ color: 'primary.main' }}
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5
+            }}
+          >
+            Driver Information
+          </Typography>
+        </Box>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+        {/* Header Section */}
+        <Stack direction="row" alignItems="flex-start" spacing={2}>
+          <Avatar
+            sx={{
+              width: 56,
+              height: 56,
+              bgcolor: 'primary.main',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.24)}`
+            }}
+          >
+            {initials}
+          </Avatar>
 
-      {renderInfo}
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{
+                fontWeight: 600,
+                mb: 0.5,
+                fontSize: '1.125rem'
+              }}
+            >
+              {driverName || 'Unknown Driver'}
+            </Typography>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+            {hasPhone ? (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <Iconify
+                  icon="solar:phone-bold"
+                  width={16}
+                  sx={{ color: 'text.secondary' }}
+                />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {driverCellNo}
+                </Typography>
+              </Stack>
+            ) : (
+              <Chip
+                label="No contact"
+                size="small"
+                variant="outlined"
+                color="warning"
+                sx={{ height: 22 }}
+              />
+            )}
+          </Box>
+
+          {_id && (
+            <Tooltip title="View details" arrow>
+              <IconButton
+                size="small"
+                component={RouterLink}
+                href={paths.dashboard.driver.details(_id)}
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08)
+                  }
+                }}
+              >
+                <Iconify icon="solar:arrow-right-linear" width={20} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
+
+        {/* Action Buttons */}
+        {hasPhone && (
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}
+          >
+            <Tooltip title="Call driver" arrow>
+              <Box sx={{ flex: 1 }}>
+                <IconButton
+                  fullWidth
+                  onClick={handleCall}
+                  sx={{
+                    width: '100%',
+                    py: 1,
+                    borderRadius: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                      '& .MuiSvgIcon-root': {
+                        color: 'primary.main'
+                      }
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Iconify
+                      icon="solar:phone-calling-bold"
+                      width={20}
+                      sx={{ color: 'text.secondary' }}
+                    />
+                    <Typography variant="body2" fontWeight={600}>
+                      Call
+                    </Typography>
+                  </Stack>
+                </IconButton>
+              </Box>
+            </Tooltip>
+
+            <Tooltip title="WhatsApp" arrow>
+              <Box sx={{ flex: 1 }}>
+                <IconButton
+                  fullWidth
+                  onClick={handleWhatsApp}
+                  disabled={!whatsappNumber}
+                  sx={{
+                    width: '100%',
+                    py: 1,
+                    borderRadius: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: 'success.main',
+                      bgcolor: (theme) => alpha(theme.palette.success.main, 0.08),
+                      '& .MuiSvgIcon-root': {
+                        color: 'success.main'
+                      }
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.5
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Iconify
+                      icon="ic:baseline-whatsapp"
+                      width={20}
+                      sx={{ color: 'text.secondary' }}
+                    />
+                    <Typography variant="body2" fontWeight={600}>
+                      WhatsApp
+                    </Typography>
+                  </Stack>
+                </IconButton>
+              </Box>
+            </Tooltip>
+          </Stack>
+        )}
+      </Stack>
     </Card>
   );
 }

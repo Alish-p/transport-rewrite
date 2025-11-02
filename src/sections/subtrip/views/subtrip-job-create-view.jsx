@@ -939,7 +939,12 @@ export function SubtripJobCreateView() {
                                             <strong>Dispatch:</strong>{' '}
                                             {st.startDate ? fDate(new Date(st.startDate)) : '-'} •{' '}
                                             <strong>Driver:</strong>{' '}
-                                            {st.driverId?.driverName || '-'}
+                                            {st?.driverId?.driverName ||
+                                              st?.driver?.driverName ||
+                                              st?.driverName ||
+                                              (typeof st?.driver === 'string' ? st.driver : undefined) ||
+                                              activeTrip?.driverId?.driverName ||
+                                              '-'}
                                           </Typography>
                                         </Box>
                                       ))}

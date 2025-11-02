@@ -30,7 +30,7 @@ import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
 function getTripDashboardData(trip) {
-  const totalTrips = trip?.subtrips?.length || 0;
+  const totalJobs = trip?.subtrips?.length || 0;
   const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
 
   const totalExpenses =
@@ -64,7 +64,7 @@ function getTripDashboardData(trip) {
   const totalKm = getTripTotalKm(trip);
 
   return {
-    totalTrips,
+    totalJobs,
     totalAdblueAmt,
     totalExpenses,
     totalIncome,
@@ -80,7 +80,7 @@ export function TripDetailView({ trip }) {
   const navigate = useNavigate();
 
   const {
-    totalTrips,
+    totalJobs,
     totalAdblueAmt,
     totalExpenses,
     totalIncome,
@@ -200,28 +200,29 @@ export function TripDetailView({ trip }) {
         </Box>
       </Dialog>
       <Grid container spacing={3} mt={3}>
+        {/* Top row: Analytics on left, Driver/Vehicle on right */}
         <Grid item xs={12} md={8}>
-          <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+          <Stack spacing={3}>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
               <AnalyticsWidgetSummary
-                title="Total Trips"
-                total={totalTrips}
+                title="Total Jobs"
+                total={totalJobs}
                 icon="ant-design:car-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Expenses"
                 total={totalExpenses}
                 color="error"
                 icon="ant-design:dollar-circle-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Income"
                 total={totalIncome}
                 color="success"
                 icon="ant-design:euro-circle-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
             </Stack>
 
@@ -231,7 +232,7 @@ export function TripDetailView({ trip }) {
                 total={totalKm}
                 color="info"
                 icon="ant-design:environment-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Diesel Amount"
@@ -239,51 +240,21 @@ export function TripDetailView({ trip }) {
                 subtext={`${totalDieselLtr || 0} Ltr`}
                 color="warning"
                 icon="ant-design:fire-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
               <AnalyticsWidgetSummary
                 title="Total AdBlue Amount"
                 total={totalAdblueAmt}
                 color="primary"
                 icon="ant-design:medicine-box-filled"
-                sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
+                sx={{ flexGrow: 1 }}
               />
             </Stack>
-            <Grid item xs={12} md={12}>
-              <Card sx={{ minHeight: 400, padding: '10px' }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" m={2}>
-                  <Typography variant="h5"> Job List </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      navigate({
-                        pathname: paths.dashboard.subtrip.jobCreate,
-                        search: `?id=${_id}`,
-                      });
-                    }}
-                    disabled={tripStatus === 'billed'}
-                  >
-                    New Job
-                  </Button>
-                </Stack>
-                <SimpleSubtripList subtrips={subtrips} />
-              </Card>
-              <TripExpensesWidget tripId={_id} />
-            </Grid>
-            <Grid item container spacing={1} xs={12} md={12}>
-              <Grid item xs={5} md={6}>
-                <ProfitExpenseChart
-                  subtrips={subtrips}
-                  title="Job Profit/Expense"
-                  subheader="Profit and expense Job wise"
-                />
-              </Grid>
-            </Grid>
           </Stack>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+          <Stack spacing={3}>
             <DriverCard
               driver={driverId}
               onDriverEdit={() => {
@@ -297,6 +268,42 @@ export function TripDetailView({ trip }) {
               }}
             />
           </Stack>
+        </Grid>
+
+        {/* Full-width Jobs */}
+        <Grid item xs={12}>
+          <Card sx={{ minHeight: 400, p: 2 }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" m={2}>
+              <Typography variant="h5"> Job List </Typography>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  navigate({
+                    pathname: paths.dashboard.subtrip.jobCreate,
+                    search: `?id=${_id}`,
+                  });
+                }}
+                disabled={tripStatus === 'billed'}
+              >
+                New Job
+              </Button>
+            </Stack>
+            <SimpleSubtripList subtrips={subtrips} />
+          </Card>
+        </Grid>
+
+        {/* Expenses + Profit/Loss side-by-side on md+, stacked on xs/sm */}
+        <Grid item container spacing={2} xs={12}>
+          <Grid item xs={12} md={8}>
+            <TripExpensesWidget tripId={_id} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <ProfitExpenseChart
+              subtrips={subtrips}
+              title="Job Profit/Expense"
+              subheader="Profit and expense Job wise"
+            />
+          </Grid>
         </Grid>
       </Grid>
     </DashboardContent>

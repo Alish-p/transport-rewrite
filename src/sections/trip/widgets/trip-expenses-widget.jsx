@@ -36,7 +36,7 @@ export function TripExpensesWidget({ tripId, title = 'Expenses', ...other }) {
   const totalCount = data?.totals?.all?.count || 0;
 
   return (
-    <Card {...other} sx={{ mt: 3 }}>
+    <Card {...other} >
       <CardHeader title={title} subheader="Expenses incurred for this trip" sx={{ mb: 3 }} />
 
       <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
