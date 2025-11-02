@@ -164,7 +164,6 @@ export const paths = {
     },
     subtrip: {
       root: `${ROOTS.DASHBOARD}/subtrip`,
-      new: `${ROOTS.DASHBOARD}/subtrip/new`,
       jobCreate: `${ROOTS.DASHBOARD}/subtrip/job/create`,
       list: `${ROOTS.DASHBOARD}/subtrip/list`,
       receive: `${ROOTS.DASHBOARD}/subtrip/receive`,
