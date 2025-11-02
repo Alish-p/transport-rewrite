@@ -352,8 +352,12 @@ export function SubtripJobCreateView() {
       }
 
       // Prefill loading/unloading points from consignor/consignee places
-      if (message?.place_of_consignor) {
-        setValue('loadingPoint', message.place_of_consignor, {
+      // loadingPoint = address1_of_consignor + place_of_consignor
+      const consignorAddr1 = (message?.address1_of_consignor || '').trim();
+      const consignorPlace = (message?.place_of_consignor || '').trim();
+      const loadingPointPrefill = [consignorAddr1, consignorPlace].filter(Boolean).join(' ');
+      if (loadingPointPrefill) {
+        setValue('loadingPoint', loadingPointPrefill, {
           shouldDirty: true,
           shouldValidate: true,
         });

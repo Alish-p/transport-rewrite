@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -12,8 +12,9 @@ import { useParams } from 'src/routes/hooks';
 import { CONFIG } from 'src/config-global';
 import { usePublicSubtrip } from 'src/query/use-subtrip';
 
-import LRPDF from 'src/sections/subtrip/pdfs/lorry-reciept-pdf';
 import { Iconify } from 'src/components/iconify';
+
+import LRPDF from 'src/sections/subtrip/pdfs/lorry-reciept-pdf';
 
 export default function PublicSubtripDetailsPage() {
   const { id } = useParams();
