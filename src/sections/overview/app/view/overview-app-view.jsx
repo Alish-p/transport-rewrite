@@ -8,6 +8,8 @@ import { SeoIllustration } from 'src/assets/illustrations';
 
 import { SvgColor } from 'src/components/svg-color';
 
+import { EwaybillByStateWidget } from 'src/sections/ewaybill/ewaybill-by-state-widget';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 import { AppWelcome } from '../app-welcome';
@@ -233,6 +235,10 @@ export function OverviewAppView({
 
         <Grid xs={12} lg={6}>
           <FinancialMonthlyChart title="Financial overview" />
+        </Grid>
+
+        <Grid xs={12}>
+          <EwaybillByStateWidget />
         </Grid>
       </Grid>
     </DashboardContent>

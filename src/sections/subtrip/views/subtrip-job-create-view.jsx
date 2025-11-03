@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import Popover from '@mui/material/Popover';
 import Divider from '@mui/material/Divider';
@@ -183,6 +184,8 @@ const STEPS = [
 ];
 
 export function SubtripJobCreateView() {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const tenant = useTenantContext();
   const isEwayIntegrationEnabled = Boolean(tenant?.integrations?.ewayBill?.enabled);
   // Step state
@@ -246,6 +249,16 @@ export function SubtripJobCreateView() {
     () => /^\d{12}$/.test(String(ewayValue || '').trim()),
     [ewayValue]
   );
+
+  // Pre-populate eWay Bill from URL query or navigation state
+  useEffect(() => {
+    const fromQuery = searchParams.get('ewayBill');
+    const fromState = location?.state && typeof location.state === 'object' ? location.state.ewayBill : undefined;
+    const incoming = (fromQuery || fromState || '').toString().trim();
+    if (incoming && !getValues('ewayBill')) {
+      setValue('ewayBill', incoming, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [searchParams, location?.state, setValue, getValues]);
 
   const dieselAdvanceValue = toNumber(initialAdvanceDiesel);
   const requiresPumpSelection =

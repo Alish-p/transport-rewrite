@@ -34,7 +34,20 @@ export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) 
         formatter: (value) => value,
       },
     },
-    plotOptions: { bar: { columnWidth: '40%' } },
+    // Show total (own + market) labels on top of each stacked bar
+    plotOptions: {
+      bar: {
+        columnWidth: '40%',
+        dataLabels: {
+          total: {
+            enabled: true,
+            style: {
+              color: theme.vars.palette.text.primary,
+            },
+          },
+        },
+      },
+    },
     ...chart.options,
   });
 
