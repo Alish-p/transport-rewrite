@@ -88,6 +88,11 @@ export const TenantSchema = zod
             enabled: zod.boolean().optional(),
           })
           .optional(),
+        challanApi: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
         gstApi: zod
           .object({
             enabled: zod.boolean().optional(),
@@ -241,6 +246,9 @@ export default function TenantForm({ currentTenant }) {
         vehicleApi: {
           enabled: currentTenant?.integrations?.vehicleApi?.enabled || false,
         },
+        challanApi: {
+          enabled: currentTenant?.integrations?.challanApi?.enabled || false,
+        },
         gstApi: {
           enabled: currentTenant?.integrations?.gstApi?.enabled || false,
         },
@@ -326,6 +334,11 @@ export default function TenantForm({ currentTenant }) {
           vehicleApi: data.integrations?.vehicleApi
             ? {
               ...data.integrations.vehicleApi,
+            }
+            : undefined,
+          challanApi: data.integrations?.challanApi
+            ? {
+              ...data.integrations.challanApi,
             }
             : undefined,
           gstApi: data.integrations?.gstApi
@@ -515,6 +528,20 @@ export default function TenantForm({ currentTenant }) {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Iconify icon="mdi:car-search-outline" />
                 Vehicle API
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.challanApi.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:police-badge" />
+                Traffic eChallan
               </Stack>
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
