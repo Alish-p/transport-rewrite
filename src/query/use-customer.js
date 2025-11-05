@@ -72,6 +72,14 @@ const deleteCustomer = async (id) => {
   return data;
 };
 
+// GST Lookup (Customer Prefill)
+// Payload: { gstin: string }
+// Response: { customer: { customerName, GSTNo, gstEnabled, PANNo, address, state, pinCode } }
+const gstLookup = async (payload) => {
+  const { data } = await axios.post(`${ENDPOINT}/gst-lookup`, payload);
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedCustomers(params, options = {}) {
   return useQuery({
@@ -203,4 +211,18 @@ export function useDeleteCustomer() {
     },
   });
   return mutate;
+}
+
+// Customer GST lookup mutation
+export function useCustomerGstLookup(options = {}) {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: gstLookup,
+    onError: (error) => {
+      const errorMessage = error?.message || 'GST lookup failed';
+      toast.error(errorMessage);
+    },
+    ...options,
+  });
+
+  return { lookupGst: mutateAsync, isLookingUpGst: isPending };
 }

@@ -16,14 +16,13 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleCard({ vehicle, onVehicleEdit }) {
+export default function VehicleCard({ vehicle }) {
   const {
     _id,
     vehicleNo,
     vehicleType,
     noOfTyres,
     trackingLink,
-    isActive,
     isOwn,
     transporter,
   } = vehicle || {};

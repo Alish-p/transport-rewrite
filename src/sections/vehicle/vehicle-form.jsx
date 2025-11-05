@@ -300,9 +300,9 @@ export default function VehicleForm({ currentVehicle }) {
 
   const renderSuggestedDocs = suggestedDocs?.length ? (
     <Card>
-      <CardHeader title="Suggested Documents" />
+      <CardHeader title="Suggested Documents" sx={{ mb: 3 }} />
       <Divider />
-      <Stack sx={{ p: 2 }}>
+      <Stack sx={{ p: 3 }}>
         <Table size="small" aria-label="suggested-documents">
           <TableHead>
             <TableRow>

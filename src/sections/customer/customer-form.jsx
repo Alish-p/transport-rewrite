@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -24,8 +24,9 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { getCurrentFiscalYearShort } from 'src/utils/format-time';
 
+import { useTenant } from 'src/query/use-tenant';
 // queries
-import { useCreateCustomer, useUpdateCustomer } from 'src/query/use-customer';
+import { useCreateCustomer, useUpdateCustomer, useCustomerGstLookup } from 'src/query/use-customer';
 
 import { Label } from 'src/components/label';
 // components
@@ -129,6 +130,11 @@ export default function CustomerNewForm({ currentCustomer }) {
 
   const addCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
+  const { data: tenant } = useTenant();
+  const integrationEnabled = !!tenant?.integrations?.gstApi?.enabled;
+  const { lookupGst, isLookingUpGst } = useCustomerGstLookup();
+  const [appliedFields, setAppliedFields] = useState(0);
+  const isEditMode = Boolean(currentCustomer);
 
   const defaultValues = useMemo(
     () => ({
@@ -295,9 +301,46 @@ export default function CustomerNewForm({ currentCustomer }) {
 
         <Stack direction="row" spacing={2} alignItems="center">
           <Field.Switch name="gstEnabled" label="GST Enabled" />
-
-          {values.gstEnabled && <Field.Text name="GSTNo" label="GST No" />}
         </Stack>
+
+        <Field.Text
+          name="GSTNo"
+          label="GST No"
+          InputProps={
+            integrationEnabled && !isEditMode
+              ? {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        onClick={async () => {
+                          const gstin = (values.GSTNo || '').trim();
+                          if (!gstin || gstin.length !== 15) return;
+                          const resp = await lookupGst({ gstin });
+                          if (!resp) return;
+                          const { customer = {} } = resp;
+                          const applied = applyGstLookupToForm({ customer, setValue, values });
+                          setAppliedFields(applied);
+                        }}
+                        disabled={!values.GSTNo || values.GSTNo.length !== 15 || isLookingUpGst}
+                      >
+                        {isLookingUpGst ? 'Looking…' : 'Lookup'}
+                      </Button>
+                    </InputAdornment>
+                  ),
+                }
+              : undefined
+          }
+          helperText={
+            integrationEnabled && !isEditMode
+              ? appliedFields > 0
+                ? `Prefilled ${appliedFields} field${appliedFields > 1 ? 's' : ''} from lookup`
+                : 'Use Lookup to prefill details'
+              : undefined
+          }
+        />
 
         <Field.Text name="PANNo" label="PAN No (Optional)" />
       </Stack>
@@ -474,4 +517,39 @@ export default function CustomerNewForm({ currentCustomer }) {
       />
     </Form>
   );
+}
+
+// Prefill helper from GST lookup
+function applyGstLookupToForm({ customer, setValue, values }) {
+  if (!customer || typeof customer !== 'object') return 0;
+  let applied = 0;
+  const assignIfEmpty = (name, value) => {
+    const current = values[name];
+    const isEmpty = current === '' || current === 0 || current === undefined || current === null;
+    if (isEmpty && value !== undefined && value !== null && value !== '') {
+      setValue(name, value, { shouldValidate: true });
+      applied += 1;
+    }
+  };
+
+  // Prefer tradeName else legalNameOfBusiness when provided; fallback to provided field
+  assignIfEmpty('customerName', customer.customerName);
+  assignIfEmpty('GSTNo', customer.GSTNo);
+  // When successful lookup, suggest enabling GST
+  if (customer.gstEnabled === true && values.gstEnabled !== true) {
+    setValue('gstEnabled', true, { shouldValidate: true });
+    applied += 1;
+  }
+
+  // PAN: derive from GSTIN if not provided by backend
+  const panFromGst = (gst) => (gst && gst.length >= 12 ? gst.substring(2, 12) : '');
+  const pan = customer.PANNo || panFromGst(customer.GSTNo || values.GSTNo);
+  assignIfEmpty('PANNo', pan);
+
+  // Address and location
+  assignIfEmpty('address', customer.address);
+  assignIfEmpty('state', customer.state);
+  assignIfEmpty('pinCode', customer.pinCode);
+
+  return applied;
 }

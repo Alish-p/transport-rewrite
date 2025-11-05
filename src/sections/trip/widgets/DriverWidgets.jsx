@@ -17,7 +17,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverCard({ driver, onDriverEdit }) {
+export default function DriverCard({ driver }) {
   const { _id, driverName, driverCellNo } = driver || {};
 
   const initials = (driverName || '?')
