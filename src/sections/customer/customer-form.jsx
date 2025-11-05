@@ -320,8 +320,9 @@ export default function CustomerNewForm({ currentCustomer }) {
                           if (!gstin || gstin.length !== 15) return;
                           const resp = await lookupGst({ gstin });
                           if (!resp) return;
-                          const { customer = {} } = resp;
-                          const applied = applyGstLookupToForm({ customer, setValue, values });
+                          const { canonical } = resp || {};
+                          if (!canonical) return;
+                          const applied = applyGstLookupToForm({ canonical, setValue, values });
                           setAppliedFields(applied);
                         }}
                         disabled={!values.GSTNo || values.GSTNo.length !== 15 || isLookingUpGst}
@@ -520,8 +521,8 @@ export default function CustomerNewForm({ currentCustomer }) {
 }
 
 // Prefill helper from GST lookup
-function applyGstLookupToForm({ customer, setValue, values }) {
-  if (!customer || typeof customer !== 'object') return 0;
+function applyGstLookupToForm({ canonical, setValue, values }) {
+  if (!canonical || typeof canonical !== 'object') return 0;
   let applied = 0;
   const assignIfEmpty = (name, value) => {
     const current = values[name];
@@ -532,24 +533,29 @@ function applyGstLookupToForm({ customer, setValue, values }) {
     }
   };
 
-  // Prefer tradeName else legalNameOfBusiness when provided; fallback to provided field
-  assignIfEmpty('customerName', customer.customerName);
-  assignIfEmpty('GSTNo', customer.GSTNo);
-  // When successful lookup, suggest enabling GST
-  if (customer.gstEnabled === true && values.gstEnabled !== true) {
+  // Prefer tradeName else legalName
+  const name = canonical.tradeName || canonical.legalName || '';
+  assignIfEmpty('customerName', name);
+  assignIfEmpty('GSTNo', canonical.gstin);
+  // On successful lookup, enable GST
+  if (values.gstEnabled !== true) {
     setValue('gstEnabled', true, { shouldValidate: true });
     applied += 1;
   }
 
-  // PAN: derive from GSTIN if not provided by backend
+  // PAN: derive from canonical.pan or fallback to GSTIN substring
   const panFromGst = (gst) => (gst && gst.length >= 12 ? gst.substring(2, 12) : '');
-  const pan = customer.PANNo || panFromGst(customer.GSTNo || values.GSTNo);
+  const pan = canonical.pan || panFromGst(canonical.gstin || values.GSTNo);
   assignIfEmpty('PANNo', pan);
 
   // Address and location
-  assignIfEmpty('address', customer.address);
-  assignIfEmpty('state', customer.state);
-  assignIfEmpty('pinCode', customer.pinCode);
+  const a = canonical.address || {};
+  const addrLine = [a.buildingNumber, a.line1, a.streetName, a.location, a.city, a.district]
+    .filter(Boolean)
+    .join(', ');
+  assignIfEmpty('address', addrLine);
+  assignIfEmpty('state', a.state);
+  assignIfEmpty('pinCode', a.pincode);
 
   return applied;
 }

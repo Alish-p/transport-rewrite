@@ -72,9 +72,37 @@ const deleteCustomer = async (id) => {
   return data;
 };
 
-// GST Lookup (Customer Prefill)
+// GST Lookup (canonical response)
+// Route: POST `/api/customers/gst-lookup`
+// Auth: Requires authentication and `customer:view` permission
+// Integration flag: `tenant.integrations.gstApi.enabled` must be true (UI should gate)
 // Payload: { gstin: string }
-// Response: { customer: { customerName, GSTNo, gstEnabled, PANNo, address, state, pinCode } }
+// Response: {
+//   response: object,
+//   responseStatus: 'SUCCESS' | 'FAILURE',
+//   message: string | null,
+//   canonical: {
+//     gstin: string,
+//     pan: string | null,
+//     tradeName: string | null,
+//     legalName: string | null,
+//     status: string | null,
+//     constitution: string | null,
+//     dateOfRegistration: string | null,
+//     address: {
+//       line1: string | null,
+//       buildingNumber: string | null,
+//       streetName: string | null,
+//       location: string | null,
+//       district: string | null,
+//       state: string | null,
+//       city: string | null,
+//       pincode: string | null,
+//       latitude: string | null,
+//       longitude: string | null,
+//     }
+//   }
+// }
 const gstLookup = async (payload) => {
   const { data } = await axios.post(`${ENDPOINT}/gst-lookup`, payload);
   return data;

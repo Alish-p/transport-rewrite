@@ -132,7 +132,7 @@ export function VehicleDetailView({ vehicle }) {
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
             Loading Capacity
           </Box>
-          <Typography>{loadingCapacity ? `${loadingCapacity} kg` : '-'}</Typography>
+          <Typography>{loadingCapacity ? `${loadingCapacity} Ton` : '-'}</Typography>
         </Stack>
 
         {/* Engine Type */}

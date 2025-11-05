@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,8 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useCreateTransporter, useUpdateTransporter } from 'src/query/use-transporter';
+import { useTenant } from 'src/query/use-tenant';
+import { useCustomerGstLookup } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -82,6 +84,10 @@ export default function TransporterForm({ currentTransporter }) {
 
   const createTransporter = useCreateTransporter();
   const updateTransporter = useUpdateTransporter();
+  const { data: tenant } = useTenant();
+  const integrationEnabled = !!tenant?.integrations?.gstApi?.enabled;
+  const { lookupGst, isLookingUpGst } = useCustomerGstLookup();
+  const [appliedFields, setAppliedFields] = useState(0);
 
   const defaultValues = useMemo(
     () => ({
@@ -244,8 +250,42 @@ export default function TransporterForm({ currentTransporter }) {
           <Field.Text
             name="gstNo"
             label="GST No"
-            helperText="Enter only if GST is enabled"
             placeholder="22ABCDE1234F1Z5"
+            InputProps={
+              integrationEnabled
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                          onClick={async () => {
+                            const gstin = (values.gstNo || '').trim();
+                            if (!gstin || gstin.length !== 15) return;
+                            const resp = await lookupGst({ gstin });
+                            if (!resp) return;
+                            const { canonical } = resp || {};
+                            if (!canonical) return;
+                            const applied = applyGstLookupToTransporterForm({ canonical, setValue, values });
+                            setAppliedFields(applied);
+                          }}
+                          disabled={!values.gstNo || values.gstNo.length !== 15 || isLookingUpGst}
+                        >
+                          {isLookingUpGst ? 'Looking…' : 'Lookup'}
+                        </Button>
+                      </InputAdornment>
+                    ),
+                  }
+                : undefined
+            }
+            helperText={
+              integrationEnabled
+                ? appliedFields > 0
+                  ? `Prefilled ${appliedFields} field${appliedFields > 1 ? 's' : ''} from lookup`
+                  : 'Use Lookup to prefill details'
+                : undefined
+            }
           />
         )}
       </Stack>
@@ -298,4 +338,43 @@ export default function TransporterForm({ currentTransporter }) {
       {renderDialogues()}
     </Form>
   );
+}
+
+// Prefill helper from GST lookup (canonical)
+function applyGstLookupToTransporterForm({ canonical, setValue, values }) {
+  if (!canonical || typeof canonical !== 'object') return 0;
+  let applied = 0;
+  const assignIfEmpty = (name, value) => {
+    const current = values[name];
+    const isEmpty = current === '' || current === 0 || current === undefined || current === null;
+    if (isEmpty && value !== undefined && value !== null && value !== '') {
+      setValue(name, value, { shouldValidate: true });
+      applied += 1;
+    }
+  };
+
+  // Prefer tradeName else legalName
+  const name = canonical.tradeName || canonical.legalName || '';
+  assignIfEmpty('transportName', name);
+  assignIfEmpty('gstNo', canonical.gstin);
+  // On successful lookup, enable GST
+  if (values.gstEnabled !== true) {
+    setValue('gstEnabled', true, { shouldValidate: true });
+    applied += 1;
+  }
+
+  // PAN
+  const panFromGst = (gst) => (gst && gst.length >= 12 ? gst.substring(2, 12) : '');
+  assignIfEmpty('panNo', canonical.pan || panFromGst(canonical.gstin || values.gstNo));
+
+  // Address
+  const a = canonical.address || {};
+  const addrLine = [a.buildingNumber, a.line1, a.streetName, a.location, a.city, a.district]
+    .filter(Boolean)
+    .join(', ');
+  assignIfEmpty('address', addrLine);
+  assignIfEmpty('state', a.state);
+  assignIfEmpty('pinNo', a.pincode);
+
+  return applied;
 }
