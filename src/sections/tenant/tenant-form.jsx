@@ -307,54 +307,54 @@ export default function TenantForm({ currentTenant }) {
           ...data.integrations,
           whatsapp: data.integrations?.whatsapp
             ? {
-                ...data.integrations.whatsapp,
-              }
+              ...data.integrations.whatsapp,
+            }
             : undefined,
           ewayBill: data.integrations?.ewayBill
             ? {
-                ...data.integrations.ewayBill,
-              }
+              ...data.integrations.ewayBill,
+            }
             : undefined,
           vehicleApi: data.integrations?.vehicleApi
             ? {
-                ...data.integrations.vehicleApi,
-              }
+              ...data.integrations.vehicleApi,
+            }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
             ? {
-                ...data.integrations.vehicleGPS,
-                provider: data.integrations.vehicleGPS.provider || null,
-              }
+              ...data.integrations.vehicleGPS,
+              provider: data.integrations.vehicleGPS.provider || null,
+            }
             : undefined,
           accounting: data.integrations?.accounting
             ? (() => {
-                const acc = data.integrations.accounting;
-                const inv = acc?.config?.invoiceLedgerNames || {};
-                const tr = acc?.config?.transporterLedgerNames || {};
-                const invEnabled = !!inv.enabled;
-                const trEnabled = !!tr.enabled;
+              const acc = data.integrations.accounting;
+              const inv = acc?.config?.invoiceLedgerNames || {};
+              const tr = acc?.config?.transporterLedgerNames || {};
+              const invEnabled = !!inv.enabled;
+              const trEnabled = !!tr.enabled;
 
-                const pickNames = (obj) =>
-                  Object.fromEntries(
-                    Object.entries(obj).filter(
-                      ([k, v]) => k !== 'enabled' && typeof v === 'string' && v.trim() !== ''
-                    )
-                  );
+              const pickNames = (obj) =>
+                Object.fromEntries(
+                  Object.entries(obj).filter(
+                    ([k, v]) => k !== 'enabled' && typeof v === 'string' && v.trim() !== ''
+                  )
+                );
 
-                const cleaned = {
-                  invoiceLedgerNames: invEnabled
-                    ? { enabled: true, ...pickNames(inv) }
-                    : { enabled: false },
-                  transporterLedgerNames: trEnabled
-                    ? { enabled: true, ...pickNames(tr) }
-                    : { enabled: false },
-                };
-                return {
-                  enabled: !!acc.enabled,
-                  provider: acc.provider || null,
-                  config: cleaned,
-                };
-              })()
+              const cleaned = {
+                invoiceLedgerNames: invEnabled
+                  ? { enabled: true, ...pickNames(inv) }
+                  : { enabled: false },
+                transporterLedgerNames: trEnabled
+                  ? { enabled: true, ...pickNames(tr) }
+                  : { enabled: false },
+              };
+              return {
+                enabled: !!acc.enabled,
+                provider: acc.provider || null,
+                config: cleaned,
+              };
+            })()
             : undefined,
         },
       };
@@ -501,7 +501,7 @@ export default function TenantForm({ currentTenant }) {
             label={
               <Stack direction="row" spacing={1} alignItems="center">
                 <Iconify icon="mdi:car-search-outline" />
-                Vehicle Lookup (WebCoreVision)
+                Vehicle API
               </Stack>
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}

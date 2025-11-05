@@ -25,8 +25,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
-import { usePaginatedDocuments, useDeleteVehicleDocument, useSyncVehicleDocuments } from 'src/query/use-documents';
 import { useTenant } from 'src/query/use-tenant';
+import { usePaginatedDocuments, useSyncVehicleDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
