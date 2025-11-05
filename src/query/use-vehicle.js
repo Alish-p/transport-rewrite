@@ -38,6 +38,12 @@ const deleteVehicle = async (id) => {
   return data;
 };
 
+// Vehicle lookup
+const lookupVehicle = async (payload) => {
+  const { data } = await axios.post(`${ENDPOINT}/lookup`, payload);
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedVehicles(params, options = {}) {
   return useQuery({
@@ -132,4 +138,16 @@ export function useDeleteVehicle() {
     },
   });
   return mutate;
+}
+
+export function useVehicleLookup(options = {}) {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: lookupVehicle,
+    onError: (error) => {
+      const errorMessage = error?.message || 'Lookup failed';
+      toast.error(errorMessage);
+    },
+    ...options,
+  });
+  return { lookup: mutateAsync, isLookingUp: isPending };
 }

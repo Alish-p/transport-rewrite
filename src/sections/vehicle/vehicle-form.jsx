@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Button, Divider, MenuItem, Collapse, CardHeader, InputAdornment } from '@mui/material';
+import { Card, Stack, Button, Divider, MenuItem, Collapse, CardHeader, InputAdornment, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -14,9 +14,13 @@ import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useCreateVehicle, useUpdateVehicle } from 'src/query/use-vehicle';
+import { useTenant } from 'src/query/use-tenant';
+import { useCreateVehicle, useUpdateVehicle, useVehicleLookup } from 'src/query/use-vehicle';
 
 import { Iconify } from 'src/components/iconify';
+import { Label } from 'src/components/label';
+import { fDate } from 'src/utils/format-time';
+import dayjs from 'dayjs';
 // components
 import { Form, Field } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -65,6 +69,12 @@ export default function VehicleForm({ currentVehicle }) {
     currentVehicle?.transporter || null
   );
   const transporterDialog = useBoolean(false);
+  const { data: tenant } = useTenant();
+  const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
+
+  const { lookup, isLookingUp } = useVehicleLookup();
+  const [suggestedDocs, setSuggestedDocs] = useState([]);
+  const [appliedFields, setAppliedFields] = useState(0);
 
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
@@ -148,7 +158,45 @@ export default function VehicleForm({ currentVehicle }) {
       <CardHeader title="Basic Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="vehicleNo" label="Vehicle No" placeholder="e.g. KA01AB0001" />
+        <Field.Text
+          name="vehicleNo"
+          label="Vehicle No"
+          placeholder="e.g. KA01AB0001"
+          InputProps={
+            integrationEnabled
+              ? {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      onClick={async () => {
+                        if (!vehicleNoValid(values.vehicleNo)) return;
+                        const resp = await lookup({ vehicleNo: values.vehicleNo });
+                        if (!resp) return;
+                        const { vehicle = {}, documentsSuggested = [] } = resp;
+                        const applied = applyVehicleLookupToForm({ vehicle, setValue, values });
+                        setAppliedFields(applied);
+                        setSuggestedDocs(documentsSuggested || []);
+                      }}
+                      disabled={!vehicleNoValid(values.vehicleNo) || isLookingUp}
+                    >
+                      {isLookingUp ? 'Looking…' : 'Lookup'}
+                    </Button>
+                  </InputAdornment>
+                ),
+              }
+              : undefined
+          }
+          helperText={
+            integrationEnabled
+              ? appliedFields > 0
+                ? `Prefilled ${appliedFields} field${appliedFields > 1 ? 's' : ''} from lookup`
+                : 'Use Lookup to prefill details'
+              : undefined
+          }
+        />
         <Field.Select name="vehicleType" label="Vehicle Type">
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -249,6 +297,48 @@ export default function VehicleForm({ currentVehicle }) {
     </Card>
   );
 
+  const renderSuggestedDocs = suggestedDocs?.length ? (
+    <Card>
+      <CardHeader title="Suggested Documents" />
+      <Divider />
+      <Stack sx={{ p: 2 }}>
+        <Table size="small" aria-label="suggested-documents">
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Number</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Issuer</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 160 }}>Issue Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 160 }}>Expiry Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 120 }}>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {suggestedDocs.map((d, idx) => {
+              const issue = d.issueDate ? fDate(d.issueDate) : '-';
+              const expiry = d.expiryDate ? fDate(d.expiryDate) : '-';
+              const isExpired = d.expiryDate ? dayjs(d.expiryDate).isBefore(dayjs(), 'day') : false;
+              return (
+                <TableRow key={`${d.docType}-${idx}`}>
+                  <TableCell>{d.docType}</TableCell>
+                  <TableCell>{d.docNumber || '-'}</TableCell>
+                  <TableCell>{d.issuer || '-'}</TableCell>
+                  <TableCell>{issue}</TableCell>
+                  <TableCell>{expiry}</TableCell>
+                  <TableCell>
+                    <Label variant="soft" color={isExpired ? 'error' : 'success'}>
+                      {isExpired ? 'Expired' : 'Valid'}
+                    </Label>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Stack>
+    </Card>
+  ) : null;
+
   const renderActions = (
     <Stack alignItems="flex-end">
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -277,6 +367,7 @@ export default function VehicleForm({ currentVehicle }) {
         </Button>
 
         {optionalOpen.value && renderAdditional}
+        {integrationEnabled && renderSuggestedDocs}
         {renderActions}
       </Stack>
 
@@ -288,4 +379,47 @@ export default function VehicleForm({ currentVehicle }) {
       />
     </Form>
   );
+}
+
+// Helpers
+function vehicleNoValid(v) {
+  if (!v) return false;
+  const re = /^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4}$/;
+  return re.test(v);
+}
+
+function applyVehicleLookupToForm({ vehicle, setValue, values }) {
+  if (!vehicle) return 0;
+  let applied = 0;
+  const assignIfEmpty = (name, value) => {
+    const current = values[name];
+    const isEmpty = current === '' || current === 0 || current === undefined || current === null;
+    if (isEmpty && value !== undefined && value !== null && value !== '') {
+      setValue(name, value, { shouldValidate: true });
+      applied += 1;
+    }
+  };
+
+  const mapCompany = (label) => {
+    if (!label) return undefined;
+    const map = {
+      'bharat benz': 'bharatBenz',
+      'ashok leyland': 'ashokLeyland',
+      tata: 'tata',
+      ace: 'ace',
+    };
+    const key = map[String(label).toLowerCase()];
+    return key || undefined;
+  };
+
+  assignIfEmpty('modelType', vehicle.modelType);
+  assignIfEmpty('vehicleCompany', mapCompany(vehicle.vehicleCompany) ?? vehicle.vehicleCompany);
+  assignIfEmpty('noOfTyres', Number(vehicle.noOfTyres));
+  assignIfEmpty('chasisNo', vehicle.chasisNo);
+  assignIfEmpty('engineNo', vehicle.engineNo);
+  assignIfEmpty('manufacturingYear', Number(vehicle.manufacturingYear));
+  assignIfEmpty('loadingCapacity', Number(vehicle.loadingCapacity));
+  assignIfEmpty('engineType', vehicle.engineType);
+
+  return applied;
 }

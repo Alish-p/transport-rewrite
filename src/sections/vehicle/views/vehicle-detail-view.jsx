@@ -229,7 +229,7 @@ export function VehicleDetailView({ vehicle }) {
         </Grid>
 
         <Grid xs={12} item>
-          <VehicleDocumentsWidget vehicleId={vehicle._id} />
+          <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
         </Grid>
 
         <Grid xs={12} item>

@@ -83,6 +83,11 @@ export const TenantSchema = zod
             enabled: zod.boolean().optional(),
           })
           .optional(),
+        vehicleApi: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
         vehicleGPS: zod
           .object({
             enabled: zod.boolean().optional(),
@@ -228,6 +233,9 @@ export default function TenantForm({ currentTenant }) {
         ewayBill: {
           enabled: currentTenant?.integrations?.ewayBill?.enabled || false,
         },
+        vehicleApi: {
+          enabled: currentTenant?.integrations?.vehicleApi?.enabled || false,
+        },
         vehicleGPS: {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
           provider: currentTenant?.integrations?.vehicleGPS?.provider ?? null,
@@ -305,6 +313,11 @@ export default function TenantForm({ currentTenant }) {
           ewayBill: data.integrations?.ewayBill
             ? {
                 ...data.integrations.ewayBill,
+              }
+            : undefined,
+          vehicleApi: data.integrations?.vehicleApi
+            ? {
+                ...data.integrations.vehicleApi,
               }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
@@ -475,6 +488,20 @@ export default function TenantForm({ currentTenant }) {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Iconify icon="mdi:file-document-outline" />
                 eWay Bill
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.vehicleApi.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:car-search-outline" />
+                Vehicle Lookup (WebCoreVision)
               </Stack>
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}

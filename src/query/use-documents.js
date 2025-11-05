@@ -34,6 +34,12 @@ export const deleteVehicleDocument = async ({ vehicleId, docId }) => {
   return data;
 };
 
+// Sync from Government Portal for a vehicle number
+const syncDocuments = async ({ vehicleNo }) => {
+  const { data } = await axios.post(`${ENDPOINT}/sync`, { vehicleNo });
+  return data; // { addedCount }
+};
+
 // Queries
 export function usePaginatedDocuments(params, options = {}) {
   const vehicleId = params?.vehicleId || params?.vehicle;
@@ -136,4 +142,27 @@ export function useDeleteVehicleDocument() {
     },
   });
   return mutateAsync;
+}
+
+export function useSyncVehicleDocuments() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: syncDocuments,
+    onSuccess: (res, vars) => {
+      const added = res?.addedCount ?? 0;
+      toast.success(added > 0 ? `Synced ${added} document${added > 1 ? 's' : ''}` : 'No new documents');
+      const vid = vars?.vehicleId;
+      if (vid) {
+        queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
+        queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
+      }
+      // Also invalidate unified list
+      queryClient.invalidateQueries(['documents']);
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'Failed to sync documents';
+      toast.error(errorMessage);
+    },
+  });
+  return { syncDocuments: mutateAsync, isSyncing: isPending };
 }

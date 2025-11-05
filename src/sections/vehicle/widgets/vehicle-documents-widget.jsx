@@ -25,7 +25,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
-import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
+import { usePaginatedDocuments, useDeleteVehicleDocument, useSyncVehicleDocuments } from 'src/query/use-documents';
+import { useTenant } from 'src/query/use-tenant';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -39,9 +40,11 @@ import { REQUIRED_DOC_TYPES } from '../documents/config/constants';
 
 // Document add/edit form moved to a reusable component
 
-export function VehicleDocumentsWidget({ vehicleId }) {
+export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
   const addDialog = useBoolean();
   const [tab, setTab] = useState('current');
+  const { data: tenant } = useTenant();
+  const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
 
   // Use the unified paginated documents API and filter locally
   const { data: docsResp, isLoading } = usePaginatedDocuments({
@@ -62,18 +65,52 @@ export function VehicleDocumentsWidget({ vehicleId }) {
   const getDocByType = (type) =>
     (activeDocs || []).find((d) => String(d.docType).toLowerCase() === String(type).toLowerCase());
 
+  const { syncDocuments, isSyncing } = useSyncVehicleDocuments();
+
+  const handleSync = async () => {
+    if (!vehicleNo) {
+      toast.error('Vehicle number not available to sync');
+      return;
+    }
+    try {
+      await syncDocuments({ vehicleNo, vehicleId });
+    } catch (e) {
+      // toast handled in hook
+    }
+  };
+
   return (
     <Card>
       <CardHeader
         title="Documents"
         action={
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={addDialog.onTrue}
-          >
-            Add Document
-          </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {integrationEnabled && (
+              <Tooltip title="Fetch latest documents from Govt portal">
+                <span>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<Iconify icon={isSyncing ? 'line-md:loading-twotone-loop' : 'mdi:cloud-sync-outline'} />}
+                    onClick={handleSync}
+                    disabled={!vehicleNo || isSyncing}
+                    size="small"
+                  >
+                    {isSyncing ? 'Syncing…' : 'Sync Govt Portal'}
+                  </Button>
+                </span>
+              </Tooltip>
+            )}
+
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="bytesize:upload" />}
+              onClick={addDialog.onTrue}
+              size="small"
+            >
+              Upload
+            </Button>
+          </Stack>
         }
       />
 
