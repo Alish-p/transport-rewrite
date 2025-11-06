@@ -14,6 +14,10 @@ import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Paper, Tooltip, MenuItem, Typography } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import TextField from '@mui/material/TextField';
+import { alpha } from '@mui/material/styles';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -135,6 +139,7 @@ export default function CustomerNewForm({ currentCustomer }) {
   const { lookupGst, isLookingUpGst } = useCustomerGstLookup();
   const [appliedFields, setAppliedFields] = useState(0);
   const isEditMode = Boolean(currentCustomer);
+  const [gstInput, setGstInput] = useState('');
 
   const defaultValues = useMemo(
     () => ({
@@ -189,6 +194,11 @@ export default function CustomerNewForm({ currentCustomer }) {
   // Watch all form values for conditional rendering
   const values = watch();
   const { bankDetails } = values;
+  useEffect(() => {
+    // Initialize banner input from form GST if empty
+    if (!gstInput && values.GSTNo) setGstInput(values.GSTNo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.GSTNo]);
 
   // 2.3 FieldArray for consignees
   const { fields, append, remove } = useFieldArray({
@@ -249,6 +259,74 @@ export default function CustomerNewForm({ currentCustomer }) {
   // ----------------------
   // 4. Render each section as a Card
   // ----------------------
+  const renderGstLookup = integrationEnabled && !isEditMode ? (
+    <Card
+      variant="outlined"
+    >
+      <CardHeader
+        sx={{ mb: 1 }}
+        title={
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+            <Label color="success" variant="soft">Recommended</Label>
+          </Stack>
+        }
+        subheader={
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+            Enter a GST number to automatically prefill customer details and save time
+          </Typography>
+        }
+      />
+      <Divider />
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ p: 3 }}>
+        <TextField
+          fullWidth
+          label="GST Number"
+          placeholder="e.g., 27ABCDE1234F1Z5"
+          value={gstInput}
+          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+          onKeyDown={async (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+              const resp = await lookupGst({ gstin: gstInput.trim() });
+              if (!resp?.canonical) return;
+              const applied = applyGstLookupToForm({ canonical: resp.canonical, setValue, values });
+              setAppliedFields(applied);
+            }
+          }}
+        />
+        <LoadingButton
+          variant="contained"
+          color="primary"
+          loading={isLookingUpGst}
+          disabled={!gstInput || gstInput.trim().length !== 15}
+          onClick={async () => {
+            const resp = await lookupGst({ gstin: gstInput.trim() });
+            if (!resp?.canonical) return;
+            const applied = applyGstLookupToForm({ canonical: resp.canonical, setValue, values });
+            setAppliedFields(applied);
+          }}
+          startIcon={<Iconify icon="mdi:magnify-scan" />}
+        >
+          Lookup & Prefill
+        </LoadingButton>
+      </Stack>
+
+      <Collapse in={appliedFields > 0}>
+        <Alert
+          severity="success"
+          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+          sx={{ mx: 3, mb: 3 }}
+          onClose={() => setAppliedFields(0)}
+        >
+          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+        </Alert>
+      </Collapse>
+    </Card>
+  ) : null;
+
   const renderBasicDetails = (
     <Card>
       <CardHeader title="Basic Details" sx={{ mb: 3 }} />
@@ -303,45 +381,7 @@ export default function CustomerNewForm({ currentCustomer }) {
           <Field.Switch name="gstEnabled" label="GST Enabled" />
         </Stack>
 
-        <Field.Text
-          name="GSTNo"
-          label="GST No"
-          InputProps={
-            integrationEnabled && !isEditMode
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="primary"
-                        onClick={async () => {
-                          const gstin = (values.GSTNo || '').trim();
-                          if (!gstin || gstin.length !== 15) return;
-                          const resp = await lookupGst({ gstin });
-                          if (!resp) return;
-                          const { canonical } = resp || {};
-                          if (!canonical) return;
-                          const applied = applyGstLookupToForm({ canonical, setValue, values });
-                          setAppliedFields(applied);
-                        }}
-                        disabled={!values.GSTNo || values.GSTNo.length !== 15 || isLookingUpGst}
-                      >
-                        {isLookingUpGst ? 'Looking…' : 'Lookup'}
-                      </Button>
-                    </InputAdornment>
-                  ),
-                }
-              : undefined
-          }
-          helperText={
-            integrationEnabled && !isEditMode
-              ? appliedFields > 0
-                ? `Prefilled ${appliedFields} field${appliedFields > 1 ? 's' : ''} from lookup`
-                : 'Use Lookup to prefill details'
-              : undefined
-          }
-        />
+        <Field.Text name="GSTNo" label="GST No" />
 
         <Field.Text name="PANNo" label="PAN No (Optional)" />
       </Stack>
@@ -482,6 +522,7 @@ export default function CustomerNewForm({ currentCustomer }) {
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderGstLookup}
         {renderBasicDetails}
         {renderFinanceDetails}
         {renderAdditionalDetails}
