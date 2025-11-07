@@ -11,7 +11,6 @@ import { Card, Stack, Button, Divider, CardHeader } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -20,8 +19,7 @@ import { useCreatePump, useUpdatePump } from 'src/query/use-pump';
 import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-import { BankListDialog } from '../bank/bank-list-dialogue';
+import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 
 // ----------------------------------------------------------------------
 
@@ -53,8 +51,7 @@ export const NewPumpSchema = zod.object({
 
 export default function PumpForm({ currentPump }) {
   const navigate = useNavigate();
-  const router = useRouter();
-  const bankDialogue = useBoolean();
+  const bankDialog = useBoolean();
 
   const createPump = useCreatePump();
   const updatePump = useUpdatePump();
@@ -82,17 +79,9 @@ export default function PumpForm({ currentPump }) {
     mode: 'all',
   });
 
-  const {
-    reset,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = methods;
+  const { reset, watch, handleSubmit, formState: { isSubmitting, errors } } = methods;
 
   const values = watch();
-
-  const { bankAccount } = values;
 
   const onSubmit = async (data) => {
     try {
@@ -126,27 +115,47 @@ export default function PumpForm({ currentPump }) {
       <CardHeader title="Bank Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={bankDialogue.onTrue}
-          sx={{
-            height: 56,
-            justifyContent: 'flex-start',
-            typography: 'body2',
-            borderColor: errors.bankAccount?.branch?.message ? 'error.main' : 'text.disabled',
-          }}
-          startIcon={
-            <Iconify
-              icon={bankAccount?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-              sx={{ color: bankAccount?.name ? 'primary.main' : 'text.disabled' }}
-            />
-          }
-        >
-          {bankAccount?.name || 'Select Bank'}
-        </Button>
+        {(() => {
+          const bd = values?.bankAccount || {};
+          const summary = bd?.name
+            ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
+            : 'Add bank details';
+          const hasError = Boolean(errors?.bankAccount);
+          return (
+            <>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={bankDialog.onTrue}
+                startIcon={<Iconify icon={bd?.name ? 'mdi:bank' : 'mdi:bank-outline'} />}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                  borderColor: hasError ? 'error.main' : 'text.disabled',
+                  color: hasError ? 'error.main' : 'text.primary',
+                }}
+              >
+                {summary}
+              </Button>
 
-        <Field.Text name="bankAccount.accNo" label="Account No" />
+              <BankDetailsWidget
+                variant="dialog"
+                title="Bank Details"
+                open={bankDialog.value}
+                onClose={bankDialog.onFalse}
+                compact={false}
+                fieldNames={{
+                  ifsc: 'bankAccount.ifsc',
+                  name: 'bankAccount.name',
+                  branch: 'bankAccount.branch',
+                  place: 'bankAccount.place',
+                  accNo: 'bankAccount.accNo',
+                }}
+              />
+            </>
+          );
+        })()}
       </Stack>
     </Card>
   );
@@ -159,32 +168,7 @@ export default function PumpForm({ currentPump }) {
     </Stack>
   );
 
-  const renderDialogues = (
-    <BankListDialog
-      title="Banks"
-      open={bankDialogue.value}
-      onClose={bankDialogue.onFalse}
-      selected={(selectedIfsc) => bankAccount?.ifsc === selectedIfsc}
-      onSelect={(bank) => {
-        setValue('bankAccount.branch', bank?.branch);
-        setValue('bankAccount.ifsc', bank?.ifsc);
-        setValue('bankAccount.place', bank?.place);
-        setValue('bankAccount.name', bank?.name);
-      }}
-      action={
-        <Button
-          size="small"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{ alignSelf: 'flex-end' }}
-          onClick={() => {
-            router.push(paths.dashboard.bank.new);
-          }}
-        >
-          New
-        </Button>
-      }
-    />
-  );
+  // Bank selection dialog removed; no extra dialogues to render
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -193,7 +177,7 @@ export default function PumpForm({ currentPump }) {
         {renderbankAccount}
         {renderActions}
       </Stack>
-      {renderDialogues}
+      {/* Bank selection dialog removed in favor of inline bank details widget */}
     </Form>
   );
 }

@@ -47,11 +47,6 @@ const TransporterEditPage = lazy(() => import('src/pages/dashboard/transporter/e
 
 // Route (removed)
 
-// Bank
-const BankDetailsPage = lazy(() => import('src/pages/dashboard/bank/details'));
-const BankListPage = lazy(() => import('src/pages/dashboard/bank/list'));
-const BankCreatePage = lazy(() => import('src/pages/dashboard/bank/new'));
-const BankEditPage = lazy(() => import('src/pages/dashboard/bank/edit'));
 
 // Expense
 const ExpenseDetailsPage = lazy(() => import('src/pages/dashboard/expense/details'));
@@ -390,51 +385,6 @@ export const dashboardRoutes = [
       },
 
       
-      {
-        path: 'bank',
-        children: [
-          {
-            element: (
-              <PermissionBasedGuard resource="bank" action="view" hasContent>
-                <BankListPage />
-              </PermissionBasedGuard>
-            ),
-            index: true,
-          },
-          {
-            path: 'list',
-            element: (
-              <PermissionBasedGuard resource="bank" action="view" hasContent>
-                <BankListPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <PermissionBasedGuard resource="bank" action="view" hasContent>
-                <BankDetailsPage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: 'new',
-            element: (
-              <PermissionBasedGuard resource="bank" action="create" hasContent>
-                <BankCreatePage />
-              </PermissionBasedGuard>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <PermissionBasedGuard resource="bank" action="update" hasContent>
-                <BankEditPage />
-              </PermissionBasedGuard>
-            ),
-          },
-        ],
-      },
       {
         path: 'expense',
         children: [

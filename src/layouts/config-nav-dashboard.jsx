@@ -194,16 +194,6 @@ export const navData = [
       // Other Management Items
       
       {
-        title: 'Bank',
-        path: paths.dashboard.bank.root,
-        icon: ICONS.bank,
-        resource: 'bank',
-        children: [
-          { title: 'List', path: paths.dashboard.bank.root, action: 'view' },
-          { title: 'Create', path: paths.dashboard.bank.new, action: 'create' },
-        ],
-      },
-      {
         title: 'User',
         path: paths.dashboard.user.root,
         icon: ICONS.user,

@@ -11,7 +11,6 @@ import { Box, Card, Grid, Stack, Button, Divider, Typography, InputAdornment } f
 
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -21,8 +20,7 @@ import { useUpdateDriver, useCreateFullDriver } from 'src/query/use-driver';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-import { BankListDialog } from '../bank/bank-list-dialogue';
+import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 
 // ----------------------------------------------------------------------
 
@@ -80,7 +78,7 @@ export const NewDriverSchema = zod.object({
 
 export default function DriverForm({ currentDriver }) {
   const navigate = useNavigate();
-  const router = useRouter();
+  const bankDialog = useBoolean();
   const createDriver = useCreateFullDriver();
   const updateDriver = useUpdateDriver();
 
@@ -119,19 +117,11 @@ export default function DriverForm({ currentDriver }) {
     mode: 'all',
   });
 
-  const {
-    reset,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = methods;
+  const { reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
 
   const values = watch();
 
-  const { bankDetails } = values;
 
-  const bankDialogue = useBoolean();
 
   const onSubmit = async (data) => {
     try {
@@ -227,45 +217,53 @@ export default function DriverForm({ currentDriver }) {
     </>
   );
 
-  const renderBankDetails = () => (
-    <>
-      <Typography variant="h6" gutterBottom>
-        Bank Details
-      </Typography>
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
-          }}
-          gap={3}
-        >
+  const renderBankDetails = () => {
+    const bd = values?.bankDetails || {};
+    const summary = bd?.name
+      ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
+      : 'Add bank details';
+    const hasError = Boolean(errors?.bankDetails);
+
+    return (
+      <>
+        <Typography variant="h6" gutterBottom>
+          Bank Details
+        </Typography>
+        <Card sx={{ p: 3, mb: 3 }}>
           <Button
             fullWidth
             variant="outlined"
-            onClick={bankDialogue.onTrue}
+            onClick={bankDialog.onTrue}
+            startIcon={<Iconify icon={bd?.name ? 'mdi:bank' : 'mdi:bank-outline'} />}
             sx={{
               height: 56,
               justifyContent: 'flex-start',
               typography: 'body2',
-              borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
+              borderColor: hasError ? 'error.main' : 'text.disabled',
+              color: hasError ? 'error.main' : 'text.primary',
             }}
-            startIcon={
-              <Iconify
-                icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-                sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-              />
-            }
           >
-            {bankDetails?.name || 'Select Bank'}
+            {summary}
           </Button>
 
-          <Field.Text name="bankDetails.accNo" label="Account No" />
-        </Box>
-      </Card>
-    </>
-  );
+          <BankDetailsWidget
+            variant="dialog"
+            title="Bank Details"
+            open={bankDialog.value}
+            onClose={bankDialog.onFalse}
+            compact={false}
+            fieldNames={{
+              ifsc: 'bankDetails.ifsc',
+              name: 'bankDetails.name',
+              branch: 'bankDetails.branch',
+              place: 'bankDetails.place',
+              accNo: 'bankDetails.accNo',
+            }}
+          />
+        </Card>
+      </>
+    );
+  };
 
   const renderImages = () => (
     <Card sx={{ pt: 10, mt: 4, pb: 5, px: 3 }}>
@@ -324,32 +322,7 @@ export default function DriverForm({ currentDriver }) {
     </Stack>
   );
 
-  const renderDialogues = () => (
-    <BankListDialog
-      title="Banks"
-      open={bankDialogue.value}
-      onClose={bankDialogue.onFalse}
-      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
-      onSelect={(bank) => {
-        setValue('bankDetails.branch', bank?.branch);
-        setValue('bankDetails.ifsc', bank?.ifsc);
-        setValue('bankDetails.place', bank?.place);
-        setValue('bankDetails.name', bank?.name);
-      }}
-      action={
-        <Button
-          size="small"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{ alignSelf: 'flex-end' }}
-          onClick={() => {
-            router.push(paths.dashboard.bank.new);
-          }}
-        >
-          New
-        </Button>
-      }
-    />
-  );
+  const renderDialogues = () => null; // Bank list dialog removed
 
   return (
     <>
@@ -370,7 +343,7 @@ export default function DriverForm({ currentDriver }) {
         {renderDialogues()}
       </Form>
 
-      {/* For Selection of bank */}
+      {/* Bank selection dialog removed in favor of inline bank details widget */}
     </>
   );
 }

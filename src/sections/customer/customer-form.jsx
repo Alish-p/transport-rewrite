@@ -8,20 +8,18 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import Collapse from '@mui/material/Collapse';
+import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Paper, Tooltip, MenuItem, Typography } from '@mui/material';
-import Alert from '@mui/material/Alert';
-import Collapse from '@mui/material/Collapse';
-import TextField from '@mui/material/TextField';
-import { alpha } from '@mui/material/styles';
 
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -36,9 +34,9 @@ import { Label } from 'src/components/label';
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 
 import { STATES } from './config';
-import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------
 // 1. Updated Zod schema
@@ -60,19 +58,28 @@ export const NewCustomerSchema = zod
       message: { invalid_error: 'Phone number must be exactly 10 digits' },
     }),
 
-    // Finance Details
-    bankDetails: zod.object({
-      name: zod.string().min(1, { message: 'Bank name is required' }),
-      branch: zod.string().min(1, { message: 'Branch is required' }),
-      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-      place: zod.string().min(1, { message: 'Place is required' }),
-      accNo: schemaHelper.accountNumber({
-        message: {
-          required_error: 'Account number is required',
-          invalid_error: 'Account number must be between 9 and 18 digits',
-        },
-      }),
-    }),
+    // Finance Details — optional for customers
+    bankDetails: zod
+      .object({
+        name: zod.string().optional(),
+        branch: zod.string().optional(),
+        ifsc: zod.string().optional(),
+        place: zod.string().optional(),
+        // Optional or blank, but if present must be 9-18 digits
+        accNo: zod
+          .string()
+          .optional()
+          .refine(
+            (val) => {
+              if (val === undefined || val === '') return true;
+              return /^[0-9]{9,18}$/.test(val);
+            },
+            {
+              message: 'Account number must be between 9 and 18 digits',
+            }
+          ),
+      })
+      .optional(),
 
     GSTNo: schemaHelper.gstNumberOptional({
       message: {
@@ -129,8 +136,7 @@ export const NewCustomerSchema = zod
 // ----------------------
 export default function CustomerNewForm({ currentCustomer }) {
   const navigate = useNavigate();
-  const router = useRouter();
-  const bankDialogue = useBoolean();
+  const bankDialog = useBoolean();
 
   const addCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
@@ -193,7 +199,6 @@ export default function CustomerNewForm({ currentCustomer }) {
 
   // Watch all form values for conditional rendering
   const values = watch();
-  const { bankDetails } = values;
   useEffect(() => {
     // Initialize banner input from form GST if empty
     if (!gstInput && values.GSTNo) setGstInput(values.GSTNo);
@@ -209,10 +214,11 @@ export default function CustomerNewForm({ currentCustomer }) {
   // 2.4 Submit handler
   const onSubmit = async (data) => {
     try {
+      const sanitized = sanitizeCustomerBeforeSubmit(data);
       if (!currentCustomer) {
-        await addCustomer(data);
+        await addCustomer(sanitized);
       } else {
-        await updateCustomer({ id: currentCustomer._id, data });
+        await updateCustomer({ id: currentCustomer._id, data: sanitized });
       }
       reset();
       navigate(paths.dashboard.customer.list);
@@ -354,28 +360,47 @@ export default function CustomerNewForm({ currentCustomer }) {
       <CardHeader title="Finance Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        {/* Bank Selector */}
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={bankDialogue.onTrue}
-          sx={{
-            height: 56,
-            justifyContent: 'flex-start',
-            typography: 'body2',
-            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-          }}
-          startIcon={
-            <Iconify
-              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-            />
-          }
-        >
-          {bankDetails?.name || 'Select Bank'}
-        </Button>
+        {(() => {
+          const bd = values?.bankDetails || {};
+          const summary = bd?.name
+            ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
+            : 'Add bank details';
+          const hasError = Boolean(errors?.bankDetails);
+          return (
+            <>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={bankDialog.onTrue}
+                startIcon={<Iconify icon={bd?.name ? 'mdi:bank' : 'mdi:bank-outline'} />}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                  borderColor: hasError ? 'error.main' : 'text.disabled',
+                  color: hasError ? 'error.main' : 'text.primary',
+                }}
+              >
+                {summary}
+              </Button>
 
-        <Field.Text name="bankDetails.accNo" label="Account No" />
+              <BankDetailsWidget
+                variant="dialog"
+                title="Bank Details"
+                open={bankDialog.value}
+                onClose={bankDialog.onFalse}
+                compact={false}
+                fieldNames={{
+                  ifsc: 'bankDetails.ifsc',
+                  name: 'bankDetails.name',
+                  branch: 'bankDetails.branch',
+                  place: 'bankDetails.place',
+                  accNo: 'bankDetails.accNo',
+                }}
+              />
+            </>
+          );
+        })()}
 
         <Stack direction="row" spacing={2} alignItems="center">
           <Field.Switch name="gstEnabled" label="GST Enabled" />
@@ -530,33 +555,7 @@ export default function CustomerNewForm({ currentCustomer }) {
         {renderActions}
       </Stack>
 
-      {/**
-       * BankListDialog is rendered outside the Stack so it can float above the form.
-       */}
-      <BankListDialog
-        title="Banks"
-        open={bankDialogue.value}
-        onClose={bankDialogue.onFalse}
-        selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
-        onSelect={(bank) => {
-          setValue('bankDetails.branch', bank?.branch);
-          setValue('bankDetails.ifsc', bank?.ifsc);
-          setValue('bankDetails.place', bank?.place);
-          setValue('bankDetails.name', bank?.name);
-        }}
-        action={
-          <Button
-            size="small"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ alignSelf: 'flex-end' }}
-            onClick={() => {
-              router.push(paths.dashboard.bank.new);
-            }}
-          >
-            New
-          </Button>
-        }
-      />
+      {/* Bank selection dialog removed in favor of inline bank details widget */}
     </Form>
   );
 }
@@ -599,4 +598,25 @@ function applyGstLookupToForm({ canonical, setValue, values }) {
   assignIfEmpty('pinCode', a.pincode);
 
   return applied;
+}
+
+// Strip empty bankDetails fields to undefined; drop bankDetails if all empty
+function sanitizeCustomerBeforeSubmit(data) {
+  const out = { ...data };
+  const bd = out?.bankDetails;
+  if (bd && typeof bd === 'object') {
+    const cleaned = { ...bd };
+    const keys = ['name', 'branch', 'ifsc', 'place', 'accNo'];
+    keys.forEach((k) => {
+      if (cleaned[k] === '') cleaned[k] = undefined;
+    });
+    const allEmpty = keys.every((k) => cleaned[k] === undefined || cleaned[k] === null);
+    if (allEmpty) {
+      // Remove bankDetails entirely
+      delete out.bankDetails;
+    } else {
+      out.bankDetails = cleaned;
+    }
+  }
+  return out;
 }

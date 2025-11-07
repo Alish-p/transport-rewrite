@@ -1,17 +1,28 @@
 import { z as zod } from 'zod';
-import { useMemo, useState } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Button, Divider, MenuItem, CardHeader, InputAdornment } from '@mui/material';
+import {
+  Card,
+  Stack,
+  Alert,
+  Button,
+  Divider,
+  MenuItem,
+  Collapse,
+  TextField,
+  CardHeader,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -19,11 +30,12 @@ import { useTenant } from 'src/query/use-tenant';
 import { useCustomerGstLookup } from 'src/query/use-customer';
 import { useCreateTransporter, useUpdateTransporter } from 'src/query/use-transporter';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 
 import { STATES } from '../customer/config';
-import { BankListDialog } from '../bank/bank-list-dialogue';
 
 // ----------------------------------------------------------------------
 
@@ -79,8 +91,8 @@ export const NewTransporterSchema = zod
 
 export default function TransporterForm({ currentTransporter }) {
   const navigate = useNavigate();
-  const router = useRouter();
-  const bankDialogue = useBoolean();
+
+
 
   const createTransporter = useCreateTransporter();
   const updateTransporter = useUpdateTransporter();
@@ -88,6 +100,8 @@ export default function TransporterForm({ currentTransporter }) {
   const integrationEnabled = !!tenant?.integrations?.gstApi?.enabled;
   const { lookupGst, isLookingUpGst } = useCustomerGstLookup();
   const [appliedFields, setAppliedFields] = useState(0);
+  const [gstInput, setGstInput] = useState('');
+  const isEditMode = Boolean(currentTransporter);
 
   const defaultValues = useMemo(
     () => ({
@@ -123,17 +137,15 @@ export default function TransporterForm({ currentTransporter }) {
     mode: 'all',
   });
 
-  const {
-    reset,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = methods;
+  const { reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
+  const bankDialog = useBoolean();
 
   const values = watch();
 
-  const { bankDetails } = values;
+  useEffect(() => {
+    if (!gstInput && values.gstNo) setGstInput(values.gstNo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.gstNo]);
 
   const onSubmit = async (data) => {
     try {
@@ -187,35 +199,53 @@ export default function TransporterForm({ currentTransporter }) {
     </Card>
   );
 
-  const renderBankDetails = () => (
-    <Card>
-      <CardHeader title="Bank Details" sx={{ mb: 3 }} />
-      <Divider />
-      <Stack spacing={3} sx={{ p: 3 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={bankDialogue.onTrue}
-          sx={{
-            height: 56,
-            justifyContent: 'flex-start',
-            typography: 'body2',
-            borderColor: errors.bankDetails?.branch?.message ? 'error.main' : 'text.disabled',
-          }}
-          startIcon={
-            <Iconify
-              icon={bankDetails?.name ? 'mdi:bank' : 'mdi:bank-outline'}
-              sx={{ color: bankDetails?.name ? 'primary.main' : 'text.disabled' }}
-            />
-          }
-        >
-          {bankDetails?.name || 'Select Bank'}
-        </Button>
+  const renderBankDetails = () => {
+    const bd = values?.bankDetails || {};
+    const summary = bd?.name
+      ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
+      : 'Add bank details';
 
-        <Field.Text name="bankDetails.accNo" label="Account No" />
-      </Stack>
-    </Card>
-  );
+    const hasError = Boolean(errors?.bankDetails);
+
+    return (
+      <Card>
+        <CardHeader title="Bank Details" sx={{ mb: 3 }} />
+        <Divider />
+        <Stack spacing={3} sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={bankDialog.onTrue}
+            startIcon={<Iconify icon={bd?.name ? 'mdi:bank' : 'mdi:bank-outline'} />}
+            sx={{
+              height: 56,
+              justifyContent: 'flex-start',
+              typography: 'body2',
+              borderColor: hasError ? 'error.main' : 'text.disabled',
+              color: hasError ? 'error.main' : 'text.primary',
+            }}
+          >
+            {summary}
+          </Button>
+
+          <BankDetailsWidget
+            variant="dialog"
+            title="Bank Details"
+            open={bankDialog.value}
+            onClose={bankDialog.onFalse}
+            compact={false}
+            fieldNames={{
+              ifsc: 'bankDetails.ifsc',
+              name: 'bankDetails.name',
+              branch: 'bankDetails.branch',
+              place: 'bankDetails.place',
+              accNo: 'bankDetails.accNo',
+            }}
+          />
+        </Stack>
+      </Card>
+    );
+  };
 
   const renderAdditionalDetails = () => (
     <Card>
@@ -245,49 +275,7 @@ export default function TransporterForm({ currentTransporter }) {
           }}
         />
         <Field.Switch name="gstEnabled" label="GST Enabled" />
-
-        {values.gstEnabled && (
-          <Field.Text
-            name="gstNo"
-            label="GST No"
-            placeholder="22ABCDE1234F1Z5"
-            InputProps={
-              integrationEnabled
-                ? {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                          onClick={async () => {
-                            const gstin = (values.gstNo || '').trim();
-                            if (!gstin || gstin.length !== 15) return;
-                            const resp = await lookupGst({ gstin });
-                            if (!resp) return;
-                            const { canonical } = resp || {};
-                            if (!canonical) return;
-                            const applied = applyGstLookupToTransporterForm({ canonical, setValue, values });
-                            setAppliedFields(applied);
-                          }}
-                          disabled={!values.gstNo || values.gstNo.length !== 15 || isLookingUpGst}
-                        >
-                          {isLookingUpGst ? 'Looking…' : 'Lookup'}
-                        </Button>
-                      </InputAdornment>
-                    ),
-                  }
-                : undefined
-            }
-            helperText={
-              integrationEnabled
-                ? appliedFields > 0
-                  ? `Prefilled ${appliedFields} field${appliedFields > 1 ? 's' : ''} from lookup`
-                  : 'Use Lookup to prefill details'
-                : undefined
-            }
-          />
-        )}
+        <Field.Text name="gstNo" label="GST No" placeholder="22ABCDE1234F1Z5" />
       </Stack>
     </Card>
   );
@@ -300,36 +288,94 @@ export default function TransporterForm({ currentTransporter }) {
     </Stack>
   );
 
-  const renderDialogues = () => (
-    <BankListDialog
-      title="Banks"
-      open={bankDialogue.value}
-      onClose={bankDialogue.onFalse}
-      selected={(selectedIfsc) => bankDetails?.ifsc === selectedIfsc}
-      onSelect={(bank) => {
-        setValue('bankDetails.branch', bank?.branch);
-        setValue('bankDetails.ifsc', bank?.ifsc);
-        setValue('bankDetails.place', bank?.place);
-        setValue('bankDetails.name', bank?.name);
-      }}
-      action={
-        <Button
-          size="small"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{ alignSelf: 'flex-end' }}
-          onClick={() => {
-            router.push(paths.dashboard.bank.new);
+  const renderDialogues = () => null; // Bank list dialog removed
+
+  // GST Quick Lookup banner (like customer form)
+  const renderGstLookup = integrationEnabled && !isEditMode ? (
+    <Card variant="outlined">
+      <CardHeader
+        sx={{ mb: 1 }}
+        title={
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+            <Label color="success" variant="soft">
+              Recommended
+            </Label>
+          </Stack>
+        }
+        subheader={
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+            Enter a GST number to automatically prefill transporter details and save time
+          </Typography>
+        }
+      />
+      <Divider />
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={1.5}
+        alignItems={{ sm: 'center' }}
+        sx={{ p: 3 }}
+      >
+        <TextField
+          fullWidth
+          label="GST Number"
+          placeholder="e.g., 27ABCDE1234F1Z5"
+          value={gstInput}
+          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+          onKeyDown={async (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+              const resp = await lookupGst({ gstin: gstInput.trim() });
+              if (!resp?.canonical) return;
+              const applied = applyGstLookupToTransporterForm({
+                canonical: resp.canonical,
+                setValue,
+                values,
+              });
+              setAppliedFields(applied);
+            }
           }}
+        />
+        <LoadingButton
+          variant="contained"
+          color="primary"
+          loading={isLookingUpGst}
+          disabled={!gstInput || gstInput.trim().length !== 15}
+          onClick={async () => {
+            const resp = await lookupGst({ gstin: gstInput.trim() });
+            if (!resp?.canonical) return;
+            const applied = applyGstLookupToTransporterForm({
+              canonical: resp.canonical,
+              setValue,
+              values,
+            });
+            setAppliedFields(applied);
+          }}
+          startIcon={<Iconify icon="mdi:magnify-scan" />}
         >
-          New
-        </Button>
-      }
-    />
-  );
+          Lookup & Prefill
+        </LoadingButton>
+      </Stack>
+
+      <Collapse in={appliedFields > 0}>
+        <Alert
+          severity="success"
+          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+          sx={{ mx: 3, mb: 3 }}
+          onClose={() => setAppliedFields(0)}
+        >
+          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+        </Alert>
+      </Collapse>
+    </Card>
+  ) : null;
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderGstLookup}
         {renderTransporterDetails()}
         {renderBankDetails()}
         {renderAdditionalDetails()}

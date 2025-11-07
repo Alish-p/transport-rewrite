@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Divider, MenuItem, CardHeader } from '@mui/material';
+import { Card, Stack, Button, Divider, MenuItem, CardHeader } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import COLORS from 'src/theme/core/colors.json';
@@ -14,6 +15,7 @@ import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
 import { STATES } from '../customer/config';
@@ -203,6 +205,7 @@ export default function TenantForm({ currentTenant }) {
   const materialOptions = useMaterialOptions();
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const vehicleExpenseTypes = useVehicleExpenseTypes();
+  const bankDialog = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
@@ -445,9 +448,46 @@ export default function TenantForm({ currentTenant }) {
       <CardHeader title="Bank & Legal" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="bankDetails.bankName" label="Bank Name" />
-        <Field.Text name="bankDetails.accountNumber" label="Account Number" />
-        <Field.Text name="bankDetails.ifscCode" label="IFSC" />
+        {(() => {
+          const bd = values?.bankDetails || {};
+          const summary = bd?.bankName
+            ? `${bd.bankName}${bd.accountNumber ? ` • A/C ${bd.accountNumber}` : ''}`
+            : 'Add bank details';
+          const hasError = Boolean(errors?.bankDetails);
+          return (
+            <>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={bankDialog.onTrue}
+                startIcon={<Iconify icon={bd?.bankName ? 'mdi:bank' : 'mdi:bank-outline'} />}
+                sx={{
+                  height: 56,
+                  justifyContent: 'flex-start',
+                  typography: 'body2',
+                  borderColor: hasError ? 'error.main' : 'text.disabled',
+                  color: hasError ? 'error.main' : 'text.primary',
+                }}
+              >
+                {summary}
+              </Button>
+
+              <BankDetailsWidget
+                variant="dialog"
+                title="Bank Details"
+                open={bankDialog.value}
+                onClose={bankDialog.onFalse}
+                compact={false}
+                fieldNames={{
+                  ifsc: 'bankDetails.ifscCode',
+                  name: 'bankDetails.bankName',
+                  accNo: 'bankDetails.accountNumber',
+                }}
+              />
+            </>
+          );
+        })()}
+
         <Field.Text name="legalInfo.panNumber" label="PAN Number" />
         <Field.Text name="legalInfo.gstNumber" label="GST Number" />
         <Field.Select name="legalInfo.registeredState" label="Registered State">
