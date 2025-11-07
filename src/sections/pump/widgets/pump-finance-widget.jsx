@@ -17,13 +17,13 @@ import { Iconify } from 'src/components/iconify';
 import { InfoItem } from './info-item';
 
 export function PumpFinanceWidget({ pump }) {
-  const { _id, bankAccount } = pump || {};
+  const { _id, bankDetails } = pump || {};
 
   const handleCopy = useCallback(() => {
-    const text = JSON.stringify({ bankAccount }, null, 2);
+    const text = JSON.stringify({ bankDetails }, null, 2);
     copyToClipboard(text);
     toast.success('Copied to clipboard');
-  }, [bankAccount]);
+  }, [bankDetails]);
 
   return (
     <Card sx={{ height: 1 }}>
@@ -50,11 +50,11 @@ export function PumpFinanceWidget({ pump }) {
         }}
       />
       <Stack spacing={1.5} sx={{ p: 3 }}>
-        <InfoItem label="Bank Name" value={bankAccount?.name} />
-        <InfoItem label="Branch" value={bankAccount?.branch} />
-        <InfoItem label="IFSC" value={bankAccount?.ifsc} />
-        <InfoItem label="Place" value={bankAccount?.place} />
-        <InfoItem label="Account No" value={bankAccount?.accNo} />
+        <InfoItem label="Bank Name" value={bankDetails?.name} />
+        <InfoItem label="Branch" value={bankDetails?.branch} />
+        <InfoItem label="IFSC" value={bankDetails?.ifsc} />
+        <InfoItem label="Place" value={bankDetails?.place} />
+        <InfoItem label="Account No" value={bankDetails?.accNo} />
       </Stack>
     </Card>
   );

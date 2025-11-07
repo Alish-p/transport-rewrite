@@ -212,9 +212,9 @@ export default function InvoicePdf({ invoice, tenant }) {
             ['Date', fDate(issueDate)],
             ['PAN NO', tenant?.legalInfo.panNumber],
             ['GSTIN NO', tenant?.legalInfo.gstNumber],
-            ['Bank Name', tenant?.bankDetails.bankName],
-            ['IFSC code', tenant?.bankDetails.ifscCode],
-            ['A/C No', tenant?.bankDetails.accountNumber],
+            ['Bank Name', tenant?.bankDetails?.name],
+            ['IFSC code', tenant?.bankDetails?.ifsc],
+            ['A/C No', tenant?.bankDetails?.accNo],
             ['Transporter Code', customerId?.transporterCode || '-'],
           ]}
         />

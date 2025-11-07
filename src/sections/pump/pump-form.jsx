@@ -33,7 +33,7 @@ export const NewPumpSchema = zod.object({
   }),
   address: zod.string().min(1, { message: 'Address is required' }),
   ownerName: zod.string().min(1, { message: 'Owner Name is required' }),
-  bankAccount: zod.object({
+  bankDetails: zod.object({
     name: zod.string().min(1, { message: 'Bank Name is required' }),
     branch: zod.string().min(1, { message: 'Branch is required' }),
     ifsc: zod.string().min(1, { message: 'IFSC is required' }),
@@ -62,12 +62,12 @@ export default function PumpForm({ currentPump }) {
       phone: currentPump?.phone || '',
       address: currentPump?.address || '',
       ownerName: currentPump?.ownerName || '',
-      bankAccount: {
-        name: currentPump?.bankAccount?.name || '',
-        ifsc: currentPump?.bankAccount?.ifsc || '',
-        place: currentPump?.bankAccount?.place || '',
-        branch: currentPump?.bankAccount?.branch || '',
-        accNo: currentPump?.bankAccount?.accNo || '',
+      bankDetails: {
+        name: currentPump?.bankDetails?.name || '',
+        ifsc: currentPump?.bankDetails?.ifsc || '',
+        place: currentPump?.bankDetails?.place || '',
+        branch: currentPump?.bankDetails?.branch || '',
+        accNo: currentPump?.bankDetails?.accNo || '',
       },
     }),
     [currentPump]
@@ -117,11 +117,11 @@ export default function PumpForm({ currentPump }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         {(() => {
-          const bd = values?.bankAccount || {};
+          const bd = values?.bankDetails || {};
           const summary = bd?.name
             ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
             : 'Add bank details';
-          const hasError = Boolean(errors?.bankAccount);
+          const hasError = Boolean(errors?.bankDetails);
           return (
             <>
               <Button
@@ -145,13 +145,12 @@ export default function PumpForm({ currentPump }) {
                 title="Bank Details"
                 open={bankDialog.value}
                 onClose={bankDialog.onFalse}
-                compact={false}
                 fieldNames={{
-                  ifsc: 'bankAccount.ifsc',
-                  name: 'bankAccount.name',
-                  branch: 'bankAccount.branch',
-                  place: 'bankAccount.place',
-                  accNo: 'bankAccount.accNo',
+                  ifsc: 'bankDetails.ifsc',
+                  name: 'bankDetails.name',
+                  branch: 'bankDetails.branch',
+                  place: 'bankDetails.place',
+                  accNo: 'bankDetails.accNo',
                 }}
               />
             </>
@@ -183,16 +182,16 @@ export default function PumpForm({ currentPump }) {
   );
 }
 
-// Strip empty strings in bankAccount to undefined
+// Strip empty strings in bankDetails to undefined
 function sanitizePumpBeforeSubmit(data) {
   const out = { ...data };
-  const ba = out?.bankAccount;
+  const ba = out?.bankDetails;
   if (ba && typeof ba === 'object') {
     const cleaned = { ...ba };
     ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
       if (cleaned[k] === '') cleaned[k] = undefined;
     });
-    out.bankAccount = cleaned;
+    out.bankDetails = cleaned;
   }
   return out;
 }

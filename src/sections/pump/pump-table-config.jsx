@@ -79,13 +79,13 @@ export const TABLE_COLUMNS = [
     label: 'Bank Name',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row.bankAccount?.name,
+    getter: (row) => row.bankDetails?.name,
   },
   {
     id: 'accountNo',
     label: 'Account No',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row.bankAccount?.accNo,
+    getter: (row) => row.bankDetails?.accNo,
   },
 ];

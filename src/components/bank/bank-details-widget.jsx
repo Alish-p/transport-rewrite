@@ -2,21 +2,9 @@ import axios from 'axios';
 import { useFormContext } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 
-import {
-  Box,
-  Stack,
-  Button,
-  Dialog,
-  Collapse,
-  Typography,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Stack, Button, Dialog, Typography, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
 
 import { Field } from 'src/components/hook-form';
-import { Iconify } from 'src/components/iconify';
 
 // A lightweight, reusable widget to capture bank details within any form.
 // Features:
@@ -35,9 +23,10 @@ import { Iconify } from 'src/components/iconify';
 //       ifsc: 'bankAccount.ifsc', name: 'bankAccount.name', branch: 'bankAccount.branch',
 //       place: 'bankAccount.place', accNo: 'bankAccount.accNo'
 //    }} />
-//  - Tenant form (no branch/place in schema):
+//  - Tenant form (unified schema):
 //    <BankDetailsWidget fieldNames={{
-//       ifsc: 'bankDetails.ifscCode', name: 'bankDetails.bankName', accNo: 'bankDetails.accountNumber'
+//       ifsc: 'bankDetails.ifsc', name: 'bankDetails.name', branch: 'bankDetails.branch',
+//       place: 'bankDetails.place', accNo: 'bankDetails.accNo'
 //    }} />
 
 const ifscClient = axios.create({
@@ -46,14 +35,7 @@ const ifscClient = axios.create({
   headers: {},
 });
 
-export function BankDetailsWidget({
-  title,
-  fieldNames,
-  compact = true,
-  variant = 'inline',
-  open,
-  onClose,
-}) {
+export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open, onClose }) {
   const requiredKeys = useMemo(() => ['ifsc', 'name'], []);
   if (!fieldNames || !requiredKeys.every((k) => fieldNames[k])) {
     // eslint-disable-next-line no-console
@@ -69,10 +51,7 @@ export function BankDetailsWidget({
   const accNoField = fieldNames?.accNo; // optional
 
   const ifscValue = watch(ifscField);
-  const nameValue = nameField ? watch(nameField) : '';
-  const branchValue = branchField ? watch(branchField) : '';
-  const placeValue = placeField ? watch(placeField) : '';
-  // Note: accNo is managed by Field.Text; no need to watch its value here
+  // Note: fields are controlled by React Hook Form; no need to watch other values here
 
   const [ifscLoading, setIfscLoading] = useState(false);
 
@@ -103,14 +82,6 @@ export function BankDetailsWidget({
       .finally(() => setIfscLoading(false));
   }, [ifscValue, ifscField, nameField, branchField, placeField, setValue, setError, clearErrors]);
 
-  const hasDetails = Boolean((nameValue || branchValue || placeValue)?.toString().trim());
-  const [expandDetails, setExpandDetails] = useState(() => (!compact ? true : hasDetails));
-
-  useEffect(() => {
-    // auto-show details when we got data via IFSC
-    if (compact && hasDetails && !expandDetails) setExpandDetails(true);
-  }, [compact, hasDetails, expandDetails]);
-
   const Content = (
     <Stack spacing={2} sx={{ pt: variant === 'dialog' ? 1 : 0 }}>
       {title ? <Typography variant="subtitle1">{title}</Typography> : null}
@@ -125,70 +96,19 @@ export function BankDetailsWidget({
         />
       )}
 
-      {/* Always show Account No if provided */}
-      {accNoField && (
-        <Field.Text name={accNoField} label="Account No" placeholder="Enter account number" />
-      )}
-
-      {/* Summary and controls */}
-      {compact && (nameField || branchField || placeField) ? (
-        <Stack spacing={1} direction={{ xs: 'column', sm: 'row' }} alignItems={{ sm: 'center' }}>
-          <Box sx={{ flex: 1 }}>
-            {hasDetails ? (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {nameValue || '—'}
-                {branchValue ? ` • ${branchValue}` : ''}
-                {placeValue ? ` • ${placeValue}` : ''}
-              </Typography>
-            ) : (
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                Use IFSC to auto-fill bank name, branch, and place, or enter manually.
-              </Typography>
-            )}
-          </Box>
-          <Stack direction="row" spacing={1}>
-            <Button
-              size="small"
-              variant="text"
-              color="primary"
-              onClick={() => setExpandDetails((v) => !v)}
-              startIcon={<Iconify icon={expandDetails ? 'eva:arrow-up-fill' : 'eva:edit-2-fill'} />}
-            >
-              {expandDetails ? 'Hide details' : hasDetails ? 'Edit details' : 'Enter manually'}
-            </Button>
-            {hasDetails || ifscValue ? (
-              <Button
-                size="small"
-                variant="text"
-                color="inherit"
-                onClick={() => {
-                  if (nameField) setValue(nameField, '');
-                  if (branchField) setValue(branchField, '');
-                  if (placeField) setValue(placeField, '');
-                }}
-                startIcon={<Iconify icon="eva:close-circle-outline" />}
-              >
-                Clear details
-              </Button>
-            ) : null}
-          </Stack>
-        </Stack>
-      ) : null}
-
       {/* Details grid (manual override) */}
-      <Collapse in={!compact || expandDetails} unmountOnExit>
-        <Box
-          display="grid"
-          rowGap={2}
-          columnGap={2}
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
-          sx={{ mt: 1 }}
-        >
-          {nameField && <Field.Text name={nameField} label="Bank Name" />}
-          {branchField && <Field.Text name={branchField} label="Branch" />}
-          {placeField && <Field.Text name={placeField} label="Place" />}
-        </Box>
-      </Collapse>
+      <Box
+        display="grid"
+        rowGap={2}
+        columnGap={2}
+        gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
+        sx={{ mt: 1 }}
+      >
+        {accNoField && <Field.Text name={accNoField} label="Account No" placeholder="Enter account number" />}
+        {nameField && <Field.Text name={nameField} label="Bank Name" />}
+        {branchField && <Field.Text name={branchField} label="Branch" />}
+        {placeField && <Field.Text name={placeField} label="Place" />}
+      </Box>
 
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
         Tip: IFSC lookup auto-fills details. You can still edit manually.
@@ -212,5 +132,3 @@ export function BankDetailsWidget({
 
   return Content;
 }
-
-

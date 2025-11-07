@@ -389,7 +389,6 @@ export default function CustomerNewForm({ currentCustomer }) {
                 title="Bank Details"
                 open={bankDialog.value}
                 onClose={bankDialog.onFalse}
-                compact={false}
                 fieldNames={{
                   ifsc: 'bankDetails.ifsc',
                   name: 'bankDetails.name',

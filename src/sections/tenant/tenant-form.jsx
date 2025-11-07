@@ -43,11 +43,15 @@ export const TenantSchema = zod
       gstNumber: schemaHelper.gstNumberOptional({}),
       registeredState: zod.string().optional(),
     }),
-    bankDetails: zod.object({
-      bankName: zod.string().optional(),
-      accountNumber: schemaHelper.accountNumber({}).optional(),
-      ifscCode: zod.string().optional(),
-    }),
+    bankDetails: zod
+      .object({
+        name: zod.string().optional(),
+        branch: zod.string().optional(),
+        ifsc: zod.string().optional(),
+        place: zod.string().optional(),
+        accNo: schemaHelper.accountNumber({}).optional(),
+      })
+      .optional(),
     config: zod
       .object({
         materialOptions: zod
@@ -230,9 +234,11 @@ export default function TenantForm({ currentTenant }) {
         registeredState: currentTenant?.legalInfo?.registeredState || '',
       },
       bankDetails: {
-        bankName: currentTenant?.bankDetails?.bankName || '',
-        accountNumber: currentTenant?.bankDetails?.accountNumber || '',
-        ifscCode: currentTenant?.bankDetails?.ifscCode || '',
+        name: currentTenant?.bankDetails?.name || '',
+        branch: currentTenant?.bankDetails?.branch || '',
+        ifsc: currentTenant?.bankDetails?.ifsc || '',
+        place: currentTenant?.bankDetails?.place || '',
+        accNo: currentTenant?.bankDetails?.accNo || '',
       },
       config: {
         materialOptions: currentTenant?.config?.materialOptions || materialOptions,
@@ -391,10 +397,10 @@ export default function TenantForm({ currentTenant }) {
       // Clean bankDetails: strip empty strings; drop object if all empty
       if (sanitized.bankDetails && typeof sanitized.bankDetails === 'object') {
         const bd = { ...sanitized.bankDetails };
-        ['bankName', 'accountNumber', 'ifscCode'].forEach((k) => {
+        ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
           if (bd[k] === '') bd[k] = undefined;
         });
-        const allEmpty = ['bankName', 'accountNumber', 'ifscCode'].every(
+        const allEmpty = ['name', 'branch', 'ifsc', 'place', 'accNo'].every(
           (k) => bd[k] === undefined || bd[k] === null
         );
         sanitized.bankDetails = allEmpty ? undefined : bd;
@@ -462,8 +468,8 @@ export default function TenantForm({ currentTenant }) {
       <Stack spacing={3} sx={{ p: 3 }}>
         {(() => {
           const bd = values?.bankDetails || {};
-          const summary = bd?.bankName
-            ? `${bd.bankName}${bd.accountNumber ? ` • A/C ${bd.accountNumber}` : ''}`
+          const summary = bd?.name
+            ? `${bd.name}${bd.branch ? ` • ${bd.branch}` : ''}${bd.place ? ` • ${bd.place}` : ''}${bd.accNo ? ` • A/C ${bd.accNo}` : ''}`
             : 'Add bank details';
           const hasError = Boolean(errors?.bankDetails);
           return (
@@ -472,7 +478,7 @@ export default function TenantForm({ currentTenant }) {
                 fullWidth
                 variant="outlined"
                 onClick={bankDialog.onTrue}
-                startIcon={<Iconify icon={bd?.bankName ? 'mdi:bank' : 'mdi:bank-outline'} />}
+                startIcon={<Iconify icon={bd?.name ? 'mdi:bank' : 'mdi:bank-outline'} />}
                 sx={{
                   height: 56,
                   justifyContent: 'flex-start',
@@ -489,11 +495,12 @@ export default function TenantForm({ currentTenant }) {
                 title="Bank Details"
                 open={bankDialog.value}
                 onClose={bankDialog.onFalse}
-                compact={false}
                 fieldNames={{
-                  ifsc: 'bankDetails.ifscCode',
-                  name: 'bankDetails.bankName',
-                  accNo: 'bankDetails.accountNumber',
+                  ifsc: 'bankDetails.ifsc',
+                  name: 'bankDetails.name',
+                  branch: 'bankDetails.branch',
+                  place: 'bankDetails.place',
+                  accNo: 'bankDetails.accNo',
                 }}
               />
             </>

@@ -234,7 +234,6 @@ export default function TransporterForm({ currentTransporter }) {
             title="Bank Details"
             open={bankDialog.value}
             onClose={bankDialog.onFalse}
-            compact={false}
             fieldNames={{
               ifsc: 'bankDetails.ifsc',
               name: 'bankDetails.name',

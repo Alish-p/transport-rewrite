@@ -29,7 +29,7 @@ export const CONFIG = {
     },
     bankDetails: {
       name: 'HDFC BANK LIMITED',
-      accountNumber: '22262320000058',
+      accNo: '22262320000058',
       ifsc: 'HDFC0002226',
     },
     panNo: 'AVEPS8011L',
