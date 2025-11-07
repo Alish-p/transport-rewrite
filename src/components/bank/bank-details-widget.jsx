@@ -84,7 +84,6 @@ export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open,
 
   const Content = (
     <Stack spacing={2} sx={{ pt: variant === 'dialog' ? 1 : 0 }}>
-      {title ? <Typography variant="subtitle1">{title}</Typography> : null}
 
       {/* IFSC input with auto-lookup */}
       {ifscField && (
@@ -123,7 +122,7 @@ export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open,
         <DialogContent dividers>{Content}</DialogContent>
         <DialogActions>
           <Button color="inherit" onClick={onClose}>
-            Close
+            Save
           </Button>
         </DialogActions>
       </Dialog>
