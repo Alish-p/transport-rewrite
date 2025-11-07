@@ -1,10 +1,5 @@
 export const PERMISSIONS = [
   {
-    subheader: 'Bank',
-    caption: 'Permissions related to managing bank details, transactions, and financial records.',
-    name: 'bank',
-  },
-  {
     subheader: 'Customer',
     caption:
       'Permissions for accessing, modifying, and managing customer profiles and interactions.',

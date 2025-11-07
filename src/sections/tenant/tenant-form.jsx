@@ -388,6 +388,18 @@ export default function TenantForm({ currentTenant }) {
         },
       };
 
+      // Clean bankDetails: strip empty strings; drop object if all empty
+      if (sanitized.bankDetails && typeof sanitized.bankDetails === 'object') {
+        const bd = { ...sanitized.bankDetails };
+        ['bankName', 'accountNumber', 'ifscCode'].forEach((k) => {
+          if (bd[k] === '') bd[k] = undefined;
+        });
+        const allEmpty = ['bankName', 'accountNumber', 'ifscCode'].every(
+          (k) => bd[k] === undefined || bd[k] === null
+        );
+        sanitized.bankDetails = allEmpty ? undefined : bd;
+      }
+
       await updateTenant(sanitized);
     } catch (error) {
       console.error(error);

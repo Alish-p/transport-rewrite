@@ -149,10 +149,11 @@ export default function TransporterForm({ currentTransporter }) {
 
   const onSubmit = async (data) => {
     try {
+      const sanitized = sanitizeTransporterBeforeSubmit(data);
       if (!currentTransporter) {
-        await createTransporter(data);
+        await createTransporter(sanitized);
       } else {
-        await updateTransporter({ id: currentTransporter._id, data });
+        await updateTransporter({ id: currentTransporter._id, data: sanitized });
       }
       reset();
       navigate(paths.dashboard.transporter.list);
@@ -423,4 +424,18 @@ function applyGstLookupToTransporterForm({ canonical, setValue, values }) {
   assignIfEmpty('pinNo', a.pincode);
 
   return applied;
+}
+
+// Strip empty strings in bankDetails to undefined
+function sanitizeTransporterBeforeSubmit(data) {
+  const out = { ...data };
+  const bd = out?.bankDetails;
+  if (bd && typeof bd === 'object') {
+    const cleaned = { ...bd };
+    ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
+      if (cleaned[k] === '') cleaned[k] = undefined;
+    });
+    out.bankDetails = cleaned;
+  }
+  return out;
 }

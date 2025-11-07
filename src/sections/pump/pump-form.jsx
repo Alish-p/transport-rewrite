@@ -85,10 +85,11 @@ export default function PumpForm({ currentPump }) {
 
   const onSubmit = async (data) => {
     try {
+      const sanitized = sanitizePumpBeforeSubmit(data);
       if (!currentPump) {
-        await createPump(data);
+        await createPump(sanitized);
       } else {
-        await updatePump({ id: currentPump._id, data });
+        await updatePump({ id: currentPump._id, data: sanitized });
       }
       reset();
       navigate(paths.dashboard.pump.list);
@@ -180,4 +181,18 @@ export default function PumpForm({ currentPump }) {
       {/* Bank selection dialog removed in favor of inline bank details widget */}
     </Form>
   );
+}
+
+// Strip empty strings in bankAccount to undefined
+function sanitizePumpBeforeSubmit(data) {
+  const out = { ...data };
+  const ba = out?.bankAccount;
+  if (ba && typeof ba === 'object') {
+    const cleaned = { ...ba };
+    ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
+      if (cleaned[k] === '') cleaned[k] = undefined;
+    });
+    out.bankAccount = cleaned;
+  }
+  return out;
 }

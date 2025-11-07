@@ -125,11 +125,12 @@ export default function DriverForm({ currentDriver }) {
 
   const onSubmit = async (data) => {
     try {
+      const sanitized = sanitizeDriverBeforeSubmit(data);
       if (!currentDriver) {
-        await createDriver(data);
+        await createDriver(sanitized);
       } else {
-        console.log({ dataInOnSubmit: data });
-        await updateDriver({ id: currentDriver._id, data });
+        console.log({ dataInOnSubmit: sanitized });
+        await updateDriver({ id: currentDriver._id, data: sanitized });
       }
       reset();
       navigate(paths.dashboard.driver.list);
@@ -346,4 +347,18 @@ export default function DriverForm({ currentDriver }) {
       {/* Bank selection dialog removed in favor of inline bank details widget */}
     </>
   );
+}
+
+// Strip empty strings in bankDetails to undefined
+function sanitizeDriverBeforeSubmit(data) {
+  const out = { ...data };
+  const bd = out?.bankDetails;
+  if (bd && typeof bd === 'object') {
+    const cleaned = { ...bd };
+    ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
+      if (cleaned[k] === '') cleaned[k] = undefined;
+    });
+    out.bankDetails = cleaned;
+  }
+  return out;
 }
