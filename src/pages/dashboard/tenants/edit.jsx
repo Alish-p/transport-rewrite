@@ -2,11 +2,11 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'react-router-dom';
 
 import { CONFIG } from 'src/config-global';
+import { useTenantById } from 'src/query/use-tenant-admin';
 
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { useTenantById } from 'src/query/use-tenant-admin';
 import TenantAdminEditView from 'src/sections/tenant-admin/tenant-admin-edit-view';
 
 const metadata = { title: `Edit Tenant | Dashboard - ${CONFIG.site.name}` };

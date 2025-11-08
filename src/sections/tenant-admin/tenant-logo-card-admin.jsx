@@ -6,7 +6,7 @@ import { Box, Card, Stack, Divider, CardHeader, Typography, CircularProgress } f
 
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
-import { getTenantLogoUploadUrlById, saveTenantLogoById } from 'src/query/use-tenant-admin';
+import { saveTenantLogoById, getTenantLogoUploadUrlById } from 'src/query/use-tenant-admin';
 
 import { UploadAvatar } from 'src/components/upload';
 

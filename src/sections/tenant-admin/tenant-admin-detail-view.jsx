@@ -1,43 +1,53 @@
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
+import Grid from '@mui/material/Unstable_Grid2';
+import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 
 import { paths } from 'src/routes/paths';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
+import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useTenantPayments , useCreateTenantUser } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
+import { SvgColor } from 'src/components/svg-color';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { HeroHeader } from 'src/components/hero-header-card';
-import { useTenantPayments } from 'src/query/use-tenant-admin';
-import { PaymentFormDialog } from './tenant-admin-payments';
 
-export default function TenantAdminDetailView({ tenant }) {
+import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget';
+
+import { PaymentFormDialog } from './tenant-admin-payments';
+import { TenantUserFormDialog } from './tenant-admin-users';
+import { TenantSubscriptionWidget } from './tenant-subscription-widget';
+
+export default function TenantAdminDetailView({ tenant, users, stats }) {
   const navigate = useNavigate();
   const { addPayment, updatePayment, deletePayment } = useTenantPayments();
+  const { createTenantUser } = useCreateTenantUser();
 
   const [localTenant, setLocalTenant] = useState(tenant);
+  const [localUsers, setLocalUsers] = useState(users || []);
   const [formOpen, setFormOpen] = useState(false);
   const [editPayment, setEditPayment] = useState(null);
   const [confirm, setConfirm] = useState({ open: false, payment: null });
+  const [userFormOpen, setUserFormOpen] = useState(false);
 
   const addr = localTenant?.address || {};
   const contact = localTenant?.contactDetails || {};
@@ -56,12 +66,28 @@ export default function TenantAdminDetailView({ tenant }) {
       : null,
   ].filter(Boolean);
 
+  const ICONS = useMemo(() => {
+    const icon = (name) => <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />;
+    return {
+      vehicle: icon('ic_vehicle'),
+      driver: icon('ic-user'),
+      customer: icon('ic_customer'),
+      transporter: icon('ic_transporter'),
+      subtrip: icon('ic_subtrip'),
+      invoice: icon('ic-invoice'),
+      users: icon('ic-user'),
+    };
+  }, []);
+
+  const counts = stats?.counts || {};
+  const totals = stats?.totals || {};
+
   return (
     <DashboardContent>
       <HeroHeader
         offsetTop={70}
         title={localTenant?.name || 'Tenant'}
-        status={localTenant?.subscription?.plan ? localTenant.subscription.plan : 'Active'}
+        status={localTenant?.subscription?.planName || stats?.subscription?.planName || 'Active'}
         icon="solar:buildings-2-bold"
         meta={meta}
         actions={[
@@ -75,8 +101,18 @@ export default function TenantAdminDetailView({ tenant }) {
 
       <Box sx={{ mt: 3 }}>
         <Grid container spacing={3}>
-          <Grid xs={12} md={4}>
-            <Card sx={{ p: 2.5 }}>
+          {/* Subscription Widget */}
+          <Grid xs={12} md={3}>
+            <TenantSubscriptionWidget
+              subscription={localTenant?.subscription || stats?.subscription}
+              sx={{ height: 380 }}
+            />
+          </Grid>
+
+
+
+          <Grid xs={12} md={3}>
+            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Basic Details
               </Typography>
@@ -88,8 +124,8 @@ export default function TenantAdminDetailView({ tenant }) {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={4}>
-            <Card sx={{ p: 2.5 }}>
+          <Grid xs={12} md={3}>
+            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Address & Contact
               </Typography>
@@ -104,8 +140,8 @@ export default function TenantAdminDetailView({ tenant }) {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={4}>
-            <Card sx={{ p: 2.5 }}>
+          <Grid xs={12} md={3}>
+            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Legal & Bank
               </Typography>
@@ -114,12 +150,30 @@ export default function TenantAdminDetailView({ tenant }) {
               <InfoRow label="GSTIN" value={legal?.gstNumber} />
               <InfoRow label="Registered State" value={legal?.registeredState} />
               <Divider sx={{ my: 1.5 }} />
-              <InfoRow label="Bank Name" value={bank?.name} />
-              <InfoRow label="Branch" value={bank?.branch} />
-              <InfoRow label="IFSC" value={bank?.ifsc} />
-              <InfoRow label="Place" value={bank?.place} />
-              <InfoRow label="Account No" value={bank?.accNo} />
+              <InfoRow label="Bank Name" value={bank?.bankName || bank?.name} />
+              <InfoRow label="IFSC" value={bank?.ifscCode || bank?.ifsc} />
+              <InfoRow label="Account No" value={bank?.accountNumber || bank?.accNo} />
             </Card>
+          </Grid>
+
+          {/* Totals (reuse DashboardTotalWidget) */}
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="Drivers" total={counts?.drivers ?? 0} color="primary" icon={ICONS.driver} />
+          </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="Customers" total={counts?.customers ?? 0} color="secondary" icon={ICONS.customer} />
+          </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="Jobs" total={counts?.subtrips ?? 0} color="success" icon={ICONS.subtrip} />
+          </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="Transporters" total={counts?.transporters ?? 0} color="warning" icon={ICONS.transporter} />
+          </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="TP" total={counts?.transporterPayments ?? 0} color="error" icon={ICONS.invoice} />
+          </Grid>
+          <Grid xs={6} sm={4} md={2}>
+            <DashboardTotalWidget title="Invoice Generated" total={totals?.invoiceGenerated ?? 0} color="error" icon={ICONS.invoice} />
           </Grid>
 
           <Grid xs={12} >
@@ -183,6 +237,55 @@ export default function TenantAdminDetailView({ tenant }) {
               </TableContainer>
             </Card>
           </Grid>
+
+          {/* Users List */}
+          <Grid xs={12}>
+            <Card sx={{ p: 2.5 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+                <Typography variant="h6">Users</Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<Iconify icon="mdi:account-plus" />}
+                  onClick={() => setUserFormOpen(true)}
+                >
+                  Add User
+                </Button>
+              </Stack>
+              <Divider sx={{ mb: 2 }} />
+              <TableContainer component={Paper}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>#</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Mobile</TableCell>
+                      <TableCell>Designation</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(localUsers || []).map((u, idx) => (
+                      <TableRow key={u._id || idx}>
+                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>{u.name}</TableCell>
+                        <TableCell>{u.email}</TableCell>
+                        <TableCell>{u.mobile}</TableCell>
+                        <TableCell>{u.designation || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                    {(!localUsers || localUsers.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={5} align="center">
+                          No users found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Card>
+          </Grid>
         </Grid>
       </Box>
 
@@ -200,6 +303,17 @@ export default function TenantAdminDetailView({ tenant }) {
             setLocalTenant(updated);
           }
           setFormOpen(false);
+        }}
+      />
+
+      {/* Create Tenant User Dialog */}
+      <TenantUserFormDialog
+        open={userFormOpen}
+        onClose={() => setUserFormOpen(false)}
+        onSubmit={async (values) => {
+          const created = await createTenantUser({ tenantId: localTenant._id, user: values });
+          if (created) setLocalUsers((prev) => [...(prev || []), created]);
+          setUserFormOpen(false);
         }}
       />
 

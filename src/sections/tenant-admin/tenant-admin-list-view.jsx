@@ -1,28 +1,27 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
+import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
-import TableContainer from '@mui/material/TableContainer';
 import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteTenant, usePaginatedTenants } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { TablePaginationCustom } from 'src/components/table';
-
-import { usePaginatedTenants, useDeleteTenant } from 'src/query/use-tenant-admin';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 export default function TenantAdminListView() {
   const navigate = useNavigate();

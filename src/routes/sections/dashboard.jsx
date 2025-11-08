@@ -6,8 +6,8 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { AuthGuard, PermissionBasedGuard, RoleBasedGuard } from 'src/auth/guard';
 import { useAuthContext } from 'src/auth/hooks';
+import { AuthGuard, RoleBasedGuard, PermissionBasedGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 

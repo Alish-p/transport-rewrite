@@ -54,6 +54,13 @@ const deletePayment = async ({ tenantId, paymentId }) => {
   return data; // returns updated tenant
 };
 
+// Users (Superuser creates user for a specific tenant)
+const createTenantUser = async ({ tenantId, user }) => {
+  // Do not include permissions; server grants full permissions for superuser-created accounts
+  const { data } = await axios.post(`${ENDPOINT}/${tenantId}/users`, user);
+  return data; // expected: created user
+};
+
 // -----------------------------
 // Hooks
 // -----------------------------
@@ -168,6 +175,18 @@ export function useTenantPayments() {
     isUpdatingPayment: update.isPending,
     isDeletingPayment: remove.isPending,
   };
+}
+
+export function useCreateTenantUser() {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: createTenantUser,
+    onSuccess: () => {
+      toast.success('User created');
+    },
+    onError: (error) => toast.error(error?.message || 'Failed to create user'),
+  });
+
+  return { createTenantUser: mutateAsync, creatingTenantUser: isPending };
 }
 
 // -----------------------------
