@@ -1,15 +1,17 @@
+import { toast } from 'sonner';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, CardHeader, Stack, Divider, Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Card, Stack, Divider, CardHeader, Typography, CircularProgress } from '@mui/material';
 
-import { toast } from 'sonner';
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
+
+import { saveTenantLogo, getTenantLogoUploadUrl } from 'src/query/use-tenant';
+
+import { UploadAvatar } from 'src/components/upload';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { getTenantLogoUrl } from 'src/utils/tenant-branding';
-import { getTenantLogoUploadUrl, saveTenantLogo } from 'src/query/use-tenant';
-import { UploadAvatar } from 'src/components/upload';
 
 const ACCEPTED_TYPES = [
     'image/png',
@@ -42,7 +44,8 @@ export default function TenantLogoCard({ tenant }) {
     const [isSaving, setSaving] = useState(false);
     const [localFile, setLocalFile] = useState(null);
 
-    const currentLogoUrl = getTenantLogoUrl(tenant);
+    const hasRealLogo = !!tenant?.logoUrl;
+    const currentLogoUrl = getTenantLogoUrl(tenant, { fallback: false });
 
     const doUpload = async (file) => {
         try {
@@ -117,7 +120,7 @@ export default function TenantLogoCard({ tenant }) {
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ width: 1 }}>
                     <Box sx={{ position: 'relative' }}>
                         <UploadAvatar
-                            value={localFile || currentLogoUrl || null}
+                            value={localFile || (hasRealLogo ? currentLogoUrl : null)}
                             onDrop={handleDrop}
                             disabled={isUploading || isSaving}
                             accept={{
@@ -126,6 +129,11 @@ export default function TenantLogoCard({ tenant }) {
                                 'image/webp': [],
                                 'image/svg+xml': [],
                             }}
+                            fallback={
+                                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                                    {(tenant?.name?.trim?.()?.[0] || '?').toUpperCase()}
+                                </Typography>
+                            }
                             sx={{ width: 124, height: 124 }}
                         />
 
@@ -148,7 +156,7 @@ export default function TenantLogoCard({ tenant }) {
                 </Stack>
 
                 <Stack direction="row" spacing={1}>
-                    {!!currentLogoUrl && (
+                    {hasRealLogo && (
                         <LoadingButton color="error" variant="soft" onClick={handleRemove} loading={isSaving}>
                             Remove
                         </LoadingButton>
