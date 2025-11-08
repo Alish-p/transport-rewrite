@@ -198,5 +198,12 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/transporterPayment/${id}/edit`,
       bulkCreate: `${ROOTS.DASHBOARD}/transporterPayment/bulk-create`,
     },
+    // Superuser: Tenants management
+    tenants: {
+      root: `${ROOTS.DASHBOARD}/tenants`,
+      new: `${ROOTS.DASHBOARD}/tenants/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/tenants/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/tenants/${id}/edit`,
+    },
   },
 };

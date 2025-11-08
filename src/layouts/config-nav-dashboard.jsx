@@ -263,4 +263,21 @@ export const navData = [
       },
     ],
   },
+
+  // Super Admin area (visible only to role 'super')
+  {
+    subheader: 'Super Admin',
+    items: [
+      {
+        title: 'Tenants',
+        path: paths.dashboard.tenants.root,
+        icon: ICONS.folder,
+        roles: ['super'],
+        children: [
+          { title: 'List', path: paths.dashboard.tenants.root },
+          { title: 'Create', path: paths.dashboard.tenants.new },
+        ],
+      },
+    ],
+  },
 ];

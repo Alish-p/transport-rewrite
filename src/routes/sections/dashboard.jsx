@@ -6,7 +6,8 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { AuthGuard, PermissionBasedGuard } from 'src/auth/guard';
+import { AuthGuard, PermissionBasedGuard, RoleBasedGuard } from 'src/auth/guard';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -121,6 +122,12 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const TenantSettingsPage = lazy(() => import('src/pages/dashboard/tenant'));
 const PaymentHistoryPage = lazy(() => import('src/pages/dashboard/payments'));
 
+// Superuser: Tenants management
+const TenantsListPage = lazy(() => import('src/pages/dashboard/tenants/list'));
+const TenantsCreatePage = lazy(() => import('src/pages/dashboard/tenants/new'));
+const TenantsEditPage = lazy(() => import('src/pages/dashboard/tenants/edit'));
+const TenantsDetailsPage = lazy(() => import('src/pages/dashboard/tenants/details'));
+
 // ----------------------------------------------------------------------
 
 const layoutContent = (
@@ -130,6 +137,15 @@ const layoutContent = (
     </Suspense>
   </DashboardLayout>
 );
+
+function SuperGuard({ children }) {
+  const { user } = useAuthContext();
+  return (
+    <RoleBasedGuard hasContent acceptRoles={['super']} currentRole={user?.role}>
+      {children}
+    </RoleBasedGuard>
+  );
+}
 
 export const dashboardRoutes = [
   {
@@ -782,6 +798,55 @@ export const dashboardRoutes = [
             <PaymentHistoryPage />
           </PermissionBasedGuard>
         ),
+      },
+
+      // -----------------------------
+      // Superuser: Tenants management
+      // -----------------------------
+      {
+        path: 'tenants',
+        children: [
+          {
+            index: true,
+            element: (
+              <SuperGuard>
+                <TenantsListPage />
+              </SuperGuard>
+            ),
+          },
+          {
+            path: 'list',
+            element: (
+              <SuperGuard>
+                <TenantsListPage />
+              </SuperGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <SuperGuard>
+                <TenantsCreatePage />
+              </SuperGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <SuperGuard>
+                <TenantsDetailsPage />
+              </SuperGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <SuperGuard>
+                <TenantsEditPage />
+              </SuperGuard>
+            ),
+          },
+        ],
       },
 
       { path: 'permission', element: <PermissionDeniedPage /> },
