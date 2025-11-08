@@ -103,7 +103,7 @@ export function DashboardLayout({ sx, children, data }) {
                 showSubscriptionExpired || announcementMessage ? (
                   <>
                     {showSubscriptionExpired && (
-                      <Alert severity="warning" sx={{ borderRadius: 0 }} icon={false}>
+                      <Alert severity="info" sx={{ borderRadius: 0 }} >
                         Your subscription has expired. Please renew to continue using Tranzit.
                       </Alert>
                     )}
