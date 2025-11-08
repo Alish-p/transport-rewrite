@@ -15,6 +15,7 @@ import TableContainer from '@mui/material/TableContainer';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -39,12 +40,7 @@ function RenderHeader({ loan }) {
       alignItems="center"
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
     >
-      <Box
-        component="img"
-        alt="logo"
-        src={`/logo/${tenant.slug}.png`}
-        sx={{ width: 60, height: 60, mb: 3 }}
-      />
+      <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60, mb: 3 }} />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
         <Label variant="soft" color={status === 'pending' ? 'warning' : 'success'}>
           {status}

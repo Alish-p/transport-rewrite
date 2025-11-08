@@ -4,6 +4,7 @@ import { Page, View, Text, Font, Image, Document, StyleSheet } from '@react-pdf/
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { pdfStyles } from './pdf-styles';
 
@@ -57,7 +58,7 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
     <View style={[styles.gridContainer, styles.border]}>
       <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
         <View style={[styles.col4]}>
-          <Image source={`/logo/${tenant.slug}.png`} style={{ width: 48, height: 48 }} />
+          <Image source={getTenantLogoUrl(tenant)} style={{ width: 48, height: 48 }} />
         </View>
 
         <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>

@@ -1,14 +1,16 @@
 /* eslint-disable react/prop-types */
 import { View, Text, Image } from '@react-pdf/renderer';
 
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
+
 import PDFStyles from './styles';
 
 export default function PDFHeader({ company, logoPath, logoSize = 55 }) {
-  const { name, tagline, address, slug } = company;
+  const { name, tagline, address } = company;
   const phone = company.contacts?.[0] || company.contactDetails?.phone || null;
   const email = company.email || company.contactDetails?.email || null;
   const website = company.website || company.contactDetails?.website || null;
-  const finalLogoPath = logoPath || `/logo/${slug}.png`;
+  const finalLogoPath = logoPath || getTenantLogoUrl(company);
 
   return (
     <View style={[PDFStyles.border, PDFStyles.p8, PDFStyles.mb8]}>
@@ -16,10 +18,7 @@ export default function PDFHeader({ company, logoPath, logoSize = 55 }) {
       <View style={[PDFStyles.gridContainer, PDFStyles.alignStart]}>
         {/* Logo Section */}
         <View style={[PDFStyles.col2, PDFStyles.alignCenter]}>
-          <Image
-            src={finalLogoPath}
-            style={{ width: logoSize, height: logoSize, objectFit: 'contain' }}
-          />
+          <Image src={finalLogoPath} style={{ width: logoSize, height: logoSize, objectFit: 'contain' }} />
         </View>
 
         {/* Company Info */}

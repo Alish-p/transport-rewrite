@@ -37,3 +37,23 @@ export function useUpdateTenant() {
 
   return mutate;
 }
+
+// -----------------------------
+// Branding: Tenant Logo API
+// -----------------------------
+
+// Get a presigned S3 upload URL for the tenant logo
+// params: { contentType: string, extension: string }
+export const getTenantLogoUploadUrl = async ({ contentType, extension }) => {
+  const { data } = await axios.get(`${ENDPOINT}/branding/logo/upload-url`, {
+    params: { contentType, extension },
+  });
+  return data; // { key, uploadUrl }
+};
+
+// Save tenant logo by file key, or remove by passing null
+// body: { fileKey: string | null }
+export const saveTenantLogo = async ({ fileKey }) => {
+  const { data } = await axios.put(`${ENDPOINT}/branding/logo`, { fileKey });
+  return data; // updated tenant
+};

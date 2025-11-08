@@ -29,6 +29,7 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useCreateInvoice } from 'src/query/use-invoice';
@@ -222,12 +223,7 @@ export default function SimplerNewInvoiceForm() {
           gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
           sx={{ mb: 3 }}
         >
-          <Box
-            component="img"
-            alt="logo"
-            src={`/logo/${tenant.slug}.png`}
-            sx={{ width: 60, height: 60 }}
-          />
+          <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60 }} />
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
             <Label variant="soft" color="warning">
               Draft

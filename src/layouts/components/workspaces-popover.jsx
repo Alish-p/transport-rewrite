@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 
+import { getTenantLogoUrl } from 'src/utils/tenant-branding';
+
 import { Label } from 'src/components/label';
 
 import { useTenantContext } from 'src/auth/tenant';
@@ -27,12 +29,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
       }}
       {...other}
     >
-      <Box
-        component="img"
-        alt={workspace?.name}
-        src={`/logo/${tenant.slug}.png`}
-        sx={{ width: 36, height: 36, borderRadius: '50%' }}
-      />
+      <Box component="img" alt={workspace?.name} src={getTenantLogoUrl(tenant)} sx={{ width: 36, height: 36, borderRadius: '50%' }} />
 
       <Box
         component="span"

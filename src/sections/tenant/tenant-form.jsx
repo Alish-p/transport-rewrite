@@ -19,6 +19,7 @@ import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
 import { STATES } from '../customer/config';
+import TenantLogoCard from './tenant-logo-card';
 import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense/expense-config';
 
 export const TenantSchema = zod
@@ -546,6 +547,10 @@ export default function TenantForm({ currentTenant }) {
     </Card>
   );
 
+  const renderBranding = () => (
+    <TenantLogoCard tenant={currentTenant} />
+  );
+
   const renderIntegrations = () => (
     <Card>
       <CardHeader title="Integrations" sx={{ mb: 3 }} />
@@ -781,6 +786,7 @@ export default function TenantForm({ currentTenant }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderBasic()}
+        {renderBranding()}
         {renderAddress()}
         {renderTheme()}
         {renderBank()}
