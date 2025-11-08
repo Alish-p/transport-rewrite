@@ -7,7 +7,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantAdminForm from './tenant-admin-form';
-import { TenantAdminPayments } from './tenant-admin-payments';
 
 export default function TenantAdminEditView({ tenant, onUpdated }) {
   return (
@@ -18,14 +17,7 @@ export default function TenantAdminEditView({ tenant, onUpdated }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <Grid container spacing={3}>
-        <Grid xs={12} md={6}>
-          <TenantAdminForm currentTenant={tenant} onSaved={onUpdated} />
-        </Grid>
-        <Grid xs={12} md={6}>
-          <TenantAdminPayments tenant={tenant} onTenantUpdated={onUpdated} />
-        </Grid>
-      </Grid>
+      <TenantAdminForm currentTenant={tenant} onSaved={onUpdated} />
     </DashboardContent>
   );
 }

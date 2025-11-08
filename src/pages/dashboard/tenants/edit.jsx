@@ -13,7 +13,8 @@ const metadata = { title: `Edit Tenant | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id } = useParams();
-  const { data: tenant, isLoading, isError, refetch } = useTenantById(id);
+  const { data, isLoading, isError, refetch } = useTenantById(id);
+  const tenant = data?.tenant;
 
   if (isLoading) return <LoadingScreen />;
   if (isError || !tenant) return <EmptyContent />;
@@ -27,4 +28,3 @@ export default function Page() {
     </>
   );
 }
-

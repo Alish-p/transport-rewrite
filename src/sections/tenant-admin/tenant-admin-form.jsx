@@ -1,10 +1,10 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Button, Divider, MenuItem, CardHeader } from '@mui/material';
+import { Card, Stack, Button, Divider, MenuItem, CardHeader, TextField, Collapse, Alert, Typography } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -16,6 +16,7 @@ import {
 } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
+import { Label } from 'src/components/label';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
@@ -23,6 +24,8 @@ import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 import { STATES } from 'src/sections/customer/config';
 
 import TenantLogoCardAdmin from './tenant-logo-card-admin';
+import { useTenant } from 'src/query/use-tenant';
+import { useCustomerGstLookup } from 'src/query/use-customer';
 
 export const TenantAdminSchema = zod
   .object({
@@ -91,6 +94,11 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
   const isEditing = Boolean(currentTenant?._id);
   const { createTenant, creatingTenant } = useCreateTenant();
   const { updateTenantById, updatingTenant } = useUpdateTenantById();
+  const { data: myTenant } = useTenant();
+  const integrationEnabled = !!myTenant?.integrations?.gstApi?.enabled;
+  const { lookupGst, isLookingUpGst } = useCustomerGstLookup();
+  const [appliedFields, setAppliedFields] = useState(0);
+  const [gstInput, setGstInput] = useState('');
 
   const defaultValues = useMemo(
     () => ({
@@ -115,11 +123,11 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
         registeredState: currentTenant?.legalInfo?.registeredState || '',
       },
       bankDetails: {
-        name: currentTenant?.bankDetails?.name || '',
+        name: currentTenant?.bankDetails?.name || currentTenant?.bankDetails?.bankName || '',
         branch: currentTenant?.bankDetails?.branch || '',
-        ifsc: currentTenant?.bankDetails?.ifsc || '',
+        ifsc: currentTenant?.bankDetails?.ifsc || currentTenant?.bankDetails?.ifscCode || '',
         place: currentTenant?.bankDetails?.place || '',
-        accNo: currentTenant?.bankDetails?.accNo || '',
+        accNo: currentTenant?.bankDetails?.accNo || currentTenant?.bankDetails?.accountNumber || '',
       },
       integrations: {
         whatsapp: { enabled: currentTenant?.integrations?.whatsapp?.enabled || false },
@@ -203,24 +211,24 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       })(),
       integrations: data.integrations
         ? {
-            whatsapp: data.integrations?.whatsapp?.enabled ? { enabled: true } : { enabled: false },
-            ewayBill: data.integrations?.ewayBill?.enabled ? { enabled: true } : { enabled: false },
-            vehicleApi: data.integrations?.vehicleApi?.enabled ? { enabled: true } : { enabled: false },
-            challanApi: data.integrations?.challanApi?.enabled ? { enabled: true } : { enabled: false },
-            gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
-            vehicleGPS: data.integrations?.vehicleGPS
-              ? {
-                  enabled: !!data.integrations.vehicleGPS.enabled,
-                  provider: data.integrations.vehicleGPS.provider || null,
-                }
-              : undefined,
-            accounting: data.integrations?.accounting
-              ? {
-                  enabled: !!data.integrations.accounting.enabled,
-                  provider: data.integrations.accounting.provider || null,
-                }
-              : undefined,
-          }
+          whatsapp: data.integrations?.whatsapp?.enabled ? { enabled: true } : { enabled: false },
+          ewayBill: data.integrations?.ewayBill?.enabled ? { enabled: true } : { enabled: false },
+          vehicleApi: data.integrations?.vehicleApi?.enabled ? { enabled: true } : { enabled: false },
+          challanApi: data.integrations?.challanApi?.enabled ? { enabled: true } : { enabled: false },
+          gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
+          vehicleGPS: data.integrations?.vehicleGPS
+            ? {
+              enabled: !!data.integrations.vehicleGPS.enabled,
+              provider: data.integrations.vehicleGPS.provider || null,
+            }
+            : undefined,
+          accounting: data.integrations?.accounting
+            ? {
+              enabled: !!data.integrations.accounting.enabled,
+              provider: data.integrations.accounting.provider || null,
+            }
+            : undefined,
+        }
         : undefined,
     };
 
@@ -240,9 +248,77 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
 
   const pending = isSubmitting || creatingTenant || updatingTenant;
 
+  // GST Quick Lookup banner (like customer form)
+  const renderGstLookup = integrationEnabled && !isEditing ? (
+    <Card variant="outlined">
+      <CardHeader
+        sx={{ mb: 1 }}
+        title={
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+            <Label color="success" variant="soft">Recommended</Label>
+          </Stack>
+        }
+        subheader={
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+            Enter a GST number to automatically prefill tenant details and save time
+          </Typography>
+        }
+      />
+      <Divider />
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ p: 3 }}>
+        <TextField
+          fullWidth
+          label="GST Number"
+          placeholder="e.g., 27ABCDE1234F1Z5"
+          value={gstInput}
+          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+          onKeyDown={async (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+              const resp = await lookupGst({ gstin: gstInput.trim() });
+              if (!resp?.canonical) return;
+              const applied = applyGstLookupToTenantAdminForm({ canonical: resp.canonical, setValue, values });
+              setAppliedFields(applied);
+            }
+          }}
+        />
+        <LoadingButton
+          variant="contained"
+          color="primary"
+          loading={isLookingUpGst}
+          disabled={!gstInput || gstInput.trim().length !== 15}
+          onClick={async () => {
+            const resp = await lookupGst({ gstin: gstInput.trim() });
+            if (!resp?.canonical) return;
+            const applied = applyGstLookupToTenantAdminForm({ canonical: resp.canonical, setValue, values });
+            setAppliedFields(applied);
+          }}
+          startIcon={<Iconify icon="mdi:magnify-scan" />}
+        >
+          Lookup & Prefill
+        </LoadingButton>
+      </Stack>
+
+      <Collapse in={appliedFields > 0}>
+        <Alert
+          severity="success"
+          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+          sx={{ mx: 3, mb: 3 }}
+          onClose={() => setAppliedFields(0)}
+        >
+          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+        </Alert>
+      </Collapse>
+    </Card>
+  ) : null;
+
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+        {renderGstLookup}
         {/* Branding */}
         {currentTenant?._id && (
           <TenantLogoCardAdmin tenant={currentTenant} onUpdated={onSaved} />
@@ -250,7 +326,7 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
 
         {/* Basic details */}
         <Card>
-          <CardHeader title={currentTenant?._id ? 'Edit Tenant' : 'Create Tenant'} sx={{ mb: 3 }} />
+          <CardHeader title='Basic Details' sx={{ mb: 3 }} />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Text name="name" label="Company name" />
@@ -299,43 +375,140 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
           </Stack>
         </Card>
 
-        {/* Integrations (switches) */}
+        {/* Integrations (styled like tenant form) */}
         <Card>
           <CardHeader title="Integrations" sx={{ mb: 3 }} />
           <Divider />
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Field.Switch name="integrations.whatsapp.enabled" label="WhatsApp" />
-            <Field.Switch name="integrations.ewayBill.enabled" label="E-way Bill" />
-            <Field.Switch name="integrations.vehicleApi.enabled" label="Vehicle API" />
-            <Field.Switch name="integrations.challanApi.enabled" label="Challan API" />
-            <Field.Switch name="integrations.gstApi.enabled" label="GST API" />
-            <Divider flexItem sx={{ my: 1.5 }} />
-            <Field.Switch name="integrations.vehicleGPS.enabled" label="Vehicle GPS" />
-            <Field.Select
-              name="integrations.vehicleGPS.provider"
-              label="GPS Provider"
-              disabled={!methods.watch('integrations.vehicleGPS.enabled')}
-              select
-            >
-              <MenuItem value="">Select</MenuItem>
-              <MenuItem value="Fleetx">Fleetx</MenuItem>
-              <MenuItem value="LocoNav">LocoNav</MenuItem>
-              <MenuItem value="BlackBuck">BlackBuck</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Field.Select>
-            <Divider flexItem sx={{ my: 1.5 }} />
-            <Field.Switch name="integrations.accounting.enabled" label="Accounting" />
-            <Field.Select
-              name="integrations.accounting.provider"
-              label="Accounting Provider"
-              disabled={!methods.watch('integrations.accounting.enabled')}
-              select
-            >
-              <MenuItem value="">Select</MenuItem>
-              <MenuItem value="Tally">Tally</MenuItem>
-              <MenuItem value="Mark">Mark</MenuItem>
-              <MenuItem value="Zoho">Zoho</MenuItem>
-            </Field.Select>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.whatsapp.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="prime:whatsapp" />
+                    WhatsApp
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.ewayBill.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:file-document-outline" />
+                    eWay Bill
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.vehicleApi.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:car-search-outline" />
+                    Vehicle API
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.challanApi.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:police-badge" />
+                    Traffic eChallan
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.gstApi.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:account-search-outline" />
+                    GST API
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.vehicleGPS.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:location-radius-outline" />
+                    Vehicle GPS
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+              {values.integrations?.vehicleGPS?.enabled && (
+                <Field.Select name="integrations.vehicleGPS.provider" label="Provider">
+                  <MenuItem value="">None</MenuItem>
+                  <MenuItem value="Fleetx">Fleetx</MenuItem>
+                  <MenuItem value="LocoNav">LocoNav</MenuItem>
+                  <MenuItem value="BlackBuck">BlackBuck</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Field.Select>
+              )}
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.accounting.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mdi:calculator-variant" />
+                    Accounting
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+              {values.integrations?.accounting?.enabled && (
+                <Field.Select name="integrations.accounting.provider" label="Provider">
+                  <MenuItem value="">None</MenuItem>
+                  <MenuItem value="Tally">
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Iconify icon="mdi:alpha-t-circle-outline" width={20} />
+                      Tally
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value="Mark">
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Iconify icon="mdi:alpha-m-circle-outline" width={20} />
+                      Mark
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value="Zoho">
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Iconify icon="simple-icons:zoho" width={20} />
+                      Zoho
+                    </Stack>
+                  </MenuItem>
+                </Field.Select>
+              )}
+            </Stack>
           </Stack>
         </Card>
 
@@ -407,4 +580,42 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       </Stack>
     </Form>
   );
+}
+
+// Prefill helper from GST lookup (canonical) for Tenant Admin form
+function applyGstLookupToTenantAdminForm({ canonical, setValue, values }) {
+  if (!canonical || typeof canonical !== 'object') return 0;
+  let applied = 0;
+  const assignIfEmpty = (name, value) => {
+    const current = values[name];
+    const isEmpty = current === '' || current === 0 || current === undefined || current === null;
+    if (isEmpty && value !== undefined && value !== null && value !== '') {
+      setValue(name, value, { shouldValidate: true });
+      applied += 1;
+    }
+  };
+
+  // Prefer tradeName else legalName
+  const name = canonical.tradeName || canonical.legalName || '';
+  assignIfEmpty('name', name);
+  assignIfEmpty('legalInfo.gstNumber', canonical.gstin);
+
+  // PAN: derive from canonical.pan or fallback to GSTIN substring
+  const panFromGst = (gst) => (gst && gst.length >= 12 ? gst.substring(2, 12) : '');
+  const pan = canonical.pan || panFromGst(canonical.gstin || values?.legalInfo?.gstNumber);
+  assignIfEmpty('legalInfo.panNumber', pan);
+
+  // Address & location
+  const a = canonical.address || {};
+  const addrLine = [a.buildingNumber, a.line1, a.streetName, a.location]
+    .filter(Boolean)
+    .join(', ');
+  assignIfEmpty('address.line1', addrLine);
+  assignIfEmpty('address.city', a.city || a.district);
+  assignIfEmpty('address.state', a.state);
+  assignIfEmpty('address.pincode', a.pincode);
+  // Also set legal registered state if empty
+  assignIfEmpty('legalInfo.registeredState', a.state);
+
+  return applied;
 }

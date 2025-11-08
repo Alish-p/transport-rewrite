@@ -5,12 +5,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
-import TableHead from '@mui/material/TableHead';
-import TableCell from '@mui/material/TableCell';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -19,9 +15,13 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteTenant, usePaginatedTenants } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { TablePaginationCustom } from 'src/components/table';
+import { TablePaginationCustom, TableNoData, TableHeadCustom, TableSkeleton } from 'src/components/table';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
+import { TENANT_TABLE_HEADERS } from './tenant-admin-table-config';
+import TenantAdminTableRow from './tenant-admin-table-row';
 
 export default function TenantAdminListView() {
   const navigate = useNavigate();
@@ -82,53 +82,27 @@ export default function TenantAdminListView() {
           />
         </Stack>
 
-        <TableContainer>
-          <Table size="medium" sx={{ minWidth: 800 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Slug</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tenants.map((t) => (
-                <TableRow key={t._id} hover>
-                  <TableCell
-                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-                    onClick={() => navigate(paths.dashboard.tenants.details(t._id))}
-                  >
-                    {t.name}
-                  </TableCell>
-                  <TableCell>{t.slug}</TableCell>
-                  <TableCell>{t?.address?.city || '-'}</TableCell>
-                  <TableCell>{t?.contactDetails?.phone || '-'}</TableCell>
-                  <TableCell>{t?.contactDetails?.email || '-'}</TableCell>
-                  <TableCell align="right">
-                    <IconButton color="default" onClick={() => navigate(paths.dashboard.tenants.details(t._id))}>
-                      <Iconify icon="solar:eye-bold" />
-                    </IconButton>
-                    <IconButton color="primary" onClick={() => navigate(paths.dashboard.tenants.edit(t._id))}>
-                      <Iconify icon="solar:pen-bold" />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(t._id)}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!isLoading && tenants.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No tenants found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <Scrollbar>
+            <Table size="small" sx={{ minWidth: 800 }}>
+              <TableHeadCustom headLabel={TENANT_TABLE_HEADERS} />
+
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: rowsPerPage }).map((_, idx) => <TableSkeleton key={idx} />)
+                  : tenants.map((t) => (
+                      <TenantAdminTableRow
+                        key={t._id}
+                        row={t}
+                        onViewRow={() => navigate(paths.dashboard.tenants.details(t._id))}
+                        onEditRow={() => navigate(paths.dashboard.tenants.edit(t._id))}
+                        onDeleteRow={() => handleDelete(t._id)}
+                      />
+                    ))}
+                <TableNoData notFound={!isLoading && tenants.length === 0} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
         </TableContainer>
 
         <TablePaginationCustom
