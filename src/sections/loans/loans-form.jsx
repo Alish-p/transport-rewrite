@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -23,14 +23,16 @@ import {
 import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
-
-import { useDrivers } from 'src/query/use-driver';
-import { useTransporters } from 'src/query/use-transporter';
 import { useCreateLoan, useUpdateLoan } from 'src/query/use-loan';
 
 // components
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { BORROWER_TYPES } from './loans-config';
 
@@ -81,19 +83,52 @@ export default function LoanForm({ currentLoan }) {
 
   const {
     watch,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const { borrowerType, interestRate, principalAmount, tenureMonths } = watch();
 
-  const { data: drivers } = useDrivers({
-    enabled: borrowerType === 'Driver',
-  });
+  // Dialog controls
+  const driverDialog = useBoolean(false);
+  const transporterDialog = useBoolean(false);
 
-  const { data: transporters } = useTransporters({
-    enabled: borrowerType === 'Transporter',
-  });
+  // Local selection state for label display and dialog preselection
+  const [selectedDriver, setSelectedDriver] = useState(
+    currentLoan?.borrowerType === 'Driver' ? currentLoan?.borrowerId || null : null
+  );
+  const [selectedTransporter, setSelectedTransporter] = useState(
+    currentLoan?.borrowerType === 'Transporter' ? currentLoan?.borrowerId || null : null
+  );
+
+  // Clear borrower when borrowerType changes (skip first render)
+  const firstTypeRun = useRef(true);
+  useEffect(() => {
+    if (firstTypeRun.current) {
+      firstTypeRun.current = false;
+      return;
+    }
+    setValue('borrowerId', '');
+    if (borrowerType === 'Driver') {
+      setSelectedTransporter(null);
+    } else if (borrowerType === 'Transporter') {
+      setSelectedDriver(null);
+    } else {
+      setSelectedDriver(null);
+      setSelectedTransporter(null);
+    }
+  }, [borrowerType, setValue]);
+
+  const handleDriverChange = (driver) => {
+    setSelectedDriver(driver);
+    setValue('borrowerId', driver._id, { shouldValidate: true });
+  };
+
+  const handleTransporterChange = (transporter) => {
+    setSelectedTransporter(transporter);
+    setValue('borrowerId', transporter._id, { shouldValidate: true });
+  };
 
   // Handle form submission (create or update)
   const onSubmit = async (data) => {
@@ -138,22 +173,34 @@ export default function LoanForm({ currentLoan }) {
             ))}
           </Field.Select>
 
-          <Field.Select name="borrowerId" label="Borrower">
-            <MenuItem value="">None</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {borrowerType === 'Driver' &&
-              drivers?.map((driver) => (
-                <MenuItem key={driver._id} value={driver._id}>
-                  {driver.driverName}
-                </MenuItem>
-              ))}
-            {borrowerType === 'Transporter' &&
-              transporters?.map((transporter) => (
-                <MenuItem key={transporter._id} value={transporter._id}>
-                  {transporter.transportName}
-                </MenuItem>
-              ))}
-          </Field.Select>
+          <Box>
+            <DialogSelectButton
+              onClick={
+                borrowerType === 'Driver'
+                  ? driverDialog.onTrue
+                  : borrowerType === 'Transporter'
+                    ? transporterDialog.onTrue
+                    : () => {}
+              }
+              disabled={!borrowerType}
+              placeholder={
+                !borrowerType
+                  ? 'Select Borrower Type first'
+                  : borrowerType === 'Driver'
+                    ? 'Select Driver'
+                    : 'Select Transporter'
+              }
+              selected={
+                borrowerType === 'Driver'
+                  ? selectedDriver?.driverName
+                  : borrowerType === 'Transporter'
+                    ? selectedTransporter?.transportName
+                    : undefined
+              }
+              error={!!errors.borrowerId?.message}
+              iconName={borrowerType === 'Transporter' ? 'mdi:truck-delivery' : 'mdi:account'}
+            />
+          </Box>
 
           <Field.Text
             name="principalAmount"
@@ -232,6 +279,22 @@ export default function LoanForm({ currentLoan }) {
       {renderAlerts()}
       <Divider sx={{ my: 3 }} />
       {renderActions()}
+
+      {/* Selection dialogs */}
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleDriverChange}
+        allowQuickCreate
+      />
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        selectedTransporter={selectedTransporter}
+        onTransporterChange={handleTransporterChange}
+      />
     </Form>
   );
 }
