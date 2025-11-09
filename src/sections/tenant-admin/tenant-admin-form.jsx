@@ -1,22 +1,24 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Button, Divider, MenuItem, CardHeader, TextField, Collapse, Alert, Typography } from '@mui/material';
+import { Card, Stack, Alert, Button, Divider, MenuItem, Collapse, TextField, CardHeader, Typography } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import COLORS from 'src/theme/core/colors.json';
+import { useTenant } from 'src/query/use-tenant';
+import { useCustomerGstLookup } from 'src/query/use-customer';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
 import {
   useCreateTenant,
   useUpdateTenantById,
 } from 'src/query/use-tenant-admin';
 
-import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
@@ -24,8 +26,6 @@ import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 import { STATES } from 'src/sections/customer/config';
 
 import TenantLogoCardAdmin from './tenant-logo-card-admin';
-import { useTenant } from 'src/query/use-tenant';
-import { useCustomerGstLookup } from 'src/query/use-customer';
 
 export const TenantAdminSchema = zod
   .object({
