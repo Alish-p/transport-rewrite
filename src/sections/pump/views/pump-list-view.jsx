@@ -19,7 +19,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
@@ -32,7 +31,6 @@ import { useDeletePump, usePaginatedPumps } from 'src/query/use-pump';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -64,7 +62,6 @@ export function PumpListView() {
   const tenant = useTenantContext();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
-  const confirm = useBoolean();
 
   const deletePump = useDeletePump();
 
@@ -108,7 +105,7 @@ export function PumpListView() {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => {}, []);
+  const handleDeleteRows = useCallback(() => { }, []);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -126,8 +123,7 @@ export function PumpListView() {
   );
 
   return (
-    <>
-      <DashboardContent>
+    <DashboardContent>
         <CustomBreadcrumbs
           heading="Pumps List"
           links={[
@@ -251,11 +247,7 @@ export function PumpListView() {
                     </PDFDownloadLink>
                   </Tooltip>
 
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
+
                 </Stack>
               }
             />
@@ -279,22 +271,22 @@ export function PumpListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
-                        <PumpTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                          onDeleteRow={() => deletePump(row._id)}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
-                          columnOrder={columnOrder}
-                        />
-                      ))}
+                      <PumpTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deletePump(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -314,30 +306,5 @@ export function PumpListView() {
           />
         </Card>
       </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
   );
 }

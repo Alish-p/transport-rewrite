@@ -51,7 +51,7 @@ export function DashboardLayout({ sx, children, data }) {
   const showSubscriptionExpired = useMemo(() => {
     const validTill = tenant?.subscription?.validTill;
     if (!validTill) return false;
-    return dayjs().isAfter(dayjs(validTill).add(7, 'day'));
+    return dayjs().isAfter(dayjs(validTill).add(1, 'day'));
   }, [tenant?.subscription?.validTill]);
 
   const workspaces = [
