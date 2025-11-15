@@ -88,7 +88,6 @@ export function AppMonthlySummaryTabs() {
           value={selectedMonth}
           onChange={(value) => value && setSelectedMonth(value)}
           disableFuture
-          slotProps={{ textField: { size: 'small' } }}
         />
       </Box>
     </Box>

@@ -11,6 +11,8 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogContent from '@mui/material/DialogContent';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useDebounce } from 'src/hooks/use-debounce';
+
 import { useInfiniteTransporters } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
@@ -32,11 +34,24 @@ export function KanbanTransporterDialog({
 }) {
   const scrollRef = useRef(null);
   const [searchTransporter, setSearchTransporter] = useState('');
+  const debouncedSearch = useDebounce(searchTransporter, 300);
+
+  // Reset search every time the dialog opens
+  useEffect(() => {
+    if (open) {
+      setSearchTransporter('');
+    }
+  }, [open]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useInfiniteTransporters(
-      { search: searchTransporter || undefined, rowsPerPage: 50 },
-      { enabled: open }
+      { search: debouncedSearch || undefined, rowsPerPage: 50 },
+      {
+        enabled: open,
+        keepPreviousData: false,
+        staleTime: 0,
+        gcTime: 5 * 60 * 1000,
+      }
     );
 
   const transporters = data ? data.pages.flatMap((p) => p.transporters) : [];
@@ -61,7 +76,7 @@ export function KanbanTransporterDialog({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const notFound = !transporters.length && !!searchTransporter && !isLoading;
+  const notFound = !transporters.length && !!debouncedSearch && !isLoading;
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>

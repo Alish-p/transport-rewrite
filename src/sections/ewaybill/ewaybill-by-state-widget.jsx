@@ -98,6 +98,7 @@ export function EwaybillByStateWidget({
             <Select
               value={stateCode}
               onChange={(e) => setStateCode(e.target.value)}
+              size='large'
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 320, overflowY: 'auto' },

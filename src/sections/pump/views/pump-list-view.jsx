@@ -105,8 +105,6 @@ export function PumpListView() {
     navigate(paths.dashboard.pump.edit(paramCase(id)));
   };
 
-  const handleDeleteRows = useCallback(() => { }, []);
-
   const handleViewRow = useCallback(
     (id) => {
       router.push(paths.dashboard.pump.details(id));
@@ -124,187 +122,187 @@ export function PumpListView() {
 
   return (
     <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Pumps List"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Pumps',
-              href: paths.dashboard.pump.root,
-            },
-            {
-              name: 'Pumps List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.pump.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Pump
-            </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
+      <CustomBreadcrumbs
+        heading="Pumps List"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Pumps',
+            href: paths.dashboard.pump.root,
+          },
+          {
+            name: 'Pumps List',
+          },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.pump.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            New Pump
+          </Button>
+        }
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
+
+      {/* Table Section */}
+      <Card>
+        <PumpTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
-        {/* Table Section */}
-        <Card>
-          <PumpTableToolbar
+        {canReset && (
+          <PumpTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-            onToggleAllColumns={toggleAllColumnsVisibility}
-            onResetColumns={resetColumns}
-            canResetColumns={canResetColumns}
+            onResetFilters={handleResetFilters}
+            results={tableData.length}
+            sx={{ p: 2.5, pt: 0 }}
           />
+        )}
 
-          {canReset && (
-            <PumpTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={tableData.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                )
-              }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Download Excel">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        const visibleCols = (
-                          columnOrder && columnOrder.length
-                            ? columnOrder
-                            : Object.keys(visibleColumns)
-                        ).filter((id) => visibleColumns[id]);
-                        exportToExcel(
-                          prepareDataForExport(
-                            selectedRows,
-                            TABLE_COLUMNS,
-                            visibleCols,
-                            columnOrder
-                          ),
-                          'Pumps-selected'
-                        );
-                      }}
-                    >
-                      <Iconify icon="file-icons:microsoft-excel" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Download PDF">
-                    <PDFDownloadLink
-                      document={(() => {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        const visibleCols = (
-                          columnOrder && columnOrder.length
-                            ? columnOrder
-                            : Object.keys(visibleColumns)
-                        ).filter((id) => visibleColumns[id]);
-                        return (
-                          <PumpListPdf
-                            pumps={selectedRows}
-                            visibleColumns={visibleCols}
-                            tenant={tenant}
-                          />
-                        );
-                      })()}
-                      fileName="Pump-list.pdf"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      {({ loading }) => (
-                        <IconButton color="primary">
-                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                        </IconButton>
-                      )}
-                    </PDFDownloadLink>
-                  </Tooltip>
-
-
-                </Stack>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleHeaders}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onOrderChange={moveColumn}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
-                    : tableData.map((row) => (
-                      <PumpTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePump(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
             dense={table.dense}
-            onChangeDense={table.onChangeDense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              )
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = (
+                        columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns)
+                      ).filter((id) => visibleColumns[id]);
+                      exportToExcel(
+                        prepareDataForExport(
+                          selectedRows,
+                          TABLE_COLUMNS,
+                          visibleCols,
+                          columnOrder
+                        ),
+                        'Pumps-selected'
+                      );
+                    }}
+                  >
+                    <Iconify icon="file-icons:microsoft-excel" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Download PDF">
+                  <PDFDownloadLink
+                    document={(() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const visibleCols = (
+                        columnOrder && columnOrder.length
+                          ? columnOrder
+                          : Object.keys(visibleColumns)
+                      ).filter((id) => visibleColumns[id]);
+                      return (
+                        <PumpListPdf
+                          pumps={selectedRows}
+                          visibleColumns={visibleCols}
+                          tenant={tenant}
+                        />
+                      );
+                    })()}
+                    fileName="Pump-list.pdf"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {({ loading }) => (
+                      <IconButton color="primary">
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                      </IconButton>
+                    )}
+                  </PDFDownloadLink>
+                </Tooltip>
+
+
+              </Stack>
+            }
           />
-        </Card>
-      </DashboardContent>
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onOrderChange={moveColumn}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  )
+                }
+              />
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                    <TableSkeleton key={i} />
+                  ))
+                  : tableData.map((row) => (
+                    <PumpTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deletePump(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
+
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          //
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
