@@ -54,10 +54,10 @@ export function PumpDetailView({ pump }) {
             <PumpDieselPriceWidget pumpId={pump._id} />
           </Grid>
 
-          <Grid xs={12} lg={5}>
+          <Grid xs={12} >
             <PumpDieselPricesWidget pump={pump} />
           </Grid>
-          <Grid xs={12} lg={7}>
+          <Grid xs={12} >
             <PumpExpensesWidget pumpId={pump._id} />
           </Grid>
         </Grid>

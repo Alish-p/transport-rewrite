@@ -57,7 +57,7 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
       'No.': table.page * table.rowsPerPage + idx + 1,
       'Vehicle No': row.vehicleId?.vehicleNo || '-',
       'Expense Type': row.expenseType || '-',
-      'Diesel Rate': row.dieselPrice ?? '-',
+      'Fuel Rate': row.dieselPrice ?? '-',
       Date: row.date ? fDate(new Date(row.date)) : '-',
       Amount: typeof row.amount === 'number' ? row.amount : Number(row.amount) || 0,
     }));
@@ -100,7 +100,7 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses', ...other }
               { id: 'index', label: 'No.' },
               { id: 'vehicle', label: 'Vehicle No' },
               { id: 'type', label: 'Expense Type' },
-              { id: 'dieselRate', label: 'Diesel Rate' },
+              { id: 'dieselRate', label: 'Fuel Rate' },
               { id: 'date', label: 'Date' },
               { id: 'amount', label: 'Amount', align: 'right' },
             ]}

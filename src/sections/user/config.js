@@ -6,11 +6,6 @@ export const PERMISSIONS = [
     name: 'customer',
   },
   {
-    subheader: 'Diesel',
-    caption: 'Permissions to track, manage, and allocate diesel usage for vehicles and trips.',
-    name: 'diesel',
-  },
-  {
     subheader: 'Driver',
     caption:
       'Permissions for handling driver records, assignments, salaries, and trip allocations.',

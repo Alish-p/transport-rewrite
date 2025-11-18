@@ -13,7 +13,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useCreateExpense } from 'src/query/use-expense';
-import { useDieselPriceOnDate } from 'src/query/use-diesel-prices';
+import { useCurrentFuelPrice } from 'src/query/use-fuel-prices';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -87,7 +87,18 @@ function ExpenseCoreForm({ currentSubtrip }) {
     date,
   } = watch();
 
-  const { data: dieselPriceOnDate } = useDieselPriceOnDate({ pump: pumpCd, date });
+  const fuelType =
+    expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL
+      ? 'Diesel'
+      : expenseType === 'Petrol'
+        ? 'Petrol'
+        : null;
+
+  const { data: dieselPriceOnDate } = useCurrentFuelPrice({
+    pumpId: pumpCd,
+    fuelType,
+    date,
+  });
 
   const showPumpSelection = useMemo(
     () =>

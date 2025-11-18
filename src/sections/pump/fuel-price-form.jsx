@@ -6,18 +6,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Stack, InputAdornment } from '@mui/material';
+import { Box, Stack, MenuItem, InputAdornment } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useCreateDieselPrice, useUpdateDieselPrice } from '../../query/use-diesel-prices';
+import { useCreateFuelPrice, useUpdateFuelPrice } from '../../query/use-fuel-prices';
 
 // ----------------------------------------------------------------------
 
+const FUEL_TYPES = ['Diesel', 'Petrol', 'CNG'];
+
 export const DieselPriceSchema = zod
   .object({
+    fuelType: zod.enum(FUEL_TYPES, {
+      required_error: 'Fuel Type is required',
+    }),
     price: zod.number().min(0, { message: 'Price is required' }),
     startDate: schemaHelper.date({ message: { required_error: 'Start Date is required' } }),
     endDate: schemaHelper.date({ message: { required_error: 'End Date is required' } }),
@@ -30,16 +35,17 @@ export const DieselPriceSchema = zod
 // ----------------------------------------------------------------------
 
 export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess }) {
-  const createDieselPrice = useCreateDieselPrice();
-  const updateDieselPrice = useUpdateDieselPrice();
+  const createFuelPrice = useCreateFuelPrice();
+  const updateFuelPrice = useUpdateFuelPrice();
 
   const defaultValues = useMemo(
     () => ({
+      fuelType: currentDieselPrice?.fuelType || 'Diesel',
       price: currentDieselPrice?.price || 0,
-      startDate: currentDieselPrice?.startDate
-        ? new Date(currentDieselPrice.startDate)
+      startDate: currentDieselPrice?.fromDate
+        ? new Date(currentDieselPrice.fromDate)
         : new Date(),
-      endDate: currentDieselPrice?.endDate ? new Date(currentDieselPrice.endDate) : new Date(),
+      endDate: currentDieselPrice?.toDate ? new Date(currentDieselPrice.toDate) : new Date(),
     }),
     [currentDieselPrice]
   );
@@ -58,18 +64,25 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
 
   const onSubmit = async (data) => {
     const transformedData = {
-      ...data,
+      price: data.price,
       pump: pump?._id,
+      fuelType: data.fuelType,
+      fromDate: data.startDate,
+      toDate: data.endDate,
     };
 
     try {
       let newDieselPrice;
       if (!currentDieselPrice) {
-        newDieselPrice = await createDieselPrice(transformedData);
+        newDieselPrice = await createFuelPrice({
+          pumpId: pump?._id,
+          payload: transformedData,
+        });
       } else {
-        newDieselPrice = await updateDieselPrice({
-          id: currentDieselPrice._id,
-          data: transformedData,
+        newDieselPrice = await updateFuelPrice({
+          pumpId: pump?._id,
+          priceId: currentDieselPrice._id,
+          payload: transformedData,
         });
       }
 
@@ -85,6 +98,14 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3} sx={{ mt: 2 }}>
+        <Field.Select name="fuelType" label="Fuel Type">
+          {FUEL_TYPES.map((type) => (
+            <MenuItem key={type} value={type}>
+              {type}
+            </MenuItem>
+          ))}
+        </Field.Select>
+
         <Field.Text
           name="price"
           label="Price per Liter"
