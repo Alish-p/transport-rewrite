@@ -1,3 +1,4 @@
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -6,7 +7,9 @@ import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import IconButton from '@mui/material/IconButton';
 import ToggleButton from '@mui/material/ToggleButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
@@ -18,6 +21,9 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+
+import GenericListPdf from 'src/pdfs/generic-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { usePaginatedDocuments } from 'src/query/use-documents';
 
@@ -30,12 +36,15 @@ import {
   TableNoData,
   TableSkeleton,
   TableHeadCustom,
+  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
 import { DocumentDetailsDrawer } from 'src/sections/vehicle/documents/document-details-drawer';
 import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
 import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import DocumentsTableRow from '../documents-table-row';
 import { TABLE_COLUMNS } from '../config/table-columns';
@@ -59,6 +68,7 @@ const defaultFilters = {
 
 export function VehicleDocumentsListView() {
   const theme = useTheme();
+  const tenant = useTenantContext();
   const table = useTable({ syncToUrl: true });
   const [view, setView] = useState('list');
 
@@ -125,6 +135,13 @@ export function VehicleDocumentsListView() {
     setSelectedVehicle(null);
     handleFilters('vehicleId', '');
   }, [handleFilters]);
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
@@ -224,9 +241,90 @@ export function VehicleDocumentsListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={tableData.length}
+              onSelectAllRows={(checked) =>
+                table.onSelectAllRows(
+                  checked,
+                  tableData.map((row) => row._id)
+                )
+              }
+              action={
+                <Stack direction="row">
+                  <Tooltip title="Download Excel">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'Documents-selected-list'
+                        );
+                      }}
+                    >
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        return (
+                          <GenericListPdf
+                            title="Vehicle Documents"
+                            rows={selectedRows}
+                            columns={TABLE_COLUMNS}
+                            orientation="landscape"
+                            tenant={tenant}
+                            visibleColumns={visibleCols}
+                          />
+                        );
+                      })()}
+                      fileName="Vehicle-documents-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </Tooltip>
+                </Stack>
+              }
+            />
+
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom headLabel={visibleHeaders} onOrderChange={moveColumn} />
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={visibleHeaders}
+                  rowCount={tableData.length}
+                  numSelected={table.selected.length}
+                  onOrderChange={moveColumn}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      tableData.map((row) => row._id)
+                    )
+                  }
+                />
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
@@ -236,6 +334,8 @@ export function VehicleDocumentsListView() {
                         <DocumentsTableRow
                           key={row._id}
                           row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
                           onOpenDetails={(r) => setDetailsDoc(r)}
                           visibleColumns={visibleColumns}
                           disabledColumns={disabledColumns}

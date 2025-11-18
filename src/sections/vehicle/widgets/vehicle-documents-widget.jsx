@@ -46,18 +46,33 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
 
-  // Use the unified paginated documents API and filter locally
-  const { data: docsResp, isLoading } = usePaginatedDocuments({
+  // Fetch active and inactive documents separately so history includes isActive=false
+  const {
+    data: activeResp,
+    isLoading: isLoadingActive,
+  } = usePaginatedDocuments({
     page: 1,
     rowsPerPage: 1000,
     vehicleId,
+    isActive: true,
+  });
+  const {
+    data: historyResp,
+    isLoading: isLoadingHistory,
+  } = usePaginatedDocuments({
+    page: 1,
+    rowsPerPage: 1000,
+    vehicleId,
+    isActive: false,
   });
 
-  const allDocs = docsResp?.results || [];
-  const activeDocs = allDocs.filter((d) => d?.isActive);
-  const historyDocs = allDocs.filter((d) => !d?.isActive);
+  const activeDocs = activeResp?.results || [];
+  const historyDocs = historyResp?.results || [];
 
-  const loading = isLoading;
+  const loading = isLoadingActive || isLoadingHistory;
+
+  const activeCount = activeResp?.total ?? activeResp?.docsTotal ?? activeDocs.length;
+  const historyCount = historyResp?.total ?? historyResp?.docsTotal ?? historyDocs.length;
 
   // Required vs present summary (simple chips)
   const requiredTypes = REQUIRED_DOC_TYPES;
@@ -123,13 +138,13 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
       >
         <Tab
           value="current"
-          label="Current"
+          label={`Current (${activeCount || 0})`}
           icon={<Iconify icon="mdi:file-check-outline" sx={{ color: 'success.main' }} />}
           iconPosition="start"
         />
         <Tab
           value="history"
-          label="History"
+          label={`History (${historyCount || 0})`}
           icon={<Iconify icon="mdi:archive-clock-outline" sx={{ color: 'text.secondary' }} />}
           iconPosition="start"
         />
@@ -282,11 +297,13 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
               <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
               <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
               <TableCell align="center">
-                <Tooltip title="Download">
-                  <IconButton size="small" onClick={() => handleDownload(d)}>
-                    <Iconify icon="eva:download-outline" />
-                  </IconButton>
-                </Tooltip>
+                {d.fileUrl && (
+                  <Tooltip title="Download">
+                    <IconButton size="small" onClick={() => handleDownload(d)}>
+                      <Iconify icon="eva:download-outline" />
+                    </IconButton>
+                  </Tooltip>
+                )}
 
                 <Tooltip title="Edit">
                   <IconButton size="small" onClick={() => onEdit(d)}>
@@ -301,19 +318,13 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
               </TableCell>
               {showActive && (
                 <TableCell>
-                  <Box
-                    component="span"
-                    sx={{
-                      px: 1,
-                      py: 0.25,
-                      borderRadius: 1,
-                      bgcolor: d.isActive ? 'success.soft' : 'grey.200',
-                      color: d.isActive ? 'success.main' : 'text.secondary',
-                      fontSize: 12,
-                    }}
+                  <Label
+                    color={d.isActive ? 'success' : 'error'}
+                    variant="soft"
+                    sx={{ textTransform: 'capitalize' }}
                   >
                     {d.isActive ? 'Yes' : 'No'}
-                  </Box>
+                  </Label>
                 </TableCell>
               )}
             </TableRow>
