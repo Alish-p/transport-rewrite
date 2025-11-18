@@ -140,7 +140,7 @@ export function PumpDieselPricesWidget({ pump, title = 'Fuel Prices', ...other }
                   <TableCell align='center'>{row.price}</TableCell>
                   <TableCell align='center'>{fDateRangeShortLabel(row.fromDate, row.toDate)}</TableCell>
                   <TableCell align='center'>
-                    <Stack direction="row" justifyContent={'center'}>
+                    <Stack direction="row" justifyContent="center">
                       <IconButton onClick={() => handleOpenEdit(row)}>
                         <Iconify icon="solar:pen-bold" />
                       </IconButton>
