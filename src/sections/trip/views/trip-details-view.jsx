@@ -208,21 +208,21 @@ export function TripDetailView({ trip }) {
                 title="Total Jobs"
                 total={totalJobs}
                 icon="ant-design:car-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Expenses"
                 total={totalExpenses}
                 color="error"
                 icon="ant-design:dollar-circle-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Income"
                 total={totalIncome}
                 color="success"
                 icon="ant-design:euro-circle-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
             </Stack>
 
@@ -232,7 +232,7 @@ export function TripDetailView({ trip }) {
                 total={totalKm}
                 color="info"
                 icon="ant-design:environment-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
               <AnalyticsWidgetSummary
                 title="Total Diesel Amount"
@@ -240,14 +240,14 @@ export function TripDetailView({ trip }) {
                 subtext={`${totalDieselLtr || 0} Ltr`}
                 color="warning"
                 icon="ant-design:fire-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
               <AnalyticsWidgetSummary
                 title="Total AdBlue Amount"
                 total={totalAdblueAmt}
                 color="primary"
                 icon="ant-design:medicine-box-filled"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1, minHeight: 200 }}
               />
             </Stack>
           </Stack>
@@ -257,12 +257,14 @@ export function TripDetailView({ trip }) {
           <Stack spacing={3}>
             <DriverCard
               driver={driverId}
+              sx={{ minHeight: 200 }}
               onDriverEdit={() => {
                 navigate(paths.dashboard.driver.edit(trip?.driverId?._id));
               }}
             />
             <VehicleCard
               vehicle={vehicleId}
+              sx={{ minHeight: 200 }}
               onVehicleEdit={() => {
                 navigate(paths.dashboard.vehicle.edit(trip?.vehicleId?._id));
               }}

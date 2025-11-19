@@ -16,7 +16,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function VehicleCard({ vehicle }) {
+export default function VehicleCard({ vehicle, sx }) {
   const {
     _id,
     vehicleNo,
@@ -41,7 +41,8 @@ export default function VehicleCard({ vehicle }) {
         '&:hover': {
           boxShadow: (theme) => theme.shadows[8],
           transform: 'translateY(-2px)',
-        }
+        },
+        ...sx,
       }}
     >
       <Stack spacing={2}>

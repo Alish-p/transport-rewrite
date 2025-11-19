@@ -17,7 +17,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function DriverCard({ driver }) {
+export default function DriverCard({ driver, sx }) {
   const { _id, driverName, driverCellNo } = driver || {};
 
   const initials = (driverName || '?')
@@ -50,7 +50,8 @@ export default function DriverCard({ driver }) {
         '&:hover': {
           boxShadow: (theme) => theme.shadows[8],
           transform: 'translateY(-2px)',
-        }
+        },
+        ...sx,
       }}
     >
       <Stack spacing={2}>
