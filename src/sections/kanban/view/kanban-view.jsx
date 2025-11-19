@@ -50,6 +50,7 @@ const cssVars = {
 export function KanbanView({ tasks }) {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [localTasks, setLocalTasks] = useState(tasks);
   const updateTaskStatus = useUpdateTaskStatus();
   const { data: users = [] } = useUsers();
 
@@ -58,6 +59,7 @@ export function KanbanView({ tasks }) {
   const lastOverId = useRef(null);
 
   const [activeId, setActiveId] = useState(null);
+  const startColumnId = useRef(null);
 
   const columnIds = COLUMNS.map((column) => column.id);
 
@@ -71,10 +73,10 @@ export function KanbanView({ tasks }) {
 
   const collisionDetectionStrategy = useCallback(
     (args) => {
-      if (activeId && activeId in tasks) {
+      if (activeId && activeId in localTasks) {
         return closestCenter({
           ...args,
-          droppableContainers: args.droppableContainers.filter((column) => column.id in tasks),
+          droppableContainers: args.droppableContainers.filter((column) => column.id in localTasks),
         });
       }
 
@@ -89,8 +91,8 @@ export function KanbanView({ tasks }) {
       let overId = getFirstCollision(intersections, 'id');
 
       if (overId != null) {
-        if (overId in tasks) {
-          const columnItems = tasks[overId].map((task) => task._id);
+        if (overId in localTasks) {
+          const columnItems = localTasks[overId].map((task) => task._id);
 
           // If a column is matched and it contains items (columns 'A', 'B', 'C')
           if (columnItems.length > 0) {
@@ -120,18 +122,25 @@ export function KanbanView({ tasks }) {
       // If no droppable is matched, return the last match
       return lastOverId.current ? [{ id: lastOverId.current }] : [];
     },
-    [activeId, tasks]
+    [activeId, localTasks]
   );
 
   const findColumn = (id) => {
     // if the id is column id, return the id
-    if (id in tasks) {
+    if (id in localTasks) {
       return id;
     }
 
     // if the id is task id, return the column id
-    return Object.keys(tasks).find((key) => tasks[key].map((task) => task._id).includes(id));
+    return Object.keys(localTasks).find((key) =>
+      localTasks[key].map((task) => task._id).includes(id)
+    );
   };
+
+  // keep localTasks in sync with upstream tasks
+  useEffect(() => {
+    setLocalTasks(tasks);
+  }, [tasks]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -144,6 +153,8 @@ export function KanbanView({ tasks }) {
    */
   const onDragStart = ({ active }) => {
     setActiveId(active.id);
+     // remember the column where the drag started so we can compare on drop
+    startColumnId.current = findColumn(active.id);
   };
 
   /**
@@ -165,11 +176,11 @@ export function KanbanView({ tasks }) {
       return;
     }
 
-    // if the active column is not the same as the over column, then move the task
-    // moving the tasks across columns
+    // if the active column is not the same as the over column, then move the task visually
+    // this only updates localTasks for smooth drag feedback, no API call here
     if (activeColumn !== overColumn) {
-      const activeItems = tasks[activeColumn].map((task) => task._id);
-      const overItems = tasks[overColumn].map((task) => task._id);
+      const activeItems = localTasks[activeColumn].map((task) => task._id);
+      const overItems = localTasks[overColumn].map((task) => task._id);
       const overIndex = overItems.indexOf(overId);
       const activeIndex = activeItems.indexOf(active.id);
 
@@ -190,17 +201,17 @@ export function KanbanView({ tasks }) {
 
       recentlyMovedToNewContainer.current = true;
 
-      const updateTasks = {
-        ...tasks,
-        [activeColumn]: tasks[activeColumn].filter((task) => task._id !== active.id),
+      const updated = {
+        ...localTasks,
+        [activeColumn]: localTasks[activeColumn].filter((task) => task._id !== active.id),
         [overColumn]: [
-          ...tasks[overColumn].slice(0, newIndex),
-          tasks[activeColumn][activeIndex],
-          ...tasks[overColumn].slice(newIndex, tasks[overColumn].length),
+          ...localTasks[overColumn].slice(0, newIndex),
+          localTasks[activeColumn][activeIndex],
+          ...localTasks[overColumn].slice(newIndex, localTasks[overColumn].length),
         ],
       };
-      console.log({ updateTasks });
-      updateTaskStatus({ id: activeId, status: overColumn });
+
+      setLocalTasks(updated);
     }
   };
 
@@ -223,19 +234,14 @@ export function KanbanView({ tasks }) {
     }
 
     const overColumn = findColumn(overId);
+    const initialColumn = startColumnId.current;
 
-    if (activeColumn !== overColumn) {
-      const activeContainerTaskIds = tasks[activeColumn].map((task) => task._id);
-      const overContainerTaskIds = tasks[overColumn].map((task) => task._id);
-
-      const activeIndex = activeContainerTaskIds.indexOf(active.id);
-      const overIndex = overContainerTaskIds.indexOf(overId);
-
-      if (activeIndex !== overIndex) {
-        updateTaskStatus({ id: activeId, status: overColumn });
-      }
+    if (initialColumn && overColumn && initialColumn !== overColumn) {
+      // Only call API once per drop, when status/column actually changes
+      updateTaskStatus({ id: active.id, status: overColumn });
     }
 
+    startColumnId.current = null;
     setActiveId(null);
   };
 
@@ -286,12 +292,16 @@ export function KanbanView({ tasks }) {
           >
             <Stack direction="row" sx={{ gap: 'var(--column-gap)' }}>
               {COLUMNS.map((column) => (
-                <KanbanColumn key={column.id} column={column} tasks={filterTasks(tasks[column.id])}>
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  tasks={filterTasks(localTasks[column.id] || [])}
+                >
                   <SortableContext
-                    items={filterTasks(tasks[column.id])}
+                    items={filterTasks(localTasks[column.id] || [])}
                     strategy={verticalListSortingStrategy}
                   >
-                    {filterTasks(tasks[column.id]).map((task) => (
+                    {filterTasks(localTasks[column.id] || []).map((task) => (
                       <KanbanTaskItem
                         task={task}
                         key={task._id}
@@ -307,7 +317,7 @@ export function KanbanView({ tasks }) {
         </Stack>
       </Stack>
 
-      <KanbanDragOverlay columns={COLUMNS} tasks={tasks} activeId={activeId} sx={cssVars} />
+      <KanbanDragOverlay columns={COLUMNS} tasks={localTasks} activeId={activeId} sx={cssVars} />
     </DndContext>
   );
 
