@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 // @mui
@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import DialogActions from '@mui/material/DialogActions';
@@ -46,7 +47,13 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
   const tenant = useTenantContext();
 
   const cancelInvoice = useCancelInvoice();
+  const [cancellationRemarks, setCancellationRemarks] = useState('');
   const remainingAmount = Math.max(0, (invoice?.netTotal || 0) - (invoice?.totalReceived || 0));
+
+  const handleCloseCancelDialog = useCallback(() => {
+    confirmCancel.onFalse();
+    setCancellationRemarks('');
+  }, [confirmCancel]);
 
   const handleEdit = useCallback(() => {
     router.push(paths.dashboard.invoice.edit(invoice?._id));
@@ -54,12 +61,12 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
 
   const handleCancelInvoice = useCallback(async () => {
     try {
-      await cancelInvoice(invoice?._id);
-      confirmCancel.onFalse();
+      await cancelInvoice({ id: invoice?._id, cancellationRemarks });
+      handleCloseCancelDialog();
     } catch (error) {
       console.error(error);
     }
-  }, [cancelInvoice, confirmCancel, invoice._id]);
+  }, [cancelInvoice, handleCloseCancelDialog, invoice?._id, cancellationRemarks]);
 
   const handleOpenPay = useCallback(() => {
     payDialog.onTrue();
@@ -169,9 +176,26 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
 
       <ConfirmDialog
         open={confirmCancel.value}
-        onClose={confirmCancel.onFalse}
+        onClose={handleCloseCancelDialog}
         title="Cancel invoice"
-        content="Are you sure you want to cancel this invoice? All linked jobs will be available for billing."
+        content={
+          <>
+            <Typography sx={{ mb: 2 }}>
+              Are you sure you want to cancel this invoice? All linked jobs will be available for
+              billing.
+            </Typography>
+
+            <TextField
+              autoFocus
+              fullWidth
+              multiline
+              minRows={2}
+              label="Cancellation remarks"
+              value={cancellationRemarks}
+              onChange={(event) => setCancellationRemarks(event.target.value)}
+            />
+          </>
+        }
         action={
           <Button variant="contained" color="error" onClick={handleCancelInvoice}>
             Cancel invoice

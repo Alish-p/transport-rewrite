@@ -31,8 +31,14 @@ const updateInvoiceStatus = async (id, status, amount) => {
   return data;
 };
 
-const cancelInvoice = async (id) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/cancel`);
+const cancelInvoice = async (id, cancellationRemarks) => {
+  const payload = {};
+
+  if (cancellationRemarks) {
+    payload.cancellationRemarks = cancellationRemarks;
+  }
+
+  const { data } = await axios.put(`${ENDPOINT}/${id}/cancel`, payload);
   return data;
 };
 
@@ -98,7 +104,7 @@ export function useUpdateInvoiceStatus() {
 export function useCancelInvoice() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: (id) => cancelInvoice(id),
+    mutationFn: ({ id, cancellationRemarks }) => cancelInvoice(id, cancellationRemarks),
     onSuccess: (updatedInvoice) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedInvoice._id], updatedInvoice);

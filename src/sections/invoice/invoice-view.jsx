@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
@@ -24,8 +25,8 @@ import { Label } from 'src/components/label';
 
 import { useTenantContext } from 'src/auth/tenant';
 
-import { INVOICE_STATUS_COLOR } from './invoice-config';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
+import { INVOICE_STATUS, INVOICE_STATUS_COLOR } from './invoice-config';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -40,9 +41,22 @@ const StyledTableCell = styled(TableCell)(() => ({
 }));
 
 function RenderHeader({ invoice }) {
-  const { invoiceNo, invoiceStatus, netTotal = 0, totalReceived = 0 } = invoice || {};
+  const {
+    invoiceNo,
+    invoiceStatus,
+    cancellationRemarks,
+    netTotal = 0,
+    totalReceived = 0,
+  } = invoice || {};
   const tenant = useTenantContext();
   const remainingAmount = Math.max(0, netTotal - totalReceived);
+
+  const statusLabel = (
+    <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
+      {invoiceStatus || 'Draft'}
+    </Label>
+  );
+
   return (
     <Box
       rowGap={3}
@@ -50,11 +64,18 @@ function RenderHeader({ invoice }) {
       alignItems="center"
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
     >
-      <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60, mb: 3 }} />
+      <Box
+        component="img"
+        alt="logo"
+        src={getTenantLogoUrl(tenant)}
+        sx={{ width: 60, height: 60, mb: 3 }}
+      />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
-          {invoiceStatus || 'Draft'}
-        </Label>
+        {invoiceStatus === INVOICE_STATUS.CANCELLED && cancellationRemarks ? (
+          <Tooltip title={cancellationRemarks}>{statusLabel}</Tooltip>
+        ) : (
+          statusLabel
+        )}
         <Typography variant="h6">{invoiceNo || 'INV - XXX'}</Typography>
         {remainingAmount > 0 && (
           <Typography variant="body2" color="error.main">

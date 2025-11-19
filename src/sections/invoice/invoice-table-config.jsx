@@ -13,7 +13,7 @@ import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 
 import { wrapText } from '../../utils/change-case';
-import { INVOICE_STATUS_COLOR } from './invoice-config';
+import { INVOICE_STATUS, INVOICE_STATUS_COLOR } from './invoice-config';
 
 export const TABLE_COLUMNS = [
   {
@@ -78,11 +78,21 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.invoiceStatus,
-    render: ({ invoiceStatus }) => (
-      <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
-        {invoiceStatus}
-      </Label>
-    ),
+    render: (row) => {
+      const { invoiceStatus, cancellationRemarks } = row;
+
+      const statusLabel = (
+        <Label variant="soft" color={INVOICE_STATUS_COLOR[invoiceStatus] || 'default'}>
+          {invoiceStatus}
+        </Label>
+      );
+
+      if (invoiceStatus === INVOICE_STATUS.CANCELLED && cancellationRemarks) {
+        return <Tooltip title={cancellationRemarks}>{statusLabel}</Tooltip>;
+      }
+
+      return statusLabel;
+    },
   },
   {
     id: 'issueDate',

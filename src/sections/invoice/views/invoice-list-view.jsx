@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
@@ -21,7 +22,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
@@ -72,7 +72,6 @@ const defaultFilters = {
 export function InvoiceListView() {
   const theme = useTheme();
   const router = useRouter();
-  const confirm = useBoolean();
   const navigate = useNavigate();
   const tenant = useTenantContext();
 
@@ -104,6 +103,8 @@ export function InvoiceListView() {
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const [tableData, setTableData] = useState([]);
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancellationRemarks, setCancellationRemarks] = useState('');
 
   const { data, isLoading } = usePaginatedInvoices({
     customerId: filters.customerId || undefined,
@@ -194,6 +195,23 @@ export function InvoiceListView() {
     },
     [handleFilters]
   );
+
+  const handleCloseCancelDialog = () => {
+    setCancelTarget(null);
+    setCancellationRemarks('');
+  };
+
+  const handleConfirmCancelInvoice = async () => {
+    if (!cancelTarget) return;
+    try {
+      await cancelInvoice({ id: cancelTarget._id, cancellationRemarks });
+      handleCloseCancelDialog();
+    } catch (error) {
+      // Error toast is handled inside useCancelInvoice
+      // Keep dialog open so user can retry or adjust remarks
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -460,12 +478,6 @@ export function InvoiceListView() {
                       </IconButton>
                     </Tooltip>
                   )}
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
                 </Stack>
               }
             />
@@ -495,7 +507,10 @@ export function InvoiceListView() {
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
                       onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => cancelInvoice(row._id)}
+                      onDeleteRow={() => {
+                        setCancelTarget(row);
+                        setCancellationRemarks('');
+                      }}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}
@@ -518,26 +533,31 @@ export function InvoiceListView() {
         </Card>
       </DashboardContent>
 
-      {/* Delete Confirmations dialogue */}
+      {/* Cancel invoice dialogue (single row from list) */}
       <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
+        open={Boolean(cancelTarget)}
+        onClose={handleCloseCancelDialog}
+        title="Cancel invoice"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Are you sure you want to cancel invoice{' '}
+            <strong>{cancelTarget?.invoiceNo || cancelTarget?._id}</strong>?
+            <br />
+            <br />
+            <TextField
+              autoFocus
+              fullWidth
+              multiline
+              minRows={2}
+              label="Cancellation remarks"
+              value={cancellationRemarks}
+              onChange={(event) => setCancellationRemarks(event.target.value)}
+            />
           </>
         }
         action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              // handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
+          <Button variant="contained" color="error" onClick={handleConfirmCancelInvoice}>
+            Cancel invoice
           </Button>
         }
       />
