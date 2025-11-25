@@ -9,8 +9,8 @@ import {
   Card,
   Stack,
   Divider,
-  CardHeader,
   MenuItem,
+  CardHeader,
   ListSubheader,
   InputAdornment,
 } from '@mui/material';
@@ -21,7 +21,8 @@ import { useCreatePart, useUpdatePart } from 'src/query/use-part';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Form, Field } from 'src/components/hook-form';
-import { MEASUREMENT_UNIT_GROUPS, PART_CATEGORIES } from './part-constant';
+
+import { PART_CATEGORIES, MEASUREMENT_UNIT_GROUPS } from './part-constant';
 
 
 
@@ -170,12 +171,14 @@ export default function PartForm({ currentPart }) {
             ) : undefined,
           }}
         />
-        <Field.Text
-          name="quantity"
-          label="Quantity"
-          type="number"
-          inputProps={{ min: 0, step: 1 }}
-        />
+        {!currentPart && (
+          <Field.Text
+            name="quantity"
+            label="Initial Quantity"
+            type="number"
+            inputProps={{ min: 0, step: 1 }}
+          />
+        )}
 
         <Field.Select name="inventoryLocation" label="Inventory Location">
           {locations.map((loc) => (

@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -36,9 +35,9 @@ import {
 } from 'src/components/table';
 
 import PartLocationTableRow from '../part-location-table-row';
+import { TABLE_COLUMNS } from '../part-location-table-config';
 import PartLocationTableToolbar from '../part-location-table-toolbar';
 import PartLocationTableFiltersResult from '../part-location-table-filters-result';
-import { TABLE_COLUMNS } from '../part-location-table-config';
 
 const STORAGE_KEY = 'part-location-table-columns';
 

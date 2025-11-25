@@ -86,6 +86,18 @@ export const PERMISSIONS = [
       'Permissions for managing part storage locations such as warehouses or godowns.',
     name: 'partLocation',
   },
+  {
+    subheader: 'Vendors',
+    caption:
+      'Permissions for managing vendors, including contact details and bank information.',
+    name: 'vendor',
+  },
+  {
+    subheader: 'Purchase Orders',
+    caption:
+      'Permissions for creating and managing purchase orders for vehicle parts and inventory.',
+    name: 'purchaseOrder',
+  },
 ];
 
 export const ACTIONS = ['create', 'view', 'update', 'delete'];

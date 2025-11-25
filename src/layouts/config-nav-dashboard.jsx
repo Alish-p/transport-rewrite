@@ -53,6 +53,8 @@ const ICONS = {
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
   parts: icon('ic-product'),
   partLocation: icon('ic-folder'),
+  vendor: icon('ic_customer'),
+  purchaseOrder: icon('ic-order'),
 };
 // ----------------------------------------------------------------------
 
@@ -287,6 +289,26 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.partLocation.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.partLocation.new, action: 'create' },
+        ],
+      },
+      {
+        title: 'Vendors',
+        path: paths.dashboard.vendor.root,
+        icon: ICONS.vendor,
+        resource: 'vendor',
+        children: [
+          { title: 'List', path: paths.dashboard.vendor.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.vendor.new, action: 'create' },
+        ],
+      },
+      {
+        title: 'Purchase Orders',
+        path: paths.dashboard.purchaseOrder.root,
+        icon: ICONS.purchaseOrder,
+        resource: 'purchaseOrder',
+        children: [
+          { title: 'List', path: paths.dashboard.purchaseOrder.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.purchaseOrder.new, action: 'create' },
         ],
       },
     ],

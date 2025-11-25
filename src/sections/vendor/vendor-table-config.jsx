@@ -14,7 +14,7 @@ import { wrapText } from 'src/utils/change-case';
 export const TABLE_COLUMNS = [
   {
     id: 'name',
-    label: 'Part Name',
+    label: 'Vendor Name',
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.name,
@@ -30,7 +30,7 @@ export const TABLE_COLUMNS = [
             primary={
               <Link
                 component={RouterLink}
-                to={paths.dashboard.part.details(row._id)}
+                to={paths.dashboard.vendor.details(row._id)}
                 variant="body2"
                 noWrap
                 sx={{ color: 'primary.main' }}
@@ -44,64 +44,42 @@ export const TABLE_COLUMNS = [
     },
   },
   {
-    id: 'partNumber',
-    label: 'Part Number',
+    id: 'phone',
+    label: 'Phone',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.partNumber,
+    getter: (row) => row.phone,
   },
   {
-    id: 'category',
-    label: 'Category',
+    id: 'address',
+    label: 'Address',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.category,
-  },
-  {
-    id: 'manufacturer',
-    label: 'Manufacturer',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.manufacturer,
-  },
-  {
-    id: 'inventoryLocation',
-    label: 'Location',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.inventoryLocation?.name,
-  },
-  {
-    id: 'quantity',
-    label: 'Quantity',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.quantity,
-  },
-  {
-    id: 'unitCost',
-    label: 'Unit Cost',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.unitCost,
-    render: (row) => `₹ ${row.unitCost?.toFixed(2)}`,
-  },
-  {
-    id: 'description',
-    label: 'Description',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.description,
+    getter: (row) => row.address,
     render: (row) => {
-      const value = row.description || '';
+      const value = row.address || '';
       return (
         <Tooltip title={value}>
           <Typography variant="body2" noWrap>
-            {wrapText(value, 40)}
+            {wrapText(value, 30)}
           </Typography>
         </Tooltip>
       );
     },
+  },
+  {
+    id: 'bankName',
+    label: 'Bank Name',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.bankDetails?.name,
+  },
+  {
+    id: 'accountNo',
+    label: 'Account No',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.bankDetails?.accNo,
   },
 ];
 

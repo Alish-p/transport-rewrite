@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
@@ -14,10 +13,8 @@ import { RouterLink } from 'src/routes/components';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { paramCase } from 'src/utils/change-case';
-
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeletePart, usePaginatedParts } from 'src/query/use-part';
+import { usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -31,23 +28,22 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import PartTableRow from '../part-table-row';
-import PartTableToolbar from '../part-table-toolbar';
-import { TABLE_COLUMNS } from '../part-table-config';
-import PartTableFiltersResult from '../part-table-filters-result';
+import { TABLE_COLUMNS } from '../purchase-order-table-config';
+import PurchaseOrderTableRow from '../purchase-order-table-row';
+import PurchaseOrderTableToolbar from '../purchase-order-table-toolbar';
+import PurchaseOrderTableFiltersResult from '../purchase-order-table-filters-result';
 
-const STORAGE_KEY = 'part-table-columns';
+const STORAGE_KEY = 'purchase-order-table-columns';
 
 const defaultFilters = {
-  search: '',
+  status: 'all',
+  vendor: '',
 };
 
-export function PartListView() {
+export function PurchaseOrderListView() {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'name', syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
 
-  const navigate = useNavigate();
-  const deletePart = useDeletePart();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -65,8 +61,9 @@ export function PartListView() {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const { data, isLoading } = usePaginatedParts({
-    search: filters.search || undefined,
+  const { data, isLoading } = usePaginatedPurchaseOrders({
+    status: filters.status === 'all' ? undefined : filters.status,
+    vendorName: filters.vendor || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -74,10 +71,12 @@ export function PartListView() {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (data?.parts) {
-      setTableData(data.parts);
+    if (data?.purchaseOrders) {
+      setTableData(data.purchaseOrders);
     } else if (data?.results) {
       setTableData(data.results);
+    } else {
+      setTableData([]);
     }
   }, [data]);
 
@@ -85,13 +84,9 @@ export function PartListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
-  const handleEditRow = (id) => {
-    navigate(paths.dashboard.part.edit(paramCase(id)));
-  };
-
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.part.details(id));
+      router.push(paths.dashboard.purchaseOrder.details(id));
     },
     [router]
   );
@@ -106,27 +101,27 @@ export function PartListView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Parts List"
+        heading="Purchase Orders"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicle Maintenance', href: paths.dashboard.part.root },
-          { name: 'Parts List' },
+          { name: 'Vehicle Maintenance', href: paths.dashboard.purchaseOrder.root },
+          { name: 'Purchase Orders' },
         ]}
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.part.new}
+            href={paths.dashboard.purchaseOrder.new}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New Part
+            New Purchase Order
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
       <Card>
-        <PartTableToolbar
+        <PurchaseOrderTableToolbar
           filters={filters}
           onFilters={handleFilters}
           visibleColumns={visibleColumns}
@@ -138,7 +133,7 @@ export function PartListView() {
         />
 
         {canReset && (
-          <PartTableFiltersResult
+          <PurchaseOrderTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
@@ -179,22 +174,20 @@ export function PartListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                    <TableSkeleton key={i} />
+                  ))
                   : tableData.map((row) => (
-                      <PartTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePart(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <PurchaseOrderTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

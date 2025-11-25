@@ -17,7 +17,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeletePart, usePaginatedParts } from 'src/query/use-part';
+import { useDeleteVendor, usePaginatedVendors } from 'src/query/use-vendor';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -31,23 +31,25 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import PartTableRow from '../part-table-row';
-import PartTableToolbar from '../part-table-toolbar';
-import { TABLE_COLUMNS } from '../part-table-config';
-import PartTableFiltersResult from '../part-table-filters-result';
+import VendorTableRow from '../vendor-table-row';
+import { TABLE_COLUMNS } from '../vendor-table-config';
+import VendorTableToolbar from '../vendor-table-toolbar';
+import VendorTableFiltersResult from '../vendor-table-filters-result';
 
-const STORAGE_KEY = 'part-table-columns';
+const STORAGE_KEY = 'vendor-table-columns';
 
 const defaultFilters = {
-  search: '',
+  name: '',
+  phone: '',
+  address: '',
 };
 
-export function PartListView() {
+export function VendorListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'name', syncToUrl: true });
 
   const navigate = useNavigate();
-  const deletePart = useDeletePart();
+  const deleteVendor = useDeleteVendor();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -65,8 +67,10 @@ export function PartListView() {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const { data, isLoading } = usePaginatedParts({
-    search: filters.search || undefined,
+  const { data, isLoading } = usePaginatedVendors({
+    name: filters.name || undefined,
+    phone: filters.phone || undefined,
+    address: filters.address || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -74,10 +78,12 @@ export function PartListView() {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (data?.parts) {
-      setTableData(data.parts);
+    if (data?.vendors) {
+      setTableData(data.vendors);
     } else if (data?.results) {
       setTableData(data.results);
+    } else {
+      setTableData([]);
     }
   }, [data]);
 
@@ -86,12 +92,12 @@ export function PartListView() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.part.edit(paramCase(id)));
+    navigate(paths.dashboard.vendor.edit(paramCase(id)));
   };
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.part.details(id));
+      router.push(paths.dashboard.vendor.details(id));
     },
     [router]
   );
@@ -106,27 +112,27 @@ export function PartListView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Parts List"
+        heading="Vendors List"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicle Maintenance', href: paths.dashboard.part.root },
-          { name: 'Parts List' },
+          { name: 'Vehicle Maintenance', href: paths.dashboard.vendor.root },
+          { name: 'Vendors List' },
         ]}
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.part.new}
+            href={paths.dashboard.vendor.new}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New Part
+            New Vendor
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
       <Card>
-        <PartTableToolbar
+        <VendorTableToolbar
           filters={filters}
           onFilters={handleFilters}
           visibleColumns={visibleColumns}
@@ -138,7 +144,7 @@ export function PartListView() {
         />
 
         {canReset && (
-          <PartTableFiltersResult
+          <VendorTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
@@ -182,14 +188,14 @@ export function PartListView() {
                       <TableSkeleton key={i} />
                     ))
                   : tableData.map((row) => (
-                      <PartTableRow
+                      <VendorTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePart(row._id)}
+                        onDeleteRow={() => deleteVendor(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}

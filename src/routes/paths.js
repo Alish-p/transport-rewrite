@@ -219,5 +219,19 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/part-location/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/part-location/${id}/edit`,
     },
+    vendor: {
+      root: `${ROOTS.DASHBOARD}/vendor`,
+      new: `${ROOTS.DASHBOARD}/vendor/new`,
+      list: `${ROOTS.DASHBOARD}/vendor/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/vendor/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/vendor/${id}/edit`,
+    },
+    purchaseOrder: {
+      root: `${ROOTS.DASHBOARD}/purchaseOrder`,
+      new: `${ROOTS.DASHBOARD}/purchaseOrder/new`,
+      list: `${ROOTS.DASHBOARD}/purchaseOrder/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}/edit`,
+    },
   },
 };

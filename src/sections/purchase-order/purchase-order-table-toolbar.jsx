@@ -1,0 +1,132 @@
+/* eslint-disable react/prop-types */
+import { useCallback } from 'react';
+
+import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
+import { Tooltip } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+
+import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { TABLE_COLUMNS } from './purchase-order-table-config';
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'pending-approval', label: 'Pending Approval' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'purchased', label: 'Purchased' },
+  { value: 'received', label: 'Received' },
+  { value: 'rejected', label: 'Rejected' },
+];
+
+export default function PurchaseOrderTableToolbar({
+  filters,
+  onFilters,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+  onResetColumns,
+  canResetColumns,
+}) {
+  const columnsPopover = usePopover();
+
+  const handleFilterStatus = useCallback(
+    (event) => {
+      onFilters('status', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterVendor = useCallback(
+    (event) => {
+      onFilters('vendor', event.target.value);
+    },
+    [onFilters]
+  );
+
+  return (
+    <>
+      <Stack
+        spacing={2}
+        alignItems={{ xs: 'flex-end', md: 'center' }}
+        direction={{
+          xs: 'column',
+          md: 'row',
+        }}
+        sx={{
+          p: 2.5,
+          pr: { xs: 2.5, md: 1 },
+        }}
+      >
+        <TextField
+          select
+          fullWidth
+          label="Status"
+          value={filters.status}
+          onChange={handleFilterStatus}
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          fullWidth
+          value={filters.vendor}
+          onChange={handleFilterVendor}
+          label="Vendor Name (contains)"
+          placeholder="Filter by vendor name..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Stack direction="row" spacing={1}>
+          <Tooltip title="Column Settings">
+            <IconButton onClick={columnsPopover.onOpen}>
+              <Iconify icon="mdi:table-column-plus-after" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Reset Columns">
+            <span>
+              <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
+                <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                  <Iconify icon="solar:restart-bold" />
+                </Badge>
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Stack>
+      </Stack>
+
+      <CustomPopover
+        open={columnsPopover.open}
+        onClose={columnsPopover.onClose}
+        anchorEl={columnsPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <ColumnSelectorList
+          TABLE_COLUMNS={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          handleToggleColumn={onToggleColumn}
+          handleToggleAllColumns={onToggleAllColumns}
+        />
+      </CustomPopover>
+    </>
+  );
+}
+
