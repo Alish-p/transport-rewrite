@@ -76,6 +76,20 @@ const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/detail
 const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 
+// Vehicle Maintenance - Parts
+const PartDetailsPage = lazy(() => import('src/pages/dashboard/part/details'));
+const PartListPage = lazy(() => import('src/pages/dashboard/part/list'));
+const PartCreatePage = lazy(() => import('src/pages/dashboard/part/new'));
+const PartEditPage = lazy(() => import('src/pages/dashboard/part/edit'));
+
+// Vehicle Maintenance - Part Locations
+const PartLocationDetailsPage = lazy(
+  () => import('src/pages/dashboard/part-location/details')
+);
+const PartLocationListPage = lazy(() => import('src/pages/dashboard/part-location/list'));
+const PartLocationCreatePage = lazy(() => import('src/pages/dashboard/part-location/new'));
+const PartLocationEditPage = lazy(() => import('src/pages/dashboard/part-location/edit'));
+
 // DriverPayroll
 const DriverPayrollListPage = lazy(() => import('src/pages/dashboard/driver-payroll/list'));
 const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-payroll/details'));
@@ -586,6 +600,96 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="invoice" action="update" hasContent>
                 <InvoiceEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'part',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="part" action="create" hasContent>
+                <PartCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="part" action="update" hasContent>
+                <PartEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'part-location',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="create" hasContent>
+                <PartLocationCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="update" hasContent>
+                <PartLocationEditPage />
               </PermissionBasedGuard>
             ),
           },

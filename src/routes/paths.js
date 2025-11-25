@@ -205,5 +205,19 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/tenants/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/tenants/${id}/edit`,
     },
+    part: {
+      root: `${ROOTS.DASHBOARD}/part`,
+      new: `${ROOTS.DASHBOARD}/part/new`,
+      list: `${ROOTS.DASHBOARD}/part/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/part/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/part/${id}/edit`,
+    },
+    partLocation: {
+      root: `${ROOTS.DASHBOARD}/part-location`,
+      new: `${ROOTS.DASHBOARD}/part-location/new`,
+      list: `${ROOTS.DASHBOARD}/part-location/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/part-location/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/part-location/${id}/edit`,
+    },
   },
 };

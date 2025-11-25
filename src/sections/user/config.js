@@ -74,6 +74,18 @@ export const PERMISSIONS = [
       'Permissions related to vehicle registration, maintenance, tracking, and fuel consumption monitoring.',
     name: 'vehicle',
   },
+  {
+    subheader: 'Parts',
+    caption:
+      'Permissions for managing vehicle spare parts, including inventory and pricing.',
+    name: 'part',
+  },
+  {
+    subheader: 'Part Locations',
+    caption:
+      'Permissions for managing part storage locations such as warehouses or godowns.',
+    name: 'partLocation',
+  },
 ];
 
 export const ACTIONS = ['create', 'view', 'update', 'delete'];

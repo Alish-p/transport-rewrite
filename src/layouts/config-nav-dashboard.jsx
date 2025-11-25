@@ -51,6 +51,8 @@ const ICONS = {
   driverSalary: icon('ic_driver_salary'),
   driverFinance: <Iconify icon="healthicons:truck-driver" />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
+  parts: icon('ic-product'),
+  partLocation: icon('ic-folder'),
 };
 // ----------------------------------------------------------------------
 
@@ -192,7 +194,7 @@ export const navData = [
       },
 
       // Other Management Items
-      
+
       {
         title: 'User',
         path: paths.dashboard.user.root,
@@ -259,6 +261,32 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.loan.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.loan.new, action: 'create' },
+        ],
+      },
+    ],
+  },
+
+  {
+    subheader: 'Vehicle Maintenance',
+    items: [
+      {
+        title: 'Parts',
+        path: paths.dashboard.part.root,
+        icon: ICONS.parts,
+        resource: 'part',
+        children: [
+          { title: 'List', path: paths.dashboard.part.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.part.new, action: 'create' },
+        ],
+      },
+      {
+        title: 'Part Locations',
+        path: paths.dashboard.partLocation.root,
+        icon: ICONS.partLocation,
+        resource: 'partLocation',
+        children: [
+          { title: 'List', path: paths.dashboard.partLocation.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.partLocation.new, action: 'create' },
         ],
       },
     ],
