@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import { Tooltip } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -14,15 +13,6 @@ import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { TABLE_COLUMNS } from './purchase-order-table-config';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'pending-approval', label: 'Pending Approval' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'purchased', label: 'Purchased' },
-  { value: 'received', label: 'Received' },
-  { value: 'rejected', label: 'Rejected' },
-];
 
 export default function PurchaseOrderTableToolbar({
   filters,
@@ -35,13 +25,6 @@ export default function PurchaseOrderTableToolbar({
   canResetColumns,
 }) {
   const columnsPopover = usePopover();
-
-  const handleFilterStatus = useCallback(
-    (event) => {
-      onFilters('status', event.target.value);
-    },
-    [onFilters]
-  );
 
   const handleFilterVendor = useCallback(
     (event) => {
@@ -64,20 +47,6 @@ export default function PurchaseOrderTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          select
-          fullWidth
-          label="Status"
-          value={filters.status}
-          onChange={handleFilterStatus}
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </MenuItem>
-          ))}
-        </TextField>
-
         <TextField
           fullWidth
           value={filters.vendor}
@@ -129,4 +98,3 @@ export default function PurchaseOrderTableToolbar({
     </>
   );
 }
-

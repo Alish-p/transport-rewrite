@@ -44,8 +44,6 @@ export const TABLE_COLUMNS = [
               {value}
             </Link>
           }
-          secondary={row.vendor?.phone}
-          secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary', noWrap: true }}
         />
       );
     },

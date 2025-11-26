@@ -150,6 +150,7 @@ export default function PartForm({ currentPart }) {
             <ListSubheader
               key={`${group.label}-subheader`}
               disableSticky
+              disableGutters
             >
               {group.label}
             </ListSubheader>,
@@ -188,7 +189,6 @@ export default function PartForm({ currentPart }) {
           ))}
         </Field.Select>
 
-        <Field.Text name="photo" label="Photo URL" placeholder="https://..." />
       </Stack>
     </Card>
   );

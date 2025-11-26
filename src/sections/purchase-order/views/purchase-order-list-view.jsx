@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
+import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
@@ -16,6 +18,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -39,6 +42,15 @@ const defaultFilters = {
   status: 'all',
   vendor: '',
 };
+
+const STATUS_TABS = [
+  { value: 'all', label: 'All', color: 'default' },
+  { value: 'pending-approval', label: 'Pending Approval', color: 'warning' },
+  { value: 'approved', label: 'Approved', color: 'info' },
+  { value: 'purchased', label: 'Purchased', color: 'primary' },
+  { value: 'received', label: 'Received', color: 'success' },
+  { value: 'rejected', label: 'Rejected', color: 'error' },
+];
 
 export function PurchaseOrderListView() {
   const router = useRouter();
@@ -84,6 +96,13 @@ export function PurchaseOrderListView() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
+  const handleFilterStatus = useCallback(
+    (event, newValue) => {
+      handleFilters('status', newValue);
+    },
+    [handleFilters]
+  );
+
   const handleViewRow = useCallback(
     (id) => {
       router.push(paths.dashboard.purchaseOrder.details(id));
@@ -121,6 +140,33 @@ export function PurchaseOrderListView() {
       />
 
       <Card>
+        <Tabs
+          value={filters.status}
+          onChange={handleFilterStatus}
+          sx={{
+            px: 2.5,
+          }}
+        >
+          {STATUS_TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                <Label
+                  variant={
+                    ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                  }
+                  color={tab.color}
+                >
+                  {tab.value === 'all' ? totalCount : ''}
+                </Label>
+              }
+            />
+          ))}
+        </Tabs>
+
         <PurchaseOrderTableToolbar
           filters={filters}
           onFilters={handleFilters}
@@ -205,4 +251,3 @@ export function PurchaseOrderListView() {
     </DashboardContent>
   );
 }
-
