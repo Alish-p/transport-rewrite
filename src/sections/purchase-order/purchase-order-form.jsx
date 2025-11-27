@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
-import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -37,9 +37,11 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 import { KanbanVendorDialog } from '../kanban/components/kanban-vendor-dialog';
 
 const PurchaseOrderLineSchema = zod.object({
@@ -77,6 +79,9 @@ export default function PurchaseOrderForm() {
 
   const vendorDialog = useBoolean();
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [activeLineId, setActiveLineId] = useState(null);
+  const [lineParts, setLineParts] = useState({});
+  const partDialog = useBoolean();
   const methods = useForm({
     resolver: zodResolver(PurchaseOrderSchema),
     defaultValues: {
@@ -122,6 +127,70 @@ export default function PurchaseOrderForm() {
     [];
 
   const createPurchaseOrder = useCreatePurchaseOrder();
+
+  useEffect(() => {
+    setLineParts((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      fields.forEach((field, index) => {
+        const partId = values.lines?.[index]?.partId;
+        if (partId && !next[field.id]) {
+          const found = parts.find((p) => p._id === partId);
+          if (found) {
+            next[field.id] = found;
+            changed = true;
+          }
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [fields, parts, values.lines]);
+
+  const activeLineIndex = fields.findIndex((field) => field.id === activeLineId);
+
+  const closePartDialog = () => {
+    setActiveLineId(null);
+    partDialog.onFalse();
+  };
+
+  const handlePartChange = (part) => {
+    if (activeLineIndex === -1 || !part) {
+      closePartDialog();
+      return;
+    }
+    setValue(`lines.${activeLineIndex}.partId`, part._id, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue(`lines.${activeLineIndex}.unitCost`, part.unitCost ?? 0, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setLineParts((prev) => ({
+      ...prev,
+      [activeLineId]: part,
+    }));
+    closePartDialog();
+  };
+
+  const getLinePart = (fieldId, partId) => lineParts[fieldId] || parts.find((p) => p._id === partId) || null;
+
+  const activeLineSelectedPart =
+    activeLineIndex >= 0
+      ? getLinePart(fields[activeLineIndex].id, values.lines?.[activeLineIndex]?.partId)
+      : null;
+
+  const handleRemoveLine = (index) => {
+    const fieldId = fields[index]?.id;
+    remove(index);
+    if (fieldId) {
+      setLineParts((prev) => {
+        const next = { ...prev };
+        delete next[fieldId];
+        return next;
+      });
+    }
+  };
 
   const computed = useMemo(() => {
     const subtotal = (values.lines || []).reduce(
@@ -330,24 +399,29 @@ export default function PurchaseOrderForm() {
                   <TableRow key={field.id}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
-                      <Field.Select
-                        name={`lines.${index}.partId`}
-                        label="Part"
-                        size="small"
-                        sx={{ minWidth: 220 }}
-                      >
-                        {parts.map((p) => (
-                          <MenuItem key={p._id} value={p._id}>
-                            {p.name} ({p.partNumber})
-                          </MenuItem>
-                        ))}
-                      </Field.Select>
+                      {(() => {
+                        const selectedPart = getLinePart(field.id, line.partId);
+                        const label = selectedPart
+                          ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
+                          }`
+                          : '';
+                        return (
+                          <DialogSelectButton
+                            onClick={() => {
+                              setActiveLineId(field.id);
+                              partDialog.onTrue();
+                            }}
+                            placeholder="Select a part to attach price"
+                            selected={label}
+                            iconName="mdi:cube"
+                          />
+                        );
+                      })()}
                     </TableCell>
                     <TableCell align="right" sx={{ minWidth: 120 }}>
                       <Field.Number
                         name={`lines.${index}.quantityOrdered`}
                         label="Qty"
-                        size="small"
                         inputProps={{ min: 1 }}
                       />
                     </TableCell>
@@ -355,7 +429,6 @@ export default function PurchaseOrderForm() {
                       <Field.Number
                         name={`lines.${index}.unitCost`}
                         label="Unit Cost"
-                        size="small"
                         inputProps={{ min: 0, step: 0.01 }}
                       />
                     </TableCell>
@@ -363,12 +436,7 @@ export default function PurchaseOrderForm() {
                       <Typography variant="body2">{fCurrency(amount)}</Typography>
                     </TableCell>
                     <TableCell align="center">
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          remove(index);
-                        }}
-                      >
+                      <IconButton color="error" onClick={() => handleRemoveLine(index)}>
                         <Iconify icon="solar:trash-bin-trash-bold" width={16} />
                       </IconButton>
                     </TableCell>
@@ -595,6 +663,13 @@ export default function PurchaseOrderForm() {
           Create Purchase Order
         </Button>
       </Stack>
+
+      <KanbanPartsDialog
+        open={partDialog.value}
+        onClose={closePartDialog}
+        selectedPart={activeLineSelectedPart}
+        onPartChange={handlePartChange}
+      />
     </Form>
   );
 }

@@ -233,5 +233,12 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}/edit`,
     },
+    workOrder: {
+      root: `${ROOTS.DASHBOARD}/workOrder`,
+      new: `${ROOTS.DASHBOARD}/workOrder/new`,
+      list: `${ROOTS.DASHBOARD}/workOrder/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}/edit`,
+    },
   },
 };

@@ -4,20 +4,21 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import { Tooltip } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
+import { TABLE_COLUMNS } from './work-order-table-config';
+import { WORK_ORDER_PRIORITY_OPTIONS } from './work-order-config';
+import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 
-import { TABLE_COLUMNS } from './purchase-order-table-config';
-
-export default function PurchaseOrderTableToolbar({
+export default function WorkOrderTableToolbar({
   filters,
   onFilters,
   visibleColumns,
@@ -26,17 +27,30 @@ export default function PurchaseOrderTableToolbar({
   onToggleAllColumns,
   onResetColumns,
   canResetColumns,
+  selectedVehicle,
+  onSelectVehicle,
   selectedPart,
   onSelectPart,
 }) {
   const columnsPopover = usePopover();
+  const vehicleDialog = usePopover();
   const partDialog = usePopover();
 
-  const handleFilterVendor = useCallback(
+  const handleFilterPriority = useCallback(
     (event) => {
-      onFilters('vendor', event.target.value);
+      onFilters('priority', event.target.value);
     },
     [onFilters]
+  );
+
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      if (onSelectVehicle) {
+        onSelectVehicle(vehicle || null);
+      }
+      vehicleDialog.onClose();
+    },
+    [onSelectVehicle, vehicleDialog]
   );
 
   const handleSelectPart = useCallback(
@@ -64,17 +78,26 @@ export default function PurchaseOrderTableToolbar({
         }}
       >
         <TextField
+          select
           fullWidth
-          value={filters.vendor}
-          onChange={handleFilterVendor}
-          placeholder="Filter by vendor name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+          label="Filter by priority"
+          value={filters.priority}
+          onChange={handleFilterPriority}
+        >
+          <MenuItem value="all">All priorities</MenuItem>
+          {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <DialogSelectButton
+          onClick={vehicleDialog.onOpen}
+          selected={selectedVehicle?.vehicleNo}
+          placeholder="Filter by vehicle"
+          iconName="mdi:truck"
+          sx={{ maxWidth: 260 }}
         />
 
         <DialogSelectButton
@@ -118,6 +141,13 @@ export default function PurchaseOrderTableToolbar({
           handleToggleAllColumns={onToggleAllColumns}
         />
       </CustomPopover>
+
+      <KanbanVehicleDialog
+        open={Boolean(vehicleDialog.open)}
+        onClose={vehicleDialog.onClose}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleSelectVehicle}
+      />
 
       <KanbanPartsDialog
         open={Boolean(partDialog.open)}

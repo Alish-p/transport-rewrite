@@ -107,6 +107,12 @@ const PurchaseOrderDetailsPage = lazy(
   () => import('src/pages/dashboard/purchaseOrder/details')
 );
 
+// Vehicle Maintenance - Work Orders
+const WorkOrderListPage = lazy(() => import('src/pages/dashboard/workOrder/list'));
+const WorkOrderCreatePage = lazy(() => import('src/pages/dashboard/workOrder/new'));
+const WorkOrderDetailsPage = lazy(() => import('src/pages/dashboard/workOrder/details'));
+const WorkOrderEditPage = lazy(() => import('src/pages/dashboard/workOrder/edit'));
+
 // DriverPayroll
 const DriverPayrollListPage = lazy(() => import('src/pages/dashboard/driver-payroll/list'));
 const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-payroll/details'));
@@ -744,6 +750,51 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="purchaseOrder" action="view" hasContent>
                 <PurchaseOrderDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'workOrder',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="create" hasContent>
+                <WorkOrderCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="update" hasContent>
+                <WorkOrderEditPage />
               </PermissionBasedGuard>
             ),
           },

@@ -16,9 +16,8 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
+import { usePaginatedWorkOrders } from 'src/query/use-work-order';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -31,29 +30,31 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { TABLE_COLUMNS } from '../purchase-order-table-config';
-import PurchaseOrderTableRow from '../purchase-order-table-row';
-import PurchaseOrderTableToolbar from '../purchase-order-table-toolbar';
-import PurchaseOrderTableFiltersResult from '../purchase-order-table-filters-result';
+import WorkOrderTableRow from '../work-order-table-row';
+import { TABLE_COLUMNS } from '../work-order-table-config';
+import WorkOrderTableToolbar from '../work-order-table-toolbar';
+import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
+import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
 
-const STORAGE_KEY = 'purchase-order-table-columns';
+const STORAGE_KEY = 'work-order-table-columns';
 
 const defaultFilters = {
   status: 'all',
-  vendor: '',
+  priority: 'all',
+  vehicleId: '',
   partId: '',
 };
 
 const STATUS_TABS = [
   { value: 'all', label: 'All', color: 'default' },
-  { value: 'pending-approval', label: 'Pending Approval', color: 'warning' },
-  { value: 'approved', label: 'Approved', color: 'info' },
-  { value: 'purchased', label: 'Purchased', color: 'primary' },
-  { value: 'received', label: 'Received', color: 'success' },
-  { value: 'rejected', label: 'Rejected', color: 'error' },
+  ...WORK_ORDER_STATUS_OPTIONS.map((status) => ({
+    value: status.value,
+    label: status.label,
+    color: status.color,
+  })),
 ];
 
-export function PurchaseOrderListView() {
+export function WorkOrderListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
 
@@ -61,6 +62,7 @@ export function PurchaseOrderListView() {
     onResetPage: table.onResetPage,
   });
 
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedPart, setSelectedPart] = useState(null);
 
   const {
@@ -75,9 +77,10 @@ export function PurchaseOrderListView() {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const { data, isLoading } = usePaginatedPurchaseOrders({
+  const { data, isLoading } = usePaginatedWorkOrders({
     status: filters.status === 'all' ? undefined : filters.status,
-    vendorName: filters.vendor || undefined,
+    priority: filters.priority === 'all' ? undefined : filters.priority,
+    vehicle: filters.vehicleId || undefined,
     part: filters.partId || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
@@ -86,8 +89,8 @@ export function PurchaseOrderListView() {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (data?.purchaseOrders) {
-      setTableData(data.purchaseOrders);
+    if (data?.workOrders) {
+      setTableData(data.workOrders);
     } else if (data?.results) {
       setTableData(data.results);
     } else {
@@ -108,7 +111,7 @@ export function PurchaseOrderListView() {
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.purchaseOrder.details(id));
+      router.push(paths.dashboard.workOrder.details(id));
     },
     [router]
   );
@@ -120,6 +123,14 @@ export function PurchaseOrderListView() {
     [toggleColumnVisibility]
   );
 
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      setSelectedVehicle(vehicle);
+      handleFilters('vehicleId', vehicle?._id || '');
+    },
+    [handleFilters]
+  );
+
   const handleSelectPart = useCallback(
     (part) => {
       setSelectedPart(part);
@@ -129,26 +140,30 @@ export function PurchaseOrderListView() {
   );
 
   useEffect(() => {
+    if (!filters.vehicleId) setSelectedVehicle(null);
+  }, [filters.vehicleId]);
+
+  useEffect(() => {
     if (!filters.partId) setSelectedPart(null);
   }, [filters.partId]);
 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Purchase Orders"
+        heading="Work Orders"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Vehicle Maintenance', href: paths.dashboard.purchaseOrder.root },
-          { name: 'Purchase Orders' },
+          { name: 'Vehicle Maintenance', href: paths.dashboard.workOrder.root },
+          { name: 'Work Orders' },
         ]}
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.purchaseOrder.new}
+            href={paths.dashboard.workOrder.new}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New Purchase Order
+            New Work Order
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
@@ -168,21 +183,11 @@ export function PurchaseOrderListView() {
               value={tab.value}
               label={tab.label}
               iconPosition="end"
-              icon={
-                <Label
-                  variant={
-                    ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                  }
-                  color={tab.color}
-                >
-                  {tab.value === 'all' ? totalCount : ''}
-                </Label>
-              }
             />
           ))}
         </Tabs>
 
-        <PurchaseOrderTableToolbar
+        <WorkOrderTableToolbar
           filters={filters}
           onFilters={handleFilters}
           visibleColumns={visibleColumns}
@@ -191,15 +196,18 @@ export function PurchaseOrderListView() {
           onToggleAllColumns={toggleAllColumnsVisibility}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
+          selectedVehicle={selectedVehicle}
+          onSelectVehicle={handleSelectVehicle}
           selectedPart={selectedPart}
           onSelectPart={handleSelectPart}
         />
 
         {canReset && (
-          <PurchaseOrderTableFiltersResult
+          <WorkOrderTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
+            selectedVehicle={selectedVehicle}
             selectedPart={selectedPart}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
@@ -241,7 +249,7 @@ export function PurchaseOrderListView() {
                     <TableSkeleton key={i} />
                   ))
                   : tableData.map((row) => (
-                    <PurchaseOrderTableRow
+                    <WorkOrderTableRow
                       key={row._id}
                       row={row}
                       selected={table.selected.includes(row._id)}

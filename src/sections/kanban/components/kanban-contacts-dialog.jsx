@@ -23,7 +23,13 @@ const ITEM_HEIGHT = 64;
 
 // ----------------------------------------------------------------------
 
-export function KanbanContactsDialog({ assignees = [], open, onClose, onAssigneeChange }) {
+export function KanbanContactsDialog({
+  assignees = [],
+  open,
+  onClose,
+  onAssigneeChange,
+  single = false,
+}) {
   const { data: users } = useUsers();
   const [searchContact, setSearchContact] = useState('');
 
@@ -33,6 +39,13 @@ export function KanbanContactsDialog({ assignees = [], open, onClose, onAssignee
 
   const handleToggleAssignee = useCallback(
     (contact) => {
+      if (single) {
+        const isAssigned = assignees.some((person) => person._id === contact._id);
+        const newAssignees = isAssigned ? [] : [contact];
+        onAssigneeChange(newAssignees);
+        return;
+      }
+
       const isAssigned = assignees.some((person) => person._id === contact._id);
       let newAssignees;
 
@@ -44,7 +57,7 @@ export function KanbanContactsDialog({ assignees = [], open, onClose, onAssignee
 
       onAssigneeChange(newAssignees);
     },
-    [assignees, onAssigneeChange]
+    [assignees, onAssigneeChange, single]
   );
 
   const dataFiltered = applyFilter({ inputData: users || [], query: searchContact });

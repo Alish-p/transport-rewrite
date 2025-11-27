@@ -98,6 +98,12 @@ export const PERMISSIONS = [
       'Permissions for creating and managing purchase orders for vehicle parts and inventory.',
     name: 'purchaseOrder',
   },
+  {
+    subheader: 'Work Orders',
+    caption:
+      'Permissions for creating and managing vehicle maintenance work orders.',
+    name: 'workOrder',
+  },
 ];
 
 export const ACTIONS = ['create', 'view', 'update', 'delete'];

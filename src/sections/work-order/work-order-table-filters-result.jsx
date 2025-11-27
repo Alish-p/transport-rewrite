@@ -7,11 +7,12 @@ import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
 
-export default function PurchaseOrderTableFiltersResult({
+export default function WorkOrderTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
+  selectedVehicle,
   selectedPart,
   ...other
 }) {
@@ -19,8 +20,12 @@ export default function PurchaseOrderTableFiltersResult({
     onFilters('status', 'all');
   };
 
-  const handleRemoveVendor = () => {
-    onFilters('vendor', '');
+  const handleRemovePriority = () => {
+    onFilters('priority', 'all');
+  };
+
+  const handleRemoveVehicle = () => {
+    onFilters('vehicleId', '');
   };
 
   const handleRemovePart = () => {
@@ -43,9 +48,19 @@ export default function PurchaseOrderTableFiltersResult({
           </Block>
         )}
 
-        {filters.vendor && (
-          <Block label="Vendor :">
-            <Chip size="small" label={filters.vendor} onDelete={handleRemoveVendor} />
+        {filters.priority && filters.priority !== 'all' && (
+          <Block label="Priority :">
+            <Chip size="small" label={filters.priority} onDelete={handleRemovePriority} />
+          </Block>
+        )}
+
+        {filters.vehicleId && (
+          <Block label="Vehicle :">
+            <Chip
+              size="small"
+              label={selectedVehicle?.vehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicle}
+            />
           </Block>
         )}
 

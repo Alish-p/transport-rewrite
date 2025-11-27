@@ -55,6 +55,7 @@ const ICONS = {
   partLocation: icon('ic-folder'),
   vendor: icon('ic_customer'),
   purchaseOrder: icon('ic-order'),
+   workOrder: icon('ic-order'),
 };
 // ----------------------------------------------------------------------
 
@@ -309,6 +310,16 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.purchaseOrder.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.purchaseOrder.new, action: 'create' },
+        ],
+      },
+      {
+        title: 'Work Orders',
+        path: paths.dashboard.workOrder.root,
+        icon: ICONS.workOrder,
+        resource: 'workOrder',
+        children: [
+          { title: 'List', path: paths.dashboard.workOrder.root, action: 'view' },
+          { title: 'Create', path: paths.dashboard.workOrder.new, action: 'create' },
         ],
       },
     ],
