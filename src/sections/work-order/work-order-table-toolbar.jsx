@@ -15,8 +15,8 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { TABLE_COLUMNS } from './work-order-table-config';
 import { WORK_ORDER_PRIORITY_OPTIONS } from './work-order-config';
-import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
+import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
 export default function WorkOrderTableToolbar({
   filters,

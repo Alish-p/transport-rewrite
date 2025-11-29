@@ -12,10 +12,20 @@ export default function PartTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedLocationName,
+  onRemoveLocation,
   ...other
 }) {
   const handleRemoveSearch = () => {
     onFilters('search', '');
+  };
+
+  const handleRemoveLocation = () => {
+    if (onRemoveLocation) {
+      onRemoveLocation();
+    } else {
+      onFilters('inventoryLocation', 'all');
+    }
   };
 
   return (
@@ -31,6 +41,16 @@ export default function PartTableFiltersResult({
         {filters.search && (
           <Block label="Search :">
             <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
+          </Block>
+        )}
+
+        {filters.inventoryLocation && filters.inventoryLocation !== 'all' && (
+          <Block label="Inventory Location:">
+            <Chip
+              size="small"
+              label={selectedLocationName || filters.inventoryLocation}
+              onDelete={handleRemoveLocation}
+            />
           </Block>
         )}
 
@@ -72,4 +92,3 @@ function Block({ label, children, sx, ...other }) {
     </Stack>
   );
 }
-

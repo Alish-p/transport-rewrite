@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
-const ENDPOINT = '/api/purchase-orders';
+const ENDPOINT = '/api/maintenance/purchase-orders';
 const QUERY_KEY = 'purchaseOrders';
 
 // Fetchers

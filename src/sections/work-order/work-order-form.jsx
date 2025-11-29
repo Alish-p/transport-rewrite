@@ -636,28 +636,24 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   );
 
   const renderLines = (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Parts
-      </Typography>
-
-      {fields.length === 0 ? (
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: 1,
-            border: '1px dashed',
-            borderColor: 'divider',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 2,
-          }}
+    <Card
+      sx={{
+        mb: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
         >
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No parts added yet.
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="mdi:cube-outline" width={20} />
+            <Typography variant="h6">Parts</Typography>
+          </Stack>
           <Button
             size="small"
             color="primary"
@@ -673,145 +669,141 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           >
             Add Part
           </Button>
-        </Box>
-      ) : (
-        <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table size="small" sx={{ minWidth: 900 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Part</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell align="right">Qty</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell align="center" width={40}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fields.map((field, index) => {
-                const line = values.parts?.[index] || {};
-                const amount =
-                  (Number(line.quantity) || 0) *
-                  (Number(line.price) || 0);
+        </Stack>
 
-                return (
-                  <TableRow key={field.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell sx={{ minWidth: 220 }}>
-                      {(() => {
-                        const selectedPart = getLinePart(field.id, line.part);
-                        const label = selectedPart
-                          ? `${selectedPart.name}${
-                              selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
+        {fields.length === 0 ? (
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            No parts added yet. Use &quot;Add Part&quot; to attach parts and pricing to
+            this work order.
+          </Typography>
+        ) : (
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table size="small" sx={{ minWidth: 900 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Part</TableCell>
+                  <TableCell>Location</TableCell>
+                  <TableCell align="right">Qty</TableCell>
+                  <TableCell align="right">Price</TableCell>
+                  <TableCell align="right">Amount</TableCell>
+                  <TableCell align="center" width={40}>
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fields.map((field, index) => {
+                  const line = values.parts?.[index] || {};
+                  const amount =
+                    (Number(line.quantity) || 0) *
+                    (Number(line.price) || 0);
+
+                  return (
+                    <TableRow key={field.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell sx={{ minWidth: 220 }}>
+                        {(() => {
+                          const selectedPart = getLinePart(field.id, line.part);
+                          const label = selectedPart
+                            ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
                             }`
-                          : '';
-                        return (
-                          <DialogSelectButton
-                            onClick={() => {
-                              setActivePartLineId(field.id);
-                              partDialog.onTrue();
-                            }}
-                            placeholder="Select a part to attach price"
-                            selected={label}
-                            iconName="mdi:cube"
-                          />
-                        );
-                      })()}
-                    </TableCell>
-                    <TableCell sx={{ minWidth: 180 }}>
-                      <Field.Select
-                        name={`parts.${index}.partLocation`}
-                        label="Location"
-                        size="small"
-                      >
-                        <MenuItem value="">None</MenuItem>
-                        <Divider sx={{ borderStyle: 'dashed' }} />
-                        {locations.map((loc) => (
-                          <MenuItem key={loc._id} value={loc._id}>
-                            {loc.name}
-                          </MenuItem>
-                        ))}
-                      </Field.Select>
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 100 }}>
-                      <Field.Number
-                        name={`parts.${index}.quantity`}
-                        label="Qty"
-                        size="small"
-                        inputProps={{ min: 1 }}
-                      />
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 140 }}>
-                      <Field.Number
-                        name={`parts.${index}.price`}
-                        label="Price"
-                        size="small"
-                        inputProps={{ min: 0, step: 0.01 }}
-                      />
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 120 }}>
-                      <Typography variant="body2">
-                        {fCurrency(amount)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          remove(index);
-                        }}
-                      >
-                        <Iconify
-                          icon="solar:trash-bin-trash-bold"
-                          width={16}
+                            : '';
+                          return (
+                            <DialogSelectButton
+                              onClick={() => {
+                                setActivePartLineId(field.id);
+                                partDialog.onTrue();
+                              }}
+                              placeholder="Select a part to attach price"
+                              selected={label}
+                              iconName="mdi:cube"
+                            />
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 180 }}>
+                        <Field.Select
+                          name={`parts.${index}.partLocation`}
+                          label="Location"
+                          size="small"
+                        >
+                          <MenuItem value="">None</MenuItem>
+                          <Divider sx={{ borderStyle: 'dashed' }} />
+                          {locations.map((loc) => (
+                            <MenuItem key={loc._id} value={loc._id}>
+                              {loc.name}
+                            </MenuItem>
+                          ))}
+                        </Field.Select>
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 100 }}>
+                        <Field.Number
+                          name={`parts.${index}.quantity`}
+                          label="Qty"
+                          size="small"
+                          inputProps={{ min: 1 }}
                         />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-
-              <TableRow>
-                <TableCell colSpan={7}>
-                  <Button
-                    size="small"
-                    color="primary"
-                    startIcon={<Iconify icon="mingcute:add-line" />}
-                    onClick={() =>
-                      append({
-                        part: '',
-                        partLocation: '',
-                        quantity: 1,
-                        price: 0,
-                      })
-                    }
-                  >
-                    Add Another Part
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Box>
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 140 }}>
+                        <Field.Number
+                          name={`parts.${index}.price`}
+                          label="Price"
+                          size="small"
+                          inputProps={{ min: 0, step: 0.01 }}
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 120 }}>
+                        <Typography variant="body2">
+                          {fCurrency(amount)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="error"
+                          onClick={() => {
+                            remove(index);
+                          }}
+                        >
+                          <Iconify
+                            icon="solar:trash-bin-trash-bold"
+                            width={16}
+                          />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
+    </Card>
   );
 
   const renderSummary = (
     <Card
       sx={{
-        bgcolor: 'background.neutral',
+        mb: 0,
         border: '1px solid',
         borderColor: 'divider',
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Summary
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="solar:wallet-bold-duotone" width={24} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Summary
+            </Typography>
+          </Stack>
+        </Stack>
 
         <Stack spacing={1.5}>
           <Stack

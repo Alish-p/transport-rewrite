@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tansta
 
 import axios from 'src/utils/axios';
 
-const ENDPOINT = '/api/part-locations';
+const ENDPOINT = '/api/maintenance/part-locations';
 const QUERY_KEY = 'partLocations';
 
 // Fetchers

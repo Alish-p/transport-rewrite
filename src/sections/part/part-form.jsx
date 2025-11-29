@@ -37,10 +37,14 @@ export const PartSchema = zod.object({
     .number({ required_error: 'Unit Cost is required' })
     .min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
-  inventoryLocation: zod.string().min(1, { message: 'Inventory Location is required' }),
+  // For editing existing parts we still use single inventoryLocation + quantity.
+  // For creating new parts we support multi-location creation and validate quantities manually,
+  // sending `initialInventory` to the backend.
+  // inventoryLocation: zod.string().min(1, { message: 'Inventory Location is required' }).optional(),
   quantity: zod
     .number({ required_error: 'Quantity is required' })
-    .min(0, { message: 'Quantity cannot be negative' }),
+    .min(0, { message: 'Quantity cannot be negative' })
+    .optional(),
 });
 
 export default function PartForm({ currentPart }) {
@@ -61,6 +65,10 @@ export default function PartForm({ currentPart }) {
       measurementUnit: currentPart?.measurementUnit || '',
       inventoryLocation: currentPart?.inventoryLocation?._id || '',
       quantity: currentPart?.quantity ?? 0,
+      // Used only for multi-location creation
+      inventoryLocationIds: [],
+      locationQuantities: {},
+      locationThresholds: {},
     }),
     [currentPart]
   );
@@ -75,9 +83,12 @@ export default function PartForm({ currentPart }) {
     reset,
     watch,
     handleSubmit,
-    formState: { isSubmitting },
+    getValues,
+    setError,
+    formState: { isSubmitting, errors },
   } = methods;
 
+  console.log({ errors })
   const measurementUnit = watch('measurementUnit');
 
   const { data: locationsResponse } = usePaginatedPartLocations(
@@ -93,20 +104,94 @@ export default function PartForm({ currentPart }) {
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
-        ...data,
-        inventoryLocation: data.inventoryLocation,
-      };
+      // Editing an existing part: keep single-location behavior
+      if (currentPart) {
+        const payload = {
+          ...data,
+          inventoryLocation: data.inventoryLocation,
+        };
 
-      let saved;
-      if (!currentPart) {
-        saved = await createPart(payload);
-      } else {
-        saved = await updatePart({ id: currentPart._id, data: payload });
+        const saved = await updatePart({ id: currentPart._id, data: payload });
+        reset();
+        navigate(paths.dashboard.part.details(saved._id));
+        return;
       }
 
+      // Creating a new part:
+      // Support creating the same part in multiple locations with per-location quantities.
+      const inventoryLocationIds = getValues('inventoryLocationIds') || [];
+      const locationQuantities = getValues('locationQuantities') || {};
+      const locationThresholds = getValues('locationThresholds') || {};
+
+      const activeLocations = inventoryLocationIds.filter(Boolean);
+
+      if (!activeLocations.length) {
+        setError('inventoryLocationIds', {
+          type: 'manual',
+          message: 'Select at least one inventory location',
+        });
+        return;
+      }
+
+      const entries = [];
+
+      for (const locId of activeLocations) {
+        const qty = locationQuantities?.[locId];
+        const threshold = locationThresholds?.[locId];
+
+        if (qty === undefined || qty === null || Number.isNaN(qty)) {
+          setError(`locationQuantities.${locId}`, {
+            type: 'manual',
+            message: 'Enter initial quantity',
+          });
+          return;
+        }
+
+        if (qty < 0) {
+          setError(`locationQuantities.${locId}`, {
+            type: 'manual',
+            message: 'Quantity cannot be negative',
+          });
+          return;
+        }
+
+        if (threshold != null && threshold < 0) {
+          setError(`locationThresholds.${locId}`, {
+            type: 'manual',
+            message: 'Reorder point cannot be negative',
+          });
+          return;
+        }
+
+        entries.push({
+          inventoryLocation: locId,
+          quantity: qty,
+          threshold: threshold ?? 0,
+        });
+      }
+
+      const {
+        inventoryLocation,
+        quantity,
+        inventoryLocationIds: _,
+        locationQuantities: __,
+        locationThresholds: ___,
+        ...base
+      } = data;
+
+      const payload = {
+        ...base,
+        initialInventory: entries,
+      };
+
+      const created = await createPart(payload);
+
       reset();
-      navigate(paths.dashboard.part.details(saved._id));
+      if (created?._id) {
+        navigate(paths.dashboard.part.details(created._id));
+      } else {
+        navigate(paths.dashboard.part.list);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -172,23 +257,77 @@ export default function PartForm({ currentPart }) {
             ) : undefined,
           }}
         />
-        {!currentPart && (
-          <Field.Text
-            name="quantity"
-            label="Initial Quantity"
-            type="number"
-            inputProps={{ min: 0, step: 1 }}
-          />
+        {currentPart ? (
+          <>
+            <Field.Text
+              name="quantity"
+              label="Initial Quantity"
+              type="number"
+              inputProps={{ min: 0, step: 1 }}
+            />
+
+            <Field.Select name="inventoryLocation" label="Inventory Location">
+              {locations.map((loc) => (
+                <MenuItem key={loc._id} value={loc._id}>
+                  {loc.name}
+                </MenuItem>
+              ))}
+            </Field.Select>
+          </>
+        ) : (
+          <>
+            <Field.MultiSelect
+              name="inventoryLocationIds"
+              label="Inventory Locations"
+              checkbox
+              options={locations.map((loc) => ({
+                value: loc._id,
+                label: loc.name,
+              }))}
+              slotProps={{
+                select: { sx: { minWidth: 200 } },
+              }}
+              helperText="Select one or more inventory locations"
+            />
+
+            {(watch('inventoryLocationIds') || []).map((locId) => {
+              const loc = locations.find((l) => l._id === locId);
+              return (
+                <Stack
+                  key={locId}
+                  spacing={1.5}
+                  sx={(theme) => ({
+                    p: 2,
+                    borderRadius: 1.5,
+                    bgcolor: 'background.neutral',
+                    border: `1px dashed ${theme.palette.divider}`,
+                  })}
+                >
+                  <span style={{ fontWeight: 600 }}>{loc?.name || 'Selected location'}</span>
+
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={2}
+                    sx={{ '& > *': { flex: 1 } }}
+                  >
+                    <Field.Number
+                      name={`locationQuantities.${locId}`}
+                      label="Initial Quantity"
+                      helperText="Opening stock for this location"
+                      inputProps={{ min: 0, step: 1 }}
+                    />
+                    <Field.Number
+                      name={`locationThresholds.${locId}`}
+                      label="Reorder Point"
+                      helperText="Optional: alert point for low stock"
+                      inputProps={{ min: 0, step: 1 }}
+                    />
+                  </Stack>
+                </Stack>
+              );
+            })}
+          </>
         )}
-
-        <Field.Select name="inventoryLocation" label="Inventory Location">
-          {locations.map((loc) => (
-            <MenuItem key={loc._id} value={loc._id}>
-              {loc.name}
-            </MenuItem>
-          ))}
-        </Field.Select>
-
       </Stack>
     </Card>
   );

@@ -313,23 +313,44 @@ export default function PurchaseOrderForm() {
         </Stack>
       </Stack>
 
-      <Box
+      <Card
         sx={{
           my: 4,
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-          gap: 2,
+          border: '1px solid',
+          borderColor: 'divider',
         }}
       >
-        <Field.Select name="partLocationId" label="Part Location">
-          {locations.map((loc) => (
-            <MenuItem key={loc._id} value={loc._id}>
-              {loc.name}
-            </MenuItem>
-          ))}
-        </Field.Select>
-        <Field.DatePicker name="orderDate" label="Issue Date" />
-      </Box>
+        <Box sx={{ p: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ mb: 2 }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Iconify icon="mdi:warehouse" width={20} />
+              <Typography variant="h6">Location & Issue Date</Typography>
+            </Stack>
+          </Stack>
+
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 2,
+            }}
+          >
+            <Field.Select name="partLocationId" label="Part Location">
+              {locations.map((loc) => (
+                <MenuItem key={loc._id} value={loc._id}>
+                  {loc.name}
+                </MenuItem>
+              ))}
+            </Field.Select>
+            <Field.DatePicker name="orderDate" label="Issue Date" />
+          </Box>
+        </Box>
+      </Card>
 
       <KanbanVendorDialog
         open={vendorDialog.value}
@@ -344,27 +365,24 @@ export default function PurchaseOrderForm() {
   );
 
   const renderLines = (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Line Items
-      </Typography>
-      {fields.length === 0 ? (
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: 1,
-            border: '1px dashed',
-            borderColor: 'divider',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 2,
-          }}
+    <Card
+      sx={{
+        mb: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
         >
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No line items added yet.
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="mdi:file-table-outline" width={20} />
+            <Typography variant="h6">Line Items</Typography>
+          </Stack>
           <Button
             size="small"
             color="primary"
@@ -375,108 +393,110 @@ export default function PurchaseOrderForm() {
           >
             Add Line
           </Button>
-        </Box>
-      ) : (
-        <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table size="small" sx={{ minWidth: 720 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Part</TableCell>
-                <TableCell align="right">Quantity</TableCell>
-                <TableCell align="right">Unit Cost</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell align="center" width={40}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fields.map((field, index) => {
-                const line = values.lines?.[index] || {};
-                const amount = (line.quantityOrdered || 0) * (line.unitCost || 0);
-                return (
-                  <TableRow key={field.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      {(() => {
-                        const selectedPart = getLinePart(field.id, line.partId);
-                        const label = selectedPart
-                          ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
-                          }`
-                          : '';
-                        return (
-                          <DialogSelectButton
-                            onClick={() => {
-                              setActiveLineId(field.id);
-                              partDialog.onTrue();
-                            }}
-                            placeholder="Select a part to attach price"
-                            selected={label}
-                            iconName="mdi:cube"
-                          />
-                        );
-                      })()}
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 120 }}>
-                      <Field.Number
-                        name={`lines.${index}.quantityOrdered`}
-                        label="Qty"
-                        inputProps={{ min: 1 }}
-                      />
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 140 }}>
-                      <Field.Number
-                        name={`lines.${index}.unitCost`}
-                        label="Unit Cost"
-                        inputProps={{ min: 0, step: 0.01 }}
-                      />
-                    </TableCell>
-                    <TableCell align="right" sx={{ minWidth: 120 }}>
-                      <Typography variant="body2">{fCurrency(amount)}</Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton color="error" onClick={() => handleRemoveLine(index)}>
-                        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+        </Stack>
 
-              <TableRow>
-                <TableCell colSpan={6}>
-                  <Button
-                    size="small"
-                    color="primary"
-                    startIcon={<Iconify icon="mingcute:add-line" />}
-                    onClick={() =>
-                      append({ partId: '', quantityOrdered: 1, unitCost: 0 })
-                    }
-                  >
-                    Add Line
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Box>
+        {fields.length === 0 ? (
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            No line items added yet. Use &quot;Add Line&quot; to include parts in this
+            purchase order.
+          </Typography>
+        ) : (
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table size="small" sx={{ minWidth: 720 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Part</TableCell>
+                  <TableCell align="right">Quantity</TableCell>
+                  <TableCell align="right">Unit Cost</TableCell>
+                  <TableCell align="right">Amount</TableCell>
+                  <TableCell align="center" width={40}>
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fields.map((field, index) => {
+                  const line = values.lines?.[index] || {};
+                  const amount = (line.quantityOrdered || 0) * (line.unitCost || 0);
+                  return (
+                    <TableRow key={field.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const selectedPart = getLinePart(field.id, line.partId);
+                          const label = selectedPart
+                            ? `${selectedPart.name}${
+                                selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
+                              }`
+                            : '';
+                          return (
+                            <DialogSelectButton
+                              onClick={() => {
+                                setActiveLineId(field.id);
+                                partDialog.onTrue();
+                              }}
+                              placeholder="Select a part to attach price"
+                              selected={label}
+                              iconName="mdi:cube"
+                            />
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 120 }}>
+                        <Field.Number
+                          name={`lines.${index}.quantityOrdered`}
+                          label="Qty"
+                          inputProps={{ min: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 140 }}>
+                        <Field.Number
+                          name={`lines.${index}.unitCost`}
+                          label="Unit Cost"
+                          inputProps={{ min: 0, step: 0.01 }}
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ minWidth: 120 }}>
+                        <Typography variant="body2">{fCurrency(amount)}</Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton color="error" onClick={() => handleRemoveLine(index)}>
+                          <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
+    </Card>
   );
 
   const renderSummary = (
     <Card
       sx={{
-        bgcolor: 'background.neutral',
         border: '1px solid',
         borderColor: 'divider',
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-          Cost Summary
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="solar:wallet-bold-duotone" width={24} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Cost Summary
+            </Typography>
+          </Stack>
+        </Stack>
 
         <Box
           sx={{
@@ -593,7 +613,7 @@ export default function PurchaseOrderForm() {
           </Typography>
         </Stack>
       </Box>
-    </Card >
+    </Card>
   );
 
   const renderDescription = (

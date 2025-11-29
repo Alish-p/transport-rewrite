@@ -13,9 +13,8 @@ import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
-
 import { TABLE_COLUMNS } from './purchase-order-table-config';
+import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 
 export default function PurchaseOrderTableToolbar({
   filters,
