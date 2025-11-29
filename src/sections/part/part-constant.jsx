@@ -9,6 +9,17 @@ export const PART_CATEGORIES = [
     'Tires',
 ];
 
+export const PART_MANUFACTURERS = [
+    'Apollo',
+    'Bosch',
+    'Castrol',
+    'Exide',
+    'JK Tyre',
+    'Mahindra',
+    'MRF',
+    'Tata',
+];
+
 export const MEASUREMENT_UNIT_GROUPS = [
     {
         label: "Quantity",
@@ -27,4 +38,3 @@ export const MEASUREMENT_UNIT_GROUPS = [
         options: ["Meter", "Centimeter"],
     }
 ];
-
