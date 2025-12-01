@@ -9,9 +9,9 @@ import { CustomTabs } from 'src/components/custom-tabs';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 import { PartOverviewTab } from '../part-details/part-overview-tab';
+import { PartPurchaseHistoryTab } from '../part-details/part-purchase-history-tab';
 import { PartInventoryActivityTab } from '../part-details/part-inventory-activity-tab';
 import { PartWorkOrderActivityTab } from '../part-details/part-work-order-activity-tab';
-import { PartPurchaseHistoryTab } from '../part-details/part-purchase-history-tab';
 
 export function PartDetailView({ part }) {
   const {
@@ -40,6 +40,7 @@ export function PartDetailView({ part }) {
 
         return {
           id: entry._id || loc._id || loc.id || loc.name,
+          inventoryLocationId: loc._id || loc.id || loc.name,
           name: loc.name,
           address: loc.address,
           currentQty: entry.quantity,
@@ -59,6 +60,8 @@ export function PartDetailView({ part }) {
           ? [
             {
               id: inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
+              inventoryLocationId:
+                inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
               name: inventoryLocation.name,
               currentQty: quantity,
               reorderPoint: inventoryLocation.reorderPoint,
@@ -107,6 +110,7 @@ export function PartDetailView({ part }) {
 
         {currentTab === 'overview' && (
           <PartOverviewTab
+            partId={partId}
             name={name}
             partNumber={partNumber}
             category={category}

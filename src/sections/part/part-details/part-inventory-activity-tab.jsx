@@ -1,33 +1,33 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
+import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
-import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
-import { useTable, TablePaginationCustom } from 'src/components/table';
+import TableContainer from '@mui/material/TableContainer';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 
 import { fDateTime, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { usePaginatedInventoryActivities } from 'src/query/use-inventory-activity';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
-import { useUsers } from 'src/query/use-user';
+import { usePaginatedInventoryActivities } from 'src/query/use-inventory-activity';
+
+import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
+import { useTable, TablePaginationCustom } from 'src/components/table';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { KanbanContactsDialog } from 'src/sections/kanban/components/kanban-contacts-dialog';
 
 export function PartInventoryActivityTab({ partId }) {
     const defaultFilters = useMemo(
@@ -51,13 +51,14 @@ export function PartInventoryActivityTab({ partId }) {
     });
 
     const dateDialog = useBoolean();
+    const contactsDialog = useBoolean();
+
+    const [performedByAssignees, setPerformedByAssignees] = useState([]);
 
     const { data: locationsResponse } = usePaginatedPartLocations(
         { page: 1, rowsPerPage: 1000 },
         { staleTime: 1000 * 60 * 10 }
     );
-
-    const { data: users = [] } = useUsers();
 
     const locations =
         locationsResponse?.locations ||
@@ -139,24 +140,22 @@ export function PartInventoryActivityTab({ partId }) {
                     </TextField>
 
                     <TextField
-                        select
                         size="small"
                         label="Performed By"
-                        value={filters.performedBy}
-                        onChange={(event) => handleFilters('performedBy', event.target.value)}
+                        value={
+                            performedByAssignees[0]?.name ||
+                            performedByAssignees[0]?.email ||
+                            'All users'
+                        }
+                        onClick={contactsDialog.onTrue}
                         sx={{ minWidth: 200 }}
-                    >
-                        <MenuItem value="">All users</MenuItem>
-                        {users.map((user) => (
-                            <MenuItem key={user._id} value={user._id}>
-                                {user.name || user.email}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
 
                     <Button
                         variant="outlined"
-                        size="small"
                         startIcon={<Iconify icon="mdi:calendar" />}
                         onClick={dateDialog.onTrue}
                     >
@@ -170,7 +169,10 @@ export function PartInventoryActivityTab({ partId }) {
                             variant="text"
                             color="secondary"
                             size="small"
-                            onClick={handleResetFilters}
+                            onClick={() => {
+                                handleResetFilters();
+                                setPerformedByAssignees([]);
+                            }}
                             startIcon={<Iconify icon="solar:restart-bold" />}
                         >
                             Reset filters
@@ -184,12 +186,11 @@ export function PartInventoryActivityTab({ partId }) {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Date</TableCell>
-                                    <TableCell>Type</TableCell>
-                                    <TableCell align="right">Qty Change</TableCell>
-                                    <TableCell align="right">Qty After</TableCell>
-                                    <TableCell>Location</TableCell>
+                                    <TableCell>Part Location</TableCell>
+                                    <TableCell>Adjustment Type</TableCell>
+                                    <TableCell>Adjustment Reason</TableCell>
+                                    <TableCell align="right">Qty</TableCell>
                                     <TableCell>Performed By</TableCell>
-                                    <TableCell>Note</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -202,6 +203,10 @@ export function PartInventoryActivityTab({ partId }) {
                                             activity.quantityDelta;
                                         const qtyAfter =
                                             activity.quantityAfter ?? activity.newQuantity ?? activity.currentQuantity;
+                                        const previousQty =
+                                            typeof qtyChange === 'number' && typeof qtyAfter === 'number'
+                                                ? qtyAfter - qtyChange
+                                                : null;
 
                                         return (
                                             <TableRow key={activity._id}>
@@ -212,23 +217,26 @@ export function PartInventoryActivityTab({ partId }) {
                                                         )
                                                         : '-'}
                                                 </TableCell>
-                                                <TableCell>{activity.type || '-'}</TableCell>
-                                                <TableCell align="right">
-                                                    {typeof qtyChange === 'number' ? qtyChange : '-'}
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    {typeof qtyAfter === 'number' ? qtyAfter : '-'}
-                                                </TableCell>
                                                 <TableCell>
                                                     {activity.inventoryLocation?.name || activity.locationName || '-'}
                                                 </TableCell>
+                                                <TableCell>{activity.type || '-'}</TableCell>
+                                                <TableCell>{activity.reason || '-'}</TableCell>
+
+                                                <TableCell >
+                                                    <QuantityChangeVisual
+                                                        previousQty={activity.quantityBefore}
+                                                        qtyAfter={qtyAfter}
+                                                        qtyChange={qtyChange}
+                                                    />
+                                                </TableCell>
+
                                                 <TableCell>
                                                     {activity.performedBy?.name ||
                                                         activity.performedBy?.email ||
                                                         activity.performedByName ||
                                                         '-'}
                                                 </TableCell>
-                                                <TableCell>{activity.note || activity.description || '-'}</TableCell>
                                             </TableRow>
                                         );
                                     })}
@@ -273,7 +281,81 @@ export function PartInventoryActivityTab({ partId }) {
                     onChangeStartDate={handleChangeStartDate}
                     onChangeEndDate={handleChangeEndDate}
                 />
+
+                <KanbanContactsDialog
+                    open={contactsDialog.value}
+                    onClose={contactsDialog.onFalse}
+                    assignees={performedByAssignees}
+                    onAssigneeChange={(newAssignees) => {
+                        setPerformedByAssignees(newAssignees);
+                        const selected = newAssignees[0];
+                        handleFilters('performedBy', selected?._id || '');
+                        if (contactsDialog.value) {
+                            contactsDialog.onFalse();
+                        }
+                    }}
+                    single
+                />
             </Box>
         </Card>
+    );
+}
+
+
+
+
+export function QuantityChangeVisual({ previousQty, qtyAfter, qtyChange }) {
+    if (typeof previousQty !== 'number' || typeof qtyAfter !== 'number') {
+        return '-';
+    }
+
+    const isIncrease = qtyChange > 0;
+    const color = isIncrease ? 'success' : qtyChange < 0 ? 'error' : 'grey';
+
+    return (
+        <Stack spacing={0.5} alignItems="flex-end">
+            <Stack direction="row" spacing={1} alignItems="center">
+                <Typography
+                    variant="caption"
+                    sx={{
+                        color: 'text.secondary',
+                        textDecoration: 'line-through',
+                        opacity: 0.7,
+                    }}
+                >
+                    {previousQty}
+                </Typography>
+                <Iconify
+                    icon="mdi:arrow-right"
+                    width={14}
+                    sx={{ color: 'text.disabled' }}
+                />
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 700,
+                        fontSize: '0.9375rem',
+                    }}
+                >
+                    {qtyAfter}
+                </Typography>
+            </Stack>
+            <Typography
+                variant="caption"
+                sx={{
+                    color: `${color}.main`,
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.25,
+                }}
+            >
+                <Iconify
+                    icon={isIncrease ? 'mdi:triangle-small-up' : 'mdi:triangle-small-down'}
+                    width={16}
+                />
+                {isIncrease ? '+' : ''}{qtyChange}
+            </Typography>
+        </Stack>
     );
 }

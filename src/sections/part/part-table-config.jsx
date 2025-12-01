@@ -65,18 +65,11 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.manufacturer,
   },
   {
-    id: 'inventoryLocation',
-    label: 'Location',
-    defaultVisible: true,
-    disabled: false,
-    getter: (row) => row.inventoryLocation?.name,
-  },
-  {
     id: 'quantity',
     label: 'Quantity',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.quantity,
+    getter: (row) => row.totalQuantity,
   },
   {
     id: 'unitCost',

@@ -32,6 +32,16 @@ const deletePart = async (id) => {
   return data;
 };
 
+const adjustPartStock = async ({ id, data }) => {
+  const { data: response } = await axios.post(`${ENDPOINT}/${id}/adjust-stock`, data);
+  return response;
+};
+
+const transferPartStock = async ({ id, data }) => {
+  const { data: response } = await axios.post(`${ENDPOINT}/${id}/transfer-stock`, data);
+  return response;
+};
+
 // Queries & Mutations
 export function usePaginatedParts(params, options = {}) {
   return useQuery({
@@ -122,5 +132,49 @@ export function useDeletePart() {
   });
 
   return mutate;
+}
+
+export function useAdjustPartStock() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: adjustPartStock,
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      if (variables?.id) {
+        queryClient.invalidateQueries([QUERY_KEY, variables.id]);
+      }
+      queryClient.invalidateQueries(['inventoryActivities']);
+      toast.success('Inventory adjusted successfully!');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useTransferPartStock() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: transferPartStock,
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      if (variables?.id) {
+        queryClient.invalidateQueries([QUERY_KEY, variables.id]);
+      }
+      queryClient.invalidateQueries(['inventoryActivities']);
+      toast.success('Stock transferred successfully!');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
 }
 

@@ -6,16 +6,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
 import {
+  Box,
   Card,
   Stack,
+  Alert,
   Divider,
   MenuItem,
   CardHeader,
+  Typography,
   ListSubheader,
   InputAdornment,
-  Alert,
-  Typography,
-  Box,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -292,7 +292,7 @@ export default function PartForm({ currentPart }) {
         <Field.AutocompleteCreatable
           name="manufacturer"
           label="Manufacturer"
-          options={PART_MANUFACTURERS}
+          optionsGroup="partManufacturer"
         />
         <Field.Text
           name="description"
