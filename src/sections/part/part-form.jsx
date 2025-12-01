@@ -25,7 +25,7 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Form, Field } from 'src/components/hook-form';
 
-import { PART_CATEGORIES, PART_MANUFACTURERS, MEASUREMENT_UNIT_GROUPS } from './part-constant';
+import { PART_CATEGORIES, MEASUREMENT_UNIT_GROUPS } from './part-constant';
 
 
 

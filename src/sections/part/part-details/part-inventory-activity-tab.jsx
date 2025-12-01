@@ -27,6 +27,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { useTable, TablePaginationCustom } from 'src/components/table';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
 import { KanbanContactsDialog } from 'src/sections/kanban/components/kanban-contacts-dialog';
 
 export function PartInventoryActivityTab({ partId }) {

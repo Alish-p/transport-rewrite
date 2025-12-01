@@ -2,6 +2,9 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+
+import { Iconify } from 'src/components/iconify';
 
 import { useOptions, useCreateOption } from 'src/query/use-options';
 
@@ -95,6 +98,7 @@ export function RHFAutocompleteCreatable({
               filtered.push({
                 inputValue,
                 title: `Create "${inputValue}"`,
+                isCreateOption: true,
               });
             }
 
@@ -117,9 +121,33 @@ export function RHFAutocompleteCreatable({
           }}
           renderOption={(props, option) => {
             const { key, ...optionProps } = props;
+
+            // Check if this is the "Create" option
+            const isCreateOption = option.isCreateOption || option.inputValue;
+
             return (
               <li key={key} {...optionProps}>
-                {option.title || option}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    width: '100%',
+                    ...(isCreateOption && {
+                      color: 'primary.main',
+                      fontWeight: 500,
+                    }),
+                  }}
+                >
+                  {isCreateOption && (
+                    <Iconify
+                      icon="mingcute:add-line"
+                      width={20}
+                      sx={{ flexShrink: 0 }}
+                    />
+                  )}
+                  <span>{option.title || option}</span>
+                </Box>
               </li>
             );
           }}
