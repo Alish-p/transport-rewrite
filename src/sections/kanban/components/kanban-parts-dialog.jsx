@@ -91,7 +91,8 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
                 const isSelected = selectedPart?._id === part._id;
                 const category =
                   part.category?.name || part.category || part.partCategory?.name || 'Uncategorized';
-                const quantity = part.quantity ?? part.availableQuantity ?? part.stock ?? 0;
+                const quantity =
+                  part.totalQuantity ?? part.quantity ?? part.availableQuantity ?? part.stock ?? 0;
                 const unit =
                   part.unit ||
                   part.uom ||

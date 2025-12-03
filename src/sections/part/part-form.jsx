@@ -135,7 +135,7 @@ export default function PartForm({ currentPart }) {
       if (currentPart) {
         const inventory = [];
 
-        for (const loc of locations) {
+        locations.forEach((loc) => {
           const locId = loc._id;
 
           const existing = existingInventoryEntries.find((entry) => {
@@ -178,11 +178,11 @@ export default function PartForm({ currentPart }) {
               threshold,
             });
           }
-        }
+        });
 
         const {
-          inventoryLocation,
-          quantity,
+          inventoryLocation: _inventoryLocation,
+          quantity: _quantity,
           inventoryLocationIds: _,
           locationQuantities: __,
           locationThresholds: ___,
@@ -204,7 +204,7 @@ export default function PartForm({ currentPart }) {
       // Iterate over all available locations to find those with defined quantities
       const entries = [];
 
-      for (const loc of locations) {
+      locations.forEach((loc) => {
         const rawQty = locationQuantities[loc._id];
         const rawThreshold = locationThresholds[loc._id];
 
@@ -235,7 +235,7 @@ export default function PartForm({ currentPart }) {
             threshold,
           });
         }
-      }
+      });
 
       if (entries.length === 0) {
         setError('root', {
@@ -246,8 +246,8 @@ export default function PartForm({ currentPart }) {
       }
 
       const {
-        inventoryLocation,
-        quantity,
+        inventoryLocation: _inventoryLocation,
+        quantity: _quantity,
         inventoryLocationIds: _,
         locationQuantities: __,
         locationThresholds: ___,

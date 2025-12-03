@@ -114,17 +114,23 @@ export default function PurchaseOrderForm() {
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const parts = partsResponse?.parts || partsResponse?.results || [];
+  const parts = useMemo(
+    () => partsResponse?.parts || partsResponse?.results || [],
+    [partsResponse]
+  );
 
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const locations =
-    locationsResponse?.locations ||
-    locationsResponse?.partLocations ||
-    locationsResponse?.results ||
-    [];
+  const locations = useMemo(
+    () =>
+      locationsResponse?.locations ||
+      locationsResponse?.partLocations ||
+      locationsResponse?.results ||
+      [],
+    [locationsResponse]
+  );
 
   const createPurchaseOrder = useCreatePurchaseOrder();
 
@@ -426,9 +432,8 @@ export default function PurchaseOrderForm() {
                         {(() => {
                           const selectedPart = getLinePart(field.id, line.partId);
                           const label = selectedPart
-                            ? `${selectedPart.name}${
-                                selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
-                              }`
+                            ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
+                            }`
                             : '';
                           return (
                             <DialogSelectButton

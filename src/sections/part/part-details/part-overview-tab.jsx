@@ -224,9 +224,7 @@ function LocationMetric({ label, value, highlightPositive }) {
         variant="caption"
         sx={{
           mb: 0.5,
-          display: 'inline-flex',
-          textDecoration: 'underline',
-          textDecorationStyle: 'dotted',
+          display: 'inline-block',
         }}
       >
         {label}
@@ -235,7 +233,7 @@ function LocationMetric({ label, value, highlightPositive }) {
         variant="subtitle2"
         sx={{
           mt: 0.5,
-          color: highlightPositive && isNumber && value > 0 ? 'success.main' : 'text.primary',
+          color: highlightPositive && isNumber && value > 0 ? 'success.main' : 'text.secondary',
         }}
       >
         {displayValue}

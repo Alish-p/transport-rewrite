@@ -1,12 +1,12 @@
 import { Controller, useFormContext } from 'react-hook-form';
 
+import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
-
-import { Iconify } from 'src/components/iconify';
 
 import { useOptions, useCreateOption } from 'src/query/use-options';
+
+import { Iconify } from 'src/components/iconify';
 
 const filter = createFilterOptions();
 
@@ -44,13 +44,13 @@ export function RHFAutocompleteCreatable({
     ? dynamicOptions.map((opt) => opt?.label || opt?.value).filter(Boolean)
     : options;
 
-  const handleCreateOption = async (label) => {
-    if (!optionsGroup || !label) return;
+  const handleCreateOption = async (inputValue) => {
+    if (!optionsGroup || !inputValue) return;
     try {
       await createOption({
         group: optionsGroup,
-        label,
-        value: label,
+        label: inputValue,
+        value: inputValue,
       });
     } catch (error) {
       // Error toast is handled inside the mutation hook
