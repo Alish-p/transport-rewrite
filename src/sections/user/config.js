@@ -74,6 +74,36 @@ export const PERMISSIONS = [
       'Permissions related to vehicle registration, maintenance, tracking, and fuel consumption monitoring.',
     name: 'vehicle',
   },
+  {
+    subheader: 'Parts',
+    caption:
+      'Permissions for managing vehicle spare parts, including inventory and pricing.',
+    name: 'part',
+  },
+  {
+    subheader: 'Part Locations',
+    caption:
+      'Permissions for managing part storage locations such as warehouses or godowns.',
+    name: 'partLocation',
+  },
+  {
+    subheader: 'Vendors',
+    caption:
+      'Permissions for managing vendors, including contact details and bank information.',
+    name: 'vendor',
+  },
+  {
+    subheader: 'Purchase Orders',
+    caption:
+      'Permissions for creating and managing purchase orders for vehicle parts and inventory.',
+    name: 'purchaseOrder',
+  },
+  {
+    subheader: 'Work Orders',
+    caption:
+      'Permissions for creating and managing vehicle maintenance work orders.',
+    name: 'workOrder',
+  },
 ];
 
 export const ACTIONS = ['create', 'view', 'update', 'delete'];

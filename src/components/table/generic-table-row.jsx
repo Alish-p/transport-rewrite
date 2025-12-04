@@ -33,6 +33,8 @@ export function GenericTableRow({
   const confirm = useBoolean();
   const popover = usePopover();
 
+  const hasActions = !!(onViewRow || onEditRow || onDeleteRow);
+
   const orderedColumns =
     columnOrder.length > 0
       ? columnOrder.map((id) => columns.find((column) => column.id === id)).filter(Boolean)
@@ -68,62 +70,66 @@ export function GenericTableRow({
             )
         )}
 
-        <TableCell align="right" sx={{ px: 1 }}>
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
+        {hasActions && (
+          <TableCell align="right" sx={{ px: 1 }}>
+            <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </TableCell>
+        )}
       </TableRow>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          {onViewRow && (
-            <MenuItem
-              onClick={() => {
-                onViewRow(row);
-                popover.onClose();
-              }}
-            >
-              <Iconify icon="solar:eye-bold" />
-              View
-            </MenuItem>
-          )}
+      {hasActions && (
+        <CustomPopover
+          open={popover.open}
+          onClose={popover.onClose}
+          anchorEl={popover.anchorEl}
+          slotProps={{ arrow: { placement: 'right-top' } }}
+        >
+          <MenuList>
+            {onViewRow && (
+              <MenuItem
+                onClick={() => {
+                  onViewRow(row);
+                  popover.onClose();
+                }}
+              >
+                <Iconify icon="solar:eye-bold" />
+                View
+              </MenuItem>
+            )}
 
-          {onEditRow && (
-            <MenuItem
-              onClick={() => {
-                onEditRow(row);
-                popover.onClose();
-              }}
-            >
-              <Iconify icon="solar:pen-bold" />
-              Edit
-            </MenuItem>
-          )}
+            {onEditRow && (
+              <MenuItem
+                onClick={() => {
+                  onEditRow(row);
+                  popover.onClose();
+                }}
+              >
+                <Iconify icon="solar:pen-bold" />
+                Edit
+              </MenuItem>
+            )}
 
-          {onDeleteRow && <Divider sx={{ borderStyle: 'dashed' }} />}
+            {onDeleteRow && <Divider sx={{ borderStyle: 'dashed' }} />}
 
-          {onDeleteRow && (
-            <MenuItem
-              onClick={() => {
-                confirm.onTrue();
-                popover.onClose();
-              }}
-              sx={{ color: 'error.main' }}
-            >
-              <Iconify icon="solar:trash-bin-trash-bold" />
-              Delete
-            </MenuItem>
-          )}
-        </MenuList>
-      </CustomPopover>
+            {onDeleteRow && (
+              <MenuItem
+                onClick={() => {
+                  confirm.onTrue();
+                  popover.onClose();
+                }}
+                sx={{ color: 'error.main' }}
+              >
+                <Iconify icon="solar:trash-bin-trash-bold" />
+                Delete
+              </MenuItem>
+            )}
+          </MenuList>
+        </CustomPopover>
+      )}
 
-      {onDeleteRow && (
+      {onDeleteRow && hasActions && (
         <ConfirmDialog
           open={confirm.value}
           onClose={confirm.onFalse}

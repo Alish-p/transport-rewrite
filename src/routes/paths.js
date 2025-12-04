@@ -146,7 +146,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/transporter/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/transporter/${id}`,
     },
-    
+
     expense: {
       root: `${ROOTS.DASHBOARD}/expense`,
       new: `${ROOTS.DASHBOARD}/expense/new-subtrip-expense`,
@@ -204,6 +204,41 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/tenants/new`,
       details: (id) => `${ROOTS.DASHBOARD}/tenants/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/tenants/${id}/edit`,
+    },
+    part: {
+      root: `${ROOTS.DASHBOARD}/part`,
+      new: `${ROOTS.DASHBOARD}/part/new`,
+      list: `${ROOTS.DASHBOARD}/part/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/part/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/part/${id}/edit`,
+    },
+    partLocation: {
+      root: `${ROOTS.DASHBOARD}/part-location`,
+      new: `${ROOTS.DASHBOARD}/part-location/new`,
+      list: `${ROOTS.DASHBOARD}/part-location/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/part-location/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/part-location/${id}/edit`,
+    },
+    vendor: {
+      root: `${ROOTS.DASHBOARD}/vendor`,
+      new: `${ROOTS.DASHBOARD}/vendor/new`,
+      list: `${ROOTS.DASHBOARD}/vendor/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/vendor/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/vendor/${id}/edit`,
+    },
+    purchaseOrder: {
+      root: `${ROOTS.DASHBOARD}/purchaseOrder`,
+      new: `${ROOTS.DASHBOARD}/purchaseOrder/new`,
+      list: `${ROOTS.DASHBOARD}/purchaseOrder/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/purchaseOrder/${id}/edit`,
+    },
+    workOrder: {
+      root: `${ROOTS.DASHBOARD}/workOrder`,
+      new: `${ROOTS.DASHBOARD}/workOrder/new`,
+      list: `${ROOTS.DASHBOARD}/workOrder/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}/edit`,
     },
   },
 };

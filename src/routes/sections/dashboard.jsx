@@ -76,6 +76,46 @@ const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/detail
 const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 
+// Vehicle Maintenance - Parts
+const PartDetailsPage = lazy(() => import('src/pages/dashboard/part/details'));
+const PartListPage = lazy(() => import('src/pages/dashboard/part/list'));
+const PartCreatePage = lazy(() => import('src/pages/dashboard/part/new'));
+const PartEditPage = lazy(() => import('src/pages/dashboard/part/edit'));
+
+// Vehicle Maintenance - Part Locations
+const PartLocationDetailsPage = lazy(
+  () => import('src/pages/dashboard/part-location/details')
+);
+const PartLocationListPage = lazy(() => import('src/pages/dashboard/part-location/list'));
+const PartLocationCreatePage = lazy(() => import('src/pages/dashboard/part-location/new'));
+const PartLocationEditPage = lazy(() => import('src/pages/dashboard/part-location/edit'));
+
+// Vehicle Maintenance - Vendors
+const VendorDetailsPage = lazy(() => import('src/pages/dashboard/vendor/details'));
+const VendorListPage = lazy(() => import('src/pages/dashboard/vendor/list'));
+const VendorCreatePage = lazy(() => import('src/pages/dashboard/vendor/new'));
+const VendorEditPage = lazy(() => import('src/pages/dashboard/vendor/edit'));
+
+// Vehicle Maintenance - Purchase Orders
+const PurchaseOrderListPage = lazy(
+  () => import('src/pages/dashboard/purchaseOrder/list')
+);
+const PurchaseOrderCreatePage = lazy(
+  () => import('src/pages/dashboard/purchaseOrder/new')
+);
+const PurchaseOrderDetailsPage = lazy(
+  () => import('src/pages/dashboard/purchaseOrder/details')
+);
+const PurchaseOrderEditPage = lazy(
+  () => import('src/pages/dashboard/purchaseOrder/edit')
+);
+
+// Vehicle Maintenance - Work Orders
+const WorkOrderListPage = lazy(() => import('src/pages/dashboard/workOrder/list'));
+const WorkOrderCreatePage = lazy(() => import('src/pages/dashboard/workOrder/new'));
+const WorkOrderDetailsPage = lazy(() => import('src/pages/dashboard/workOrder/details'));
+const WorkOrderEditPage = lazy(() => import('src/pages/dashboard/workOrder/edit'));
+
 // DriverPayroll
 const DriverPayrollListPage = lazy(() => import('src/pages/dashboard/driver-payroll/list'));
 const DriverPayrollDetailsPage = lazy(() => import('src/pages/dashboard/driver-payroll/details'));
@@ -400,7 +440,7 @@ export const dashboardRoutes = [
         ],
       },
 
-      
+
       {
         path: 'expense',
         children: [
@@ -497,7 +537,7 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
           },
-          
+
         ],
       },
       {
@@ -586,6 +626,231 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="invoice" action="update" hasContent>
                 <InvoiceEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'part',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="part" action="view" hasContent>
+                <PartDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="part" action="create" hasContent>
+                <PartCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="part" action="update" hasContent>
+                <PartEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'part-location',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="view" hasContent>
+                <PartLocationDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="create" hasContent>
+                <PartLocationCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="partLocation" action="update" hasContent>
+                <PartLocationEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'purchaseOrder',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="view" hasContent>
+                <PurchaseOrderListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="view" hasContent>
+                <PurchaseOrderListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="create" hasContent>
+                <PurchaseOrderCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="view" hasContent>
+                <PurchaseOrderDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="update" hasContent>
+                <PurchaseOrderEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'workOrder',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="create" hasContent>
+                <WorkOrderCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="view" hasContent>
+                <WorkOrderDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="workOrder" action="update" hasContent>
+                <WorkOrderEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'vendor',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="vendor" action="view" hasContent>
+                <VendorListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="vendor" action="view" hasContent>
+                <VendorListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <PermissionBasedGuard resource="vendor" action="view" hasContent>
+                <VendorDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <PermissionBasedGuard resource="vendor" action="create" hasContent>
+                <VendorCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="vendor" action="update" hasContent>
+                <VendorEditPage />
               </PermissionBasedGuard>
             ),
           },

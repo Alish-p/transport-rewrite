@@ -34,3 +34,4 @@ export * from './rhf-number-field';
 
 export * from './rhf-country-select';
 export * from './rhf-input-with-unit';
+export * from './rhf-autocomplete-creatable';
