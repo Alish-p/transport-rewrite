@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -35,13 +33,3 @@ export function BulkImportDialog({ open, onClose, entityName, schema, columns, o
     </Dialog>
   );
 }
-
-BulkImportDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  entityName: PropTypes.string.isRequired,
-  schema: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
-  onImport: PropTypes.func.isRequired,
-};
-

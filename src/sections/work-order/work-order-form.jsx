@@ -621,6 +621,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           <Button
             size="small"
             startIcon={<Iconify icon="mingcute:add-line" />}
+            color="primary"
             onClick={() =>
               appendIssue({
                 issue: '',
