@@ -80,11 +80,21 @@ export const TABLE_COLUMNS = [
     },
   },
   {
-    id: 'assignedTo',
-    label: 'Assigned To',
+    id: 'issueAssignees',
+    label: 'Issue Assignees',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.assignedTo?.name,
+    getter: (row) => {
+      const issues = row.issues || [];
+      const names = issues
+        .map((issue) => {
+          if (!issue || typeof issue !== 'object' || !issue.assignedTo) return null;
+          return issue.assignedTo.name || issue.assignedTo.customerName || null;
+        })
+        .filter(Boolean);
+      const unique = Array.from(new Set(names));
+      return unique.join(', ');
+    },
   },
   {
     id: 'scheduledStartDate',
@@ -132,4 +142,3 @@ export const TABLE_COLUMNS = [
     render: (row) => fCurrency(row.totalCost || 0),
   },
 ];
-

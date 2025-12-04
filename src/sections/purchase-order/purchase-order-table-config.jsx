@@ -17,6 +17,7 @@ const STATUS_CONFIG = {
   'pending-approval': { label: 'Pending Approval', color: 'warning' },
   approved: { label: 'Approved', color: 'info' },
   purchased: { label: 'Purchased', color: 'primary' },
+  'partial-received': { label: 'Partially Received', color: 'warning' },
   rejected: { label: 'Rejected', color: 'error' },
   received: { label: 'Received', color: 'success' },
 };
@@ -97,4 +98,3 @@ export const TABLE_COLUMNS = [
     },
   },
 ];
-

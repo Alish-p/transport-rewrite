@@ -31,8 +31,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { usePaginatedParts } from 'src/query/use-part';
-import { useCreatePurchaseOrder } from 'src/query/use-purchase-order';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
+import { useCreatePurchaseOrder, useUpdatePurchaseOrder } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -73,29 +73,57 @@ export const PurchaseOrderSchema = zod.object({
   lines: zod.array(PurchaseOrderLineSchema).min(1, { message: 'Add at least one line item' }),
 });
 
-export default function PurchaseOrderForm() {
+export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   const navigate = useNavigate();
   const tenant = useTenantContext();
 
+  const defaultValues = useMemo(
+    () => ({
+      vendorId:
+        currentPurchaseOrder?.vendor?._id ||
+        currentPurchaseOrder?.vendor ||
+        '',
+      partLocationId:
+        currentPurchaseOrder?.partLocation?._id ||
+        currentPurchaseOrder?.partLocation ||
+        '',
+      orderDate: currentPurchaseOrder?.orderDate
+        ? new Date(currentPurchaseOrder.orderDate)
+        : new Date(),
+      description: currentPurchaseOrder?.description || '',
+      discountType: currentPurchaseOrder?.discountType || 'percentage',
+      discount:
+        typeof currentPurchaseOrder?.discount === 'number'
+          ? currentPurchaseOrder.discount
+          : 0,
+      shipping:
+        typeof currentPurchaseOrder?.shipping === 'number'
+          ? currentPurchaseOrder.shipping
+          : 0,
+      taxType: currentPurchaseOrder?.taxType || 'percentage',
+      tax:
+        typeof currentPurchaseOrder?.tax === 'number'
+          ? currentPurchaseOrder.tax
+          : 0,
+      lines: (currentPurchaseOrder?.lines || []).map((line) => ({
+        partId: line.part?._id || line.part || '',
+        quantityOrdered: line.quantityOrdered || 1,
+        unitCost: line.unitCost || 0,
+      })),
+    }),
+    [currentPurchaseOrder]
+  );
+
   const vendorDialog = useBoolean();
-  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(
+    currentPurchaseOrder?.vendor || null
+  );
   const [activeLineId, setActiveLineId] = useState(null);
   const [lineParts, setLineParts] = useState({});
   const partDialog = useBoolean();
   const methods = useForm({
     resolver: zodResolver(PurchaseOrderSchema),
-    defaultValues: {
-      vendorId: '',
-      partLocationId: '',
-      orderDate: new Date(),
-      description: '',
-      discountType: 'fixed',
-      discount: 0,
-      shipping: 0,
-      taxType: 'fixed',
-      tax: 0,
-      lines: [],
-    },
+    defaultValues,
   });
 
   const {
@@ -103,8 +131,13 @@ export default function PurchaseOrderForm() {
     setValue,
     handleSubmit,
     control,
+    reset,
     formState: { isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const { fields, append, remove } = useFieldArray({ name: 'lines', control });
 
@@ -133,6 +166,13 @@ export default function PurchaseOrderForm() {
   );
 
   const createPurchaseOrder = useCreatePurchaseOrder();
+  const updatePurchaseOrder = useUpdatePurchaseOrder();
+
+  useEffect(() => {
+    if (currentPurchaseOrder?.vendor) {
+      setSelectedVendor(currentPurchaseOrder.vendor);
+    }
+  }, [currentPurchaseOrder]);
 
   useEffect(() => {
     setLineParts((prev) => {
@@ -226,6 +266,32 @@ export default function PurchaseOrderForm() {
     };
   }, [values]);
 
+  const STATUS_LABELS = {
+    'pending-approval': 'Pending Approval',
+    approved: 'Approved',
+    purchased: 'Purchased',
+    'partial-received': 'Partially Received',
+    rejected: 'Rejected',
+    received: 'Received',
+  };
+
+  const STATUS_COLORS = {
+    'pending-approval': 'warning',
+    approved: 'info',
+    purchased: 'primary',
+    'partial-received': 'warning',
+    rejected: 'error',
+    received: 'success',
+  };
+
+  const headerStatus = currentPurchaseOrder?.status || 'draft';
+  const headerStatusLabel = currentPurchaseOrder
+    ? STATUS_LABELS[headerStatus] || headerStatus
+    : 'Draft';
+  const headerStatusColor = currentPurchaseOrder
+    ? STATUS_COLORS[headerStatus] || 'default'
+    : 'warning';
+
   const onSubmit = async (formData) => {
     try {
       const payload = {
@@ -245,7 +311,15 @@ export default function PurchaseOrderForm() {
         tax: formData.tax || 0,
       };
 
-      const po = await createPurchaseOrder(payload);
+      let po;
+      if (currentPurchaseOrder?._id) {
+        po = await updatePurchaseOrder({
+          id: currentPurchaseOrder._id,
+          data: payload,
+        });
+      } else {
+        po = await createPurchaseOrder(payload);
+      }
       navigate(paths.dashboard.purchaseOrder.details(po._id));
     } catch (error) {
       console.error(error);
@@ -268,8 +342,8 @@ export default function PurchaseOrderForm() {
           sx={{ width: 60, height: 60, bgcolor: 'background.neutral', borderRadius: 1 }}
         />
         <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-          <Label variant="soft" color="warning">
-            Draft
+          <Label variant="soft" color={headerStatusColor}>
+            {headerStatusLabel}
           </Label>
           <Typography variant="h6">Purchase Order</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -534,10 +608,10 @@ export default function PurchaseOrderForm() {
             label=""
             placeholder={values.discountType === 'percentage' ? '0.00' : '0.00'}
             unitOptions={[
-              { label: 'Percentage', value: 'percentage' },
+              { label: '%', value: 'percentage' },
               { label: 'Fixed', value: 'fixed' },
             ]}
-            defaultUnit="fixed"
+            defaultUnit="percentage"
             textFieldProps={{
               size: 'small',
             }}
@@ -576,10 +650,10 @@ export default function PurchaseOrderForm() {
             label=""
             placeholder={values.taxType === 'percentage' ? '0.00' : '0.00'}
             unitOptions={[
-              { label: 'Percentage', value: 'percentage' },
+              { label: '%', value: 'percentage' },
               { label: 'Fixed', value: 'fixed' },
             ]}
-            defaultUnit="fixed"
+            defaultUnit="percentage"
             textFieldProps={{
               size: 'small',
             }}
@@ -685,7 +759,7 @@ export default function PurchaseOrderForm() {
           size="large"
           disabled={isSubmitting}
         >
-          Create Purchase Order
+          {currentPurchaseOrder ? 'Save Changes' : 'Create Purchase Order'}
         </Button>
       </Stack>
 

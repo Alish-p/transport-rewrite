@@ -43,6 +43,7 @@ const STATUS_LABELS = {
   'pending-approval': 'Pending Approval',
   approved: 'Approved',
   purchased: 'Purchased',
+  'partial-received': 'Partially Received',
   rejected: 'Rejected',
   received: 'Received',
 };
@@ -51,6 +52,7 @@ const STATUS_COLORS = {
   'pending-approval': 'warning',
   approved: 'info',
   purchased: 'primary',
+  'partial-received': 'warning',
   rejected: 'error',
   received: 'success',
 };
@@ -66,9 +68,11 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     subtotal,
     discountType,
     discount,
+    discountAmount,
     shipping,
     taxType,
     tax,
+    taxAmount,
     total,
     createdAt,
     orderDate,
@@ -128,7 +132,10 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     });
   }
 
-  if ((status === 'approved' || status === 'purchased') && !allFullyReceived) {
+  if (
+    (status === 'approved' || status === 'purchased' || status === 'partial-received') &&
+    !allFullyReceived
+  ) {
     actions.push({
       label: 'Receive All',
       icon: 'material-symbols:inventory-2-outline',
@@ -220,7 +227,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
       const payload = {
         lines: selectedLines.map((line) => ({
           lineId: line.lineId,
-          quantityReceived: line.receiveQty,
+          quantityToReceive: line.receiveQty,
         })),
       };
 
@@ -412,7 +419,12 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   {discount > 0 && (
                     <SummaryRow
                       label={`Discount ${discountType === 'percentage' ? `(${discount}%)` : ''}`}
-                      value={`- ${fCurrency(discount || 0)}`}
+                      value={`- ${fCurrency(
+                        discountAmount ??
+                          (discountType === 'percentage'
+                            ? ((subtotal || 0) * (discount || 0)) / 100
+                            : discount || 0)
+                      )}`}
                       color="success.main"
                     />
                   )}
@@ -422,7 +434,20 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   {tax > 0 && (
                     <SummaryRow
                       label={`Tax ${taxType === 'percentage' ? `(${tax}%)` : ''}`}
-                      value={fCurrency(tax || 0)}
+                      value={fCurrency(
+                        taxAmount ??
+                          (() => {
+                            const effectiveDiscount =
+                              discountAmount ??
+                              (discountType === 'percentage'
+                                ? ((subtotal || 0) * (discount || 0)) / 100
+                                : discount || 0);
+                            const taxableBase = Math.max((subtotal || 0) - (effectiveDiscount || 0), 0);
+                            return taxType === 'percentage'
+                              ? (taxableBase * (tax || 0)) / 100
+                              : tax || 0;
+                          })()
+                      )}
                     />
                   )}
                   <Divider sx={{ my: 0.5 }} />

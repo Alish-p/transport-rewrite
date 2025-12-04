@@ -6,6 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
+import { useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -40,8 +41,11 @@ const STORAGE_KEY = 'purchase-order-table-columns';
 
 const defaultFilters = {
   status: 'all',
-  vendor: '',
+  vendorId: '',
   partId: '',
+  fromDate: null,
+  toDate: null,
+  partLocationId: '',
 };
 
 const STATUS_TABS = [
@@ -49,11 +53,13 @@ const STATUS_TABS = [
   { value: 'pending-approval', label: 'Pending Approval', color: 'warning' },
   { value: 'approved', label: 'Approved', color: 'info' },
   { value: 'purchased', label: 'Purchased', color: 'primary' },
+  { value: 'partial-received', label: 'Partially Received', color: 'warning' },
   { value: 'received', label: 'Received', color: 'success' },
   { value: 'rejected', label: 'Rejected', color: 'error' },
 ];
 
 export function PurchaseOrderListView() {
+
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
 
@@ -62,6 +68,7 @@ export function PurchaseOrderListView() {
   });
 
   const [selectedPart, setSelectedPart] = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(null);
 
   const {
     visibleColumns,
@@ -77,8 +84,11 @@ export function PurchaseOrderListView() {
 
   const { data, isLoading } = usePaginatedPurchaseOrders({
     status: filters.status === 'all' ? undefined : filters.status,
-    vendorName: filters.vendor || undefined,
+    vendor: filters.vendorId || undefined,
+    fromDate: filters.fromDate || undefined,
+    toDate: filters.toDate || undefined,
     part: filters.partId || undefined,
+    partLocation: filters.partLocationId || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -96,6 +106,27 @@ export function PurchaseOrderListView() {
   }, [data]);
 
   const totalCount = data?.total || tableData.length;
+  const totals = data?.totals || {};
+
+  const statusTotalsKeyMap = {
+    all: 'all',
+    'pending-approval': 'pendingApproval',
+    approved: 'approved',
+    purchased: 'purchased',
+    'partial-received': 'partialReceived',
+    received: 'received',
+    rejected: 'rejected',
+  };
+
+  const getStatusCount = (value) => {
+    const key = statusTotalsKeyMap[value];
+    if (!key) return 0;
+    return totals[key]?.count || 0;
+  };
+
+
+
+
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -109,6 +140,13 @@ export function PurchaseOrderListView() {
   const handleViewRow = useCallback(
     (id) => {
       router.push(paths.dashboard.purchaseOrder.details(id));
+    },
+    [router]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.purchaseOrder.edit(id));
     },
     [router]
   );
@@ -131,6 +169,10 @@ export function PurchaseOrderListView() {
   useEffect(() => {
     if (!filters.partId) setSelectedPart(null);
   }, [filters.partId]);
+
+  useEffect(() => {
+    if (!filters.vendorId) setSelectedVendor(null);
+  }, [filters.vendorId]);
 
   return (
     <DashboardContent>
@@ -175,7 +217,7 @@ export function PurchaseOrderListView() {
                   }
                   color={tab.color}
                 >
-                  {tab.value === 'all' ? totalCount : ''}
+                  {getStatusCount(tab.value)}
                 </Label>
               }
             />
@@ -193,6 +235,8 @@ export function PurchaseOrderListView() {
           canResetColumns={canResetColumns}
           selectedPart={selectedPart}
           onSelectPart={handleSelectPart}
+          selectedVendor={selectedVendor}
+          onSelectVendor={setSelectedVendor}
         />
 
         {canReset && (
@@ -201,6 +245,7 @@ export function PurchaseOrderListView() {
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
             selectedPart={selectedPart}
+            selectedVendor={selectedVendor}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -247,6 +292,7 @@ export function PurchaseOrderListView() {
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}

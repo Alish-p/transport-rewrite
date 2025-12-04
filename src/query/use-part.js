@@ -97,6 +97,29 @@ export function useCreatePart() {
   return mutateAsync;
 }
 
+const createBulkParts = async (payload) => {
+  const { data } = await axios.post(`${ENDPOINT}/bulk`, payload);
+  return data;
+};
+
+export function useCreateBulkParts() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: createBulkParts,
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success('Parts imported successfully!');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
 export function useUpdatePart() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({

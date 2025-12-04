@@ -26,6 +26,8 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     shipping = 0,
     tax = 0,
     taxType,
+    discountAmount,
+    taxAmount,
     total = 0,
     _id,
   } = purchaseOrder || {};
@@ -63,6 +65,16 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     amount: line.amount || (line.quantityOrdered || 0) * (line.unitCost || 0),
   }));
 
+  const effectiveDiscountAmount =
+    discountAmount ??
+    (discountType === 'percentage' ? (subtotal * (discount || 0)) / 100 : discount || 0);
+
+  const taxableBase = Math.max(subtotal - (effectiveDiscountAmount || 0), 0);
+
+  const effectiveTaxAmount =
+    taxAmount ??
+    (taxType === 'percentage' ? (taxableBase * (tax || 0)) / 100 : tax || 0);
+
   const extraRows = [];
 
   extraRows.push({
@@ -86,7 +98,12 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
           }`,
           align: 'right',
         },
-        { startIndex: 5, colspan: 1, value: `- ${fCurrency(discount)}`, align: 'right' },
+        {
+          startIndex: 5,
+          colspan: 1,
+          value: `- ${fCurrency(effectiveDiscountAmount || 0)}`,
+          align: 'right',
+        },
       ],
       highlight: false,
     });
@@ -113,7 +130,12 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
           value: `Tax${taxType === 'percentage' ? ` (${tax}%)` : ''}`,
           align: 'right',
         },
-        { startIndex: 5, colspan: 1, value: fCurrency(tax), align: 'right' },
+        {
+          startIndex: 5,
+          colspan: 1,
+          value: fCurrency(effectiveTaxAmount || 0),
+          align: 'right',
+        },
       ],
       highlight: false,
     });
@@ -159,4 +181,3 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     </Document>
   );
 }
-

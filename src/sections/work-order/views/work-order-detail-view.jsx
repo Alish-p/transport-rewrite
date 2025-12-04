@@ -58,7 +58,6 @@ export function WorkOrderDetailView({ workOrder }) {
     scheduledStartDate,
     actualStartDate,
     completedDate,
-    assignedTo,
     odometerReading,
     labourCharge,
     partsCost,
@@ -210,15 +209,6 @@ export function WorkOrderDetailView({ workOrder }) {
 
                   <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                     <Typography variant="body2" sx={{ minWidth: 96 }}>
-                      Assignee:
-                    </Typography>
-                    <Typography variant="body2">
-                      {assignedTo?.name || assignedTo?.customerName || '-'}
-                    </Typography>
-                  </Stack>
-
-                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                    <Typography variant="body2" sx={{ minWidth: 96 }}>
                       Odometer:
                     </Typography>
                     <Typography variant="body2">
@@ -337,7 +327,23 @@ export function WorkOrderDetailView({ workOrder }) {
                     >
                       {index + 1}.
                     </Typography>
-                    <Typography variant="body2">{issue}</Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="body2">
+                        {typeof issue === 'string' ? issue : issue.issue}
+                      </Typography>
+                      {issue &&
+                        typeof issue === 'object' &&
+                        issue.assignedTo &&
+                        (issue.assignedTo.name || issue.assignedTo.customerName) && (
+                          <Typography
+                            variant="caption"
+                            sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}
+                          >
+                            Assigned to:{' '}
+                            {issue.assignedTo.name || issue.assignedTo.customerName}
+                          </Typography>
+                        )}
+                    </Box>
                   </Stack>
                 ))}
               </Stack>

@@ -106,6 +106,9 @@ const PurchaseOrderCreatePage = lazy(
 const PurchaseOrderDetailsPage = lazy(
   () => import('src/pages/dashboard/purchaseOrder/details')
 );
+const PurchaseOrderEditPage = lazy(
+  () => import('src/pages/dashboard/purchaseOrder/edit')
+);
 
 // Vehicle Maintenance - Work Orders
 const WorkOrderListPage = lazy(() => import('src/pages/dashboard/workOrder/list'));
@@ -437,7 +440,7 @@ export const dashboardRoutes = [
         ],
       },
 
-      
+
       {
         path: 'expense',
         children: [
@@ -534,7 +537,7 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
           },
-          
+
         ],
       },
       {
@@ -750,6 +753,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="purchaseOrder" action="view" hasContent>
                 <PurchaseOrderDetailsPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <PermissionBasedGuard resource="purchaseOrder" action="update" hasContent>
+                <PurchaseOrderEditPage />
               </PermissionBasedGuard>
             ),
           },

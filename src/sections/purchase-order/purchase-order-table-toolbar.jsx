@@ -1,20 +1,28 @@
 /* eslint-disable react/prop-types */
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import { Tooltip } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+
+import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './purchase-order-table-config';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
+import { KanbanVendorDialog } from '../kanban/components/kanban-vendor-dialog';
 
 export default function PurchaseOrderTableToolbar({
   filters,
@@ -27,15 +35,26 @@ export default function PurchaseOrderTableToolbar({
   canResetColumns,
   selectedPart,
   onSelectPart,
+  selectedVendor,
+  onSelectVendor,
 }) {
   const columnsPopover = usePopover();
   const partDialog = usePopover();
+  const vendorDialog = useBoolean();
+  const dateRange = useBoolean();
 
-  const handleFilterVendor = useCallback(
-    (event) => {
-      onFilters('vendor', event.target.value);
-    },
-    [onFilters]
+  const { data: locationsResponse } = usePaginatedPartLocations(
+    { page: 1, rowsPerPage: 1000 },
+    { staleTime: 1000 * 60 * 10 }
+  );
+
+  const locations = useMemo(
+    () =>
+      locationsResponse?.locations ||
+      locationsResponse?.partLocations ||
+      locationsResponse?.results ||
+      [],
+    [locationsResponse]
   );
 
   const handleSelectPart = useCallback(
@@ -46,6 +65,16 @@ export default function PurchaseOrderTableToolbar({
       partDialog.onClose();
     },
     [onSelectPart, partDialog]
+  );
+
+  const handleSelectVendor = useCallback(
+    (vendor) => {
+      onFilters('vendorId', vendor?._id || '');
+      if (onSelectVendor) {
+        onSelectVendor(vendor || null);
+      }
+    },
+    [onFilters, onSelectVendor]
   );
 
   return (
@@ -62,18 +91,12 @@ export default function PurchaseOrderTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.vendor}
-          onChange={handleFilterVendor}
-          placeholder="Filter by vendor name..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={vendorDialog.onTrue}
+          selected={selectedVendor?.name}
+          placeholder="Filter by vendor"
+          iconName="mdi:office-building"
+          sx={{ maxWidth: 260 }}
         />
 
         <DialogSelectButton
@@ -81,6 +104,34 @@ export default function PurchaseOrderTableToolbar({
           selected={selectedPart?.name}
           placeholder="Filter by part"
           iconName="mdi:cube"
+          sx={{ maxWidth: 260 }}
+        />
+
+        <TextField
+          select
+          size="small"
+          label="Part Location"
+          value={filters.partLocationId || ''}
+          onChange={(event) => onFilters('partLocationId', event.target.value || '')}
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="">All Locations</MenuItem>
+          {locations.map((loc) => (
+            <MenuItem key={loc._id} value={loc._id}>
+              {loc.name}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <DialogSelectButton
+          onClick={dateRange.onTrue}
+          selected={
+            filters.fromDate && filters.toDate
+              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+              : undefined
+          }
+          placeholder="Filter by date range"
+          iconName="mdi:calendar"
           sx={{ maxWidth: 260 }}
         />
 
@@ -123,6 +174,23 @@ export default function PurchaseOrderTableToolbar({
         onClose={partDialog.onClose}
         selectedPart={selectedPart}
         onPartChange={handleSelectPart}
+      />
+
+      <KanbanVendorDialog
+        open={vendorDialog.value}
+        onClose={vendorDialog.onFalse}
+        selectedVendor={selectedVendor}
+        onVendorChange={handleSelectVendor}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateRange.value}
+        onClose={dateRange.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.toDate}
+        onChangeStartDate={(date) => onFilters('fromDate', date)}
+        onChangeEndDate={(date) => onFilters('toDate', date)}
       />
     </>
   );

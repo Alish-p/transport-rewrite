@@ -146,7 +146,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/transporter/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/transporter/${id}`,
     },
-    
+
     expense: {
       root: `${ROOTS.DASHBOARD}/expense`,
       new: `${ROOTS.DASHBOARD}/expense/new-subtrip-expense`,

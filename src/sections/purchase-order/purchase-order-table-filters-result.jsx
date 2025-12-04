@@ -1,9 +1,13 @@
 /* eslint-disable react/prop-types */
+import { useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+
+import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -13,6 +17,7 @@ export default function PurchaseOrderTableFiltersResult({
   onResetFilters,
   results,
   selectedPart,
+  selectedVendor,
   ...other
 }) {
   const handleRemoveStatus = () => {
@@ -20,12 +25,39 @@ export default function PurchaseOrderTableFiltersResult({
   };
 
   const handleRemoveVendor = () => {
-    onFilters('vendor', '');
+    onFilters('vendorId', '');
+  };
+
+  const handleRemoveDateRange = () => {
+    onFilters('fromDate', null);
+    onFilters('toDate', null);
   };
 
   const handleRemovePart = () => {
     onFilters('partId', '');
   };
+
+  const handleRemovePartLocation = () => {
+    onFilters('partLocationId', '');
+  };
+
+  const { data: locationsResponse } = usePaginatedPartLocations(
+    { page: 1, rowsPerPage: 1000 },
+    { staleTime: 1000 * 60 * 10 }
+  );
+
+  const locations = useMemo(
+    () =>
+      locationsResponse?.locations ||
+      locationsResponse?.partLocations ||
+      locationsResponse?.results ||
+      [],
+    [locationsResponse]
+  );
+
+  const selectedLocationName =
+    locations.find((loc) => loc._id === filters.partLocationId)?.name ||
+    filters.partLocationId;
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -43,9 +75,25 @@ export default function PurchaseOrderTableFiltersResult({
           </Block>
         )}
 
-        {filters.vendor && (
+        {filters.vendorId && (
           <Block label="Vendor :">
-            <Chip size="small" label={filters.vendor} onDelete={handleRemoveVendor} />
+            <Chip
+              size="small"
+              label={selectedVendor?.name || filters.vendorId}
+              onDelete={handleRemoveVendor}
+            />
+          </Block>
+        )}
+
+        {filters.fromDate && filters.toDate && (
+          <Block label="Date :">
+            <Chip
+              size="small"
+              label={`${new Date(filters.fromDate).toLocaleDateString()} - ${new Date(
+                filters.toDate
+              ).toLocaleDateString()}`}
+              onDelete={handleRemoveDateRange}
+            />
           </Block>
         )}
 
@@ -55,6 +103,16 @@ export default function PurchaseOrderTableFiltersResult({
               size="small"
               label={selectedPart?.name || filters.partId}
               onDelete={handleRemovePart}
+            />
+          </Block>
+        )}
+
+        {filters.partLocationId && (
+          <Block label="Part Location :">
+            <Chip
+              size="small"
+              label={selectedLocationName}
+              onDelete={handleRemovePartLocation}
             />
           </Block>
         )}

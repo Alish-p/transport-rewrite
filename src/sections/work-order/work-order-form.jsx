@@ -46,6 +46,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { RHFAutocompleteCreatable } from 'src/components/hook-form/rhf-autocomplete-creatable';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -70,9 +71,13 @@ const WorkOrderLineSchema = zod.object({
     .min(0, { message: 'Price cannot be negative' }),
 });
 
+const WorkOrderIssueSchema = zod.object({
+  issue: zod.string().min(1, { message: 'Issue cannot be empty' }),
+  assignedTo: zod.string().optional(),
+});
+
 export const WorkOrderSchema = zod.object({
   vehicleId: zod.string().min(1, { message: 'Vehicle is required' }),
-  assignedTo: zod.string().optional(),
   status: zod
     .enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value))
     .optional(),
@@ -84,7 +89,7 @@ export const WorkOrderSchema = zod.object({
   odometerReading: zod.number().nonnegative().optional(),
   labourCharge: zod.number().nonnegative().optional(),
   description: zod.string().optional(),
-  issues: zod.array(zod.string().min(1, { message: 'Issue cannot be empty' })).optional(),
+  issues: zod.array(WorkOrderIssueSchema).optional(),
   parts: zod.array(WorkOrderLineSchema).optional(),
 });
 
@@ -93,16 +98,15 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   const tenant = useTenantContext();
 
   const vehicleDialog = useBoolean(false);
-  const assigneeDialog = useBoolean(false);
   const scheduledDateDialog = useBoolean(false);
   const actualDateDialog = useBoolean(false);
 
   const [selectedVehicle, setSelectedVehicle] = useState(
     currentWorkOrder?.vehicle || null
   );
-  const [selectedAssignee, setSelectedAssignee] = useState(
-    currentWorkOrder?.assignedTo || null
-  );
+  const [issueAssignees, setIssueAssignees] = useState({});
+  const [activeIssueFieldId, setActiveIssueFieldId] = useState(null);
+  const assigneeDialog = useBoolean(false);
   const [priorityAnchorEl, setPriorityAnchorEl] = useState(null);
   const [activePartLineId, setActivePartLineId] = useState(null);
   const [lineParts, setLineParts] = useState({});
@@ -112,10 +116,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       vehicleId:
         currentWorkOrder?.vehicle?._id ||
         currentWorkOrder?.vehicle ||
-        '',
-      assignedTo:
-        currentWorkOrder?.assignedTo?._id ||
-        currentWorkOrder?.assignedTo ||
         '',
       status: currentWorkOrder?.status || 'open',
       priority: currentWorkOrder?.priority || 'non-scheduled',
@@ -134,7 +134,21 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           ? currentWorkOrder.labourCharge
           : 0,
       description: currentWorkOrder?.description || '',
-      issues: currentWorkOrder?.issues || [],
+      issues: (() => {
+        if (!currentWorkOrder?.issues) return [];
+        return currentWorkOrder.issues.map((issue) => {
+          if (typeof issue === 'string') {
+            return { issue, assignedTo: '' };
+          }
+          return {
+            issue: issue.issue || '',
+            assignedTo:
+              issue.assignedTo?._id ||
+              issue.assignedTo ||
+              '',
+          };
+        });
+      })(),
       parts: (currentWorkOrder?.parts || []).map((line) => ({
         part: line.part?._id || line.part || '',
         partLocation:
@@ -252,6 +266,27 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     currentWorkOrder?.createdAt ||
     new Date();
 
+  useEffect(() => {
+    if (!currentWorkOrder) {
+      return;
+    }
+
+    if (!currentWorkOrder.issues || !issueFields.length) {
+      setIssueAssignees({});
+      return;
+    }
+
+    const mapping = {};
+    issueFields.forEach((field, index) => {
+      const existing = currentWorkOrder.issues?.[index];
+      if (existing && typeof existing === 'object' && existing.assignedTo) {
+        mapping[field.id] = existing.assignedTo;
+      }
+    });
+
+    setIssueAssignees(mapping);
+  }, [currentWorkOrder, issueFields]);
+
   const computed = useMemo(() => {
     const partsCost = (values.parts || []).reduce((sum, line) => {
       const qty = Number(line.quantity) || 0;
@@ -284,10 +319,22 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     setValue('vehicleId', vehicle?._id || '');
   };
 
-  const handleAssigneesChange = (assignees) => {
+  const handleIssueAssigneesChange = (assignees) => {
     const user = assignees?.[0] || null;
-    setSelectedAssignee(user);
-    setValue('assignedTo', user?._id || '');
+    if (!activeIssueFieldId) return;
+    const index = issueFields.findIndex((f) => f.id === activeIssueFieldId);
+    if (index < 0) return;
+
+    setIssueAssignees((prev) => ({
+      ...prev,
+      [activeIssueFieldId]: user,
+    }));
+
+    setValue(`issues.${index}.assignedTo`, user?._id || '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
     assigneeDialog.onFalse();
   };
 
@@ -345,7 +392,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         scheduledStartDate:
           formData.scheduledStartDate || undefined,
         actualStartDate: formData.actualStartDate || undefined,
-        assignedTo: formData.assignedTo || undefined,
         odometerReading: formData.odometerReading || undefined,
         labourCharge:
           typeof formData.labourCharge === 'number'
@@ -357,7 +403,12 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           quantity: line.quantity,
           price: line.price,
         })),
-        issues: (formData.issues || []).filter((issue) => !!issue && issue.trim().length > 0),
+        issues: (formData.issues || [])
+          .filter((item) => item && item.issue && item.issue.trim().length > 0)
+          .map((item) => ({
+            issue: item.issue.trim(),
+            assignedTo: item.assignedTo || undefined,
+          })),
         description: formData.description || undefined,
       };
 
@@ -431,7 +482,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
         <Stack sx={{ width: 1 }}>
           <Typography variant="h6" sx={{ color: 'text.disabled', mb: 1 }}>
-            Vehicle &amp; Assignee
+            Vehicle &amp; Schedule
           </Typography>
           <Stack spacing={2}>
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -484,29 +535,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                   sx={{ color: 'error.main', ml: 0.5 }}
                 >
                   Select a vehicle
-                </Typography>
-              )}
-            </Stack>
-
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-              <Typography variant="body2" sx={{ minWidth: 72 }}>
-                Assignee:
-              </Typography>
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={assigneeDialog.onTrue}
-              >
-                <Iconify icon={selectedAssignee ? 'solar:pen-bold' : 'mingcute:add-line'} />
-              </IconButton>
-              {selectedAssignee ? (
-                <Typography variant="body2">{selectedAssignee.name}</Typography>
-              ) : (
-                <Typography
-                  variant="caption"
-                  sx={{ color: 'error.main', ml: 0.5 }}
-                >
-                  Select an assignee
                 </Typography>
               )}
             </Stack>
@@ -593,7 +621,12 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           <Button
             size="small"
             startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={() => appendIssue('')}
+            onClick={() =>
+              appendIssue({
+                issue: '',
+                assignedTo: '',
+              })
+            }
           >
             Add Issue
           </Button>
@@ -605,31 +638,67 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             observations.
           </Typography>
         ) : (
-          <Stack spacing={1.5}>
-            {issueFields.map((field, index) => (
-              <Stack
-                key={field.id}
-                direction="row"
-                spacing={1}
-                alignItems="flex-start"
-              >
-                <Field.Text
-                  name={`issues.${index}`}
-                  label={`Issue ${index + 1}`}
-                  fullWidth
-                  multiline
-                  rows={2}
-                />
-                <IconButton
-                  color="error"
-                  onClick={() => removeIssue(index)}
-                  sx={{ mt: 0.5 }}
-                >
-                  <Iconify icon="solar:trash-bin-trash-bold" width={18} />
-                </IconButton>
-              </Stack>
-            ))}
-          </Stack>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Issue</TableCell>
+                  <TableCell>Assigned To</TableCell>
+                  <TableCell align="center" width={40}>
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {issueFields.map((field, index) => {
+                  const assignee = issueAssignees[field.id];
+                  const assigneeLabel =
+                    assignee?.name || assignee?.customerName || '';
+
+                  return (
+                    <TableRow key={field.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell sx={{ minWidth: 260 }}>
+                        <RHFAutocompleteCreatable
+                          name={`issues.${index}.issue`}
+                          label={`Issue ${index + 1}`}
+                          optionsGroup="work-order-issues"
+                        />
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 220 }}>
+                        <DialogSelectButton
+                          onClick={() => {
+                            setActiveIssueFieldId(field.id);
+                            assigneeDialog.onTrue();
+                          }}
+                          selected={assigneeLabel || ''}
+                          placeholder="Assign to..."
+                          iconName="mdi:account"
+                          iconNameSelected="mdi:account-check"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="error"
+                          onClick={() => {
+                            removeIssue(index);
+                            setIssueAssignees((prev) => {
+                              const next = { ...prev };
+                              delete next[field.id];
+                              return next;
+                            });
+                          }}
+                        >
+                          <Iconify icon="solar:trash-bin-trash-bold" width={18} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Box>
     </Card>
@@ -943,9 +1012,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       <KanbanContactsDialog
         open={assigneeDialog.value}
         onClose={assigneeDialog.onFalse}
-        assignees={selectedAssignee ? [selectedAssignee] : []}
+        assignees={
+          activeIssueFieldId && issueAssignees[activeIssueFieldId]
+            ? [issueAssignees[activeIssueFieldId]]
+            : []
+        }
         single
-        onAssigneeChange={handleAssigneesChange}
+        onAssigneeChange={handleIssueAssigneesChange}
       />
 
       <KanbanPartsDialog
