@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Page, Font, Document } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
@@ -93,9 +92,8 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
         {
           startIndex: 4,
           colspan: 1,
-          value: `Discount${
-            discountType === 'percentage' ? ` (${discount}%)` : ''
-          }`,
+          value: `Discount${discountType === 'percentage' ? ` (${discount}%)` : ''
+            }`,
           align: 'right',
         },
         {
