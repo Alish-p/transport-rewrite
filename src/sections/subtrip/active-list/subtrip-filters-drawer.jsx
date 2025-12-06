@@ -30,8 +30,6 @@ export default function SubtripFiltersDrawer({
     onClose,
     filters,
     onFilters,
-    onResetFilters,
-    canReset,
     //
     transporterDialog,
     customerDialog,
