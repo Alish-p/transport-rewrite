@@ -60,12 +60,13 @@ const defaultFilters = {
   transportName: '',
   driverId: '',
   subtripStatus: 'all',
+  subtripType: '',
   fromDate: null,
   toDate: null,
   subtripEndFromDate: null,
   subtripEndToDate: null,
   materials: [],
-  isOwn: false,
+  vehicleOwnership: '',
 };
 
 // ----------------------------------------------------------------------
@@ -113,13 +114,13 @@ export function SubtripListView() {
     customerId: filters.customerId || undefined,
     vehicleId: filters.vehicleNo || undefined,
     driverId: filters.driverId || undefined,
-    
+    vehicleOwnership: filters.vehicleOwnership || undefined,
+    subtripType: filters.subtripType || undefined,
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
     subtripEndFromDate: filters.subtripEndFromDate || undefined,
     subtripEndToDate: filters.subtripEndToDate || undefined,
     materials: filters.materials.length ? filters.materials : undefined,
-    isOwn: filters.isOwn ? true : undefined,
   });
 
   useEffect(() => {

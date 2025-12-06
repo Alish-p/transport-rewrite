@@ -54,6 +54,10 @@ export default function ExpenseTableFiltersResult({
     onFilters('subtripId', '');
   };
 
+  const handleRemoveVehicleType = () => {
+    onFilters('vehicleType', '');
+  };
+
   // Route filter removed
 
   const handleRemoveDate = () => {
@@ -112,6 +116,12 @@ export default function ExpenseTableFiltersResult({
               label={selectedTransporterName || filters.transporterId}
               onDelete={handleRemoveTransporter}
             />
+          </Block>
+        )}
+
+        {filters.vehicleType && (
+          <Block label="Vehicle Type:">
+            <Chip size="small" label={filters.vehicleType} onDelete={handleRemoveVehicleType} />
           </Block>
         )}
 

@@ -3,10 +3,15 @@ import { useCallback } from 'react';
 
 import Badge from '@mui/material/Badge';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
+import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 // components
 
@@ -135,6 +140,13 @@ export default function ExpenseTableToolbar({
     [filters.expenseType, onFilters]
   );
 
+  const handleFilterVehicleType = useCallback(
+    (event) => {
+      onFilters('vehicleType', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -190,6 +202,22 @@ export default function ExpenseTableToolbar({
         />
 
         {/* Route filter removed */}
+
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel id="expense-vehicle-type-select-label">Vehicle Type</InputLabel>
+          <Select
+            value={filters.vehicleType || ''}
+            onChange={handleFilterVehicleType}
+            input={<OutlinedInput label="Vehicle Type" />}
+            labelId="expense-vehicle-type-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <MenuItem value="Market">Market</MenuItem>
+            <MenuItem value="Own">Own</MenuItem>
+          </Select>
+        </FormControl>
 
         <DialogSelectButton
           sx={{ maxWidth: { md: 200 } }}

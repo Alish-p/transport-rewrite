@@ -64,6 +64,10 @@ export default function SubtripTableFiltersResult({
     onFilters('driverId', '');
   };
 
+  const handleRemoveSubtripType = () => {
+    onFilters('subtripType', '');
+  };
+
   // Route filter removed
 
   const handleRemoveMaterials = (value) => {
@@ -71,8 +75,8 @@ export default function SubtripTableFiltersResult({
     onFilters('materials', newValues);
   };
 
-  const handleRemoveIsOwn = () => {
-    onFilters('isOwn', false);
+  const handleRemoveVehicleOwnership = () => {
+    onFilters('vehicleOwnership', '');
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
@@ -157,6 +161,12 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
+        {filters.subtripType && (
+          <Block label="Subtrip Type:">
+            <Chip size="small" label={filters.subtripType} onDelete={handleRemoveSubtripType} />
+          </Block>
+        )}
+
         {filters.fromDate && filters.toDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
@@ -181,9 +191,13 @@ export default function SubtripTableFiltersResult({
           </Block>
         )}
 
-        {filters.isOwn && (
-          <Block label="Ownership:">
-            <Chip size="small" label="Own jobs" onDelete={handleRemoveIsOwn} />
+        {filters.vehicleOwnership && (
+          <Block label="Vehicle Ownership:">
+            <Chip
+              size="small"
+              label={filters.vehicleOwnership === 'Market' ? 'Market Jobs' : 'Own Jobs'}
+              onDelete={handleRemoveVehicleOwnership}
+            />
           </Block>
         )}
 

@@ -4,26 +4,18 @@ import { useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import Switch from '@mui/material/Switch';
-import MenuItem from '@mui/material/MenuItem';
+import { Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { Tooltip, MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useMaterialOptions } from 'src/hooks/use-material-options';
-
-import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-// components
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
@@ -31,6 +23,7 @@ import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-cust
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { TABLE_COLUMNS } from '../config/table-columns';
+import SubtripFiltersDrawer from './subtrip-filters-drawer';
 
 // ----------------------------------------------------------------------
 
@@ -53,18 +46,12 @@ export default function SubtripTableToolbar({
   canResetColumns,
 }) {
   const columnsPopover = usePopover();
-  const materialPopover = usePopover();
-
-  const materialOptions = useMaterialOptions();
-
-  const startRange = useBoolean();
-  const endRange = useBoolean();
+  const filtersDrawer = useBoolean();
 
   const transporterDialog = useBoolean();
   const customerDialog = useBoolean();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
-  // Route dialog removed
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -104,19 +91,6 @@ export default function SubtripTableToolbar({
       }
     },
     [onFilters, onSelectDriver]
-  );
-
-  // Route selection removed
-
-  const handleToggleMaterial = useCallback(
-    (value) => {
-      const current = Array.isArray(filters.materials) ? [...filters.materials] : [];
-      const newValues = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
-      onFilters('materials', newValues);
-    },
-    [filters.materials, onFilters]
   );
 
   const handleFilterSubtripId = useCallback(
@@ -183,64 +157,14 @@ export default function SubtripTableToolbar({
           iconName="mdi:office-building"
         />
 
-        <DialogSelectButton
-          onClick={vehicleDialog.onTrue}
-          selected={selectedVehicle?.vehicleNo}
-          placeholder="Vehicle"
-          iconName="mdi:truck"
-        />
-
-        <DialogSelectButton
-          onClick={driverDialog.onTrue}
-          selected={selectedDriver?.driverName}
-          placeholder="Driver"
-          iconName="mdi:account"
-        />
-
-        {/* Route filter removed */}
-
-        <DialogSelectButton
-          onClick={startRange.onTrue}
-          selected={
-            filters.fromDate && filters.toDate
-              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
-              : undefined
-          }
-          placeholder="Dispatch Date Range"
-          iconName="mdi:calendar"
-        />
-
-        <DialogSelectButton
-          onClick={endRange.onTrue}
-          selected={
-            filters.subtripEndFromDate && filters.subtripEndToDate
-              ? fDateRangeShortLabel(filters.subtripEndFromDate, filters.subtripEndToDate)
-              : undefined
-          }
-          placeholder="Receive Date Range"
-          iconName="mdi:calendar"
-        />
-
-        <DialogSelectButton
-          onClick={materialPopover.onOpen}
-          selected={
-            filters.materials.length > 0 ? `${filters.materials.length} materials` : undefined
-          }
-          placeholder="Materials"
-          iconName="mdi:filter-variant"
-        />
-
-        <FormControlLabel
-          label="Own"
-          labelPlacement="top"
-          control={
-            <Switch
-              checked={!!filters.isOwn}
-              onChange={(e) => onFilters('isOwn', e.target.checked)}
-              placeholder="Own Jobs"
-            />
-          }
-        />
+        <Button
+          color="inherit"
+          startIcon={<Iconify icon="mdi:filter-variant" />}
+          onClick={filtersDrawer.onTrue}
+          sx={{ flexShrink: 0, height: 56 }}
+        >
+          More Filters
+        </Button>
 
         <Stack direction="row" spacing={1}>
           <Tooltip title="Column Settings">
@@ -276,42 +200,19 @@ export default function SubtripTableToolbar({
         />
       </CustomPopover>
 
-      <CustomPopover
-        open={materialPopover.open}
-        onClose={materialPopover.onClose}
-        anchorEl={materialPopover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <Scrollbar sx={{ width: 200, maxHeight: 400 }}>
-          <MenuList>
-            {materialOptions.map(({ value }) => (
-              <MenuItem key={value} onClick={() => handleToggleMaterial(value)}>
-                <Checkbox checked={filters.materials.includes(value)} />
-                <ListItemText primary={value} />
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Scrollbar>
-      </CustomPopover>
-
-      <CustomDateRangePicker
-        variant="calendar"
-        open={startRange.value}
-        onClose={startRange.onFalse}
-        startDate={filters.fromDate}
-        endDate={filters.toDate}
-        onChangeStartDate={(date) => onFilters('fromDate', date)}
-        onChangeEndDate={(date) => onFilters('toDate', date)}
-      />
-
-      <CustomDateRangePicker
-        variant="calendar"
-        open={endRange.value}
-        onClose={endRange.onFalse}
-        startDate={filters.subtripEndFromDate}
-        endDate={filters.subtripEndToDate}
-        onChangeStartDate={(date) => onFilters('subtripEndFromDate', date)}
-        onChangeEndDate={(date) => onFilters('subtripEndToDate', date)}
+      <SubtripFiltersDrawer
+        open={filtersDrawer.value}
+        onClose={filtersDrawer.onFalse}
+        filters={filters}
+        onFilters={onFilters}
+        transporterDialog={transporterDialog}
+        customerDialog={customerDialog}
+        vehicleDialog={vehicleDialog}
+        driverDialog={driverDialog}
+        selectedTransporter={selectedTransporter}
+        selectedCustomer={selectedCustomer}
+        selectedVehicle={selectedVehicle}
+        selectedDriver={selectedDriver}
       />
 
       <KanbanTransporterDialog
@@ -334,8 +235,6 @@ export default function SubtripTableToolbar({
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
       />
-
-      {/* Route dialog removed */}
 
       <KanbanDriverDialog
         open={driverDialog.value}
