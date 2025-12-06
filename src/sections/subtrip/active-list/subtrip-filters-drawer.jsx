@@ -1,9 +1,7 @@
 import Stack from '@mui/material/Stack';
-import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -84,14 +82,6 @@ export default function SubtripFiltersDrawer({
         >
             <Typography variant="h6">Filters</Typography>
 
-            <Tooltip title="Reset">
-                <IconButton onClick={onResetFilters}>
-                    <Badge color="error" variant="dot" invisible={!canReset}>
-                        <Iconify icon="solar:restart-bold" />
-                    </Badge>
-                </IconButton>
-            </Tooltip>
-
             <IconButton onClick={onClose}>
                 <Iconify icon="mingcute:close-line" />
             </IconButton>
@@ -121,7 +111,7 @@ export default function SubtripFiltersDrawer({
                             fullWidth
                             value={filters.subtripNo}
                             onChange={handleFilterSubtripId}
-                            placeholder="Id"
+                            placeholder="Job ID"
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -135,7 +125,7 @@ export default function SubtripFiltersDrawer({
                             fullWidth
                             value={filters.referenceSubtripNo}
                             onChange={handleFilterReferenceSubtripNo}
-                            placeholder="Ref"
+                            placeholder="Refference Job No"
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
