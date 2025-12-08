@@ -293,6 +293,7 @@ export default function PartForm({ currentPart }) {
           name="manufacturer"
           label="Manufacturer"
           optionsGroup="partManufacturer"
+          visibleOptionCount={5}
         />
         <Field.Text
           name="description"

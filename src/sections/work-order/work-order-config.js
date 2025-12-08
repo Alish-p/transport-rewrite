@@ -38,3 +38,16 @@ export const WORK_ORDER_PRIORITY_OPTIONS = Object.entries(WORK_ORDER_PRIORITY_LA
   })
 );
 
+
+export const WORK_ORDER_CATEGORY_OPTIONS = [
+  "Inspection",
+  "Upgrade",
+  "On Road Breakdown",
+  "Garage Work",
+  "Accidental Vehicle",
+  "On Route Maintenance",
+  "Preventive Maintenance",
+  "Others",
+  "Breakdown",
+  "Damage",
+];

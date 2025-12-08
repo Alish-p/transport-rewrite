@@ -29,6 +29,7 @@ export function RHFAutocompleteCreatable({
   options = [],
   optionsGroup,
   helperText,
+  visibleOptionCount,
   ...other
 }) {
   const { control, setValue } = useFormContext();
@@ -161,6 +162,13 @@ export function RHFAutocompleteCreatable({
             />
           )}
           {...other}
+          ListboxProps={{
+            ...other.ListboxProps,
+            sx: {
+              ...(visibleOptionCount && { maxHeight: visibleOptionCount * 48 }), // ~48px per option
+              ...other.ListboxProps?.sx,
+            },
+          }}
         />
       )}
     />

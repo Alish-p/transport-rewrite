@@ -16,7 +16,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
+import { useDeletePurchaseOrder, usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -148,6 +148,19 @@ export function PurchaseOrderListView() {
       router.push(paths.dashboard.purchaseOrder.edit(id));
     },
     [router]
+  );
+
+  const deletePurchaseOrder = useDeletePurchaseOrder();
+
+  const handleDeleteRow = useCallback(
+    async (id) => {
+      try {
+        await deletePurchaseOrder(id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [deletePurchaseOrder]
   );
 
   const handleToggleColumn = useCallback(
@@ -292,6 +305,7 @@ export function PurchaseOrderListView() {
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
                       onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}

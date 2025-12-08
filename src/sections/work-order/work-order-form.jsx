@@ -58,6 +58,7 @@ import {
   WORK_ORDER_STATUS_COLORS,
   WORK_ORDER_STATUS_OPTIONS,
   WORK_ORDER_PRIORITY_OPTIONS,
+  WORK_ORDER_CATEGORY_OPTIONS,
 } from './work-order-config';
 
 const WorkOrderLineSchema = zod.object({
@@ -78,6 +79,7 @@ const WorkOrderIssueSchema = zod.object({
 
 export const WorkOrderSchema = zod.object({
   vehicleId: zod.string().min(1, { message: 'Vehicle is required' }),
+  category: zod.string().optional(),
   status: zod
     .enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value))
     .optional(),
@@ -117,6 +119,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         currentWorkOrder?.vehicle?._id ||
         currentWorkOrder?.vehicle ||
         '',
+      category: currentWorkOrder?.category || '',
       status: currentWorkOrder?.status || 'open',
       priority: currentWorkOrder?.priority || 'non-scheduled',
       scheduledStartDate: currentWorkOrder?.scheduledStartDate
@@ -300,11 +303,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     return { partsCost, total };
   }, [values.parts, values.labourCharge]);
 
-  const priorityOption =
-    WORK_ORDER_PRIORITY_OPTIONS.find((option) => option.value === values.priority) || null;
-  const priorityLabelText = priorityOption?.label || 'Select priority';
-  const priorityColor = priorityOption?.color || 'default';
-
   const getLinePart = (fieldId, partId) =>
     lineParts[fieldId] || parts.find((p) => p._id === partId) || null;
 
@@ -348,9 +346,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     setValue('actualStartDate', jsDate, { shouldDirty: true, shouldValidate: true });
   };
 
-  const handlePriorityMenuOpen = (event) => {
-    setPriorityAnchorEl(event.currentTarget);
-  };
   const handlePriorityMenuClose = () => {
     setPriorityAnchorEl(null);
   };
@@ -387,6 +382,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     try {
       const payload = {
         vehicle: formData.vehicleId,
+        category: formData.category || undefined,
         status: formData.status || undefined,
         priority: formData.priority || undefined,
         scheduledStartDate:
@@ -563,40 +559,68 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-              <Typography variant="body2" sx={{ minWidth: 72 }}>
-                Priority:
-              </Typography>
-              <IconButton size="small" color="primary" onClick={handlePriorityMenuOpen}>
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-              {priorityOption ? (
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: 0.5 }}>
-                  <Box
-                    sx={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      bgcolor:
-                        priorityColor === 'default'
-                          ? 'text.disabled'
-                          : (theme) => theme.palette[priorityColor]?.main || 'text.disabled',
-                    }}
-                  />
-                  <Label color={priorityColor} variant="soft">
-                    {priorityLabelText}
-                  </Label>
-                </Stack>
-              ) : (
-                <Typography variant="caption" sx={{ color: 'text.secondary', ml: 0.5 }}>
-                  Select priority
-                </Typography>
-              )}
-            </Stack>
           </Stack>
         </Stack>
       </Stack>
     </Box>
+  );
+
+  const renderProperties = (
+    <Card
+      sx={{
+        mb: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+          <Field.Select
+            name="category"
+            label="Category"
+            size="small"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          >
+            <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+              None
+            </MenuItem>
+            {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Field.Select>
+
+          <Field.Select
+            name="priority"
+            label="Priority"
+            size="small"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          >
+            {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      bgcolor: (theme) =>
+                        option.color === 'default'
+                          ? 'text.disabled'
+                          : theme.palette[option.color]?.main || 'text.disabled',
+                    }}
+                  />
+                  <Typography variant="body2">{option.label}</Typography>
+                </Stack>
+              </MenuItem>
+            ))}
+          </Field.Select>
+        </Stack>
+      </Box>
+    </Card>
   );
 
   const renderIssues = (
@@ -969,6 +993,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ p: 3 }}>
         {renderHeader}
+        {renderProperties}
         {renderIssues}
         {renderLines}
 

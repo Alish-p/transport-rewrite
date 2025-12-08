@@ -16,7 +16,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedWorkOrders } from 'src/query/use-work-order';
+import { useDeleteWorkOrder, usePaginatedWorkOrders } from 'src/query/use-work-order';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -114,6 +114,26 @@ export function WorkOrderListView() {
       router.push(paths.dashboard.workOrder.details(id));
     },
     [router]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.workOrder.edit(id));
+    },
+    [router]
+  );
+
+  const deleteWorkOrder = useDeleteWorkOrder();
+
+  const handleDeleteRow = useCallback(
+    async (id) => {
+      try {
+        await deleteWorkOrder(id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [deleteWorkOrder]
   );
 
   const handleToggleColumn = useCallback(
@@ -255,6 +275,8 @@ export function WorkOrderListView() {
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}

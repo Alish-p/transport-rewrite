@@ -164,6 +164,7 @@ export function usePayPurchaseOrder() {
   return mutateAsync;
 }
 
+
 export function useReceivePurchaseOrder() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -182,4 +183,29 @@ export function useReceivePurchaseOrder() {
 
   return mutateAsync;
 }
+
+const deletePurchaseOrderApi = async (id) => {
+  const { data } = await axios.delete(`${ENDPOINT}/${id}`);
+  return data;
+};
+
+export function useDeletePurchaseOrder() {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: (id) => deletePurchaseOrderApi(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success('Purchase order deleted successfully!');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'Failed to delete purchase order';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
 
