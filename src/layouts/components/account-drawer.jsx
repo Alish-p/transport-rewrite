@@ -3,8 +3,8 @@ import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { SvgIcon } from '@mui/material';
-import Drawer from '@mui/material/Drawer';
 import Badge from '@mui/material/Badge';
+import Drawer from '@mui/material/Drawer';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -17,8 +17,8 @@ import { varAlpha } from 'src/theme/styles';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
-
 import { useSettingsContext } from 'src/components/settings/context';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 import { paths } from '../../routes/paths';

@@ -499,12 +499,13 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                 {fields.map((field, index) => {
                   const line = values.lines?.[index] || {};
                   const amount = (line.quantityOrdered || 0) * (line.unitCost || 0);
+                  const selectedPart = getLinePart(field.id, line.partId);
+                  const unit = selectedPart?.measurementUnit || '';
                   return (
                     <TableRow key={field.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
                         {(() => {
-                          const selectedPart = getLinePart(field.id, line.partId);
                           const label = selectedPart
                             ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
                             }`
@@ -527,6 +528,16 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                           name={`lines.${index}.quantityOrdered`}
                           label="Qty"
                           inputProps={{ min: 1 }}
+                          InputProps={{
+                            endAdornment: unit ? (
+                              <Typography
+                                variant="caption"
+                                sx={{ ml: 1, color: 'text.secondary' }}
+                              >
+                                {unit}
+                              </Typography>
+                            ) : undefined,
+                          }}
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ minWidth: 140 }}>

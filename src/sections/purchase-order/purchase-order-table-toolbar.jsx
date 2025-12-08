@@ -109,7 +109,6 @@ export default function PurchaseOrderTableToolbar({
 
         <TextField
           select
-          size="small"
           label="Part Location"
           value={filters.partLocationId || ''}
           onChange={(event) => onFilters('partLocationId', event.target.value || '')}

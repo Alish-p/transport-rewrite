@@ -15,6 +15,8 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
 import { PartLocationSettings } from '../part-location';
+import { PartCategorySettings } from '../part-category';
+import { PartManufacturerSettings } from '../part-manufacturer';
 
 // ----------------------------------------------------------------------
 
@@ -94,9 +96,9 @@ export function SettingsView({ tenant }) {
       case 'part-locations':
         return <PartLocationSettings />;
       case 'part-manufacturer':
-        return <Box>Sample Text: Part Manufacturer</Box>;
+        return <PartManufacturerSettings />;
       case 'part-category':
-        return <Box>Sample Text: Part Category</Box>;
+        return <PartCategorySettings />;
       case 'measuring-units':
         return <Box>Sample Text: Measuring Units</Box>;
       default:

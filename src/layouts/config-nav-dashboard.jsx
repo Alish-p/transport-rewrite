@@ -55,7 +55,7 @@ const ICONS = {
   partLocation: icon('ic-folder'),
   vendor: icon('ic_customer'),
   purchaseOrder: icon('ic-order'),
-   workOrder: icon('ic-order'),
+  workOrder: <Iconify icon="map:car-repair" />,
 };
 // ----------------------------------------------------------------------
 

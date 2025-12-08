@@ -578,7 +578,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           <Field.Select
             name="category"
             label="Category"
-            size="small"
             fullWidth
             InputLabelProps={{ shrink: true }}
           >
@@ -595,7 +594,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           <Field.Select
             name="priority"
             label="Priority"
-            size="small"
             fullWidth
             InputLabelProps={{ shrink: true }}
           >
@@ -792,6 +790,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                   const amount =
                     (Number(line.quantity) || 0) *
                     (Number(line.price) || 0);
+                  const selectedPart = getLinePart(field.id, line.part);
+                  const unit = selectedPart?.measurementUnit || '';
 
                   return (
                     <TableRow key={field.id}>
@@ -820,7 +820,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                         <Field.Select
                           name={`parts.${index}.partLocation`}
                           label="Location"
-                          size="small"
                         >
                           <MenuItem value="">None</MenuItem>
                           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -835,15 +834,23 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                         <Field.Number
                           name={`parts.${index}.quantity`}
                           label="Qty"
-                          size="small"
                           inputProps={{ min: 1 }}
+                          InputProps={{
+                            endAdornment: unit ? (
+                              <Typography
+                                variant="caption"
+                                sx={{ ml: 1, color: 'text.secondary' }}
+                              >
+                                {unit}
+                              </Typography>
+                            ) : undefined,
+                          }}
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ minWidth: 140 }}>
                         <Field.Number
                           name={`parts.${index}.price`}
                           label="Price"
-                          size="small"
                           inputProps={{ min: 0, step: 0.01 }}
                         />
                       </TableCell>

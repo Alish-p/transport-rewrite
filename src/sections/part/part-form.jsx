@@ -25,7 +25,7 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Form, Field } from 'src/components/hook-form';
 
-import { PART_CATEGORIES, MEASUREMENT_UNIT_GROUPS } from './part-constant';
+import { MEASUREMENT_UNIT_GROUPS } from './part-constant';
 
 
 
@@ -279,16 +279,12 @@ export default function PartForm({ currentPart }) {
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="partNumber" label="Part Number" />
         <Field.Text name="name" label="Name" />
-        <Field.Select name="category" label="Category">
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {PART_CATEGORIES.map((cat) => (
-            <MenuItem key={cat} value={cat}>
-              {cat}
-            </MenuItem>
-          ))}
-        </Field.Select>
+        <Field.AutocompleteCreatable
+          name="category"
+          label="Category"
+          optionsGroup="partCategory"
+          visibleOptionCount={5}
+        />
         <Field.AutocompleteCreatable
           name="manufacturer"
           label="Manufacturer"
