@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { SvgIcon } from '@mui/material';
 import Drawer from '@mui/material/Drawer';
+import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -17,6 +18,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
 
+import { useSettingsContext } from 'src/components/settings/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { paths } from '../../routes/paths';
@@ -28,6 +30,8 @@ import { SignOutButton } from './sign-out-button';
 
 export function AccountDrawer({ sx, ...other }) {
   const theme = useTheme();
+
+  const settings = useSettingsContext();
 
   const router = useRouter();
 
@@ -159,38 +163,56 @@ export function AccountDrawer({ sx, ...other }) {
                 Profile
               </Box>
             </MenuItem>
-            {hasPermission('tenant', 'update') && (
-              <MenuItem
-                onClick={() => handleClickItem(paths.dashboard.tenant)}
-                sx={{
-                  py: 1,
-                  color: 'text.secondary',
-                  '& svg': { width: 24, height: 24 },
-                  '&:hover': { color: 'text.primary' },
-                }}
-              >
-                <Iconify icon="solar:settings-bold-duotone" />
-                <Box component="span" sx={{ ml: 2 }}>
-                  Company Settings
-                </Box>
-              </MenuItem>
-            )}
-            {hasPermission('tenant', 'update') && (
-              <MenuItem
-                onClick={() => handleClickItem(paths.dashboard.paymentHistory)}
-                sx={{
-                  py: 1,
-                  color: 'text.secondary',
-                  '& svg': { width: 24, height: 24 },
-                  '&:hover': { color: 'text.primary' },
-                }}
-              >
-                <Iconify icon="solar:bill-list-bold-duotone" />
-                <Box component="span" sx={{ ml: 2 }}>
-                  Payments
-                </Box>
-              </MenuItem>
-            )}
+
+            <MenuItem
+              onClick={() => {
+                handleCloseDrawer();
+                settings.onToggleDrawer();
+              }}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Badge color="error" variant="dot" invisible={!settings.canReset}>
+                <Iconify icon="catppuccin:folder-themes" />
+              </Badge>
+
+              <Box component="span" sx={{ ml: 2 }}>
+                Appearance & theme
+              </Box>
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.tenant)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="solar:settings-bold-duotone" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Company Settings
+              </Box>
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.paymentHistory)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="solar:bill-list-bold-duotone" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Payments
+              </Box>
+            </MenuItem>
           </Stack>
 
           <Box sx={{ px: 2.5, py: 3, mt: 30 }}>

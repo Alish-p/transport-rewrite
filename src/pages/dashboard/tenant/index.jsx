@@ -6,7 +6,7 @@ import { useTenant } from 'src/query/use-tenant';
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { TenantEditView } from 'src/sections/tenant/views';
+import { SettingsView } from 'src/sections/settings/view';
 
 const metadata = { title: `Tenant settings | Dashboard - ${CONFIG.site.name}` };
 
@@ -27,7 +27,7 @@ export default function Page() {
         <title>{metadata.title}</title>
       </Helmet>
 
-      <TenantEditView tenant={tenant} />
+      <SettingsView tenant={tenant} />
     </>
   );
 }

@@ -29,6 +29,7 @@ export function GenericTableRow({
   visibleColumns = {},
   disabledColumns = {},
   columnOrder = [],
+  hideSelection = false,
 }) {
   const confirm = useBoolean();
   const popover = usePopover();
@@ -59,9 +60,11 @@ export function GenericTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+        {!hideSelection && (
+          <TableCell padding="checkbox">
+            <Checkbox checked={selected} onClick={onSelectRow} />
+          </TableCell>
+        )}
 
         {orderedColumns.map(
           (column) =>

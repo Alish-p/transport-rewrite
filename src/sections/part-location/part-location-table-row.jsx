@@ -14,6 +14,7 @@ export default function PartLocationTableRow({
   visibleColumns,
   disabledColumns,
   columnOrder,
+  hideSelection,
 }) {
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
@@ -31,7 +32,7 @@ export default function PartLocationTableRow({
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}
+      hideSelection={hideSelection}
     />
   );
 }
-
