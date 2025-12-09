@@ -31,8 +31,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { usePaginatedParts } from 'src/query/use-part';
-import { usePaginatedPartLocations } from 'src/query/use-part-location';
 import { useCreatePurchaseOrder } from 'src/query/use-purchase-order';
+import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -109,7 +109,6 @@ export default function PurchaseOrderForm() {
     setValue,
     handleSubmit,
     control,
-    reset,
     formState: { isSubmitting },
   } = methods;
 
@@ -436,7 +435,6 @@ export default function PurchaseOrderForm() {
                       <TableCell>
                         {(() => {
                           const snapshot = line.partSnapshot;
-                          const selectedPart = getLinePart(field.id, line.partId);
 
                           let label = '';
                           if (snapshot) {

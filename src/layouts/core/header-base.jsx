@@ -58,7 +58,7 @@ export function HeaderBase({
     signIn = true,
     account = true,
     helpLink = true,
-    settings = true,
+
     purchase = true,
     searchbar = true,
     workspaces = true,

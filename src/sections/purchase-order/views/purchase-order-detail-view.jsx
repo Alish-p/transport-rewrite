@@ -250,7 +250,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={'Purchase Order' + (displayPoNo ? ` ${displayPoNo}` : '')}
+        heading={`Purchase Order${displayPoNo ? ` ${displayPoNo}` : ''}`}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Purchase Orders', href: paths.dashboard.purchaseOrder.list },

@@ -433,7 +433,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   };
 
   const renderHeader = (
-    <Box sx={{ mb: 3 }}>
+    <Card sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
       <Box
         rowGap={3}
         display="grid"
@@ -564,69 +564,60 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           </Stack>
         </Stack>
       </Stack>
-    </Box>
-  );
 
-  const renderProperties = (
-    <Card
-      sx={{
-        mb: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Box sx={{ p: 3 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-          <Field.Select
-            name="category"
-            label="Category"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-          >
-            <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-              None
+      <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
+
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+        <Field.Select
+          name="category"
+          label="Category"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+        >
+          <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+            None
+          </MenuItem>
+          {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
             </MenuItem>
-            {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Field.Select>
+          ))}
+        </Field.Select>
 
-          <Field.Select
-            name="priority"
-            label="Priority"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-          >
-            {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      bgcolor: (theme) =>
-                        option.color === 'default'
-                          ? 'text.disabled'
-                          : theme.palette[option.color]?.main || 'text.disabled',
-                    }}
-                  />
-                  <Typography variant="body2">{option.label}</Typography>
-                </Stack>
-              </MenuItem>
-            ))}
-          </Field.Select>
-        </Stack>
-      </Box>
+        <Field.Select
+          name="priority"
+          label="Priority"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+        >
+          {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: (theme) =>
+                      option.color === 'default'
+                        ? 'text.disabled'
+                        : theme.palette[option.color]?.main || 'text.disabled',
+                  }}
+                />
+                <Typography variant="body2">{option.label}</Typography>
+              </Stack>
+            </MenuItem>
+          ))}
+        </Field.Select>
+      </Stack>
     </Card>
   );
+
+
 
   const renderIssues = (
     <Card
       sx={{
-        mb: 3,
         border: '1px solid',
         borderColor: 'divider',
       }}
@@ -732,7 +723,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   const renderLines = (
     <Card
       sx={{
-        mb: 3,
         border: '1px solid',
         borderColor: 'divider',
       }}
@@ -801,7 +791,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                       <TableCell sx={{ minWidth: 220 }}>
                         {(() => {
                           const snapshot = line.partSnapshot;
-                          const selectedPart = getLinePart(field.id, line.part);
 
                           let label = '';
                           if (snapshot) {
@@ -895,7 +884,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   const renderSummary = (
     <Card
       sx={{
-        mb: 0,
         border: '1px solid',
         borderColor: 'divider',
       }}
@@ -1007,15 +995,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ p: 3 }}>
+      <Stack spacing={3}>
         {renderHeader}
-        {renderProperties}
         {renderIssues}
         {renderLines}
 
         <Box
           sx={{
-            mt: 4,
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: '1.5fr 1fr' },
             gap: 3,
@@ -1024,7 +1010,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           {renderDescription}
           {renderSummary}
         </Box>
-      </Card>
+      </Stack>
 
       <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
         <Button

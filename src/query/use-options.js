@@ -26,7 +26,7 @@ const deleteOption = async (id) => {
   return data;
 };
 
-export function useOptions(group, options = {}, params) {
+export function useOptions(group, options = {}, params = undefined) {
   return useQuery({
     queryKey: [QUERY_KEY, group, params],
     queryFn: () => getOptionsByGroup(group, params),
