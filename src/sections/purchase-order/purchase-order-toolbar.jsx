@@ -26,6 +26,8 @@ export function PurchaseOrderToolbar({ purchaseOrder, actions = [] }) {
   const router = useRouter();
   const view = useBoolean();
   const tenant = useTenantContext();
+  const fileName =
+    purchaseOrder?.purchaseOrderNo || purchaseOrder?._id || 'purchase-order';
 
   const handleEdit = useCallback(() => {
     if (!purchaseOrder?._id) return;
@@ -55,7 +57,7 @@ export function PurchaseOrderToolbar({ purchaseOrder, actions = [] }) {
 
           <PDFDownloadLink
             document={<PurchaseOrderPdf purchaseOrder={purchaseOrder} tenant={tenant} />}
-            fileName={purchaseOrder?._id || 'purchase-order'}
+            fileName={fileName}
             style={{ textDecoration: 'none' }}
           >
             {({ loading }) => (
@@ -109,4 +111,3 @@ export function PurchaseOrderToolbar({ purchaseOrder, actions = [] }) {
     </>
   );
 }
-

@@ -22,6 +22,32 @@ import {
 
 export const TABLE_COLUMNS = [
   {
+    id: 'workOrderNo',
+    label: 'Work Order No.',
+    defaultVisible: true,
+    disabled: true,
+    getter: (row) => row.workOrderNo,
+    render: (row) => {
+      const value = row.workOrderNo || '-';
+      return (
+        <ListItemText
+          disableTypography
+          primary={
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.workOrder.details(row._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {value}
+            </Link>
+          }
+        />
+      );
+    },
+  },
+  {
     id: 'vehicle',
     label: 'Vehicle',
     defaultVisible: true,

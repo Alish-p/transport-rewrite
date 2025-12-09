@@ -15,8 +15,11 @@ Font.register({
 
 export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
   const {
+    purchaseOrderNo,
     vendor,
+    vendorSnapshot,
     partLocation,
+    partLocationSnapshot,
     orderDate,
     createdAt,
     lines = [],
@@ -32,17 +35,23 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     _id,
   } = purchaseOrder || {};
 
+  const displayVendor = vendorSnapshot || vendor;
+  const displayLocation = partLocationSnapshot || partLocation;
+
   const displayDate = orderDate || createdAt;
+  const displayPoNo = purchaseOrderNo || '';
 
   const columns = [
-    { header: 'S.No', accessor: 'sno', width: '8%' },
-    { header: 'Part', accessor: 'part', width: '32%' },
-    { header: 'Qty Ordered', accessor: 'qtyOrdered', width: '15%', align: 'right' },
-    { header: 'Qty Received', accessor: 'qtyReceived', width: '15%', align: 'right' },
+    { header: 'S.No', accessor: 'sno', width: '5%' },
+    { header: 'Part', accessor: 'part', width: '25%' },
+    { header: 'Part No.', accessor: 'partNumber', width: '15%' },
+    { header: 'Unit', accessor: 'unit', width: '10%' },
+    { header: 'Qty Ordered', accessor: 'qtyOrdered', width: '10%', align: 'right' },
+    { header: 'Qty Received', accessor: 'qtyReceived', width: '10%', align: 'right' },
     {
       header: 'Unit Cost (₹)',
       accessor: 'unitCost',
-      width: '15%',
+      width: '10%',
       align: 'right',
       formatter: (v) => fCurrency(v || 0),
     },
@@ -56,14 +65,22 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     },
   ];
 
-  const data = lines.map((line, index) => ({
-    sno: index + 1,
-    part: `${line.part?.name || '-'}${line.part?.partNumber ? ` (${line.part.partNumber})` : ''}`,
-    qtyOrdered: fNumber(line.quantityOrdered || 0),
-    qtyReceived: fNumber(line.quantityReceived || 0),
-    unitCost: line.unitCost || 0,
-    amount: line.amount || (line.quantityOrdered || 0) * (line.unitCost || 0),
-  }));
+  const data = lines.map((line, index) => {
+    const displayPartName = line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+    const displayPartNumber = line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
+    const displayUnit = line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+
+    return {
+      sno: index + 1,
+      part: displayPartName,
+      partNumber: displayPartNumber,
+      unit: displayUnit,
+      qtyOrdered: fNumber(line.quantityOrdered || 0),
+      qtyReceived: fNumber(line.quantityReceived || 0),
+      unitCost: line.unitCost || 0,
+      amount: line.amount || (line.quantityOrdered || 0) * (line.unitCost || 0),
+    };
+  });
 
   const effectiveDiscountAmount =
     discountAmount ??
@@ -93,9 +110,8 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
         {
           startIndex: 4,
           colspan: 1,
-          value: `Discount${
-            discountType === 'percentage' ? ` (${discount}%)` : ''
-          }`,
+          value: `Discount${discountType === 'percentage' ? ` (${discount}%)` : ''
+            }`,
           align: 'right',
         },
         {
@@ -159,14 +175,14 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
         <PDFBillToSection
           title="Vendor"
           billToDetails={[
-            vendor?.name,
-            vendor?.address,
-            vendor?.phone,
+            displayVendor?.name,
+            displayVendor?.address,
+            displayVendor?.phone,
           ]}
           metaDetails={[
-            ['PO No.', _id],
+            ['PO No.', displayPoNo],
             ['Date', displayDate && fDate(displayDate)],
-            ['Location', partLocation?.name],
+            ['Location', displayLocation?.name],
           ]}
         />
 

@@ -70,6 +70,7 @@ const WorkOrderLineSchema = zod.object({
   price: zod
     .number({ required_error: 'Price is required' })
     .min(0, { message: 'Price cannot be negative' }),
+  partSnapshot: zod.any().optional(),
 });
 
 const WorkOrderIssueSchema = zod.object({
@@ -158,6 +159,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           line.partLocation?._id || line.partLocation || '',
         quantity: line.quantity || 1,
         price: line.price || 0,
+        partSnapshot: line.partSnapshot,
       })),
     }),
     [currentWorkOrder]
@@ -791,27 +793,34 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                     (Number(line.quantity) || 0) *
                     (Number(line.price) || 0);
                   const selectedPart = getLinePart(field.id, line.part);
-                  const unit = selectedPart?.measurementUnit || '';
+                  const unit = line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
 
                   return (
                     <TableRow key={field.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell sx={{ minWidth: 220 }}>
                         {(() => {
+                          const snapshot = line.partSnapshot;
                           const selectedPart = getLinePart(field.id, line.part);
-                          const label = selectedPart
-                            ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
-                            }`
-                            : '';
+
+                          let label = '';
+                          if (snapshot) {
+                            label = `${snapshot.name}${snapshot.partNumber ? ` (${snapshot.partNumber})` : ''}`;
+                          } else if (selectedPart) {
+                            label = `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''}`;
+                          }
+
                           return (
                             <DialogSelectButton
                               onClick={() => {
+                                if (snapshot) return;
                                 setActivePartLineId(field.id);
                                 partDialog.onTrue();
                               }}
                               placeholder="Select a part to attach price"
                               selected={label}
                               iconName="mdi:cube"
+                              disabled={!!snapshot}
                             />
                           );
                         })()}

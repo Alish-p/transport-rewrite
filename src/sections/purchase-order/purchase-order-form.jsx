@@ -32,7 +32,7 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { usePaginatedParts } from 'src/query/use-part';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
-import { useCreatePurchaseOrder, useUpdatePurchaseOrder } from 'src/query/use-purchase-order';
+import { useCreatePurchaseOrder } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -52,6 +52,7 @@ const PurchaseOrderLineSchema = zod.object({
   unitCost: zod
     .number({ required_error: 'Unit cost is required' })
     .min(0, { message: 'Unit cost cannot be negative' }),
+  partSnapshot: zod.any().optional(),
 });
 
 export const PurchaseOrderSchema = zod.object({
@@ -73,51 +74,28 @@ export const PurchaseOrderSchema = zod.object({
   lines: zod.array(PurchaseOrderLineSchema).min(1, { message: 'Add at least one line item' }),
 });
 
-export default function PurchaseOrderForm({ currentPurchaseOrder }) {
+export default function PurchaseOrderForm() {
   const navigate = useNavigate();
   const tenant = useTenantContext();
 
   const defaultValues = useMemo(
     () => ({
-      vendorId:
-        currentPurchaseOrder?.vendor?._id ||
-        currentPurchaseOrder?.vendor ||
-        '',
-      partLocationId:
-        currentPurchaseOrder?.partLocation?._id ||
-        currentPurchaseOrder?.partLocation ||
-        '',
-      orderDate: currentPurchaseOrder?.orderDate
-        ? new Date(currentPurchaseOrder.orderDate)
-        : new Date(),
-      description: currentPurchaseOrder?.description || '',
-      discountType: currentPurchaseOrder?.discountType || 'percentage',
-      discount:
-        typeof currentPurchaseOrder?.discount === 'number'
-          ? currentPurchaseOrder.discount
-          : 0,
-      shipping:
-        typeof currentPurchaseOrder?.shipping === 'number'
-          ? currentPurchaseOrder.shipping
-          : 0,
-      taxType: currentPurchaseOrder?.taxType || 'percentage',
-      tax:
-        typeof currentPurchaseOrder?.tax === 'number'
-          ? currentPurchaseOrder.tax
-          : 0,
-      lines: (currentPurchaseOrder?.lines || []).map((line) => ({
-        partId: line.part?._id || line.part || '',
-        quantityOrdered: line.quantityOrdered || 1,
-        unitCost: line.unitCost || 0,
-      })),
+      vendorId: '',
+      partLocationId: '',
+      orderDate: new Date(),
+      description: '',
+      discountType: 'percentage',
+      discount: 0,
+      shipping: 0,
+      taxType: 'percentage',
+      tax: 0,
+      lines: [],
     }),
-    [currentPurchaseOrder]
+    []
   );
 
   const vendorDialog = useBoolean();
-  const [selectedVendor, setSelectedVendor] = useState(
-    currentPurchaseOrder?.vendor || null
-  );
+  const [selectedVendor, setSelectedVendor] = useState(null);
   const [activeLineId, setActiveLineId] = useState(null);
   const [lineParts, setLineParts] = useState({});
   const partDialog = useBoolean();
@@ -134,10 +112,6 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     reset,
     formState: { isSubmitting },
   } = methods;
-
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
 
   const { fields, append, remove } = useFieldArray({ name: 'lines', control });
 
@@ -166,13 +140,6 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   );
 
   const createPurchaseOrder = useCreatePurchaseOrder();
-  const updatePurchaseOrder = useUpdatePurchaseOrder();
-
-  useEffect(() => {
-    if (currentPurchaseOrder?.vendor) {
-      setSelectedVendor(currentPurchaseOrder.vendor);
-    }
-  }, [currentPurchaseOrder]);
 
   useEffect(() => {
     setLineParts((prev) => {
@@ -266,31 +233,8 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     };
   }, [values]);
 
-  const STATUS_LABELS = {
-    'pending-approval': 'Pending Approval',
-    approved: 'Approved',
-    purchased: 'Purchased',
-    'partial-received': 'Partially Received',
-    rejected: 'Rejected',
-    received: 'Received',
-  };
-
-  const STATUS_COLORS = {
-    'pending-approval': 'warning',
-    approved: 'info',
-    purchased: 'primary',
-    'partial-received': 'warning',
-    rejected: 'error',
-    received: 'success',
-  };
-
-  const headerStatus = currentPurchaseOrder?.status || 'draft';
-  const headerStatusLabel = currentPurchaseOrder
-    ? STATUS_LABELS[headerStatus] || headerStatus
-    : 'Draft';
-  const headerStatusColor = currentPurchaseOrder
-    ? STATUS_COLORS[headerStatus] || 'default'
-    : 'warning';
+  const headerStatusLabel = 'Draft';
+  const headerStatusColor = 'warning';
 
   const onSubmit = async (formData) => {
     try {
@@ -311,15 +255,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
         tax: formData.tax || 0,
       };
 
-      let po;
-      if (currentPurchaseOrder?._id) {
-        po = await updatePurchaseOrder({
-          id: currentPurchaseOrder._id,
-          data: payload,
-        });
-      } else {
-        po = await createPurchaseOrder(payload);
-      }
+      const po = await createPurchaseOrder(payload);
       navigate(paths.dashboard.purchaseOrder.details(po._id));
     } catch (error) {
       console.error(error);
@@ -327,108 +263,102 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   };
 
   const renderHeader = (
-    <Box sx={{ mb: 3 }}>
-      <Box
-        rowGap={3}
-        display="grid"
-        alignItems="center"
-        gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
-        sx={{ mb: 3 }}
-      >
+    <>
+      <Card sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
         <Box
-          component="img"
-          alt="logo"
-          src={getTenantLogoUrl(tenant)}
-          sx={{ width: 60, height: 60, bgcolor: 'background.neutral', borderRadius: 1 }}
-        />
-        <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-          <Label variant="soft" color={headerStatusColor}>
-            {headerStatusLabel}
-          </Label>
-          <Typography variant="h6">Purchase Order</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {fDate(values.orderDate || dayjs().toDate())}
-          </Typography>
-        </Stack>
-      </Box>
-
-      <Stack
-        spacing={{ xs: 3, md: 5 }}
-        direction={{ xs: 'column', md: 'row' }}
-        divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
-      >
-        <Stack sx={{ width: 1 }}>
-          <Typography variant="h6" sx={{ color: 'text.disabled', mb: 1 }}>
-            From:
-          </Typography>
-          <Stack spacing={1}>
-            <Typography variant="subtitle2">{tenant?.name}</Typography>
-            <Typography variant="body2">{tenant?.address?.line1}</Typography>
-            <Typography variant="body2">{tenant?.address?.line2}</Typography>
-            <Typography variant="body2">{tenant?.address?.state}</Typography>
-            <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
-          </Stack>
-        </Stack>
-
-        <Stack sx={{ width: 1 }}>
-          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              To (Vendor):
-            </Typography>
-            <IconButton onClick={vendorDialog.onTrue}>
-              <Iconify icon="mingcute:add-line" color="green" />
-            </IconButton>
-          </Stack>
-          {selectedVendor ? (
-            <Stack spacing={0.5}>
-              <Typography variant="subtitle2">{selectedVendor.name}</Typography>
-              <Typography variant="body2">{selectedVendor.address}</Typography>
-              <Typography variant="body2">{selectedVendor.phone}</Typography>
-            </Stack>
-          ) : (
-            <Typography typography="caption" sx={{ color: 'error.main' }}>
-              Select a vendor
-            </Typography>
-          )}
-        </Stack>
-      </Stack>
-
-      <Card
-        sx={{
-          my: 4,
-          border: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <Box sx={{ p: 3 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mb: 2 }}
-          >
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Iconify icon="mdi:warehouse" width={20} />
-              <Typography variant="h6">Location & Issue Date</Typography>
-            </Stack>
-          </Stack>
-
+          rowGap={3}
+          display="grid"
+          alignItems="center"
+          gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
+          sx={{ mb: 3 }}
+        >
           <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-              gap: 2,
-            }}
-          >
-            <Field.Select name="partLocationId" label="Part Location">
-              {locations.map((loc) => (
-                <MenuItem key={loc._id} value={loc._id}>
-                  {loc.name}
-                </MenuItem>
-              ))}
-            </Field.Select>
-            <Field.DatePicker name="orderDate" label="Issue Date" />
-          </Box>
+            component="img"
+            alt="logo"
+            src={getTenantLogoUrl(tenant)}
+            sx={{ width: 60, height: 60, bgcolor: 'background.neutral', borderRadius: 1 }}
+          />
+          <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
+            <Label variant="soft" color={headerStatusColor}>
+              {headerStatusLabel}
+            </Label>
+            <Typography variant="h6">Purchase Order</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {fDate(values.orderDate || dayjs().toDate())}
+            </Typography>
+          </Stack>
+        </Box>
+
+        <Stack
+          spacing={{ xs: 3, md: 5 }}
+          direction={{ xs: 'column', md: 'row' }}
+          divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+        >
+          <Stack sx={{ width: 1 }}>
+            <Typography variant="h6" sx={{ color: 'text.disabled', mb: 1 }}>
+              From:
+            </Typography>
+            <Stack spacing={1}>
+              <Typography variant="subtitle2">{tenant?.name}</Typography>
+              <Typography variant="body2">{tenant?.address?.line1}</Typography>
+              <Typography variant="body2">{tenant?.address?.line2}</Typography>
+              <Typography variant="body2">{tenant?.address?.state}</Typography>
+              <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
+            </Stack>
+          </Stack>
+
+          <Stack sx={{ width: 1 }}>
+            <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+              <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
+                To (Vendor):
+              </Typography>
+              <IconButton onClick={vendorDialog.onTrue}>
+                <Iconify icon="mingcute:add-line" color="green" />
+              </IconButton>
+            </Stack>
+            {selectedVendor ? (
+              <Stack spacing={0.5}>
+                <Typography variant="subtitle2">{selectedVendor.name}</Typography>
+                <Typography variant="body2">{selectedVendor.address}</Typography>
+                <Typography variant="body2">{selectedVendor.phone}</Typography>
+              </Stack>
+            ) : (
+              <Typography typography="caption" sx={{ color: 'error.main' }}>
+                Select a vendor
+              </Typography>
+            )}
+          </Stack>
+        </Stack>
+
+        <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="mdi:warehouse" width={20} />
+            <Typography variant="h6">Location & Issue Date</Typography>
+          </Stack>
+        </Stack>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            gap: 2,
+          }}
+        >
+          <Field.Select name="partLocationId" label="Part Location">
+            {locations.map((loc) => (
+              <MenuItem key={loc._id} value={loc._id}>
+                {loc.name}
+              </MenuItem>
+            ))}
+          </Field.Select>
+          <Field.DatePicker name="orderDate" label="Issue Date" />
         </Box>
       </Card>
 
@@ -441,13 +371,12 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
           setValue('vendorId', vendor?._id || '');
         }}
       />
-    </Box>
+    </>
   );
 
   const renderLines = (
     <Card
       sx={{
-        mb: 3,
         border: '1px solid',
         borderColor: 'divider',
       }}
@@ -500,25 +429,33 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                   const line = values.lines?.[index] || {};
                   const amount = (line.quantityOrdered || 0) * (line.unitCost || 0);
                   const selectedPart = getLinePart(field.id, line.partId);
-                  const unit = selectedPart?.measurementUnit || '';
+                  const unit = line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
                   return (
                     <TableRow key={field.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
                         {(() => {
-                          const label = selectedPart
-                            ? `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''
-                            }`
-                            : '';
+                          const snapshot = line.partSnapshot;
+                          const selectedPart = getLinePart(field.id, line.partId);
+
+                          let label = '';
+                          if (snapshot) {
+                            label = `${snapshot.name}${snapshot.partNumber ? ` (${snapshot.partNumber})` : ''}`;
+                          } else if (selectedPart) {
+                            label = `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''}`;
+                          }
+
                           return (
                             <DialogSelectButton
                               onClick={() => {
+                                if (snapshot) return; // Prevent changing if snapshot exists
                                 setActiveLineId(field.id);
                                 partDialog.onTrue();
                               }}
                               placeholder="Select a part to attach price"
                               selected={label}
                               iconName="mdi:cube"
+                              disabled={!!snapshot}
                             />
                           );
                         })()}
@@ -738,13 +675,12 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ p: 3 }}>
+      <Stack spacing={3}>
         {renderHeader}
         {renderLines}
         {values.lines?.length > 0 && (
           <Box
             sx={{
-              mt: 4,
               display: 'grid',
               gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
               gap: 3,
@@ -754,7 +690,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
             {renderSummary}
           </Box>
         )}
-      </Card>
+      </Stack>
 
       <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
         <Button
@@ -764,13 +700,8 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
         >
           Cancel
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          size="large"
-          disabled={isSubmitting}
-        >
-          {currentPurchaseOrder ? 'Save Changes' : 'Create Purchase Order'}
+        <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
+          Create Purchase Order
         </Button>
       </Stack>
 

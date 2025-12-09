@@ -60,8 +60,11 @@ const STATUS_COLORS = {
 export function PurchaseOrderDetailView({ purchaseOrder }) {
   const {
     _id,
+    purchaseOrderNo,
     vendor,
+    vendorSnapshot,
     partLocation,
+    partLocationSnapshot,
     status,
     lines = [],
     description,
@@ -77,6 +80,9 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     createdAt,
     orderDate,
   } = purchaseOrder || {};
+
+  const displayVendor = vendorSnapshot || vendor;
+  const displayLocation = partLocationSnapshot || partLocation;
 
   const tenant = useTenantContext();
 
@@ -146,6 +152,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   const statusLabel = STATUS_LABELS[status] || status;
   const statusColor = STATUS_COLORS[status] || 'default';
   const displayDate = orderDate || createdAt;
+  const displayPoNo = purchaseOrderNo || '';
 
   useEffect(() => {
     if (receiveDialog.value) {
@@ -154,9 +161,11 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           const totalOrdered = line.quantityOrdered || 0;
           const totalReceived = line.quantityReceived || 0;
           const remaining = Math.max(totalOrdered - totalReceived, 0);
+          const partName = line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+
           return {
             lineId: line._id || String(index),
-            partName: line.part?.name || '-',
+            partName,
             totalOrdered,
             totalReceived,
             receiveQty: remaining,
@@ -241,11 +250,11 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={vendor?.name || 'Purchase Order'}
+        heading={'Purchase Order' + (displayPoNo ? ` ${displayPoNo}` : '')}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Purchase Orders', href: paths.dashboard.purchaseOrder.list },
-          { name: vendor?.name || 'Purchase Order' },
+          { name: displayVendor?.name || 'Purchase Order' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
@@ -278,7 +287,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               <Label variant="soft" color={statusColor}>
                 {statusLabel || 'Draft'}
               </Label>
-              <Typography variant="h6">Purchase Order</Typography>
+              <Typography variant="h6">Purchase Order {[displayPoNo]}</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {displayDate ? fDate(displayDate) : '-'}
               </Typography>
@@ -307,14 +316,14 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
                 To (Vendor):
               </Typography>
-              {vendor ? (
+              {displayVendor ? (
                 <Stack spacing={0.5}>
-                  <Typography variant="subtitle2">{vendor?.name}</Typography>
-                  {vendor?.address && (
-                    <Typography variant="body2">{vendor.address}</Typography>
+                  <Typography variant="subtitle2">{displayVendor?.name}</Typography>
+                  {displayVendor?.address && (
+                    <Typography variant="body2">{displayVendor.address}</Typography>
                   )}
-                  {vendor?.phone && (
-                    <Typography variant="body2">Phone: {vendor.phone}</Typography>
+                  {displayVendor?.phone && (
+                    <Typography variant="body2">Phone: {displayVendor.phone}</Typography>
                   )}
                 </Stack>
               ) : (
@@ -336,7 +345,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                 Part Location
               </Typography>
               <Typography variant="subtitle2">
-                {partLocation?.name || '-'}
+                {displayLocation?.name || '-'}
               </Typography>
             </Stack>
 
@@ -358,6 +367,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                 <TableRow>
                   <TableCell>#</TableCell>
                   <TableCell>Part</TableCell>
+                  <TableCell>Part No.</TableCell>
+                  <TableCell>Unit</TableCell>
                   <TableCell align="right">Qty Ordered</TableCell>
                   <TableCell align="right">Qty Received</TableCell>
                   <TableCell align="right">Unit Cost</TableCell>
@@ -365,16 +376,27 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {lines.map((line, idx) => (
-                  <TableRow key={line._id || idx}>
-                    <TableCell>{idx + 1}</TableCell>
-                    <TableCell>{line.part?.name || '-'}</TableCell>
-                    <TableCell align="right">{line.quantityOrdered}</TableCell>
-                    <TableCell align="right">{line.quantityReceived || 0}</TableCell>
-                    <TableCell align="right">{fCurrency(line.unitCost || 0)}</TableCell>
-                    <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
-                  </TableRow>
-                ))}
+                {lines.map((line, idx) => {
+                  const displayPartName =
+                    line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+                  const displayPartNumber =
+                    line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
+                  const displayUnit =
+                    line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+
+                  return (
+                    <TableRow key={line._id || idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{displayPartName}</TableCell>
+                      <TableCell>{displayPartNumber}</TableCell>
+                      <TableCell>{displayUnit}</TableCell>
+                      <TableCell align="right">{line.quantityOrdered}</TableCell>
+                      <TableCell align="right">{line.quantityReceived || 0}</TableCell>
+                      <TableCell align="right">{fCurrency(line.unitCost || 0)}</TableCell>
+                      <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </Box>
@@ -421,9 +443,9 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                       label={`Discount ${discountType === 'percentage' ? `(${discount}%)` : ''}`}
                       value={`- ${fCurrency(
                         discountAmount ??
-                          (discountType === 'percentage'
-                            ? ((subtotal || 0) * (discount || 0)) / 100
-                            : discount || 0)
+                        (discountType === 'percentage'
+                          ? ((subtotal || 0) * (discount || 0)) / 100
+                          : discount || 0)
                       )}`}
                       color="success.main"
                     />
@@ -436,17 +458,17 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                       label={`Tax ${taxType === 'percentage' ? `(${tax}%)` : ''}`}
                       value={fCurrency(
                         taxAmount ??
-                          (() => {
-                            const effectiveDiscount =
-                              discountAmount ??
-                              (discountType === 'percentage'
-                                ? ((subtotal || 0) * (discount || 0)) / 100
-                                : discount || 0);
-                            const taxableBase = Math.max((subtotal || 0) - (effectiveDiscount || 0), 0);
-                            return taxType === 'percentage'
-                              ? (taxableBase * (tax || 0)) / 100
-                              : tax || 0;
-                          })()
+                        (() => {
+                          const effectiveDiscount =
+                            discountAmount ??
+                            (discountType === 'percentage'
+                              ? ((subtotal || 0) * (discount || 0)) / 100
+                              : discount || 0);
+                          const taxableBase = Math.max((subtotal || 0) - (effectiveDiscount || 0), 0);
+                          return taxType === 'percentage'
+                            ? (taxableBase * (tax || 0)) / 100
+                            : tax || 0;
+                        })()
                       )}
                     />
                   )}

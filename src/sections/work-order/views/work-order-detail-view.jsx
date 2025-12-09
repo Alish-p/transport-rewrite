@@ -51,6 +51,7 @@ export function WorkOrderDetailView({ workOrder }) {
 
   const {
     _id,
+    workOrderNo,
     vehicle,
     status,
     priority,
@@ -165,6 +166,9 @@ export function WorkOrderDetailView({ workOrder }) {
               {statusLabel}
             </Label>
             <Typography variant="h6">Work Order</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {workOrderNo ? `Work Order No: ${workOrderNo}` : 'Work Order No: -'}
+            </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               {createdAt ? fDate(createdAt) : '-'}
             </Typography>
@@ -324,6 +328,8 @@ export function WorkOrderDetailView({ workOrder }) {
               <TableRow>
                 <TableCell>#</TableCell>
                 <TableCell>Part</TableCell>
+                <TableCell>Part No.</TableCell>
+                <TableCell>Unit</TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell align="right">Qty</TableCell>
                 <TableCell align="right">Price</TableCell>
@@ -333,26 +339,34 @@ export function WorkOrderDetailView({ workOrder }) {
             <TableBody>
               {parts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ color: 'text.secondary' }}>
+                  <TableCell colSpan={8} align="center" sx={{ color: 'text.secondary' }}>
                     No parts added.
                   </TableCell>
                 </TableRow>
               ) : (
-                parts.map((line, index) => (
-                  <TableRow key={line._id || index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <Typography variant="body2">{line.part?.name || '-'}</Typography>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {line.part?.partNumber || ''}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{line.partLocation?.name || '-'}</TableCell>
-                    <TableCell align="right">{line.quantity || 0}</TableCell>
-                    <TableCell align="right">{fCurrency(line.price || 0)}</TableCell>
-                    <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
-                  </TableRow>
-                ))
+                parts.map((line, index) => {
+                  const displayPartName =
+                    line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+                  const displayPartNumber =
+                    line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
+                  const displayUnit =
+                    line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+
+                  return (
+                    <TableRow key={line._id || index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2">{displayPartName}</Typography>
+                      </TableCell>
+                      <TableCell>{displayPartNumber}</TableCell>
+                      <TableCell>{displayUnit}</TableCell>
+                      <TableCell>{line.partLocation?.name || '-'}</TableCell>
+                      <TableCell align="right">{line.quantity || 0}</TableCell>
+                      <TableCell align="right">{fCurrency(line.price || 0)}</TableCell>
+                      <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

@@ -24,13 +24,39 @@ const STATUS_CONFIG = {
 
 export const TABLE_COLUMNS = [
   {
+    id: 'purchaseOrderNo',
+    label: 'PO No.',
+    defaultVisible: true,
+    disabled: true,
+    getter: (row) => row.purchaseOrderNo,
+    render: (row) => {
+      const value = row.purchaseOrderNo || '-';
+      return (
+        <ListItemText
+          disableTypography
+          primary={
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.purchaseOrder.details(row._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {value}
+            </Link>
+          }
+        />
+      );
+    },
+  },
+  {
     id: 'vendor',
     label: 'Vendor',
     defaultVisible: true,
     disabled: true,
-    getter: (row) => row.vendor?.name,
+    getter: (row) => row.vendorSnapshot?.name || row.vendor?.name,
     render: (row) => {
-      const value = row.vendor?.name || '';
+      const value = row.vendorSnapshot?.name || row.vendor?.name || '';
       return (
         <ListItemText
           disableTypography
@@ -54,7 +80,7 @@ export const TABLE_COLUMNS = [
     label: 'Location',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.partLocation?.name,
+    getter: (row) => row.partLocationSnapshot?.name || row.partLocation?.name,
   },
   {
     id: 'status',
