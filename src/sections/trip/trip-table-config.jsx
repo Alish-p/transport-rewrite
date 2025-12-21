@@ -2,8 +2,8 @@ import React from 'react';
 
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
-import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
+import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
