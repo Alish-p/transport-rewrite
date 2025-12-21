@@ -3,6 +3,7 @@ import React from 'react';
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -73,6 +74,49 @@ export const TABLE_COLUMNS = [
         {row.tripStatus}
       </Label>
     ),
+  },
+  {
+    id: 'jobs',
+    label: 'Jobs',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.subtrips?.length || 0,
+    render: (row) => {
+      const subtrips = row.subtrips || [];
+      const count = subtrips.length;
+
+      if (!count) {
+        return (
+          <Label variant="soft" color="default">
+            0
+          </Label>
+        );
+      }
+
+      const tooltipContent = (
+        <div>
+          {subtrips.map((st, idx) => (
+            <div key={st._id || st.subtripNo}>
+              {idx + 1} | {st.subtripNo} | {st.loadingPoint} ➡️ {' '}
+              {st.unloadingPoint}
+            </div>
+          ))}
+        </div>
+      );
+
+      return (
+        <Tooltip title={tooltipContent} arrow>
+          <Label
+            variant="soft"
+            color="info"
+            sx={{ cursor: 'pointer' }}
+          >
+            {count}
+          </Label>
+        </Tooltip >
+      );
+    },
   },
   {
     id: 'fromDate',
