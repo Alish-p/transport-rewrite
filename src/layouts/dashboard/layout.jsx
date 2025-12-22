@@ -40,9 +40,14 @@ export function DashboardLayout({ sx, children, data }) {
 
   const layoutQuery = 'lg';
 
-  const navData = data?.nav ?? dashboardNavData;
-
   const tenant = useTenantContext();
+
+  const rawNavData = data?.nav ?? dashboardNavData;
+
+  const navData = useMemo(
+    () => filterNavByFeatures(rawNavData, tenant),
+    [rawNavData, tenant]
+  );
 
   // Read optional announcement banner from env (Vite: VITE_*)
   const announcementMessage = import.meta.env.VITE_ANNOUNCEMENT_MESSAGE?.trim?.();
@@ -294,4 +299,41 @@ function useNavColorVars(theme, settings) {
     settings.navColor,
     settings.navLayout,
   ]);
+}
+
+// ----------------------------------------------------------------------
+
+const FEATURE_CHECKERS = {
+  maintenanceAndInventory: (tenant) =>
+    !!tenant?.integrations?.maintenanceAndInventory?.enabled,
+};
+
+function filterNavByFeatures(navSections, tenant) {
+  if (!navSections) return [];
+
+  const checkFeature = (feature) => {
+    if (!feature) return true;
+    const checker = FEATURE_CHECKERS[feature];
+    if (!checker) return true;
+    return checker(tenant);
+  };
+
+  return navSections
+    .map((section) => {
+      if (!checkFeature(section.feature)) return null;
+
+      const items = Array.isArray(section.items)
+        ? section.items.filter((item) => checkFeature(item.feature))
+        : section.items;
+
+      if (Array.isArray(section.items) && (!items || items.length === 0)) {
+        return null;
+      }
+
+      return {
+        ...section,
+        ...(Array.isArray(items) ? { items } : {}),
+      };
+    })
+    .filter(Boolean);
 }

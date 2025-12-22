@@ -7,6 +7,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { useAuthContext } from 'src/auth/hooks';
+import { useTenantContext } from 'src/auth/tenant';
 import { AuthGuard, RoleBasedGuard, PermissionBasedGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
@@ -185,6 +186,30 @@ function SuperGuard({ children }) {
       {children}
     </RoleBasedGuard>
   );
+}
+
+// ----------------------------------------------------------------------
+
+const ROUTE_FEATURE_CHECKERS = {
+  maintenanceAndInventory: (tenant) =>
+    !!tenant?.integrations?.maintenanceAndInventory?.enabled,
+};
+
+function isRouteFeatureEnabled(feature, tenant) {
+  if (!feature) return true;
+  const checker = ROUTE_FEATURE_CHECKERS[feature];
+  if (!checker) return true;
+  return checker(tenant);
+}
+
+function FeatureGuard({ feature, children }) {
+  const tenant = useTenantContext();
+
+  if (!isRouteFeatureEnabled(feature, tenant)) {
+    return <PermissionDeniedPage />;
+  }
+
+  return children;
 }
 
 export const dashboardRoutes = [
@@ -633,6 +658,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'part',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
         children: [
           {
             element: (
@@ -678,6 +708,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'part-location',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
         children: [
           {
             element: (
@@ -723,6 +758,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'purchaseOrder',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
         children: [
           {
             element: (
@@ -768,6 +808,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'workOrder',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
         children: [
           {
             element: (
@@ -813,6 +858,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'vendor',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
         children: [
           {
             element: (

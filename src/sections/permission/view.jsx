@@ -1,11 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
@@ -19,15 +17,16 @@ import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 export function PermissionDeniedView() {
-  const [role, setRole] = useState('admin');
+  const [role] = useState('admin');
 
   const { user } = useAuthContext();
 
-  const handleChangeRole = useCallback((event, newRole) => {
-    if (newRole !== null) {
-      setRole(newRole);
-    }
-  }, []);
+  // const 
+  // handleChangeRole = useCallback((event, newRole) => {
+  //   if (newRole !== null) {
+  //     setRole(newRole);
+  //   }
+  // }, []);
 
   return (
     <DashboardContent>
@@ -37,7 +36,7 @@ export function PermissionDeniedView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ToggleButtonGroup
+      {/* <ToggleButtonGroup
         exclusive
         value={role}
         size="small"
@@ -50,7 +49,7 @@ export function PermissionDeniedView() {
         <ToggleButton value="user" aria-label="User role">
           User role
         </ToggleButton>
-      </ToggleButtonGroup>
+      </ToggleButtonGroup> */}
 
       <RoleBasedGuard hasContent currentRole={user?.role} acceptRoles={[role]} sx={{ py: 10 }}>
         <Box gap={3} display="grid" gridTemplateColumns="repeat(2, 1fr)">

@@ -271,6 +271,7 @@ export const navData = [
 
   {
     subheader: 'Vehicle Maintenance',
+    feature: 'maintenanceAndInventory',
     items: [
       {
         title: 'Parts',
