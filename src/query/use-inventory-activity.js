@@ -16,7 +16,7 @@ export function usePaginatedInventoryActivities(params, options = {}) {
     queryFn: () => getInventoryActivities(params),
     keepPreviousData: true,
     // require part id to avoid fetching without context
-    enabled: !!params?.part,
+    enabled: !!(params?.part || params?.inventoryLocation),
     ...options,
   });
 }

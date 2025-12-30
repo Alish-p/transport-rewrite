@@ -1,15 +1,20 @@
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
+import Tab from '@mui/material/Tab';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { CustomTabs } from 'src/components/custom-tabs';
 import { HeroHeader } from 'src/components/hero-header-card';
 
+import { PartLocationOverviewTab } from '../part-location-details/part-location-overview-tab';
+import { PartLocationInventoryActivityTab } from '../part-location-details/part-location-inventory-activity-tab';
+
 export function PartLocationDetailView({ partLocation }) {
-  const { name, address } = partLocation || {};
+  const { _id: locationId, name, address } = partLocation || {};
+
+  const [currentTab, setCurrentTab] = useState('overview');
 
   return (
     <DashboardContent>
@@ -22,29 +27,30 @@ export function PartLocationDetailView({ partLocation }) {
       />
 
       <Box sx={{ mt: 3 }}>
-        <Card>
-          <CardHeader title="Part Location Details" />
-          <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-            <DetailRow label="Location Name" value={name} />
-            <DetailRow label="Address" value={address} multiline />
-          </Stack>
-        </Card>
+        <CustomTabs
+          value={currentTab}
+          onChange={(_event, value) => setCurrentTab(value)}
+          variant="scrollable"
+          allowScrollButtonsMobile
+          sx={{ mb: 3, borderRadius: 1, boxShadow: 1 }}
+        >
+          <Tab value="overview" label="Overview" />
+          <Tab value="activity" label="Activity" />
+        </CustomTabs>
+
+        {currentTab === 'overview' && (
+          <PartLocationOverviewTab partLocation={partLocation} />
+        )}
+
+        {currentTab === 'activity' && (
+          <PartLocationInventoryActivityTab
+            locationId={locationId}
+            locationName={name}
+          />
+        )}
       </Box>
     </DashboardContent>
   );
 }
 
-function DetailRow({ label, value, multiline }) {
-  return (
-    <Stack direction="row" alignItems={multiline ? 'flex-start' : 'center'} spacing={1.5}>
-      <Box
-        component="span"
-        sx={{ color: 'text.secondary', width: 180, flexShrink: 0, typography: 'subtitle2' }}
-      >
-        {label}
-      </Box>
-      <Typography sx={{ flexGrow: 1 }}>{value || '-'}</Typography>
-    </Stack>
-  );
-}
 

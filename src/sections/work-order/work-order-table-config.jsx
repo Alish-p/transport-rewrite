@@ -23,7 +23,7 @@ import {
 export const TABLE_COLUMNS = [
   {
     id: 'workOrderNo',
-    label: 'Work Order No.',
+    label: 'WO No.',
     defaultVisible: true,
     disabled: true,
     getter: (row) => row.workOrderNo,
