@@ -23,7 +23,7 @@ import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
-import { AppSubtripCompletedChart } from '../app-subtrips-completed-chart';
+import { DashboardSubtripCompletedWidget } from '../dashboard-subtrip-completed-widget';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
@@ -42,7 +42,6 @@ const ICONS = {
 
 export function OverviewAppView({
   counts,
-  subtripMonthlyData,
   invoiceStatusSummary,
   invoiceAmountSummary,
   transporterPaymentSummary,
@@ -154,43 +153,7 @@ export function OverviewAppView({
         )}
 
         <Grid xs={12} md={6} lg={8}>
-          <AppSubtripCompletedChart
-            title="Jobs Completed"
-            subheader="(+23%) than last year"
-            chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
-              series: [
-                subtripMonthlyData
-                  ? {
-                      name: String(subtripMonthlyData.year),
-                      data: [
-                        { name: 'Own', data: subtripMonthlyData.own },
-                        { name: 'Market', data: subtripMonthlyData.market },
-                      ],
-                    }
-                  : {
-                      name: 'Year',
-                      data: [
-                        { name: 'Own', data: Array(12).fill(0) },
-                        { name: 'Market', data: Array(12).fill(0) },
-                      ],
-                    },
-              ],
-            }}
-          />
+          <DashboardSubtripCompletedWidget />
         </Grid>
 
         <Grid xs={12}>

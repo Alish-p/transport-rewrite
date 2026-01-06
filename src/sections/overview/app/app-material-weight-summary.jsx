@@ -4,7 +4,8 @@ import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import { Select, Divider, MenuItem, CardHeader, FormControl } from '@mui/material';
+import { Divider, CardHeader } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
@@ -15,19 +16,11 @@ import { Chart, useChart, ChartLegends } from 'src/components/chart';
 export function AppMaterialWeightSummary({ title, subheader, ...other }) {
   const theme = useTheme();
 
-  const today = dayjs();
-  const currentMonthIndex = today.month();
-  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-    const m = today.month(i);
-    return {
-      label: m.format('MMM-YYYY'),
-      value: m.format('YYYY-MM'),
-    };
-  });
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
 
-  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+  const monthParam = useMemo(() => selectedMonth?.format('YYYY-MM'), [selectedMonth]);
 
-  const { data: summary = [] } = useMonthlyMaterialWeight(selectedMonth);
+  const { data: summary = [] } = useMonthlyMaterialWeight(monthParam);
 
   const mapped = useMemo(
     () =>
@@ -78,15 +71,19 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
         title={title}
         subheader={subheader}
         action={
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-              {monthOptions.map(({ label, value }) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <DatePicker
+            label="Select month"
+            views={['year', 'month']}
+            openTo="month"
+            value={selectedMonth}
+            onChange={(value) => value && setSelectedMonth(value)}
+            disableFuture
+            slotProps={{
+              textField: {
+                sx: { minWidth: 140 },
+              },
+            }}
+          />
         }
       />
 

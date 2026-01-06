@@ -24,12 +24,6 @@ export default function OverviewAppPage() {
   const { data: counts, isLoading: countsLoading, isError: countsError } = useDashboardCounts();
 
   const {
-    data: subtripMonthlyData,
-    isLoading: monthlyLoading,
-    isError: monthlyError,
-  } = useSubtripMonthlyData();
-
-  const {
     data: subtripStatusSummary,
     isLoading: statusSummaryLoading,
     isError: statusSummaryError,
@@ -62,7 +56,6 @@ export default function OverviewAppPage() {
 
   if (
     countsLoading ||
-    monthlyLoading ||
     statusSummaryLoading ||
     invoiceStatusLoading ||
     invoiceAmountLoading ||
@@ -74,7 +67,6 @@ export default function OverviewAppPage() {
 
   if (
     countsError ||
-    monthlyError ||
     statusSummaryError ||
     invoiceStatusError ||
     invoiceAmountError ||
@@ -97,7 +89,6 @@ export default function OverviewAppPage() {
       </Helmet>
       <OverviewAppView
         counts={counts}
-        subtripMonthlyData={subtripMonthlyData}
         subtripStatusSummary={subtripStatusSummary}
         invoiceStatusSummary={invoiceStatusSummary}
         invoiceAmountSummary={invoiceAmountSummary}

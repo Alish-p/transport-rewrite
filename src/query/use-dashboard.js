@@ -17,8 +17,10 @@ const getSubtripsExpiry = async () => {
   return data;
 };
 
-const getSubtripMonthlyData = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/subtrip-monthly-data`);
+const getSubtripMonthlyData = async (year) => {
+  const { data } = await axios.get(`${ENDPOINT}/subtrip-monthly-data`, {
+    params: { year },
+  });
   return data;
 };
 
@@ -51,8 +53,11 @@ export function useCustomerMonthlyFreight(month) {
 export function useSubtripsExpiry() {
   return useQuery({ queryKey: ['subtripsExpiry'], queryFn: getSubtripsExpiry });
 }
-export function useSubtripMonthlyData() {
-  return useQuery({ queryKey: ['subtripMonthlyData'], queryFn: getSubtripMonthlyData });
+export function useSubtripMonthlyData(year) {
+  return useQuery({
+    queryKey: ['subtripMonthlyData', year],
+    queryFn: () => getSubtripMonthlyData(year),
+  });
 }
 export function useDashboardCounts() {
   return useQuery({ queryKey: ['counts'], queryFn: getCounts });

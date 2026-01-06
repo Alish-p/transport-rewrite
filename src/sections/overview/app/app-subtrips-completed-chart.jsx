@@ -11,12 +11,23 @@ import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart
 
 // ----------------------------------------------------------------------
 
-export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) {
+export function AppSubtripCompletedChart({
+  title,
+  subheader,
+  chart,
+  selectedSeries: controlledSelectedSeries,
+  onChangeSeries: controlledOnChangeSeries,
+  ...other
+}) {
   const theme = useTheme();
 
   const currentYear = dayjs().format('YYYY');
 
-  const [selectedSeries, setSelectedSeries] = useState(currentYear);
+  const [internalSelectedSeries, setInternalSelectedSeries] = useState(currentYear);
+
+  const isControlled = controlledSelectedSeries !== undefined;
+
+  const selectedSeries = isControlled ? controlledSelectedSeries : internalSelectedSeries;
 
   const chartColors = chart.colors ?? [
     theme.palette.primary.dark,
@@ -51,9 +62,16 @@ export function AppSubtripCompletedChart({ title, subheader, chart, ...other }) 
     ...chart.options,
   });
 
-  const handleChangeSeries = useCallback((newValue) => {
-    setSelectedSeries(newValue);
-  }, []);
+  const handleChangeSeries = useCallback(
+    (newValue) => {
+      if (controlledOnChangeSeries) {
+        controlledOnChangeSeries(newValue);
+      } else {
+        setInternalSelectedSeries(newValue);
+      }
+    },
+    [controlledOnChangeSeries]
+  );
 
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
 
