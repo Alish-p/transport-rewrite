@@ -50,4 +50,5 @@ export const WORK_ORDER_CATEGORY_OPTIONS = [
   "Others",
   "Breakdown",
   "Damage",
+  "External Workshop"
 ];
