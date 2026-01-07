@@ -272,6 +272,47 @@ export function fDaysDuration(startDate, endDate) {
 }
 
 /**
+ * Returns a detailed duration string between startDate and endDate.
+ * Example: "2 days 5 hours", "9 hours", "3 days 1.6 hours"
+ *
+ * @param  {string|number|Date} startDate — start of range
+ * @param  {string|number|Date} endDate   — end of range
+ * @returns {string|null|'Invalid time value'}
+ */
+export function fDateTimeDuration(startDate, endDate) {
+  if (!startDate || !endDate) {
+    return null;
+  }
+
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  if (!start.isValid() || !end.isValid()) {
+    return 'Invalid time value';
+  }
+
+  const diffMs = end.diff(start);
+  const durationObj = dayjs.duration(diffMs);
+
+  const days = Math.floor(durationObj.asDays());
+  const hours = durationObj.asHours() % 24;
+
+  let result = '';
+  if (days > 0) {
+    result += `${days} ${days === 1 ? 'day' : 'days'}`;
+  }
+
+  if (hours > 0) {
+    if (result) result += ' ';
+    // Round to 1 decimal place if it's not an integer
+    const formattedHours = Number.isInteger(hours) ? hours : hours.toFixed(1);
+    result += `${formattedHours} ${hours === 1 ? 'hour' : 'hours'}`;
+  }
+
+  return result || '0 hours';
+}
+
+/**
  * Returns the current fiscal year in "YY-YY" format (e.g. "25-26").
  * Assumes fiscal year = April 1 → March 31.
  */

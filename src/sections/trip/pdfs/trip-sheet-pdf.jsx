@@ -2,7 +2,7 @@ import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
 import { wrapText } from 'src/utils/change-case';
 import { fNumber } from 'src/utils/format-number';
-import { fDate, fDateTime, fDaysDuration } from 'src/utils/format-time';
+import { fDate, fDateRangeShortLabel, fDateTime, fDateTimeDuration } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
@@ -22,7 +22,7 @@ export default function TripSheetPdf({ trip, tenant }) {
   const {
     tripNo,
     fromDate,
-    endDate,
+    toDate,
     vehicleId,
     driverId,
     startKm: tripStartKm,
@@ -39,12 +39,10 @@ export default function TripSheetPdf({ trip, tenant }) {
     { header: 'Start Date', accessor: 'startDate', width: '8%' },
     { header: 'Received Date', accessor: 'endDate', width: '8%' },
     {
-      header: 'Time Taken (Days)',
+      header: 'Time Taken',
       accessor: 'timeTaken',
-      width: '6%',
+      width: '8%',
       align: 'right',
-      showTotal: true,
-      formatter: (v) => fNumber(v),
     },
     { header: 'Material', accessor: 'material', width: '6%' },
     {
@@ -105,7 +103,7 @@ export default function TripSheetPdf({ trip, tenant }) {
           : '-',
       startDate: fDate(st.startDate),
       endDate: fDate(st.endDate),
-      timeTaken: fDaysDuration(st.startDate, st.endDate) || 0,
+      timeTaken: fDateTimeDuration(st.startDate, st.endDate) || '-',
       material: st.materialType || '-',
       weight: st.loadingWeight || 0,
       rate: st.rate || 0,
@@ -163,9 +161,9 @@ export default function TripSheetPdf({ trip, tenant }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-            0
-          )
+          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+          0
+        )
         : 0),
     0
   );
@@ -201,8 +199,7 @@ export default function TripSheetPdf({ trip, tenant }) {
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Trip Details</Text>
             <Text>Trip ID: {tripNo}</Text>
-            <Text>Start Date: {fDate(fromDate)}</Text>
-            <Text>End Date: {endDate ? fDate(endDate) : 'N/A'}</Text>
+            <Text>Durations: {fDateRangeShortLabel(fromDate, toDate)} ({fDateTimeDuration(fromDate, toDate)}) </Text>
             <Text>Start Km: {tripStartKm !== undefined ? fNumber(tripStartKm) : 'N/A'}</Text>
             <Text>End Km: {tripEndKm !== undefined ? fNumber(tripEndKm) : 'N/A'}</Text>
             <Text>Total Distance: {fNumber(totalKm)} Km</Text>
