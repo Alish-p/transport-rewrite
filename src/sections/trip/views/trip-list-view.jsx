@@ -59,6 +59,8 @@ const defaultFilters = {
   tripStatus: 'all',
   fromDate: null,
   toDate: null,
+  isTripSheetReady: false,
+  numberOfSubtrips: 0,
 };
 
 // ----------------------------------------------------------------------
@@ -103,6 +105,8 @@ export function TripListView() {
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
     status: filters.tripStatus !== 'all' ? [filters.tripStatus] : undefined,
+    isTripSheetReady: filters.isTripSheetReady ? 'true' : undefined,
+    numberOfSubtrips: filters.numberOfSubtrips || undefined,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -331,22 +335,22 @@ export function TripListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                      <TableSkeleton key={index} />
-                    ))
+                    <TableSkeleton key={index} />
+                  ))
                   : tableData.map((row) => (
-                      <TripTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={handleViewRow}
-                        onEditRow={handleEditRow}
-                        onDeleteRow={deleteTrip}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <TripTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={handleViewRow}
+                      onEditRow={handleEditRow}
+                      onDeleteRow={deleteTrip}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

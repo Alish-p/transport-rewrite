@@ -47,6 +47,14 @@ export default function TripTableFiltersResult({
     onFilters('toDate', null);
   };
 
+  const handleRemoveTripSheetReady = () => {
+    onFilters('isTripSheetReady', false);
+  };
+
+  const handleRemoveNumberOfSubtrips = () => {
+    onFilters('numberOfSubtrips', 0);
+  };
+
   // Removed Ownership filter handler as 'Own' filter is no longer used
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
@@ -94,6 +102,22 @@ export default function TripTableFiltersResult({
         {filters.fromDate && filters.toDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+          </Block>
+        )}
+
+        {filters.numberOfSubtrips > 0 && (
+          <Block label="Jobs:">
+            <Chip
+              size="small"
+              label={filters.numberOfSubtrips}
+              onDelete={handleRemoveNumberOfSubtrips}
+            />
+          </Block>
+        )}
+
+        {filters.isTripSheetReady && (
+          <Block label="Status:">
+            <Chip size="small" label="Trip Sheet Ready" onDelete={handleRemoveTripSheetReady} />
           </Block>
         )}
 

@@ -23,9 +23,9 @@ import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
-import { DashboardSubtripCompletedWidget } from '../dashboard-subtrip-completed-widget';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
+import { DashboardSubtripCompletedWidget } from '../dashboard-subtrip-completed-widget';
 
 // ----------------------------------------------------------------------
 

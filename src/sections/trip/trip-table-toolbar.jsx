@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import { Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -18,6 +19,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './trip-table-config';
+import TripFiltersDrawer from './trip-filters-drawer';
 import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
@@ -42,6 +44,7 @@ export default function TripTableToolbar({
   canResetColumns,
 }) {
   const columnsPopover = usePopover();
+  const filtersDrawer = useBoolean();
   const vehicleDialog = useBoolean();
   const driverDialog = useBoolean();
   const subtripDialog = useBoolean();
@@ -155,6 +158,15 @@ export default function TripTableToolbar({
           sx={{ maxWidth: { md: 200 } }}
         />
 
+        <Button
+          color="inherit"
+          startIcon={<Iconify icon="mdi:filter-variant" />}
+          onClick={filtersDrawer.onTrue}
+          sx={{ flexShrink: 0, height: 56 }}
+        >
+          More Filters
+        </Button>
+
         {/* Removed 'Own' filter toggle as Trips won't be created for market vehicles */}
 
         <Stack direction="row" spacing={1}>
@@ -192,6 +204,20 @@ export default function TripTableToolbar({
           handleToggleAllColumns={onToggleAllColumns}
         />
       </CustomPopover>
+
+      <TripFiltersDrawer
+        open={filtersDrawer.value}
+        onClose={filtersDrawer.onFalse}
+        filters={filters}
+        onFilters={onFilters}
+        driverDialog={driverDialog}
+        vehicleDialog={vehicleDialog}
+        subtripDialog={subtripDialog}
+        dateDialog={dateDialog}
+        selectedDriver={selectedDriver}
+        selectedVehicle={selectedVehicle}
+        selectedSubtrip={selectedSubtrip}
+      />
 
       {/* Removed export popover */}
 
