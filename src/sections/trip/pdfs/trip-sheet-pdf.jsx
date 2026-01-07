@@ -2,7 +2,7 @@ import { Page, Font, View, Text, Document } from '@react-pdf/renderer';
 
 import { wrapText } from 'src/utils/change-case';
 import { fNumber } from 'src/utils/format-number';
-import { fDate, fDateRangeShortLabel, fDateTime, fDateTimeDuration } from 'src/utils/format-time';
+import { fDate, fDateTime, fDateTimeDuration, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
