@@ -189,7 +189,7 @@ export default function TripSheetPdf({ trip, tenant }) {
     totalWeight > 0 && totalDistance > 0 ? totalFreightAmount / (totalWeight * totalDistance) : 0;
 
   return (
-    <Document>
+    <Document title={`${tripNo}`} subject="Trip Sheet">
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
         <PDFTitle title="Trip Sheet" />
         <PDFHeader company={tenant} />
