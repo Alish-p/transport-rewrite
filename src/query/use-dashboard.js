@@ -24,6 +24,11 @@ const getSubtripMonthlyData = async (year) => {
   return data;
 };
 
+const getExpiringDocuments = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/expiring-documents-list`);
+  return data;
+};
+
 const getCounts = async () => {
   const { data } = await axios.get(`${ENDPOINT}/counts`);
   return data;
@@ -61,6 +66,10 @@ export function useSubtripMonthlyData(year) {
 }
 export function useDashboardCounts() {
   return useQuery({ queryKey: ['counts'], queryFn: getCounts });
+}
+
+export function useExpiringDocuments() {
+  return useQuery({ queryKey: ['expiringDocuments'], queryFn: getExpiringDocuments });
 }
 
 // ----------------------------------------------------------------------

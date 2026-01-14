@@ -13,10 +13,10 @@ export function VehicleDocumentsPieChart({ title, subheader, chart, ...other }) 
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
-    theme.palette.primary.lighter,
-    theme.palette.primary.light,
-    theme.palette.primary.dark,
-    theme.palette.primary.darker,
+    theme.palette.grey[200],
+    theme.palette.error.main,
+    theme.palette.warning.main,
+    theme.palette.success.main,
   ];
 
   const chartSeries = chart.series.map((item) => item.value);

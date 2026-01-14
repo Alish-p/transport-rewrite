@@ -25,7 +25,9 @@ import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
+import { AppVehicleDocumentsExpiryTable } from '../app-vehicle-documents-expiry-table';
 import { DashboardSubtripCompletedWidget } from '../dashboard-subtrip-completed-widget';
+
 
 // ----------------------------------------------------------------------
 
@@ -168,6 +170,13 @@ export function OverviewAppView({
           <SubtripExpiryTable
             title="⚠️ Expiring Eway Bills"
             subheader="Active jobs with Eway Bills expiring within the next 24 hours. Please take timely action."
+          />
+        </Grid>
+
+        <Grid xs={12} lg={8}>
+          <AppVehicleDocumentsExpiryTable
+            title="Critical: Expired/Expiring Documents"
+            subheader="Vehicle documents that need immediate attention to maintain compliance."
           />
         </Grid>
 
