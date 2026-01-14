@@ -22,14 +22,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
 export function DriverInsightsTable({ month: controlledMonth, ...other }) {
-  const today = dayjs();
-  const currentMonthIndex = today.month();
-  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-    const m = today.month(i);
-    return { label: m.format('MMM-YYYY'), value: m.format('YYYY-MM') };
-  });
-
-  const defaultMonth = monthOptions[currentMonthIndex].value;
+  const defaultMonth = dayjs().format('YYYY-MM');
   const [showAll, setShowAll] = useState(false);
   const effectiveMonth = controlledMonth || defaultMonth;
   const { data: summary = [], isLoading } = useMonthlyDriverSubtrips(effectiveMonth);

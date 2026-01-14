@@ -16,8 +16,7 @@ import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-// Date range picker removed in favor of month selector
-import { Select, MenuItem, FormControl } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -48,17 +47,9 @@ const TABLE_HEAD = [
 ];
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
-  const today = dayjs();
-  const currentMonthIndex = today.month();
-  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-    const m = today.month(i);
-    return { label: m.format('MMM-YYYY'), value: m.format('YYYY-MM') };
-  });
-
-  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
-  const monthObj = dayjs(selectedMonth);
-  const start = monthObj.startOf('month').format('YYYY-MM-DD');
-  const end = monthObj.endOf('month').format('YYYY-MM-DD');
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
+  const start = selectedMonth.startOf('month').format('YYYY-MM-DD');
+  const end = selectedMonth.endOf('month').format('YYYY-MM-DD');
 
   const { data, isLoading } = usePaginatedSubtrips(
     {
@@ -103,7 +94,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const expenses = expData?.expenses || [];
 
   const [currentTab, setCurrentTab] = useState('profits');
-  const monthLabel = monthObj.format('MMM-YYYY');
+  const monthLabel = selectedMonth.format('MMM-YYYY');
   const infoText = `Data for vehicle ${vehicleNo || '-'} for ${monthLabel}`;
 
   return (
@@ -113,15 +104,23 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         subheader="Only jobs with completed billing are listed below. Jobs still in receive or loaded status are not included."
         action={
           <Stack direction={{ sm: 'column', md: 'row' }} spacing={1}>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-                {monthOptions.map(({ label, value }) => (
-                  <MenuItem key={value} value={value}>
-                    {label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <DatePicker
+              label="Select month"
+              views={['year', 'month']}
+              openTo="month"
+              value={selectedMonth}
+              onChange={(newValue) => {
+                if (newValue) {
+                  setSelectedMonth(newValue);
+                }
+              }}
+              disableFuture
+              slotProps={{
+                textField: {
+                  sx: { minWidth: 150 },
+                },
+              }}
+            />
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:download-outline" />}

@@ -4,13 +4,11 @@ import { useState } from 'react';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
-import FormControl from '@mui/material/FormControl';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -32,19 +30,12 @@ import {
 import { SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
 
 export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
-  const today = dayjs();
-  const currentMonthIndex = today.month();
-  const monthOptions = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
-    const m = today.month(i);
-    return { label: m.format('MMM-YYYY'), value: m.format('YYYY-MM') };
-  });
-
-  const [selectedMonth, setSelectedMonth] = useState(monthOptions[currentMonthIndex].value);
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
 
   const table = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
 
-  const startDate = dayjs(selectedMonth).startOf('month').format('YYYY-MM-DD');
-  const endDate = dayjs(selectedMonth).endOf('month').format('YYYY-MM-DD');
+  const startDate = selectedMonth.startOf('month').format('YYYY-MM-DD');
+  const endDate = selectedMonth.endOf('month').format('YYYY-MM-DD');
 
   const { data, isLoading } = usePaginatedSubtrips({
     page: table.page + 1,
@@ -57,11 +48,6 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
   const subtrips = data?.results || [];
   const totalCount = data?.total || 0;
 
-  const handleMonthChange = (event) => {
-    setSelectedMonth(event.target.value);
-    table.onResetPage();
-  };
-
   return (
     <Card {...other}>
       <CardHeader
@@ -69,15 +55,24 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
         subheader="Jobs completed by this vehicle"
         sx={{ mb: 3 }}
         action={
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <Select value={selectedMonth} onChange={handleMonthChange}>
-              {monthOptions.map(({ label, value }) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <DatePicker
+            label="Select month"
+            views={['year', 'month']}
+            openTo="month"
+            value={selectedMonth}
+            onChange={(newValue) => {
+              if (newValue) {
+                setSelectedMonth(newValue);
+                table.onResetPage();
+              }
+            }}
+            disableFuture
+            slotProps={{
+              textField: {
+                sx: { minWidth: 140 },
+              },
+            }}
+          />
         }
       />
 
