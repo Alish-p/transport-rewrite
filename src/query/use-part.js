@@ -42,6 +42,11 @@ const transferPartStock = async ({ id, data }) => {
   return response;
 };
 
+const getPartPriceCheck = async (params) => {
+  const { data } = await axios.get('/api/v1/maintenance-inventory/part/price-check', { params });
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedParts(params, options = {}) {
   return useQuery({
@@ -195,6 +200,18 @@ export function useTransferPartStock() {
       const errorMessage =
         error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function usePartPriceCheck() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: getPartPriceCheck,
+    onError: (error) => {
+      console.error('Error fetching part price:', error);
     },
   });
 

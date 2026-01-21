@@ -38,8 +38,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { useGps } from 'src/query/use-gps';
-import { usePaginatedParts } from 'src/query/use-part';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
+import { usePaginatedParts , usePartPriceCheck } from 'src/query/use-part';
 import { useCreateWorkOrder, useUpdateWorkOrder } from 'src/query/use-work-order';
 
 import { Label } from 'src/components/label';
@@ -259,6 +259,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
   const createWorkOrder = useCreateWorkOrder();
   const updateWorkOrder = useUpdateWorkOrder();
+  const { mutateAsync: checkPrice } = usePartPriceCheck();
   const partDialog = useBoolean(false);
 
   const currentStatus = currentWorkOrder?.status || 'open';
@@ -355,6 +356,45 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     setValue('priority', priorityValue, { shouldDirty: true, shouldValidate: true });
     handlePriorityMenuClose();
   };
+
+  const partsWatched = watch('parts');
+  const prevPartsRef = useRef(partsWatched);
+
+  useEffect(() => {
+    const currentParts = partsWatched || [];
+    const prevParts = prevPartsRef.current || [];
+
+    currentParts.forEach((partItem, index) => {
+      const prevPart = prevParts[index];
+
+      // If new row or part/location/quantity changed
+      if (
+        !prevPart ||
+        partItem.part !== prevPart.part ||
+        partItem.partLocation !== prevPart.partLocation ||
+        Number(partItem.quantity) !== Number(prevPart.quantity)
+      ) {
+        // Prepare to fetch if we have valid data
+        if (partItem.part && partItem.partLocation && Number(partItem.quantity) > 0) {
+          checkPrice({
+            partId: partItem.part,
+            locationId: partItem.partLocation,
+            quantity: Number(partItem.quantity)
+          }).then((res) => {
+            if (res && typeof res.unitCost === 'number') {
+              // Only update if price is different? 
+              // Or always update to ensure correctness.
+              // User can overwrite it manually, but if they change inputs, we overwrite back.
+              // This is standard "price lookup" behavior.
+              setValue(`parts.${index}.price`, res.unitCost, { shouldValidate: true });
+            }
+          }).catch(console.error);
+        }
+      }
+    });
+
+    prevPartsRef.current = currentParts;
+  }, [partsWatched, checkPrice, setValue]);
 
   const handlePartChange = (part) => {
     if (!activePartLineId) return;

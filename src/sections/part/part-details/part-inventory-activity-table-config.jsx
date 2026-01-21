@@ -145,6 +145,25 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
     showTotal: true,
   },
   {
+    id: 'unitCost',
+    label: 'Unit Cost',
+    defaultVisible: true,
+    disabled: false,
+    align: 'right',
+    getter: (row) => row.unitCost,
+    render: (row) => (row.unitCost != null ? `₹ ${Number(row.unitCost).toFixed(2)}` : '-'),
+  },
+  {
+    id: 'totalCost',
+    label: 'Total Cost',
+    defaultVisible: true,
+    disabled: false,
+    align: 'right',
+    getter: (row) => row.totalCost,
+    render: (row) => (row.totalCost != null ? `₹ ${Number(row.totalCost).toFixed(2)}` : '-'),
+    showTotal: true, // Assuming we might want to sum this column?
+  },
+  {
     id: 'performedBy',
     label: 'Performed By',
     defaultVisible: true,

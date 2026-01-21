@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -27,6 +27,7 @@ const AdjustmentSchema = zod.object({
     .refine((val) => val !== 0, { message: 'Adjustment cannot be 0' }),
   reason: zod.string().min(1, { message: 'Reason is required' }),
   comment: zod.string().max(500).optional(),
+  unitCost: zod.number().optional(),
 });
 
 const ADJUSTMENT_REASONS = [
@@ -60,8 +61,20 @@ export function PartStockAdjustmentDialog({ open, onClose, part, location, partI
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    if (open && location) {
+      reset({
+        quantityChange: 0,
+        reason: '',
+        comment: '',
+        unitCost: location.averageUnitCost || 0,
+      });
+    }
+  }, [open, location, reset]);
 
   const currentQty = useMemo(
     () => (typeof location?.currentQty === 'number' ? location.currentQty : 0),
@@ -99,6 +112,10 @@ export function PartStockAdjustmentDialog({ open, onClose, part, location, partI
       quantityChange: values.quantityChange,
       reason: values.reason || 'Manual Adjustment',
     };
+
+    if (values.quantityChange > 0 && values.unitCost !== undefined) {
+      payload.unitCost = values.unitCost;
+    }
 
     if (values.comment) {
       payload.note = values.comment;
@@ -218,6 +235,23 @@ export function PartStockAdjustmentDialog({ open, onClose, part, location, partI
                   }}
                 />
               </Grid>
+
+              {quantityChange > 0 && (
+                <Grid item xs={12} md={6}>
+                  <Field.Text
+                    name="unitCost"
+                    label="Unit Cost"
+                    type="number"
+                    InputProps={{
+                      startAdornment: (
+                        <Typography variant="caption" sx={{ mr: 1, color: 'text.secondary' }}>
+                          ₹
+                        </Typography>
+                      ),
+                    }}
+                  />
+                </Grid>
+              )}
             </Grid>
 
             <Field.Select name="reason" label="Reason" required>

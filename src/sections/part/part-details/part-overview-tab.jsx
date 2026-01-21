@@ -207,6 +207,7 @@ function LocationItem({ location, onAdjustInventory, onTransferInventory }) {
       >
         <LocationMetric label="Current Qty" value={currentQty} />
         <LocationMetric label="Reorder Point" value={reorderPoint} />
+        <LocationMetric label="Avg Price" value={location?.averageUnitCost} isCurrency />
         <LocationMetric label="Pending PO Qty" value={pendingPoQty} highlightPositive />
         <LocationMetric label="WO Current Qty" value={workOrderQty} highlightPositive />
       </Stack>
@@ -214,7 +215,7 @@ function LocationItem({ location, onAdjustInventory, onTransferInventory }) {
   );
 }
 
-function LocationMetric({ label, value, highlightPositive }) {
+function LocationMetric({ label, value, highlightPositive, isCurrency }) {
   const isNumber = typeof value === 'number';
   const displayValue = value ?? '-';
 
@@ -236,7 +237,7 @@ function LocationMetric({ label, value, highlightPositive }) {
           color: highlightPositive && isNumber && value > 0 ? 'success.main' : 'text.secondary',
         }}
       >
-        {displayValue}
+        {isCurrency && isNumber ? `₹ ${value.toFixed(2)}` : displayValue}
       </Typography>
     </Box>
   );
