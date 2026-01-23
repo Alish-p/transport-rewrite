@@ -17,6 +17,7 @@ import { AppFeatured } from '../app-featured';
 import { DashboardTotalWidget } from '../app-total-widget';
 import { AppMonthlySummaryTabs } from '../monthly-summary';
 import { FinancialMonthlyChart } from '../app-finance-charts';
+import { LoadingTargetWidget } from '../loading-target-widget';
 import { InvoicePiechartWidget } from '../app-invoice-pie-chart';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppDailySummaryWidget } from '../app-daily-summary-widget';
@@ -211,6 +212,10 @@ export function OverviewAppView({
 
         <Grid xs={12}>
           <EwaybillByStateWidget />
+        </Grid>
+
+        <Grid xs={12} lg={12}>
+          <LoadingTargetWidget />
         </Grid>
       </Grid>
     </DashboardContent>

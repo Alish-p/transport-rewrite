@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
@@ -5,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -12,6 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { TableContainer } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -21,6 +24,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
 
+import axios from 'src/utils/axios';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
@@ -87,6 +91,8 @@ export function SubtripListView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   // Route selection removed
   const tenant = useTenantContext();
   const { data: customers = [] } = useCustomersSummary();
@@ -406,62 +412,137 @@ export function SubtripListView() {
             dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} jobs
+                  </Link>
+                )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const selectedVisibleColumns = getVisibleColumnsForExport();
-                      exportToExcel(
-                        prepareDataForExport(
-                          selectedRows,
-                          TABLE_COLUMNS,
-                          selectedVisibleColumns,
-                          columnOrder
-                        ),
-                        'filtered'
-                      );
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = (
+                            columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+                          ).filter((id) => visibleColumns[id]);
+
+                          const response = await axios.get('/api/subtrips/export', {
+                            params: {
+                              subtripStatus: filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
+                              subtripNo: filters.subtripNo || undefined,
+                              referenceSubtripNo: filters.referenceSubtripNo || undefined,
+                              transporterId: filters.transportName || undefined,
+                              customerId: filters.customerId || undefined,
+                              vehicleId: filters.vehicleNo || undefined,
+                              driverId: filters.driverId || undefined,
+                              vehicleOwnership: filters.vehicleOwnership || undefined,
+                              subtripType: filters.subtripType || undefined,
+                              fromDate: filters.fromDate || undefined,
+                              toDate: filters.toDate || undefined,
+                              subtripEndFromDate: filters.subtripEndFromDate || undefined,
+                              subtripEndToDate: filters.subtripEndToDate || undefined,
+                              materials: filters.materials.length ? filters.materials : undefined,
+                              loadingPoint: filters.loadingPoint || undefined,
+                              unloadingPoint: filters.unloadingPoint || undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Jobs.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export jobs.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const selectedVisibleColumns = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            selectedVisibleColumns,
+                            columnOrder
+                          ),
+                          'Jobs-filtered'
+                        );
+                      }
                     }}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Download PDF">
-                  <PDFDownloadLink
-                    document={(() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const selectedVisibleColumns = getVisibleColumnsForExport();
-                      return (
-                        <SubtripListPdf
-                          subtrips={selectedRows}
-                          visibleColumns={selectedVisibleColumns}
-                          tenant={tenant}
-                        />
-                      );
-                    })()}
-                    fileName="Job-list.pdf"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {({ loading }) => (
-                      <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                      </IconButton>
-                    )}
-                  </PDFDownloadLink>
-                </Tooltip>
+                {!selectAllMode && (
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const selectedVisibleColumns = getVisibleColumnsForExport();
+                        return (
+                          <SubtripListPdf
+                            subtrips={selectedRows}
+                            visibleColumns={selectedVisibleColumns}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Job-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </Tooltip>
+                )}
               </Stack>
             }
           />
