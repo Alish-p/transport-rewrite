@@ -67,6 +67,8 @@ const defaultFilters = {
   subtripEndToDate: null,
   materials: [],
   vehicleOwnership: '',
+  loadingPoint: '',
+  unloadingPoint: '',
 };
 
 // ----------------------------------------------------------------------
@@ -121,6 +123,8 @@ export function SubtripListView() {
     subtripEndFromDate: filters.subtripEndFromDate || undefined,
     subtripEndToDate: filters.subtripEndToDate || undefined,
     materials: filters.materials.length ? filters.materials : undefined,
+    loadingPoint: filters.loadingPoint || undefined,
+    unloadingPoint: filters.unloadingPoint || undefined,
   });
 
   useEffect(() => {
@@ -207,7 +211,7 @@ export function SubtripListView() {
         if (name === 'vehicleNo') setSelectedVehicle(null);
         if (name === 'driverId') setSelectedDriver(null);
         if (name === 'transportName') setSelectedTransporter(null);
-        
+
       }
     },
     [handleFilters]
@@ -377,7 +381,7 @@ export function SubtripListView() {
           onSelectVehicle={handleSelectVehicle}
           selectedDriver={selectedDriver}
           onSelectDriver={handleSelectDriver}
-          
+
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
         />
@@ -391,7 +395,7 @@ export function SubtripListView() {
             selectedCustomerName={selectedCustomer?.customerName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedDriverName={selectedDriver?.driverName}
-            
+
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />

@@ -79,6 +79,14 @@ export default function SubtripTableFiltersResult({
     onFilters('vehicleOwnership', '');
   };
 
+  const handleRemoveLoadingPoint = () => {
+    onFilters('loadingPoint', '');
+  };
+
+  const handleRemoveUnloadingPoint = () => {
+    onFilters('unloadingPoint', '');
+  };
+
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.toDate);
   const resolvedCustomerName = (() => {
     if (selectedCustomerName) return selectedCustomerName;
@@ -164,6 +172,18 @@ export default function SubtripTableFiltersResult({
         {filters.subtripType && (
           <Block label="Subtrip Type:">
             <Chip size="small" label={filters.subtripType} onDelete={handleRemoveSubtripType} />
+          </Block>
+        )}
+
+        {filters.loadingPoint && (
+          <Block label="Loading Point:">
+            <Chip size="small" label={filters.loadingPoint} onDelete={handleRemoveLoadingPoint} />
+          </Block>
+        )}
+
+        {filters.unloadingPoint && (
+          <Block label="Unloading Point:">
+            <Chip size="small" label={filters.unloadingPoint} onDelete={handleRemoveUnloadingPoint} />
           </Block>
         )}
 

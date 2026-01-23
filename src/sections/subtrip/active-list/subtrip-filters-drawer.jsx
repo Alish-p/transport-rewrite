@@ -133,6 +133,34 @@ export default function SubtripFiltersDrawer({
                             }}
                         />
 
+                        <TextField
+                            fullWidth
+                            value={filters.loadingPoint}
+                            onChange={(event) => onFilters('loadingPoint', event.target.value)}
+                            placeholder="Loading Point"
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Iconify icon="eva:pin-fill" sx={{ color: 'text.disabled' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        <TextField
+                            fullWidth
+                            value={filters.unloadingPoint}
+                            onChange={(event) => onFilters('unloadingPoint', event.target.value)}
+                            placeholder="Unloading Point"
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Iconify icon="eva:pin-fill" sx={{ color: 'text.disabled' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
                         <DialogSelectButton
                             onClick={transporterDialog.onTrue}
                             selected={selectedTransporter?.transportName}
