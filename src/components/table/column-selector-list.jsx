@@ -1,19 +1,31 @@
 import * as React from 'react';
 
+import Box from '@mui/material/Box';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import Checkbox from '@mui/material/Checkbox';
-import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
+import Switch from '@mui/material/Switch';
+import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import ListSubheader from '@mui/material/ListSubheader';
-import ListItemButton from '@mui/material/ListItemButton';
-import { Box, Divider, TextField, Typography } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
 
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
 export function ColumnSelectorList({
+  open,
+  onClose,
   TABLE_COLUMNS,
   visibleColumns,
   disabledColumns,
+  onResetColumns,
+  canResetColumns,
   handleToggleColumn,
   handleToggleAllColumns,
 }) {
@@ -25,10 +37,10 @@ export function ColumnSelectorList({
     return acc;
   }, {});
 
-  // Determine checkbox state for Select All
+  // Determine switch state for Select All
   const selectableColumns = TABLE_COLUMNS.filter((col) => !disabledColumns[col.id]);
   const allSelected = selectableColumns.every((col) => visibleColumns[col.id]);
-  const someSelected = selectableColumns.some((col) => visibleColumns[col.id]);
+  // const someSelected = selectableColumns.some((col) => visibleColumns[col.id]);
 
   const handleSelectAllToggle = () => {
     const newState = !allSelected;
@@ -51,115 +63,210 @@ export function ColumnSelectorList({
   }, [groupedColumns, searchTerm]);
   const filteredKeys = Object.keys(filteredGroupedColumns).sort();
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+
+  const selectedCount = Object.values(visibleColumns).filter(Boolean).length;
+  const totalCount = TABLE_COLUMNS.length;
+
   return (
-    <Box
-      sx={{
-        width: 240,
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 1,
-        boxShadow: 3,
-        bgcolor: 'background.paper',
+    <Drawer
+      open={open}
+      onClose={onClose}
+      anchor="right"
+      PaperProps={{
+        sx: { width: 320 },
       }}
     >
-      {/* Component Header */}
-      <Box sx={{ px: 2, py: 1 }}>
-        <Typography variant="subtitle1" fontWeight="medium">
-          Columns
-        </Typography>
-      </Box>
-      {/* Search Field */}
-      <Box sx={{ px: 2, pb: 1 }}>
+      {/* Header */}
+      <Box sx={{ p: 2.5, pb: 2 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Iconify icon="mdi:table-column" width={24} sx={{ color: 'text.secondary' }} />
+            <Typography variant="h6">Columns</Typography>
+          </Stack>
+
+          <IconButton size="small" onClick={onClose}>
+            <Iconify icon="mingcute:close-line" />
+          </IconButton>
+        </Stack>
+
         <TextField
+          fullWidth
           size="small"
           placeholder="Search columns..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={handleClearSearch} edge="end">
+                  <Iconify icon="eva:close-circle-fill" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
       </Box>
-      <Divider />
-      <Scrollbar maxHeight={500}>
-        <List
-          subheader={<li />}
-          sx={{
-            width: '100%',
-            bgcolor: 'background.paper',
-            '& ul': { padding: 0 },
-            '& .MuiListItemButton-root:hover': {
-              bgcolor: 'action.hover',
-            },
-          }}
-        >
-          {/* Select All / Unselect All Header */}
-          <ListSubheader
-            component="div"
-            sx={{
-              bgcolor: 'background.default',
-              position: 'sticky',
-              top: 0,
-              zIndex: 2,
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              px: 2,
-              py: 1,
-            }}
-          >
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleSelectAllToggle} dense>
-                <Checkbox
-                  checked={allSelected}
-                  indeterminate={someSelected && !allSelected}
-                  tabIndex={-1}
-                  disableRipple
-                  sx={{ mr: 1 }}
-                />
-                <ListItemText primary={allSelected ? 'Unselect All' : 'Select All'} />
-              </ListItemButton>
-            </ListItem>
-          </ListSubheader>
 
+      <Divider />
+
+      {/* Select All / Reset Row */}
+      <Box
+        sx={{
+          px: 2.5,
+          py: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          bgcolor: 'background.neutral',
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Switch
+            size="small"
+            checked={allSelected}
+            onChange={handleSelectAllToggle}
+            inputProps={{ 'aria-label': 'Toggle all columns' }}
+          />
+          <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+            {allSelected ? 'Hide All' : 'Show All'}
+          </Typography>
+        </Stack>
+
+        <Button
+          size="small"
+          color="error"
+          variant="soft"
+          startIcon={
+            <Badge
+              color="error"
+              variant="dot"
+              invisible={!canResetColumns}
+              sx={{
+                '& .MuiBadge-badge': {
+                  top: 2,
+                  right: 2,
+                },
+              }}
+            >
+              <Iconify icon="solar:restart-bold" width={16} />
+            </Badge>
+          }
+          onClick={onResetColumns}
+          sx={{ px: 1.5 }}
+        >
+          Reset
+        </Button>
+      </Box>
+
+      <Divider />
+
+      {/* Column count indicator */}
+      <Box sx={{ px: 2.5, py: 1, bgcolor: 'background.paper' }}>
+        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+          Showing {selectedCount} of {totalCount} columns
+        </Typography>
+      </Box>
+
+      <Scrollbar sx={{ flexGrow: 1 }}>
+        <List disablePadding sx={{ pb: 3 }}>
           {/* Alphabetically Grouped Columns */}
           {filteredKeys.map((letter) => (
-            <li key={letter}>
-              <ul>
-                <ListSubheader
-                  sx={{
-                    bgcolor: 'background.default',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    lineHeight: 1.5,
-                    px: 2,
-                    py: 0.5,
-                    color: 'text.secondary',
-                  }}
-                >
-                  {letter}
-                </ListSubheader>
-                {filteredGroupedColumns[letter].map((column) => (
-                  <ListItem key={column.id} disablePadding>
-                    <ListItemButton
-                      dense
-                      onClick={() => handleToggleColumn(column.id)}
-                      disabled={disabledColumns[column.id]}
-                    >
-                      <Checkbox
-                        edge="start"
-                        checked={visibleColumns[column.id]}
-                        disabled={disabledColumns[column.id]}
-                        tabIndex={-1}
-                        disableRipple
-                        sx={{ mr: 1 }}
-                      />
-                      <ListItemText primary={column.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </ul>
-            </li>
+            <React.Fragment key={letter}>
+              <ListSubheader
+                disableSticky
+                sx={{
+                  typography: 'overline',
+                  color: 'text.disabled',
+                  bgcolor: 'transparent',
+                  px: 2.5,
+                  pt: 2,
+                  pb: 0.5,
+                  lineHeight: 'unset',
+                }}
+              >
+                {letter}
+              </ListSubheader>
+
+              {filteredGroupedColumns[letter].map((column) => {
+                const isDisabled = disabledColumns[column.id];
+                const isVisible = visibleColumns[column.id];
+
+                return (
+                  <Box
+                    key={column.id}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      px: 2.5,
+                      py: 1,
+                      cursor: isDisabled ? 'default' : 'pointer',
+                      '&:hover': {
+                        bgcolor: isDisabled ? 'transparent' : 'action.hover',
+                      },
+                      opacity: isDisabled ? 0.6 : 1,
+                    }}
+                    onClick={() => !isDisabled && handleToggleColumn(column.id)}
+                    component={isDisabled ? Tooltip : 'div'}
+                    {...(isDisabled && {
+                      title: 'This column is locked and cannot be hidden',
+                      placement: 'left',
+                      arrow: true,
+                    })}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                      {isDisabled ? (
+                        <Iconify
+                          icon="mdi:lock"
+                          width={18}
+                          sx={{ color: 'text.disabled' }}
+                        />
+                      ) : (
+                        <Box sx={{ width: 18 }} /> // Spacer for alignment
+                      )}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: isVisible ? 500 : 400,
+                          color: isDisabled ? 'text.disabled' : 'text.primary',
+                        }}
+                      >
+                        {column.label}
+                      </Typography>
+                    </Stack>
+
+                    <Switch
+                      size="small"
+                      checked={isVisible}
+                      disabled={isDisabled}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => !isDisabled && handleToggleColumn(column.id)}
+                      inputProps={{ 'aria-label': `Toggle ${column.label}` }}
+                    />
+                  </Box>
+                );
+              })}
+            </React.Fragment>
           ))}
+
+          {filteredKeys.length === 0 && (
+            <Box sx={{ px: 2.5, py: 4, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                No columns found
+              </Typography>
+            </Box>
+          )}
         </List>
       </Scrollbar>
-    </Box>
+    </Drawer >
   );
 }
+

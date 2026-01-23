@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
-import Badge from '@mui/material/Badge';
 import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
 import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
@@ -252,39 +252,43 @@ export default function ExpenseTableToolbar({
 
         <Stack direction="row" spacing={1}>
           <Tooltip title="Column Settings">
-            <IconButton onClick={columnsPopover.onOpen}>
-              <Iconify icon="mdi:table-column-plus-after" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Reset Columns">
-            <span>
-              <IconButton onClick={onResetColumns} disabled={!canResetColumns}>
-                <Badge color="error" variant="dot" invisible={!canResetColumns}>
-                  <Iconify icon="solar:restart-bold" />
+            <Button
+              onClick={columnsPopover.onOpen}
+              startIcon={
+                <Badge
+                  color="error"
+                  variant="dot"
+                  invisible={!canResetColumns}
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      top: 2,
+                      right: 2,
+                    },
+                  }}
+                >
+                  <Iconify icon="mdi:table-column-plus-after" />
                 </Badge>
-              </IconButton>
-            </span>
+              }
+            >
+              Columns
+            </Button>
           </Tooltip>
 
           {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
-      <CustomPopover
-        open={columnsPopover.open}
+      <ColumnSelectorList
+        open={Boolean(columnsPopover.open)}
         onClose={columnsPopover.onClose}
-        anchorEl={columnsPopover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <ColumnSelectorList
-          TABLE_COLUMNS={TABLE_COLUMNS}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          handleToggleColumn={onToggleColumn}
-          handleToggleAllColumns={onToggleAllColumns}
-        />
-      </CustomPopover>
+        TABLE_COLUMNS={TABLE_COLUMNS}
+        visibleColumns={visibleColumns}
+        disabledColumns={disabledColumns}
+        handleToggleColumn={onToggleColumn}
+        handleToggleAllColumns={onToggleAllColumns}
+        onResetColumns={onResetColumns}
+        canResetColumns={canResetColumns}
+      />
 
       <CustomPopover
         open={typePopover.open}
