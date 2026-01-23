@@ -13,6 +13,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { getTripTotalKm } from 'src/sections/trip/utils/trip-utils';
 import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
@@ -93,6 +94,7 @@ export function TripDetailView({ trip }) {
 
   // Trip Sheet dialog state
   const viewTripSheet = useBoolean();
+  const confirm = useBoolean();
   const tenant = useTenantContext();
 
   const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
@@ -280,10 +282,14 @@ export function TripDetailView({ trip }) {
               <Button
                 variant="contained"
                 onClick={() => {
-                  navigate({
-                    pathname: paths.dashboard.subtrip.jobCreate,
-                    search: `?id=${_id}`,
-                  });
+                  if (tripStatus === 'billed' || tripStatus === 'closed') {
+                    confirm.onTrue();
+                  } else {
+                    navigate({
+                      pathname: paths.dashboard.subtrip.jobCreate,
+                      search: `?id=${_id}`,
+                    });
+                  }
                 }}
               >
                 New Job
@@ -307,6 +313,28 @@ export function TripDetailView({ trip }) {
           </Grid>
         </Grid>
       </Grid>
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Add Job to Closed Trip?"
+        content="This trip is already closed. Are you sure you want to add a new job to it?"
+        action={
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => {
+              navigate({
+                pathname: paths.dashboard.subtrip.jobCreate,
+                search: `?id=${_id}`,
+              });
+              confirm.onFalse();
+            }}
+          >
+            Confirmed
+          </Button>
+        }
+      />
     </DashboardContent>
   );
 }

@@ -344,7 +344,9 @@ export function SubtripJobCreateView() {
   }, [forcedTripDetails, selectedVehicle, setValue]);
 
   // Alert if forced trip is closed
-  const forcedTripIsClosed = forcedTripDetails?.tripStatus === 'billed';
+  const forcedTripIsClosed = forcedTripDetails?.tripStatus === 'closed';
+
+  console.log({ forcedTripIsClosed, forcedTripDetails });
 
   const handleFetchEwayDetails = async () => {
     try {
@@ -922,6 +924,11 @@ export function SubtripJobCreateView() {
                       )}
                     </Box>
                   )}
+                  {forcedTripIsClosed && (
+                    <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
+                      U are currently trying to Add job to closed Trip.
+                    </Alert>
+                  )}
                   <DialogSelectButton
                     onClick={vehicleDialog.onTrue}
                     placeholder="Select Vehicle *"
@@ -1018,12 +1025,6 @@ export function SubtripJobCreateView() {
                         <Alert severity="success" variant="outlined">
                           No active trip found. A new trip will be created and the job attached to
                           it.
-                        </Alert>
-                      )}
-
-                      {forcedTripIsClosed && (
-                        <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
-                          U are currently trying to Add job to closed Trip
                         </Alert>
                       )}
 
