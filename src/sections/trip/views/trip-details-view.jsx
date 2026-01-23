@@ -285,7 +285,6 @@ export function TripDetailView({ trip }) {
                     search: `?id=${_id}`,
                   });
                 }}
-                disabled={tripStatus === 'billed'}
               >
                 New Job
               </Button>

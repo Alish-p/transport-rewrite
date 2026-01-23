@@ -207,7 +207,6 @@ export function useTransferPartStock() {
 }
 
 export function usePartPriceCheck() {
-  const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: getPartPriceCheck,
     onError: (error) => {

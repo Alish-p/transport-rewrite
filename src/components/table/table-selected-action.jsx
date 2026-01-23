@@ -10,6 +10,7 @@ export function TableSelectedAction({
   rowCount,
   numSelected,
   onSelectAllRows,
+  label,
   sx,
   ...other
 }) {
@@ -51,7 +52,7 @@ export function TableSelectedAction({
           ...(dense && { ml: 3 }),
         }}
       >
-        {numSelected} selected
+        {label || `${numSelected} selected`}
       </Typography>
 
       {action && action}

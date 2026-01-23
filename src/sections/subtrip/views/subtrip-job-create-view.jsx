@@ -104,6 +104,7 @@ const formSchema = z
       },
     }),
     tripDecision: z.enum(['attach', 'new']),
+    tripId: z.string().optional(),
     loadType: z.enum(['loaded', 'empty']),
     startKm: numericInputSchema,
     consignee: consigneeOptionSchema,
@@ -214,8 +215,20 @@ export function SubtripJobCreateView() {
     selectedVehicle?._id,
     { enabled: !!selectedVehicle?._id && !!selectedVehicle?.isOwn }
   );
+
+  // If coming from trip details, we have a specific trip ID to attach to
+  const fromTripId = searchParams.get('id');
+  const { data: forcedTripDetails, isFetching: fetchingForcedTrip } = useTrip(fromTripId, {
+    enabled: !!fromTripId,
+  });
+
   const { data: activeTripDetails } = useTrip(activeTrip?._id);
   const createJob = useCreateJob();
+
+  // Helpers for display to handle both active and forced trips
+  const targetTrip = fromTripId ? forcedTripDetails : activeTrip;
+  const targetTripDetails = fromTripId ? forcedTripDetails : activeTripDetails;
+  const isFetchingTargetTrip = fromTripId ? fetchingForcedTrip : fetchingActiveTrip;
 
   // Form state for job details + step selections
   const defaultFormValues = useMemo(createDefaultValues, []);
@@ -309,6 +322,29 @@ export function SubtripJobCreateView() {
       setSearchCustomerParams(null);
     }
   }, [customerLookupData, searchCustomerParams, setSelectedCustomer]);
+
+  // Pre-fill if forced Trip ID is present
+  useEffect(() => {
+    if (!forcedTripDetails) return;
+    console.log('Forced Trip Details Loaded:', forcedTripDetails);
+
+    // Set vehicle
+    if (forcedTripDetails.vehicleId && forcedTripDetails.vehicleId._id !== selectedVehicle?._id) {
+      console.log('Setting Vehicle:', forcedTripDetails.vehicleId);
+      setSelectedVehicle(forcedTripDetails.vehicleId);
+    }
+    // Set driver
+    if (forcedTripDetails.driverId) {
+      console.log('Setting Driver:', forcedTripDetails.driverId);
+      setSelectedDriver(forcedTripDetails.driverId);
+    }
+    // Set trip decision to attach and lock it (handled in UI via disabled prop)
+    setValue('tripDecision', 'attach');
+    setValue('tripId', forcedTripDetails._id); // We might need to pass this explicitly to backend
+  }, [forcedTripDetails, selectedVehicle, setValue]);
+
+  // Alert if forced trip is closed
+  const forcedTripIsClosed = forcedTripDetails?.tripStatus === 'billed';
 
   const handleFetchEwayDetails = async () => {
     try {
@@ -715,6 +751,13 @@ export function SubtripJobCreateView() {
 
     return {
       ...base,
+      // If forced trip (fromTripId), ensure we pass the ID if 'attach'
+      tripId:
+        fromTripId && form.tripDecision === 'attach'
+          ? fromTripId
+          : isOwn && hasActive && form.tripDecision === 'attach'
+            ? activeTrip._id
+            : undefined,
       ...(tripKm !== undefined ? { startKm: tripKm } : {}),
       ...emptyRoute,
       ...loadedFields,
@@ -776,12 +819,13 @@ export function SubtripJobCreateView() {
 
   // Prepopulate driver from active trip when attaching to it
   useEffect(() => {
+    if (fromTripId) return;
     if (!selectedVehicle?.isOwn) return;
     if (tripDecision !== 'attach') return;
     if (activeTrip?.driverId) {
       setSelectedDriver(activeTrip.driverId);
     }
-  }, [tripDecision, activeTrip, selectedVehicle, setSelectedDriver]);
+  }, [tripDecision, activeTrip, selectedVehicle, setSelectedDriver, fromTripId]);
 
   useEffect(() => {
     if (!isLoadedJob) {
@@ -891,11 +935,12 @@ export function SubtripJobCreateView() {
 
                   {selectedVehicle?.isOwn && (
                     <>
-                      {fetchingActiveTrip && <Typography>Checking active trip…</Typography>}
-                      {!fetchingActiveTrip && activeTrip && (
+                      {isFetchingTargetTrip && <Typography>Checking trip details…</Typography>}
+
+                      {!isFetchingTargetTrip && targetTrip && (
                         <Alert severity="info" sx={{ display: 'flex', alignItems: 'center' }}>
                           <span>
-                            Active trip found: <strong>{activeTrip.tripNo}</strong>
+                            Trip found: <strong>{targetTrip.tripNo}</strong>
                           </span>
                           <Tooltip title="View recent jobs" arrow>
                             <IconButton
@@ -916,17 +961,17 @@ export function SubtripJobCreateView() {
                           >
                             <Box sx={{ p: 2 }}>
                               <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                                Jobs in Trip {activeTrip.tripNo}
+                                Jobs in Trip {targetTrip.tripNo}
                               </Typography>
                               <Divider sx={{ mb: 1 }} />
                               <Box sx={{ maxHeight: 320, overflow: 'auto' }}>
-                                {(activeTripDetails?.subtrips || []).length === 0 ? (
+                                {(targetTripDetails?.subtrips || []).length === 0 ? (
                                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                     No jobs found in this trip.
                                   </Typography>
                                 ) : (
                                   <Stack spacing={1.5}>
-                                    {(activeTripDetails?.subtrips || [])
+                                    {(targetTripDetails?.subtrips || [])
                                       .slice()
                                       .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
                                       .map((st) => (
@@ -956,7 +1001,7 @@ export function SubtripJobCreateView() {
                                               st?.driver?.driverName ||
                                               st?.driverName ||
                                               (typeof st?.driver === 'string' ? st.driver : undefined) ||
-                                              activeTrip?.driverId?.driverName ||
+                                              targetTrip?.driverId?.driverName ||
                                               '-'}
                                           </Typography>
                                         </Box>
@@ -968,15 +1013,27 @@ export function SubtripJobCreateView() {
                           </Popover>
                         </Alert>
                       )}
-                      {!fetchingActiveTrip && !activeTrip && (
+
+                      {!isFetchingTargetTrip && !targetTrip && !activeTrip && !fromTripId && (
                         <Alert severity="success" variant="outlined">
                           No active trip found. A new trip will be created and the job attached to
                           it.
                         </Alert>
                       )}
 
-                      {activeTrip && (
-                        <Field.Select name="tripDecision" label="Trip Handling" sx={{ mt: 1 }}>
+                      {forcedTripIsClosed && (
+                        <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
+                          U are currently trying to Add job to closed Trip
+                        </Alert>
+                      )}
+
+                      {targetTrip && (
+                        <Field.Select
+                          name="tripDecision"
+                          label="Trip Handling"
+                          sx={{ mt: 1 }}
+                          disabled={!!fromTripId}
+                        >
                           <MenuItem value="attach">
                             <Stack direction="row" alignItems="center" spacing={1}>
                               <Iconify icon="mingcute:link-line" width={18} />
@@ -993,7 +1050,7 @@ export function SubtripJobCreateView() {
                       )}
 
                       {selectedVehicle?.isOwn &&
-                        ((activeTrip && tripDecision === 'new') || !activeTrip) && (
+                        (tripDecision === 'new' || (!activeTrip && !fromTripId)) && (
                           <Field.Text
                             name="startKm"
                             label="Start Km"

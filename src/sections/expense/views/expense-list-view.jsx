@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
@@ -5,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -12,10 +14,11 @@ import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress'; // Added for label construction
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -24,6 +27,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { paramCase } from 'src/utils/change-case';
 import { fShortenNumber } from 'src/utils/format-number';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
@@ -95,6 +99,9 @@ export function ExpenseListView() {
   const [selectedPump, setSelectedPump] = useState(null);
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   // Route selection removed
 
   const {
@@ -383,68 +390,139 @@ export function ExpenseListView() {
             results={totalCount}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedSubtripNo={selectedSubtrip?.subtripNo}
-          selectedPumpName={selectedPump?.name}
-          selectedTransporterName={selectedTransporter?.transportName}
-          selectedTripNo={selectedTrip?.tripNo}
-          sx={{ p: 2.5, pt: 0 }}
-        />
+            selectedPumpName={selectedPump?.name}
+            selectedTransporterName={selectedTransporter?.transportName}
+            selectedTripNo={selectedTrip?.tripNo}
+            sx={{ p: 2.5, pt: 0 }}
+          />
         )}
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+
           <TableSelectedAction
+            dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} expenses
+                  </Link>
+                )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const visibleCols = getVisibleColumnsForExport();
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Expense-selected-list'
-                      );
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = (
+                            columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+                          ).filter((id) => visibleColumns[id]);
+
+                          const response = await axios.get('/api/expenses/export', {
+                            params: {
+                              vehicleId: filters.vehicleId || undefined,
+                              subtripId: filters.subtripId || undefined,
+                              pumpId: filters.pumpId || undefined,
+                              transporterId: filters.transporterId || undefined,
+                              tripId: filters.tripId || undefined,
+                              vehicleType: filters.vehicleType || undefined,
+                              expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
+                              expenseType: filters.expenseType.length ? filters.expenseType : undefined,
+                              startDate: filters.fromDate || undefined,
+                              endDate: filters.endDate || undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Expenses.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export expenses.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          'Expense-selected-list'
+                        );
+                      }
                     }}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Download PDF">
-                  <PDFDownloadLink
-                    document={(() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const visibleCols = getVisibleColumnsForExport();
-                      return (
-                        <ExpenseListPdf
-                          expenses={selectedRows}
-                          visibleColumns={visibleCols}
-                          tenant={tenant}
-                        />
-                      );
-                    })()}
-                    fileName="Expense-list.pdf"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {({ loading }) => (
-                      <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                      </IconButton>
-                    )}
-                  </PDFDownloadLink>
-                </Tooltip>
+                {!selectAllMode && (
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        return (
+                          <ExpenseListPdf
+                            expenses={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Expense-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </Tooltip>
+                )}
               </Stack>
             }
           />
@@ -501,7 +579,7 @@ export function ExpenseListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
-    </DashboardContent>
+    </DashboardContent >
   );
 }
 
