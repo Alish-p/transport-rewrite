@@ -43,7 +43,7 @@ const transferPartStock = async ({ id, data }) => {
 };
 
 const getPartPriceCheck = async (params) => {
-  const { data } = await axios.get('/api/v1/maintenance-inventory/part/price-check', { params });
+  const { data } = await axios.get(`${ENDPOINT}/price-check`, { params });
   return data;
 };
 

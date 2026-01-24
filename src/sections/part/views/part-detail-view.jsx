@@ -47,6 +47,7 @@ export function PartDetailView({ part }) {
           reorderPoint: entry.threshold,
           pendingPoQty: entry.pendingPoQty,
           workOrderQty: entry.workOrderQty,
+          averageUnitCost: entry.averageUnitCost,
         };
       })
       : [];

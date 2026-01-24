@@ -36,18 +36,11 @@ export const PartSchema = zod.object({
   category: zod.string().optional(),
   manufacturer: zod.string().optional(),
   photo: zod.string().url({ message: 'Photo must be a valid URL' }).optional().or(zod.literal('')),
-  unitCost: zod
-    .number({ required_error: 'Unit Cost is required' })
-    .min(0, { message: 'Unit Cost cannot be negative' }),
+  unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
-  // For editing existing parts we still use single inventoryLocation + quantity.
-  // For creating new parts we support multi-location creation and validate quantities manually,
-  // sending `initialInventory` to the backend.
-  // inventoryLocation: zod.string().min(1, { message: 'Inventory Location is required' }).optional(),
-  quantity: zod
-    .number({ required_error: 'Quantity is required' })
-    .min(0, { message: 'Quantity cannot be negative' })
-    .optional(),
+  locationQuantities: zod.record(zod.string(), zod.union([zod.coerce.number(), zod.literal('')])).optional(),
+  locationThresholds: zod.record(zod.string(), zod.union([zod.coerce.number(), zod.literal('')])).optional(),
+  quantity: zod.coerce.number().min(0).optional(),
 });
 
 export default function PartForm({ currentPart }) {
@@ -128,8 +121,8 @@ export default function PartForm({ currentPart }) {
         ? currentPart.inventory
         : [];
 
-      const locationQuantities = getValues('locationQuantities') || {};
-      const locationThresholds = getValues('locationThresholds') || {};
+      const locationQuantities = data.locationQuantities || {};
+      const locationThresholds = data.locationThresholds || {};
 
       // Editing an existing part: update thresholds per location (quantities are read-only)
       if (currentPart) {
@@ -137,6 +130,9 @@ export default function PartForm({ currentPart }) {
 
         locations.forEach((loc) => {
           const locId = loc._id;
+
+          const rawThreshold = locationThresholds[locId];
+          const rawQty = locationQuantities[locId];
 
           const existing = existingInventoryEntries.find((entry) => {
             const entryLoc =
@@ -146,9 +142,6 @@ export default function PartForm({ currentPart }) {
             const entryLocId = entryLoc?._id || entry.inventoryLocationId || entry.inventoryLocation;
             return entryLocId === locId;
           });
-
-          const rawThreshold = locationThresholds[locId];
-          const rawQty = locationQuantities[locId];
 
           const threshold =
             rawThreshold !== undefined && rawThreshold !== ''
@@ -237,13 +230,13 @@ export default function PartForm({ currentPart }) {
         }
       });
 
-      if (entries.length === 0) {
-        setError('root', {
-          type: 'manual',
-          message: 'Please enter initial quantity for at least one location',
-        });
-        return;
-      }
+      // if (entries.length === 0) {
+      //   setError('root', {
+      //     type: 'manual',
+      //     message: 'Please enter initial quantity for at least one location',
+      //   });
+      //   return;
+      // }
 
       const {
         inventoryLocation: _inventoryLocation,
