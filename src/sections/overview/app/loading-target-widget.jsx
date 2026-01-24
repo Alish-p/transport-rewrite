@@ -134,10 +134,10 @@ export function LoadingTargetWidget({ sx, ...other }) {
     };
 
     const handleSubmit = async () => {
-        if (!formData.customer || !formData.material || !formData.targetWeight) return;
+        if (!formData.material || !formData.targetWeight) return;
 
         const targetData = {
-            customer: formData.customer._id,
+            customer: formData.customer?._id || null,
             materialTarget: {
                 material: formData.material,
                 targetWeight: Number(formData.targetWeight),
@@ -227,9 +227,9 @@ export function LoadingTargetWidget({ sx, ...other }) {
                                 <Typography
                                     variant="subtitle2"
                                     noWrap
-                                    sx={{ fontWeight: 600 }}
+                                    sx={{ fontWeight: 600, color: !target.customer ? 'primary.main' : 'inherit' }}
                                 >
-                                    {target.customer.customerName}
+                                    {target.customer?.customerName || 'All Customers'}
                                 </Typography>
                                 <Chip
                                     size="small"
@@ -484,16 +484,29 @@ export function LoadingTargetWidget({ sx, ...other }) {
                     <Stack spacing={2.5} sx={{ pt: 1 }}>
                         <TextField
                             fullWidth
-                            label="Customer"
-                            value={formData.customer?.customerName || ''}
+                            label="Customer (Optional - Leave blank for all)"
+                            value={formData.customer?.customerName || 'All Customers'}
                             onClick={customerDialog.onTrue}
                             InputProps={{
                                 readOnly: true,
                                 endAdornment: (
-                                    <Iconify
-                                        icon="eva:chevron-right-fill"
-                                        sx={{ color: 'text.disabled' }}
-                                    />
+                                    <Stack direction="row" spacing={0.5} alignItems="center">
+                                        {formData.customer && (
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setFormData({ ...formData, customer: null });
+                                                }}
+                                            >
+                                                <Iconify icon="eva:close-fill" width={18} />
+                                            </IconButton>
+                                        )}
+                                        <Iconify
+                                            icon="eva:chevron-right-fill"
+                                            sx={{ color: 'text.disabled' }}
+                                        />
+                                    </Stack>
                                 ),
                             }}
                             sx={{
@@ -573,7 +586,7 @@ export function LoadingTargetWidget({ sx, ...other }) {
                         variant="contained"
                         onClick={handleSubmit}
                         disabled={
-                            !formData.customer || !formData.material || !formData.targetWeight
+                            !formData.material || !formData.targetWeight
                         }
                         startIcon={
                             <Iconify icon={editingTarget ? 'mdi:check' : 'mingcute:add-line'} />
@@ -596,8 +609,10 @@ export function LoadingTargetWidget({ sx, ...other }) {
                     targetToDelete ? (
                         <>
                             Are you sure you want to delete the target for{' '}
-                            <strong>{targetToDelete.customer?.customerName}</strong> -{' '}
-                            <strong>{targetToDelete.materialTarget?.material}</strong>?
+                            <strong>
+                                {targetToDelete.customer?.customerName || 'All Customers'}
+                            </strong>{' '}
+                            - <strong>{targetToDelete.materialTarget?.material}</strong>?
                         </>
                     ) : (
                         'Are you sure you want to delete this target?'
