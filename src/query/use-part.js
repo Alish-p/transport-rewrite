@@ -47,10 +47,7 @@ const transferPartStock = async ({ id, data }) => {
   return response;
 };
 
-const getPartPriceCheck = async (params) => {
-  const { data } = await axios.get(`/api/maintenance/part-stock/price-check`, { params });
-  return data;
-};
+
 
 // Queries & Mutations
 export function usePaginatedParts(params, options = {}) {
@@ -211,14 +208,5 @@ export function useTransferPartStock() {
   return mutateAsync;
 }
 
-export function usePartPriceCheck() {
-  const { mutateAsync } = useMutation({
-    mutationFn: getPartPriceCheck,
-    onError: (error) => {
-      console.error('Error fetching part price:', error);
-    },
-  });
 
-  return mutateAsync;
-}
 

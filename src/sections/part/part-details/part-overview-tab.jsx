@@ -207,7 +207,6 @@ function LocationItem({ location, onAdjustInventory, onTransferInventory }) {
       >
         <LocationMetric label="Current Qty" value={currentQty} />
         <LocationMetric label="Reorder Point" value={reorderPoint} />
-        <LocationMetric label="Avg Price" value={location?.averageUnitCost} isCurrency />
         <LocationMetric label="Pending PO Qty" value={pendingPoQty} highlightPositive />
         <LocationMetric label="WO Current Qty" value={workOrderQty} highlightPositive />
       </Stack>

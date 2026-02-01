@@ -96,7 +96,6 @@ export default function PartForm({ currentPart }) {
     reset,
     watch,
     handleSubmit,
-    getValues,
     setError,
     formState: { isSubmitting, errors },
   } = methods;

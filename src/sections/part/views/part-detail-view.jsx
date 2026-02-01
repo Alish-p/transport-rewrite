@@ -9,7 +9,7 @@ import { CustomTabs } from 'src/components/custom-tabs';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 import { PartOverviewTab } from '../part-details/part-overview-tab';
-import { PartPurchaseHistoryTab } from '../part-details/part-purchase-history-tab';
+import { PartPriceHistoryTab } from '../part-details/part-price-history-tab';
 import { PartInventoryActivityTab } from '../part-details/part-inventory-activity-tab';
 import { PartWorkOrderActivityTab } from '../part-details/part-work-order-activity-tab';
 
@@ -106,7 +106,7 @@ export function PartDetailView({ part }) {
           <Tab value="overview" label="Overview" />
           <Tab value="inventoryActivity" label="Inventory Activity" />
           <Tab value="workOrderActivity" label="Work Order Activity" />
-          <Tab value="purchaseHistory" label="Purchase History" />
+          <Tab value="purchaseHistory" label="Price History" />
         </CustomTabs>
 
         {currentTab === 'overview' && (
@@ -129,7 +129,7 @@ export function PartDetailView({ part }) {
 
         {currentTab === 'workOrderActivity' && <PartWorkOrderActivityTab />}
 
-        {currentTab === 'purchaseHistory' && <PartPurchaseHistoryTab />}
+        {currentTab === 'purchaseHistory' && <PartPriceHistoryTab partId={partId} currentAverageCost={part.averageUnitCost || part.unitCost} />}
       </Box>
     </DashboardContent >
   );
