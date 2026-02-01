@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
-const ENDPOINT = '/api/maintenance/parts/activities';
+const ENDPOINT = '/api/maintenance/part-stock/transactions';
 const QUERY_KEY = 'inventoryActivities';
 
 const getInventoryActivities = async (params) => {

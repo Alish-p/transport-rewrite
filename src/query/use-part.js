@@ -33,17 +33,22 @@ const deletePart = async (id) => {
 };
 
 const adjustPartStock = async ({ id, data }) => {
-  const { data: response } = await axios.post(`${ENDPOINT}/${id}/adjust-stock`, data);
+  // id is partId, data contains quantityChange, location, etc.
+  // New API expects partId in body
+  const payload = { ...data, partId: id };
+  const { data: response } = await axios.post(`/api/maintenance/part-stock/adjust`, payload);
   return response;
 };
 
 const transferPartStock = async ({ id, data }) => {
-  const { data: response } = await axios.post(`${ENDPOINT}/${id}/transfer-stock`, data);
+  // New API expects partId in body
+  const payload = { ...data, partId: id };
+  const { data: response } = await axios.post(`/api/maintenance/part-stock/transfer`, payload);
   return response;
 };
 
 const getPartPriceCheck = async (params) => {
-  const { data } = await axios.get(`${ENDPOINT}/price-check`, { params });
+  const { data } = await axios.get(`/api/maintenance/part-stock/price-check`, { params });
   return data;
 };
 

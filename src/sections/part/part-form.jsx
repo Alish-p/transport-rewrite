@@ -38,8 +38,8 @@ export const PartSchema = zod.object({
   photo: zod.string().url({ message: 'Photo must be a valid URL' }).optional().or(zod.literal('')),
   unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
-  locationQuantities: zod.record(zod.string(), zod.union([zod.coerce.number(), zod.literal('')])).optional(),
-  locationThresholds: zod.record(zod.string(), zod.union([zod.coerce.number(), zod.literal('')])).optional(),
+  locationQuantities: zod.record(zod.string(), zod.preprocess((val) => (val === '' || val === undefined || val === null ? 0 : val), zod.coerce.number().min(0))).optional(),
+  locationThresholds: zod.record(zod.string(), zod.preprocess((val) => (val === '' || val === undefined || val === null ? 0 : val), zod.coerce.number().min(0))).optional(),
   quantity: zod.coerce.number().min(0).optional(),
 });
 
