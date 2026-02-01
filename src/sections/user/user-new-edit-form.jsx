@@ -9,7 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
-import { Table, Stack, TableRow, TableBody, TableCell, InputAdornment } from '@mui/material';
+import { Table, Stack, TableRow, TableBody, TableCell, InputAdornment, Checkbox, Button, Chip, Tooltip, Divider, Alert } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -17,6 +17,7 @@ import { useRouter } from 'src/routes/hooks';
 import { fData } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -89,10 +90,111 @@ export function UserNewEditForm({ currentUser }) {
   });
 
   const {
+    watch,
+    setValue,
     reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
+
+  const groupedPermissions = PERMISSIONS.reduce((acc, permission) => {
+    const group = permission.group || 'Other';
+    if (!acc[group]) {
+      acc[group] = [];
+    }
+    acc[group].push(permission);
+    return acc;
+  }, {});
+
+  const getCheckedStatus = (action) => {
+    const all = PERMISSIONS.every((item) => values.permissions?.[item.name]?.[action]);
+    const some = PERMISSIONS.some((item) => values.permissions?.[item.name]?.[action]);
+    return { all, some };
+  };
+
+  const getGroupCheckedStatus = (group, action) => {
+    const groupPerms = groupedPermissions[group];
+    const all = groupPerms.every((item) => values.permissions?.[item.name]?.[action]);
+    const some = groupPerms.some((item) => values.permissions?.[item.name]?.[action]);
+    return { all, some };
+  };
+
+  const handleGroupToggle = (group, action, checked) => {
+    groupedPermissions[group].forEach((item) => {
+      setValue(`permissions.${item.name}.${action}`, checked);
+    });
+  };
+
+  const applyPreset = (preset) => {
+    PERMISSIONS.forEach((item) => {
+      switch (preset) {
+        case 'admin':
+          ACTIONS.forEach((action) => {
+            setValue(`permissions.${item.name}.${action}`, true);
+          });
+          break;
+        case 'editor':
+          setValue(`permissions.${item.name}.create`, true);
+          setValue(`permissions.${item.name}.view`, true);
+          setValue(`permissions.${item.name}.update`, true);
+          setValue(`permissions.${item.name}.delete`, false);
+          break;
+        case 'viewer':
+          setValue(`permissions.${item.name}.create`, false);
+          setValue(`permissions.${item.name}.view`, true);
+          setValue(`permissions.${item.name}.update`, false);
+          setValue(`permissions.${item.name}.delete`, false);
+          break;
+        case 'clear':
+          ACTIONS.forEach((action) => {
+            setValue(`permissions.${item.name}.${action}`, false);
+          });
+          break;
+        default:
+          break;
+      }
+    });
+  };
+
+  const getPermissionCount = () => {
+    let count = 0;
+    PERMISSIONS.forEach((item) => {
+      ACTIONS.forEach((action) => {
+        if (values.permissions?.[item.name]?.[action]) {
+          count += 1;
+        }
+      });
+    });
+    return count;
+  };
+
+  const TABLE_HEAD = [
+    { id: 'module', label: 'Module' },
+    ...ACTIONS.map((action) => {
+      const { all, some } = getCheckedStatus(action);
+      return {
+        id: action,
+        label: (
+          <Stack direction="row" alignItems="center" justifyContent="center">
+            <Checkbox
+              size="small"
+              checked={all}
+              indeterminate={some && !all}
+              onChange={(event) => {
+                PERMISSIONS.forEach((item) => {
+                  setValue(`permissions.${item.name}.${action}`, event.target.checked);
+                });
+              }}
+            />
+            {action.charAt(0).toUpperCase() + action.slice(1)}
+          </Stack>
+        ),
+        align: 'center',
+      };
+    }),
+  ];
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -108,14 +210,7 @@ export function UserNewEditForm({ currentUser }) {
     }
   });
 
-  // Update the Grid containing permissions section
-  const TABLE_HEAD = [
-    { id: 'module', label: 'Module' },
-    { id: 'create', label: 'Create', align: 'center' },
-    { id: 'view', label: 'View', align: 'center' },
-    { id: 'update', label: 'Update', align: 'center' },
-    { id: 'delete', label: 'Delete', align: 'center' },
-  ];
+
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
@@ -184,41 +279,174 @@ export function UserNewEditForm({ currentUser }) {
         </Grid>
         <Grid xs={12} md={12}>
           <Card sx={{ p: 3, mt: 3 }}>
-            <Scrollbar>
-              <Table sx={{ minWidth: 800 }}>
-                <TableHeadCustom headLabel={TABLE_HEAD} />
+            <Stack spacing={3}>
+              {/* Header Section */}
+              <Stack spacing={2}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="h6" gutterBottom>
+                      User Permissions
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Configure access rights for this user across different modules
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label={`${getPermissionCount()} permissions granted`}
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                  />
+                </Stack>
 
-                <TableBody>
-                  {PERMISSIONS.map((permission) => (
-                    <TableRow key={permission.name}>
-                      <TableCell>
-                        <ListItemText
-                          primary={permission.subheader}
-                          secondary={permission.caption}
-                          primaryTypographyProps={{ typography: 'subtitle2', mb: 0.5 }}
-                          secondaryTypographyProps={{
-                            component: 'span',
-                            sx: {
-                              typography: 'caption',
-                              color: 'text.secondary',
-                            },
-                          }}
-                        />
-                      </TableCell>
-                      {ACTIONS.map((action) => (
-                        <TableCell key={action} align="center">
-                          <Field.Checkbox
-                            name={`permissions.${permission.name}.${action}`}
-                            label=""
-                            sx={{ m: 0 }}
-                          />
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Scrollbar>
+                {/* Quick Preset Buttons */}
+                <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                  <Tooltip title="Grant all permissions (full access)">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Iconify icon="mdi:shield-crown" />}
+                      onClick={() => applyPreset('admin')}
+                      color="error"
+                    >
+                      Admin Access
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Grant create, view, and update permissions">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Iconify icon="mdi:pencil" />}
+                      onClick={() => applyPreset('editor')}
+                      color="warning"
+                    >
+                      Editor Access
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Grant view-only permissions">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Iconify icon="mdi:eye" />}
+                      onClick={() => applyPreset('viewer')}
+                      color="info"
+                    >
+                      Viewer Access
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Remove all permissions">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Iconify icon="mdi:close-circle" />}
+                      onClick={() => applyPreset('clear')}
+                      color="inherit"
+                    >
+                      Clear All
+                    </Button>
+                  </Tooltip>
+                </Stack>
+
+                <Alert severity="info" icon={<Iconify icon="mdi:information" />}>
+                  <strong>Tip:</strong> Use column checkboxes to quickly assign permissions across all modules, or use group checkboxes for section-specific access.
+                </Alert>
+              </Stack>
+
+              <Divider />
+
+              {/* Permissions Table */}
+              <Scrollbar>
+                <Table sx={{ minWidth: 800 }}>
+                  <TableHeadCustom headLabel={TABLE_HEAD} />
+
+                  <TableBody>
+                    {Object.keys(groupedPermissions).map((group) => {
+                      const groupIcon = {
+                        'Management': 'mdi:cog',
+                        'Billing': 'mdi:currency-usd',
+                        'Vehicle Maintenance': 'mdi:car-wrench',
+                      }[group] || 'mdi:folder';
+
+                      return (
+                        <>
+                          <TableRow
+                            key={group}
+                            sx={{
+                              bgcolor: 'background.neutral',
+                              '&:hover': { bgcolor: 'action.hover' }
+                            }}
+                          >
+                            <TableCell>
+                              <Stack direction="row" alignItems="center" spacing={1}>
+                                <Iconify icon={groupIcon} width={20} />
+                                <Typography variant="subtitle1" fontWeight="600">
+                                  {group}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+                            {ACTIONS.map((action) => {
+                              const { all, some } = getGroupCheckedStatus(group, action);
+                              return (
+                                <TableCell key={action} align="center">
+                                  <Tooltip title={`Toggle ${action} for all ${group} modules`}>
+                                    <Checkbox
+                                      size="small"
+                                      checked={all}
+                                      indeterminate={some && !all}
+                                      onChange={(e) => handleGroupToggle(group, action, e.target.checked)}
+                                      sx={{
+                                        color: 'primary.main',
+                                        '&.Mui-checked': { color: 'primary.main' }
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+
+                          {groupedPermissions[group].map((permission) => (
+                            <TableRow
+                              key={permission.name}
+                              sx={{
+                                '&:hover': { bgcolor: 'action.hover' },
+                                transition: 'background-color 0.2s'
+                              }}
+                            >
+                              <TableCell>
+                                <ListItemText
+                                  primary={permission.subheader}
+                                  secondary={permission.caption}
+                                  primaryTypographyProps={{ typography: 'body2', fontWeight: 500, mb: 0.25 }}
+                                  secondaryTypographyProps={{
+                                    component: 'span',
+                                    sx: {
+                                      typography: 'caption',
+                                      color: 'text.secondary',
+                                      display: 'block',
+                                      mt: 0.5
+                                    },
+                                  }}
+                                />
+                              </TableCell>
+                              {ACTIONS.map((action) => (
+                                <TableCell key={action} align="center">
+                                  <Field.Checkbox
+                                    name={`permissions.${permission.name}.${action}`}
+                                    label=""
+                                    sx={{ m: 0 }}
+                                  />
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Stack>
           </Card>
         </Grid>
 

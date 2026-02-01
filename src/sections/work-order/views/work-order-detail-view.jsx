@@ -6,6 +6,8 @@ import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
@@ -20,7 +22,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import WorkOrderPdf from 'src/pdfs/work-order-pdf';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
@@ -46,6 +52,7 @@ export function WorkOrderDetailView({ workOrder }) {
   const router = useRouter();
   const tenant = useTenantContext();
   const closeDialog = useBoolean(false);
+  const viewPdf = useBoolean();
   const closeWorkOrder = useCloseWorkOrder();
   const [isClosing, setIsClosing] = useState(false);
 
@@ -119,6 +126,30 @@ export function WorkOrderDetailView({ workOrder }) {
         ]}
         action={
           <Stack direction="row" spacing={1}>
+            <Tooltip title="View PDF">
+              <IconButton onClick={viewPdf.onTrue}>
+                <Iconify icon="solar:eye-bold" />
+              </IconButton>
+            </Tooltip>
+
+            <PDFDownloadLink
+              document={<WorkOrderPdf workOrder={workOrder} tenant={tenant} />}
+              fileName={workOrderNo || 'work-order'}
+              style={{ textDecoration: 'none' }}
+            >
+              {({ loading }) => (
+                <Tooltip title="Download PDF">
+                  <IconButton>
+                    {loading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="eva:cloud-download-fill" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              )}
+            </PDFDownloadLink>
+
             <Button
               variant="outlined"
               size="small"
@@ -460,6 +491,22 @@ export function WorkOrderDetailView({ workOrder }) {
             {isClosing ? 'Closing...' : 'Confirm Close'}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      <Dialog fullScreen open={viewPdf.value} onClose={viewPdf.onFalse}>
+        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+          <DialogActions sx={{ p: 1.5 }}>
+            <Button color="inherit" variant="contained" onClick={viewPdf.onFalse}>
+              Close
+            </Button>
+          </DialogActions>
+
+          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <WorkOrderPdf workOrder={workOrder} tenant={tenant} />
+            </PDFViewer>
+          </Box>
+        </Box>
       </Dialog>
     </DashboardContent>
   );
