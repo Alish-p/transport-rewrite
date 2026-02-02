@@ -15,6 +15,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
 import { PartCategorySettings } from '../part-category';
+import { WorkOrderIssueSettings } from '../work-order-issue';
 import { PartManufacturerSettings } from '../part-manufacturer';
 
 // ----------------------------------------------------------------------
@@ -57,6 +58,7 @@ const SETTINGS_ITEMS = [
     children: [
       { id: 'part-manufacturer', label: 'Part Manufacturer' },
       { id: 'part-category', label: 'Part Category' },
+      { id: 'work-order-issues', label: 'Work Order Issues' },
     ],
   },
 ];
@@ -94,6 +96,8 @@ export function SettingsView({ tenant }) {
         return <PartManufacturerSettings />;
       case 'part-category':
         return <PartCategorySettings />;
+      case 'work-order-issues':
+        return <WorkOrderIssueSettings />;
       default:
         return null;
     }
