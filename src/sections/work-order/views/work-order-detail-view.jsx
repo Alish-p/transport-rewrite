@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -7,12 +8,12 @@ import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -22,16 +23,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import WorkOrderPdf from 'src/pdfs/work-order-pdf';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
+import WorkOrderPdf from 'src/pdfs/work-order-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useCloseWorkOrder } from 'src/query/use-work-order';
 

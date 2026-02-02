@@ -14,7 +14,6 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
-import { PartLocationSettings } from '../part-location';
 import { PartCategorySettings } from '../part-category';
 import { PartManufacturerSettings } from '../part-manufacturer';
 
@@ -56,10 +55,8 @@ const SETTINGS_ITEMS = [
     label: 'Vehicle Maintenance and Inventory Management',
     icon: <Iconify icon="mdi:tools" />,
     children: [
-      { id: 'part-locations', label: 'Part Locations' },
       { id: 'part-manufacturer', label: 'Part Manufacturer' },
       { id: 'part-category', label: 'Part Category' },
-      { id: 'measuring-units', label: 'Measuring Units' },
     ],
   },
 ];
@@ -93,14 +90,10 @@ export function SettingsView({ tenant }) {
         return <Box>Sample Text: Invoice Configuration</Box>;
       case 'maintenance':
         return <Box>Sample Text: Vehicle Maintenance and Inventory Management</Box>;
-      case 'part-locations':
-        return <PartLocationSettings />;
       case 'part-manufacturer':
         return <PartManufacturerSettings />;
       case 'part-category':
         return <PartCategorySettings />;
-      case 'measuring-units':
-        return <Box>Sample Text: Measuring Units</Box>;
       default:
         return null;
     }

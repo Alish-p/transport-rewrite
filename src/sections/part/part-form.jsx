@@ -269,8 +269,8 @@ export default function PartForm({ currentPart }) {
       <CardHeader title="Part Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="partNumber" label="Part Number" />
-        <Field.Text name="name" label="Name" />
+        <Field.Text name="partNumber" label="Part Number" placeholder="e.g. P10001" />
+        <Field.Text name="name" label="Name" placeholder="e.g. Oil Filter" />
         <Field.AutocompleteCreatable
           name="category"
           label="Category"
@@ -286,6 +286,7 @@ export default function PartForm({ currentPart }) {
         <Field.Text
           name="description"
           label="Description"
+          placeholder="Brief description of the part"
           multiline
           rows={3}
         />
@@ -317,6 +318,7 @@ export default function PartForm({ currentPart }) {
         <Field.Text
           name="unitCost"
           label="Unit Cost"
+          placeholder="0.00"
           type="number"
           inputProps={{ min: 0 }}
           InputProps={{
@@ -361,7 +363,7 @@ export default function PartForm({ currentPart }) {
               <Field.Text
                 name={`locationQuantities.${loc._id}`}
                 label={currentPart ? 'Current Qty' : 'Initial Qty'}
-                placeholder={currentPart ? undefined : '-'}
+                placeholder="0"
                 type="number"
                 InputLabelProps={{ shrink: true }}
                 sx={{ maxWidth: { sm: 140 } }}
@@ -371,7 +373,7 @@ export default function PartForm({ currentPart }) {
               <Field.Text
                 name={`locationThresholds.${loc._id}`}
                 label="Reorder Point"
-                placeholder="-"
+                placeholder="0"
                 type="number"
                 InputLabelProps={{ shrink: true }}
                 sx={{ maxWidth: { sm: 140 } }}

@@ -62,7 +62,8 @@ import {
 } from './work-order-config';
 
 const WorkOrderLineSchema = zod.object({
-  part: zod.string().min(1, { message: 'Part is required' }),
+  part: zod.string().optional(),
+  name: zod.string().optional(), // For custom items
   partLocation: zod.string().optional(),
   quantity: zod
     .number({ required_error: 'Quantity is required' })
@@ -155,6 +156,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       })(),
       parts: (currentWorkOrder?.parts || []).map((line) => ({
         part: line.part?._id || line.part || '',
+        name: line.name || '',
         partLocation:
           line.partLocation?._id || line.partLocation || '',
         quantity: line.quantity || 1,
@@ -361,20 +363,36 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     const lineIndex = fields.findIndex((f) => f.id === activePartLineId);
     if (lineIndex < 0) return;
 
-    setValue(`parts.${lineIndex}.part`, part._id, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    const costToSet = part.averageUnitCost ?? part.price ?? part.unitCost ?? 0;
-    setValue(`parts.${lineIndex}.price`, costToSet, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    if (part.isCustom) {
+      // Handle custom adhoc item
+      setValue(`parts.${lineIndex}.part`, '', { shouldDirty: true });
+      setValue(`parts.${lineIndex}.name`, part.name, { shouldDirty: true, shouldValidate: true });
+      setValue(`parts.${lineIndex}.price`, 0, { shouldDirty: true }); // Default to 0 or let user edit
 
-    setLineParts((prev) => ({
-      ...prev,
-      [activePartLineId]: part,
-    }));
+      setLineParts((prev) => ({
+        ...prev,
+        [activePartLineId]: null, // Clear stored part object
+      }));
+    } else {
+      // Handle real inventory part
+      setValue(`parts.${lineIndex}.part`, part._id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      const costToSet = part.averageUnitCost ?? part.price ?? part.unitCost ?? 0;
+      setValue(`parts.${lineIndex}.price`, costToSet, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      // Clear custom name if selecting a real part
+      setValue(`parts.${lineIndex}.name`, '', { shouldDirty: true });
+
+      setLineParts((prev) => ({
+        ...prev,
+        [activePartLineId]: part,
+      }));
+    }
+
     setActivePartLineId(null);
     partDialog.onFalse();
   };
@@ -395,7 +413,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             ? formData.labourCharge
             : 0,
         parts: (formData.parts || []).map((line) => ({
-          part: line.part,
+          part: line.part || undefined,
+          name: line.name || undefined,
           partLocation: line.partLocation || undefined,
           quantity: line.quantity,
           price: line.price,
@@ -744,6 +763,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             onClick={() =>
               append({
                 part: '',
+                name: '',
                 partLocation: '',
                 quantity: 1,
                 price: 0,
@@ -790,42 +810,60 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                       <TableCell sx={{ minWidth: 220 }}>
                         {(() => {
                           const snapshot = line.partSnapshot;
+                          // If we have a snapshot, show it (historical)
+                          // If we have a selected part, show it (live)
+                          // If we have a custom name, show it (adhoc)
 
                           let label = '';
                           if (snapshot) {
                             label = `${snapshot.name}${snapshot.partNumber ? ` (${snapshot.partNumber})` : ''}`;
                           } else if (selectedPart) {
                             label = `${selectedPart.name}${selectedPart.partNumber ? ` (${selectedPart.partNumber})` : ''}`;
+                          } else if (line.name) {
+                            label = line.name;
                           }
 
                           return (
-                            <DialogSelectButton
-                              onClick={() => {
-                                if (snapshot) return;
-                                setActivePartLineId(field.id);
-                                partDialog.onTrue();
-                              }}
-                              placeholder="Select a part to attach price"
-                              selected={label}
-                              iconName="mdi:cube"
-                              disabled={!!snapshot}
-                            />
+                            <Box>
+                              <DialogSelectButton
+                                onClick={() => {
+                                  setActivePartLineId(field.id);
+                                  partDialog.onTrue();
+                                }}
+                                selected={label}
+                                placeholder="Select Part / Custom Item"
+                                iconName="mdi:cube"
+                                iconNameSelected="mdi:cube-send"
+                              />
+                            </Box>
                           );
                         })()}
                       </TableCell>
-                      <TableCell sx={{ minWidth: 180 }}>
-                        <Field.Select
-                          name={`parts.${index}.partLocation`}
-                          label="Location"
-                        >
-                          <MenuItem value="">None</MenuItem>
-                          <Divider sx={{ borderStyle: 'dashed' }} />
-                          {locations.map((loc) => (
-                            <MenuItem key={loc._id} value={loc._id}>
-                              {loc.name}
+
+                      <TableCell sx={{ minWidth: 160 }}>
+                        {/* Only show location if it's a real part */}
+                        {!!line.part && (
+                          <Field.Select
+                            name={`parts.${index}.partLocation`}
+                            label=""
+                            size="small"
+                            InputLabelProps={{ shrink: true }}
+                          >
+                            <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                              None
                             </MenuItem>
-                          ))}
-                        </Field.Select>
+                            {locations.map((loc) => (
+                              <MenuItem key={loc._id} value={loc._id}>
+                                {loc.name}
+                              </MenuItem>
+                            ))}
+                          </Field.Select>
+                        )}
+                        {!line.part && (
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', px: 1 }}>
+                            -
+                          </Typography>
+                        )}
                       </TableCell>
                       <TableCell align="right" sx={{ minWidth: 100 }}>
                         <Field.Number

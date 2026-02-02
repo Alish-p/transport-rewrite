@@ -2,7 +2,9 @@ import { useMemo, useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import Box from '@mui/material/Box';
-import { Stack } from '@mui/material';
+import {
+  Stack,
+} from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -17,7 +19,6 @@ import { useInfiniteParts } from 'src/query/use-part';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
-import { SearchNotFound } from 'src/components/search-not-found';
 
 const ITEM_HEIGHT = 64;
 
@@ -52,7 +53,65 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
     onClose();
   };
 
-  const notFound = !parts.length && !!debouncedSearch && !isLoading;
+  const handleSelectCustom = () => {
+    onPartChange({ name: search, isCustom: true });
+    onClose();
+  };
+
+  /* 
+     UX Improvement: 
+     If there is a search term, we ALWAYS allow adding it as a custom item.
+     We do NOT show "SearchNotFound" because that discourages the user.
+     Instead we show "Add [search] as custom item" as the first result, or the only result.
+  */
+
+  const renderCustomOption = () => {
+    if (!debouncedSearch) return null;
+    return (
+      <Box
+        component="li"
+        onClick={handleSelectCustom}
+        sx={{
+          cursor: 'pointer',
+          mb: 1,
+          borderRadius: 1.5,
+          px: 2,
+          py: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          bgcolor: 'transparent',
+          border: (theme) => `1px dashed ${theme.palette.divider}`,
+          '&:hover': {
+            bgcolor: 'action.hover',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: 36,
+            height: 36,
+            borderRadius: 1,
+            bgcolor: 'background.neutral',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'text.secondary',
+          }}
+        >
+          <Iconify icon="mingcute:add-line" width={20} />
+        </Box>
+        <Box>
+          <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
+            Add &quot;{debouncedSearch}&quot;
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            New Custom Item
+          </Typography>
+        </Box>
+      </Box>
+    );
+  };
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
@@ -82,11 +141,20 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
       <DialogContent sx={{ p: 0 }}>
         {isLoading ? (
           <LoadingSpinner sx={{ height: ITEM_HEIGHT * 6 }} />
-        ) : notFound ? (
-          <SearchNotFound query={debouncedSearch} sx={{ mt: 3, mb: 10 }} />
         ) : (
           <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5, py: 1 }}>
             <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none' }}>
+              {/* Always show custom option if searching */}
+              {renderCustomOption()}
+
+              {parts.length === 0 && !debouncedSearch && (
+                <Box sx={{ textAlign: 'center', mt: 3, mb: 3 }}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Start typing to search for a part or create a custom item.
+                  </Typography>
+                </Box>
+              )}
+
               {parts.map((part) => {
                 const isSelected = selectedPart?._id === part._id;
                 const category =

@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useMemo } from 'react';
-import { Page, View, Text, Document, Font } from '@react-pdf/renderer';
+import { Page, View, Text, Font, Document } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
+
 import PDFBillToSection from './common/PDFBillTo';
 
 Font.register({
@@ -22,8 +22,6 @@ export default function WorkOrderPdf({ workOrder, tenant }) {
         orderDate,
         createdAt,
         scheduledStartDate,
-        actualStartDate,
-        completedDate,
         odometerReading,
         parts = [],
         issues = [],
