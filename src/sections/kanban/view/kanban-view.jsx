@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   useSensor,
   DndContext,
@@ -23,9 +23,8 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 
 import { useUsers } from 'src/query/use-user';
-import { hideScrollY } from 'src/theme/styles';
+import { useReorderTasks } from 'src/query/use-task';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useUpdateTaskStatus, useReorderTasks } from 'src/query/use-task';
 
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
@@ -51,7 +50,6 @@ export function KanbanView({ tasks }) {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   const [localTasks, setLocalTasks] = useState(tasks);
-  const updateTaskStatus = useUpdateTaskStatus();
   const reorderTasks = useReorderTasks();
   const { data: users = [] } = useUsers();
 
@@ -235,7 +233,6 @@ export function KanbanView({ tasks }) {
     }
 
     const overColumn = findColumn(overId);
-    const initialColumn = startColumnId.current;
 
     // Determine if we moved to a different column or reordered within same
     if (activeColumn && overColumn) {
@@ -342,7 +339,7 @@ export function KanbanView({ tasks }) {
               ...{
                 minHeight: 0,
                 flex: '1 1 auto',
-                [`& .${kanbanClasses.columnList}`]: { ...hideScrollY, flex: '1 1 auto' },
+                [`& .${kanbanClasses.columnList}`]: { flex: '1 1 auto' },
               },
             }}
           >

@@ -6,6 +6,8 @@ import { styled } from '@mui/material/styles';
 
 import { varAlpha, stylesMode } from 'src/theme/styles';
 
+import { Scrollbar } from 'src/components/scrollbar';
+
 import { kanbanClasses } from '../classes';
 
 // ----------------------------------------------------------------------
@@ -50,9 +52,9 @@ export const StyledRoot = styled(Stack)(({ theme }) => ({
 const ColumnBase = forwardRef(({ slots, stateProps, sx, ...other }, ref) => {
   const className = kanbanClasses.column.concat(
     (stateProps?.hover && ` ${kanbanClasses.state.hover}`) ||
-      (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-      (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
-      ''
+    (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
+    (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
+    ''
   );
 
   return (
@@ -67,18 +69,27 @@ const ColumnBase = forwardRef(({ slots, stateProps, sx, ...other }, ref) => {
       {slots?.action && slots?.action}
 
       {slots?.main && (
-        <Box
-          component="ul"
-          className={kanbanClasses.columnList}
+        <Scrollbar
           sx={{
-            minHeight: 80,
+            px: 0.5,
+            height: 1,
             display: 'flex',
-            gap: 'var(--item-gap)',
             flexDirection: 'column',
           }}
         >
-          {slots.main}
-        </Box>
+          <Box
+            component="ul"
+            className={kanbanClasses.columnList}
+            sx={{
+              minHeight: 80,
+              display: 'flex',
+              gap: 'var(--item-gap)',
+              flexDirection: 'column',
+            }}
+          >
+            {slots.main}
+          </Box>
+        </Scrollbar>
       )}
     </StyledRoot>
   );
