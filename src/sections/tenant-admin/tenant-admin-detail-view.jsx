@@ -24,23 +24,23 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useTenantPayments , useCreateTenantUser } from 'src/query/use-tenant-admin';
-
+import { useTenantPayments, useCreateTenantUser, useUpdateTenantById } from 'src/query/use-tenant-admin';
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { HeroHeader } from 'src/components/hero-header-card';
-
 import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget';
 
 import { PaymentFormDialog } from './tenant-admin-payments';
 import { TenantUserFormDialog } from './tenant-admin-users';
 import { TenantSubscriptionWidget } from './tenant-subscription-widget';
+import { TenantSubscriptionDialog } from './tenant-subscription-dialog';
 
 export default function TenantAdminDetailView({ tenant, users, stats }) {
   const navigate = useNavigate();
   const { addPayment, updatePayment, deletePayment } = useTenantPayments();
   const { createTenantUser } = useCreateTenantUser();
+  const { updateTenantById } = useUpdateTenantById();
 
   const [localTenant, setLocalTenant] = useState(tenant);
   const [localUsers, setLocalUsers] = useState(users || []);
@@ -48,6 +48,7 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const [editPayment, setEditPayment] = useState(null);
   const [confirm, setConfirm] = useState({ open: false, payment: null });
   const [userFormOpen, setUserFormOpen] = useState(false);
+  const [subFormOpen, setSubFormOpen] = useState(false);
 
   const addr = localTenant?.address || {};
   const contact = localTenant?.contactDetails || {};
@@ -106,6 +107,11 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             <TenantSubscriptionWidget
               subscription={localTenant?.subscription || stats?.subscription}
               sx={{ height: 380 }}
+              action={
+                <IconButton onClick={() => setSubFormOpen(true)} size="small">
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              }
             />
           </Grid>
 
@@ -337,6 +343,18 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
           </Button>
         }
       />
+      {/* Subscription Edit Dialog */}
+      <TenantSubscriptionDialog
+        open={subFormOpen}
+        onClose={() => setSubFormOpen(false)}
+        initial={localTenant?.subscription}
+        onSubmit={async (values) => {
+          const updated = await updateTenantById({ id: localTenant._id, data: { subscription: values } });
+          setLocalTenant(updated);
+          setSubFormOpen(false);
+        }}
+      />
+
     </DashboardContent>
   );
 }
