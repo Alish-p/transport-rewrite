@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -14,9 +15,11 @@ import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -25,6 +28,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { postInvoicesToTally, downloadInvoicesXml } from 'src/utils/export-invoice-xml';
 
@@ -105,6 +109,8 @@ export function InvoiceListView() {
   const [tableData, setTableData] = useState([]);
   const [cancelTarget, setCancelTarget] = useState(null);
   const [cancellationRemarks, setCancellationRemarks] = useState('');
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data, isLoading } = usePaginatedInvoices({
     customerId: filters.customerId || undefined,
@@ -358,11 +364,34 @@ export function InvoiceListView() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={(checked) => {
+                if (!checked) {
+                  setSelectAllMode(false);
+                }
                 table.onSelectAllRows(
                   checked,
                   tableData.map((row) => row._id)
-                )
+                );
+              }}
+              label={
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="subtitle2">
+                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  </Typography>
+
+                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} invoices
+                    </Link>
+                  )}
+                </Stack>
               }
               action={
                 <Stack direction="row">
@@ -381,6 +410,7 @@ export function InvoiceListView() {
                             : `invoices-${selectedRows.length}.xml`;
                         downloadInvoicesXml(selectedRows, fileName, tenant);
                       }}
+                      disabled={selectAllMode} // Creating XML for ALL invoices might be too heavy/not supported yet
                     >
                       <Iconify icon="mdi:file-xml-box" />
                     </IconButton>
@@ -389,23 +419,63 @@ export function InvoiceListView() {
                   <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        const visibleCols = getVisibleColumnsForExport();
-                        exportToExcel(
-                          prepareDataForExport(
-                            selectedRows,
-                            TABLE_COLUMNS,
-                            visibleCols,
-                            columnOrder
-                          ),
-                          'Invoices-selected-list'
-                        );
+                      onClick={async () => {
+                        if (selectAllMode) {
+                          try {
+                            setIsDownloading(true);
+                            toast.info('Export started... Please wait.');
+                            const orderedIds = (
+                              columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                            ).filter((id) => visibleColumns[id]);
+
+                            const response = await axios.get('/api/invoices/export', {
+                              params: {
+                                customerId: filters.customerId || undefined,
+                                subtripId: filters.subtripId || undefined,
+                                invoiceStatus: filters.invoiceStatus !== 'all' ? filters.invoiceStatus : undefined,
+                                issueFromDate: filters.fromDate || undefined,
+                                issueToDate: filters.endDate || undefined,
+                                invoiceNo: filters.invoiceNo || undefined,
+                                columns: orderedIds.join(','),
+                              },
+                              responseType: 'blob',
+                            });
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', 'Invoices.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            setIsDownloading(false);
+                            toast.success('Export completed!');
+                          } catch (error) {
+                            console.error('Failed to download excel', error);
+                            setIsDownloading(false);
+                            toast.error('Failed to export invoices.');
+                          }
+                        } else {
+                          const selectedRows = tableData.filter((r) =>
+                            table.selected.includes(r._id)
+                          );
+                          const visibleCols = getVisibleColumnsForExport();
+                          exportToExcel(
+                            prepareDataForExport(
+                              selectedRows,
+                              TABLE_COLUMNS,
+                              visibleCols,
+                              columnOrder
+                            ),
+                            'Invoices-selected-list'
+                          );
+                        }
                       }}
                     >
-                      <Iconify icon="eva:download-outline" />
+                      {isDownloading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        <Iconify icon="eva:download-outline" />
+                      )}
                     </IconButton>
                   </Tooltip>
 
@@ -428,7 +498,7 @@ export function InvoiceListView() {
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                       {({ loading }) => (
-                        <IconButton color="primary">
+                        <IconButton color="primary" disabled={selectAllMode}>
                           <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
                         </IconButton>
                       )}
@@ -439,6 +509,7 @@ export function InvoiceListView() {
                     <Tooltip title="Push to Tally (XML)">
                       <IconButton
                         color="primary"
+                        disabled={selectAllMode}
                         onClick={async () => {
                           const selectedRows = tableData.filter((r) =>
                             table.selected.includes(r._id)
@@ -491,12 +562,15 @@ export function InvoiceListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onOrderChange={moveColumn}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={(checked) => {
+                    if (!checked) {
+                      setSelectAllMode(false);
+                    }
                     table.onSelectAllRows(
                       checked,
                       tableData.map((row) => row._id)
-                    )
-                  }
+                    );
+                  }}
                 />
                 <TableBody>
                   {tableData.map((row) => (

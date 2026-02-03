@@ -59,6 +59,7 @@ const STORAGE_KEY = 'transporter-table-columns';
 
 const defaultFilters = {
   search: '',
+  vehicleCount: -1,
 };
 
 // ----------------------------------------------------------------------
@@ -97,6 +98,7 @@ export function TransporterListView() {
 
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
+    vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });

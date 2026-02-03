@@ -5,14 +5,17 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -21,6 +24,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -97,6 +101,8 @@ export function TransporterPaymentListView() {
   });
 
   const [tableData, setTableData] = useState([]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (data?.receipts) {
@@ -211,60 +217,133 @@ export function TransporterPaymentListView() {
             dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} payments
+                  </Link>
+                )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                    onClick={async () => {
                       const visibleCols = (
                         columnOrder && columnOrder.length
                           ? columnOrder
                           : Object.keys(visibleColumns)
                       ).filter((id) => visibleColumns[id]);
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Transporter-payment-selected'
-                      );
+
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          const response = await axios.get('/api/transporter-payments/export', {
+                            params: {
+                              transporterId: filters.transporterId || undefined,
+                              subtripId: filters.subtripId || undefined,
+                              paymentId: filters.paymentId || undefined,
+                              status: filters.status !== 'all' ? filters.status : undefined,
+                              hasTds: filters.hasTds || undefined,
+                              issueFromDate: filters.issueFromDate || undefined,
+                              issueToDate: filters.issueToDate || undefined,
+                              columns: visibleCols.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'TransporterPayments.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                        } catch (error) {
+                          console.error('Export failed:', error);
+                        } finally {
+                          setIsDownloading(false);
+                        }
+                      } else {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'Transporter-payment-selected'
+                        );
+                      }
                     }}
+                    disabled={isDownloading}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                    {isDownloading ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
                   </IconButton>
                 </Tooltip>
 
                 <Tooltip title="Download PDF">
-                  <PDFDownloadLink
-                    document={(() => {
-                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = (
-                        columnOrder && columnOrder.length
-                          ? columnOrder
-                          : Object.keys(visibleColumns)
-                      ).filter((id) => visibleColumns[id]);
-                      return (
-                        <TransporterPaymentListPdf
-                          payments={selectedRows}
-                          visibleColumns={visibleCols}
-                          tenant={tenant}
-                        />
-                      );
-                    })()}
-                    fileName="Transporter-payment-list.pdf"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {({ loading }) => (
-                      <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                      </IconButton>
-                    )}
-                  </PDFDownloadLink>
+                  <span>
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = (
+                          columnOrder && columnOrder.length
+                            ? columnOrder
+                            : Object.keys(visibleColumns)
+                        ).filter((id) => visibleColumns[id]);
+                        return (
+                          <TransporterPaymentListPdf
+                            payments={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Transporter-payment-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary" disabled={selectAllMode}>
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'}
+                          />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </span>
                 </Tooltip>
               </Stack>
             }
@@ -279,32 +358,35 @@ export function TransporterPaymentListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
-                onSelectAllRows={(checked) =>
+                onSelectAllRows={(checked) => {
                   table.onSelectAllRows(
                     checked,
                     tableData.map((row) => row._id)
-                  )
-                }
+                  );
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
+                }}
               />
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                    <TableSkeleton key={i} />
+                  ))
                   : tableData.map((row) => (
-                      <TransporterPaymentTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <TransporterPaymentTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

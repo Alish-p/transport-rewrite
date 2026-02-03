@@ -82,6 +82,7 @@ export function DriverListView() {
 
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
+    status: filters.status,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -100,10 +101,10 @@ export function DriverListView() {
     }
   }, [data]);
 
-  const totalCount = data?.totals?.all?.count || 0;
+  const totalCount = data?.total || 0;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: totalCount },
+    { value: 'all', label: 'All', color: 'default', count: data?.totals?.all?.count || 0 },
     {
       value: 'valid',
       label: 'Valid',

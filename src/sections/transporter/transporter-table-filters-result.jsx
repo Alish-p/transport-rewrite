@@ -38,6 +38,16 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
+        {filters.vehicleCount >= 0 && (
+          <Block label="Vehicles:">
+            <Chip
+              size="small"
+              label={filters.vehicleCount}
+              onDelete={() => onFilters('vehicleCount', -1)}
+            />
+          </Block>
+        )}
+
         <Button
           color="error"
           onClick={onResetFilters}

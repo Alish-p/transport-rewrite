@@ -36,6 +36,8 @@ export default function TransporterTableToolbar({
     [onFilters]
   );
 
+
+
   return (
     <>
       <Stack
@@ -50,19 +52,39 @@ export default function TransporterTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.search}
-          onChange={handleFilterSearch}
-          placeholder="Search by Name or Mobile No..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+          <TextField
+            fullWidth
+            value={filters.search}
+            onChange={handleFilterSearch}
+            placeholder="Search by Name or Mobile No..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            sx={{ width: { md: 200 } }}
+            value={filters.vehicleCount === -1 ? '' : filters.vehicleCount}
+            onChange={(event) => {
+              const {value} = event.target;
+              onFilters('vehicleCount', value === '' ? -1 : Number(value));
+            }}
+            placeholder="No. of Vehicles"
+            type="number"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="mdi:truck" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
 
         <Stack direction="row" spacing={1}>
           <Tooltip title="Column Settings">

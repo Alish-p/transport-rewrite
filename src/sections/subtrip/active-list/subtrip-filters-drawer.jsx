@@ -135,6 +135,20 @@ export default function SubtripFiltersDrawer({
 
                         <TextField
                             fullWidth
+                            value={filters.ewayBill}
+                            onChange={(event) => onFilters('ewayBill', event.target.value)}
+                            placeholder="E-way Bill No"
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        <TextField
+                            fullWidth
                             value={filters.loadingPoint}
                             onChange={(event) => onFilters('loadingPoint', event.target.value)}
                             placeholder="Loading Point"

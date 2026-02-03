@@ -50,6 +50,10 @@ export default function SubtripTableFiltersResult({
     onFilters('referenceSubtripNo', '');
   };
 
+  const handleRemoveEwayBill = () => {
+    onFilters('ewayBill', '');
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('toDate', null);
@@ -166,6 +170,12 @@ export default function SubtripTableFiltersResult({
               label={filters.referenceSubtripNo}
               onDelete={handleRemoveReferenceSubtripNo}
             />
+          </Block>
+        )}
+
+        {filters.ewayBill && (
+          <Block label="E-way Bill No:">
+            <Chip size="small" label={filters.ewayBill} onDelete={handleRemoveEwayBill} />
           </Block>
         )}
 

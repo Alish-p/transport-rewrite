@@ -43,6 +43,13 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'vehicleCount',
+    label: 'No. of vehicles',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.vehicleCount,
+  },
+  {
     id: 'address',
     label: 'Address',
     defaultVisible: true,
