@@ -247,17 +247,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const parts = partsResponse?.parts || partsResponse?.results || [];
+  const parts = partsResponse?.parts || [];
 
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const locations =
-    locationsResponse?.locations ||
-    locationsResponse?.partLocations ||
-    locationsResponse?.results ||
-    [];
+  const locations = locationsResponse?.locations || [];
 
   const createWorkOrder = useCreateWorkOrder();
   const updateWorkOrder = useUpdateWorkOrder();

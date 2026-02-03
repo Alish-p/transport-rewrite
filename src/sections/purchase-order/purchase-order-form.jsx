@@ -121,7 +121,7 @@ export default function PurchaseOrderForm() {
     { staleTime: 1000 * 60 * 10 }
   );
   const parts = useMemo(
-    () => partsResponse?.parts || partsResponse?.results || [],
+    () => partsResponse?.parts || [],
     [partsResponse]
   );
 
@@ -130,11 +130,7 @@ export default function PurchaseOrderForm() {
     { staleTime: 1000 * 60 * 10 }
   );
   const locations = useMemo(
-    () =>
-      locationsResponse?.locations ||
-      locationsResponse?.partLocations ||
-      locationsResponse?.results ||
-      [],
+    () => locationsResponse?.locations || [],
     [locationsResponse]
   );
 

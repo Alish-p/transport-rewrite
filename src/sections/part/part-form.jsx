@@ -108,11 +108,7 @@ export default function PartForm({ currentPart }) {
     { staleTime: 1000 * 60 * 10 }
   );
 
-  const locations =
-    locationsResponse?.locations ||
-    locationsResponse?.partLocations ||
-    locationsResponse?.results ||
-    [];
+  const locations = locationsResponse?.locations || [];
 
   const onSubmit = async (data) => {
     try {
