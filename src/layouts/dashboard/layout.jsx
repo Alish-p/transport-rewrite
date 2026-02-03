@@ -14,6 +14,7 @@ import { varAlpha, stylesMode } from 'src/theme/styles';
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
 
+import { useAuthContext } from 'src/auth/hooks';
 import { useTenantContext } from 'src/auth/tenant';
 
 import { Main } from './main';
@@ -42,12 +43,14 @@ export function DashboardLayout({ sx, children, data }) {
 
   const tenant = useTenantContext();
 
+  const { user } = useAuthContext();
+
   const rawNavData = data?.nav ?? dashboardNavData;
 
-  const navData = useMemo(
-    () => filterNavByFeatures(rawNavData, tenant),
-    [rawNavData, tenant]
-  );
+  const navData = useMemo(() => {
+    const featureFiltered = filterNavByFeatures(rawNavData, tenant);
+    return filterNavByPermissions(featureFiltered, user);
+  }, [rawNavData, tenant, user]);
 
   // Read optional announcement banner from env (Vite: VITE_*)
   const announcementMessage = import.meta.env.VITE_ANNOUNCEMENT_MESSAGE?.trim?.();
@@ -108,7 +111,7 @@ export function DashboardLayout({ sx, children, data }) {
                 showSubscriptionExpired || announcementMessage ? (
                   <>
                     {showSubscriptionExpired && (
-                      <Alert severity="info" sx={{ borderRadius: 0 }} >
+                      <Alert severity="info" sx={{ borderRadius: 0 }}>
                         Your subscription has expired. Please renew to continue using Tranzit.
                       </Alert>
                     )}
@@ -304,8 +307,7 @@ function useNavColorVars(theme, settings) {
 // ----------------------------------------------------------------------
 
 const FEATURE_CHECKERS = {
-  maintenanceAndInventory: (tenant) =>
-    !!tenant?.integrations?.maintenanceAndInventory?.enabled,
+  maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
 };
 
 function filterNavByFeatures(navSections, tenant) {
@@ -333,6 +335,84 @@ function filterNavByFeatures(navSections, tenant) {
       return {
         ...section,
         ...(Array.isArray(items) ? { items } : {}),
+      };
+    })
+    .filter(Boolean);
+}
+
+// ----------------------------------------------------------------------
+
+function canUserAccessAnyAction(user, resource) {
+  const resourcePermissions = user?.permissions?.[resource];
+  if (!resourcePermissions) return false;
+  return Object.values(resourcePermissions).some((val) => val === true);
+}
+
+function canUserAccessAction(user, resource, action) {
+  const resourcePermissions = user?.permissions?.[resource];
+  if (!resourcePermissions) return false;
+  return resourcePermissions[action] === true;
+}
+
+function filterNavByPermissions(navSections, user) {
+  if (!navSections || !user) return navSections;
+
+  return navSections
+    .map((section) => {
+      // 1) Filter items within the section first
+      const items = Array.isArray(section.items)
+        ? section.items
+          .map((item) => {
+            // Check roles if defined
+            if (item.roles && user?.role) {
+              if (!item.roles.includes(user.role)) {
+                return null;
+              }
+            }
+
+            // Check resource permissions
+            if (item.resource) {
+              if (!canUserAccessAnyAction(user, item.resource)) {
+                return null;
+              }
+            }
+
+            // Check children permissions
+            if (item.children) {
+              const childItems = item.children
+                .map((child) => {
+                  const resource = child.resource || item.resource;
+                  const { action } = child;
+
+                  if (action && resource) {
+                    if (!canUserAccessAction(user, resource, action)) {
+                      return null;
+                    }
+                  }
+                  return child;
+                })
+                .filter(Boolean);
+
+              if (childItems.length === 0) {
+                return null;
+              }
+
+              return { ...item, children: childItems };
+            }
+
+            return item;
+          })
+          .filter(Boolean)
+        : section.items;
+
+      // 2) If section has items but all were filtered out, hide the section
+      if (Array.isArray(section.items) && (!items || items.length === 0)) {
+        return null;
+      }
+
+      return {
+        ...section,
+        items,
       };
     })
     .filter(Boolean);
