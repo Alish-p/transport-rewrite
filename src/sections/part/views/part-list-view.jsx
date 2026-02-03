@@ -52,6 +52,8 @@ const STORAGE_KEY = 'part-table-columns';
 const defaultFilters = {
   search: '',
   inventoryLocation: 'all',
+  category: 'all',
+  manufacturer: 'all',
 };
 
 export function PartListView() {
@@ -86,6 +88,9 @@ export function PartListView() {
       filters.inventoryLocation && filters.inventoryLocation !== 'all'
         ? filters.inventoryLocation
         : undefined,
+    category: filters.category && filters.category !== 'all' ? filters.category : undefined,
+    manufacturer:
+      filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });

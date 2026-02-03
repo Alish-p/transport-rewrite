@@ -20,6 +20,14 @@ export default function PartTableFiltersResult({
     onFilters('search', '');
   };
 
+  const handleRemoveCategory = () => {
+    onFilters('category', 'all');
+  };
+
+  const handleRemoveManufacturer = () => {
+    onFilters('manufacturer', 'all');
+  };
+
   const handleRemoveLocation = () => {
     if (onRemoveLocation) {
       onRemoveLocation();
@@ -41,6 +49,18 @@ export default function PartTableFiltersResult({
         {filters.search && (
           <Block label="Search :">
             <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
+          </Block>
+        )}
+
+        {filters.category && filters.category !== 'all' && (
+          <Block label="Category:">
+            <Chip size="small" label={filters.category} onDelete={handleRemoveCategory} />
+          </Block>
+        )}
+
+        {filters.manufacturer && filters.manufacturer !== 'all' && (
+          <Block label="Manufacturer:">
+            <Chip size="small" label={filters.manufacturer} onDelete={handleRemoveManufacturer} />
           </Block>
         )}
 
