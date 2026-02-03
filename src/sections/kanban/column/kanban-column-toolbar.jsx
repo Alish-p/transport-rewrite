@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 
@@ -21,10 +22,13 @@ export function KanbanColumnToolBar({ columnName, totalTasks, onToggleAddTask })
       </Label>
 
       <p>{columnName}</p>
-
-      <IconButton size="small" color="inherit" onClick={onToggleAddTask}>
-        <Iconify icon="solar:add-circle-bold" />
-      </IconButton>
+      {onToggleAddTask ? (
+        <IconButton size="small" color="inherit" onClick={onToggleAddTask}>
+          <Iconify icon="solar:add-circle-bold" />
+        </IconButton>
+      ) : (
+        <Box sx={{ width: 34 }} />
+      )}
     </Stack>
   );
 }

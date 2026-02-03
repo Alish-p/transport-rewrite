@@ -39,7 +39,7 @@ export const StyledItem = styled(Stack)(({ theme }) => ({
   borderRadius: 'var(--item-radius)',
   WebkitTapHighlightColor: 'transparent',
   backgroundColor: theme.vars.palette.common.white,
-  transition: theme.transitions.create(['box-shadow']),
+  transition: theme.transitions.create(['box-shadow', 'transform']),
   [stylesMode.dark]: { backgroundColor: theme.vars.palette.grey[900] },
   [`&.${kanbanClasses.state.disabled}`]: {},
   [`&.${kanbanClasses.state.sorting}`]: {},
@@ -70,16 +70,16 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
 
   const itemWrapClassName = kanbanClasses.itemWrap.concat(
     (stateProps?.fadeIn && ` ${kanbanClasses.state.fadeIn}`) ||
-      (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-      ''
+    (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
+    ''
   );
 
   const itemClassName = kanbanClasses.item.concat(
     (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
-      (stateProps?.disabled && ` ${kanbanClasses.state.disabled}`) ||
-      (stateProps?.sorting && ` ${kanbanClasses.state.sorting}`) ||
-      (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-      ''
+    (stateProps?.disabled && ` ${kanbanClasses.state.disabled}`) ||
+    (stateProps?.sorting && ` ${kanbanClasses.state.sorting}`) ||
+    (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
+    ''
   );
 
   const renderPriority = (

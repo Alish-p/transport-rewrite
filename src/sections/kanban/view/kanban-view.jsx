@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import {
   useSensor,
   DndContext,
@@ -25,7 +25,7 @@ import FormControl from '@mui/material/FormControl';
 import { useUsers } from 'src/query/use-user';
 import { hideScrollY } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useUpdateTaskStatus } from 'src/query/use-task';
+import { useUpdateTaskStatus, useReorderTasks } from 'src/query/use-task';
 
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
@@ -52,6 +52,7 @@ export function KanbanView({ tasks }) {
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   const [localTasks, setLocalTasks] = useState(tasks);
   const updateTaskStatus = useUpdateTaskStatus();
+  const reorderTasks = useReorderTasks();
   const { data: users = [] } = useUsers();
 
   const recentlyMovedToNewContainer = useRef(false);
@@ -86,7 +87,7 @@ export function KanbanView({ tasks }) {
       const intersections =
         pointerIntersections.length > 0
           ? // If there are droppables intersecting with the pointer, return those
-            pointerIntersections
+          pointerIntersections
           : rectIntersection(args);
       let overId = getFirstCollision(intersections, 'id');
 
@@ -153,7 +154,7 @@ export function KanbanView({ tasks }) {
    */
   const onDragStart = ({ active }) => {
     setActiveId(active.id);
-     // remember the column where the drag started so we can compare on drop
+    // remember the column where the drag started so we can compare on drop
     startColumnId.current = findColumn(active.id);
   };
 
@@ -236,9 +237,50 @@ export function KanbanView({ tasks }) {
     const overColumn = findColumn(overId);
     const initialColumn = startColumnId.current;
 
-    if (initialColumn && overColumn && initialColumn !== overColumn) {
-      // Only call API once per drop, when status/column actually changes
-      updateTaskStatus({ id: active.id, status: overColumn });
+    // Determine if we moved to a different column or reordered within same
+    if (activeColumn && overColumn) {
+      const activeItems = localTasks[activeColumn];
+      const overItems = localTasks[overColumn];
+
+      const activeIndex = activeItems.findIndex((t) => t._id === active.id);
+      const overIndex = overItems.findIndex((t) => t._id === overId);
+
+      let newLocalTasks = { ...localTasks };
+
+      // Case 1: Reordering in same column
+      if (activeColumn === overColumn) {
+        if (activeIndex !== overIndex) {
+          const reorderedItems = arrayMove(activeItems, activeIndex, overIndex);
+          newLocalTasks = {
+            ...localTasks,
+            [activeColumn]: reorderedItems,
+          };
+          setLocalTasks(newLocalTasks);
+        }
+      } else {
+        // Case 2: Moved to different column (handled visually in dragOver, but we confirm here)
+        // If we trust localTasks state from dragOver, we just need to ensure we persist
+      }
+
+      // Prepare updates for backend
+      // We need to send updates for BOTH source and dest columns if different
+      // Or just the one column if same.
+      // Easiest is to recalculate order for all tasks in the affected column(s)
+      const updates = [];
+      const columnsToUpdate = activeColumn === overColumn ? [activeColumn] : [activeColumn, overColumn];
+
+      columnsToUpdate.forEach((colId) => {
+        newLocalTasks[colId].forEach((task, index) => {
+          updates.push({
+            _id: task._id,
+            status: colId,
+            order: index, // New order based on array position
+          });
+        });
+      });
+
+      // Call API
+      reorderTasks(updates);
     }
 
     startColumnId.current = null;
@@ -253,13 +295,27 @@ export function KanbanView({ tasks }) {
     setAssigneeFilter(event.target.value);
   };
 
-  const filterTasks = (taskList) =>
-    taskList.filter((task) => {
-      const priorityMatch = priorityFilter === 'all' || task.priority === priorityFilter;
-      const assigneeMatch =
-        assigneeFilter === 'all' || task.assignees.some(({ _id }) => _id === assigneeFilter);
-      return priorityMatch && assigneeMatch;
+  // Optimization: Memoize the filtered tasks per column
+  const filteredColumns = useMemo(() => {
+    const filters = {
+      priority: priorityFilter,
+      assignee: assigneeFilter,
+    };
+
+    const result = {};
+
+    COLUMNS.forEach((column) => {
+      const rawTasks = localTasks[column.id] || [];
+      result[column.id] = rawTasks.filter((task) => {
+        const priorityMatch = filters.priority === 'all' || task.priority === filters.priority;
+        const assigneeMatch =
+          filters.assignee === 'all' || task.assignees.some(({ _id }) => _id === filters.assignee);
+        return priorityMatch && assigneeMatch;
+      });
     });
+
+    return result;
+  }, [localTasks, priorityFilter, assigneeFilter]);
 
   const renderList = (
     <DndContext
@@ -295,13 +351,13 @@ export function KanbanView({ tasks }) {
                 <KanbanColumn
                   key={column.id}
                   column={column}
-                  tasks={filterTasks(localTasks[column.id] || [])}
+                  tasks={filteredColumns[column.id]}
                 >
                   <SortableContext
-                    items={filterTasks(localTasks[column.id] || [])}
+                    items={filteredColumns[column.id].map((t) => t._id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {filterTasks(localTasks[column.id] || []).map((task) => (
+                    {filteredColumns[column.id].map((task) => (
                       <KanbanTaskItem
                         task={task}
                         key={task._id}

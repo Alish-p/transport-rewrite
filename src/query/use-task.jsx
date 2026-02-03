@@ -107,6 +107,27 @@ export function useUpdateTaskStatus() {
   return mutateAsync;
 }
 
+const reorderTasks = async (tasks) => {
+  const { data } = await axios.post(`${ENDPOINT}/reorder`, { tasks });
+  return data;
+};
+
+export function useReorderTasks() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: (tasks) => reorderTasks(tasks),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
 export function useDeleteTask() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({

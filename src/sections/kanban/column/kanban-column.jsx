@@ -27,7 +27,7 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }) {
 
   const isOverContainer = over
     ? (column.id === over.id && active?.data.current?.type !== 'container') ||
-      tasksIds.includes(over.id)
+    tasksIds.includes(over.id)
     : false;
 
   const handleAddTask = useCallback(
@@ -69,18 +69,19 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }) {
             handleProps={{ ...attributes, ...listeners }}
             totalTasks={tasks.length}
             columnName={column.name}
-            onToggleAddTask={openAddTask.onToggle}
+            onToggleAddTask={column.id === 'todo' ? openAddTask.onToggle : null}
           />
         ),
         main: <>{children}</>,
-        action: (
-          <KanbanTaskAdd
-            status={column.name}
-            openAddTask={openAddTask.value}
-            onAddTask={handleAddTask}
-            onCloseAddTask={openAddTask.onFalse}
-          />
-        ),
+        action:
+          column.id === 'todo' ? (
+            <KanbanTaskAdd
+              status={column.name}
+              openAddTask={openAddTask.value}
+              onAddTask={handleAddTask}
+              onCloseAddTask={openAddTask.onFalse}
+            />
+          ) : null,
       }}
     />
   );
