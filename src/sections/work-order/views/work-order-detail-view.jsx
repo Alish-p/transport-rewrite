@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
+import Radio from '@mui/material/Radio';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Tooltip from '@mui/material/Tooltip';
@@ -13,12 +14,16 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import FormLabel from '@mui/material/FormLabel';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import RadioGroup from '@mui/material/RadioGroup';
 import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -53,6 +58,7 @@ export function WorkOrderDetailView({ workOrder }) {
   const viewPdf = useBoolean();
   const closeWorkOrder = useCloseWorkOrder();
   const [isClosing, setIsClosing] = useState(false);
+  const [closeMode, setCloseMode] = useState('closeOnly'); // 'closeOnly' | 'closeAndExpense'
 
   const {
     _id,
@@ -100,7 +106,10 @@ export function WorkOrderDetailView({ workOrder }) {
     if (!_id) return;
     try {
       setIsClosing(true);
-      await closeWorkOrder(_id);
+      await closeWorkOrder({
+        id: _id,
+        createExpense: closeMode === 'closeAndExpense',
+      });
       closeDialog.onFalse();
     } catch (error) {
       // error toast handled in hook
@@ -109,7 +118,7 @@ export function WorkOrderDetailView({ workOrder }) {
     } finally {
       setIsClosing(false);
     }
-  }, [_id, closeDialog, closeWorkOrder]);
+  }, [_id, closeDialog, closeWorkOrder, closeMode]);
 
   const canClose = status !== 'completed';
 
@@ -465,9 +474,34 @@ export function WorkOrderDetailView({ workOrder }) {
             <strong>Completed</strong> and adjust inventory for all
             parts used.
           </Typography>
-          <Typography variant="body2">
-            Are you sure you want to continue?
-          </Typography>
+
+          <FormControl component="fieldset" sx={{ mt: 2, width: '100%' }}>
+            <FormLabel component="legend">Action</FormLabel>
+            <RadioGroup
+              aria-label="close-mode"
+              name="close-mode"
+              value={closeMode}
+              onChange={(e) => setCloseMode(e.target.value)}
+            >
+              <FormControlLabel
+                value="closeOnly"
+                control={<Radio />}
+                label="Close Only"
+              />
+              <FormControlLabel
+                value="closeAndExpense"
+                control={<Radio />}
+                label="Close & Add as Vehicle Expense"
+              />
+            </RadioGroup>
+          </FormControl>
+
+          {closeMode === 'closeAndExpense' && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              An expense of <strong>{fCurrency(computed.totalCost)}</strong> will be added to this vehicle.
+            </Typography>
+          )}
+
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDialog.onFalse} disabled={isClosing}>
@@ -486,7 +520,7 @@ export function WorkOrderDetailView({ workOrder }) {
               )
             }
           >
-            {isClosing ? 'Closing...' : 'Confirm Close'}
+            {isClosing ? 'Closing...' : 'Confirm'}
           </Button>
         </DialogActions>
       </Dialog>

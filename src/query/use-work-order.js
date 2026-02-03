@@ -27,8 +27,8 @@ const updateWorkOrderApi = async (id, payload) => {
   return data;
 };
 
-const closeWorkOrderApi = async (id) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/close`);
+const closeWorkOrderApi = async ({ id, ...payload }) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/close`, payload);
   return data;
 };
 
@@ -103,7 +103,13 @@ export function useCloseWorkOrder() {
   const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
-    mutationFn: (id) => closeWorkOrderApi(id),
+    mutationFn: (args) => {
+      // Handle both object with id (and potential payload) or just id string
+      if (typeof args === 'object' && args.id) {
+        return closeWorkOrderApi(args);
+      }
+      return closeWorkOrderApi({ id: args });
+    },
     onSuccess: (updated) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       if (updated?._id) {
