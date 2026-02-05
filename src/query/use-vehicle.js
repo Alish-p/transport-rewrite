@@ -44,6 +44,12 @@ const lookupVehicle = async (payload) => {
   return data;
 };
 
+const getTyreLayouts = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/layouts`);
+  return data;
+};
+
+
 // Queries & Mutations
 export function usePaginatedVehicles(params, options = {}) {
   return useQuery({
@@ -150,4 +156,13 @@ export function useVehicleLookup(options = {}) {
     ...options,
   });
   return { lookup: mutateAsync, isLookingUp: isPending };
+}
+
+export function useGetTyreLayouts(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'layouts'],
+    queryFn: getTyreLayouts,
+    staleTime: Infinity,
+    ...options,
+  });
 }

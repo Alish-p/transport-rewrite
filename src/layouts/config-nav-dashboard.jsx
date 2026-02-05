@@ -56,6 +56,7 @@ const ICONS = {
   vendor: icon('ic_customer'),
   purchaseOrder: icon('ic-order'),
   workOrder: <Iconify icon="map:car-repair" />,
+  tyre: <Iconify icon="mingcute:tyre-line" />,
 };
 // ----------------------------------------------------------------------
 
@@ -321,6 +322,22 @@ export const navData = [
         children: [
           { title: 'List', path: paths.dashboard.workOrder.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.workOrder.new, action: 'create' },
+        ],
+      },
+    ],
+  },
+
+  {
+    subheader: 'Tyre Management',
+    items: [
+      {
+        title: 'Tyres',
+        path: paths.dashboard.tyre.root,
+        icon: ICONS.tyre,
+        // resource: 'tyre',
+        children: [
+          { title: 'List', path: paths.dashboard.tyre.list, action: 'view' },
+          { title: 'Create', path: paths.dashboard.tyre.new },
         ],
       },
     ],

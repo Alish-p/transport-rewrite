@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router';
+import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import { Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
+import { Tab, Tabs , Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -12,6 +13,7 @@ import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
+import { VehicleTyreLayoutView } from './vehicle-tyre-layout-view';
 import { VehicleLocationMap } from '../widgets/vehicle-location-map';
 import { VehicleChallanWidget } from '../widgets/vehicle-challan-widget';
 import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
@@ -38,6 +40,12 @@ export function VehicleDetailView({ vehicle }) {
     transporter,
     trackingLink,
   } = vehicle;
+
+  const [currentTab, setCurrentTab] = useState('overview');
+
+  const handleChangeTab = useCallback((event, newValue) => {
+    setCurrentTab(newValue);
+  }, []);
 
   const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
   const odometer = gpsData?.totalOdometer || 0;
@@ -195,12 +203,12 @@ export function VehicleDetailView({ vehicle }) {
           // Show transporter (linked) only for non-own vehicles
           ...(!vehicle.isOwn && transporter?._id
             ? [
-                {
-                  icon: 'mdi:account',
-                  label: transporter?.transportName,
-                  href: paths.dashboard.transporter.details(transporter._id),
-                },
-              ]
+              {
+                icon: 'mdi:account',
+                label: transporter?.transportName,
+                href: paths.dashboard.transporter.details(transporter._id),
+              },
+            ]
             : []),
         ]}
         actions={[
@@ -212,39 +220,54 @@ export function VehicleDetailView({ vehicle }) {
         ]}
       />
 
-      <Grid container spacing={3} mt={3}>
-        <Grid xs={12} md={7} container spacing={3} item>
-          <Grid xs={12} sm={6} item>
-            <VehicleOdometerWidget total={Math.round(odometer)} />
+      <Tabs
+        value={currentTab}
+        onChange={handleChangeTab}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Tab value="overview" label="Overview" />
+        <Tab value="tyres" label="Tyres" />
+      </Tabs>
+
+      {currentTab === 'overview' && (
+        <Grid container spacing={3} mt={3}>
+          <Grid xs={12} md={7} container spacing={3} item>
+            <Grid xs={12} sm={6} item>
+              <VehicleOdometerWidget total={Math.round(odometer)} />
+            </Grid>
+            <Grid xs={12} sm={6} item>
+              <VehicleFuelWidget value={fuelValue} total={400} />
+            </Grid>
+            <Grid xs={12} item>
+              <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+            </Grid>
           </Grid>
-          <Grid xs={12} sm={6} item>
-            <VehicleFuelWidget value={fuelValue} total={400} />
+
+          <Grid xs={12} md={5} item>
+            {renderDetails}
           </Grid>
+
           <Grid xs={12} item>
-            <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+            <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+          </Grid>
+
+          <Grid xs={12} item>
+            <VehicleChallanWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+          </Grid>
+
+          <Grid xs={12} item>
+            <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+          </Grid>
+
+          <Grid xs={12} item>
+            <VehicleSubtripsWidget vehicleId={vehicle._id} />
           </Grid>
         </Grid>
+      )}
 
-        <Grid xs={12} md={5} item>
-          {renderDetails}
-        </Grid>
-
-        <Grid xs={12} item>
-          <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
-        </Grid>
-
-        <Grid xs={12} item>
-          <VehicleChallanWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
-        </Grid>
-
-        <Grid xs={12} item>
-          <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
-        </Grid>
-
-        <Grid xs={12} item>
-          <VehicleSubtripsWidget vehicleId={vehicle._id} />
-        </Grid>
-      </Grid>
+      {currentTab === 'tyres' && <VehicleTyreLayoutView vehicle={vehicle} />}
     </DashboardContent>
   );
 }

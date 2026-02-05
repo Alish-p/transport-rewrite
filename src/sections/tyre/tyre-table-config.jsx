@@ -1,0 +1,76 @@
+import Link from '@mui/material/Link';
+import ListItemText from '@mui/material/ListItemText';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
+// ----------------------------------------------------------------------
+
+export const TYRE_TABLE_COLUMNS = [
+    {
+        id: 'serialNumber',
+        label: 'Tyre Number',
+        defaultVisible: true,
+        disabled: true, // Always visible
+        getter: (row) => row.serialNumber,
+        render: (row) => (
+            <ListItemText
+                disableTypography
+                primary={
+                    <Link
+                        component={RouterLink}
+                        to={paths.dashboard.tyre.details(row._id)}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main', cursor: 'pointer' }}
+                    >
+                        {row.serialNumber}
+                    </Link>
+                }
+            />
+        ),
+    },
+    {
+        id: 'brand',
+        label: 'Brand',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.brand,
+    },
+    {
+        id: 'model',
+        label: 'Model',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.model,
+    },
+    {
+        id: 'size',
+        label: 'Size',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.size,
+    },
+    {
+        id: 'type',
+        label: 'Type',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.type,
+    },
+    {
+        id: 'cost',
+        label: 'Cost',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.cost,
+        render: (row) => `₹ ${row.cost?.toFixed(2)}`,
+    },
+    {
+        id: 'threadDepth',
+        label: 'Thread Depth',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => `${row.threadDepth?.current || 0} / ${row.threadDepth?.original || 0} mm`,
+    },
+];
