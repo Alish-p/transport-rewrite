@@ -38,9 +38,9 @@ export default function TyreDetailsView() {
         <DashboardContent>
             <Container maxWidth={settings.themeStretch ? false : 'lg'}>
                 <HeroHeader
-                    title={`${tyre.brand} ${tyre.model}`}
+                    title={`${tyre.brand} ${tyre.serialNumber}`}
                     status={tyre.status}
-                    icon="mdi:tire"
+                    icon="mingcute:tyre-line"
                     meta={[
                         { icon: 'solar:code-file-bold', label: tyre.serialNumber },
                         { icon: 'solar:ruler-angular-bold', label: tyre.size },
@@ -51,11 +51,34 @@ export default function TyreDetailsView() {
                             icon: 'solar:pen-bold',
                             onClick: () => navigate(paths.dashboard.tyre.edit(tyre._id)),
                         },
+                    ]}
+                    menus={[
                         {
-                            label: 'Change Thread Depth',
-                            icon: 'mdi:ruler',
-                            onClick: () => setOpenThreadDialog(true),
-                        }
+                            label: 'Actions',
+                            icon: 'eva:settings-2-fill',
+                            items: [
+                                {
+                                    label: 'Change Thread',
+                                    icon: 'mdi:ruler',
+                                    onClick: () => setOpenThreadDialog(true),
+                                },
+                                {
+                                    label: 'Mount',
+                                    icon: 'mingcute:tyre-line',
+                                    onClick: () => console.info('Mount'),
+                                },
+                                {
+                                    label: 'Unmount',
+                                    icon: 'gg:remove',
+                                    onClick: () => console.info('Unmount'),
+                                },
+                                {
+                                    label: 'Remold',
+                                    icon: 'mdi:refresh',
+                                    onClick: () => console.info('Remold'),
+                                },
+                            ],
+                        },
                     ]}
                 />
 

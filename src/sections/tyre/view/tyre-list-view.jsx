@@ -25,6 +25,7 @@ import {
     TableNoData,
     TableSkeleton,
     TableHeadCustom,
+    TableSelectedAction,
     TablePaginationCustom,
 } from 'src/components/table';
 
@@ -132,6 +133,18 @@ export default function TyreListView() {
                 />
 
                 <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+                    <TableSelectedAction
+                        dense={table.dense}
+                        numSelected={table.selected.length}
+                        rowCount={tableData.length}
+                        onSelectAllRows={(checked) =>
+                            table.onSelectAllRows(
+                                checked,
+                                tableData.map((row) => row._id)
+                            )
+                        }
+                    />
+
                     <Scrollbar>
                         <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
                             <TableHeadCustom
@@ -142,6 +155,12 @@ export default function TyreListView() {
                                 numSelected={table.selected.length}
                                 onOrderChange={moveColumn}
                                 onSort={table.onSort}
+                                onSelectAllRows={(checked) =>
+                                    table.onSelectAllRows(
+                                        checked,
+                                        tableData.map((row) => row._id)
+                                    )
+                                }
                             />
 
                             <TableBody>
@@ -159,6 +178,8 @@ export default function TyreListView() {
                                             onEditRow={() => handleEditRow(row._id)}
                                             onDeleteRow={() => console.info('DELETE', row._id)}
                                             visibleColumns={visibleColumns}
+                                            disabledColumns={disabledColumns}
+                                            columnOrder={columnOrder}
                                         />
                                     ))}
 

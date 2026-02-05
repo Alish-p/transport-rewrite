@@ -44,7 +44,7 @@ export default function TyreThreadWidget({
             radialBar: {
                 hollow: {
                     margin: 15,
-                    size: '60%',
+                    size: '80%',
                 },
                 dataLabels: {
                     showOn: 'always',
@@ -52,16 +52,24 @@ export default function TyreThreadWidget({
                         offsetY: -10,
                         show: true,
                         color: theme.palette.text.secondary,
-                        fontSize: '13px',
+                        fontSize: '10px',
                         fontWeight: 500,
                     },
                     value: {
                         offsetY: 5,
                         color: theme.palette.text.primary,
-                        fontSize: '24px',
+                        fontSize: '18px',
                         fontWeight: 700,
                         show: true,
                         formatter: (val) => `${val.toFixed(1)}%`,
+                    },
+                    total: {
+                        show: true,
+                        label: 'Remaining',
+                        color: theme.palette.text.secondary,
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        formatter: () => `${percentage.toFixed(1)}%`,
                     },
                 },
             },
@@ -78,8 +86,8 @@ export default function TyreThreadWidget({
                     type="radialBar"
                     series={[percentage]}
                     options={chartOptions}
-                    width={220}
-                    height={220}
+                    width={240}
+                    height={240}
                 />
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -87,13 +95,17 @@ export default function TyreThreadWidget({
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                             Current Depth
                         </Typography>
-                        <Typography variant="h4">{fNumber(current)} mm</Typography>
+                        <Typography variant="subtitle2" >
+                            {fNumber(current)} mm
+                        </Typography>
                     </Box>
                     <Box>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                             Original Depth
                         </Typography>
-                        <Typography variant="h4">{fNumber(original)} mm</Typography>
+                        <Typography variant="subtitle2" >
+                            {fNumber(original)} mm
+                        </Typography>
                     </Box>
                 </Box>
             </Box>
