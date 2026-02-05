@@ -1,8 +1,9 @@
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+
 import { Iconify } from 'src/components/iconify';
 
 export default function TyreGeneralInfo({ tyre, ...other }) {

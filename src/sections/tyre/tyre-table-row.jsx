@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -8,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
-import { CustomPopover, usePopover } from 'src/components/custom-popover';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { TYRE_TABLE_COLUMNS } from './tyre-table-config';
 
@@ -90,12 +88,3 @@ export default function TyreTableRow({
     );
 }
 
-TyreTableRow.propTypes = {
-    onDeleteRow: PropTypes.func,
-    onEditRow: PropTypes.func,
-    onSelectRow: PropTypes.func,
-    onViewRow: PropTypes.func,
-    row: PropTypes.object,
-    selected: PropTypes.bool,
-    visibleColumns: PropTypes.object,
-};

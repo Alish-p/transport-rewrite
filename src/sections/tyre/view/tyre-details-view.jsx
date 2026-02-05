@@ -6,16 +6,16 @@ import Container from '@mui/material/Container';
 
 import { paths } from 'src/routes/paths';
 
-import { useSettingsContext } from 'src/components/settings';
-import { LoadingScreen } from 'src/components/loading-screen';
-import { HeroHeader } from 'src/components/hero-header-card';
+import { useGetTyre } from 'src/query/use-tyre';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { useGetTyre } from 'src/query/use-tyre';
+import { useSettingsContext } from 'src/components/settings';
+import { HeroHeader } from 'src/components/hero-header-card';
+import { LoadingScreen } from 'src/components/loading-screen';
 
-import TyreThreadWidget from './tyre-thread-widget';
-import TyreGeneralInfo from './tyre-general-info';
 import TyreHistory from './tyre-history-widget';
+import TyreGeneralInfo from './tyre-general-info';
+import TyreThreadWidget from './tyre-thread-widget';
 import TyreThreadUpdateDialog from '../components/tyre-thread-update-dialog';
 
 // ----------------------------------------------------------------------

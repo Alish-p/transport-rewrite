@@ -10,10 +10,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
+import { useUpdateTyreThread } from 'src/query/use-tyre';
+
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-import { useUpdateTyreThread } from 'src/query/use-tyre';
 
 export default function TyreThreadUpdateDialog({ open, onClose, tyreId, currentDepth }) {
     const updateThread = useUpdateTyreThread();
