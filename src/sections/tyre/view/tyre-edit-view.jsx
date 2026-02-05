@@ -1,6 +1,7 @@
 import Container from '@mui/material/Container';
-import { useParams } from 'src/routes/hooks';
+
 import { paths } from 'src/routes/paths';
+import { useParams } from 'src/routes/hooks';
 
 import { useGetTyre } from 'src/query/use-tyre';
 
