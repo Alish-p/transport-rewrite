@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 
 // ----------------------------------------------------------------------
 
-export function TyreLayoutDiagram({ positions = [], sx }) {
+export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, sx }) {
     const theme = useTheme();
 
     // Group positions by axle/row
@@ -17,18 +17,6 @@ export function TyreLayoutDiagram({ positions = [], sx }) {
         if (pos.includes('Rear Fourth')) return 4;
         return 10; // Other (Stepney)
     };
-
-    // const getSide = (pos) => {
-    //     if (pos.includes('Left')) return 'left';
-    //     if (pos.includes('Right')) return 'right';
-    //     return 'center';
-    // };
-
-    // const getDepth = (pos) => {
-    //     if (pos.includes('Inner')) return 'inner';
-    //     if (pos.includes('Outer')) return 'outer';
-    //     return 'single'; // Front usually
-    // }
 
     // Filter out Stepney for main chassis diagram, show distinct for Stepney
     const chassisPositions = positions.filter(p => !p.includes('Stepney'));
@@ -44,18 +32,35 @@ export function TyreLayoutDiagram({ positions = [], sx }) {
 
     const sortedRowKeys = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
 
-    const renderTyre = (isPresent) => (
-        <Box
-            sx={{
-                width: 24,
-                height: 48,
-                borderRadius: 1,
-                border: `2px solid ${theme.palette.text.secondary}`,
-                bgcolor: isPresent ? theme.palette.text.secondary : 'transparent',
-                opacity: isPresent ? 1 : 0.2,
-            }}
-        />
-    );
+    const renderTyre = (pos) => {
+        const isPresent = !!pos;
+        const isSelected = isPresent && selectedPosition === pos;
+
+        return (
+            <Box
+                onClick={() => isPresent && onSelect && onSelect(pos)}
+                sx={{
+                    width: 24,
+                    height: 48,
+                    borderRadius: 1,
+                    border: `2px solid ${theme.palette.text.secondary}`,
+                    bgcolor: isPresent ? theme.palette.text.secondary : 'transparent',
+                    opacity: isPresent ? 1 : 0.2,
+                    ...(isSelected && {
+                        bgcolor: 'primary.main',
+                        borderColor: 'primary.main',
+                        boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
+                    }),
+                    ...(isPresent && onSelect && {
+                        cursor: 'pointer',
+                        '&:hover': {
+                            opacity: 0.8,
+                        },
+                    }),
+                }}
+            />
+        );
+    };
 
     const renderRow = (rowIndex) => {
         const rowPositions = rows[rowIndex] || [];
@@ -65,36 +70,41 @@ export function TyreLayoutDiagram({ positions = [], sx }) {
 
         // Front Axle (usually single tyre per side)
         if (rowIndex === 0) {
-            const hasLeft = rowPositions.some(p => p.includes('Left'));
-            const hasRight = rowPositions.some(p => p.includes('Right'));
+            const leftPos = rowPositions.find(p => p.includes('Left') && !p.includes('Inner')); // Usually just "Left" or "Outer Left" if not specified, but specific to dataset
+            // If dataset purely says "Front Axle - Left", then standard find is fine.
+            // But let's be robust: Front usually has "Left" and "Right".
+            // Let's try to match simplistic "Left" vs "Right" if no Inner/Outer specified
+            const left = rowPositions.find(p => p.includes('Left'));
+            const right = rowPositions.find(p => p.includes('Right'));
+
             return (
                 <Stack direction="row" spacing={8} justifyContent="center" alignItems="center" key={rowIndex}>
-                    {renderTyre(hasLeft)}
+                    {renderTyre(left)}
                     {/* Chassis width filler */}
                     <Box sx={{ width: 80 }} />
-                    {renderTyre(hasRight)}
+                    {renderTyre(right)}
                 </Stack>
             );
         }
 
         // Rear Axles (potentially dual)
-        const hasLeftOuter = rowPositions.some(p => p.includes('Left') && p.includes('Outer'));
-        const hasLeftInner = rowPositions.some(p => p.includes('Left') && p.includes('Inner'));
-        const hasRightInner = rowPositions.some(p => p.includes('Right') && p.includes('Inner'));
-        const hasRightOuter = rowPositions.some(p => p.includes('Right') && p.includes('Outer'));
+        const leftOuter = rowPositions.find(p => p.includes('Left') && p.includes('Outer'));
+        const leftInner = rowPositions.find(p => p.includes('Left') && p.includes('Inner'));
+        const rightInner = rowPositions.find(p => p.includes('Right') && p.includes('Inner'));
+        const rightOuter = rowPositions.find(p => p.includes('Right') && p.includes('Outer'));
 
         return (
             <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" key={rowIndex}>
                 <Stack direction="row" spacing={0.5}>
-                    {renderTyre(hasLeftOuter)}
-                    {renderTyre(hasLeftInner)}
+                    {renderTyre(leftOuter)}
+                    {renderTyre(leftInner)}
                 </Stack>
 
                 <Box sx={{ width: 40 }} /> {/* Axle/Chassis width */}
 
                 <Stack direction="row" spacing={0.5}>
-                    {renderTyre(hasRightInner)}
-                    {renderTyre(hasRightOuter)}
+                    {renderTyre(rightInner)}
+                    {renderTyre(rightOuter)}
                 </Stack>
             </Stack>
         );
@@ -112,11 +122,32 @@ export function TyreLayoutDiagram({ positions = [], sx }) {
             {stepneyPositions.length > 0 && (
                 <Stack direction="row" spacing={2} mt={3}>
                     <Typography variant="caption">Stepney:</Typography>
-                    {stepneyPositions.map(p => (
-                        <Box key={p} sx={{ width: 24, height: 24, borderRadius: '50%', border: `2px solid ${theme.palette.text.secondary}` }} />
-                    ))}
+                    {stepneyPositions.map(p => {
+                        const isSelected = selectedPosition === p;
+                        return (
+                            <Box
+                                key={p}
+                                onClick={() => onSelect && onSelect(p)}
+                                sx={{
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: '50%',
+                                    border: `2px solid ${theme.palette.text.secondary}`,
+                                    bgcolor: isSelected ? 'primary.main' : 'transparent',
+                                    borderColor: isSelected ? 'primary.main' : theme.palette.text.secondary,
+                                    ...(onSelect && {
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 0.8,
+                                        },
+                                    }),
+                                }}
+                            />
+                        );
+                    })}
                 </Stack>
             )}
         </Stack>
     );
 }
+
