@@ -86,9 +86,9 @@ export default function TyreDetailsView() {
             });
             toast.success('Tyre unmounted successfully');
             setOpenUnmountDialog(false);
-        } catch (error) {
-            console.error(error);
-            toast.error(error?.message || 'Failed to unmount tyre');
+        } catch (e) {
+            console.error(e);
+            toast.error(e?.message || 'Failed to unmount tyre');
         }
     };
 

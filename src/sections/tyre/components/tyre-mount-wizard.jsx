@@ -13,6 +13,8 @@ import Autocomplete from '@mui/material/Autocomplete';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import InputAdornment from '@mui/material/InputAdornment';
+
 
 import { useDebounce } from 'src/hooks/use-debounce';
 
@@ -37,7 +39,7 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
     // Data Fetching for Step 1 (Vehicles)
     const debouncedSearch = useDebounce(vehicleSearch, 300);
     const { data: vehiclesData, isLoading: isLoadingVehicles } = useInfiniteVehicles(
-        { vehicleNo: debouncedSearch, rowsPerPage: 20, isOwn: true },
+        { vehicleNo: debouncedSearch, rowsPerPage: 250, isOwn: true },
         { enabled: open }
     );
 
@@ -49,7 +51,7 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
     // Data Fetching for Step 2 (Layouts & Selected Vehicle Details)
     const { data: vehicleDetails } = useVehicle(selectedVehicle?._id);
     const { data: layoutsData } = useGetTyreLayouts();
-    const layouts = layoutsData?.data || [];
+    const layouts = useMemo(() => layoutsData?.data || [], [layoutsData?.data]);
 
     // Reset state when closing
     useEffect(() => {
@@ -98,7 +100,7 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
     const isStep2Valid = selectedPosition;
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>Mount Tyre</DialogTitle>
 
             <Box sx={{ width: '100%', mb: 3 }}>
@@ -113,7 +115,17 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
 
             <DialogContent sx={{ height: 400, display: 'flex', flexDirection: 'column' }}>
                 {activeStep === 0 && (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+                    <Box
+                        sx={{
+                            pt: 2,
+                            gap: 3,
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: 'repeat(1, 1fr)',
+                                md: 'repeat(2, 1fr)',
+                            },
+                        }}
+                    >
                         <Autocomplete
                             fullWidth
                             options={vehicleOptions}
@@ -149,12 +161,15 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
                         />
 
                         <TextField
+                            fullWidth
                             label="Odometer Reading"
                             type="number"
-                            fullWidth
                             value={odometer}
                             onChange={(e) => setOdometer(e.target.value)}
                             helperText="Enter current odometer reading"
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                            }}
                         />
                     </Box>
                 )}
