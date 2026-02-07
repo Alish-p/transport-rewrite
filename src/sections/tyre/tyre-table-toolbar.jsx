@@ -97,20 +97,6 @@ export default function TyreTableToolbar({
                             ),
                         }}
                     />
-                    <TextField
-                        fullWidth
-                        value={filters.brand}
-                        onChange={handleFilterBrand}
-                        placeholder="Search Brand..."
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-
                     <DialogSelectButton
                         fullWidth
                         onClick={vehiclePopover.onOpen}

@@ -1,9 +1,14 @@
 import { useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
+import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -17,6 +22,7 @@ import { useGetTyres } from 'src/query/use-tyre';
 import { useVehicle } from 'src/query/use-vehicle';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -29,6 +35,7 @@ import {
     TablePaginationCustom,
 } from 'src/components/table';
 
+import TyreAnalytic from '../tyre-analytic';
 import TyreTableRow from '../tyre-table-row';
 import TyreTableToolbar from '../tyre-table-toolbar';
 import { TYRE_TABLE_COLUMNS } from '../tyre-table-config';
@@ -41,10 +48,12 @@ const STORAGE_KEY = 'tyre-table-columns';
 const defaultFilters = {
     serialNumber: '',
     brand: '',
+    status: 'all',
     vehicle: null,
 };
 
 export default function TyreListView() {
+    const theme = useTheme();
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
 
@@ -70,12 +79,25 @@ export default function TyreListView() {
         serialNumber: filters.serialNumber || undefined,
         brand: filters.brand || undefined,
         vehicleId: filters.vehicle || undefined,
+        status: filters.status !== 'all' ? filters.status : undefined,
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);
 
     const tableData = data?.tyres || data?.data || [];
     const totalCount = data?.total || 0;
+    const totals = data?.totals || {};
+
+    const getTyreLength = (status) => totals[status]?.count || 0;
+    const getTotalValue = (status) => totals[status]?.value || 0;
+    const getPercentByStatus = (status) => (totalCount ? (getTyreLength(status) / totalCount) * 100 : 0);
+
+    const TABS = [
+        { value: 'all', label: 'All', color: 'default', count: totals.all?.count || 0 },
+        { value: 'In_Stock', label: 'In Stock', color: 'success', count: getTyreLength('In_Stock') },
+        { value: 'Mounted', label: 'Mounted', color: 'warning', count: getTyreLength('Mounted') },
+        { value: 'Scrapped', label: 'Scrapped', color: 'error', count: getTyreLength('Scrapped') },
+    ];
 
     const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -102,6 +124,13 @@ export default function TyreListView() {
         [toggleColumnVisibility]
     );
 
+    const handleFilterStatus = useCallback(
+        (event, newValue) => {
+            handleFilters('status', newValue);
+        },
+        [handleFilters]
+    );
+
     return (
         <DashboardContent>
             <CustomBreadcrumbs
@@ -124,7 +153,85 @@ export default function TyreListView() {
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
+            <Card
+                sx={{
+                    mb: { xs: 3, md: 5 },
+                }}
+            >
+                <Scrollbar>
+                    <Stack
+                        direction="row"
+                        divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+                        sx={{ py: 2 }}
+                    >
+                        <TyreAnalytic
+                            title="All"
+                            total={totals.all?.count || 0}
+                            percent={100}
+                            price={totals.all?.value || 0}
+                            icon="solar:bill-list-bold-duotone"
+                            color={theme.palette.info.main}
+                        />
+
+                        <TyreAnalytic
+                            title="In Stock"
+                            total={getTyreLength('In_Stock')}
+                            percent={getPercentByStatus('In_Stock')}
+                            price={getTotalValue('In_Stock')}
+                            icon="solar:box-bold-duotone"
+                            color={theme.palette.success.main}
+                        />
+
+                        <TyreAnalytic
+                            title="Mounted"
+                            total={getTyreLength('Mounted')}
+                            percent={getPercentByStatus('Mounted')}
+                            price={getTotalValue('Mounted')}
+                            icon="solar:wheel-angle-bold-duotone"
+                            color={theme.palette.warning.main}
+                        />
+
+                        <TyreAnalytic
+                            title="Scrapped"
+                            total={getTyreLength('Scrapped')}
+                            percent={getPercentByStatus('Scrapped')}
+                            price={getTotalValue('Scrapped')}
+                            icon="solar:trash-bin-trash-bold-duotone"
+                            color={theme.palette.error.main}
+                        />
+                    </Stack>
+                </Scrollbar>
+            </Card>
+
             <Card>
+                <Tabs
+                    value={filters.status}
+                    onChange={handleFilterStatus}
+                    sx={{
+                        px: 2.5,
+                        boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+                    }}
+                >
+                    {TABS.map((tab) => (
+                        <Tab
+                            key={tab.value}
+                            value={tab.value}
+                            label={tab.label}
+                            iconPosition="end"
+                            icon={
+                                <Label
+                                    variant={
+                                        ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
+                                        'soft'
+                                    }
+                                    color={tab.color}
+                                >
+                                    {tab.count}
+                                </Label>
+                            }
+                        />
+                    ))}
+                </Tabs>
                 <TyreTableToolbar
                     filters={filters}
                     onFilters={handleFilters}
