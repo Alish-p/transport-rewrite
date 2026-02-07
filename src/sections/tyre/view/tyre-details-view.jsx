@@ -38,6 +38,7 @@ import TyreMountWizard from '../components/tyre-mount-wizard';
 import TyreUnmountDialog from '../components/tyre-unmount-dialog';
 
 import OverviewWidget from '../components/overview-widget';
+import { Iconify } from '../../../components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -185,33 +186,58 @@ export default function TyreDetailsView() {
                         </Grid>
                     </Grid>
 
-                    {tyre.status === 'Mounted' && mountingPositions.length > 0 && (
-                        <Grid item xs={12} md={4}>
-                            <Card>
-                                <CardHeader
-                                    title="Mounting Position"
-                                    subheader={
-                                        <Link
-                                            component={RouterLink}
-                                            href={paths.dashboard.vehicle.details(currentVehicle?._id)}
-                                            color="primary"
-                                            variant="subtitle2"
-                                        >
-                                            {currentVehicle?.vehicleNo}
-                                        </Link>
-                                    }
-                                />
-                                <CardContent>
+                    <Grid item xs={12} md={4}>
+                        <Card sx={{ height: '100%' }}>
+                            <CardHeader
+                                title="Mounting Position"
+                                subheader={
+                                    tyre.status === 'Mounted' ? (
+                                        <Box component="span">
+                                            <Link
+                                                component={RouterLink}
+                                                href={paths.dashboard.vehicle.details(currentVehicle?._id)}
+                                                color="primary"
+                                                variant="subtitle2"
+                                            >
+                                                {currentVehicle?.vehicleNo}
+                                            </Link>
+                                            {' - '}
+                                            <Box component="span" sx={{ color: 'text.secondary' }}>
+                                                {tyre.currentPosition}
+                                            </Box>
+                                        </Box>
+                                    ) : (
+                                        'Not Mountd'
+                                    )
+                                }
+                            />
+                            <CardContent>
+                                {tyre.status === 'Mounted' && mountingPositions.length > 0 ? (
                                     <TyreLayoutDiagram
                                         positions={mountingPositions}
                                         selectedPosition={tyre.currentPosition}
                                     />
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    )}
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: 200,
+                                            color: 'primary.main',
+                                        }}
+                                    >
+                                        <Iconify icon="mingcute:tyre-line" sx={{ mr: 2 }} />
+                                        <Typography variant="h6">
+                                            {tyre.status === 'In_Stock' ? 'In Stock' : 'Currently Not Mounted'}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid>
 
-                    <Grid item xs={12} md={tyre.status === 'Mounted' ? 8 : 12}>
+                    <Grid item xs={12} md={12}>
                         <TyreHistory tyreId={tyre._id} />
                     </Grid>
                 </Grid>

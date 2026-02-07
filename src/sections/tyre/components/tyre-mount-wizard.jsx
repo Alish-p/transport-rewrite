@@ -181,9 +181,6 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={onClose} color="inherit">
-                    Cancel
-                </Button>
                 <Box sx={{ flexGrow: 1 }} />
                 {activeStep > 0 && (
                     <Button onClick={handleBack} color="inherit" sx={{ mr: 1 }}>
