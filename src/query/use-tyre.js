@@ -39,6 +39,16 @@ export function useGetTyre(id) {
             const { data } = await axios.get(`/api/tyre/${id}`);
             return data;
         },
+    });
+}
+
+export function useGetTyreHistory(id) {
+    return useQuery({
+        queryKey: ['tyre-history', id],
+        queryFn: async () => {
+            const { data } = await axios.get(`/api/tyre/${id}/history`);
+            return data;
+        },
         enabled: !!id,
     });
 }
@@ -76,6 +86,18 @@ export function useMountTyre() {
             queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.details(variables.id) });
             queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
             // Should probably invalidate vehicle as well if we were tracking tyres on vehicle directly
+        },
+    });
+}
+
+export function useUnmountTyre() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }) => axios.post(`/api/tyre/${id}/unmount`, data),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.details(variables.id) });
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
         },
     });
 }
