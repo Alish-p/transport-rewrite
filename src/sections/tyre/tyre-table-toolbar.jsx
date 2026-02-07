@@ -10,6 +10,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
+import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-select-button';
+
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
 import { TYRE_TABLE_COLUMNS } from './tyre-table-config';
 
@@ -25,8 +28,18 @@ export default function TyreTableToolbar({
     onToggleAllColumns,
     onResetColumns,
     canResetColumns,
+    vehicleData,
 }) {
     const columnsPopover = usePopover();
+
+    const vehiclePopover = usePopover();
+
+    const handleFilterVehicle = useCallback(
+        (vehicle) => {
+            onFilters('vehicle', vehicle?._id || null);
+        },
+        [onFilters]
+    );
 
     const handleFilterTyreNumber = useCallback(
         (event) => {
@@ -83,6 +96,37 @@ export default function TyreTableToolbar({
                                 </InputAdornment>
                             ),
                         }}
+                    />
+                    <TextField
+                        fullWidth
+                        value={filters.brand}
+                        onChange={handleFilterBrand}
+                        placeholder="Search Brand..."
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+
+                    <DialogSelectButton
+                        fullWidth
+                        onClick={vehiclePopover.onOpen}
+                        disabled={false}
+                        iconName="mdi:truck-outline"
+                        placeholder="Filter by Vehicle"
+                        selected={vehicleData?.vehicleNo}
+                        onClear={() => handleFilterVehicle(null)}
+                        sx={{ maxWidth: { md: 200 } }}
+                    />
+
+                    <KanbanVehicleDialog
+                        open={vehiclePopover.open}
+                        onClose={vehiclePopover.onClose}
+                        onVehicleChange={handleFilterVehicle}
+                        onlyOwn
                     />
                 </Stack>
                 <Stack direction="row" spacing={1}>

@@ -59,6 +59,27 @@ export const TYRE_TABLE_COLUMNS = [
         getter: (row) => row.type,
     },
     {
+        id: 'vehicle',
+        label: 'Vehicle',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.currentVehicleId?.vehicleNo || '-',
+        render: (row) =>
+            row.currentVehicleId ? (
+                <Link
+                    component={RouterLink}
+                    to={paths.dashboard.vehicle.details(row.currentVehicleId._id)}
+                    variant="body2"
+                    noWrap
+                    sx={{ color: 'primary', cursor: 'pointer' }}
+                >
+                    {row.currentVehicleId.vehicleNo}
+                </Link>
+            ) : (
+                '-'
+            ),
+    },
+    {
         id: 'cost',
         label: 'Cost',
         defaultVisible: true,

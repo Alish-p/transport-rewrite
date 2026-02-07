@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import { Tab, Tabs , Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
+import { Tab, Tabs, Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -224,15 +224,15 @@ export function VehicleDetailView({ vehicle }) {
         value={currentTab}
         onChange={handleChangeTab}
         sx={{
-          mb: { xs: 3, md: 5 },
+          my: { xs: 3, md: 2 },
         }}
       >
-        <Tab value="overview" label="Overview" />
-        <Tab value="tyres" label="Tyres" />
+        <Tab value="overview" label="Overview" icon={<Iconify icon="mdi:eye" width={20} />} />
+        <Tab value="tyres" label="Tyres" icon={<Iconify icon="mingcute:wheel-line" width={20} />} />
       </Tabs>
 
       {currentTab === 'overview' && (
-        <Grid container spacing={3} mt={3}>
+        <Grid container spacing={3} >
           <Grid xs={12} md={7} container spacing={3} item>
             <Grid xs={12} sm={6} item>
               <VehicleOdometerWidget total={Math.round(odometer)} />

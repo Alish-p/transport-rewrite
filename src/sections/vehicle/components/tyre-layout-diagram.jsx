@@ -1,10 +1,12 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
 // ----------------------------------------------------------------------
 
-export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, sx }) {
+export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, sx, tyreMap = {} }) {
     const theme = useTheme();
 
     // Group positions by axle/row
@@ -47,8 +49,9 @@ export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, 
         }
 
         const isSelected = isPresent && selectedPosition === pos;
+        const mountedTyre = isPresent ? tyreMap[pos] : null;
 
-        return (
+        const content = (
             <Box
                 onClick={() => isPresent && onSelect && onSelect(pos)}
                 sx={{
@@ -56,10 +59,9 @@ export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, 
                     height: isHorizontal ? 24 : 48,
                     borderRadius: 1,
                     border: `2px solid ${theme.palette.text.secondary}`,
-                    bgcolor: isPresent ? theme.palette.text.secondary : 'transparent',
+                    bgcolor: isSelected ? 'primary.main' : (mountedTyre ? theme.palette.success.main : (isPresent ? theme.palette.text.secondary : 'transparent')),
                     opacity: isPresent ? 1 : 0.2,
                     ...(isSelected && {
-                        bgcolor: 'primary.main',
                         borderColor: 'primary.main',
                         boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
                     }),
@@ -72,6 +74,24 @@ export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, 
                 }}
             />
         );
+
+        if (mountedTyre) {
+            return (
+                <Tooltip
+                    title={
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="subtitle2">{mountedTyre.brand}</Typography>
+                            <Typography variant="caption">{mountedTyre.serialNumber}</Typography>
+                        </Box>
+                    }
+                    arrow
+                >
+                    {content}
+                </Tooltip>
+            );
+        }
+
+        return content;
     };
 
     const renderRow = (rowIndex) => {

@@ -14,6 +14,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { useGetTyres } from 'src/query/use-tyre';
+import { useVehicle } from 'src/query/use-vehicle';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -31,6 +32,7 @@ import {
 import TyreTableRow from '../tyre-table-row';
 import TyreTableToolbar from '../tyre-table-toolbar';
 import { TYRE_TABLE_COLUMNS } from '../tyre-table-config';
+import TyreTableFiltersResult from '../tyre-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -39,13 +41,14 @@ const STORAGE_KEY = 'tyre-table-columns';
 const defaultFilters = {
     serialNumber: '',
     brand: '',
+    vehicle: null,
 };
 
 export default function TyreListView() {
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
 
-    const { filters, handleFilters, canReset } = useFilters(defaultFilters, {
+    const { filters, handleFilters, canReset, handleResetFilters } = useFilters(defaultFilters, {
         onResetPage: table.onResetPage,
     });
 
@@ -66,7 +69,10 @@ export default function TyreListView() {
         limit: table.rowsPerPage,
         serialNumber: filters.serialNumber || undefined,
         brand: filters.brand || undefined,
+        vehicleId: filters.vehicle || undefined,
     });
+
+    const { data: vehicleData } = useVehicle(filters.vehicle);
 
     const tableData = data?.tyres || data?.data || [];
     const totalCount = data?.total || 0;
@@ -128,7 +134,21 @@ export default function TyreListView() {
                     onToggleAllColumns={toggleAllColumnsVisibility}
                     onResetColumns={resetColumns}
                     canResetColumns={canResetColumns}
+                    vehicleData={vehicleData}
                 />
+
+                {canReset && (
+                    <TyreTableFiltersResult
+                        filters={filters}
+                        onFilters={handleFilters}
+                        //
+                        onResetFilters={handleResetFilters}
+                        //
+                        results={totalCount}
+                        selectedVehicleName={vehicleData?.vehicleNo}
+                        sx={{ p: 2.5, pt: 0 }}
+                    />
+                )}
 
                 <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
                     <TableSelectedAction
