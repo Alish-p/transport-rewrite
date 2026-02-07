@@ -1,21 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+import Step from '@mui/material/Step';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
+import Autocomplete from '@mui/material/Autocomplete';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useDebounce } from 'src/hooks/use-debounce';
-import { useVehicle, useInfiniteVehicles, useGetTyreLayouts } from 'src/query/use-vehicle';
+
+import { useVehicle, useGetTyreLayouts, useInfiniteVehicles } from 'src/query/use-vehicle';
+
 import { TyreLayoutDiagram } from 'src/sections/vehicle/components/tyre-layout-diagram';
 
 const steps = ['Select Vehicle & Odometer', 'Select Position'];

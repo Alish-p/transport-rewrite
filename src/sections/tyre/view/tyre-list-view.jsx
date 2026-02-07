@@ -18,7 +18,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { useSettingsContext } from 'src/components/settings';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
     useTable,
@@ -43,7 +42,6 @@ const defaultFilters = {
 };
 
 export default function TyreListView() {
-    const settings = useSettingsContext();
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
 

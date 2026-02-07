@@ -1,28 +1,22 @@
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
 import Container from '@mui/material/Container';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useGetTyre, useMountTyre, useUnmountTyre } from 'src/query/use-tyre';
 import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
+import { useGetTyre, useMountTyre, useUnmountTyre } from 'src/query/use-tyre';
 
 import { useSettingsContext } from 'src/components/settings';
 import { HeroHeader } from 'src/components/hero-header-card';
@@ -32,13 +26,11 @@ import { TyreLayoutDiagram } from 'src/sections/vehicle/components/tyre-layout-d
 
 import TyreHistory from './tyre-history-widget';
 import TyreGeneralInfo from './tyre-general-info';
-import TyreThreadWidget from './tyre-thread-widget';
-import TyreThreadUpdateDialog from '../components/tyre-thread-update-dialog';
+import { Iconify } from '../../../components/iconify';
+import OverviewWidget from '../components/overview-widget';
 import TyreMountWizard from '../components/tyre-mount-wizard';
 import TyreUnmountDialog from '../components/tyre-unmount-dialog';
-
-import OverviewWidget from '../components/overview-widget';
-import { Iconify } from '../../../components/iconify';
+import TyreThreadUpdateDialog from '../components/tyre-thread-update-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -77,9 +69,9 @@ export default function TyreDetailsView() {
             });
             toast.success(`Tyre mounted successfully`);
             setOpenMountWizard(false);
-        } catch (error) {
-            console.error(error);
-            toast.error(error?.message || 'Failed to mount tyre');
+        } catch (e) {
+            console.error(e);
+            toast.error(e?.message || 'Failed to mount tyre');
         }
     };
 

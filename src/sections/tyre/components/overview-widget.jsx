@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -50,11 +48,3 @@ export default function OverviewWidget({ title, total, icon, color = 'primary', 
     );
 }
 
-OverviewWidget.propTypes = {
-    color: PropTypes.string,
-    icon: PropTypes.string,
-    sx: PropTypes.object,
-    title: PropTypes.string,
-    total: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    unit: PropTypes.string,
-};

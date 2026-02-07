@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Timeline from '@mui/lab/Timeline';
@@ -58,10 +56,6 @@ export default function TyreHistory({ tyreId, ...other }) {
     );
 }
 
-TyreHistory.propTypes = {
-    tyreId: PropTypes.string,
-};
-
 // ----------------------------------------------------------------------
 
 function HistoryItem({ item, lastItem }) {
@@ -112,8 +106,3 @@ function HistoryItem({ item, lastItem }) {
         </TimelineItem>
     );
 }
-
-HistoryItem.propTypes = {
-    item: PropTypes.object,
-    lastItem: PropTypes.bool,
-};
