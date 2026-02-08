@@ -1,4 +1,5 @@
 import { z as zod } from 'zod';
+import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
 
 import { paths } from 'src/routes/paths';
@@ -18,7 +19,7 @@ const FLAT_BULK_TYRE_SCHEMA = zod.object({
     size: zod.string().min(1, { message: 'Size is required' }),
     type: zod.enum(['New', 'Remolded', 'Used'], { message: "Type must be 'New', 'Remolded', or 'Used'" }),
     purchaseOrderNumber: zod.string().optional(),
-    totalMileage: zod.coerce.number().min(0).optional(),
+    currentKm: zod.coerce.number().min(0).optional(),
     cost: zod.coerce.number().min(0).optional(),
     originalThreadDepth: zod.coerce.number().min(0).optional(),
     currentThreadDepth: zod.coerce.number().min(0).optional(),
@@ -31,7 +32,7 @@ const IMPORT_COLUMNS = [
     { label: 'Size', key: 'size', required: true, width: 140 },
     { label: 'Type (New/Remolded/Used)', key: 'type', required: true, width: 180 },
     { label: 'Purchase Order No.', key: 'purchaseOrderNumber', width: 200 },
-    { label: 'Current KM', key: 'totalMileage', type: 'number', width: 220 },
+    { label: 'Current KM', key: 'currentKm', type: 'number', width: 220 },
     { label: 'Cost', key: 'cost', type: 'number', width: 120 },
     { label: 'Original Thread Depth', key: 'originalThreadDepth', type: 'number', width: 200 },
     { label: 'Current Thread Depth', key: 'currentThreadDepth', type: 'number', width: 200 },
@@ -41,19 +42,27 @@ export function TyreBulkImportView() {
     const createBulkTyres = useCreateBulkTyres();
 
     const handleImport = async (data) => {
-        // Transform flat data to nested API structure
-        const formattedData = data.map(item => ({
-            ...item,
-            threadDepth: {
-                original: item.originalThreadDepth,
-                current: item.currentThreadDepth ?? item.originalThreadDepth,
-            },
-            metadata: {
-                isRemoldable: true, // Default to true as column removed
-            }
-        }));
+        try {
+            // Transform flat data to nested API structure
+            const formattedData = data.map(item => ({
+                ...item,
+                threadDepth: {
+                    original: item.originalThreadDepth,
+                    current: item.currentThreadDepth ?? item.originalThreadDepth,
+                },
+                metadata: {
+                    isRemoldable: true, // Default to true as column removed
+                }
+            }));
 
-        await createBulkTyres.mutateAsync({ tyres: formattedData });
+            await createBulkTyres.mutateAsync({ tyres: formattedData });
+            toast.success('Tyres imported successfully!');
+        } catch (error) {
+            console.error(error);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Import failed';
+            toast.error(errorMessage);
+            throw error; // Re-throw to let the caller (BulkImportView) know it failed
+        }
     };
 
     const handleDownloadTemplate = async () => {

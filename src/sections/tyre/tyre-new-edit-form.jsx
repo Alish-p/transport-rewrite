@@ -33,7 +33,7 @@ export const TyreSchema = zod.object({
     size: zod.string().min(1, { message: 'Size is required' }),
     type: zod.string().min(1, { message: 'Type is required' }),
     purchaseOrderNumber: zod.string().optional(),
-    totalMileage: zod.coerce.number().min(0, { message: 'Kilometers must be >= 0' }),
+    currentKm: zod.coerce.number().min(0, { message: 'Kilometers must be >= 0' }),
     cost: zod.coerce.number().min(0, { message: 'Cost must be >= 0' }),
     threadDepth: zod.object({
         original: zod.coerce.number().min(1, { message: 'Original thread depth must be > 0' }),
@@ -57,7 +57,7 @@ export default function TyreNewEditForm({ currentTyre }) {
             size: currentTyre?.size || '',
             type: currentTyre?.type || 'New',
             purchaseOrderNumber: currentTyre?.purchaseOrderNumber || '',
-            totalMileage: currentTyre?.totalMileage || 0,
+            currentKm: currentTyre?.currentKm || 0,
             cost: currentTyre?.cost || 0,
             threadDepth: {
                 original: currentTyre?.threadDepth?.original || 0,
@@ -94,7 +94,7 @@ export default function TyreNewEditForm({ currentTyre }) {
     // "if type new = openingkm will be 0 disabled"
     useMemo(() => {
         if (type === 'New') {
-            setValue('totalMileage', 0);
+            setValue('currentKm', 0);
         }
     }, [type, setValue]);
 
@@ -164,7 +164,7 @@ export default function TyreNewEditForm({ currentTyre }) {
                 </Field.Select>
 
                 <Field.Text
-                    name="totalMileage"
+                    name="currentKm"
                     label="Opening KM"
                     type="number"
                     disabled={type === 'New'}

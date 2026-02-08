@@ -31,6 +31,14 @@ export const TYRE_TABLE_COLUMNS = [
         ),
     },
     {
+        id: 'currentKm',
+        label: 'Current Km',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.currentKm,
+        render: (row) => `${row.currentKm || 0} km`,
+    },
+    {
         id: 'brand',
         label: 'Brand',
         defaultVisible: true,

@@ -164,7 +164,7 @@ export function CurrentTyreLayoutView({ vehicle }) {
                                             </TableCell>
                                             <TableCell>{tyre.brand}</TableCell>
                                             <TableCell>{tyre.model}</TableCell>
-                                            <TableCell>{tyre.totalMileage}</TableCell>
+                                            <TableCell>{tyre.currentKm}</TableCell>
                                             <TableCell>
                                                 <Label color="success">Mounted</Label>
                                             </TableCell>

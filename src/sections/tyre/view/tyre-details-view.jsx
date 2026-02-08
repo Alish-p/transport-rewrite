@@ -186,7 +186,7 @@ export default function TyreDetailsView() {
                             <Grid item xs={12} md={6}>
                                 <OverviewWidget
                                     title="Total Distance"
-                                    total={tyre.totalMileage || 0}
+                                    total={tyre.currentKm || 0}
                                     icon="mingcute:road-line"
                                     color="info"
                                     unit="km"
