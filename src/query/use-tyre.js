@@ -102,6 +102,7 @@ export function useUnmountTyre() {
     });
 }
 
+// ...existing code...
 export function useScrapTyre() {
     const queryClient = useQueryClient();
 
@@ -113,3 +114,16 @@ export function useScrapTyre() {
         },
     });
 }
+
+export function useUpdateTyreHistory() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, historyId, data }) => axios.put(`/api/tyre/${id}/history/${historyId}`, data),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['tyre-history', variables.id] });
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.details(variables.id) }); // Ensure total mileage updates
+        },
+    });
+}
+

@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
@@ -16,9 +17,13 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fDateTime } from 'src/utils/format-time';
 
-import { useGetTyreHistory } from 'src/query/use-tyre';
+import { useGetTyreHistory, useUpdateTyreHistory } from 'src/query/use-tyre';
 
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+
+import TyreHistoryUpdateDialog from '../components/tyre-history-update-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -32,8 +37,10 @@ export const TYRE_HISTORY_ACTION = {
 
 export default function TyreHistory({ tyreId, ...other }) {
     const { data: history, isLoading } = useGetTyreHistory(tyreId);
+    const updateHistory = useUpdateTyreHistory();
 
     const [filter, setFilter] = useState('ALL');
+    const [editItem, setEditItem] = useState(null);
 
     const handleFilterChange = (event) => {
         setFilter(event.target.value);
@@ -43,6 +50,20 @@ export default function TyreHistory({ tyreId, ...other }) {
         if (filter === 'ALL') return true;
         return item.action === filter;
     });
+
+    const handleUpdate = async (data) => {
+        try {
+            await updateHistory.mutateAsync({
+                id: tyreId,
+                historyId: editItem._id,
+                data,
+            });
+            toast.success('History updated successfully');
+            setEditItem(null);
+        } catch (error) {
+            toast.error(error.message || 'Failed to update history');
+        }
+    };
 
     return (
         <Card {...other}>
@@ -94,18 +115,26 @@ export default function TyreHistory({ tyreId, ...other }) {
                                 key={item._id}
                                 item={item}
                                 lastItem={index === filteredHistory.length - 1}
+                                onEdit={() => setEditItem(item)}
                             />
                         ))}
                     </Timeline>
                 </Scrollbar>
             )}
+
+            <TyreHistoryUpdateDialog
+                open={!!editItem}
+                onClose={() => setEditItem(null)}
+                onSubmit={handleUpdate}
+                historyItem={editItem}
+            />
         </Card>
     );
 }
 
 // ----------------------------------------------------------------------
 
-function HistoryItem({ item, lastItem }) {
+function HistoryItem({ item, lastItem, onEdit }) {
     const { action, measuringDate, vehicleId, position, odometer, newThreadDepth, previousThreadDepth, distanceCovered } = item;
 
     const renderContent = () => {
@@ -143,6 +172,8 @@ function HistoryItem({ item, lastItem }) {
         }
     }
 
+    const canEdit = action === 'MOUNT' || action === 'UNMOUNT' || action === 'SCRAP';
+
     return (
         <TimelineItem>
             <TimelineSeparator>
@@ -151,7 +182,15 @@ function HistoryItem({ item, lastItem }) {
             </TimelineSeparator>
 
             <TimelineContent>
-                <Typography variant="subtitle2">{renderContent()}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle2">{renderContent()}</Typography>
+
+                    {canEdit && (
+                        <IconButton size="small" onClick={onEdit}>
+                            <Iconify icon="solar:pen-bold" width={16} />
+                        </IconButton>
+                    )}
+                </Box>
 
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                     {fDateTime(measuringDate)}
@@ -160,3 +199,4 @@ function HistoryItem({ item, lastItem }) {
         </TimelineItem>
     );
 }
+
