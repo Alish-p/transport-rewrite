@@ -15,7 +15,7 @@ import { parseImportFile, generateTemplate } from './utils';
 
 const STEPS = ['Upload File', 'Validate Data', 'Import'];
 
-export function BulkImportView({ entityName, schema, columns, onImport }) {
+export function BulkImportView({ entityName, schema, columns, onImport, onDownloadTemplate }) {
     const [activeStep, setActiveStep] = useState(0);
     const [parsedData, setParsedData] = useState([]);
 
@@ -39,7 +39,7 @@ export function BulkImportView({ entityName, schema, columns, onImport }) {
         }
     };
 
-    const handleDownloadTemplate = async () => {
+    const handleDefaultDownloadTemplate = async () => {
         try {
             const blob = await generateTemplate(columns);
             saveAs(blob, `${entityName.toLowerCase()}_import_template.xlsx`);
@@ -50,9 +50,9 @@ export function BulkImportView({ entityName, schema, columns, onImport }) {
 
     return (
         <Container maxWidth="lg">
-            <Typography variant="h4" sx={{ mb: 5 }}>
+            {/* <Typography variant="h4" sx={{ mb: 5 }}>
                 Import {entityName}s
-            </Typography>
+            </Typography> */}
 
             <Card sx={{ p: 3, mb: 5 }}>
                 <Stepper activeStep={activeStep} alternativeLabel>
@@ -66,7 +66,7 @@ export function BulkImportView({ entityName, schema, columns, onImport }) {
 
             {activeStep === 0 && (
                 <Card sx={{ p: 3 }}>
-                    <UploadStep onUpload={handleUpload} onDownloadTemplate={handleDownloadTemplate} />
+                    <UploadStep onUpload={handleUpload} onDownloadTemplate={onDownloadTemplate || handleDefaultDownloadTemplate} />
                 </Card>
             )}
 

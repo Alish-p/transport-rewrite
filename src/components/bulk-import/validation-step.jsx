@@ -71,7 +71,9 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
     const gridColumns = useMemo(() => columns.map((col) => ({
         field: col.key,
         headerName: col.label,
-        flex: 1,
+        flex: col.width ? 0 : 1, // Don't use flex if width is explicit
+        width: col.width || 150, // Default width if no flex
+        minWidth: 120,
         editable: true,
         type: col.type === 'number' ? 'number' : 'string',
         renderCell: (params) => {
@@ -147,12 +149,19 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
                 </Stack>
             </Stack>
 
-            <Card sx={{ height: 500 }}>
+            <Card sx={{ height: 500, width: '100%' }}>
                 <DataGrid
                     rows={rows}
                     columns={gridColumns}
                     processRowUpdate={processRowUpdate}
                     disableRowSelectionOnClick
+                    density="standard"
+                    disableColumnMenu
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    disableColumnResize={false} // Allow resizing if width is not enough
+                    hideFooter // Optional: If user wants just a list
                 />
             </Card>
         </Stack>

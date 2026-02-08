@@ -174,6 +174,7 @@ const TyreListPage = lazy(() => import('src/sections/tyre/view/tyre-list-view'))
 const TyreCreatePage = lazy(() => import('src/sections/tyre/view/tyre-create-view'));
 const TyreDetailsPage = lazy(() => import('src/sections/tyre/view/tyre-details-view'));
 const TyreEditPage = lazy(() => import('src/sections/tyre/view/tyre-edit-view'));
+const TyreBulkImportPage = lazy(() => import('src/pages/dashboard/tyre/bulk-import'));
 
 // ----------------------------------------------------------------------
 
@@ -833,6 +834,14 @@ export const dashboardRoutes = [
             element: (
               // <PermissionBasedGuard resource="tyre" action="view" hasContent>
               <TyreListPage />
+              // </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'bulk-import',
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="create" hasContent>
+              <TyreBulkImportPage />
               // </PermissionBasedGuard>
             ),
           },

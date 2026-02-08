@@ -142,14 +142,24 @@ export default function TyreListView() {
                     { name: 'List' },
                 ]}
                 action={
-                    <Button
-                        component={RouterLink}
-                        href={paths.dashboard.tyre.new}
-                        variant="contained"
-                        startIcon={<Iconify icon="mingcute:add-line" />}
-                    >
-                        New Tyre
-                    </Button>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            component={RouterLink}
+                            href={paths.dashboard.tyre.bulkImport}
+                            variant="outlined"
+                            startIcon={<Iconify icon="solar:import-bold" />}
+                        >
+                            Import
+                        </Button>
+                        <Button
+                            component={RouterLink}
+                            href={paths.dashboard.tyre.new}
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                        >
+                            New Tyre
+                        </Button>
+                    </Stack>
                 }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />

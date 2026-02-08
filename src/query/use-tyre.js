@@ -32,6 +32,17 @@ export function useCreateTyre() {
     });
 }
 
+export function useCreateBulkTyres() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data) => axios.post('/api/tyre/bulk', data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
+        },
+    });
+}
+
 export function useGetTyre(id) {
     return useQuery({
         queryKey: TYRE_QUERY_KEYS.details(id),
