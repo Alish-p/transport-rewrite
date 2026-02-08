@@ -11,11 +11,11 @@ export function TyreLayoutDiagram({ positions = [], selectedPosition, onSelect, 
 
     // Group positions by axle/row
     const getRow = (pos) => {
-        if (pos.includes('Front')) return 0;
-        if (pos.includes('Rear First')) return 1;
-        if (pos.includes('Rear Second')) return 2;
-        if (pos.includes('Rear Third')) return 3;
-        if (pos.includes('Rear Fourth')) return 4;
+        if (pos.includes('Axle-1')) return 0;
+        if (pos.includes('Axle-2')) return 1;
+        if (pos.includes('Axle-3')) return 2;
+        if (pos.includes('Axle-4')) return 3;
+        if (pos.includes('Axle-5')) return 4;
         return 10; // Other (Stepney)
     };
 
