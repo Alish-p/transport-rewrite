@@ -240,5 +240,12 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/workOrder/${id}/edit`,
     },
+    tyre: {
+      root: `${ROOTS.DASHBOARD}/tyre`,
+      new: `${ROOTS.DASHBOARD}/tyre/new`,
+      list: `${ROOTS.DASHBOARD}/tyre/list`,
+      details: (id) => `${ROOTS.DASHBOARD}/tyre/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/tyre/${id}/edit`,
+    },
   },
 };

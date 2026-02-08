@@ -169,6 +169,12 @@ const TenantsCreatePage = lazy(() => import('src/pages/dashboard/tenants/new'));
 const TenantsEditPage = lazy(() => import('src/pages/dashboard/tenants/edit'));
 const TenantsDetailsPage = lazy(() => import('src/pages/dashboard/tenants/details'));
 
+// Tyre
+const TyreListPage = lazy(() => import('src/sections/tyre/view/tyre-list-view'));
+const TyreCreatePage = lazy(() => import('src/sections/tyre/view/tyre-create-view'));
+const TyreDetailsPage = lazy(() => import('src/sections/tyre/view/tyre-details-view'));
+const TyreEditPage = lazy(() => import('src/sections/tyre/view/tyre-edit-view'));
+
 // ----------------------------------------------------------------------
 
 const layoutContent = (
@@ -802,6 +808,56 @@ export const dashboardRoutes = [
               <PermissionBasedGuard resource="purchaseOrder" action="update" hasContent>
                 <PurchaseOrderEditPage />
               </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'tyre',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <Outlet />
+          </FeatureGuard>
+        ),
+        children: [
+          {
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
+              <TyreListPage />
+              // </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
+              <TyreListPage />
+              // </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="create" hasContent>
+              <TyreCreatePage />
+              // </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
+              <TyreDetailsPage />
+              // </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              // <PermissionBasedGuard resource="tyre" action="update" hasContent>
+              <TyreEditPage />
+              // </PermissionBasedGuard>
             ),
           },
         ],
