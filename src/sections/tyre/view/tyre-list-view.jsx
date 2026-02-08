@@ -37,6 +37,7 @@ import {
 
 import TyreAnalytic from '../tyre-analytic';
 import TyreTableRow from '../tyre-table-row';
+import { TYRE_STATUS } from '../tyre-constants';
 import TyreTableToolbar from '../tyre-table-toolbar';
 import { TYRE_TABLE_COLUMNS } from '../tyre-table-config';
 import TyreTableFiltersResult from '../tyre-table-filters-result';
@@ -94,9 +95,9 @@ export default function TyreListView() {
 
     const TABS = [
         { value: 'all', label: 'All', color: 'default', count: totals.all?.count || 0 },
-        { value: 'In_Stock', label: 'In Stock', color: 'success', count: getTyreLength('In_Stock') },
-        { value: 'Mounted', label: 'Mounted', color: 'warning', count: getTyreLength('Mounted') },
-        { value: 'Scrapped', label: 'Scrapped', color: 'error', count: getTyreLength('Scrapped') },
+        { value: TYRE_STATUS.IN_STOCK, label: 'In Stock', color: 'success', count: getTyreLength(TYRE_STATUS.IN_STOCK) },
+        { value: TYRE_STATUS.MOUNTED, label: 'Mounted', color: 'warning', count: getTyreLength(TYRE_STATUS.MOUNTED) },
+        { value: TYRE_STATUS.SCRAPPED, label: 'Scrapped', color: 'error', count: getTyreLength(TYRE_STATUS.SCRAPPED) },
     ];
 
     const notFound = (!tableData.length && canReset) || !tableData.length;
@@ -175,27 +176,27 @@ export default function TyreListView() {
 
                         <TyreAnalytic
                             title="In Stock"
-                            total={getTyreLength('In_Stock')}
-                            percent={getPercentByStatus('In_Stock')}
-                            price={getTotalValue('In_Stock')}
+                            total={getTyreLength(TYRE_STATUS.IN_STOCK)}
+                            percent={getPercentByStatus(TYRE_STATUS.IN_STOCK)}
+                            price={getTotalValue(TYRE_STATUS.IN_STOCK)}
                             icon="solar:box-bold-duotone"
                             color={theme.palette.success.main}
                         />
 
                         <TyreAnalytic
                             title="Mounted"
-                            total={getTyreLength('Mounted')}
-                            percent={getPercentByStatus('Mounted')}
-                            price={getTotalValue('Mounted')}
+                            total={getTyreLength(TYRE_STATUS.MOUNTED)}
+                            percent={getPercentByStatus(TYRE_STATUS.MOUNTED)}
+                            price={getTotalValue(TYRE_STATUS.MOUNTED)}
                             icon="solar:wheel-angle-bold-duotone"
                             color={theme.palette.warning.main}
                         />
 
                         <TyreAnalytic
                             title="Scrapped"
-                            total={getTyreLength('Scrapped')}
-                            percent={getPercentByStatus('Scrapped')}
-                            price={getTotalValue('Scrapped')}
+                            total={getTyreLength(TYRE_STATUS.SCRAPPED)}
+                            percent={getPercentByStatus(TYRE_STATUS.SCRAPPED)}
+                            price={getTotalValue(TYRE_STATUS.SCRAPPED)}
                             icon="solar:trash-bin-trash-bold-duotone"
                             color={theme.palette.error.main}
                         />

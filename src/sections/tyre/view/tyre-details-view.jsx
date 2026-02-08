@@ -25,6 +25,7 @@ import { LoadingScreen } from 'src/components/loading-screen';
 import { TyreLayoutDiagram } from 'src/sections/vehicle/components/tyre-layout-diagram';
 
 import TyreHistory from './tyre-history-widget';
+import { TYRE_STATUS } from '../tyre-constants';
 import TyreGeneralInfo from './tyre-general-info';
 import { Iconify } from '../../../components/iconify';
 import OverviewWidget from '../components/overview-widget';
@@ -146,24 +147,25 @@ export default function TyreDetailsView() {
                                     label: 'Change Thread',
                                     icon: 'mdi:ruler',
                                     onClick: () => setOpenThreadDialog(true),
+                                    disabled: tyre.status === TYRE_STATUS.SCRAPPED,
                                 },
                                 {
                                     label: 'Mount',
                                     icon: 'mingcute:tyre-line',
                                     onClick: () => setOpenMountWizard(true),
-                                    disabled: tyre.status === 'Mounted',
+                                    disabled: tyre.status === TYRE_STATUS.MOUNTED || tyre.status === TYRE_STATUS.SCRAPPED,
                                 },
                                 {
                                     label: 'Unmount',
                                     icon: 'gg:remove',
                                     onClick: () => setOpenUnmountDialog(true),
-                                    disabled: tyre.status !== 'Mounted',
+                                    disabled: tyre.status !== TYRE_STATUS.MOUNTED,
                                 },
                                 {
                                     label: 'Move to Scrap',
                                     icon: 'tabler:trash-filled',
                                     onClick: () => setOpenScrapDialog(true),
-                                    disabled: tyre.status === 'Scrapped',
+                                    disabled: tyre.status === TYRE_STATUS.SCRAPPED,
                                     sx: { color: 'error.main' },
                                 },
                             ],
@@ -210,7 +212,7 @@ export default function TyreDetailsView() {
                             <CardHeader
                                 title="Mounting Position"
                                 subheader={
-                                    tyre.status === 'Mounted' ? (
+                                    tyre.status === TYRE_STATUS.MOUNTED ? (
                                         <Box component="span">
                                             <Link
                                                 component={RouterLink}
@@ -231,7 +233,7 @@ export default function TyreDetailsView() {
                                 }
                             />
                             <CardContent>
-                                {tyre.status === 'Mounted' && mountingPositions.length > 0 ? (
+                                {tyre.status === TYRE_STATUS.MOUNTED && mountingPositions.length > 0 ? (
                                     <TyreLayoutDiagram
                                         positions={mountingPositions}
                                         selectedPosition={tyre.currentPosition}
@@ -248,7 +250,7 @@ export default function TyreDetailsView() {
                                     >
                                         <Iconify icon="mingcute:tyre-line" sx={{ mr: 2 }} />
                                         <Typography variant="h6">
-                                            {tyre.status === 'In_Stock' ? 'In Stock' : 'Currently Not Mounted'}
+                                            {tyre.status === TYRE_STATUS.IN_STOCK ? 'In Stock' : 'Currently Not Mounted'}
                                         </Typography>
                                     </Box>
                                 )}

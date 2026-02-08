@@ -10,6 +10,8 @@ import DialogContent from '@mui/material/DialogContent';
 
 import { Form, Field } from 'src/components/hook-form';
 
+import { TYRE_STATUS } from '../tyre-constants';
+
 // ----------------------------------------------------------------------
 
 export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus }) {
@@ -19,7 +21,7 @@ export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus 
 
     const ScrapTyreSchema = z.object({
         scrapDate: z.date(),
-        odometer: currentStatus === 'Mounted'
+        odometer: currentStatus === TYRE_STATUS.MOUNTED
             ? z.coerce.number().min(1, 'Odometer is required')
             : z.coerce.number().optional(),
     });
@@ -54,7 +56,7 @@ export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus 
                         sx={{ mt: 2, width: '100%' }}
                     />
 
-                    {currentStatus === 'Mounted' && (
+                    {currentStatus === TYRE_STATUS.MOUNTED && (
                         <Field.Text
                             name="odometer"
                             label="Odometer Reading"
