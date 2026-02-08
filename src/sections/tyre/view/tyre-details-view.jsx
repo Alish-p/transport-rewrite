@@ -31,6 +31,7 @@ import { Iconify } from '../../../components/iconify';
 import OverviewWidget from '../components/overview-widget';
 import TyreMountWizard from '../components/tyre-mount-wizard';
 import TyreScrapDialog from '../components/tyre-scrap-dialog';
+import TyreRemoldDialog from '../components/tyre-remold-dialog';
 import TyreUnmountDialog from '../components/tyre-unmount-dialog';
 import TyreThreadUpdateDialog from '../components/tyre-thread-update-dialog';
 
@@ -50,6 +51,7 @@ export default function TyreDetailsView() {
     const [openMountWizard, setOpenMountWizard] = useState(false);
     const [openUnmountDialog, setOpenUnmountDialog] = useState(false);
     const [openScrapDialog, setOpenScrapDialog] = useState(false);
+    const [openRemoldDialog, setOpenRemoldDialog] = useState(false);
 
     // Fetch current vehicle details if mounted (for display in Info and Unmount dialog)
     const { data: currentVehicle } = useVehicle(tyre?.currentVehicleId);
@@ -167,6 +169,12 @@ export default function TyreDetailsView() {
                                     onClick: () => setOpenScrapDialog(true),
                                     disabled: tyre.status === TYRE_STATUS.SCRAPPED,
                                     sx: { color: 'error.main' },
+                                },
+                                {
+                                    label: 'Remold',
+                                    icon: 'solar:refresh-circle-bold',
+                                    onClick: () => setOpenRemoldDialog(true),
+                                    disabled: tyre.status !== TYRE_STATUS.IN_STOCK,
                                 },
                             ],
                         },
@@ -288,6 +296,13 @@ export default function TyreDetailsView() {
                     onClose={() => setOpenScrapDialog(false)}
                     onScrap={handleScrap}
                     currentStatus={tyre.status}
+                />
+
+                <TyreRemoldDialog
+                    open={openRemoldDialog}
+                    onClose={() => setOpenRemoldDialog(false)}
+                    tyreId={tyre._id}
+                    currentDepth={tyre?.threadDepth?.current}
                 />
 
             </Container>

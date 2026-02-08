@@ -138,3 +138,16 @@ export function useUpdateTyreHistory() {
     });
 }
 
+export function useRemoldTyre() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }) => axios.post(`/api/tyre/${id}/remold`, data),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.details(variables.id) });
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
+            queryClient.invalidateQueries({ queryKey: ['tyre-history', variables.id] });
+        },
+    });
+}
+

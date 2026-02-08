@@ -33,6 +33,7 @@ export const TYRE_HISTORY_ACTION = {
     UNMOUNT: 'UNMOUNT',
     UPDATE: 'UPDATE',
     SCRAP: 'SCRAP',
+    REMOLD: 'REMOLD',
 };
 
 export default function TyreHistory({ tyreId, ...other }) {
@@ -152,6 +153,8 @@ function HistoryItem({ item, lastItem, onEdit }) {
                     return `Moved to Scrap from ${vehicleId?.vehicleNo || 'Unknown Vehicle'} at position ${position}. Odometer: ${odometer} km. Distance Covered: ${distanceCovered} km`;
                 }
                 return `Moved to Scrap`;
+            case 'REMOLD':
+                return `Tyre remolded. Thread depth reset to ${newThreadDepth}mm from ${previousThreadDepth}mm`;
             default:
                 return action;
         }
@@ -167,6 +170,8 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return 'info';
             case 'SCRAP':
                 return 'error';
+            case 'REMOLD':
+                return 'warning'; // or 'success' or 'info'
             default:
                 return 'primary';
         }
