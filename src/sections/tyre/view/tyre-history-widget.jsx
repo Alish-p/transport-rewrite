@@ -27,6 +27,7 @@ export const TYRE_HISTORY_ACTION = {
     MOUNT: 'MOUNT',
     UNMOUNT: 'UNMOUNT',
     UPDATE: 'UPDATE',
+    SCRAP: 'SCRAP',
 };
 
 export default function TyreHistory({ tyreId, ...other }) {
@@ -117,6 +118,11 @@ function HistoryItem({ item, lastItem }) {
                 return `Thread depth updated from ${previousThreadDepth}mm to ${newThreadDepth}mm`;
             case 'UPDATE':
                 return `Tyre details updated`;
+            case 'SCRAP':
+                if (vehicleId) {
+                    return `Moved to Scrap from ${vehicleId?.vehicleNo || 'Unknown Vehicle'} at position ${position}. Odometer: ${odometer} km. Distance Covered: ${distanceCovered} km`;
+                }
+                return `Moved to Scrap`;
             default:
                 return action;
         }
@@ -130,6 +136,8 @@ function HistoryItem({ item, lastItem }) {
                 return 'warning';
             case 'THREAD_UPDATE':
                 return 'info';
+            case 'SCRAP':
+                return 'error';
             default:
                 return 'primary';
         }

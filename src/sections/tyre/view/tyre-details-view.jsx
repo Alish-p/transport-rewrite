@@ -16,7 +16,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
-import { useGetTyre, useMountTyre, useUnmountTyre } from 'src/query/use-tyre';
+import { useGetTyre, useMountTyre, useScrapTyre, useUnmountTyre } from 'src/query/use-tyre';
 
 import { useSettingsContext } from 'src/components/settings';
 import { HeroHeader } from 'src/components/hero-header-card';
@@ -29,6 +29,7 @@ import TyreGeneralInfo from './tyre-general-info';
 import { Iconify } from '../../../components/iconify';
 import OverviewWidget from '../components/overview-widget';
 import TyreMountWizard from '../components/tyre-mount-wizard';
+import TyreScrapDialog from '../components/tyre-scrap-dialog';
 import TyreUnmountDialog from '../components/tyre-unmount-dialog';
 import TyreThreadUpdateDialog from '../components/tyre-thread-update-dialog';
 
@@ -42,10 +43,12 @@ export default function TyreDetailsView() {
     const { data: tyre, isLoading, error } = useGetTyre(id);
     const { mutateAsync: mountTyre } = useMountTyre();
     const { mutateAsync: unmountTyre } = useUnmountTyre();
+    const { mutateAsync: scrapTyre } = useScrapTyre();
 
     const [openThreadDialog, setOpenThreadDialog] = useState(false);
     const [openMountWizard, setOpenMountWizard] = useState(false);
     const [openUnmountDialog, setOpenUnmountDialog] = useState(false);
+    const [openScrapDialog, setOpenScrapDialog] = useState(false);
 
     // Fetch current vehicle details if mounted (for display in Info and Unmount dialog)
     const { data: currentVehicle } = useVehicle(tyre?.currentVehicleId);
@@ -89,6 +92,23 @@ export default function TyreDetailsView() {
         } catch (e) {
             console.error(e);
             toast.error(e?.message || 'Failed to unmount tyre');
+        }
+    };
+
+    const handleScrap = async ({ odometer, scrapDate }) => {
+        try {
+            await scrapTyre({
+                id: tyre._id,
+                data: {
+                    odometer,
+                    scrapDate
+                }
+            });
+            toast.success('Tyre moved to scrap successfully');
+            setOpenScrapDialog(false);
+        } catch (e) {
+            console.error(e);
+            toast.error(e?.message || 'Failed to scrap tyre');
         }
     };
 
@@ -138,6 +158,13 @@ export default function TyreDetailsView() {
                                     icon: 'gg:remove',
                                     onClick: () => setOpenUnmountDialog(true),
                                     disabled: tyre.status !== 'Mounted',
+                                },
+                                {
+                                    label: 'Move to Scrap',
+                                    icon: 'tabler:trash-filled',
+                                    onClick: () => setOpenScrapDialog(true),
+                                    disabled: tyre.status === 'Scrapped',
+                                    sx: { color: 'error.main' },
                                 },
                             ],
                         },
@@ -252,6 +279,13 @@ export default function TyreDetailsView() {
                     onClose={() => setOpenUnmountDialog(false)}
                     onUnmount={handleUnmount}
                     vehicleName={currentVehicle?.vehicleNo}
+                />
+
+                <TyreScrapDialog
+                    open={openScrapDialog}
+                    onClose={() => setOpenScrapDialog(false)}
+                    onScrap={handleScrap}
+                    currentStatus={tyre.status}
                 />
 
             </Container>

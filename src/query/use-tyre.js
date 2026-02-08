@@ -101,3 +101,15 @@ export function useUnmountTyre() {
         },
     });
 }
+
+export function useScrapTyre() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }) => axios.post(`/api/tyre/${id}/scrap`, data),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.details(variables.id) });
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
+        },
+    });
+}
