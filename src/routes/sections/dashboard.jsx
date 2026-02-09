@@ -200,6 +200,7 @@ function SuperGuard({ children }) {
 const ROUTE_FEATURE_CHECKERS = {
   maintenanceAndInventory: (tenant) =>
     !!tenant?.integrations?.maintenanceAndInventory?.enabled,
+  tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
 };
 
 function isRouteFeatureEnabled(feature, tenant) {
@@ -816,57 +817,57 @@ export const dashboardRoutes = [
       {
         path: 'tyre',
         element: (
-          <FeatureGuard feature="maintenanceAndInventory">
+          <FeatureGuard feature="tyre">
             <Outlet />
           </FeatureGuard>
         ),
         children: [
           {
             element: (
-              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
-              <TyreListPage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="view" hasContent>
+                <TyreListPage />
+              </PermissionBasedGuard>
             ),
             index: true,
           },
           {
             path: 'list',
             element: (
-              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
-              <TyreListPage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="view" hasContent>
+                <TyreListPage />
+              </PermissionBasedGuard>
             ),
           },
           {
             path: 'bulk-import',
             element: (
-              // <PermissionBasedGuard resource="tyre" action="create" hasContent>
-              <TyreBulkImportPage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="create" hasContent>
+                <TyreBulkImportPage />
+              </PermissionBasedGuard>
             ),
           },
           {
             path: 'new',
             element: (
-              // <PermissionBasedGuard resource="tyre" action="create" hasContent>
-              <TyreCreatePage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="create" hasContent>
+                <TyreCreatePage />
+              </PermissionBasedGuard>
             ),
           },
           {
             path: ':id',
             element: (
-              // <PermissionBasedGuard resource="tyre" action="view" hasContent>
-              <TyreDetailsPage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="view" hasContent>
+                <TyreDetailsPage />
+              </PermissionBasedGuard>
             ),
           },
           {
             path: ':id/edit',
             element: (
-              // <PermissionBasedGuard resource="tyre" action="update" hasContent>
-              <TyreEditPage />
-              // </PermissionBasedGuard>
+              <PermissionBasedGuard resource="tyre" action="update" hasContent>
+                <TyreEditPage />
+              </PermissionBasedGuard>
             ),
           },
         ],

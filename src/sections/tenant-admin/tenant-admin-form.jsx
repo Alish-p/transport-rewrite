@@ -62,6 +62,7 @@ export const TenantAdminSchema = zod
         vehicleApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
         challanApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
         gstApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
+        tyre: zod.object({ enabled: zod.boolean().optional() }).optional(),
         vehicleGPS: zod
           .object({
             enabled: zod.boolean().optional(),
@@ -135,6 +136,7 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
         vehicleApi: { enabled: currentTenant?.integrations?.vehicleApi?.enabled || false },
         challanApi: { enabled: currentTenant?.integrations?.challanApi?.enabled || false },
         gstApi: { enabled: currentTenant?.integrations?.gstApi?.enabled || false },
+        tyre: { enabled: currentTenant?.integrations?.tyre?.enabled || false },
         vehicleGPS: {
           enabled: currentTenant?.integrations?.vehicleGPS?.enabled || false,
           provider: currentTenant?.integrations?.vehicleGPS?.provider ?? null,
@@ -216,6 +218,7 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
           vehicleApi: data.integrations?.vehicleApi?.enabled ? { enabled: true } : { enabled: false },
           challanApi: data.integrations?.challanApi?.enabled ? { enabled: true } : { enabled: false },
           gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
+          tyre: data.integrations?.tyre?.enabled ? { enabled: true } : { enabled: false },
           vehicleGPS: data.integrations?.vehicleGPS
             ? {
               enabled: !!data.integrations.vehicleGPS.enabled,
@@ -444,6 +447,20 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Iconify icon="mdi:account-search-outline" />
                     GST API
+                  </Stack>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Stack>
+
+            <Stack spacing={1}>
+              <Field.Switch
+                name="integrations.tyre.enabled"
+                labelPlacement="start"
+                label={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Iconify icon="mingcute:tyre-line" />
+                    Tyre Management
                   </Stack>
                 }
                 sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}

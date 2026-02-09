@@ -365,6 +365,7 @@ export function UserNewEditForm({ currentUser }) {
                         'Management': 'mdi:cog',
                         'Billing': 'mdi:currency-usd',
                         'Vehicle Maintenance': 'mdi:car-wrench',
+                        'Tyre Management': 'mingcute:tyre-line',
                       }[group] || 'mdi:folder';
 
                       return (

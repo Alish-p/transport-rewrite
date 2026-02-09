@@ -123,6 +123,12 @@ export const PERMISSIONS = [
     name: 'workOrder',
     group: 'Vehicle Maintenance',
   },
+  {
+    subheader: 'Tyre Management',
+    caption: 'Permissions for managing tyres, including stock, mounting, and history.',
+    name: 'tyre',
+    group: 'Tyre Management',
+  },
 ];
 
 export const ACTIONS = ['create', 'view', 'update', 'delete'];

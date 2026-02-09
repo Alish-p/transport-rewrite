@@ -329,6 +329,7 @@ export const navData = [
 
   {
     subheader: 'Tyre Management',
+    feature: 'tyre',
     items: [
       {
         title: 'Tyres',
