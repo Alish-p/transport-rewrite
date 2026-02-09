@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -8,13 +9,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
+import { useGps } from 'src/query/use-gps';
+
 import { Form, Field } from 'src/components/hook-form';
 
 import { TYRE_STATUS } from '../tyre-constants';
 
 // ----------------------------------------------------------------------
 
-export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus }) {
+export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus, vehicleNo }) {
 
     // Define schema conditionally or just make odometer nullable/optional in refinement
     // However, simplicity: require all, but handle logic in submit or schema builder
@@ -35,9 +38,18 @@ export default function TyreScrapDialog({ open, onClose, onScrap, currentStatus 
     });
 
     const {
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
+
+    const { data: gpsData } = useGps(vehicleNo, { enabled: open && !!vehicleNo && currentStatus === TYRE_STATUS.MOUNTED });
+
+    useEffect(() => {
+        if (open && gpsData?.totalOdometer) {
+            setValue('odometer', gpsData.totalOdometer);
+        }
+    }, [open, gpsData, setValue]);
 
     const onSubmit = handleSubmit(async (data) => {
         await onScrap(data);

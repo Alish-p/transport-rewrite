@@ -8,14 +8,18 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
+import { useGps } from 'src/query/use-gps';
+
 export default function TyreUnmountDialog({ open, onClose, onUnmount, vehicleName }) {
     const [odometer, setOdometer] = useState('');
 
+    const { data: gpsData } = useGps(vehicleName, { enabled: open && !!vehicleName });
+
     useEffect(() => {
         if (open) {
-            setOdometer('');
+            setOdometer(gpsData?.totalOdometer || '');
         }
-    }, [open]);
+    }, [open, gpsData]);
 
     const handleSubmit = () => {
         if (!odometer) return;

@@ -296,6 +296,7 @@ export default function TyreDetailsView() {
                     onClose={() => setOpenScrapDialog(false)}
                     onScrap={handleScrap}
                     currentStatus={tyre.status}
+                    vehicleNo={currentVehicle?.vehicleNo}
                 />
 
                 <TyreRemoldDialog

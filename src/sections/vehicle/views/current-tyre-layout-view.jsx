@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -19,6 +19,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { useGps } from 'src/query/use-gps';
 import { useGetTyreLayouts } from 'src/query/use-vehicle';
 import { useGetTyres, useMountTyre, useUnmountTyre } from 'src/query/use-tyre';
 
@@ -48,6 +49,14 @@ export function CurrentTyreLayoutView({ vehicle }) {
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [selectedTyreToUnmount, setSelectedTyreToUnmount] = useState(null);
     const [vehicleOdometer, setVehicleOdometer] = useState('');
+
+    const { data: gpsData } = useGps(vehicle?.vehicleNo, { enabled: !!vehicle?.vehicleNo });
+
+    useEffect(() => {
+        if (gpsData?.totalOdometer) {
+            setVehicleOdometer(gpsData.totalOdometer);
+        }
+    }, [gpsData]);
 
     const currentLayout = useMemo(() => {
         if (!layoutsData?.data || !vehicle?.tyreLayoutId) return null;
@@ -216,6 +225,7 @@ export function CurrentTyreLayoutView({ vehicle }) {
                 open={mountDialogOpen}
                 onClose={() => setMountDialogOpen(false)}
                 onTyreSelect={handleMountTyre}
+                vehicleNo={vehicle?.vehicleNo}
             />
 
             <TyreUnmountDialog

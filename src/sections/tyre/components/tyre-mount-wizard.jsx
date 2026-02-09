@@ -17,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useDebounce } from 'src/hooks/use-debounce';
 
+import { useGps } from 'src/query/use-gps';
 import { useVehicle, useGetTyreLayouts, useInfiniteVehicles } from 'src/query/use-vehicle';
 
 import { TyreLayoutDiagram } from 'src/sections/vehicle/components/tyre-layout-diagram';
@@ -51,6 +52,16 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
     const { data: vehicleDetails } = useVehicle(selectedVehicle?._id);
     const { data: layoutsData } = useGetTyreLayouts();
     const layouts = useMemo(() => layoutsData?.data || [], [layoutsData?.data]);
+
+    const { data: gpsData } = useGps(selectedVehicle?.vehicleNo, {
+        enabled: !!selectedVehicle?.vehicleNo,
+    });
+
+    useEffect(() => {
+        if (gpsData?.totalOdometer) {
+            setOdometer(gpsData.totalOdometer);
+        }
+    }, [gpsData]);
 
     // Reset state when closing
     useEffect(() => {

@@ -12,6 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useDebounce } from 'src/hooks/use-debounce';
 
+import { useGps } from 'src/query/use-gps';
 import { useGetTyres } from 'src/query/use-tyre';
 
 import { Iconify } from 'src/components/iconify';
@@ -21,7 +22,7 @@ import { SearchNotFound } from 'src/components/search-not-found';
 
 const ITEM_HEIGHT = 64;
 
-export function KanbanTyreDialog({ open, onClose, onTyreSelect }) {
+export function KanbanTyreDialog({ open, onClose, onTyreSelect, vehicleNo }) {
     const scrollRef = useRef(null);
     const [searchTyre, setSearchTyre] = useState('');
     const [odometer, setOdometer] = useState('');
@@ -37,6 +38,14 @@ export function KanbanTyreDialog({ open, onClose, onTyreSelect }) {
     );
 
     const tyres = useMemo(() => data?.tyres || [], [data]);
+
+    const { data: gpsData } = useGps(vehicleNo, { enabled: open && !!vehicleNo });
+
+    useEffect(() => {
+        if (open && gpsData?.totalOdometer) {
+            setOdometer(gpsData.totalOdometer);
+        }
+    }, [open, gpsData]);
 
     // Cleanup when closed
     useEffect(() => {
