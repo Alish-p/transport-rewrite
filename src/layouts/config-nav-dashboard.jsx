@@ -335,10 +335,10 @@ export const navData = [
         title: 'Tyres',
         path: paths.dashboard.tyre.root,
         icon: ICONS.tyre,
-        // resource: 'tyre',
+        resource: 'tyre',
         children: [
           { title: 'List', path: paths.dashboard.tyre.list, action: 'view' },
-          { title: 'Create', path: paths.dashboard.tyre.new },
+          { title: 'Create', path: paths.dashboard.tyre.new, action: 'create' },
         ],
       },
     ],
