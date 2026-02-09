@@ -38,6 +38,16 @@ const deleteTransporter = async (id) => {
   return data;
 };
 
+const getOrphanTransporters = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/orphans`);
+  return data;
+};
+
+const cleanupTransportersApi = async (transporterIds) => {
+  const { data } = await axios.post(`${ENDPOINT}/cleanup`, { transporterIds });
+  return data;
+};
+
 // Queries & Mutations
 export function useTransporters(options = {}) {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTransporters, ...options });
@@ -125,4 +135,36 @@ export function useDeleteTransporter() {
     },
   });
   return mutate;
+}
+
+// Hook for fetching orphan transporters (not referenced in any vehicle/payment/loan)
+export function useOrphanTransporters(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'orphans'],
+    queryFn: getOrphanTransporters,
+    ...options,
+  });
+}
+
+// Hook for cleaning up (soft deleting) orphan transporters
+export function useCleanupTransporters() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cleanupTransportersApi,
+    onSuccess: (result) => {
+      // Invalidate orphan transporters query to refetch
+      queryClient.invalidateQueries([QUERY_KEY, 'orphans']);
+      // Invalidate paginated transporters list
+      queryClient.invalidateQueries([QUERY_KEY, 'paginated']);
+      // Invalidate all transporters
+      queryClient.invalidateQueries([QUERY_KEY]);
+
+      toast.success(result.message || 'Transporters cleaned up successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
 }

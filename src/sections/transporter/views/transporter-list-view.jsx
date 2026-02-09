@@ -24,6 +24,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
@@ -51,6 +52,7 @@ import { useTenantContext } from 'src/auth/tenant';
 import TransporterTableRow from '../transport-table-row';
 import { TABLE_COLUMNS } from '../transporter-table-config';
 import TransporterTableToolbar from '../transport-table-toolbar';
+import TransporterCleanupDialog from '../cleanup/transporter-cleanup-dialog';
 import TransporterTableFiltersResult from '../transporter-table-filters-result';
 
 const STORAGE_KEY = 'transporter-table-columns';
@@ -69,6 +71,7 @@ export function TransporterListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
+  const cleanupDialog = useBoolean();
 
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
@@ -153,14 +156,24 @@ export function TransporterListView() {
           },
         ]}
         action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.transporter.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Transporter
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<Iconify icon="mdi:broom" />}
+              onClick={cleanupDialog.onTrue}
+            >
+              Cleanup
+            </Button>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.transporter.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Transporter
+            </Button>
+          </Stack>
         }
         sx={{
           mb: { xs: 3, md: 5 },
@@ -325,6 +338,8 @@ export function TransporterListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
+
+      <TransporterCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />
     </DashboardContent>
   );
 }
