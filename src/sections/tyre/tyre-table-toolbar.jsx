@@ -7,6 +7,8 @@ import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -14,6 +16,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
+import TyreFiltersDrawer from './tyre-filters-drawer'; // Ensure correct path
 import { TYRE_TABLE_COLUMNS } from './tyre-table-config';
 
 // ----------------------------------------------------------------------
@@ -29,8 +32,10 @@ export default function TyreTableToolbar({
     onResetColumns,
     canResetColumns,
     vehicleData,
+    onResetFilters, // Added prop
 }) {
     const columnsPopover = usePopover();
+    const filtersDrawer = useBoolean();
 
     const vehiclePopover = usePopover();
 
@@ -71,7 +76,6 @@ export default function TyreTableToolbar({
             >
                 <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
                     <TextField
-                        fullWidth
                         value={filters.serialNumber}
                         onChange={handleFilterTyreNumber}
                         placeholder="Search Tyre Number..."
@@ -85,7 +89,6 @@ export default function TyreTableToolbar({
                     />
 
                     <TextField
-                        fullWidth
                         value={filters.brand}
                         onChange={handleFilterBrand}
                         placeholder="Search Brand..."
@@ -98,7 +101,6 @@ export default function TyreTableToolbar({
                         }}
                     />
                     <DialogSelectButton
-                        fullWidth
                         onClick={vehiclePopover.onOpen}
                         disabled={false}
                         iconName="mdi:truck-outline"
@@ -115,7 +117,15 @@ export default function TyreTableToolbar({
                         onlyOwn
                     />
                 </Stack>
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={2}>
+                    <Button
+                        color="inherit"
+                        startIcon={<Iconify icon="mdi:filter-variant" />}
+                        onClick={filtersDrawer.onTrue}
+                        sx={{ flexShrink: 0 }}
+                    >
+                        More Filters
+                    </Button>
                     <Tooltip title="Column Settings">
                         <Button
                             onClick={columnsPopover.onOpen}
@@ -137,6 +147,15 @@ export default function TyreTableToolbar({
                 handleToggleAllColumns={onToggleAllColumns}
                 onResetColumns={onResetColumns}
                 canResetColumns={canResetColumns}
+            />
+
+            <TyreFiltersDrawer
+                open={filtersDrawer.value}
+                onClose={filtersDrawer.onFalse}
+                filters={filters}
+                onFilters={onFilters}
+                onResetFilters={onResetFilters} // Ensure this prop is passed from parent or handled
+                vehicleData={vehicleData}
             />
         </>
     );

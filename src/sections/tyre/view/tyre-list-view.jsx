@@ -51,6 +51,8 @@ const defaultFilters = {
     brand: '',
     status: 'all',
     vehicle: null,
+    type: [],
+    currentKm: [0, 150000],
 };
 
 export default function TyreListView() {
@@ -81,6 +83,9 @@ export default function TyreListView() {
         brand: filters.brand || undefined,
         vehicleId: filters.vehicle || undefined,
         status: filters.status !== 'all' ? filters.status : undefined,
+        type: filters.type.length ? filters.type : undefined,
+        minKm: filters.currentKm[0],
+        maxKm: filters.currentKm[1],
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);
@@ -253,6 +258,7 @@ export default function TyreListView() {
                     onResetColumns={resetColumns}
                     canResetColumns={canResetColumns}
                     vehicleData={vehicleData}
+                    onResetFilters={handleResetFilters}
                 />
 
                 {canReset && (

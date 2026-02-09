@@ -39,6 +39,25 @@ export const TYRE_TABLE_COLUMNS = [
         render: (row) => `${row.currentKm || 0} km`,
     },
     {
+        id: 'remoldKm',
+        label: 'Remold Km',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => {
+            if (row.metadata?.remoldCount > 0) {
+                return (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
+            }
+            return '-';
+        },
+        render: (row) => {
+            if (row.metadata?.remoldCount > 0) {
+                const val = (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
+                return `${val} km`;
+            }
+            return '-';
+        },
+    },
+    {
         id: 'brand',
         label: 'Brand',
         defaultVisible: true,

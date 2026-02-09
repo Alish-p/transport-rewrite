@@ -3,3 +3,9 @@ export const TYRE_STATUS = {
     MOUNTED: 'Mounted',
     SCRAPPED: 'Scrapped',
 };
+
+export const TYRE_TYPE = {
+    NEW: 'New',
+    REMOLDED: 'Remolded',
+    USED: 'Used',
+};

@@ -72,6 +72,24 @@ export default function TyreTableFiltersResult({
                     </Block>
                 )}
 
+                {filters.type.length > 0 && (
+                    <Block label="Type:">
+                        {filters.type.map((item) => (
+                            <Chip key={item} size="small" label={item} onDelete={() => onFilters('type', filters.type.filter((v) => v !== item))} />
+                        ))}
+                    </Block>
+                )}
+
+                {(filters.currentKm[0] !== 0 || filters.currentKm[1] !== 150000) && (
+                    <Block label="Odometer:">
+                        <Chip
+                            size="small"
+                            label={`${filters.currentKm[0]} - ${filters.currentKm[1]} km`}
+                            onDelete={() => onFilters('currentKm', [0, 150000])}
+                        />
+                    </Block>
+                )}
+
                 <Button
                     color="error"
                     onClick={onResetFilters}

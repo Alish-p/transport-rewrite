@@ -209,6 +209,17 @@ export default function TyreDetailsView() {
                                     unit="mm"
                                 />
                             </Grid>
+                            {tyre.metadata?.remoldCount > 0 && (
+                                <Grid item xs={12} md={6}>
+                                    <OverviewWidget
+                                        title="Remold Distance"
+                                        total={(tyre.currentKm || 0) - (tyre.metadata?.totalKmAtLastRemold || 0)}
+                                        icon="mingcute:road-line"
+                                        color="success"
+                                        unit="km"
+                                    />
+                                </Grid>
+                            )}
                             <Grid item xs={12}>
                                 <TyreGeneralInfo tyre={tyre} />
                             </Grid>
