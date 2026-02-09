@@ -8,10 +8,12 @@ import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import TableContainer from '@mui/material/TableContainer';
+import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
@@ -45,6 +47,7 @@ export function CurrentTyreLayoutView({ vehicle }) {
     const [unmountDialogOpen, setUnmountDialogOpen] = useState(false);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [selectedTyreToUnmount, setSelectedTyreToUnmount] = useState(null);
+    const [vehicleOdometer, setVehicleOdometer] = useState('');
 
     const currentLayout = useMemo(() => {
         if (!layoutsData?.data || !vehicle?.tyreLayoutId) return null;
@@ -107,6 +110,14 @@ export function CurrentTyreLayoutView({ vehicle }) {
         });
     };
 
+    const getActualKm = (tyre) => {
+        if (!vehicleOdometer || Number.isNaN(Number(vehicleOdometer)) || tyre.mountOdometer === null || tyre.mountOdometer === undefined) {
+            return tyre.currentKm;
+        }
+        const distance = Number(vehicleOdometer) - tyre.mountOdometer;
+        return distance > 0 ? tyre.currentKm + distance : tyre.currentKm;
+    };
+
     if (isLoadingLayouts || isLoadingTyres) {
         return <CircularProgress />;
     }
@@ -133,7 +144,24 @@ export function CurrentTyreLayoutView({ vehicle }) {
 
             <Grid xs={12} md={8}>
                 <Card sx={{ height: '100%' }}>
-                    <CardHeader title="Mounted Tyres" subheader={`${Object.keys(tyreMap).length} tyres mounted`} sx={{ mb: 2 }} />
+                    <CardHeader
+                        title="Mounted Tyres"
+                        subheader={`${Object.keys(tyreMap).length} tyres mounted`}
+                        sx={{ mb: 2 }}
+                        action={
+                            <TextField
+                                size="small"
+                                placeholder="Current Vehicle Odometer"
+                                type="number"
+                                value={vehicleOdometer}
+                                onChange={(e) => setVehicleOdometer(e.target.value)}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                                }}
+                                sx={{ width: 220 }}
+                            />
+                        }
+                    />
                     <TableContainer sx={{ overflow: 'unset' }}>
                         <Scrollbar>
                             <Table sx={{ minWidth: 640 }}>
@@ -164,7 +192,7 @@ export function CurrentTyreLayoutView({ vehicle }) {
                                             </TableCell>
                                             <TableCell>{tyre.brand}</TableCell>
                                             <TableCell>{tyre.model}</TableCell>
-                                            <TableCell>{tyre.currentKm}</TableCell>
+                                            <TableCell>{getActualKm(tyre)}</TableCell>
                                             <TableCell>
                                                 <Label color="success">Mounted</Label>
                                             </TableCell>
