@@ -20,6 +20,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
@@ -48,6 +49,7 @@ import DriverTableRow from '../driver-table-row';
 import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
 import DriverTableFiltersResult from '../driver-table-filters-result';
+import DriverCleanupDialog from '../cleanup/driver-cleanup-dialog';
 
 const STORAGE_KEY = 'driver-table-columns';
 
@@ -63,6 +65,7 @@ export function DriverListView() {
   const navigate = useNavigate();
   const deleteDriver = useDeleteDriver();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
+  const cleanupDialog = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -161,14 +164,24 @@ export function DriverListView() {
           { name: 'Driver List' },
         ]}
         action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.driver.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Driver
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<Iconify icon="mdi:broom" />}
+              onClick={cleanupDialog.onTrue}
+            >
+              Cleanup
+            </Button>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.driver.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Driver
+            </Button>
+          </Stack>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
@@ -336,6 +349,8 @@ export function DriverListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
+
+      <DriverCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />
     </DashboardContent>
   );
 }

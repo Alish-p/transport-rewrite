@@ -27,12 +27,6 @@ const createDriver = async (driver) => {
   return data;
 };
 
-// New API for quick driver creation with minimal fields
-const createQuickDriverApi = async (driver) => {
-  const { data } = await axios.post(`${ENDPOINT}/quick`, driver);
-  return data;
-};
-
 const updateDriver = async (id, driverData) => {
   console.log({ driverDataInAPICAll: driverData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, driverData);
@@ -41,6 +35,16 @@ const updateDriver = async (id, driverData) => {
 
 const deleteDriver = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
+  return data;
+};
+
+const getOrphanDrivers = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/orphans`);
+  return data;
+};
+
+const cleanupDriversApi = async (driverIds) => {
+  const { data } = await axios.post(`${ENDPOINT}/cleanup`, { driverIds });
   return data;
 };
 
@@ -86,12 +90,12 @@ export function useDriver(id) {
   });
 }
 
-// New hook for creating a quick driver with minimal information
+// Hook for creating a driver with minimal information (uses unified API)
 export function useCreateQuickDriver() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createQuickDriverApi,
+    mutationFn: createDriver,
     onSuccess: (newDriver) => {
       // Update the drivers list in the cache
       queryClient.setQueryData([QUERY_KEY], (oldData) => {
@@ -184,4 +188,36 @@ export function useDeleteDriver() {
     },
   });
   return mutate;
+}
+
+// Hook for fetching orphan drivers (not referenced in any subtrip/trip/salary/loan)
+export function useOrphanDrivers(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'orphans'],
+    queryFn: getOrphanDrivers,
+    ...options,
+  });
+}
+
+// Hook for cleaning up (soft deleting) orphan drivers
+export function useCleanupDrivers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cleanupDriversApi,
+    onSuccess: (result) => {
+      // Invalidate orphan drivers query to refetch
+      queryClient.invalidateQueries([QUERY_KEY, 'orphans']);
+      // Invalidate paginated drivers list
+      queryClient.invalidateQueries([QUERY_KEY, 'paginated']);
+      // Invalidate all drivers
+      queryClient.invalidateQueries([QUERY_KEY]);
+
+      toast.success(result.message || 'Drivers cleaned up successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
 }

@@ -32,46 +32,44 @@ export const NewDriverSchema = zod.object({
   images: zod.any().nullable(),
   driverLicenceNo: zod
     .string()
-    .min(1, { message: 'Driver Licence No is required' })
-    .regex(/^[A-Za-z]{2}[0-9]{13}$/, {
-      message: 'Driver Licence No must be in the format: two letters followed by 13 digits',
-    }),
-  driverPresentAddress: zod.string().min(1, { message: 'Driver Present Address is required' }),
+    .optional()
+    .refine(
+      (val) => !val || /^[A-Za-z]{2}[0-9]{13}$/.test(val),
+      { message: 'Driver Licence No must be in the format: two letters followed by 13 digits' }
+    ),
+  driverPresentAddress: zod.string().optional(),
   driverCellNo: schemaHelper.phoneNumber({
     message: {
       required_error: 'Driver Cell No is required',
       invalid_error: 'Driver Cell No must be exactly 10 digits',
     },
   }),
-  licenseFrom: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
-  licenseTo: schemaHelper.date({ message: { required_error: 'To date is required!' } }),
+  licenseFrom: schemaHelper.date({ message: { required_error: 'From date is required!' } }).optional().nullable(),
+  licenseTo: schemaHelper.date({ message: { required_error: 'To date is required!' } }).optional().nullable(),
   aadharNo: zod
     .string()
-    .min(1, { message: 'Aadhar No is required' })
-    .regex(
-      /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/,
+    .optional()
+    .refine(
+      (val) => !val || /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/.test(val),
       { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
   guarantorName: zod.string().optional(),
   guarantorCellNo: zod.string().optional(),
   experience: zod
-    .number({ required_error: 'Experience is required' })
-    .min(0, { message: 'Experience must be at least 0 years' }),
-  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }).optional(),
-  permanentAddress: zod.string().min(1, { message: 'Permanent Address is required' }),
+    .number()
+    .min(0, { message: 'Experience must be at least 0 years' })
+    .optional()
+    .nullable(),
+  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }).optional().nullable(),
+  permanentAddress: zod.string().optional(),
   isActive: zod.boolean().optional(),
   bankDetails: zod.object({
-    name: zod.string().min(1, { message: 'Bank Name is required' }),
-    branch: zod.string().min(1, { message: 'Branch is required' }),
-    ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-    place: zod.string().min(1, { message: 'Place is required' }),
-    accNo: schemaHelper.accountNumber({
-      message: {
-        required_error: 'Account number is required',
-        invalid_error: 'Account number must be between 9 and 18 digits',
-      },
-    }),
-  }),
+    name: zod.string().optional(),
+    branch: zod.string().optional(),
+    ifsc: zod.string().optional(),
+    place: zod.string().optional(),
+    accNo: zod.string().optional(),
+  }).optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -89,10 +87,8 @@ export default function DriverForm({ currentDriver }) {
       driverLicenceNo: currentDriver?.driverLicenceNo || '',
       driverPresentAddress: currentDriver?.driverPresentAddress || '',
       driverCellNo: currentDriver?.driverCellNo || '',
-      licenseFrom: currentDriver?.licenseFrom ? new Date(currentDriver.licenseFrom) : new Date(),
-      licenseTo: currentDriver?.licenseTo
-        ? new Date(currentDriver.licenseTo)
-        : new Date().setFullYear(new Date().getFullYear() + 2),
+      licenseFrom: currentDriver?.licenseFrom ? new Date(currentDriver.licenseFrom) : null,
+      licenseTo: currentDriver?.licenseTo ? new Date(currentDriver.licenseTo) : null,
       aadharNo: currentDriver?.aadharNo || '',
       guarantorName: currentDriver?.guarantorName || '',
       guarantorCellNo: currentDriver?.guarantorCellNo || '',
@@ -179,7 +175,7 @@ export default function DriverForm({ currentDriver }) {
           gap={3}
         >
           <Field.Text name="driverName" label="Driver Name" />
-          <Field.Text name="driverLicenceNo" label="Driver Licence No" />
+          <Field.Text name="driverLicenceNo" label="Driver Licence No (Optional)" />
           <Field.Text
             name="driverCellNo"
             label="Driver Cell No"
@@ -187,13 +183,13 @@ export default function DriverForm({ currentDriver }) {
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.Text name="driverPresentAddress" label="Driver Present Address" />
-          <Field.Text name="permanentAddress" label="Permanent Address" />
+          <Field.Text name="driverPresentAddress" label="Present Address (Optional)" />
+          <Field.Text name="permanentAddress" label="Permanent Address (Optional)" />
 
-          <Field.Text name="aadharNo" label="Aadhar No" />
+          <Field.Text name="aadharNo" label="Aadhar No (Optional)" />
           <Field.Text
             name="experience"
-            label="Experience"
+            label="Experience (Optional)"
             type="number"
             InputProps={{
               endAdornment: <InputAdornment position="end">years</InputAdornment>,
@@ -211,8 +207,8 @@ export default function DriverForm({ currentDriver }) {
 
           <Field.DatePicker name="dob" label="Date of Birth (Optional)" />
 
-          <Field.DatePicker name="licenseFrom" label="License From" />
-          <Field.DatePicker name="licenseTo" label="License To" />
+          <Field.DatePicker name="licenseFrom" label="License From (Optional)" />
+          <Field.DatePicker name="licenseTo" label="License To (Optional)" />
         </Box>
       </Card>
     </>
@@ -228,7 +224,7 @@ export default function DriverForm({ currentDriver }) {
     return (
       <>
         <Typography variant="h6" gutterBottom>
-          Bank Details
+          Bank Details (Optional)
         </Typography>
         <Card sx={{ p: 3, mb: 3 }}>
           <Button
