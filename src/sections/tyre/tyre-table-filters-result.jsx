@@ -80,12 +80,12 @@ export default function TyreTableFiltersResult({
                     </Block>
                 )}
 
-                {(filters.currentKm[0] !== 0 || filters.currentKm[1] !== 150000) && (
+                {filters.currentKm && (
                     <Block label="Odometer:">
                         <Chip
                             size="small"
                             label={`${filters.currentKm[0]} - ${filters.currentKm[1]} km`}
-                            onDelete={() => onFilters('currentKm', [0, 150000])}
+                            onDelete={() => onFilters('currentKm', null)}
                         />
                     </Block>
                 )}

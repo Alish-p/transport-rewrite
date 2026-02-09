@@ -52,7 +52,7 @@ const defaultFilters = {
     status: 'all',
     vehicle: null,
     type: [],
-    currentKm: [0, 150000],
+    // currentKm: null,
 };
 
 export default function TyreListView() {
@@ -84,8 +84,8 @@ export default function TyreListView() {
         vehicleId: filters.vehicle || undefined,
         status: filters.status !== 'all' ? filters.status : undefined,
         type: filters.type.length ? filters.type : undefined,
-        minKm: filters.currentKm[0],
-        maxKm: filters.currentKm[1],
+        // minKm: filters.currentKm ? filters.currentKm[0] : undefined,
+        // maxKm: filters.currentKm ? filters.currentKm[1] : undefined,
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);

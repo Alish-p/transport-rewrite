@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
-import Slider from '@mui/material/Slider';
+// import Slider from '@mui/material/Slider';
 import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
@@ -51,9 +51,9 @@ export default function TyreFiltersDrawer({
         onFilters('type', newValue);
     };
 
-    const handleFilterKm = (event, newValue) => {
-        onFilters('currentKm', newValue);
-    };
+    // const handleFilterKm = (event, newValue) => {
+    //     onFilters('currentKm', newValue);
+    // };
 
     const renderHead = (
         <Stack
@@ -134,27 +134,27 @@ export default function TyreFiltersDrawer({
         </Stack>
     );
 
-    const renderKm = (
-        <Stack spacing={1} sx={{ my: 3 }}>
-            <Typography variant="subtitle2">Current Km Range</Typography>
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    0 km
-                </Typography>
-                <Slider
-                    value={filters.currentKm}
-                    onChange={handleFilterKm}
-                    valueLabelDisplay="auto"
-                    min={0}
-                    max={150000}
-                    step={100}
-                />
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    150,000 km
-                </Typography>
-            </Stack>
-        </Stack>
-    );
+    // const renderKm = (
+    //     <Stack spacing={1} sx={{ my: 3 }}>
+    //         <Typography variant="subtitle2">Current Km Range</Typography>
+    //         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+    //             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+    //                 0 km
+    //             </Typography>
+    //             <Slider
+    //                 value={filters.currentKm || [0, 150000]}
+    //                 onChange={handleFilterKm}
+    //                 valueLabelDisplay="auto"
+    //                 min={0}
+    //                 max={150000}
+    //                 step={100}
+    //             />
+    //             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+    //                 150,000 km
+    //             </Typography>
+    //         </Stack>
+    //     </Stack>
+    // );
 
     return (
         <>
@@ -177,7 +177,7 @@ export default function TyreFiltersDrawer({
                     <Stack spacing={3} sx={{ p: 2.5 }}>
                         {renderFilters}
                         {renderType}
-                        {renderKm}
+                        {/* {renderKm} */}
                     </Stack>
                 </Scrollbar>
 
