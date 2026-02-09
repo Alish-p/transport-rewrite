@@ -2,7 +2,6 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
-import { Tooltip } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -65,28 +64,19 @@ export default function PumpTableToolbar({
         />
 
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Column Settings">
-            <Button
-              onClick={columnsPopover.onOpen}
-              startIcon={
-                <Badge
-                  color="error"
-                  variant="dot"
-                  invisible={!canResetColumns}
-                  sx={{
-                    '& .MuiBadge-badge': {
-                      top: 2,
-                      right: 2,
-                    },
-                  }}
-                >
-                  <Iconify icon="mdi:table-column-plus-after" />
-                </Badge>
-              }
-            >
-              Columns
-            </Button>
-          </Tooltip>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={columnsPopover.onOpen}
+            startIcon={
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:settings-bold" />
+              </Badge>
+            }
+            sx={{ flexShrink: 0 }}
+          >
+            Columns
+          </Button>
 
           {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>

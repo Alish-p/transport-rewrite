@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
+import { Badge } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 
@@ -120,20 +120,26 @@ export default function TyreTableToolbar({
                 <Stack direction="row" spacing={2}>
                     <Button
                         color="inherit"
-                        startIcon={<Iconify icon="mdi:filter-variant" />}
+                        variant="outlined"
+                        startIcon={<Iconify icon="solar:filter-bold" />}
                         onClick={filtersDrawer.onTrue}
                         sx={{ flexShrink: 0 }}
                     >
                         More Filters
                     </Button>
-                    <Tooltip title="Column Settings">
-                        <Button
-                            onClick={columnsPopover.onOpen}
-                            startIcon={<Iconify icon="mdi:table-column-plus-after" />}
-                        >
-                            Columns
-                        </Button>
-                    </Tooltip>
+                    <Button
+                        color="inherit"
+                        variant="outlined"
+                        onClick={columnsPopover.onOpen}
+                        startIcon={
+                            <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                                <Iconify icon="solar:settings-bold" />
+                            </Badge>
+                        }
+                        sx={{ flexShrink: 0 }}
+                    >
+                        Columns
+                    </Button>
                 </Stack>
             </Stack>
 

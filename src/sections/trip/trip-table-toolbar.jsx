@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 // components
 
 import Stack from '@mui/material/Stack';
-import { Tooltip } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -159,9 +158,10 @@ export default function TripTableToolbar({
 
         <Button
           color="inherit"
-          startIcon={<Iconify icon="mdi:filter-variant" />}
+          variant="outlined"
+          startIcon={<Iconify icon="solar:filter-bold" />}
           onClick={filtersDrawer.onTrue}
-          sx={{ flexShrink: 0, height: 56 }}
+          sx={{ flexShrink: 0 }}
         >
           More Filters
         </Button>
@@ -169,28 +169,19 @@ export default function TripTableToolbar({
         {/* Removed 'Own' filter toggle as Trips won't be created for market vehicles */}
 
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Column Settings">
-            <Button
-              onClick={columnsPopover.onOpen}
-              startIcon={
-                <Badge
-                  color="error"
-                  variant="dot"
-                  invisible={!canResetColumns}
-                  sx={{
-                    '& .MuiBadge-badge': {
-                      top: 2,
-                      right: 2,
-                    },
-                  }}
-                >
-                  <Iconify icon="mdi:table-column-plus-after" />
-                </Badge>
-              }
-            >
-              Columns
-            </Button>
-          </Tooltip>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={columnsPopover.onOpen}
+            startIcon={
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:settings-bold" />
+              </Badge>
+            }
+            sx={{ flexShrink: 0 }}
+          >
+            Columns
+          </Button>
 
           {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>

@@ -15,7 +15,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 // components
 
-import { Tooltip, MenuList } from '@mui/material';
+import { MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -251,28 +251,19 @@ export default function ExpenseTableToolbar({
         />
 
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Column Settings">
-            <Button
-              onClick={columnsPopover.onOpen}
-              startIcon={
-                <Badge
-                  color="error"
-                  variant="dot"
-                  invisible={!canResetColumns}
-                  sx={{
-                    '& .MuiBadge-badge': {
-                      top: 2,
-                      right: 2,
-                    },
-                  }}
-                >
-                  <Iconify icon="mdi:table-column-plus-after" />
-                </Badge>
-              }
-            >
-              Columns
-            </Button>
-          </Tooltip>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={columnsPopover.onOpen}
+            startIcon={
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:settings-bold" />
+              </Badge>
+            }
+            sx={{ flexShrink: 0 }}
+          >
+            Columns
+          </Button>
 
           {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
