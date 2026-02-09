@@ -74,50 +74,52 @@ export default function TyreTableToolbar({
                     pr: { xs: 2.5, md: 1 },
                 }}
             >
-                <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-                    <TextField
-                        value={filters.serialNumber}
-                        onChange={handleFilterTyreNumber}
-                        placeholder="Search Tyre Number..."
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
+                <TextField
+                    value={filters.serialNumber}
+                    onChange={handleFilterTyreNumber}
+                    placeholder="Search Tyre Number..."
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{ width: { xs: 1, md: 240 } }}
+                />
 
-                    <TextField
-                        value={filters.brand}
-                        onChange={handleFilterBrand}
-                        placeholder="Search Brand..."
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                    <DialogSelectButton
-                        onClick={vehiclePopover.onOpen}
-                        disabled={false}
-                        iconName="mdi:truck-outline"
-                        placeholder="Filter by Vehicle"
-                        selected={vehicleData?.vehicleNo}
-                        onClear={() => handleFilterVehicle(null)}
-                        sx={{ maxWidth: { md: 200 } }}
-                    />
+                <TextField
+                    value={filters.brand}
+                    onChange={handleFilterBrand}
+                    placeholder="Search Brand..."
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{ width: { xs: 1, md: 200 } }}
+                />
 
-                    <KanbanVehicleDialog
-                        open={vehiclePopover.open}
-                        onClose={vehiclePopover.onClose}
-                        onVehicleChange={handleFilterVehicle}
-                        onlyOwn
-                    />
-                </Stack>
-                <Stack direction="row" spacing={2}>
+                <DialogSelectButton
+                    onClick={vehiclePopover.onOpen}
+                    disabled={false}
+                    iconName="mdi:truck-outline"
+                    placeholder="Filter by Vehicle"
+                    selected={vehicleData?.vehicleNo}
+                    onClear={() => handleFilterVehicle(null)}
+                    sx={{ width: { xs: 1, md: 200 } }}
+                />
+
+                <KanbanVehicleDialog
+                    open={vehiclePopover.open}
+                    onClose={vehiclePopover.onClose}
+                    onVehicleChange={handleFilterVehicle}
+                    onlyOwn
+                />
+
+                <Stack direction="row" spacing={1} sx={{ ml: 'auto !important' }}>
                     <Button
                         color="inherit"
                         variant="outlined"
