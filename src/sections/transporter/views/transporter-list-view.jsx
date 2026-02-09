@@ -19,6 +19,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
@@ -72,6 +75,7 @@ export function TransporterListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const cleanupDialog = useBoolean();
+  const includeInactive = useBoolean();
 
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
@@ -102,6 +106,7 @@ export function TransporterListView() {
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
     vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
+    includeInactive: includeInactive.value ? 'true' : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -330,13 +335,32 @@ export function TransporterListView() {
           </Scrollbar>
         </TableContainer>
 
-        <TablePaginationCustom
-          count={totalCount}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-        />
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ px: 2 }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={includeInactive.value}
+                onChange={(e) =>
+                  e.target.checked ? includeInactive.onTrue() : includeInactive.onFalse()
+                }
+                size="small"
+              />
+            }
+            label="Include Inactive Transporters"
+          />
+          <TablePaginationCustom
+            count={totalCount}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Stack>
       </Card>
 
       <TransporterCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />

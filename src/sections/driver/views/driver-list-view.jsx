@@ -7,6 +7,7 @@ import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
@@ -14,6 +15,7 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -66,6 +68,7 @@ export function DriverListView() {
   const deleteDriver = useDeleteDriver();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const cleanupDialog = useBoolean();
+  const includeInactive = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -86,6 +89,7 @@ export function DriverListView() {
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
     status: filters.status,
+    includeInactive: includeInactive.value ? 'true' : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -341,13 +345,32 @@ export function DriverListView() {
           </Scrollbar>
         </TableContainer>
 
-        <TablePaginationCustom
-          count={totalCount}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-        />
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ px: 2 }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={includeInactive.value}
+                onChange={(e) =>
+                  e.target.checked ? includeInactive.onTrue() : includeInactive.onFalse()
+                }
+                size="small"
+              />
+            }
+            label="Include Inactive Drivers"
+          />
+          <TablePaginationCustom
+            count={totalCount}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Stack>
       </Card>
 
       <DriverCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />
