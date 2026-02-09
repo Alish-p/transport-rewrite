@@ -48,8 +48,8 @@ import { useTenantContext } from 'src/auth/tenant';
 import DriverTableRow from '../driver-table-row';
 import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
-import DriverTableFiltersResult from '../driver-table-filters-result';
 import DriverCleanupDialog from '../cleanup/driver-cleanup-dialog';
+import DriverTableFiltersResult from '../driver-table-filters-result';
 
 const STORAGE_KEY = 'driver-table-columns';
 
