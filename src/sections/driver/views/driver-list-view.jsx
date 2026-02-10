@@ -47,6 +47,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import DriverLearn from '../driver-learn';
 import DriverTableRow from '../driver-table-row';
 import { TABLE_COLUMNS } from '../driver-table-config';
 import DriverTableToolbar from '../driver-table-toolbar';
@@ -69,6 +70,7 @@ export function DriverListView() {
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const cleanupDialog = useBoolean();
   const includeInactive = useBoolean();
+  const learn = useBoolean(); // Added learn state
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -160,8 +162,20 @@ export function DriverListView() {
 
   return (
     <DashboardContent>
+      <DriverLearn open={learn.value} onClose={learn.onFalse} />
+
       <CustomBreadcrumbs
-        heading="Driver List"
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Driver List</span>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+            >
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Driver', href: paths.dashboard.driver.root },

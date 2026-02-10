@@ -63,6 +63,7 @@ export const NewTransporterSchema = zod
     gstNo: zod.string().optional(),
     tdsPercentage: zod.number().min(0, { message: 'TDS Percentage is required' }),
     podCharges: zod.number().min(0, { message: 'POD Charges is required' }),
+    isActive: zod.boolean().optional(),
 
     bankDetails: zod.object({
       name: zod.string().min(1, { message: 'Bank name is required' }),
@@ -127,6 +128,7 @@ export default function TransporterForm({ currentTransporter }) {
       agreementNo: currentTransporter?.agreementNo || '',
       tdsPercentage: currentTransporter?.tdsPercentage || 0,
       podCharges: currentTransporter?.podCharges || 0,
+      isActive: currentTransporter?.isActive ?? true,
     }),
     [currentTransporter]
   );
@@ -165,8 +167,16 @@ export default function TransporterForm({ currentTransporter }) {
   // Separate Render Methods
 
   const renderTransporterDetails = () => (
-    <Card>
+    <Card sx={{ position: 'relative' }}>
       <CardHeader title="Transporter Details" sx={{ mb: 3 }} />
+      {currentTransporter && (
+        <Label
+          color={values.isActive ? 'success' : 'error'}
+          sx={{ position: 'absolute', top: 24, right: 24 }}
+        >
+          {values.isActive ? 'Active' : 'Disabled'}
+        </Label>
+      )}
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="transportName" label="Transport Name" />
@@ -196,6 +206,24 @@ export default function TransporterForm({ currentTransporter }) {
         />
         <Field.Text name="ownerName" label="Owner Name" />
         <Field.Text name="emailId" label="Email ID (Optional)" />
+
+        {currentTransporter && (
+          <Field.Switch
+            name="isActive"
+            labelPlacement="start"
+            label={
+              <>
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Transporter is Active ?
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  When disabled, this transporter cannot be assigned to new trips.
+                </Typography>
+              </>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        )}
       </Stack>
     </Card>
   );
