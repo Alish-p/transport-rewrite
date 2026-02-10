@@ -44,8 +44,8 @@ export const NewDriverSchema = zod.object({
       invalid_error: 'Driver Cell No must be exactly 10 digits',
     },
   }),
-  licenseFrom: schemaHelper.date({ message: { required_error: 'From date is required!' } }).optional().nullable(),
-  licenseTo: schemaHelper.date({ message: { required_error: 'To date is required!' } }).optional().nullable(),
+  licenseFrom: schemaHelper.dateOptional(),
+  licenseTo: schemaHelper.dateOptional(),
   aadharNo: zod
     .string()
     .optional()
@@ -60,7 +60,7 @@ export const NewDriverSchema = zod.object({
     .min(0, { message: 'Experience must be at least 0 years' })
     .optional()
     .nullable(),
-  dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }).optional().nullable(),
+  dob: schemaHelper.dateOptional(),
   permanentAddress: zod.string().optional(),
   isActive: zod.boolean().optional(),
   type: zod.string().optional().nullable(),
@@ -176,8 +176,9 @@ export default function DriverForm({ currentDriver }) {
           }}
           gap={3}
         >
-          <Field.Text name="driverName" label="Driver Name" />
+          <Field.Text required name="driverName" label="Driver Name" />
           <Field.Text
+            required
             name="driverCellNo"
             label="Driver Cell No"
             InputProps={{
@@ -192,33 +193,33 @@ export default function DriverForm({ currentDriver }) {
               </MenuItem>
             ))}
           </Field.Select>
-          <Field.Text name="driverLicenceNo" label="Driver Licence No (Optional)" />
-          <Field.Text name="driverPresentAddress" label="Present Address (Optional)" />
-          <Field.Text name="permanentAddress" label="Permanent Address (Optional)" />
+          <Field.Text name="driverLicenceNo" label="Driver Licence No" />
+          <Field.Text name="driverPresentAddress" label="Present Address" />
+          <Field.Text name="permanentAddress" label="Permanent Address" />
 
-          <Field.Text name="aadharNo" label="Aadhar No (Optional)" />
+          <Field.Text name="aadharNo" label="Aadhar No" />
           <Field.Text
             name="experience"
-            label="Experience (Optional)"
+            label="Experience"
             type="number"
             InputProps={{
               endAdornment: <InputAdornment position="end">years</InputAdornment>,
             }}
           />
 
-          <Field.Text name="guarantorName" label="Guarantor Name (Optional)" />
+          <Field.Text name="guarantorName" label="Guarantor Name" />
           <Field.Text
             name="guarantorCellNo"
-            label="Guarantor Cell No (Optional)"
+            label="Guarantor Cell No"
             InputProps={{
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
 
-          <Field.DatePicker name="dob" label="Date of Birth (Optional)" />
+          <Field.DatePicker name="dob" label="Date of Birth" disableFuture />
 
-          <Field.DatePicker name="licenseFrom" label="License From (Optional)" />
-          <Field.DatePicker name="licenseTo" label="License To (Optional)" />
+          <Field.DatePicker name="licenseFrom" label="License From" disableFuture />
+          <Field.DatePicker name="licenseTo" label="License To" />
         </Box>
       </Card>
     </>
@@ -234,7 +235,7 @@ export default function DriverForm({ currentDriver }) {
     return (
       <>
         <Typography variant="h6" gutterBottom>
-          Bank Details (Optional)
+          Bank Details
         </Typography>
         <Card sx={{ p: 3, mb: 3 }}>
           <Button

@@ -19,6 +19,7 @@ const MuiFormLabel = {
         [`&.${inputLabelClasses.disabled}`]: { color: theme.vars.palette.text.disabled },
         [`&.${inputLabelClasses.filled}`]: { transform: 'translate(12px, 6px) scale(0.75)' },
       },
+      '& .MuiFormLabel-asterisk': { color: theme.vars.palette.error.main },
     }),
   },
 };

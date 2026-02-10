@@ -8,6 +8,13 @@ import { formatStr } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
+// ----------------------------------------------------------------------
+
+function formatDate(date) {
+  if (!date) return null;
+  return dayjs(date).format();
+}
+
 export function RHFDatePicker({ name, slotProps, ...other }) {
   const { control } = useFormContext();
 
@@ -18,8 +25,8 @@ export function RHFDatePicker({ name, slotProps, ...other }) {
       render={({ field, fieldState: { error } }) => (
         <DatePicker
           {...field}
-          value={dayjs(field.value)}
-          onChange={(newValue) => field.onChange(dayjs(newValue).format())}
+          value={field.value ? dayjs(field.value) : null}
+          onChange={(newValue) => field.onChange(formatDate(newValue))}
           format={formatStr.split.date}
           slotProps={{
             textField: {
@@ -49,8 +56,8 @@ export function RHFMobileDateTimePicker({ name, slotProps, ...other }) {
       render={({ field, fieldState: { error } }) => (
         <MobileDateTimePicker
           {...field}
-          value={dayjs(field.value)}
-          onChange={(newValue) => field.onChange(dayjs(newValue).format())}
+          value={field.value ? dayjs(field.value) : null}
+          onChange={(newValue) => field.onChange(formatDate(newValue))}
           format={formatStr.split.dateTime}
           slotProps={{
             textField: {
