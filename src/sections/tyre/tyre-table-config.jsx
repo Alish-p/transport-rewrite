@@ -32,7 +32,7 @@ export const TYRE_TABLE_COLUMNS = [
     },
     {
         id: 'currentKm',
-        label: 'Current Km',
+        label: 'Last Recorded KM',
         defaultVisible: true,
         disabled: false,
         getter: (row) => row.currentKm,

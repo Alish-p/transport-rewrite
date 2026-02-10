@@ -8,6 +8,7 @@ import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
+import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -16,6 +17,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { useGetTyres } from 'src/query/use-tyre';
@@ -35,6 +37,7 @@ import {
     TablePaginationCustom,
 } from 'src/components/table';
 
+import TyreLearn from '../tyre-learn';
 import TyreAnalytic from '../tyre-analytic';
 import TyreTableRow from '../tyre-table-row';
 import { TYRE_STATUS } from '../tyre-constants';
@@ -59,6 +62,7 @@ export default function TyreListView() {
     const theme = useTheme();
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
+    const learn = useBoolean();
 
     const { filters, handleFilters, canReset, handleResetFilters } = useFilters(defaultFilters, {
         onResetPage: table.onResetPage,
@@ -140,7 +144,17 @@ export default function TyreListView() {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="Tyre List"
+                heading={
+                    <Stack direction="row" alignItems="center" spacing={1} component="span">
+                        <span>Tyre List</span>
+                        <IconButton
+                            color="default"
+                            onClick={learn.onTrue}
+                        >
+                            <Iconify icon="mage:light-bulb" />
+                        </IconButton>
+                    </Stack>
+                }
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
                     { name: 'Tyre', href: paths.dashboard.tyre.root },
@@ -168,6 +182,8 @@ export default function TyreListView() {
                 }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
+
+            <TyreLearn open={learn.value} onClose={learn.onFalse} />
 
             <Card
                 sx={{
