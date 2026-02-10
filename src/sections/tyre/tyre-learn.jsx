@@ -212,7 +212,7 @@ export default function TyreLearn({ open, onClose }) {
                 <AccordionDetails sx={{ pt: 2 }}>
                     <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
                         Tyres mounted in the <strong>Stepney</strong> position generally <strong>do not accumulate mileage</strong>.
-                        When unmounted from a Stepney position, the system records 0 km covered for that duration, regardless of the vehicle's odometer change.
+                        When unmounted from a Stepney position, the system records 0 km covered for that duration, regardless of the vehicle&apos;s odometer change.
                     </Typography>
                 </AccordionDetails>
             </Accordion>
