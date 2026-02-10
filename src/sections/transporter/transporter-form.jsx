@@ -172,7 +172,8 @@ export default function TransporterForm({ currentTransporter }) {
       {currentTransporter && (
         <Label
           color={values.isActive ? 'success' : 'error'}
-          sx={{ position: 'absolute', top: 24, right: 24 }}
+          sx={{ position: 'absolute', top: 24, right: 24, cursor: 'pointer' }}
+          onClick={() => setValue('isActive', !values.isActive, { shouldValidate: true })}
         >
           {values.isActive ? 'Active' : 'Disabled'}
         </Label>
@@ -207,23 +208,6 @@ export default function TransporterForm({ currentTransporter }) {
         <Field.Text name="ownerName" label="Owner Name" />
         <Field.Text name="emailId" label="Email ID (Optional)" />
 
-        {currentTransporter && (
-          <Field.Switch
-            name="isActive"
-            labelPlacement="start"
-            label={
-              <>
-                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                  Transporter is Active ?
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  When disabled, this transporter cannot be assigned to new trips.
-                </Typography>
-              </>
-            }
-            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-          />
-        )}
       </Stack>
     </Card>
   );
