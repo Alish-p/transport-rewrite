@@ -41,6 +41,22 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'type',
+    label: 'Type',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.type,
+    render: ({ type }) =>
+      type ? (
+        <Label variant="soft" color="info">
+          {type}
+        </Label>
+      ) : (
+        '-'
+      ),
+  },
+  {
     id: 'driverCellNo',
     label: 'Mobile',
     defaultVisible: true,

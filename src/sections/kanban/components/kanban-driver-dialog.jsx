@@ -18,6 +18,7 @@ import { useDebounce } from 'src/hooks/use-debounce';
 
 import { useInfiniteDrivers, useCreateQuickDriver } from 'src/query/use-driver';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
@@ -200,7 +201,16 @@ export function KanbanDriverDialog({
                   <ListItemText
                     primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                     secondaryTypographyProps={{ typography: 'caption' }}
-                    primary={driver.driverName}
+                    primary={
+                      <>
+                        {driver.driverName}
+                        {driver.type && (
+                          <Label color="info" variant="soft" sx={{ ml: 1 }}>
+                            {driver.type}
+                          </Label>
+                        )}
+                      </>
+                    }
                     secondary={driver.driverCellNo}
                   />
 

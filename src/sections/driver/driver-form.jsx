@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, Typography, InputAdornment } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography, InputAdornment } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -63,6 +63,7 @@ export const NewDriverSchema = zod.object({
   dob: schemaHelper.date({ message: { required_error: 'Date of Birth is required!' } }).optional().nullable(),
   permanentAddress: zod.string().optional(),
   isActive: zod.boolean().optional(),
+  type: zod.string().optional().nullable(),
   bankDetails: zod.object({
     name: zod.string().optional(),
     branch: zod.string().optional(),
@@ -96,6 +97,7 @@ export default function DriverForm({ currentDriver }) {
       dob: currentDriver?.dob ? new Date(currentDriver.dob) : undefined,
       permanentAddress: currentDriver?.permanentAddress || '',
       isActive: currentDriver?.isActive ?? true,
+      type: currentDriver?.type || '',
       bankDetails: {
         name: currentDriver?.bankDetails?.name || '',
         ifsc: currentDriver?.bankDetails?.ifsc || '',
@@ -175,7 +177,6 @@ export default function DriverForm({ currentDriver }) {
           gap={3}
         >
           <Field.Text name="driverName" label="Driver Name" />
-          <Field.Text name="driverLicenceNo" label="Driver Licence No (Optional)" />
           <Field.Text
             name="driverCellNo"
             label="Driver Cell No"
@@ -183,6 +184,15 @@ export default function DriverForm({ currentDriver }) {
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
+          <Field.Select name="type" label="Driver Type">
+            <MenuItem value="">None</MenuItem>
+            {['Own', 'Market'].map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Field.Select>
+          <Field.Text name="driverLicenceNo" label="Driver Licence No (Optional)" />
           <Field.Text name="driverPresentAddress" label="Present Address (Optional)" />
           <Field.Text name="permanentAddress" label="Permanent Address (Optional)" />
 
