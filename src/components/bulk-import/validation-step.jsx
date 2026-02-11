@@ -107,6 +107,23 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
         },
     })), [columns, rowErrors, theme]);
 
+    const allColumns = useMemo(() => {
+        const srNoColumn = {
+            field: 'id',
+            headerName: 'Sr No',
+            width: 80,
+            renderCell: (params) => {
+                const index = Number(params.id.split('-')[1]) + 1;
+                return (
+                    <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {index}
+                    </Box>
+                );
+            },
+        };
+        return [srNoColumn, ...gridColumns];
+    }, [gridColumns]);
+
     const hasErrors = Object.keys(rowErrors).length > 0;
     const validCount = rows.length - Object.keys(rowErrors).length;
 
@@ -152,7 +169,7 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
             <Card sx={{ height: 500, width: '100%' }}>
                 <DataGrid
                     rows={rows}
-                    columns={gridColumns}
+                    columns={allColumns}
                     processRowUpdate={processRowUpdate}
                     disableRowSelectionOnClick
                     density="standard"
@@ -160,8 +177,13 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
                     disableColumnFilter
                     disableColumnSelector
                     disableDensitySelector
-                    disableColumnResize={false} // Allow resizing if width is not enough
-                    hideFooter // Optional: If user wants just a list
+                    disableColumnResize={false}
+                    initialState={{
+                        pagination: {
+                            paginationModel: { pageSize: 100 },
+                        },
+                    }}
+                    pageSizeOptions={[50, 100, 200, 500]}
                 />
             </Card>
         </Stack>

@@ -49,6 +49,17 @@ const getTyreLayouts = async () => {
   return data;
 };
 
+// Cleanup
+const getOrphanVehicles = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/orphans`);
+  return data;
+};
+
+const cleanupVehicles = async ({ vehicleIds }) => {
+  const { data } = await axios.post(`${ENDPOINT}/cleanup`, { vehicleIds });
+  return data;
+};
+
 
 // Queries & Mutations
 export function usePaginatedVehicles(params, options = {}) {
@@ -164,5 +175,28 @@ export function useGetTyreLayouts(options = {}) {
     queryFn: getTyreLayouts,
     staleTime: Infinity,
     ...options,
+  });
+}
+
+export function useOrphanVehicles(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'orphans'],
+    queryFn: getOrphanVehicles,
+    ...options,
+  });
+}
+
+export function useCleanupVehicles() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cleanupVehicles,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success(data.message || 'Vehicles cleanup successful');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'Cleanup started but failed';
+      toast.error(errorMessage);
+    },
   });
 }

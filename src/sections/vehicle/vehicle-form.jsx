@@ -56,6 +56,7 @@ export const NewVehicleSchema = zod
     isOwn: zod.boolean().default(true),
     transporter: zod.string().optional(),
     trackingLink: zod.string().optional(),
+    isActive: zod.boolean().optional(),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -96,6 +97,7 @@ export default function VehicleForm({ currentVehicle }) {
       isOwn: currentVehicle?.isOwn ?? false,
       transporter: currentVehicle?.transporter?._id || '',
       trackingLink: currentVehicle?.trackingLink || '',
+      isActive: currentVehicle?.isActive ?? true,
     }),
     [currentVehicle]
   );
@@ -155,8 +157,17 @@ export default function VehicleForm({ currentVehicle }) {
 
   // Section: Basic details (required-first)
   const renderBasicDetails = (
-    <Card>
+    <Card sx={{ position: 'relative' }}>
       <CardHeader title="Basic Details" sx={{ mb: 3 }} />
+      {currentVehicle && (
+        <Label
+          color={values.isActive ? 'success' : 'error'}
+          sx={{ position: 'absolute', top: 24, right: 24, cursor: 'pointer' }}
+          onClick={() => setValue('isActive', !values.isActive, { shouldValidate: true })}
+        >
+          {values.isActive ? 'Active' : 'Disabled'}
+        </Label>
+      )}
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text

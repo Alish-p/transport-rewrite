@@ -15,10 +15,10 @@ import { generateTyreTemplate } from './tyre-bulk-import-utils';
 const FLAT_BULK_TYRE_SCHEMA = zod.object({
     brand: zod.string().min(1, { message: 'Brand is required' }),
     model: zod.string().min(1, { message: 'Model is required' }),
-    serialNumber: zod.string().min(1, { message: 'Tyre Number is required' }),
-    size: zod.string().min(1, { message: 'Size is required' }),
+    serialNumber: zod.union([zod.string(), zod.number()], { errorMap: () => ({ message: 'Tyre Number is required' }) }).transform(String),
+    size: zod.union([zod.string(), zod.number()], { errorMap: () => ({ message: 'Size is required' }) }).transform(String),
     type: zod.enum(['New', 'Remolded', 'Used'], { message: "Type must be 'New', 'Remolded', or 'Used'" }),
-    purchaseOrderNumber: zod.string().optional(),
+    purchaseOrderNumber: zod.union([zod.string(), zod.number()]).optional().transform(val => (val !== null && val !== undefined ? String(val) : undefined)),
     currentKm: zod.coerce.number().min(0).optional(),
     cost: zod.coerce.number().min(0).optional(),
     originalThreadDepth: zod.coerce.number().min(0).optional(),

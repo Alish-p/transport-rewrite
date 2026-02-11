@@ -21,6 +21,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
@@ -48,6 +49,7 @@ import { useTenantContext } from 'src/auth/tenant';
 import VehicleTableRow from '../vehicle-table-row';
 import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
+import VehicleCleanupDialog from '../cleanup/vehicle-cleanup-dialog';
 import VehicleTableFiltersResult from '../vehicle-table-filters-result';
 
 const STORAGE_KEY = 'vehicle-table-columns';
@@ -67,6 +69,7 @@ export function VehicleListView() {
   const navigate = useNavigate();
   const deleteVehicle = useDeleteVehicle();
   const table = useTable({ syncToUrl: true });
+  const cleanupDialog = useBoolean();
 
   // Use custom filters hook
   const {
@@ -187,14 +190,24 @@ export function VehicleListView() {
           { name: 'Vehicle List' },
         ]}
         action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.vehicle.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Vehicle
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<Iconify icon="mdi:broom" />}
+              onClick={cleanupDialog.onTrue}
+            >
+              Cleanup
+            </Button>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.vehicle.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Vehicle
+            </Button>
+          </Stack>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
@@ -303,22 +316,22 @@ export function VehicleListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                    <TableSkeleton key={i} />
+                  ))
                   : tableData.map((row) => (
-                      <VehicleTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
-                        onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
-                        onDeleteRow={() => deleteVehicle(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                    <VehicleTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
+                      onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
+                      onDeleteRow={() => deleteVehicle(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
                 <TableNoData notFound={!tableData.length && canReset} />
               </TableBody>
             </Table>
@@ -333,6 +346,8 @@ export function VehicleListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
-    </DashboardContent>
+
+      <VehicleCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />
+    </DashboardContent >
   );
 }
