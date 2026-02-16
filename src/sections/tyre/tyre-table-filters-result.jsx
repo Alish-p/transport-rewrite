@@ -34,6 +34,11 @@ export default function TyreTableFiltersResult({
         onFilters('vehicle', null);
     };
 
+    const handleRemoveKm = () => {
+        onFilters('minKm', null);
+        onFilters('maxKm', null);
+    };
+
     return (
         <Stack spacing={1.5} {...other}>
             <Box sx={{ typography: 'body2' }}>
@@ -80,12 +85,18 @@ export default function TyreTableFiltersResult({
                     </Block>
                 )}
 
-                {filters.currentKm && (
+                {(filters.minKm || filters.maxKm) && (
                     <Block label="Odometer:">
                         <Chip
                             size="small"
-                            label={`${filters.currentKm[0]} - ${filters.currentKm[1]} km`}
-                            onDelete={() => onFilters('currentKm', null)}
+                            label={
+                                filters.minKm && filters.maxKm
+                                    ? `${filters.minKm} - ${filters.maxKm} km`
+                                    : filters.minKm
+                                        ? `> ${filters.minKm} km`
+                                        : `< ${filters.maxKm} km`
+                            }
+                            onDelete={handleRemoveKm}
                         />
                     </Block>
                 )}

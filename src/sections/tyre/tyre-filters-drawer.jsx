@@ -134,27 +134,34 @@ export default function TyreFiltersDrawer({
         </Stack>
     );
 
-    // const renderKm = (
-    //     <Stack spacing={1} sx={{ my: 3 }}>
-    //         <Typography variant="subtitle2">Current Km Range</Typography>
-    //         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-    //             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-    //                 0 km
-    //             </Typography>
-    //             <Slider
-    //                 value={filters.currentKm || [0, 150000]}
-    //                 onChange={handleFilterKm}
-    //                 valueLabelDisplay="auto"
-    //                 min={0}
-    //                 max={150000}
-    //                 step={100}
-    //             />
-    //             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-    //                 150,000 km
-    //             </Typography>
-    //         </Stack>
-    //     </Stack>
-    // );
+    const renderKm = (
+        <Stack spacing={1} sx={{ my: 3 }}>
+            <Typography variant="subtitle2">Current Km Range</Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+                <TextField
+                    size="small"
+                    type="number"
+                    placeholder="Min Km"
+                    value={filters.minKm ?? ''}
+                    onChange={(event) => onFilters('minKm', event.target.value)}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                    }}
+                />
+                <Typography>-</Typography>
+                <TextField
+                    size="small"
+                    type="number"
+                    placeholder="Max Km"
+                    value={filters.maxKm ?? ''}
+                    onChange={(event) => onFilters('maxKm', event.target.value)}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                    }}
+                />
+            </Stack>
+        </Stack>
+    );
 
     return (
         <>
@@ -177,7 +184,7 @@ export default function TyreFiltersDrawer({
                     <Stack spacing={3} sx={{ p: 2.5 }}>
                         {renderFilters}
                         {renderType}
-                        {/* {renderKm} */}
+                        {renderKm}
                     </Stack>
                 </Scrollbar>
 
