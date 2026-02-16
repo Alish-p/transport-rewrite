@@ -39,6 +39,11 @@ export default function TyreTableFiltersResult({
         onFilters('maxKm', null);
     };
 
+    const handleRemoveThread = () => {
+        onFilters('minThread', null);
+        onFilters('maxThread', null);
+    };
+
     return (
         <Stack spacing={1.5} {...other}>
             <Box sx={{ typography: 'body2' }}>
@@ -64,6 +69,18 @@ export default function TyreTableFiltersResult({
                 {filters.brand && (
                     <Block label="Brand:">
                         <Chip size="small" label={filters.brand} onDelete={handleRemoveBrand} />
+                    </Block>
+                )}
+
+                {filters.model && (
+                    <Block label="Model:">
+                        <Chip size="small" label={filters.model} onDelete={() => onFilters('model', '')} />
+                    </Block>
+                )}
+
+                {filters.size && (
+                    <Block label="Size:">
+                        <Chip size="small" label={filters.size} onDelete={() => onFilters('size', '')} />
                     </Block>
                 )}
 
@@ -97,6 +114,21 @@ export default function TyreTableFiltersResult({
                                         : `< ${filters.maxKm} km`
                             }
                             onDelete={handleRemoveKm}
+                        />
+                    </Block>
+                )}
+                {(filters.minThread || filters.maxThread) && (
+                    <Block label="Thread:">
+                        <Chip
+                            size="small"
+                            label={
+                                filters.minThread && filters.maxThread
+                                    ? `${filters.minThread} - ${filters.maxThread} mm`
+                                    : filters.minThread
+                                        ? `> ${filters.minThread} mm`
+                                        : `< ${filters.maxThread} mm`
+                            }
+                            onDelete={handleRemoveThread}
                         />
                     </Block>
                 )}

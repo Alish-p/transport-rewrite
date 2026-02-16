@@ -4,11 +4,9 @@ import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 // import Slider from '@mui/material/Slider';
 import Divider from '@mui/material/Divider';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
@@ -18,7 +16,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { TYRE_TYPE } from './tyre-constants';
+// import { TYRE_TYPE } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -47,8 +45,12 @@ export default function TyreFiltersDrawer({
         onFilters('vehicle', vehicle?._id || null);
     };
 
-    const handleFilterType = (event, newValue) => {
-        onFilters('type', newValue);
+    const handleFilterModel = (event) => {
+        onFilters('model', event.target.value);
+    };
+
+    const handleFilterSize = (event) => {
+        onFilters('size', event.target.value);
     };
 
     // const handleFilterKm = (event, newValue) => {
@@ -101,6 +103,34 @@ export default function TyreFiltersDrawer({
                 }}
             />
 
+            <TextField
+                fullWidth
+                value={filters.model}
+                onChange={handleFilterModel}
+                placeholder="Search Model..."
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                        </InputAdornment>
+                    ),
+                }}
+            />
+
+            <TextField
+                fullWidth
+                value={filters.size}
+                onChange={handleFilterSize}
+                placeholder="Search Size..."
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                        </InputAdornment>
+                    ),
+                }}
+            />
+
             <DialogSelectButton
                 fullWidth
                 onClick={vehiclePopover.onOpen}
@@ -114,28 +144,10 @@ export default function TyreFiltersDrawer({
         </Stack>
     );
 
-    const renderType = (
-        <Stack spacing={1}>
-            <Autocomplete
-                multiple
-                disableCloseOnSelect
-                options={Object.values(TYRE_TYPE)}
-                getOptionLabel={(option) => option}
-                value={filters.type || []}
-                onChange={handleFilterType}
-                renderInput={(params) => <TextField placeholder="Select Tyre Type" {...params} />}
-                renderOption={(other, option, { selected }) => (
-                    <li {...other} key={option}>
-                        <Checkbox key={option} size="small" disableRipple checked={selected} />
-                        {option}
-                    </li>
-                )}
-            />
-        </Stack>
-    );
+
 
     const renderKm = (
-        <Stack spacing={1} sx={{ my: 3 }}>
+        <Stack spacing={1} sx={{ mt: 1 }}>
             <Typography variant="subtitle2">Current Km Range</Typography>
             <Stack direction="row" alignItems="center" spacing={1}>
                 <TextField
@@ -163,6 +175,35 @@ export default function TyreFiltersDrawer({
         </Stack>
     );
 
+    const renderThread = (
+        <Stack spacing={1} sx={{ mt: 1 }}>
+            <Typography variant="subtitle2">Current Thread Range</Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+                <TextField
+                    size="small"
+                    type="number"
+                    placeholder="Min"
+                    value={filters.minThread ?? ''}
+                    onChange={(event) => onFilters('minThread', event.target.value)}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+                    }}
+                />
+                <Typography>-</Typography>
+                <TextField
+                    size="small"
+                    type="number"
+                    placeholder="Max"
+                    value={filters.maxThread ?? ''}
+                    onChange={(event) => onFilters('maxThread', event.target.value)}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+                    }}
+                />
+            </Stack>
+        </Stack>
+    );
+
     return (
         <>
             <Drawer
@@ -183,8 +224,8 @@ export default function TyreFiltersDrawer({
                 <Scrollbar>
                     <Stack spacing={3} sx={{ p: 2.5 }}>
                         {renderFilters}
-                        {renderType}
                         {renderKm}
+                        {renderThread}
                     </Stack>
                 </Scrollbar>
 

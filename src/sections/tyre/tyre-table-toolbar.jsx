@@ -4,7 +4,9 @@ import { useCallback } from 'react';
 import { Badge } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -17,6 +19,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
 import TyreFiltersDrawer from './tyre-filters-drawer'; // Ensure correct path
+import { TYRE_TYPE } from './tyre-constants';
 import { TYRE_TABLE_COLUMNS } from './tyre-table-config';
 
 // ----------------------------------------------------------------------
@@ -60,6 +63,13 @@ export default function TyreTableToolbar({
         [onFilters]
     );
 
+    const handleFilterType = useCallback(
+        (event, newValue) => {
+            onFilters('type', newValue);
+        },
+        [onFilters]
+    );
+
     return (
         <>
             <Stack
@@ -99,6 +109,23 @@ export default function TyreTableToolbar({
                             </InputAdornment>
                         ),
                     }}
+                    sx={{ width: { xs: 1, md: 200 } }}
+                />
+
+                <Autocomplete
+                    multiple
+                    disableCloseOnSelect
+                    options={Object.values(TYRE_TYPE)}
+                    getOptionLabel={(option) => option}
+                    value={filters.type || []}
+                    onChange={handleFilterType}
+                    renderInput={(params) => <TextField {...params} placeholder="Type" />}
+                    renderOption={(other, option, { selected }) => (
+                        <li {...other} key={option}>
+                            <Checkbox key={option} size="small" disableRipple checked={selected} />
+                            {option}
+                        </li>
+                    )}
                     sx={{ width: { xs: 1, md: 200 } }}
                 />
 

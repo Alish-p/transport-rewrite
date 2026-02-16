@@ -55,8 +55,12 @@ const defaultFilters = {
     status: 'all',
     vehicle: null,
     type: [],
+    model: '',
+    size: '',
     minKm: null,
     maxKm: null,
+    minThread: null,
+    maxThread: null,
 };
 
 export default function TyreListView() {
@@ -89,8 +93,12 @@ export default function TyreListView() {
         vehicleId: filters.vehicle || undefined,
         status: filters.status !== 'all' ? filters.status : undefined,
         type: filters.type.length ? filters.type : undefined,
+        model: filters.model || undefined,
+        size: filters.size || undefined,
         minKm: filters.minKm || undefined,
         maxKm: filters.maxKm || undefined,
+        minThread: filters.minThread || undefined,
+        maxThread: filters.maxThread || undefined,
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);
