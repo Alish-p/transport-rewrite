@@ -29,6 +29,7 @@ export const TYRE_TABLE_COLUMNS = [
                 }
             />
         ),
+        sortable: true,
     },
     {
         id: 'currentKm',
@@ -37,6 +38,7 @@ export const TYRE_TABLE_COLUMNS = [
         disabled: false,
         getter: (row) => row.currentKm,
         render: (row) => `${row.currentKm || 0} km`,
+        sortable: true,
     },
     {
         id: 'remoldKm',
@@ -113,6 +115,7 @@ export const TYRE_TABLE_COLUMNS = [
         disabled: false,
         getter: (row) => row.cost,
         render: (row) => `₹ ${row.cost?.toFixed(2)}`,
+        sortable: true,
     },
     {
         id: 'threadDepth',
@@ -120,5 +123,6 @@ export const TYRE_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => `${row.threadDepth?.current || 0} / ${row.threadDepth?.original || 0} mm`,
+        sortable: true,
     },
 ];

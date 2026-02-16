@@ -99,6 +99,8 @@ export default function TyreListView() {
         maxKm: filters.maxKm || undefined,
         minThread: filters.minThread || undefined,
         maxThread: filters.maxThread || undefined,
+        orderBy: table.orderBy,
+        order: table.order,
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);

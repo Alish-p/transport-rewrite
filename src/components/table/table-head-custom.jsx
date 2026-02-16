@@ -64,12 +64,23 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
       title={isDraggable ? 'Drag to reorder columns' : undefined}
       {...dragProps}
     >
-      {onSort ? (
+      {onSort && headCell.sortable === true ? (
         <TableSortLabel
           hideSortIcon
           active={orderBy === headCell.id}
           direction={orderBy === headCell.id ? order : 'asc'}
           onClick={() => onSort(headCell.id)}
+          sx={(theme) => ({
+            textTransform: 'capitalize',
+            ...(orderBy === headCell.id && {
+              color: `${theme.palette.primary.main} !important`,
+              fontWeight: 'fontWeightBold',
+            }),
+            '& .MuiTableSortLabel-icon': {
+              opacity: 1,
+              color: orderBy === headCell.id ? `${theme.palette.primary.main} !important` : 'text.disabled',
+            },
+          })}
         >
           {headCell.label}
 
