@@ -43,7 +43,7 @@ export const TYRE_TABLE_COLUMNS = [
     {
         id: 'remoldKm',
         label: 'Remold Km',
-        defaultVisible: true,
+        defaultVisible: false,
         disabled: false,
         getter: (row) => {
             if (row.metadata?.remoldCount > 0) {
