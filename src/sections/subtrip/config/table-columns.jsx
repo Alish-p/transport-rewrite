@@ -65,8 +65,23 @@ export const TABLE_COLUMNS = [
     label: 'Driver',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.driverId?.driverName || '-',
+    getter: (row) => {
+      const name = row?.driverId?.driverName || '-';
+      const cell = row?.driverId?.driverCellNo;
+      return cell ? `${name} - ${cell}` : name;
+    },
     align: 'center',
+    render: (row) => (
+      <ListItemText
+        primary={row?.driverId?.driverName || '-'}
+        secondary={row?.driverId?.driverCellNo || ''}
+        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        secondaryTypographyProps={{
+          component: 'span',
+          typography: 'caption',
+        }}
+      />
+    ),
   },
   {
     id: 'customerId',
