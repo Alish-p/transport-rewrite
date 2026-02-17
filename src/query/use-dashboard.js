@@ -245,3 +245,21 @@ export function useMonthlyTransporterSubtrips(month) {
     enabled: Boolean(month),
   });
 }
+
+// ----------------------------------------------------------------------
+// Monthly destination subtrips summary
+
+const getMonthlyDestinationSubtrips = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/grouped/monthly-destination-subtrips`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyDestinationSubtrips(month) {
+  return useQuery({
+    queryKey: ['monthlyDestinationSubtrips', month],
+    queryFn: () => getMonthlyDestinationSubtrips(month),
+    enabled: Boolean(month),
+  });
+}

@@ -16,6 +16,7 @@ import { DriverInsightsTable } from './app-driver-insights-table';
 import { CustomerFreightTable } from './app-customer-freight-table';
 import { VehicleInsightsTable } from './app-vehicle-insights-table';
 import { TransporterInsightsTable } from './app-transporter-insights-table';
+import { AppDestinationInsightsTable } from './app-destination-insights-table';
 
 export function AppMonthlySummaryTabs() {
   const theme = useTheme();
@@ -31,6 +32,7 @@ export function AppMonthlySummaryTabs() {
     vehicle: false,
     transporter: false,
     driver: false,
+    destination: false,
   });
 
   const handleChange = (_e, value) => {
@@ -51,6 +53,7 @@ export function AppMonthlySummaryTabs() {
       { value: 'vehicle', label: 'Vehicle', icon: icon('ic_vehicle') },
       { value: 'transporter', label: 'Transporter', icon: icon('ic_transporter') },
       { value: 'driver', label: 'Driver', icon: icon('ic-user') },
+      { value: 'destination', label: 'Destination', icon: icon('ic_map') },
     ],
     []
   );
@@ -178,6 +181,14 @@ export function AppMonthlySummaryTabs() {
             month={monthParam}
             title="👷 Driver Insights"
             subheader="Jobs completed by each driver"
+          />
+        )}
+
+        {tab === 'destination' && mounted.destination && (
+          <AppDestinationInsightsTable
+            month={monthParam}
+            title="📍 Destination Insights"
+            subheader="Jobs completed by destination"
           />
         )}
 
