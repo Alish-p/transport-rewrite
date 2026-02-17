@@ -28,6 +28,12 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
   const { data: summary = [], isLoading } = useMonthlyTransporterSubtrips(effectiveMonth);
   const displayedSummary = showAll ? summary : summary.slice(0, 6);
 
+  const totalSubtripCount = summary.reduce((acc, row) => acc + (row.subtripCount || 0), 0);
+  const totalLoadingWeight = summary.reduce((acc, row) => acc + (row.totalLoadingWeight || 0), 0);
+  const totalCommission = summary.reduce((acc, row) => acc + (row.totalCommission || 0), 0);
+  const totalPaymentDone = summary.reduce((acc, row) => acc + (row.paymentDone || 0), 0);
+  const totalPendingForPayment = summary.reduce((acc, row) => acc + (row.pendingForPayment || 0), 0);
+
   return (
     <Box {...other}>
       <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
@@ -38,6 +44,7 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
               { id: 'transporterName', label: 'Transporter' },
               { id: 'subtripCount', label: 'Jobs' },
               { id: 'totalWeight', label: 'Total Weight' },
+              { id: 'commissionAmount', label: 'Commission Amount' },
               { id: 'paymentDone', label: 'Paid' },
               { id: 'pendingForPayment', label: 'Pending' },
             ]}
@@ -63,10 +70,20 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
                     </TableCell>
                     <TableCell>{row.subtripCount}</TableCell>
                     <TableCell>{fNumber(row.totalLoadingWeight)}</TableCell>
+                    <TableCell>{fNumber(row.totalCommission)}</TableCell>
                     <TableCell>{row.paymentDone}</TableCell>
                     <TableCell>{row.pendingForPayment}</TableCell>
                   </TableRow>
                 ))}
+
+                <TableRow sx={{ '& td': { typography: 'subtitle2', color: 'text.primary' }, bgcolor: 'background.neutral' }}>
+                  <TableCell colSpan={2}>Total</TableCell>
+                  <TableCell>{totalSubtripCount}</TableCell>
+                  <TableCell>{fNumber(totalLoadingWeight)}</TableCell>
+                  <TableCell>{fNumber(totalCommission)}</TableCell>
+                  <TableCell>{totalPaymentDone}</TableCell>
+                  <TableCell>{totalPendingForPayment}</TableCell>
+                </TableRow>
               </>
             ) : (
               <TableNoData notFound />
