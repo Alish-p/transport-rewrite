@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { useSubtrip } from 'src/query/use-subtrip';
+import { useVehicle } from 'src/query/use-vehicle';
 import { useTransporter } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
@@ -23,6 +24,7 @@ export default function TransporterPayrollTableFiltersResult({
 }) {
   const { data: transporter } = useTransporter(filters.transporterId);
   const { data: subtrip } = useSubtrip(filters.subtripId);
+  const { data: vehicle } = useVehicle(filters.vehicleId);
 
   const handleRemovePaymentId = () => {
     onFilters('paymentId', '');
@@ -34,6 +36,10 @@ export default function TransporterPayrollTableFiltersResult({
 
   const handleRemoveSubtrip = () => {
     onFilters('subtripId', '');
+  };
+
+  const handleRemoveVehicle = () => {
+    onFilters('vehicleId', '');
   };
 
   const handleRemoveDate = () => {
@@ -72,6 +78,12 @@ export default function TransporterPayrollTableFiltersResult({
         {filters.subtripId && (
           <Block label="Job:">
             <Chip size="small" label={subtrip?.subtripNo} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {filters.vehicleId && (
+          <Block label="Vehicle:">
+            <Chip size="small" label={vehicle?.vehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
           </Block>
         )}
 

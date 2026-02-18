@@ -4,6 +4,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import MiniTyreLayout from 'src/sections/vehicle/components/mini-tyre-layout';
+
 // ----------------------------------------------------------------------
 
 export const TYRE_TABLE_COLUMNS = [
@@ -104,6 +106,29 @@ export const TYRE_TABLE_COLUMNS = [
                 >
                     {row.currentVehicleId.vehicleNo}
                 </Link>
+            ) : (
+                '-'
+            ),
+    },
+    {
+        id: 'currentPosition',
+        label: 'Position',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.currentPosition || '-',
+    },
+    {
+        id: 'layout',
+        label: 'Layout',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.currentPosition || '-',
+        render: (row) =>
+            row.currentVehicleId?.tyreLayoutId && row.currentPosition ? (
+                <MiniTyreLayout
+                    layoutId={row.currentVehicleId.tyreLayoutId}
+                    currentPosition={row.currentPosition}
+                />
             ) : (
                 '-'
             ),

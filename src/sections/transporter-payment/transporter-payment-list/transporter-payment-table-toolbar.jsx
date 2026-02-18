@@ -13,10 +13,13 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { CONFIG } from 'src/config-global';
 import { useSubtrip } from 'src/query/use-subtrip';
+import { useVehicle } from 'src/query/use-vehicle';
 import { useTransporter } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
+import { SvgColor } from 'src/components/svg-color';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -24,11 +27,16 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 
 // ----------------------------------------------------------------------
+
+const icon = (name, sx) => (
+  <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} sx={sx} />
+);
 
 export default function TransporterPaymentTableToolbar({
   filters,
@@ -43,9 +51,11 @@ export default function TransporterPaymentTableToolbar({
   const columnsPopover = usePopover();
   const transporterDialog = useBoolean();
   const subtripDialog = useBoolean();
+  const vehicleDialog = useBoolean();
   const dateDialog = useBoolean();
   const { data: selectedTransporter } = useTransporter(filters.transporterId);
   const { data: selectedSubtrip } = useSubtrip(filters.subtripId);
+  const { data: selectedVehicle } = useVehicle(filters.vehicleId);
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -57,6 +67,13 @@ export default function TransporterPaymentTableToolbar({
   const handleSelectSubtrip = useCallback(
     (subtrip) => {
       onFilters('subtripId', subtrip._id);
+    },
+    [onFilters]
+  );
+
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      onFilters('vehicleId', vehicle._id);
     },
     [onFilters]
   );
@@ -94,7 +111,9 @@ export default function TransporterPaymentTableToolbar({
           onClick={transporterDialog.onTrue}
           placeholder="Search transporter"
           selected={selectedTransporter?.transportName}
-          iconName="mdi:truck"
+          startIcon={icon('ic_transporter', {
+            color: selectedTransporter ? 'primary.main' : 'text.disabled',
+          })}
         />
 
         <DialogSelectButton
@@ -102,6 +121,15 @@ export default function TransporterPaymentTableToolbar({
           placeholder="Search job"
           selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
+        />
+
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          placeholder="Search vehicle"
+          selected={selectedVehicle?.vehicleNo}
+          startIcon={icon('ic_vehicle', {
+            color: selectedVehicle ? 'primary.main' : 'text.disabled',
+          })}
         />
 
         <TextField
@@ -186,6 +214,14 @@ export default function TransporterPaymentTableToolbar({
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
         statusList={[SUBTRIP_STATUS.RECEIVED, SUBTRIP_STATUS.BILLED]}
+      />
+
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleSelectVehicle}
+        onlyMarket
       />
 
       <CustomDateRangePicker

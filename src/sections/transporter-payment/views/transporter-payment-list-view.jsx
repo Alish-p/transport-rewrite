@@ -59,6 +59,7 @@ const STORAGE_KEY = 'transporter-payment-table-columns';
 const defaultFilters = {
   transporterId: '',
   subtripId: '',
+  vehicleId: '',
   paymentId: '',
   status: 'all',
   issueFromDate: null,
@@ -91,6 +92,7 @@ export function TransporterPaymentListView() {
   const { data, isLoading } = usePaginatedTransporterPayments({
     transporterId: filters.transporterId || undefined,
     subtripId: filters.subtripId || undefined,
+    vehicleId: filters.vehicleId || undefined,
     paymentId: filters.paymentId || undefined,
     status: filters.status !== 'all' ? filters.status : undefined,
     hasTds: filters.hasTds || undefined,
@@ -265,6 +267,7 @@ export function TransporterPaymentListView() {
                             params: {
                               transporterId: filters.transporterId || undefined,
                               subtripId: filters.subtripId || undefined,
+                              vehicleId: filters.vehicleId || undefined,
                               paymentId: filters.paymentId || undefined,
                               status: filters.status !== 'all' ? filters.status : undefined,
                               hasTds: filters.hasTds || undefined,
