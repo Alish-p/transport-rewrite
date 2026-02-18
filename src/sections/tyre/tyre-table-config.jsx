@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import { Card } from '@mui/material';
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
@@ -7,6 +8,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate, fTime } from 'src/utils/format-time';
+
+import { Label } from 'src/components/label';
 
 import MiniTyreLayout from 'src/sections/vehicle/components/mini-tyre-layout';
 
@@ -166,6 +169,55 @@ export const TYRE_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => `${row.threadDepth?.current || 0} / ${row.threadDepth?.original || 0} mm`,
+        render: (row) => {
+            const current = row.threadDepth?.current || 0;
+            const original = row.threadDepth?.original || 0;
+            let color = 'default';
+
+
+            if (current >= 6) {
+                color = 'success';
+            } else if (current >= 4) {
+                color = 'warning';
+            } else {
+                color = 'error';
+            }
+
+            const tooltipContent = (
+                <Card sx={{ p: 2 }}>
+                    <Box component="li" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <Box
+                            component="span"
+                            sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main', mr: 1 }}
+                        />
+                        Good (&gt;= 6mm)
+                    </Box>
+                    <Box component="li" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <Box
+                            component="span"
+                            sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'warning.main', mr: 1 }}
+                        />
+                        OK (4-5mm) - Inspect Monthly
+                    </Box>
+                    <Box component="li" sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box
+                            component="span"
+                            sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'error.main', mr: 1 }}
+                        />
+                        Critical (&lt; 4mm) - Won&apos;t Last Long
+                    </Box>
+                </Card>
+
+            );
+
+            return (
+                <Tooltip title={tooltipContent} arrow placement="top">
+                    <Label variant="soft" color={color} sx={{ textTransform: 'none' }}>
+                        {`${current} / ${original} mm`}
+                    </Label>
+                </Tooltip>
+            );
+        },
         sortable: true,
     },
 
