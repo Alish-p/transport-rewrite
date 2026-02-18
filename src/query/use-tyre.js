@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -18,6 +18,23 @@ export function useGetTyres(params) {
             return data;
         },
         keepPreviousData: true,
+    });
+}
+
+export function useInfiniteTyres(params, options = {}) {
+    return useInfiniteQuery({
+        queryKey: TYRE_QUERY_KEYS.list({ ...params, infinite: true }),
+        queryFn: ({ pageParam = 1 }) => {
+            const queryParams = { ...params, page: pageParam };
+            return axios.get('/api/tyre', { params: queryParams }).then((res) => res.data);
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            const totalFetched = allPages.reduce((acc, page) => acc + page.tyres.length, 0);
+            const totalCount = lastPage.total || 0;
+            return totalFetched < totalCount ? allPages.length + 1 : undefined;
+        },
+        keepPreviousData: true,
+        ...options,
     });
 }
 

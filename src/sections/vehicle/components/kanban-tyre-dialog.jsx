@@ -1,3 +1,4 @@
+import { useInView } from 'react-intersection-observer';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -13,7 +14,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { useGps } from 'src/query/use-gps';
-import { useGetTyres } from 'src/query/use-tyre';
+import { useInfiniteTyres } from 'src/query/use-tyre';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -28,7 +29,9 @@ export function KanbanTyreDialog({ open, onClose, onTyreSelect, vehicleNo }) {
     const [odometer, setOdometer] = useState('');
     const debouncedSearch = useDebounce(searchTyre);
 
-    const { data, isLoading } = useGetTyres(
+    const { ref: loadMoreRef, inView } = useInView();
+
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteTyres(
         {
             serialNumber: debouncedSearch || undefined,
             status: 'In_Stock', // Only fetch tyres in stock/available
@@ -37,7 +40,14 @@ export function KanbanTyreDialog({ open, onClose, onTyreSelect, vehicleNo }) {
         { enabled: open }
     );
 
-    const tyres = useMemo(() => data?.tyres || [], [data]);
+    useEffect(() => {
+        if (inView && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, fetchNextPage]);
+
+    const tyres = useMemo(() => (data ? data.pages.flatMap((page) => page.tyres) : []), [data]);
+    const total = data?.pages?.[0]?.total ?? 0;
 
     const { data: gpsData } = useGps(vehicleNo, { enabled: open && !!vehicleNo });
 
@@ -75,7 +85,7 @@ export function KanbanTyreDialog({ open, onClose, onTyreSelect, vehicleNo }) {
             <DialogTitle sx={{ pb: 0 }}>
                 Select Tyre{' '}
                 <Typography component="span" sx={{ color: 'text.secondary' }}>
-                    ({tyres.length})
+                    ({total})
                 </Typography>
             </DialogTitle>
 
@@ -148,6 +158,17 @@ export function KanbanTyreDialog({ open, onClose, onTyreSelect, vehicleNo }) {
                                     </Button>
                                 </Box>
                             ))}
+                            <Box
+                                ref={loadMoreRef}
+                                sx={{
+                                    py: 2,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    visibility: isFetchingNextPage || hasNextPage ? 'visible' : 'hidden',
+                                }}
+                            >
+                                {(isFetchingNextPage || hasNextPage) && <LoadingSpinner />}
+                            </Box>
                             {tyres.length === 0 && !debouncedSearch && (
                                 <Box sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
                                     No available tyres found.
