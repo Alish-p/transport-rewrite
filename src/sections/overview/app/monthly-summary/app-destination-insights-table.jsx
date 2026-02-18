@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import { TableRow, TableCell } from '@mui/material';
 
-// import { paths } from 'src/routes/paths';
-// import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fNumber } from 'src/utils/format-number';
 
@@ -42,7 +43,22 @@ export function AppDestinationInsightsTable({ month, ...other }) {
                                         <TableCell>{idx + 1}</TableCell>
                                         <TableCell>{row.destination}</TableCell>
                                         <TableCell align="center">{fNumber(row.totalLoadingWeight)}</TableCell>
-                                        <TableCell align="center">{row.received}</TableCell>
+                                        <TableCell align="center">
+                                            <Link
+                                                component={RouterLink}
+                                                href={`${paths.dashboard.subtrip.list}?unloadingPoint=${encodeURIComponent(
+                                                    row.destination
+                                                )}&fromDate=${dayjs(effectiveMonth)
+                                                    .startOf('month')
+                                                    .format('YYYY-MM-DD')}&toDate=${dayjs(effectiveMonth)
+                                                        .endOf('month')
+                                                        .format('YYYY-MM-DD')}`}
+                                                underline="always"
+                                                color="primary"
+                                            >
+                                                {row.received}
+                                            </Link>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                                 <TableRow>
