@@ -7,7 +7,7 @@ import { useGetTyreLayouts } from 'src/query/use-vehicle';
 
 // ----------------------------------------------------------------------
 
-export default function MiniTyreLayout({ layoutId, currentPosition }) {
+export default function MiniTyreLayout({ layoutId, currentPosition, disableTooltip = false }) {
     const theme = useTheme();
     const { data: layoutsData } = useGetTyreLayouts();
     const layouts = layoutsData?.data || [];
@@ -53,22 +53,30 @@ export default function MiniTyreLayout({ layoutId, currentPosition }) {
 
         const isSelected = currentPosition === pos;
 
+        const content = (
+            <Box
+                sx={{
+                    width: 8,
+                    height: 12,
+                    borderRadius: 0.5,
+                    bgcolor: isSelected ? 'primary.main' : 'text.disabled',
+                    border: isSelected ? `1px solid ${theme.palette.primary.dark}` : 'none',
+                    ...(isSelected && {
+                        boxShadow: '0 0 0 1px white',
+                        zIndex: 1,
+                        transform: 'scale(1.2)'
+                    })
+                }}
+            />
+        );
+
+        if (disableTooltip) {
+            return content;
+        }
+
         return (
             <Tooltip title={pos} arrow>
-                <Box
-                    sx={{
-                        width: 8,
-                        height: 12,
-                        borderRadius: 0.5,
-                        bgcolor: isSelected ? 'primary.main' : 'text.disabled',
-                        border: isSelected ? `1px solid ${theme.palette.primary.dark}` : 'none',
-                        ...(isSelected && {
-                            boxShadow: '0 0 0 1px white',
-                            zIndex: 1,
-                            transform: 'scale(1.2)'
-                        })
-                    }}
-                />
+                {content}
             </Tooltip>
         );
     };
@@ -128,6 +136,17 @@ export default function MiniTyreLayout({ layoutId, currentPosition }) {
             <Stack spacing={0.5} sx={{ zIndex: 1 }}>
                 {sortedRowKeys.map((k) => renderRow(Number(k)))}
             </Stack>
+
+            {/* Stepney Section */}
+            {positions.some((p) => p.includes('Stepney')) && (
+                <Stack direction="row" spacing={0.5} sx={{ mt: 1, pt: 0.5, borderTop: `1px dashed ${theme.palette.divider}`, width: '100%', justifyContent: 'center' }}>
+                    {positions.filter((p) => p.includes('Stepney')).map((p) => (
+                        <Box key={p}>
+                            {renderTyre(p)}
+                        </Box>
+                    ))}
+                </Stack>
+            )}
         </Box>
     );
 }

@@ -20,6 +20,7 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import { ICONS } from 'src/assets/data/icons';
 import { useGetTyres } from 'src/query/use-tyre';
 import { useVehicle } from 'src/query/use-vehicle';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -61,6 +62,7 @@ const defaultFilters = {
     maxKm: null,
     minThread: null,
     maxThread: null,
+    position: '',
 };
 
 export default function TyreListView() {
@@ -99,6 +101,7 @@ export default function TyreListView() {
         maxKm: filters.maxKm || undefined,
         minThread: filters.minThread || undefined,
         maxThread: filters.maxThread || undefined,
+        position: filters.position || undefined,
         orderBy: table.orderBy,
         order: table.order,
     });
@@ -162,7 +165,7 @@ export default function TyreListView() {
                             color="default"
                             onClick={learn.onTrue}
                         >
-                            <Iconify icon="mage:light-bulb" />
+                            <Iconify icon={ICONS.tyre.bulb} />
                         </IconButton>
                     </Stack>
                 }
@@ -177,7 +180,7 @@ export default function TyreListView() {
                             component={RouterLink}
                             href={paths.dashboard.tyre.bulkImport}
                             variant="outlined"
-                            startIcon={<Iconify icon="solar:import-bold" />}
+                            startIcon={<Iconify icon={ICONS.common.import} />}
                         >
                             Import
                         </Button>
@@ -185,7 +188,7 @@ export default function TyreListView() {
                             component={RouterLink}
                             href={paths.dashboard.tyre.new}
                             variant="contained"
-                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            startIcon={<Iconify icon={ICONS.common.add} />}
                         >
                             New Tyre
                         </Button>
@@ -212,7 +215,7 @@ export default function TyreListView() {
                             total={totals.all?.count || 0}
                             percent={100}
                             price={totals.all?.value || 0}
-                            icon="solar:bill-list-bold-duotone"
+                            icon={ICONS.tyre.bill}
                             color={theme.palette.info.main}
                         />
 
@@ -221,7 +224,7 @@ export default function TyreListView() {
                             total={getTyreLength(TYRE_STATUS.IN_STOCK)}
                             percent={getPercentByStatus(TYRE_STATUS.IN_STOCK)}
                             price={getTotalValue(TYRE_STATUS.IN_STOCK)}
-                            icon="solar:box-bold-duotone"
+                            icon={ICONS.tyre.box}
                             color={theme.palette.success.main}
                         />
 
@@ -230,7 +233,7 @@ export default function TyreListView() {
                             total={getTyreLength(TYRE_STATUS.MOUNTED)}
                             percent={getPercentByStatus(TYRE_STATUS.MOUNTED)}
                             price={getTotalValue(TYRE_STATUS.MOUNTED)}
-                            icon="solar:wheel-angle-bold-duotone"
+                            icon={ICONS.tyre.wheel}
                             color={theme.palette.warning.main}
                         />
 
@@ -239,7 +242,7 @@ export default function TyreListView() {
                             total={getTyreLength(TYRE_STATUS.SCRAPPED)}
                             percent={getPercentByStatus(TYRE_STATUS.SCRAPPED)}
                             price={getTotalValue(TYRE_STATUS.SCRAPPED)}
-                            icon="solar:trash-bin-trash-bold-duotone"
+                            icon={ICONS.tyre.trash}
                             color={theme.palette.error.main}
                         />
                     </Stack>

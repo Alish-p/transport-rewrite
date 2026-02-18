@@ -11,6 +11,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { ICONS, NAV_ICONS } from 'src/assets/data/icons';
+
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -91,7 +93,7 @@ export default function TyreTableToolbar({
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                                <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                             </InputAdornment>
                         ),
                     }}
@@ -105,7 +107,7 @@ export default function TyreTableToolbar({
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                                <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                             </InputAdornment>
                         ),
                     }}
@@ -132,7 +134,7 @@ export default function TyreTableToolbar({
                 <DialogSelectButton
                     onClick={vehiclePopover.onOpen}
                     disabled={false}
-                    iconName="mdi:truck-outline"
+                    startIcon={NAV_ICONS.vehicle}
                     placeholder="Filter by Vehicle"
                     selected={vehicleData?.vehicleNo}
                     onClear={() => handleFilterVehicle(null)}
@@ -150,7 +152,7 @@ export default function TyreTableToolbar({
                     <Button
                         color="inherit"
                         variant="outlined"
-                        startIcon={<Iconify icon="solar:filter-bold" />}
+                        startIcon={<Iconify icon={ICONS.common.filter} />}
                         onClick={filtersDrawer.onTrue}
                         sx={{ flexShrink: 0 }}
                     >
@@ -162,7 +164,7 @@ export default function TyreTableToolbar({
                         onClick={columnsPopover.onOpen}
                         startIcon={
                             <Badge color="error" variant="dot" invisible={!canResetColumns}>
-                                <Iconify icon="solar:settings-bold" />
+                                <Iconify icon={ICONS.common.settings} />
                             </Badge>
                         }
                         sx={{ flexShrink: 0 }}

@@ -14,6 +14,7 @@ import CardContent from '@mui/material/CardContent';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { ICONS } from 'src/assets/data/icons';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
 import { useGetTyre, useMountTyre, useScrapTyre, useUnmountTyre } from 'src/query/use-tyre';
@@ -121,8 +122,8 @@ export default function TyreDetailsView() {
     if (!tyre) return <div>Tyre not found</div>;
 
     const meta = [
-        { icon: 'solar:code-file-bold', label: tyre.serialNumber },
-        { icon: 'solar:ruler-angular-bold', label: tyre.size },
+        { icon: ICONS.tyre.code, label: tyre.serialNumber },
+        { icon: ICONS.tyre.ruler, label: tyre.size },
     ];
 
     return (
@@ -131,48 +132,48 @@ export default function TyreDetailsView() {
                 <HeroHeader
                     title={`${tyre.brand} ${tyre.serialNumber}`}
                     status={tyre.status}
-                    icon="mingcute:tyre-line"
+                    icon={ICONS.tyre.tyre}
                     meta={meta}
                     actions={[
                         {
                             label: 'Edit',
-                            icon: 'solar:pen-bold',
+                            icon: ICONS.common.edit,
                             onClick: () => navigate(paths.dashboard.tyre.edit(tyre._id)),
                         },
                     ]}
                     menus={[
                         {
                             label: 'Actions',
-                            icon: 'eva:settings-2-fill',
+                            icon: ICONS.tyre.settings,
                             items: [
                                 {
                                     label: 'Change Thread',
-                                    icon: 'mdi:ruler',
+                                    icon: ICONS.tyre.measure,
                                     onClick: () => setOpenThreadDialog(true),
                                     disabled: tyre.status === TYRE_STATUS.SCRAPPED,
                                 },
                                 {
                                     label: 'Mount',
-                                    icon: 'mingcute:tyre-line',
+                                    icon: ICONS.tyre.tyre,
                                     onClick: () => setOpenMountWizard(true),
                                     disabled: tyre.status === TYRE_STATUS.MOUNTED || tyre.status === TYRE_STATUS.SCRAPPED,
                                 },
                                 {
                                     label: 'Unmount',
-                                    icon: 'gg:remove',
+                                    icon: ICONS.tyre.remove,
                                     onClick: () => setOpenUnmountDialog(true),
                                     disabled: tyre.status !== TYRE_STATUS.MOUNTED,
                                 },
                                 {
                                     label: 'Move to Scrap',
-                                    icon: 'tabler:trash-filled',
+                                    icon: ICONS.tyre.trashFilled,
                                     onClick: () => setOpenScrapDialog(true),
                                     disabled: tyre.status === TYRE_STATUS.SCRAPPED,
                                     sx: { color: 'error.main' },
                                 },
                                 {
                                     label: 'Remold',
-                                    icon: 'solar:refresh-circle-bold',
+                                    icon: ICONS.tyre.remold,
                                     onClick: () => setOpenRemoldDialog(true),
                                     disabled: tyre.status !== TYRE_STATUS.IN_STOCK,
                                 },
@@ -195,7 +196,7 @@ export default function TyreDetailsView() {
                                 <OverviewWidget
                                     title="Total Distance"
                                     total={tyre.currentKm || 0}
-                                    icon="mingcute:road-line"
+                                    icon={ICONS.tyre.road}
                                     color="info"
                                     unit="km"
                                 />
@@ -204,7 +205,7 @@ export default function TyreDetailsView() {
                                 <OverviewWidget
                                     title="Remaining Thread"
                                     total={`${tyre?.threadDepth?.current || 0}/${tyre?.threadDepth?.original || 0}`}
-                                    icon="mingcute:ruler-line"
+                                    icon={ICONS.tyre.rulerLine}
                                     color="warning"
                                     unit="mm"
                                 />
@@ -214,7 +215,7 @@ export default function TyreDetailsView() {
                                     <OverviewWidget
                                         title="Remold Distance"
                                         total={(tyre.currentKm || 0) - (tyre.metadata?.totalKmAtLastRemold || 0)}
-                                        icon="mingcute:road-line"
+                                        icon={ICONS.tyre.road}
                                         color="success"
                                         unit="km"
                                     />
@@ -267,7 +268,7 @@ export default function TyreDetailsView() {
                                             color: 'primary.main',
                                         }}
                                     >
-                                        <Iconify icon="mingcute:tyre-line" sx={{ mr: 2 }} />
+                                        <Iconify icon={ICONS.tyre.tyre} sx={{ mr: 2 }} />
                                         <Typography variant="h6">
                                             {tyre.status === TYRE_STATUS.IN_STOCK ? 'In Stock' : 'Currently Not Mounted'}
                                         </Typography>

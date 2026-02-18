@@ -13,6 +13,8 @@ import { alpha, useTheme } from '@mui/material/styles';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
+import { ICONS } from 'src/assets/data/icons';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -39,7 +41,7 @@ export default function TyreLearn({ open, onClose }) {
                         height: 40,
                     }}
                 >
-                    <Iconify icon="solar:wheel-bold" width={24} />
+                    <Iconify icon={ICONS.tyre.tyre} width={24} />
                 </Avatar>
                 <Box sx={{ flex: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
@@ -64,7 +66,7 @@ export default function TyreLearn({ open, onClose }) {
                         height: 40,
                     }}
                 >
-                    <Iconify icon="solar:book-bookmark-bold" width={24} />
+                    <Iconify icon={ICONS.common.book} width={24} />
                 </Avatar>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                     Lifecycle & Terminology
@@ -98,7 +100,7 @@ export default function TyreLearn({ open, onClose }) {
                     <TableRow>
                         <TableCell sx={{ fontWeight: 600 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Iconify icon="solar:box-minimalistic-bold" width={18} color={theme.palette.text.secondary} />
+                                <Iconify icon={ICONS.common.boxMinimal} width={18} color={theme.palette.text.secondary} />
                                 Mount / Unmount
                             </Box>
                         </TableCell>
@@ -110,7 +112,7 @@ export default function TyreLearn({ open, onClose }) {
                     <TableRow>
                         <TableCell sx={{ fontWeight: 600 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Iconify icon="solar:refresh-circle-bold" width={18} color={theme.palette.text.secondary} />
+                                <Iconify icon={ICONS.tyre.remold} width={18} color={theme.palette.text.secondary} />
                                 Remold / Retread
                             </Box>
                         </TableCell>
@@ -127,7 +129,7 @@ export default function TyreLearn({ open, onClose }) {
                     <TableRow>
                         <TableCell sx={{ fontWeight: 600 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Iconify icon="solar:bus-bold" width={18} color={theme.palette.text.secondary} />
+                                <Iconify icon={ICONS.common.bus} width={18} color={theme.palette.text.secondary} />
                                 Vehicle Layout
                             </Box>
                         </TableCell>
@@ -152,7 +154,7 @@ export default function TyreLearn({ open, onClose }) {
                         height: 40,
                     }}
                 >
-                    <Iconify icon="solar:chat-round-dots-bold" width={24} />
+                    <Iconify icon={ICONS.common.chat} width={24} />
                 </Avatar>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                     Common Questions
@@ -169,14 +171,14 @@ export default function TyreLearn({ open, onClose }) {
                 }}
             >
                 <AccordionSummary
-                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    expandIcon={<Iconify icon={ICONS.common.arrowDown} />}
                     sx={{
                         bgcolor: alpha(theme.palette.grey[500], 0.04),
                         '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Iconify icon="solar:question-circle-bold" width={20} color={theme.palette.info.main} />
+                        <Iconify icon={ICONS.common.question} width={20} color={theme.palette.info.main} />
                         <Typography variant="subtitle2">Does Current KM mean actual total distance?</Typography>
                     </Box>
                 </AccordionSummary>
@@ -198,14 +200,14 @@ export default function TyreLearn({ open, onClose }) {
                 }}
             >
                 <AccordionSummary
-                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    expandIcon={<Iconify icon={ICONS.common.arrowDown} />}
                     sx={{
                         bgcolor: alpha(theme.palette.grey[500], 0.04),
                         '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Iconify icon="solar:settings-bold" width={20} color={theme.palette.secondary.main} />
+                        <Iconify icon={ICONS.common.settings} width={20} color={theme.palette.secondary.main} />
                         <Typography variant="subtitle2">What if a tyre is on Stepney (Spare)?</Typography>
                     </Box>
                 </AccordionSummary>
@@ -227,14 +229,14 @@ export default function TyreLearn({ open, onClose }) {
                 }}
             >
                 <AccordionSummary
-                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    expandIcon={<Iconify icon={ICONS.common.arrowDown} />}
                     sx={{
                         bgcolor: alpha(theme.palette.grey[500], 0.04),
                         '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Iconify icon="solar:shield-user-bold" width={20} color={theme.palette.success.main} />
+                        <Iconify icon={ICONS.common.shield} width={20} color={theme.palette.success.main} />
                         <Typography variant="subtitle2">Who has access to update tyres?</Typography>
                     </Box>
                 </AccordionSummary>

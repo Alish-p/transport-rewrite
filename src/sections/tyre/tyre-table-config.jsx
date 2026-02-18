@@ -1,4 +1,6 @@
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
@@ -116,19 +118,32 @@ export const TYRE_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => row.currentPosition || '-',
-    },
-    {
-        id: 'layout',
-        label: 'Layout',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.currentPosition || '-',
         render: (row) =>
             row.currentVehicleId?.tyreLayoutId && row.currentPosition ? (
-                <MiniTyreLayout
-                    layoutId={row.currentVehicleId.tyreLayoutId}
-                    currentPosition={row.currentPosition}
-                />
+                <Tooltip
+                    title={
+                        <Box sx={{ p: 1 }}>
+                            <MiniTyreLayout
+                                layoutId={row.currentVehicleId.tyreLayoutId}
+                                currentPosition={row.currentPosition}
+                                disableTooltip
+                            />
+                        </Box>
+                    }
+                    arrow
+                    placement="right"
+                >
+                    <Box
+                        component="span"
+                        sx={{
+                            cursor: 'help',
+                            borderBottom: '1px dashed',
+                            borderColor: 'text.disabled',
+                        }}
+                    >
+                        {row.currentPosition}
+                    </Box>
+                </Tooltip>
             ) : (
                 '-'
             ),

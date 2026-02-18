@@ -17,6 +17,7 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fDateTime } from 'src/utils/format-time';
 
+import { ICONS } from 'src/assets/data/icons';
 import { useGetTyreHistory, useUpdateTyreHistory } from 'src/query/use-tyre';
 
 import { toast } from 'src/components/snackbar';
@@ -192,7 +193,7 @@ function HistoryItem({ item, lastItem, onEdit }) {
 
                     {canEdit && (
                         <IconButton size="small" onClick={onEdit}>
-                            <Iconify icon="solar:pen-bold" width={16} />
+                            <Iconify icon={ICONS.common.edit} width={16} />
                         </IconButton>
                     )}
                 </Box>

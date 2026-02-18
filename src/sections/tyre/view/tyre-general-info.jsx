@@ -4,6 +4,8 @@ import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
+import { ICONS } from 'src/assets/data/icons';
+
 import { Iconify } from 'src/components/iconify';
 
 export default function TyreGeneralInfo({ tyre, ...other }) {
@@ -35,14 +37,14 @@ export default function TyreGeneralInfo({ tyre, ...other }) {
                         sm: 'repeat(2, 1fr)',
                     }}
                 >
-                    {renderItem('solar:bookmark-circle-bold', 'Brand', tyre.brand)}
-                    {renderItem('solar:tag-bold', 'Model', tyre.model)}
-                    {renderItem('solar:ruler-angular-bold', 'Size', tyre.size)}
-                    {renderItem('solar:code-file-bold', 'Serial Number', tyre.serialNumber)}
-                    {renderItem('solar:dollar-minimalistic-bold', 'Cost', tyre.cost)}
-                    {renderItem('solar:file-text-bold', 'PO Number', tyre.purchaseOrderNumber)}
-                    {renderItem('solar:calendar-bold', 'Purchase Date', tyre.purchaseDate ? new Date(tyre.purchaseDate).toLocaleDateString() : '-')}
-                    {renderItem('mdi:tire', 'Type', tyre.type)}
+                    {renderItem(ICONS.common.bookmark, 'Brand', tyre.brand)}
+                    {renderItem(ICONS.common.tag, 'Model', tyre.model)}
+                    {renderItem(ICONS.tyre.ruler, 'Size', tyre.size)}
+                    {renderItem(ICONS.tyre.code, 'Serial Number', tyre.serialNumber)}
+                    {renderItem(ICONS.common.dollar, 'Cost', tyre.cost)}
+                    {renderItem(ICONS.common.fileText, 'PO Number', tyre.purchaseOrderNumber)}
+                    {renderItem(ICONS.common.calendar, 'Purchase Date', tyre.purchaseDate ? new Date(tyre.purchaseDate).toLocaleDateString() : '-')}
+                    {renderItem(ICONS.tyre.tyre, 'Type', tyre.type)}
                 </Box>
 
                 {tyre.metadata && (
@@ -57,8 +59,8 @@ export default function TyreGeneralInfo({ tyre, ...other }) {
                                 sm: 'repeat(2, 1fr)',
                             }}
                         >
-                            {renderItem('mdi:refresh', 'Remold Count', tyre.metadata.remoldCount)}
-                            {renderItem('mdi:check-circle-outline', 'Remoldable', tyre.metadata.isRemoldable ? 'Yes' : 'No')}
+                            {renderItem(ICONS.common.refresh, 'Remold Count', tyre.metadata.remoldCount)}
+                            {renderItem(ICONS.common.checkCircle, 'Remoldable', tyre.metadata.isRemoldable ? 'Yes' : 'No')}
                         </Box>
                     </Box>
                 )}

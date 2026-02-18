@@ -2,12 +2,18 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
+import Select from '@mui/material/Select';
 // import Slider from '@mui/material/Slider';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
+
+import { ICONS, NAV_ICONS } from 'src/assets/data/icons';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -16,7 +22,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-// import { TYRE_TYPE } from './tyre-constants';
+import { TYRE_POSITIONS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -53,6 +59,10 @@ export default function TyreFiltersDrawer({
         onFilters('size', event.target.value);
     };
 
+    const handleFilterPosition = (event) => {
+        onFilters('position', event.target.value);
+    };
+
     // const handleFilterKm = (event, newValue) => {
     //     onFilters('currentKm', newValue);
     // };
@@ -67,7 +77,7 @@ export default function TyreFiltersDrawer({
             <Typography variant="h6">Filters</Typography>
 
             <IconButton onClick={onClose}>
-                <Iconify icon="mingcute:close-line" />
+                <Iconify icon={ICONS.common.close} />
             </IconButton>
         </Stack>
     );
@@ -83,7 +93,7 @@ export default function TyreFiltersDrawer({
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                         </InputAdornment>
                     ),
                 }}
@@ -97,7 +107,7 @@ export default function TyreFiltersDrawer({
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                         </InputAdornment>
                     ),
                 }}
@@ -111,7 +121,7 @@ export default function TyreFiltersDrawer({
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                         </InputAdornment>
                     ),
                 }}
@@ -125,7 +135,7 @@ export default function TyreFiltersDrawer({
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
                         </InputAdornment>
                     ),
                 }}
@@ -135,11 +145,32 @@ export default function TyreFiltersDrawer({
                 fullWidth
                 onClick={vehiclePopover.onOpen}
                 disabled={false}
-                iconName="mdi:truck-outline"
+                startIcon={NAV_ICONS.vehicle}
                 placeholder="Filter by Vehicle"
                 selected={props.vehicleData?.vehicleNo}
                 onClear={() => handleFilterVehicle(null)}
             />
+
+            <FormControl fullWidth>
+                <InputLabel>Tyre Position</InputLabel>
+                <Select
+                    value={filters.position || ''}
+                    label="Tyre Position"
+                    onChange={handleFilterPosition}
+                >
+                    <MenuItem
+                        value=""
+                        sx={{ fontStyle: 'italic', borderBottom: '1px solid rgba(145, 158, 171, 0.24)', mb: 1 }}
+                    >
+                        None
+                    </MenuItem>
+                    {Object.entries(TYRE_POSITIONS).map(([key, value]) => (
+                        <MenuItem key={key} value={value}>
+                            {value}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
             {/* The dialog needs to be somewhere. Can be outside renderFilters stack or inside, usually fine inside if properly memoized/rendered. */}
         </Stack>
     );
@@ -237,7 +268,7 @@ export default function TyreFiltersDrawer({
                         color="inherit"
                         variant="outlined"
                         onClick={onResetFilters}
-                        startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                        startIcon={<Iconify icon={ICONS.common.delete} />}
                     >
                         Clear All
                     </Button>
