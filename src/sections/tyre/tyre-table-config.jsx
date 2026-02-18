@@ -6,6 +6,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fDate, fTime } from 'src/utils/format-time';
+
 import MiniTyreLayout from 'src/sections/vehicle/components/mini-tyre-layout';
 
 // ----------------------------------------------------------------------
@@ -34,62 +36,6 @@ export const TYRE_TABLE_COLUMNS = [
             />
         ),
         sortable: true,
-    },
-    {
-        id: 'currentKm',
-        label: 'Last Recorded KM',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.currentKm,
-        render: (row) => `${row.currentKm || 0} km`,
-        sortable: true,
-    },
-    {
-        id: 'remoldKm',
-        label: 'Remold Km',
-        defaultVisible: false,
-        disabled: false,
-        getter: (row) => {
-            if (row.metadata?.remoldCount > 0) {
-                return (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
-            }
-            return '-';
-        },
-        render: (row) => {
-            if (row.metadata?.remoldCount > 0) {
-                const val = (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
-                return `${val} km`;
-            }
-            return '-';
-        },
-    },
-    {
-        id: 'brand',
-        label: 'Brand',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.brand,
-    },
-    {
-        id: 'model',
-        label: 'Model',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.model,
-    },
-    {
-        id: 'size',
-        label: 'Size',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.size,
-    },
-    {
-        id: 'type',
-        label: 'Type',
-        defaultVisible: true,
-        disabled: false,
-        getter: (row) => row.type,
     },
     {
         id: 'vehicle',
@@ -149,6 +95,63 @@ export const TYRE_TABLE_COLUMNS = [
             ),
     },
     {
+        id: 'currentKm',
+        label: 'Last Recorded KM',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.currentKm,
+        render: (row) => `${row.currentKm || 0} km`,
+        sortable: true,
+    },
+    {
+        id: 'remoldKm',
+        label: 'Remold Km',
+        defaultVisible: false,
+        disabled: false,
+        getter: (row) => {
+            if (row.metadata?.remoldCount > 0) {
+                return (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
+            }
+            return '-';
+        },
+        render: (row) => {
+            if (row.metadata?.remoldCount > 0) {
+                const val = (row.currentKm || 0) - (row.metadata?.totalKmAtLastRemold || 0);
+                return `${val} km`;
+            }
+            return '-';
+        },
+    },
+    {
+        id: 'brand',
+        label: 'Brand',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.brand,
+    },
+    {
+        id: 'model',
+        label: 'Model',
+        defaultVisible: false,
+        disabled: false,
+        getter: (row) => row.model,
+    },
+    {
+        id: 'size',
+        label: 'Size',
+        defaultVisible: false,
+        disabled: false,
+        getter: (row) => row.size,
+    },
+    {
+        id: 'type',
+        label: 'Type',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.type,
+    },
+
+    {
         id: 'cost',
         label: 'Cost',
         defaultVisible: true,
@@ -163,6 +166,27 @@ export const TYRE_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => `${row.threadDepth?.current || 0} / ${row.threadDepth?.original || 0} mm`,
+        sortable: true,
+    },
+
+    {
+        id: 'createdAt',
+        label: 'Added on',
+        defaultVisible: false,
+        disabled: false,
+        getter: (row) => row.createdAt,
+        render: (row) => (
+            <ListItemText
+                primary={fDate(row.createdAt)}
+                secondary={fTime(row.createdAt)}
+                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+                secondaryTypographyProps={{
+                    mt: 0.5,
+                    component: 'span',
+                    typography: 'caption',
+                }}
+            />
+        ),
         sortable: true,
     },
 ];
