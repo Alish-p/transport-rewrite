@@ -18,6 +18,8 @@ import { useCreateTyre, useUpdateTyre } from 'src/query/use-tyre';
 
 import { Form, Field } from 'src/components/hook-form';
 
+import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_BRAND_MODELS } from './tyre-constants';
+
 // ----------------------------------------------------------------------
 
 const TYPE_OPTIONS = [
@@ -107,6 +109,15 @@ export default function TyreNewEditForm({ currentTyre }) {
         }
     }, [type, originalThreadDepth, setValue]);
 
+    const brand = watch('brand');
+
+    const modelOptions = useMemo(() => {
+        if (!brand || !TYRE_BRAND_MODELS[brand]) {
+            return TYRE_MODELS;
+        }
+        return TYRE_BRAND_MODELS[brand];
+    }, [brand]);
+
     const onSubmit = async (data) => {
         try {
             const payload = {
@@ -142,10 +153,25 @@ export default function TyreNewEditForm({ currentTyre }) {
             <CardHeader title="Tyre Details" sx={{ mb: 3 }} />
             <Divider />
             <Stack spacing={3} sx={{ p: 3 }}>
-                <Field.Text name="brand" label="Brand" placeholder="e.g. Michelin" />
-                <Field.Text name="model" label="Model" placeholder="e.g. X Multi T" />
+                <Field.AutocompleteFreeSolo
+                    name="brand"
+                    label="Brand"
+                    placeholder="e.g. Michelin"
+                    options={TYRE_BRANDS.map((option) => ({ label: option, value: option }))}
+                />
+                <Field.AutocompleteFreeSolo
+                    name="model"
+                    label="Model"
+                    placeholder="e.g. X Multi T"
+                    options={modelOptions.map((option) => ({ label: option, value: option }))}
+                />
                 <Field.Text name="serialNumber" label="Tyre Number / Serial" placeholder="e.g. TYRE-990123" />
-                <Field.Text name="size" label="Size" placeholder="e.g. 295/80R22.5" />
+                <Field.AutocompleteFreeSolo
+                    name="size"
+                    label="Size"
+                    placeholder="e.g. 295/80R22.5"
+                    options={TYRE_SIZES.map((option) => ({ label: option, value: option }))}
+                />
             </Stack>
         </Card>
     );

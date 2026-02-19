@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { ICONS, NAV_ICONS } from 'src/assets/data/icons';
@@ -22,7 +23,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { TYRE_POSITIONS } from './tyre-constants';
+import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_BRAND_MODELS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -43,21 +44,21 @@ export default function TyreFiltersDrawer({
         onFilters('serialNumber', event.target.value);
     };
 
-    const handleFilterBrand = (event) => {
-        onFilters('brand', event.target.value);
-    };
+    // const handleFilterBrand = (event) => {
+    //     onFilters('brand', event.target.value);
+    // };
 
     const handleFilterVehicle = (vehicle) => {
         onFilters('vehicle', vehicle?._id || null);
     };
 
-    const handleFilterModel = (event) => {
-        onFilters('model', event.target.value);
-    };
+    // const handleFilterModel = (event) => {
+    //     onFilters('model', event.target.value);
+    // };
 
-    const handleFilterSize = (event) => {
-        onFilters('size', event.target.value);
-    };
+    // const handleFilterSize = (event) => {
+    //     onFilters('size', event.target.value);
+    // };
 
     const handleFilterPosition = (event) => {
         onFilters('position', event.target.value);
@@ -99,46 +100,85 @@ export default function TyreFiltersDrawer({
                 }}
             />
 
-            <TextField
+            <Autocomplete
                 fullWidth
+                freeSolo
+                options={TYRE_BRANDS}
                 value={filters.brand}
-                onChange={handleFilterBrand}
-                placeholder="Search Brand..."
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
-                        </InputAdornment>
-                    ),
+                onChange={(event, newValue) => {
+                    onFilters('brand', newValue);
                 }}
+                onInputChange={(event, newInputValue) => {
+                    onFilters('brand', newInputValue);
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        placeholder="Search Brand..."
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                )}
             />
 
-            <TextField
+            <Autocomplete
                 fullWidth
+                freeSolo
+                options={filters.brand && TYRE_BRAND_MODELS[filters.brand] ? TYRE_BRAND_MODELS[filters.brand] : TYRE_MODELS}
                 value={filters.model}
-                onChange={handleFilterModel}
-                placeholder="Search Model..."
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
-                        </InputAdornment>
-                    ),
+                onChange={(event, newValue) => {
+                    onFilters('model', newValue);
                 }}
+                onInputChange={(event, newInputValue) => {
+                    onFilters('model', newInputValue);
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        placeholder="Search Model..."
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                )}
             />
 
-            <TextField
+            <Autocomplete
                 fullWidth
+                freeSolo
+                options={TYRE_SIZES}
                 value={filters.size}
-                onChange={handleFilterSize}
-                placeholder="Search Size..."
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
-                        </InputAdornment>
-                    ),
+                onChange={(event, newValue) => {
+                    onFilters('size', newValue);
                 }}
+                onInputChange={(event, newInputValue) => {
+                    onFilters('size', newInputValue);
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        placeholder="Search Size..."
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                )}
             />
 
             <DialogSelectButton

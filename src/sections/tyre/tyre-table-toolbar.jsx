@@ -21,8 +21,8 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
 import TyreFiltersDrawer from './tyre-filters-drawer'; // Ensure correct path
-import { TYRE_TYPE } from './tyre-constants';
 import { TYRE_TABLE_COLUMNS } from './tyre-table-config';
+import { TYRE_TYPE, TYRE_BRANDS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -58,12 +58,12 @@ export default function TyreTableToolbar({
         [onFilters]
     );
 
-    const handleFilterBrand = useCallback(
-        (event) => {
-            onFilters('brand', event.target.value);
-        },
-        [onFilters]
-    );
+    // const handleFilterBrand = useCallback(
+    //     (event) => {
+    //         onFilters('brand', event.target.value);
+    //     },
+    //     [onFilters]
+    // );
 
     const handleFilterType = useCallback(
         (event, newValue) => {
@@ -100,17 +100,30 @@ export default function TyreTableToolbar({
                     sx={{ width: { xs: 1, md: 240 } }}
                 />
 
-                <TextField
+                <Autocomplete
+                    freeSolo
+                    options={TYRE_BRANDS}
                     value={filters.brand}
-                    onChange={handleFilterBrand}
-                    placeholder="Search Brand..."
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
-                            </InputAdornment>
-                        ),
+                    onChange={(event, newValue) => {
+                        onFilters('brand', newValue);
                     }}
+                    onInputChange={(event, newInputValue) => {
+                        onFilters('brand', newInputValue);
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            placeholder="Search Brand..."
+                            InputProps={{
+                                ...params.InputProps,
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    )}
                     sx={{ width: { xs: 1, md: 200 } }}
                 />
 
