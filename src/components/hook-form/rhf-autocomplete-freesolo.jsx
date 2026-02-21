@@ -74,7 +74,9 @@ export function RHFFreeSoloAutocomplete({
           }}
           isOptionEqualToValue={(option, value) => {
             if (!option || !value) return false;
-            return option.value === value.value;
+            const optionValue = typeof option === 'string' ? option : option.value;
+            const valueValue = typeof value === 'string' ? value : value.value;
+            return optionValue === valueValue;
           }}
           options={options}
           freeSolo

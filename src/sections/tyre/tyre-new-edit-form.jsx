@@ -28,11 +28,20 @@ const TYPE_OPTIONS = [
     { value: 'Used', label: 'Used' },
 ];
 
+const stringOrObjectSchema = (requiredMessage) => zod.preprocess(
+    (val) => {
+        if (typeof val === 'string') return val;
+        if (val && typeof val === 'object' && 'value' in val) return val.value;
+        return val;
+    },
+    zod.string().min(1, { message: requiredMessage })
+);
+
 export const TyreSchema = zod.object({
-    brand: zod.string().min(1, { message: 'Brand is required' }),
-    model: zod.string().min(1, { message: 'Model is required' }),
+    brand: stringOrObjectSchema('Brand is required'),
+    model: stringOrObjectSchema('Model is required'),
     serialNumber: zod.string().min(1, { message: 'Tyre Number is required' }),
-    size: zod.string().min(1, { message: 'Size is required' }),
+    size: stringOrObjectSchema('Size is required'),
     type: zod.string().min(1, { message: 'Type is required' }),
     purchaseOrderNumber: zod.string().optional(),
     currentKm: zod.coerce.number().min(0, { message: 'Kilometers must be >= 0' }),
@@ -109,7 +118,8 @@ export default function TyreNewEditForm({ currentTyre }) {
         }
     }, [type, originalThreadDepth, setValue]);
 
-    const brand = watch('brand');
+    const rawBrand = watch('brand');
+    const brand = typeof rawBrand === 'object' && rawBrand !== null ? rawBrand.value : rawBrand;
 
     const modelOptions = useMemo(() => {
         if (!brand || !TYRE_BRAND_MODELS[brand]) {
