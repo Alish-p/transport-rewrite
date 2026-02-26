@@ -1,9 +1,13 @@
 import React from 'react';
 
+import Link from '@mui/material/Link';
 import { Avatar } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDate, fTime } from 'src/utils/format-time';
 
@@ -138,6 +142,39 @@ export const PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => row.type || '',
+        render: (row) => {
+            const { type, sourceDocumentType, sourceDocumentId, sourceDocumentNumber } = row;
+
+            let docLink = null;
+            if (sourceDocumentType === 'PURCHASE_ORDER' && sourceDocumentId && sourceDocumentNumber) {
+                docLink = (
+                    <Link
+                        component={RouterLink}
+                        href={paths.dashboard.purchaseOrder.details(sourceDocumentId)}
+                        sx={{ typography: 'caption', fontWeight: 'fontWeightMedium', display: 'block', mt: 0.5 }}
+                    >
+                        {sourceDocumentNumber}
+                    </Link>
+                );
+            } else if (sourceDocumentType === 'WORK_ORDER' && sourceDocumentId && sourceDocumentNumber) {
+                docLink = (
+                    <Link
+                        component={RouterLink}
+                        href={paths.dashboard.workOrder.details(sourceDocumentId)}
+                        sx={{ typography: 'caption', fontWeight: 'fontWeightMedium', display: 'block', mt: 0.5 }}
+                    >
+                        {sourceDocumentNumber}
+                    </Link>
+                );
+            }
+
+            return (
+                <Stack spacing={0}>
+                    <Typography variant="body2">{type || '-'}</Typography>
+                    {docLink}
+                </Stack>
+            );
+        },
     },
     {
         id: 'reason',
