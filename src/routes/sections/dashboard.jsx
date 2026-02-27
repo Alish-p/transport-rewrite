@@ -82,6 +82,7 @@ const PartDetailsPage = lazy(() => import('src/pages/dashboard/part/details'));
 const PartListPage = lazy(() => import('src/pages/dashboard/part/list'));
 const PartCreatePage = lazy(() => import('src/pages/dashboard/part/new'));
 const PartEditPage = lazy(() => import('src/pages/dashboard/part/edit'));
+const PartBulkImportPage = lazy(() => import('src/pages/dashboard/part/bulk-import'));
 
 // Vehicle Maintenance - Part Locations
 const PartLocationDetailsPage = lazy(
@@ -685,6 +686,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="part" action="view" hasContent>
                 <PartListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'bulk-import',
+            element: (
+              <PermissionBasedGuard resource="part" action="create" hasContent>
+                <PartBulkImportPage />
               </PermissionBasedGuard>
             ),
           },

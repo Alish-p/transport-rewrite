@@ -209,6 +209,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/part`,
       new: `${ROOTS.DASHBOARD}/part/new`,
       list: `${ROOTS.DASHBOARD}/part/list`,
+      bulkImport: `${ROOTS.DASHBOARD}/part/bulk-import`,
       details: (id) => `${ROOTS.DASHBOARD}/part/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/part/${id}/edit`,
     },

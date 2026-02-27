@@ -1,39 +1,120 @@
 import { z as zod } from 'zod';
+import { toast } from 'sonner';
+import { useMemo } from 'react';
+import { saveAs } from 'file-saver';
 
 import { paths } from 'src/routes/paths';
 
 import { useCreateBulkParts } from 'src/query/use-part';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { BulkImportView } from 'src/components/bulk-import';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { PartSchema } from '../part-form';
-
-// Extend the schema if needed for bulk import specific fields
-// e.g. allowing string for numbers that will be coerced
-const BulkPartSchema = PartSchema.extend({
-    unitCost: zod.coerce.number().min(0),
-    quantity: zod.coerce.number().min(0).optional(),
-});
-
-const IMPORT_COLUMNS = [
-    { label: 'Part Number', key: 'partNumber', required: true },
-    { label: 'Name', key: 'name', required: true },
-    { label: 'Category', key: 'category' },
-    { label: 'Manufacturer', key: 'manufacturer' },
-    { label: 'Unit Cost', key: 'unitCost', type: 'number', required: true },
-    { label: 'Measurement Unit', key: 'measurementUnit', required: true },
-    { label: 'Description', key: 'description' },
-    // Add inventory fields if needed, but keep it simple for V1
-];
-
-export const PART_BULK_IMPORT_SCHEMA = BulkPartSchema;
-
-export const PART_BULK_IMPORT_COLUMNS = IMPORT_COLUMNS;
+import { generatePartTemplate } from './part-bulk-import-utils';
 
 export function PartBulkImportView() {
     const createBulkParts = useCreateBulkParts();
+    const { data: locationsResponse, isLoading } = usePaginatedPartLocations(
+        { page: 1, rowsPerPage: 1000 },
+        { staleTime: 1000 * 60 * 10 }
+    );
+
+    const locations = useMemo(() => locationsResponse?.locations || locationsResponse?.partLocations || locationsResponse?.results || [], [locationsResponse]);
+
+    const IMPORT_COLUMNS = useMemo(() => {
+        const baseColumns = [
+            { label: 'Part Number', key: 'partNumber', required: true, width: 180 },
+            { label: 'Name', key: 'name', required: true, width: 220 },
+            { label: 'Category', key: 'category', width: 180 },
+            { label: 'Manufacturer', key: 'manufacturer', width: 180 },
+            { label: 'Unit Cost', key: 'unitCost', type: 'number', required: true, width: 140 },
+            { label: 'Measurement Unit', key: 'measurementUnit', required: true, width: 160 },
+            { label: 'Description', key: 'description', width: 240 },
+        ];
+
+        const locationColumns = locations.flatMap(loc => [
+            { label: `${loc.name} Quantity`, key: `loc_${loc._id}_qty`, type: 'number', width: 160 },
+            { label: `${loc.name} Reorder Point`, key: `loc_${loc._id}_threshold`, type: 'number', width: 180 },
+        ]);
+
+        return [...baseColumns, ...locationColumns];
+    }, [locations]);
+
+    const BulkPartSchema = useMemo(() => {
+        const schemaShape = {
+            partNumber: zod.union([zod.string(), zod.number()]).transform(String).refine(val => val.length > 0, { message: 'Part Number is required' }),
+            name: zod.string().min(1, { message: 'Name is required' }),
+            category: zod.string().optional(),
+            manufacturer: zod.string().optional(),
+            unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
+            measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
+            description: zod.string().optional(),
+        };
+
+        locations.forEach(loc => {
+            schemaShape[`loc_${loc._id}_qty`] = zod.coerce.number().min(0).optional();
+            schemaShape[`loc_${loc._id}_threshold`] = zod.coerce.number().min(0).optional();
+        });
+
+        return zod.object(schemaShape);
+    }, [locations]);
+
+    const handleImport = async (data) => {
+        try {
+            const formattedData = data.map(item => {
+                const inventory = [];
+                locations.forEach(loc => {
+                    const qtyKey = `loc_${loc._id}_qty`;
+                    const thresholdKey = `loc_${loc._id}_threshold`;
+
+                    const qty = item[qtyKey];
+                    const threshold = item[thresholdKey];
+
+                    if (qty !== undefined || threshold !== undefined) {
+                        inventory.push({
+                            inventoryLocation: loc._id,
+                            quantity: qty || 0,
+                            threshold: threshold || 0
+                        });
+                    }
+                });
+
+                return {
+                    partNumber: item.partNumber,
+                    name: item.name,
+                    category: item.category,
+                    manufacturer: item.manufacturer,
+                    unitCost: item.unitCost,
+                    measurementUnit: item.measurementUnit,
+                    description: item.description,
+                    inventory
+                };
+            });
+
+            await createBulkParts({ parts: formattedData });
+            toast.success('Parts imported successfully!');
+        } catch (error) {
+            console.error(error);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Import failed';
+            toast.error(errorMessage);
+            throw error;
+        }
+    };
+
+    const handleDownloadTemplate = async () => {
+        try {
+            const blob = await generatePartTemplate(locations);
+            saveAs(blob, 'part_import_template.xlsx');
+        } catch (error) {
+            console.error('Error generating template:', error);
+        }
+    };
+
+    if (isLoading) {
+        return null;
+    }
 
     return (
         <DashboardContent>
@@ -52,7 +133,8 @@ export function PartBulkImportView() {
                 entityName="Part"
                 schema={BulkPartSchema}
                 columns={IMPORT_COLUMNS}
-                onImport={(data) => createBulkParts({ parts: data })}
+                onImport={handleImport}
+                onDownloadTemplate={handleDownloadTemplate}
             />
         </DashboardContent>
     );
