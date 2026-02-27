@@ -39,6 +39,9 @@ const NewTripSchema = zod
       .nullable()
       .refine((val) => val !== null, { message: 'Vehicle is required' }),
     fromDate: schemaHelper.date({ message: { required_error: 'From date is required!' } }),
+    toDate: zod.any().nullable().optional(),
+    startKm: zod.union([zod.number(), zod.string()]).nullable().optional(),
+    endKm: zod.union([zod.number(), zod.string()]).nullable().optional(),
     remarks: zod.string().optional(),
     closePreviousTrips: zod.boolean().default(true),
     addFirstSubtrip: zod.boolean().optional().default(false),
@@ -63,6 +66,27 @@ const NewTripSchema = zod
         });
       }
     }
+
+    if (data.toDate && data.fromDate) {
+      if (dayjs(data.toDate).isBefore(dayjs(data.fromDate))) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'To Date must be equal to or after From Date',
+          path: ['toDate'],
+        });
+      }
+    }
+
+    const sKm = data.startKm !== '' && data.startKm !== null && data.startKm !== undefined ? Number(data.startKm) : null;
+    const eKm = data.endKm !== '' && data.endKm !== null && data.endKm !== undefined ? Number(data.endKm) : null;
+
+    if (sKm !== null && eKm !== null && eKm < sKm) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'End KM must be greater than or equal to Start KM',
+        path: ['endKm'],
+      });
+    }
   });
 
 export default function TripForm({ currentTrip }) {
@@ -84,6 +108,9 @@ export default function TripForm({ currentTrip }) {
       driver: currentTrip?.driver || currentTrip?.driverId || null,
       vehicleId: currentTrip?.vehicleId || null,
       fromDate: currentTrip?.fromDate ? new Date(currentTrip.fromDate) : new Date(),
+      toDate: currentTrip?.toDate ? new Date(currentTrip.toDate) : null,
+      startKm: currentTrip?.startKm ?? '',
+      endKm: currentTrip?.endKm ?? '',
       remarks: currentTrip?.remarks || '',
       closePreviousTrips: true,
       addFirstSubtrip: false,
@@ -157,12 +184,18 @@ export default function TripForm({ currentTrip }) {
   const onSubmit = async (data) => {
     try {
       if (currentTrip) {
+        const updateData = {
+          ...data,
+          driverId: data.driver._id,
+        };
+        if (updateData.startKm === '') updateData.startKm = null;
+        if (updateData.endKm === '') updateData.endKm = null;
+        if (updateData.startKm !== null) updateData.startKm = Number(updateData.startKm);
+        if (updateData.endKm !== null) updateData.endKm = Number(updateData.endKm);
+
         await updateTrip({
           id: currentTrip._id,
-          data: {
-            ...data,
-            driverId: data.driver._id,
-          },
+          data: updateData,
         });
         navigate(paths.dashboard.trip.details(currentTrip._id));
       } else {
@@ -231,6 +264,9 @@ export default function TripForm({ currentTrip }) {
               </Box>
 
               <Field.DatePicker name="fromDate" label="From Date" maxDate={dayjs()} />
+              {!!currentTrip && <Field.DatePicker name="toDate" label="To Date" maxDate={dayjs()} />}
+              {!!currentTrip && <Field.Text name="startKm" label="Start KM" type="number" />}
+              {!!currentTrip && <Field.Text name="endKm" label="End KM" type="number" />}
               <Field.Text name="remarks" label="Remarks (Optional)" />
             </Box>
 
