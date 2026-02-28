@@ -22,6 +22,7 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import { TABLE_COLUMNS } from './purchase-order-table-config';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 import { KanbanVendorDialog } from '../kanban/components/kanban-vendor-dialog';
+import { KanbanContactsDialog } from '../kanban/components/kanban-contacts-dialog';
 
 export default function PurchaseOrderTableToolbar({
   filters,
@@ -36,11 +37,20 @@ export default function PurchaseOrderTableToolbar({
   onSelectPart,
   selectedVendor,
   onSelectVendor,
+  selectedCreatedBy,
+  onSelectCreatedBy,
+  selectedApprovedBy,
+  onSelectApprovedBy,
+  selectedPurchasedBy,
+  onSelectPurchasedBy,
 }) {
   const columnsPopover = usePopover();
   const partDialog = usePopover();
   const vendorDialog = useBoolean();
   const dateRange = useBoolean();
+  const createdByDialog = useBoolean();
+  const approvedByDialog = useBoolean();
+  const purchasedByDialog = useBoolean();
 
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
@@ -74,6 +84,36 @@ export default function PurchaseOrderTableToolbar({
       }
     },
     [onFilters, onSelectVendor]
+  );
+
+  const handleSelectCreatedBy = useCallback(
+    (assignees) => {
+      const user = assignees[0];
+      onFilters('createdBy', user?._id || '');
+      if (onSelectCreatedBy) onSelectCreatedBy(user || null);
+      createdByDialog.onFalse();
+    },
+    [onFilters, onSelectCreatedBy, createdByDialog]
+  );
+
+  const handleSelectApprovedBy = useCallback(
+    (assignees) => {
+      const user = assignees[0];
+      onFilters('approvedBy', user?._id || '');
+      if (onSelectApprovedBy) onSelectApprovedBy(user || null);
+      approvedByDialog.onFalse();
+    },
+    [onFilters, onSelectApprovedBy, approvedByDialog]
+  );
+
+  const handleSelectPurchasedBy = useCallback(
+    (assignees) => {
+      const user = assignees[0];
+      onFilters('purchasedBy', user?._id || '');
+      if (onSelectPurchasedBy) onSelectPurchasedBy(user || null);
+      purchasedByDialog.onFalse();
+    },
+    [onFilters, onSelectPurchasedBy, purchasedByDialog]
   );
 
   return (
@@ -133,6 +173,30 @@ export default function PurchaseOrderTableToolbar({
           sx={{ maxWidth: 260 }}
         />
 
+        <DialogSelectButton
+          onClick={createdByDialog.onTrue}
+          selected={selectedCreatedBy?.name}
+          placeholder="Created By"
+          iconName="mdi:account"
+          sx={{ maxWidth: 260 }}
+        />
+
+        <DialogSelectButton
+          onClick={approvedByDialog.onTrue}
+          selected={selectedApprovedBy?.name}
+          placeholder="Approved By"
+          iconName="mdi:account-check"
+          sx={{ maxWidth: 260 }}
+        />
+
+        <DialogSelectButton
+          onClick={purchasedByDialog.onTrue}
+          selected={selectedPurchasedBy?.name}
+          placeholder="Purchased By"
+          iconName="mdi:cart"
+          sx={{ maxWidth: 260 }}
+        />
+
         <Stack direction="row" spacing={1}>
           <Button
             color="inherit"
@@ -184,6 +248,30 @@ export default function PurchaseOrderTableToolbar({
         endDate={filters.toDate}
         onChangeStartDate={(date) => onFilters('fromDate', date)}
         onChangeEndDate={(date) => onFilters('toDate', date)}
+      />
+
+      <KanbanContactsDialog
+        assignees={selectedCreatedBy ? [selectedCreatedBy] : []}
+        open={createdByDialog.value}
+        onClose={createdByDialog.onFalse}
+        onAssigneeChange={handleSelectCreatedBy}
+        single
+      />
+
+      <KanbanContactsDialog
+        assignees={selectedApprovedBy ? [selectedApprovedBy] : []}
+        open={approvedByDialog.value}
+        onClose={approvedByDialog.onFalse}
+        onAssigneeChange={handleSelectApprovedBy}
+        single
+      />
+
+      <KanbanContactsDialog
+        assignees={selectedPurchasedBy ? [selectedPurchasedBy] : []}
+        open={purchasedByDialog.value}
+        onClose={purchasedByDialog.onFalse}
+        onAssigneeChange={handleSelectPurchasedBy}
+        single
       />
     </>
   );

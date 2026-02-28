@@ -18,6 +18,9 @@ export default function PurchaseOrderTableFiltersResult({
   results,
   selectedPart,
   selectedVendor,
+  selectedCreatedBy,
+  selectedApprovedBy,
+  selectedPurchasedBy,
   ...other
 }) {
   const handleRemoveStatus = () => {
@@ -39,6 +42,18 @@ export default function PurchaseOrderTableFiltersResult({
 
   const handleRemovePartLocation = () => {
     onFilters('partLocationId', '');
+  };
+
+  const handleRemoveCreatedBy = () => {
+    onFilters('createdBy', '');
+  };
+
+  const handleRemoveApprovedBy = () => {
+    onFilters('approvedBy', '');
+  };
+
+  const handleRemovePurchasedBy = () => {
+    onFilters('purchasedBy', '');
   };
 
   const { data: locationsResponse } = usePaginatedPartLocations(
@@ -113,6 +128,36 @@ export default function PurchaseOrderTableFiltersResult({
               size="small"
               label={selectedLocationName}
               onDelete={handleRemovePartLocation}
+            />
+          </Block>
+        )}
+
+        {filters.createdBy && (
+          <Block label="Created By :">
+            <Chip
+              size="small"
+              label={selectedCreatedBy?.name || filters.createdBy}
+              onDelete={handleRemoveCreatedBy}
+            />
+          </Block>
+        )}
+
+        {filters.approvedBy && (
+          <Block label="Approved By :">
+            <Chip
+              size="small"
+              label={selectedApprovedBy?.name || filters.approvedBy}
+              onDelete={handleRemoveApprovedBy}
+            />
+          </Block>
+        )}
+
+        {filters.purchasedBy && (
+          <Block label="Purchased By :">
+            <Chip
+              size="small"
+              label={selectedPurchasedBy?.name || filters.purchasedBy}
+              onDelete={handleRemovePurchasedBy}
             />
           </Block>
         )}

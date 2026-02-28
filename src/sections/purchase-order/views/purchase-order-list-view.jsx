@@ -58,6 +58,9 @@ const defaultFilters = {
   fromDate: null,
   toDate: null,
   partLocationId: '',
+  createdBy: '',
+  approvedBy: '',
+  purchasedBy: '',
 };
 
 const STATUS_TABS = [
@@ -82,6 +85,10 @@ export function PurchaseOrderListView() {
   const [selectedPart, setSelectedPart] = useState(null);
   const [selectedVendor, setSelectedVendor] = useState(null);
 
+  const [selectedCreatedBy, setSelectedCreatedBy] = useState(null);
+  const [selectedApprovedBy, setSelectedApprovedBy] = useState(null);
+  const [selectedPurchasedBy, setSelectedPurchasedBy] = useState(null);
+
   const {
     visibleColumns,
     visibleHeaders,
@@ -101,6 +108,9 @@ export function PurchaseOrderListView() {
     toDate: filters.toDate || undefined,
     part: filters.partId || undefined,
     partLocation: filters.partLocationId || undefined,
+    createdBy: filters.createdBy || undefined,
+    approvedBy: filters.approvedBy || undefined,
+    purchasedBy: filters.purchasedBy || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -208,6 +218,18 @@ export function PurchaseOrderListView() {
     if (!filters.vendorId) setSelectedVendor(null);
   }, [filters.vendorId]);
 
+  useEffect(() => {
+    if (!filters.createdBy) setSelectedCreatedBy(null);
+  }, [filters.createdBy]);
+
+  useEffect(() => {
+    if (!filters.approvedBy) setSelectedApprovedBy(null);
+  }, [filters.approvedBy]);
+
+  useEffect(() => {
+    if (!filters.purchasedBy) setSelectedPurchasedBy(null);
+  }, [filters.purchasedBy]);
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -271,6 +293,12 @@ export function PurchaseOrderListView() {
           onSelectPart={handleSelectPart}
           selectedVendor={selectedVendor}
           onSelectVendor={setSelectedVendor}
+          selectedCreatedBy={selectedCreatedBy}
+          onSelectCreatedBy={setSelectedCreatedBy}
+          selectedApprovedBy={selectedApprovedBy}
+          onSelectApprovedBy={setSelectedApprovedBy}
+          selectedPurchasedBy={selectedPurchasedBy}
+          onSelectPurchasedBy={setSelectedPurchasedBy}
         />
 
         {canReset && (
@@ -280,6 +308,9 @@ export function PurchaseOrderListView() {
             onResetFilters={handleResetFilters}
             selectedPart={selectedPart}
             selectedVendor={selectedVendor}
+            selectedCreatedBy={selectedCreatedBy}
+            selectedApprovedBy={selectedApprovedBy}
+            selectedPurchasedBy={selectedPurchasedBy}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -341,6 +372,9 @@ export function PurchaseOrderListView() {
                               toDate: filters.toDate || undefined,
                               part: filters.partId || undefined,
                               partLocation: filters.partLocationId || undefined,
+                              createdBy: filters.createdBy || undefined,
+                              approvedBy: filters.approvedBy || undefined,
+                              purchasedBy: filters.purchasedBy || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
