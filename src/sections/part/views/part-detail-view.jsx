@@ -5,13 +5,13 @@ import Tab from '@mui/material/Tab';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { CustomTabs } from 'src/components/custom-tabs';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 import { PartOverviewTab } from '../part-details/part-overview-tab';
 import { PartPriceHistoryTab } from '../part-details/part-price-history-tab';
 import { PartInventoryActivityTab } from '../part-details/part-inventory-activity-tab';
-import { PartWorkOrderActivityTab } from '../part-details/part-work-order-activity-tab';
 
 export function PartDetailView({ part }) {
   const {
@@ -103,10 +103,9 @@ export function PartDetailView({ part }) {
           sx={{ mb: 3, borderRadius: 1, boxShadow: 1 }}
 
         >
-          <Tab value="overview" label="Overview" />
-          <Tab value="inventoryActivity" label="Inventory Activity" />
-          <Tab value="workOrderActivity" label="Work Order Activity" />
-          <Tab value="purchaseHistory" label="Price History" />
+          <Tab icon={<Iconify icon="mdi:information-outline" />} value="overview" label="Overview" />
+          <Tab icon={<Iconify icon="mdi:history" />} value="inventoryActivity" label="Inventory Activity" />
+          <Tab icon={<Iconify icon="mdi:currency-inr" />} value="purchaseHistory" label="Price History" />
         </CustomTabs>
 
         {currentTab === 'overview' && (
@@ -127,8 +126,6 @@ export function PartDetailView({ part }) {
         )}
 
         {currentTab === 'inventoryActivity' && <PartInventoryActivityTab partId={partId} />}
-
-        {currentTab === 'workOrderActivity' && <PartWorkOrderActivityTab />}
 
         {currentTab === 'purchaseHistory' && <PartPriceHistoryTab partId={partId} currentAverageCost={part.averageUnitCost || part.unitCost} />}
       </Box>
