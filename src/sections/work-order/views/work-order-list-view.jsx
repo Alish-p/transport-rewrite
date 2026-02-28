@@ -62,11 +62,20 @@ const defaultFilters = {
 };
 
 const STATUS_TABS = [
-  { value: 'all', label: 'All', color: 'default' },
+  { value: 'all', label: 'All', color: 'default', icon: <Iconify icon="solar:list-bold" /> },
   ...WORK_ORDER_STATUS_OPTIONS.map((status) => ({
     value: status.value,
     label: status.label,
     color: status.color,
+    icon: (
+      <Iconify
+        icon={status.icon}
+        sx={{
+          color: (theme) =>
+            status.color === 'default' ? 'text.secondary' : theme.palette[status.color].main,
+        }}
+      />
+    ),
   })),
 ];
 
@@ -239,8 +248,9 @@ export function WorkOrderListView() {
             <Tab
               key={tab.value}
               value={tab.value}
+              icon={tab.icon}
               label={tab.label}
-              iconPosition="end"
+              iconPosition="start"
             />
           ))}
         </Tabs>

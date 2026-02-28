@@ -147,17 +147,17 @@ export default function WorkOrderTableToolbar({
         <DialogSelectButton
           onClick={vehicleDialog.onOpen}
           selected={selectedVehicle?.vehicleNo}
-          placeholder="Filter by vehicle"
+          placeholder="Vehicle"
           iconName="mdi:truck"
-          sx={{ width: { xs: 1, md: 200 } }}
+          sx={{ width: { xs: 1, md: 150 } }}
         />
 
         <DialogSelectButton
           onClick={partDialog.onOpen}
           selected={selectedPart?.name}
-          placeholder="Filter by part"
+          placeholder="Part"
           iconName="mdi:cube"
-          sx={{ width: { xs: 1, md: 200 } }}
+          sx={{ width: { xs: 1, md: 150 } }}
         />
 
         <DialogSelectButton
@@ -165,7 +165,7 @@ export default function WorkOrderTableToolbar({
           selected={selectedCreatedBy?.name}
           placeholder="Created By"
           iconName="mdi:account"
-          sx={{ width: { xs: 1, md: 200 } }}
+          sx={{ width: { xs: 1, md: 150 } }}
         />
 
         <DialogSelectButton
@@ -173,24 +173,22 @@ export default function WorkOrderTableToolbar({
           selected={selectedClosedBy?.name}
           placeholder="Closed By"
           iconName="mdi:account-check"
-          sx={{ width: { xs: 1, md: 200 } }}
+          sx={{ width: { xs: 1, md: 150 } }}
         />
 
-        <Stack direction="row" spacing={1} sx={{ ml: { md: 'auto !important' } }}>
-          <Button
-            color="inherit"
-            variant="outlined"
-            onClick={columnsPopover.onOpen}
-            startIcon={
-              <Badge color="error" variant="dot" invisible={!canResetColumns}>
-                <Iconify icon="solar:settings-bold" />
-              </Badge>
-            }
-            sx={{ flexShrink: 0 }}
-          >
-            Columns
-          </Button>
-        </Stack>
+        <Button
+          color="inherit"
+          variant="outlined"
+          onClick={columnsPopover.onOpen}
+          startIcon={
+            <Badge color="error" variant="dot" invisible={!canResetColumns}>
+              <Iconify icon="solar:settings-bold" />
+            </Badge>
+          }
+          sx={{ flexShrink: 0 }}
+        >
+          Columns
+        </Button>
       </Stack>
 
       <ColumnSelectorList

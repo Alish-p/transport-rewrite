@@ -10,6 +10,12 @@ export const WORK_ORDER_STATUS_COLORS = {
   completed: 'success',
 };
 
+export const WORK_ORDER_STATUS_ICONS = {
+  open: 'solar:file-check-bold',
+  pending: 'solar:clock-circle-bold',
+  completed: 'solar:check-circle-bold',
+};
+
 export const WORK_ORDER_PRIORITY_LABELS = {
   scheduled: 'Scheduled',
   'non-scheduled': 'Non Scheduled',
@@ -27,6 +33,7 @@ export const WORK_ORDER_STATUS_OPTIONS = Object.entries(WORK_ORDER_STATUS_LABELS
     value,
     label,
     color: WORK_ORDER_STATUS_COLORS[value] || 'default',
+    icon: WORK_ORDER_STATUS_ICONS[value] || 'solar:file-check-bold',
   })
 );
 
