@@ -57,7 +57,7 @@ export function AppInvoiceAmountSummary({ summary, ...other }) {
           <Stack direction="row" spacing={0.5}>
             <Tooltip title="Download Excel">
               <IconButton onClick={() => exportBillingSummaryToExcel(summary)}>
-                <Iconify icon="mdi:download" />
+                <Iconify icon="file-icons:microsoft-excel" />
               </IconButton>
             </Tooltip>
             <Tooltip title="Breakdown of billing amounts for customer invoices">

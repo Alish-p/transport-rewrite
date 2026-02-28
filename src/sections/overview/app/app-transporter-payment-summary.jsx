@@ -56,7 +56,7 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
           <Stack direction="row" spacing={0.5}>
             <Tooltip title="Download Excel">
               <IconButton onClick={() => exportTransporterPaymentSummaryToExcel(summary)}>
-                <Iconify icon="mdi:download" />
+                <Iconify icon="file-icons:microsoft-excel" />
               </IconButton>
             </Tooltip>
             <Tooltip title="Breakdown of payment amounts for transporters">

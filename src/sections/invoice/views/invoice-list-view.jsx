@@ -474,7 +474,7 @@ export function InvoiceListView() {
                       {isDownloading ? (
                         <CircularProgress size={24} color="inherit" />
                       ) : (
-                        <Iconify icon="eva:download-outline" />
+                        <Iconify icon="file-icons:microsoft-excel" />
                       )}
                     </IconButton>
                   </Tooltip>

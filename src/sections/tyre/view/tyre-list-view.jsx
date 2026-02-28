@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -9,6 +10,10 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import CircularProgress from '@mui/material/CircularProgress';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -23,6 +28,10 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { ICONS } from 'src/assets/data/icons';
 import { useGetTyres } from 'src/query/use-tyre';
 import { useVehicle } from 'src/query/use-vehicle';
+
+import axios from 'src/utils/axios';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -70,6 +79,9 @@ export default function TyreListView() {
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
     const learn = useBoolean();
+
+    const [selectAllMode, setSelectAllMode] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const { filters, handleFilters, canReset, handleResetFilters } = useFilters(defaultFilters, {
         onResetPage: table.onResetPage,
@@ -140,6 +152,13 @@ export default function TyreListView() {
         },
         [router]
     );
+
+    const getVisibleColumnsForExport = () => {
+        const orderedIds = (
+            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+        ).filter((id) => visibleColumns[id]);
+        return orderedIds;
+    };
 
     const handleToggleColumn = useCallback(
         (columnName) => {
@@ -309,11 +328,106 @@ export default function TyreListView() {
                         dense={table.dense}
                         numSelected={table.selected.length}
                         rowCount={tableData.length}
-                        onSelectAllRows={(checked) =>
+                        onSelectAllRows={(checked) => {
+                            if (!checked) {
+                                setSelectAllMode(false);
+                            }
                             table.onSelectAllRows(
                                 checked,
                                 tableData.map((row) => row._id)
-                            )
+                            );
+                        }}
+                        label={
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                                <Typography variant="subtitle2">
+                                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                                </Typography>
+
+                                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                                    <Link
+                                        component="button"
+                                        variant="subtitle2"
+                                        onClick={() => {
+                                            setSelectAllMode(true);
+                                        }}
+                                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                                    >
+                                        Select all {totalCount} tyres
+                                    </Link>
+                                )}
+                            </Stack>
+                        }
+                        action={
+                            <Stack direction="row">
+                                <Tooltip title="Download Excel">
+                                    <IconButton
+                                        color="primary"
+                                        onClick={async () => {
+                                            if (selectAllMode) {
+                                                try {
+                                                    setIsDownloading(true);
+                                                    toast.info('Export started... Please wait.');
+                                                    const orderedIds = (
+                                                        columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                                                    ).filter((id) => visibleColumns[id]);
+
+                                                    const response = await axios.get('/api/tyre/export', {
+                                                        params: {
+                                                            serialNumber: filters.serialNumber || undefined,
+                                                            brand: filters.brand || undefined,
+                                                            vehicleId: filters.vehicle || undefined,
+                                                            status: filters.status !== 'all' ? filters.status : undefined,
+                                                            type: filters.type.length ? filters.type : undefined,
+                                                            model: filters.model || undefined,
+                                                            size: filters.size || undefined,
+                                                            minKm: filters.minKm || undefined,
+                                                            maxKm: filters.maxKm || undefined,
+                                                            minThread: filters.minThread || undefined,
+                                                            maxThread: filters.maxThread || undefined,
+                                                            position: filters.position || undefined,
+                                                            columns: orderedIds.join(','),
+                                                        },
+                                                        responseType: 'blob',
+                                                    });
+                                                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                                                    const link = document.createElement('a');
+                                                    link.href = url;
+                                                    link.setAttribute('download', 'Tyres.xlsx');
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    link.remove();
+                                                    setIsDownloading(false);
+                                                    toast.success('Export completed!');
+                                                } catch (error) {
+                                                    console.error('Failed to download excel', error);
+                                                    setIsDownloading(false);
+                                                    toast.error('Failed to export tyres.');
+                                                }
+                                            } else {
+                                                const selectedRows = tableData.filter((r) =>
+                                                    table.selected.includes(r._id)
+                                                );
+                                                const visibleCols = getVisibleColumnsForExport();
+                                                exportToExcel(
+                                                    prepareDataForExport(
+                                                        selectedRows,
+                                                        TYRE_TABLE_COLUMNS,
+                                                        visibleCols,
+                                                        columnOrder
+                                                    ),
+                                                    'Tyres-selected-list'
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        {isDownloading ? (
+                                            <CircularProgress size={24} color="inherit" />
+                                        ) : (
+                                            <Iconify icon="file-icons:microsoft-excel" />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
                         }
                     />
 
@@ -327,12 +441,15 @@ export default function TyreListView() {
                                 numSelected={table.selected.length}
                                 onOrderChange={moveColumn}
                                 onSort={table.onSort}
-                                onSelectAllRows={(checked) =>
+                                onSelectAllRows={(checked) => {
+                                    if (!checked) {
+                                        setSelectAllMode(false);
+                                    }
                                     table.onSelectAllRows(
                                         checked,
                                         tableData.map((row) => row._id)
-                                    )
-                                }
+                                    );
+                                }}
                             />
 
                             <TableBody>
