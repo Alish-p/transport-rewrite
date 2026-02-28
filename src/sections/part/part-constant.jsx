@@ -38,3 +38,7 @@ export const MEASUREMENT_UNIT_GROUPS = [
         options: ["Meter", "Centimeter"],
     }
 ];
+
+export const ALLOWED_MEASUREMENT_UNITS = [
+    "Piece", "Set", "Kilogram", "Gram", "Litre", "Millilitre", "Meter", "Centimeter"
+];

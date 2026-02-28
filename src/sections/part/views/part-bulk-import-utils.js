@@ -30,7 +30,7 @@ export async function generatePartTemplate(locations = []) {
             category: 'Engine Parts',
             manufacturer: 'Bosch',
             unitCost: 1500,
-            measurementUnit: 'Pieces',
+            measurementUnit: 'Piece',
             description: 'Standard oil filter for heavy vehicles',
         },
         {
@@ -39,7 +39,7 @@ export async function generatePartTemplate(locations = []) {
             category: 'Brakes',
             manufacturer: 'TVS',
             unitCost: 4500,
-            measurementUnit: 'Sets',
+            measurementUnit: 'Set',
             description: 'Front and rear brake pads',
         },
         {
@@ -48,7 +48,7 @@ export async function generatePartTemplate(locations = []) {
             category: 'Lubricants',
             manufacturer: 'Castrol',
             unitCost: 800,
-            measurementUnit: 'Liters',
+            measurementUnit: 'Litre',
             description: 'Synthetic engine oil 15W-40',
         },
     ];

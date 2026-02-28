@@ -12,6 +12,7 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 import { BulkImportView } from 'src/components/bulk-import';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { ALLOWED_MEASUREMENT_UNITS } from '../part-constant';
 import { generatePartTemplate } from './part-bulk-import-utils';
 
 export function PartBulkImportView() {
@@ -49,7 +50,11 @@ export function PartBulkImportView() {
             category: zod.string().optional(),
             manufacturer: zod.string().optional(),
             unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
-            measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
+            measurementUnit: zod.string()
+                .min(1, { message: 'Measurement Unit is required' })
+                .refine(val => ALLOWED_MEASUREMENT_UNITS.includes(val), {
+                    message: `Measurement Unit must be one of: ${ALLOWED_MEASUREMENT_UNITS.join(', ')}`
+                }),
             description: zod.string().optional(),
         };
 
