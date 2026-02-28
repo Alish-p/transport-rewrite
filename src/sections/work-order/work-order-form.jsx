@@ -46,7 +46,6 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { RHFAutocompleteCreatable } from 'src/components/hook-form/rhf-autocomplete-creatable';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -56,10 +55,18 @@ import { KanbanContactsDialog } from '../kanban/components/kanban-contacts-dialo
 import {
   WORK_ORDER_STATUS_LABELS,
   WORK_ORDER_STATUS_COLORS,
+  WORK_ORDER_ISSUE_OPTIONS,
   WORK_ORDER_STATUS_OPTIONS,
   WORK_ORDER_PRIORITY_OPTIONS,
   WORK_ORDER_CATEGORY_OPTIONS,
 } from './work-order-config';
+
+const stringOrObjectSchema = (requiredMessage) =>
+  zod.preprocess((val) => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object' && 'value' in val) return val.value;
+    return val;
+  }, zod.string().min(1, { message: requiredMessage }));
 
 const WorkOrderLineSchema = zod.object({
   part: zod.string().optional(),
@@ -75,7 +82,7 @@ const WorkOrderLineSchema = zod.object({
 });
 
 const WorkOrderIssueSchema = zod.object({
-  issue: zod.string().min(1, { message: 'Issue cannot be empty' }),
+  issue: stringOrObjectSchema('Issue cannot be empty'),
   assignedTo: zod.string().optional(),
 });
 
@@ -416,11 +423,17 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           price: line.price,
         })),
         issues: (formData.issues || [])
-          .filter((item) => item && item.issue && item.issue.trim().length > 0)
-          .map((item) => ({
-            issue: item.issue.trim(),
-            assignedTo: item.assignedTo || undefined,
-          })),
+          .filter((item) => {
+            const issueText = typeof item?.issue === 'object' ? item.issue.value : item?.issue;
+            return item && issueText && typeof issueText === 'string' && issueText.trim().length > 0;
+          })
+          .map((item) => {
+            const issueText = typeof item?.issue === 'object' ? item.issue.value : item?.issue;
+            return {
+              issue: issueText.trim(),
+              assignedTo: item.assignedTo || undefined,
+            };
+          }),
         description: formData.description || undefined,
       };
 
@@ -690,10 +703,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                     <TableRow key={field.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell sx={{ minWidth: 260 }}>
-                        <RHFAutocompleteCreatable
+                        <Field.AutocompleteFreeSolo
                           name={`issues.${index}.issue`}
                           label={`Issue ${index + 1}`}
-                          optionsGroup="work-order-issues"
+                          options={WORK_ORDER_ISSUE_OPTIONS.map((option) => ({ label: option, value: option }))}
                         />
                       </TableCell>
                       <TableCell sx={{ minWidth: 220 }}>
