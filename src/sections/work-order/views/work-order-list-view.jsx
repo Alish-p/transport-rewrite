@@ -41,6 +41,7 @@ const STORAGE_KEY = 'work-order-table-columns';
 const defaultFilters = {
   status: 'all',
   priority: 'all',
+  category: 'all',
   vehicleId: '',
   partId: '',
 };
@@ -80,6 +81,7 @@ export function WorkOrderListView() {
   const { data, isLoading } = usePaginatedWorkOrders({
     status: filters.status === 'all' ? undefined : filters.status,
     priority: filters.priority === 'all' ? undefined : filters.priority,
+    category: filters.category === 'all' ? undefined : filters.category,
     vehicle: filters.vehicleId || undefined,
     part: filters.partId || undefined,
     page: table.page + 1,

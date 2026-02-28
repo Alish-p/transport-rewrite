@@ -13,9 +13,9 @@ import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { TABLE_COLUMNS } from './work-order-table-config';
-import { WORK_ORDER_PRIORITY_OPTIONS } from './work-order-config';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
+import { WORK_ORDER_PRIORITY_OPTIONS, WORK_ORDER_CATEGORY_OPTIONS } from './work-order-config';
 
 export default function WorkOrderTableToolbar({
   filters,
@@ -38,6 +38,13 @@ export default function WorkOrderTableToolbar({
   const handleFilterPriority = useCallback(
     (event) => {
       onFilters('priority', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterCategory = useCallback(
+    (event) => {
+      onFilters('category', event.target.value);
     },
     [onFilters]
   );
@@ -87,6 +94,21 @@ export default function WorkOrderTableToolbar({
           {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          select
+          fullWidth
+          label="Filter by category"
+          value={filters.category}
+          onChange={handleFilterCategory}
+        >
+          <MenuItem value="all">All categories</MenuItem>
+          {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
             </MenuItem>
           ))}
         </TextField>

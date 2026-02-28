@@ -8,8 +8,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { fDate, fDateTimeDuration } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -103,6 +103,36 @@ export const TABLE_COLUMNS = [
           {label}
         </Label>
       );
+    },
+  },
+  {
+    id: 'category',
+    label: 'Category',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.category,
+    render: (row) => {
+      const value = row.category;
+      if (!value) return '-';
+      return (
+        <Label variant="soft" color="default">
+          {value}
+        </Label>
+      );
+    },
+  },
+  {
+    id: 'timeTaken',
+    label: 'Time Taken',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => {
+      if (!row.actualStartDate || !row.completedDate) return '-';
+      return fDateTimeDuration(row.actualStartDate, row.completedDate);
+    },
+    render: (row) => {
+      if (!row.actualStartDate || !row.completedDate) return '-';
+      return fDateTimeDuration(row.actualStartDate, row.completedDate);
     },
   },
   {

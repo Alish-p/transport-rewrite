@@ -24,6 +24,10 @@ export default function WorkOrderTableFiltersResult({
     onFilters('priority', 'all');
   };
 
+  const handleRemoveCategory = () => {
+    onFilters('category', 'all');
+  };
+
   const handleRemoveVehicle = () => {
     onFilters('vehicleId', '');
   };
@@ -51,6 +55,12 @@ export default function WorkOrderTableFiltersResult({
         {filters.priority && filters.priority !== 'all' && (
           <Block label="Priority :">
             <Chip size="small" label={filters.priority} onDelete={handleRemovePriority} />
+          </Block>
+        )}
+
+        {filters.category && filters.category !== 'all' && (
+          <Block label="Category :">
+            <Chip size="small" label={filters.category} onDelete={handleRemoveCategory} />
           </Block>
         )}
 
