@@ -1,12 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner'
+import { useState, useEffect, useCallback } from 'react'
+  ;
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
+import Link from '@mui/material/Link';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -14,6 +22,9 @@ import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
+
+import axios from 'src/utils/axios';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteWorkOrder, usePaginatedWorkOrders } from 'src/query/use-work-order';
@@ -35,6 +46,8 @@ import { TABLE_COLUMNS } from '../work-order-table-config';
 import WorkOrderTableToolbar from '../work-order-table-toolbar';
 import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
 import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
+
+;
 
 const STORAGE_KEY = 'work-order-table-columns';
 
@@ -89,6 +102,8 @@ export function WorkOrderListView() {
   });
 
   const [tableData, setTableData] = useState([]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (data?.workOrders) {
@@ -144,6 +159,13 @@ export function WorkOrderListView() {
     },
     [toggleColumnVisibility]
   );
+
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+    ).filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
 
   const handleSelectVehicle = useCallback(
     (vehicle) => {
@@ -241,11 +263,99 @@ export function WorkOrderListView() {
             dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} work orders
+                  </Link>
+                )}
+              </Stack>
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = (
+                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                          ).filter((id) => visibleColumns[id]);
+
+                          const response = await axios.get('/api/maintenance/work-orders/export', {
+                            params: {
+                              status: filters.status === 'all' ? undefined : filters.status,
+                              priority: filters.priority === 'all' ? undefined : filters.priority,
+                              category: filters.category === 'all' ? undefined : filters.category,
+                              vehicle: filters.vehicleId || undefined,
+                              part: filters.partId || undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'WorkOrders.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export work orders.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'WorkOrders-selected-list'
+                        );
+                      }
+                    }}
+                  >
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Stack>
             }
           />
 
@@ -258,12 +368,15 @@ export function WorkOrderListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
-                onSelectAllRows={(checked) =>
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
                   table.onSelectAllRows(
                     checked,
                     tableData.map((row) => row._id)
-                  )
-                }
+                  );
+                }}
               />
               <TableBody>
                 {isLoading
