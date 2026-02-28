@@ -28,6 +28,7 @@ export function PartOverviewTab({
   quantity,
   inventoryLocation,
   locations = [],
+  photo,
 }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
@@ -63,7 +64,25 @@ export function PartOverviewTab({
   return (
     <>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        {photo && (
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 1 }}>
+              <Box
+                component="img"
+                alt={name || partNumber}
+                src={photo}
+                sx={{
+                  width: 1,
+                  aspectRatio: '1/1',
+                  borderRadius: 1,
+                  objectFit: 'cover',
+                }}
+              />
+            </Card>
+          </Grid>
+        )}
+
+        <Grid item xs={12} md={photo ? 8 : 6}>
           <Card>
             <CardHeader title="Part Details" />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
@@ -83,7 +102,7 @@ export function PartOverviewTab({
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={photo ? 12 : 6}>
           <Card>
             <CardHeader title="Locations" />
             <Box sx={{ p: 2.5, pb: 2 }}>

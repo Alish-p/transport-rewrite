@@ -49,6 +49,13 @@ const transferPartStock = async ({ id, data }) => {
 
 
 
+export const getPartPhotoUploadUrl = async ({ contentType, fileExtension }) => {
+  const { data } = await axios.get(`${ENDPOINT}/photo/upload-url`, {
+    params: { contentType, fileExtension },
+  });
+  return data;
+};
+
 // Queries & Mutations
 export function usePaginatedParts(params, options = {}) {
   return useQuery({

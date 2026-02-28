@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -20,9 +20,10 @@ import {
 
 import { paths } from 'src/routes/paths';
 
-import { useCreatePart, useUpdatePart } from 'src/query/use-part';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
+import { useCreatePart, useUpdatePart, getPartPhotoUploadUrl } from 'src/query/use-part';
 
+import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 import { MEASUREMENT_UNIT_GROUPS } from './part-constant';
@@ -35,7 +36,7 @@ export const PartSchema = zod.object({
   description: zod.string().optional(),
   category: zod.string().optional(),
   manufacturer: zod.string().optional(),
-  photo: zod.string().url({ message: 'Photo must be a valid URL' }).optional().or(zod.literal('')),
+  photo: zod.any().optional(),
   unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
   locationQuantities: zod.record(zod.string(), zod.preprocess((val) => (val === '' || val === undefined || val === null ? 0 : val), zod.coerce.number().min(0))).optional(),
@@ -95,6 +96,7 @@ export default function PartForm({ currentPart }) {
   const {
     reset,
     watch,
+    setValue,
     handleSubmit,
     setError,
     formState: { isSubmitting, errors },
@@ -109,6 +111,55 @@ export default function PartForm({ currentPart }) {
   );
 
   const locations = locationsResponse?.locations || [];
+
+  const handleUploadPhoto = async (file) => {
+    try {
+      const isFile = file instanceof File;
+      if (!isFile) return file;
+
+      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const contentType = file.type || 'image/jpeg';
+
+      const { uploadUrl, publicUrl } = await getPartPhotoUploadUrl({
+        contentType,
+        fileExtension,
+      });
+
+      const res = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': contentType },
+        body: file,
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+
+      return publicUrl;
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload part photo');
+      throw err;
+    }
+  };
+
+  const handleDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setValue(
+          'photo',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          }),
+          { shouldValidate: true }
+        );
+      }
+    },
+    [setValue]
+  );
+
+  const handleRemoveFile = useCallback(() => {
+    setValue('photo', null, { shouldValidate: true });
+  }, [setValue]);
 
   const onSubmit = async (data) => {
     try {
@@ -174,11 +225,15 @@ export default function PartForm({ currentPart }) {
           inventoryLocationIds: _,
           locationQuantities: __,
           locationThresholds: ___,
+          photo,
           ...base
         } = data;
 
+        const uploadedPhotoUrl = photo instanceof File ? await handleUploadPhoto(photo) : photo;
+
         const payload = {
           ...base,
+          photo: uploadedPhotoUrl,
           inventory,
         };
 
@@ -239,11 +294,15 @@ export default function PartForm({ currentPart }) {
         inventoryLocationIds: _,
         locationQuantities: __,
         locationThresholds: ___,
+        photo,
         ...base
       } = data;
 
+      const uploadedPhotoUrl = photo instanceof File ? await handleUploadPhoto(photo) : photo;
+
       const payload = {
         ...base,
+        photo: uploadedPhotoUrl,
         inventory: entries,
       };
 
@@ -265,20 +324,30 @@ export default function PartForm({ currentPart }) {
       <CardHeader title="Part Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="partNumber" label="Part Number" placeholder="e.g. P10001" />
-        <Field.Text name="name" label="Name" placeholder="e.g. Oil Filter" />
-        <Field.AutocompleteCreatable
-          name="category"
-          label="Category"
-          optionsGroup="partCategory"
-          visibleOptionCount={5}
-        />
-        <Field.AutocompleteCreatable
-          name="manufacturer"
-          label="Manufacturer"
-          optionsGroup="partManufacturer"
-          visibleOptionCount={5}
-        />
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+          }}
+        >
+          <Field.Text name="partNumber" label="Part Number" placeholder="e.g. P10001" />
+          <Field.Text name="name" label="Name" placeholder="e.g. Oil Filter" />
+          <Field.AutocompleteCreatable
+            name="category"
+            label="Category"
+            optionsGroup="partCategory"
+            visibleOptionCount={5}
+          />
+          <Field.AutocompleteCreatable
+            name="manufacturer"
+            label="Manufacturer"
+            optionsGroup="partManufacturer"
+            visibleOptionCount={5}
+          />
+        </Box>
         <Field.Text
           name="description"
           label="Description"
@@ -381,6 +450,21 @@ export default function PartForm({ currentPart }) {
     </Card>
   );
 
+  const renderImage = (
+    <Card>
+      <CardHeader title="Part Image" sx={{ mb: 3 }} />
+      <Divider />
+      <Box sx={{ p: 3 }}>
+        <Field.Upload
+          name="photo"
+          maxSize={3145728}
+          onDrop={handleDrop}
+          onDelete={handleRemoveFile}
+        />
+      </Box>
+    </Card>
+  );
+
   const renderActions = (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -394,6 +478,7 @@ export default function PartForm({ currentPart }) {
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderDetails}
         {renderInventory}
+        {renderImage}
         {renderActions}
       </Stack>
     </Form>

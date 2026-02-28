@@ -122,6 +122,7 @@ export function PartDetailView({ part }) {
             quantity={totalQuantity}
             inventoryLocation={inventoryLocation}
             locations={locations}
+            photo={part?.photo}
           />
         )}
 
