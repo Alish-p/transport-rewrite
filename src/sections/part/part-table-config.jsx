@@ -72,6 +72,13 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.totalQuantity,
   },
   {
+    id: 'measurementUnit',
+    label: 'Unit',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.measurementUnit,
+  },
+  {
     id: 'unitCost',
     label: 'Unit Cost',
     defaultVisible: true,
