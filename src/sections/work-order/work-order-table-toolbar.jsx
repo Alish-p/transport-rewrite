@@ -107,17 +107,19 @@ export default function WorkOrderTableToolbar({
           xs: 'column',
           md: 'row',
         }}
+        useFlexGap
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          flexWrap: 'wrap',
         }}
       >
         <TextField
           select
-          fullWidth
           label="Filter by priority"
           value={filters.priority}
           onChange={handleFilterPriority}
+          sx={{ width: { xs: 1, md: 200 } }}
         >
           <MenuItem value="all">All priorities</MenuItem>
           {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
@@ -129,10 +131,10 @@ export default function WorkOrderTableToolbar({
 
         <TextField
           select
-          fullWidth
           label="Filter by category"
           value={filters.category}
           onChange={handleFilterCategory}
+          sx={{ width: { xs: 1, md: 200 } }}
         >
           <MenuItem value="all">All categories</MenuItem>
           {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
@@ -147,7 +149,7 @@ export default function WorkOrderTableToolbar({
           selected={selectedVehicle?.vehicleNo}
           placeholder="Filter by vehicle"
           iconName="mdi:truck"
-          sx={{ maxWidth: 260 }}
+          sx={{ width: { xs: 1, md: 200 } }}
         />
 
         <DialogSelectButton
@@ -155,7 +157,7 @@ export default function WorkOrderTableToolbar({
           selected={selectedPart?.name}
           placeholder="Filter by part"
           iconName="mdi:cube"
-          sx={{ maxWidth: 260 }}
+          sx={{ width: { xs: 1, md: 200 } }}
         />
 
         <DialogSelectButton
@@ -163,7 +165,7 @@ export default function WorkOrderTableToolbar({
           selected={selectedCreatedBy?.name}
           placeholder="Created By"
           iconName="mdi:account"
-          sx={{ maxWidth: 260 }}
+          sx={{ width: { xs: 1, md: 200 } }}
         />
 
         <DialogSelectButton
@@ -171,10 +173,10 @@ export default function WorkOrderTableToolbar({
           selected={selectedClosedBy?.name}
           placeholder="Closed By"
           iconName="mdi:account-check"
-          sx={{ maxWidth: 260 }}
+          sx={{ width: { xs: 1, md: 200 } }}
         />
 
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{ ml: { md: 'auto !important' } }}>
           <Button
             color="inherit"
             variant="outlined"

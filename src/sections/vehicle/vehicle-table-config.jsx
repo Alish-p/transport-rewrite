@@ -1,7 +1,9 @@
 import React from 'react';
 
 import Link from '@mui/material/Link';
+import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
@@ -10,6 +12,8 @@ import { RouterLink } from 'src/routes/components';
 import { Label } from 'src/components/label';
 
 import { titleCase } from '../../utils/change-case';
+
+import MiniTyreLayout from './components/mini-tyre-layout';
 
 export const TABLE_COLUMNS = [
   {
@@ -83,6 +87,34 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.noOfTyres,
+  },
+  {
+    id: 'tyreLayout',
+    label: 'Tyre Layout',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.tyreLayoutId || '-',
+    render: (row) => {
+      const layoutId = row.tyreLayoutId;
+      if (!layoutId) return '-';
+
+      return (
+        <Tooltip
+          title={
+            <Box sx={{ p: 1 }}>
+              <MiniTyreLayout layoutId={layoutId} disableTooltip />
+            </Box>
+          }
+          arrow
+          placement="top"
+        >
+          <span style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dashed' }}>
+            {layoutId}
+          </span>
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'manufacturingYear',
