@@ -26,16 +26,21 @@ import { useCreatePart, useUpdatePart, getPartPhotoUploadUrl } from 'src/query/u
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
-import { MEASUREMENT_UNIT_GROUPS } from './part-constant';
+import { PART_CATEGORIES, PART_MANUFACTURERS, MEASUREMENT_UNIT_GROUPS } from './part-constant';
 
-
+const stringOrObjectSchema = (requiredMessage) =>
+  zod.preprocess((val) => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object' && 'value' in val) return val.value;
+    return val;
+  }, zod.string().min(1, { message: requiredMessage }).optional());
 
 export const PartSchema = zod.object({
   partNumber: zod.string().min(1, { message: 'Part Number is required' }),
   name: zod.string().min(1, { message: 'Name is required' }),
   description: zod.string().optional(),
-  category: zod.string().optional(),
-  manufacturer: zod.string().optional(),
+  category: stringOrObjectSchema('Category is required').optional(),
+  manufacturer: stringOrObjectSchema('Manufacturer is required').optional(),
   photo: zod.any().optional(),
   unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
@@ -335,17 +340,17 @@ export default function PartForm({ currentPart }) {
         >
           <Field.Text name="partNumber" label="Part Number" placeholder="e.g. P10001" />
           <Field.Text name="name" label="Name" placeholder="e.g. Oil Filter" />
-          <Field.AutocompleteCreatable
+          <Field.AutocompleteFreeSolo
             name="category"
             label="Category"
-            optionsGroup="partCategory"
-            visibleOptionCount={5}
+            placeholder="e.g. Brakes"
+            options={PART_CATEGORIES.map((option) => ({ label: option, value: option }))}
           />
-          <Field.AutocompleteCreatable
+          <Field.AutocompleteFreeSolo
             name="manufacturer"
             label="Manufacturer"
-            optionsGroup="partManufacturer"
-            visibleOptionCount={5}
+            placeholder="e.g. Bosch"
+            options={PART_MANUFACTURERS.map((option) => ({ label: option, value: option }))}
           />
         </Box>
         <Field.Text

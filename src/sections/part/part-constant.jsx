@@ -1,18 +1,25 @@
 export const PART_CATEGORIES = [
     'Belts',
     'Brakes',
+    'Clutch',
     'Electrical',
+    'Engine',
     'Filters',
     'Fluids',
     'Miscellaneous',
     'Suspension',
     'Tires',
+    'Transmission',
 ];
 
 export const PART_MANUFACTURERS = [
     'Apollo',
+    'Ashok Leyland',
     'Bosch',
     'Castrol',
+    'Cummins',
+    'Delphi',
+    'Denso',
     'Exide',
     'JK Tyre',
     'Mahindra',

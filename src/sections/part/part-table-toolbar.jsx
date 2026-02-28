@@ -4,23 +4,16 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { useOptions } from 'src/query/use-options';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 
 import { TABLE_COLUMNS } from './part-table-config';
-import { PART_CATEGORY_GROUP, PART_MANUFACTURER_GROUP } from '../settings/settings-constants';
+import { PART_CATEGORIES, PART_MANUFACTURERS } from './part-constant';
 
 export default function PartTableToolbar({
   filters,
@@ -34,26 +27,9 @@ export default function PartTableToolbar({
 }) {
   const columnsPopover = usePopover();
 
-  const { data: categoryOptions = [] } = useOptions(PART_CATEGORY_GROUP);
-  const { data: manufacturerOptions = [] } = useOptions(PART_MANUFACTURER_GROUP);
-
   const handleFilterSearch = useCallback(
     (event) => {
       onFilters('search', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterCategory = useCallback(
-    (event) => {
-      onFilters('category', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterManufacturer = useCallback(
-    (event) => {
-      onFilters('manufacturer', event.target.value);
     },
     [onFilters]
   );
@@ -73,7 +49,6 @@ export default function PartTableToolbar({
         }}
       >
         <TextField
-          fullWidth
           value={filters.search}
           onChange={handleFilterSearch}
           placeholder="Search by name, number..."
@@ -84,45 +59,48 @@ export default function PartTableToolbar({
               </InputAdornment>
             ),
           }}
+          sx={{ width: { xs: 1, md: 220 } }}
         />
 
-        <FormControl sx={{ width: { xs: 1, md: 200 } }}>
-          <InputLabel id="part-category-select-label">Category</InputLabel>
-          <Select
-            labelId="part-category-select-label"
-            value={filters.category === 'all' ? '' : filters.category}
-            onChange={handleFilterCategory}
-            input={<OutlinedInput label="Category" />}
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="">All</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {categoryOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          freeSolo
+          options={PART_CATEGORIES}
+          value={filters.category === 'all' ? '' : filters.category}
+          onChange={(event, newValue) => {
+            onFilters('category', newValue || 'all');
+          }}
+          onInputChange={(event, newInputValue, reason) => {
+            if (reason === 'clear') {
+              onFilters('category', 'all');
+            } else if (newInputValue) {
+              onFilters('category', newInputValue);
+            }
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Category" placeholder="e.g. Brakes" />
+          )}
+          sx={{ width: { xs: 1, md: 220 } }}
+        />
 
-        <FormControl sx={{ width: { xs: 1, md: 200 } }}>
-          <InputLabel id="part-manufacturer-select-label">Manufacturer</InputLabel>
-          <Select
-            labelId="part-manufacturer-select-label"
-            value={filters.manufacturer === 'all' ? '' : filters.manufacturer}
-            onChange={handleFilterManufacturer}
-            input={<OutlinedInput label="Manufacturer" />}
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="">All</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {manufacturerOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          freeSolo
+          options={PART_MANUFACTURERS}
+          value={filters.manufacturer === 'all' ? '' : filters.manufacturer}
+          onChange={(event, newValue) => {
+            onFilters('manufacturer', newValue || 'all');
+          }}
+          onInputChange={(event, newInputValue, reason) => {
+            if (reason === 'clear') {
+              onFilters('manufacturer', 'all');
+            } else if (newInputValue) {
+              onFilters('manufacturer', newInputValue);
+            }
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Manufacturer" placeholder="e.g. Bosch" />
+          )}
+          sx={{ width: { xs: 1, md: 220 } }}
+        />
 
         <Stack direction="row" spacing={1}>
           <Button
