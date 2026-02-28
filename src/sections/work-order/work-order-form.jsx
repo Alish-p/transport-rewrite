@@ -842,7 +842,6 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                           <Field.Select
                             name={`parts.${index}.partLocation`}
                             label=""
-                            size="small"
                             InputLabelProps={{ shrink: true }}
                           >
                             <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>

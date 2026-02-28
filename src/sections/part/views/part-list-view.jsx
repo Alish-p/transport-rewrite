@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -9,6 +10,11 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -21,6 +27,9 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
 import { fShortenNumber } from 'src/utils/format-number';
+
+import axios from 'src/utils/axios';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeletePart, usePaginatedParts } from 'src/query/use-part';
@@ -102,6 +111,8 @@ export function PartListView() {
     [];
 
   const [tableData, setTableData] = useState([]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (data?.parts) {
@@ -140,6 +151,13 @@ export function PartListView() {
     [toggleColumnVisibility]
   );
 
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+    ).filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
+
   const handleFilterLocation = useCallback(
     (event, newValue) => {
       handleFilters('inventoryLocation', newValue);
@@ -157,173 +175,267 @@ export function PartListView() {
 
   return (
     <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Parts List"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Vehicle Maintenance', href: paths.dashboard.part.root },
-            { name: 'Parts List' },
-          ]}
-          action={
-            <Stack direction="row" spacing={1}>
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.part.bulkImport}
-                variant="outlined"
-                startIcon={<Iconify icon="eva:cloud-upload-fill" />}
-              >
-                Import
-              </Button>
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.part.new}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                New Part
-              </Button>
-            </Stack>
-          }
-          sx={{ mb: { xs: 3, md: 5 } }}
+      <CustomBreadcrumbs
+        heading="Parts List"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Vehicle Maintenance', href: paths.dashboard.part.root },
+          { name: 'Parts List' },
+        ]}
+        action={
+          <Stack direction="row" spacing={1}>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.part.bulkImport}
+              variant="outlined"
+              startIcon={<Iconify icon="eva:cloud-upload-fill" />}
+            >
+              Import
+            </Button>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.part.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Part
+            </Button>
+          </Stack>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      {/* Analytics Section */}
+      <Card
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Scrollbar>
+          <Stack
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+            sx={{ py: 2 }}
+          >
+            <PartAnalytic
+              title="Inventory value"
+              subtitle={`₹ ${fShortenNumber(totalInventoryValue)}`}
+              icon="mdi:clipboard-list-outline"
+              color={theme.palette.info.main}
+            />
+
+            <PartAnalytic
+              title="Total Parts Quantity"
+              subtitle={`${totalQuantityItems} Units`}
+              icon="mdi:package-variant-closed"
+              color={theme.palette.primary.main}
+            />
+
+            <PartAnalytic
+              title="Out of Stock"
+              subtitle={`${fShortenNumber(outOfStockItems)} Parts`}
+              icon="mdi:alert-circle-outline"
+              color={theme.palette.error.main}
+            />
+          </Stack>
+        </Scrollbar>
+      </Card>
+
+      <Card>
+        {/* Location Tabs */}
+        <Tabs
+          value={filters.inventoryLocation}
+          onChange={handleFilterLocation}
+          sx={{
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+          }}
+          variant="scrollable"
+          scrollButtons="auto"
+        >
+          {locationTabs.map((tab) => (
+            <Tab key={tab.value} value={tab.value} label={tab.label} disabled={isLoadingLocations} />
+          ))}
+        </Tabs>
+
+        <PartTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
         />
 
-        {/* Analytics Section */}
-        <Card
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Scrollbar>
-            <Stack
-              direction="row"
-              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
-            >
-              <PartAnalytic
-                title="Inventory value"
-                subtitle={`₹ ${fShortenNumber(totalInventoryValue)}`}
-                icon="mdi:clipboard-list-outline"
-                color={theme.palette.info.main}
-              />
-
-              <PartAnalytic
-                title="Total Parts Quantity"
-                subtitle={`${totalQuantityItems} Units`}
-                icon="mdi:package-variant-closed"
-                color={theme.palette.primary.main}
-              />
-
-              <PartAnalytic
-                title="Out of Stock"
-                subtitle={`${fShortenNumber(outOfStockItems)} Parts`}
-                icon="mdi:alert-circle-outline"
-                color={theme.palette.error.main}
-              />
-            </Stack>
-          </Scrollbar>
-        </Card>
-
-        <Card>
-          {/* Location Tabs */}
-          <Tabs
-            value={filters.inventoryLocation}
-            onChange={handleFilterLocation}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {locationTabs.map((tab) => (
-              <Tab key={tab.value} value={tab.value} label={tab.label} disabled={isLoadingLocations} />
-            ))}
-          </Tabs>
-
-          <PartTableToolbar
+        {canReset && (
+          <PartTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-            onToggleAllColumns={toggleAllColumnsVisibility}
-            onResetColumns={resetColumns}
-            canResetColumns={canResetColumns}
+            onResetFilters={handleResetFilters}
+            selectedLocationName={selectedLocationName}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
           />
+        )}
 
-          {canReset && (
-            <PartTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              selectedLocationName={selectedLocationName}
-              results={totalCount}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                )
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
               }
-            />
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleHeaders}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onOrderChange={moveColumn}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
-                />
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
-                    : tableData.map((row) => (
-                      <PartTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deletePart(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} parts
+                  </Link>
+                )}
+              </Stack>
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = (
+                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                          ).filter((id) => visibleColumns[id]);
 
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+                          const response = await axios.get('/api/maintenance/parts/export', {
+                            params: {
+                              search: filters.search || undefined,
+                              inventoryLocation:
+                                filters.inventoryLocation && filters.inventoryLocation !== 'all'
+                                  ? filters.inventoryLocation
+                                  : undefined,
+                              category: filters.category && filters.category !== 'all' ? filters.category : undefined,
+                              manufacturer:
+                                filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Parts.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export parts.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'Parts-selected-list'
+                        );
+                      }
+                    }}
+                  >
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
           />
-        </Card>
-      </DashboardContent>
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onOrderChange={moveColumn}
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  );
+                }}
+              />
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                    <TableSkeleton key={i} />
+                  ))
+                  : tableData.map((row) => (
+                    <PartTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deletePart(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
