@@ -57,6 +57,8 @@ const defaultFilters = {
   category: 'all',
   vehicleId: '',
   partId: '',
+  createdBy: '',
+  closedBy: '',
 };
 
 const STATUS_TABS = [
@@ -78,6 +80,8 @@ export function WorkOrderListView() {
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedPart, setSelectedPart] = useState(null);
+  const [selectedCreatedBy, setSelectedCreatedBy] = useState(null);
+  const [selectedClosedBy, setSelectedClosedBy] = useState(null);
 
   const {
     visibleColumns,
@@ -97,6 +101,8 @@ export function WorkOrderListView() {
     category: filters.category === 'all' ? undefined : filters.category,
     vehicle: filters.vehicleId || undefined,
     part: filters.partId || undefined,
+    createdBy: filters.createdBy || undefined,
+    closedBy: filters.closedBy || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -191,6 +197,14 @@ export function WorkOrderListView() {
     if (!filters.partId) setSelectedPart(null);
   }, [filters.partId]);
 
+  useEffect(() => {
+    if (!filters.createdBy) setSelectedCreatedBy(null);
+  }, [filters.createdBy]);
+
+  useEffect(() => {
+    if (!filters.closedBy) setSelectedClosedBy(null);
+  }, [filters.closedBy]);
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -244,6 +258,10 @@ export function WorkOrderListView() {
           onSelectVehicle={handleSelectVehicle}
           selectedPart={selectedPart}
           onSelectPart={handleSelectPart}
+          selectedCreatedBy={selectedCreatedBy}
+          onSelectCreatedBy={setSelectedCreatedBy}
+          selectedClosedBy={selectedClosedBy}
+          onSelectClosedBy={setSelectedClosedBy}
         />
 
         {canReset && (
@@ -253,6 +271,8 @@ export function WorkOrderListView() {
             onResetFilters={handleResetFilters}
             selectedVehicle={selectedVehicle}
             selectedPart={selectedPart}
+            selectedCreatedBy={selectedCreatedBy}
+            selectedClosedBy={selectedClosedBy}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -313,6 +333,8 @@ export function WorkOrderListView() {
                               category: filters.category === 'all' ? undefined : filters.category,
                               vehicle: filters.vehicleId || undefined,
                               part: filters.partId || undefined,
+                              createdBy: filters.createdBy || undefined,
+                              closedBy: filters.closedBy || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

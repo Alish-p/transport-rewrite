@@ -197,4 +197,86 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.totalCost,
     render: (row) => fCurrency(row.totalCost || 0),
   },
+  {
+    id: 'createdAt',
+    label: 'Created Date',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => fDate(row.createdAt),
+    render: (row) => {
+      const value = row.createdAt;
+      if (!value) return '-';
+      return (
+        <Tooltip title={fDate(value)}>
+          <Typography variant="body2" noWrap>
+            {fDate(value)}
+          </Typography>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    id: 'actualStartDate',
+    label: 'Actual Start Date',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => fDate(row.actualStartDate),
+    render: (row) => {
+      const value = row.actualStartDate;
+      if (!value) return '-';
+      return (
+        <Tooltip title={fDate(value)}>
+          <Typography variant="body2" noWrap>
+            {fDate(value)}
+          </Typography>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    id: 'odometerReading',
+    label: 'Odometer Reading',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.odometerReading,
+  },
+  {
+    id: 'labourCharge',
+    label: 'Labour Cost',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => row.labourCharge,
+    render: (row) => fCurrency(row.labourCharge || 0),
+  },
+  {
+    id: 'partsCost',
+    label: 'Parts Cost',
+    defaultVisible: false,
+    disabled: false,
+    align: 'right',
+    getter: (row) => row.partsCost,
+    render: (row) => fCurrency(row.partsCost || 0),
+  },
+  {
+    id: 'description',
+    label: 'Description',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.description,
+  },
+  {
+    id: 'createdBy',
+    label: 'Created By',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.createdBy?.name || '-',
+  },
+  {
+    id: 'closedBy',
+    label: 'Closed By',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.closedBy?.name || '-',
+  },
 ];

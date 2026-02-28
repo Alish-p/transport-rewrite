@@ -14,6 +14,8 @@ export default function WorkOrderTableFiltersResult({
   results,
   selectedVehicle,
   selectedPart,
+  selectedCreatedBy,
+  selectedClosedBy,
   ...other
 }) {
   const handleRemoveStatus = () => {
@@ -34,6 +36,14 @@ export default function WorkOrderTableFiltersResult({
 
   const handleRemovePart = () => {
     onFilters('partId', '');
+  };
+
+  const handleRemoveCreatedBy = () => {
+    onFilters('createdBy', '');
+  };
+
+  const handleRemoveClosedBy = () => {
+    onFilters('closedBy', '');
   };
 
   return (
@@ -80,6 +90,26 @@ export default function WorkOrderTableFiltersResult({
               size="small"
               label={selectedPart?.name || filters.partId}
               onDelete={handleRemovePart}
+            />
+          </Block>
+        )}
+
+        {filters.createdBy && (
+          <Block label="Created By :">
+            <Chip
+              size="small"
+              label={selectedCreatedBy?.name || filters.createdBy}
+              onDelete={handleRemoveCreatedBy}
+            />
+          </Block>
+        )}
+
+        {filters.closedBy && (
+          <Block label="Closed By :">
+            <Chip
+              size="small"
+              label={selectedClosedBy?.name || filters.closedBy}
+              onDelete={handleRemoveClosedBy}
             />
           </Block>
         )}
