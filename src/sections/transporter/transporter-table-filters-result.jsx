@@ -7,6 +7,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
+
+import { STATES } from '../customer/config';
 // types
 
 // ----------------------------------------------------------------------
@@ -16,10 +18,15 @@ export default function TransportTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedVehicleNo,
   ...other
 }) {
   const handleRemoveSearch = () => {
     onFilters('search', '');
+  };
+
+  const handleRemoveVehicleId = () => {
+    onFilters('vehicleId', '');
   };
 
   return (
@@ -38,12 +45,82 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
+        {filters.status && filters.status !== 'all' && (
+          <Block label="Status:">
+            <Chip
+              size="small"
+              label={filters.status}
+              onDelete={() => onFilters('status', 'all')}
+            />
+          </Block>
+        )}
+
         {filters.vehicleCount >= 0 && (
           <Block label="Vehicles:">
             <Chip
               size="small"
               label={filters.vehicleCount}
               onDelete={() => onFilters('vehicleCount', -1)}
+            />
+          </Block>
+        )}
+
+        {filters.state && (
+          <Block label="State:">
+            <Chip
+              size="small"
+              label={STATES.find((s) => s.value === filters.state)?.label || filters.state}
+              onDelete={() => onFilters('state', '')}
+            />
+          </Block>
+        )}
+
+        {filters.paymentMode && (
+          <Block label="Payment Mode:">
+            <Chip
+              size="small"
+              label={filters.paymentMode}
+              onDelete={() => onFilters('paymentMode', '')}
+            />
+          </Block>
+        )}
+
+        {filters.gstEnabled !== 'all' && (
+          <Block label="GST Status:">
+            <Chip
+              size="small"
+              label={filters.gstEnabled === 'true' ? 'Yes' : 'No'}
+              onDelete={() => onFilters('gstEnabled', 'all')}
+            />
+          </Block>
+        )}
+
+        {filters.gstNo && (
+          <Block label="GST No:">
+            <Chip
+              size="small"
+              label={filters.gstNo}
+              onDelete={() => onFilters('gstNo', '')}
+            />
+          </Block>
+        )}
+
+        {filters.panNo && (
+          <Block label="PAN No:">
+            <Chip
+              size="small"
+              label={filters.panNo}
+              onDelete={() => onFilters('panNo', '')}
+            />
+          </Block>
+        )}
+
+        {filters.vehicleId && (
+          <Block label="Vehicle:">
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicleId}
             />
           </Block>
         )}

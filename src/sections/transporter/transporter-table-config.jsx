@@ -10,6 +10,9 @@ import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
 
+import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+
 export const TABLE_COLUMNS = [
   {
     id: 'transportName',
@@ -77,15 +80,85 @@ export const TABLE_COLUMNS = [
   {
     id: 'ownerName',
     label: 'Owner Name',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row.ownerName,
   },
   {
     id: 'emailId',
     label: 'Email ID',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row.emailId,
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.isActive,
+    render: (row) => (
+      <Label variant="soft" color={row.isActive ? 'success' : 'error'}>
+        {row.isActive ? 'Active' : 'Inactive'}
+      </Label>
+    ),
+  },
+  {
+    id: 'state',
+    label: 'State',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.state,
+  },
+  {
+    id: 'paymentMode',
+    label: 'Payment Mode',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.paymentMode,
+  },
+  {
+    id: 'gstEnabled',
+    label: 'GST Enabled',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.gstEnabled,
+    render: (row) => (
+      <Iconify
+        icon={row.gstEnabled ? 'eva:checkmark-circle-2-fill' : 'eva:close-circle-fill'}
+        sx={{
+          color: row.gstEnabled ? 'success.main' : 'error.main',
+        }}
+      />
+    ),
+  },
+  {
+    id: 'gstNo',
+    label: 'GST Number',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.gstNo,
+  },
+  {
+    id: 'panNo',
+    label: 'PAN Number',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.panNo,
+  },
+  {
+    id: 'tdsPercentage',
+    label: 'TDS (%)',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.tdsPercentage,
+    render: (row) => (row.tdsPercentage !== undefined && row.tdsPercentage !== null ? `${row.tdsPercentage}%` : ''),
+  },
+  {
+    id: 'podCharges',
+    label: 'POD Charges',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.podCharges,
   },
 ];

@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -9,18 +10,19 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import axios from 'src/utils/axios';
+
 // _mock
 
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -65,6 +67,13 @@ const STORAGE_KEY = 'transporter-table-columns';
 const defaultFilters = {
   search: '',
   vehicleCount: -1,
+  state: '',
+  paymentMode: '',
+  gstEnabled: 'all',
+  status: 'all',
+  gstNo: '',
+  panNo: '',
+  vehicleId: '',
 };
 
 // ----------------------------------------------------------------------
@@ -76,13 +85,29 @@ export function TransporterListView() {
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const cleanupDialog = useBoolean();
   const includeInactive = useBoolean();
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, handleFilters, handleResetFilters: baseHandleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
+
+  const handleResetFilters = useCallback(() => {
+    baseHandleResetFilters();
+    setSelectedVehicle(null);
+  }, [baseHandleResetFilters]);
+
+  const handleFilterStatus = useCallback(
+    (event, newValue) => {
+      handleFilters('status', newValue);
+    },
+    [handleFilters]
+  );
 
   const {
     visibleColumns,
@@ -106,7 +131,13 @@ export function TransporterListView() {
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
     vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
-    includeInactive: includeInactive.value ? 'true' : undefined,
+    state: filters.state || undefined,
+    paymentMode: filters.paymentMode || undefined,
+    gstEnabled: filters.gstEnabled !== 'all' ? filters.gstEnabled : undefined,
+    status: filters.status,
+    gstNo: filters.gstNo || undefined,
+    panNo: filters.panNo || undefined,
+    vehicleId: filters.vehicleId || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -121,7 +152,11 @@ export function TransporterListView() {
 
   const totalCount = data?.total || 0;
 
-  const TABS = [{ value: 'all', label: 'All', color: 'default', count: totalCount }];
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default' },
+    { value: 'active', label: 'Active', color: 'success' },
+    { value: 'inactive', label: 'Inactive', color: 'error' },
+  ];
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -188,7 +223,8 @@ export function TransporterListView() {
       {/* Table Section */}
       <Card>
         <Tabs
-          value="all"
+          value={filters.status}
+          onChange={handleFilterStatus}
           sx={{
             px: 2.5,
             boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
@@ -201,13 +237,15 @@ export function TransporterListView() {
               label={tab.label}
               iconPosition="end"
               icon={
-                isLoading ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <Label variant="filled" color={tab.color}>
-                    {tab.count}
-                  </Label>
-                )
+                filters.status === tab.value ? (
+                  isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label variant="filled" color={tab.color}>
+                      {totalCount}
+                    </Label>
+                  )
+                ) : null
               }
             />
           ))}
@@ -221,6 +259,8 @@ export function TransporterListView() {
           onToggleAllColumns={toggleAllColumnsVisibility}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
+          selectedVehicle={selectedVehicle}
+          onSelectVehicle={setSelectedVehicle}
         />
 
         {canReset && (
@@ -229,6 +269,7 @@ export function TransporterListView() {
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
             results={totalCount}
+            selectedVehicleNo={selectedVehicle?.vehicleNo}
             sx={{ p: 2.5, pt: 0 }}
           />
         )}
@@ -238,53 +279,119 @@ export function TransporterListView() {
             dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} transporters
+                  </Link>
+                )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = getVisibleColumnsForExport();
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Transporters-selected'
-                      );
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const visibleCols = getVisibleColumnsForExport();
+
+                          const response = await axios.get('/api/transporters/export', {
+                            params: {
+                              search: filters.search || undefined,
+                              vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
+                              state: filters.state || undefined,
+                              paymentMode: filters.paymentMode || undefined,
+                              gstEnabled: filters.gstEnabled !== 'all' ? filters.gstEnabled : undefined,
+                              status: filters.status,
+                              gstNo: filters.gstNo || undefined,
+                              panNo: filters.panNo || undefined,
+                              vehicleId: filters.vehicleId || undefined,
+                              columns: visibleCols.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Transporters.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export transporters.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          'Transporters-selected'
+                        );
+                      }
                     }}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Download PDF">
-                  <PDFDownloadLink
-                    document={(() => {
-                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
-                      const visibleCols = getVisibleColumnsForExport();
-                      return (
-                        <TransporterListPdf
-                          transporters={selectedRows}
-                          visibleColumns={visibleCols}
-                          tenant={tenant}
-                        />
-                      );
-                    })()}
-                    fileName="Transporter-list.pdf"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {({ loading }) => (
-                      <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                      </IconButton>
-                    )}
-                  </PDFDownloadLink>
-                </Tooltip>
+                {!selectAllMode && (
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const visibleCols = getVisibleColumnsForExport();
+                        return (
+                          <TransporterListPdf
+                            transporters={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Transporter-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </Tooltip>
+                )}
               </Stack>
             }
           />
@@ -298,12 +405,15 @@ export function TransporterListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
-                onSelectAllRows={(checked) =>
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
                   table.onSelectAllRows(
                     checked,
                     tableData.map((row) => row._id)
-                  )
-                }
+                  );
+                }}
               />
               <TableBody>
                 {isLoading ? (
@@ -338,21 +448,9 @@ export function TransporterListView() {
         <Stack
           direction="row"
           alignItems="center"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           sx={{ px: 2 }}
         >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={includeInactive.value}
-                onChange={(e) =>
-                  e.target.checked ? includeInactive.onTrue() : includeInactive.onFalse()
-                }
-                size="small"
-              />
-            }
-            label="Include Inactive Transporters"
-          />
           <TablePaginationCustom
             count={totalCount}
             page={table.page}
