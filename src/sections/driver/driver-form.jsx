@@ -14,10 +14,11 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useUpdateDriver, useCreateFullDriver } from 'src/query/use-driver';
+import { useUpdateDriver, useCreateFullDriver, getDriverPhotoUploadUrl } from 'src/query/use-driver';
 
 // components
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
@@ -29,7 +30,7 @@ export const NewDriverSchema = zod.object({
     .string()
     .min(1, { message: 'Driver Name is required' })
     .regex(/^[^0-9]*$/, { message: 'Driver Name must not contain numbers' }),
-  images: zod.any().nullable(),
+  photoImage: zod.any().nullable(),
   driverLicenceNo: zod
     .string()
     .optional()
@@ -84,7 +85,7 @@ export default function DriverForm({ currentDriver }) {
   const defaultValues = useMemo(
     () => ({
       driverName: currentDriver?.driverName || '',
-      images: currentDriver?.images || null,
+      photoImage: currentDriver?.photoImage || null,
       driverLicenceNo: currentDriver?.driverLicenceNo || '',
       driverPresentAddress: currentDriver?.driverPresentAddress || '',
       driverCellNo: currentDriver?.driverCellNo || '',
@@ -121,9 +122,41 @@ export default function DriverForm({ currentDriver }) {
 
 
 
+  const handleUploadPhoto = async (file) => {
+    try {
+      const isFile = file instanceof File;
+      if (!isFile) return file;
+
+      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const contentType = file.type || 'image/jpeg';
+
+      const { uploadUrl, publicUrl } = await getDriverPhotoUploadUrl({
+        contentType,
+        fileExtension,
+      });
+
+      const res = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': contentType },
+        body: file,
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+
+      return publicUrl;
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload driver photo');
+      throw err;
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      const sanitized = sanitizeDriverBeforeSubmit(data);
+      const { photoImage, ...restData } = data;
+      const uploadedPhotoUrl = photoImage instanceof File ? await handleUploadPhoto(photoImage) : photoImage;
+
+      const sanitized = sanitizeDriverBeforeSubmit({ ...restData, photoImage: uploadedPhotoUrl });
       if (!currentDriver) {
         await createDriver(sanitized);
       } else {
@@ -139,27 +172,23 @@ export default function DriverForm({ currentDriver }) {
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
-      const files = values.images || [];
-
-      const newFiles = acceptedFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
-      );
-
-      setValue('images', [...files, ...newFiles], { shouldValidate: true });
+      const file = acceptedFiles[0];
+      if (file) {
+        setValue(
+          'photoImage',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          }),
+          { shouldValidate: true }
+        );
+      }
     },
-    [setValue, values.images]
+    [setValue]
   );
 
-  const handleRemoveFile = (inputFile) => {
-    const filtered = values.images && values.images.filter((file) => file !== inputFile);
-    setValue('images', filtered);
-  };
-
-  const handleRemoveAllFiles = () => {
-    setValue('images', []);
-  };
+  const handleRemoveFile = useCallback(() => {
+    setValue('photoImage', null, { shouldValidate: true });
+  }, [setValue]);
 
   const renderDriverDetails = () => (
     <>
@@ -286,18 +315,14 @@ export default function DriverForm({ currentDriver }) {
 
       <Box sx={{ mb: 5 }}>
         <Typography variant="h6" gutterBottom>
-          Images
+          Photo
         </Typography>
 
         <Field.Upload
-          multiple
-          thumbnail
-          name="images"
+          name="photoImage"
           maxSize={3145728}
           onDrop={handleDrop}
-          onRemove={handleRemoveFile}
-          onRemoveAll={handleRemoveAllFiles}
-          onUpload={() => console.log('ON UPLOAD')}
+          onDelete={handleRemoveFile}
         />
       </Box>
 

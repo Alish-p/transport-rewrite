@@ -48,6 +48,11 @@ const cleanupDriversApi = async (driverIds) => {
   return data;
 };
 
+export const getDriverPhotoUploadUrl = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/upload-url`, { params });
+  return data;
+};
+
 // Queries & Mutations
 export function useDrivers(options = {}) {
   return useQuery({
