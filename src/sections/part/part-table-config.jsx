@@ -80,6 +80,21 @@ export const TABLE_COLUMNS = [
     render: (row) => `₹ ${row.unitCost?.toFixed(2)}`,
   },
   {
+    id: 'totalCost',
+    label: 'Total Cost',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => {
+      const cost = row.averageUnitCost || row.unitCost || 0;
+      return (row.totalQuantity || 0) * cost;
+    },
+    render: (row) => {
+      const cost = row.averageUnitCost || row.unitCost || 0;
+      const total = (row.totalQuantity || 0) * cost;
+      return `₹ ${total.toFixed(2)}`;
+    },
+  },
+  {
     id: 'description',
     label: 'Description',
     defaultVisible: false,
