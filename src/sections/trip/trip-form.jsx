@@ -141,6 +141,25 @@ export default function TripForm({ currentTrip }) {
     clearErrors,
   } = methods;
 
+  const watchStartKm = watch('startKm');
+  const watchEndKm = watch('endKm');
+
+  const totalKm = useMemo(() => {
+    const sKm =
+      watchStartKm !== '' && watchStartKm !== null && watchStartKm !== undefined
+        ? Number(watchStartKm)
+        : null;
+    const eKm =
+      watchEndKm !== '' && watchEndKm !== null && watchEndKm !== undefined
+        ? Number(watchEndKm)
+        : null;
+
+    if (sKm !== null && eKm !== null && !Number.isNaN(sKm) && !Number.isNaN(eKm) && eKm >= sKm) {
+      return eKm - sKm;
+    }
+    return null;
+  }, [watchStartKm, watchEndKm]);
+
   // Whenever defaultValues change (e.g. when switching from “create” to “edit”),
   // reset the form to those defaultValues
   useEffect(() => {
@@ -267,6 +286,14 @@ export default function TripForm({ currentTrip }) {
               {!!currentTrip && <Field.DatePicker name="toDate" label="To Date" maxDate={dayjs()} />}
               {!!currentTrip && <Field.Text name="startKm" label="Start KM" type="number" />}
               {!!currentTrip && <Field.Text name="endKm" label="End KM" type="number" />}
+
+              {!!currentTrip && totalKm !== null && (
+                <Box sx={{ gridColumn: '1 / -1' }}>
+                  <Alert severity="info" sx={{ py: 1 }}>
+                    Total Distance: <strong>{totalKm} km</strong>
+                  </Alert>
+                </Box>
+              )}
               <Field.Text name="remarks" label="Remarks (Optional)" />
             </Box>
 
