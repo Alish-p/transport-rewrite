@@ -245,10 +245,12 @@ export default function TyreDetailsView() {
                                             {' - '}
                                             <Box component="span" sx={{ color: 'text.secondary' }}>
                                                 {tyre.currentPosition}
+                                                <br />
+                                                {tyre.mountOdometer != null && `Mounted at: ${tyre.mountOdometer} km`}
                                             </Box>
                                         </Box>
                                     ) : (
-                                        'Not Mountd'
+                                        'Not Mounted'
                                     )
                                 }
                             />

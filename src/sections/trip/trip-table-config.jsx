@@ -138,7 +138,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'toDate',
     label: 'To Date',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'left',
     getter: (row) => row.toDate,
@@ -154,7 +154,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'remarks',
     label: 'Remarks',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'left',
     getter: (row) => row.remarks,
@@ -162,7 +162,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'totalIncome',
     label: 'Total Income',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row.cachedTotalIncome || 0,
@@ -171,7 +171,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'totalExpense',
     label: 'Total Expense',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row.cachedTotalExpense || 0,

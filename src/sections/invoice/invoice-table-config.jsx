@@ -49,6 +49,22 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => row.customerId?.customerName,
   },
+  {
+    id: 'customerGSTNo',
+    label: 'Customer GST No',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.customerId?.GSTNo || '-',
+  },
+  {
+    id: 'customerPANNo',
+    label: 'Customer PAN No',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.customerId?.PANNo || '-',
+  },
 
   {
     id: 'subtrips',

@@ -259,6 +259,7 @@ export function TripListView() {
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <TableSelectedAction
+            dense={table.dense}
             numSelected={table.selected.length}
             rowCount={tableData.length}
             onSelectAllRows={(checked) => {
@@ -432,6 +433,8 @@ export function TripListView() {
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           onRowsPerPageChange={table.onChangeRowsPerPage}
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
         />
       </Card>
     </DashboardContent>

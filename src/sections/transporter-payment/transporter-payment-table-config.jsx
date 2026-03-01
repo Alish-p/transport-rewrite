@@ -66,6 +66,22 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'transporterGSTNo',
+    label: 'Transporter GST No',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.transporterId?.gstNo || '-',
+  },
+  {
+    id: 'transporterPANNo',
+    label: 'Transporter PAN No',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.transporterId?.panNo || '-',
+  },
+  {
     id: 'subtrips',
     label: 'Jobs',
     defaultVisible: false,
