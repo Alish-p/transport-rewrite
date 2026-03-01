@@ -1,3 +1,5 @@
+// @mui
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { useState, useEffect, useCallback } from 'react';
@@ -5,22 +7,25 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 // @mui
+import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import TripListPdf from 'src/pdfs/trip-list-pdf';
@@ -70,7 +75,6 @@ export function TripListView() {
   const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
-  const confirm = useBoolean();
   const deleteTrip = useDeleteTrip();
 
   const navigate = useNavigate();
@@ -78,6 +82,8 @@ export function TripListView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -255,63 +261,125 @@ export function TripListView() {
           <TableSelectedAction
             numSelected={table.selected.length}
             rowCount={tableData.length}
-            onSelectAllRows={(checked) =>
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(
                 checked,
                 tableData.map((row) => row._id)
-              )
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} trips
+                  </Link>
+                )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const visibleCols = getVisibleColumnsForExport();
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Trips-selected'
-                      );
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const visibleCols = getVisibleColumnsForExport();
+
+                          const response = await axios.get('/api/trips/export', {
+                            params: {
+                              tripNo: filters.tripNo || undefined,
+                              driverId: filters.driverId || undefined,
+                              vehicleId: filters.vehicleId || undefined,
+                              subtripId: filters.subtripId || undefined,
+                              fromDate: filters.fromDate || undefined,
+                              toDate: filters.toDate || undefined,
+                              status: filters.tripStatus !== 'all' ? [filters.tripStatus] : undefined,
+                              isTripSheetReady: filters.isTripSheetReady ? 'true' : undefined,
+                              numberOfSubtrips: filters.numberOfSubtrips || undefined,
+                              columns: visibleCols.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Trips.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export trips.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          'Trips-selected'
+                        );
+                      }
                     }}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Download PDF">
-                  <PDFDownloadLink
-                    document={(() => {
-                      const selectedRows = tableData.filter(({ _id }) =>
-                        table.selected.includes(_id)
-                      );
-                      const visibleCols = getVisibleColumnsForExport();
-                      return (
-                        <TripListPdf
-                          trips={selectedRows}
-                          visibleColumns={visibleCols}
-                          tenant={tenant}
-                        />
-                      );
-                    })()}
-                    fileName="Trip-list.pdf"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {({ loading }) => (
-                      <IconButton color="primary">
-                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
-                      </IconButton>
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
                     )}
-                  </PDFDownloadLink>
-                </Tooltip>
-
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
                 </Tooltip>
+
+                {!selectAllMode && (
+                  <Tooltip title="Download PDF">
+                    <PDFDownloadLink
+                      document={(() => {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        return (
+                          <TripListPdf
+                            trips={selectedRows}
+                            visibleColumns={visibleCols}
+                            tenant={tenant}
+                          />
+                        );
+                      })()}
+                      fileName="Trip-list.pdf"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {({ loading }) => (
+                        <IconButton color="primary">
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
+                        </IconButton>
+                      )}
+                    </PDFDownloadLink>
+                  </Tooltip>
+                )}
+
               </Stack>
             }
           />

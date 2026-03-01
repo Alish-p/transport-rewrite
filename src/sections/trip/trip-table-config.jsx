@@ -8,6 +8,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -157,5 +158,57 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row.remarks,
+  },
+  {
+    id: 'totalIncome',
+    label: 'Total Income',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cachedTotalIncome || 0,
+    render: (row) => fNumber(row.cachedTotalIncome || 0),
+  },
+  {
+    id: 'totalExpense',
+    label: 'Total Expense',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cachedTotalExpense || 0,
+    render: (row) => fNumber(row.cachedTotalExpense || 0),
+  },
+  {
+    id: 'profitAndLoss',
+    label: 'Profit & Loss',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => (row.cachedTotalIncome || 0) - (row.cachedTotalExpense || 0),
+    render: (row) => {
+      const pnl = (row.cachedTotalIncome || 0) - (row.cachedTotalExpense || 0);
+      return (
+        <Label variant="soft" color={pnl >= 0 ? 'success' : 'error'}>
+          {fNumber(pnl)}
+        </Label>
+      );
+    },
+  },
+  {
+    id: 'totalKm',
+    label: 'Total KM',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.totalKm || 0,
+    render: (row) => `${fNumber(row.totalKm || 0)} km`,
+  },
+  {
+    id: 'totalDieselLtr',
+    label: 'Total Diesel Ltr',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cachedTotalDieselLtr || 0,
+    render: (row) => `${fNumber(row.cachedTotalDieselLtr || 0)} Ltr`,
   },
 ];
