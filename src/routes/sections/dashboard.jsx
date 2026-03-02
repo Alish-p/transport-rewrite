@@ -22,6 +22,7 @@ const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
 const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
 const VehicleDocumentsListPage = lazy(() => import('src/pages/dashboard/vehicle/documents'));
 const VehicleDocumentsGridPage = lazy(() => import('src/pages/dashboard/vehicle/documents-grid'));
+const VehicleKmBulkImportPage = lazy(() => import('src/sections/vehicle/views/vehicle-km-bulk-import-view').then(module => ({ default: module.VehicleKmBulkImportView })));
 
 // Driver
 const DriverDetailsPage = lazy(() => import('src/pages/dashboard/driver/details'));
@@ -260,6 +261,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="vehicle" action="view" hasContent>
                 <VehicleDocumentsGridPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'bulk-km-import',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="update" hasContent>
+                <VehicleKmBulkImportPage />
               </PermissionBasedGuard>
             ),
           },

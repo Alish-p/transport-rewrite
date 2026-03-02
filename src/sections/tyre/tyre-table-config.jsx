@@ -107,6 +107,28 @@ export const TYRE_TABLE_COLUMNS = [
         sortable: true,
     },
     {
+        id: 'liveKm',
+        label: 'Live KM',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => {
+            if (row.status === 'Mounted' && row.currentVehicleId != null && row.mountOdometer != null && row.currentVehicleId.currentOdometer != null) {
+                const diff = row.currentVehicleId.currentOdometer - row.mountOdometer;
+                return (row.currentKm || 0) + (diff > 0 ? diff : 0);
+            }
+            return row.currentKm || 0;
+        },
+        render: (row) => {
+            if (row.status === 'Mounted' && row.currentVehicleId != null && row.mountOdometer != null && row.currentVehicleId.currentOdometer != null) {
+                const diff = row.currentVehicleId.currentOdometer - row.mountOdometer;
+                const liveKm = (row.currentKm || 0) + (diff > 0 ? diff : 0);
+                return `${liveKm} km`;
+            }
+            return `${row.currentKm || 0} km`;
+        },
+        sortable: false,
+    },
+    {
         id: 'remoldKm',
         label: 'Remold Km',
         defaultVisible: false,

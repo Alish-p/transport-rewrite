@@ -17,6 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
 
+import { useGps } from 'src/query/use-gps';
 import { useTenant } from 'src/query/use-tenant';
 import { useCreateVehicle, useUpdateVehicle, useVehicleLookup } from 'src/query/use-vehicle';
 
@@ -57,6 +58,7 @@ export const NewVehicleSchema = zod
     transporter: zod.string().optional(),
     trackingLink: zod.string().optional(),
     isActive: zod.boolean().optional(),
+    currentOdometer: zod.number().optional().default(0),
   })
   .refine((data) => data.isOwn || data.transporter, {
     message: 'Transport Company is required when the vehicle is not owned',
@@ -73,6 +75,11 @@ export default function VehicleForm({ currentVehicle }) {
   const transporterDialog = useBoolean(false);
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
+  const gpsEnabled = !!tenant?.integrations?.vehicleGPS?.enabled;
+
+  const { data: gpsData, isLoading: isLoadingGps } = useGps(currentVehicle?.vehicleNo || '', {
+    enabled: gpsEnabled && !!(currentVehicle?.vehicleNo),
+  });
 
   const { lookup, isLookingUp } = useVehicleLookup();
   const [suggestedDocs, setSuggestedDocs] = useState([]);
@@ -98,6 +105,7 @@ export default function VehicleForm({ currentVehicle }) {
       transporter: currentVehicle?.transporter?._id || '',
       trackingLink: currentVehicle?.trackingLink || '',
       isActive: currentVehicle?.isActive ?? true,
+      currentOdometer: currentVehicle?.currentOdometer || 0,
     }),
     [currentVehicle]
   );
@@ -219,6 +227,40 @@ export default function VehicleForm({ currentVehicle }) {
             </MenuItem>
           ))}
         </Field.Select>
+        <Stack spacing={1}>
+          <Field.Text
+            name="currentOdometer"
+            label="Current Odometer"
+            type="number"
+            InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+          />
+          {gpsEnabled && (
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 1 }}>
+              {isLoadingGps ? (
+                <Label variant="soft" color="default">Fetching GPS Data...</Label>
+              ) : gpsData?.totalOdometer != null ? (
+                <>
+                  <Label variant="soft" color="warning">
+                    <Iconify icon="mdi:alert" sx={{ mr: 0.5 }} />
+                    GPS Odometer: {gpsData.totalOdometer} km (May be inaccurate)
+                  </Label>
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={() => setValue('currentOdometer', gpsData.totalOdometer, { shouldValidate: true })}
+                  >
+                    Use GPS
+                  </Button>
+                </>
+              ) : (
+                <Label variant="soft" color="error">
+                  <Iconify icon="mdi:alert-circle" sx={{ mr: 0.5 }} />
+                  GPS Odometer unavailable
+                </Label>
+              )}
+            </Stack>
+          )}
+        </Stack>
         <Field.Text
           name="noOfTyres"
           label="No Of Tyres"

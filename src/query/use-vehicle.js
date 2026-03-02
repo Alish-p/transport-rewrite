@@ -60,6 +60,16 @@ const cleanupVehicles = async ({ vehicleIds }) => {
   return data;
 };
 
+const getVehicleKmTemplate = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/km-template`);
+  return data;
+};
+
+const bulkUpdateVehicleKm = async (payload) => {
+  const { data } = await axios.post(`${ENDPOINT}/bulk-km`, payload);
+  return data;
+};
+
 
 // Queries & Mutations
 export function usePaginatedVehicles(params, options = {}) {
@@ -198,5 +208,30 @@ export function useCleanupVehicles() {
       const errorMessage = error?.message || 'Cleanup started but failed';
       toast.error(errorMessage);
     },
+  });
+}
+
+export function useBulkUpdateVehicleKm() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: bulkUpdateVehicleKm,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      toast.success(`Updated ${data.updated} vehicle(s), skipped ${data.skipped}`);
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'Bulk update failed';
+      toast.error(errorMessage);
+    },
+  });
+  return { bulkUpdateVehiclesKm: mutateAsync, isUpdating: isPending };
+}
+
+export function useDownloadVehicleKmTemplate(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'km-template'],
+    queryFn: getVehicleKmTemplate,
+    enabled: false,
+    ...options,
   });
 }

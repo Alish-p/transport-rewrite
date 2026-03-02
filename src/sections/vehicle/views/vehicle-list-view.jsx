@@ -27,6 +27,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import { ICONS } from 'src/assets/data/icons';
 import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
@@ -198,6 +199,15 @@ export function VehicleListView() {
               onClick={cleanupDialog.onTrue}
             >
               Cleanup
+            </Button>
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.vehicle.bulkKmImport}
+              variant="outlined"
+              color="primary"
+              startIcon={<Iconify icon={ICONS.common.import} />}
+            >
+              Import KM
             </Button>
             <Button
               component={RouterLink}

@@ -114,6 +114,7 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/vehicle/list`,
       documents: `${ROOTS.DASHBOARD}/vehicle/documents`,
       documentsGrid: `${ROOTS.DASHBOARD}/vehicle/documents-grid`,
+      bulkKmImport: `${ROOTS.DASHBOARD}/vehicle/bulk-km-import`,
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
     },
