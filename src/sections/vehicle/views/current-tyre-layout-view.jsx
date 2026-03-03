@@ -3,6 +3,9 @@ import { useMemo, useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
@@ -11,6 +14,7 @@ import TableHead from '@mui/material/TableHead';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
 import CardContent from '@mui/material/CardContent';
 import TableContainer from '@mui/material/TableContainer';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -20,10 +24,12 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { useGps } from 'src/query/use-gps';
-import { useGetTyreLayouts } from 'src/query/use-vehicle';
+import { useTenant } from 'src/query/use-tenant';
+import { useUpdateVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
 import { useGetTyres, useMountTyre, useUnmountTyre } from 'src/query/use-tyre';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import { KanbanTyreDialog } from '../components/kanban-tyre-dialog';
@@ -43,20 +49,30 @@ export function CurrentTyreLayoutView({ vehicle }) {
 
     const { mutate: mountTyre } = useMountTyre();
     const { mutate: unmountTyre } = useUnmountTyre();
+    const updateVehicle = useUpdateVehicle();
 
     const [mountDialogOpen, setMountDialogOpen] = useState(false);
     const [unmountDialogOpen, setUnmountDialogOpen] = useState(false);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [selectedTyreToUnmount, setSelectedTyreToUnmount] = useState(null);
     const [vehicleOdometer, setVehicleOdometer] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const isEditingOdometer = Boolean(anchorEl);
 
-    const { data: gpsData } = useGps(vehicle?.vehicleNo, { enabled: !!vehicle?.vehicleNo });
+    const { data: tenant } = useTenant();
+    const gpsEnabled = !!tenant?.integrations?.vehicleGPS?.enabled;
+
+    const { data: gpsData, isLoading: isLoadingGps } = useGps(vehicle?.vehicleNo || '', {
+        enabled: gpsEnabled && !!(vehicle?.vehicleNo),
+    });
 
     useEffect(() => {
-        if (gpsData?.totalOdometer) {
+        if (vehicle?.currentOdometer != null) {
+            setVehicleOdometer(vehicle.currentOdometer);
+        } else if (gpsData?.totalOdometer) {
             setVehicleOdometer(gpsData.totalOdometer);
         }
-    }, [gpsData]);
+    }, [gpsData, vehicle]);
 
     const currentLayout = useMemo(() => {
         if (!layoutsData?.data || !vehicle?.tyreLayoutId) return null;
@@ -127,6 +143,16 @@ export function CurrentTyreLayoutView({ vehicle }) {
         return distance > 0 ? tyre.currentKm + distance : tyre.currentKm;
     };
 
+    const handleSaveOdometer = async () => {
+        if (vehicle && vehicleOdometer !== '') {
+            await updateVehicle({
+                id: vehicle._id,
+                data: { currentOdometer: Number(vehicleOdometer) }
+            });
+            setAnchorEl(null);
+        }
+    };
+
     if (isLoadingLayouts || isLoadingTyres) {
         return <CircularProgress />;
     }
@@ -158,17 +184,76 @@ export function CurrentTyreLayoutView({ vehicle }) {
                         subheader={`${Object.keys(tyreMap).length} tyres mounted`}
                         sx={{ mb: 2 }}
                         action={
-                            <TextField
-                                size="small"
-                                placeholder="Current Vehicle Odometer"
-                                type="number"
-                                value={vehicleOdometer}
-                                onChange={(e) => setVehicleOdometer(e.target.value)}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
-                                }}
-                                sx={{ width: 220 }}
-                            />
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                                    Current Odometer: <Typography component="span" variant="subtitle1" color="text.primary">{vehicleOdometer || 0} km</Typography>
+                                </Typography>
+                                <IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
+                                    <Iconify icon="solar:pen-bold" />
+                                </IconButton>
+
+                                <Popover
+                                    open={isEditingOdometer}
+                                    anchorEl={anchorEl}
+                                    onClose={() => setAnchorEl(null)}
+                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                    slotProps={{ paper: { sx: { p: 2, width: 340 } } }}
+                                >
+                                    <Stack spacing={2}>
+                                        <Typography variant="subtitle2">Update Odometer</Typography>
+
+                                        <TextField
+                                            size="small"
+                                            placeholder="Current Odometer"
+                                            type="number"
+                                            value={vehicleOdometer}
+                                            onChange={(e) => setVehicleOdometer(e.target.value)}
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                                            }}
+                                            fullWidth
+                                        />
+
+                                        {gpsEnabled && (
+                                            <Stack direction="column" spacing={1}>
+                                                {isLoadingGps ? (
+                                                    <Label variant="soft" color="default">Fetching GPS Data...</Label>
+                                                ) : gpsData?.totalOdometer != null ? (
+                                                    <Stack spacing={0.5}>
+                                                        <Label variant="soft" color="warning" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
+                                                            <Iconify icon="mdi:alert" sx={{ mr: 0.5, flexShrink: 0 }} />
+                                                            GPS: {gpsData.totalOdometer} km (May be inaccurate)
+                                                        </Label>
+                                                        <Button
+                                                            size="small"
+                                                            variant="text"
+                                                            fullWidth
+                                                            onClick={() => setVehicleOdometer(gpsData.totalOdometer)}
+                                                        >
+                                                            Use GPS Odometer
+                                                        </Button>
+                                                    </Stack>
+                                                ) : (
+                                                    <Label variant="soft" color="error" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
+                                                        <Iconify icon="mdi:alert-circle" sx={{ mr: 0.5, flexShrink: 0 }} />
+                                                        GPS Odometer unavailable
+                                                    </Label>
+                                                )}
+                                            </Stack>
+                                        )}
+
+                                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                            <Button size="small" variant="outlined" color="inherit" onClick={() => setAnchorEl(null)}>
+                                                Cancel
+                                            </Button>
+                                            <Button size="small" variant="contained" color="primary" onClick={handleSaveOdometer}>
+                                                Save
+                                            </Button>
+                                        </Stack>
+                                    </Stack>
+                                </Popover>
+                            </Stack>
                         }
                     />
                     <TableContainer sx={{ overflow: 'unset' }}>
