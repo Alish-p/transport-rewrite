@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate, fTime, fToNow, fDaysDuration } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -122,7 +122,25 @@ export const TYRE_TABLE_COLUMNS = [
             if (row.status === 'Mounted' && row.currentVehicleId != null && row.mountOdometer != null && row.currentVehicleId.currentOdometer != null) {
                 const diff = row.currentVehicleId.currentOdometer - row.mountOdometer;
                 const liveKm = (row.currentKm || 0) + (diff > 0 ? diff : 0);
-                return `${liveKm} km`;
+
+                const updatedAt = row.currentVehicleId.currentOdometerUpdatedAt;
+
+                let subtitleColor = 'text.disabled';
+                if (updatedAt) {
+                    const daysOld = fDaysDuration(updatedAt, new Date());
+                    if (daysOld < 3) subtitleColor = 'success.light';
+                    else if (daysOld <= 10) subtitleColor = 'warning.light';
+                    else subtitleColor = 'error.light';
+                }
+
+                return (
+                    <ListItemText
+                        primary={`${liveKm} km`}
+                        secondary={updatedAt ? `${fToNow(updatedAt)} ago` : 'Unknown'}
+                        primaryTypographyProps={{ typography: 'body2' }}
+                        secondaryTypographyProps={{ component: 'span', typography: 'caption', color: subtitleColor }}
+                    />
+                );
             }
             return `${row.currentKm || 0} km`;
         },

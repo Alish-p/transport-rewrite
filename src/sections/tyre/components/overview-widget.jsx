@@ -8,7 +8,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function OverviewWidget({ title, total, icon, color = 'primary', unit, sx, ...other }) {
+export default function OverviewWidget({ title, total, icon, color = 'primary', unit, sx, subtitle, subtitleColor = 'text.disabled', ...other }) {
     const theme = useTheme();
 
     return (
@@ -28,6 +28,7 @@ export default function OverviewWidget({ title, total, icon, color = 'primary', 
                     <Typography variant="h3">{total}</Typography>
                     {unit && <Typography variant="subtitle2" sx={{ color: 'text.secondary', alignSelf: 'flex-end', mb: 1 }}>{unit}</Typography>}
                 </Stack>
+                {subtitle && <Typography variant="caption" sx={{ color: subtitleColor, display: 'block', mt: 0.5 }}>{subtitle}</Typography>}
             </Box>
 
             <Box

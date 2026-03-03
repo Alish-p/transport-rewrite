@@ -14,6 +14,8 @@ import CardContent from '@mui/material/CardContent';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fToNow, fDaysDuration } from 'src/utils/format-time';
+
 import { ICONS } from 'src/assets/data/icons';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
@@ -126,6 +128,26 @@ export default function TyreDetailsView() {
         { icon: ICONS.tyre.ruler, label: tyre.size },
     ];
 
+    let liveKm = tyre.currentKm || 0;
+    let liveKmSubtitle = '';
+    let liveKmSubtitleColor = 'text.disabled';
+
+    if (tyre.status === TYRE_STATUS.MOUNTED && currentVehicle?.currentOdometer != null && tyre.mountOdometer != null) {
+        const diff = currentVehicle.currentOdometer - tyre.mountOdometer;
+        if (diff > 0) liveKm += diff;
+
+        const updatedAt = currentVehicle?.currentOdometerUpdatedAt;
+        if (updatedAt) {
+            liveKmSubtitle = `Captured ${fToNow(updatedAt)} ago`;
+            const daysOld = fDaysDuration(updatedAt, new Date());
+            if (daysOld < 3) liveKmSubtitleColor = 'success.light';
+            else if (daysOld <= 10) liveKmSubtitleColor = 'warning.light';
+            else liveKmSubtitleColor = 'error.light';
+        } else {
+            liveKmSubtitle = 'Capture time unknown';
+        }
+    }
+
     return (
         <DashboardContent>
             <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -195,10 +217,12 @@ export default function TyreDetailsView() {
                             <Grid item xs={12} md={6}>
                                 <OverviewWidget
                                     title="Total Distance"
-                                    total={tyre.currentKm || 0}
+                                    total={liveKm}
                                     icon={ICONS.tyre.road}
                                     color="info"
                                     unit="km"
+                                    subtitle={liveKmSubtitle}
+                                    subtitleColor={liveKmSubtitleColor}
                                 />
                             </Grid>
                             <Grid item xs={12} md={6}>
