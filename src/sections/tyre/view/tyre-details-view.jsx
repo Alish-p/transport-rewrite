@@ -6,6 +6,8 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
@@ -131,6 +133,7 @@ export default function TyreDetailsView() {
     let liveKm = tyre.currentKm || 0;
     let liveKmSubtitle = '';
     let liveKmSubtitleColor = 'text.disabled';
+    let infoTooltipContent = null;
 
     if (tyre.status === TYRE_STATUS.MOUNTED && currentVehicle?.currentOdometer != null && tyre.mountOdometer != null) {
         const diff = currentVehicle.currentOdometer - tyre.mountOdometer;
@@ -146,6 +149,30 @@ export default function TyreDetailsView() {
         } else {
             liveKmSubtitle = 'Capture time unknown';
         }
+
+        infoTooltipContent = (
+            <Stack spacing={1}>
+                <Typography variant="subtitle2">Live KM Calculation</Typography>
+                <Divider />
+                <Stack direction="row" justifyContent="space-between" spacing={3}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Last Recorded KM</Typography>
+                    <Typography variant="body2" fontWeight="medium">{tyre.currentKm || 0} km</Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between" spacing={3}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Current Vehicle Odo</Typography>
+                    <Typography variant="body2" fontWeight="medium">{currentVehicle.currentOdometer} km</Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between" spacing={3}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Mounted Odo</Typography>
+                    <Typography variant="body2" fontWeight="medium">{tyre.mountOdometer} km</Typography>
+                </Stack>
+                <Divider />
+                <Stack direction="row" justifyContent="space-between" spacing={3}>
+                    <Typography variant="subtitle2">Total (Live KM)</Typography>
+                    <Typography variant="subtitle2">{liveKm} km</Typography>
+                </Stack>
+            </Stack>
+        );
     }
 
     return (
@@ -223,6 +250,7 @@ export default function TyreDetailsView() {
                                     unit="km"
                                     subtitle={liveKmSubtitle}
                                     subtitleColor={liveKmSubtitleColor}
+                                    infoTooltip={infoTooltipContent}
                                 />
                             </Grid>
                             <Grid item xs={12} md={6}>

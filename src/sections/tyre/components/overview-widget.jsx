@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
@@ -8,7 +10,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function OverviewWidget({ title, total, icon, color = 'primary', unit, sx, subtitle, subtitleColor = 'text.disabled', ...other }) {
+export default function OverviewWidget({ title, total, icon, color = 'primary', unit, sx, subtitle, subtitleColor = 'text.disabled', infoTooltip, ...other }) {
     const theme = useTheme();
 
     return (
@@ -22,7 +24,36 @@ export default function OverviewWidget({ title, total, icon, color = 'primary', 
             {...other}
         >
             <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{title}</Typography>
+                <Box sx={{ mb: 0.5, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="subtitle2">{title}</Typography>
+                    {infoTooltip && (
+                        <Tooltip
+                            title={infoTooltip}
+                            placement="top"
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        bgcolor: 'background.paper',
+                                        color: 'text.primary',
+                                        boxShadow: theme.customShadows?.dropdown || theme.shadows[8],
+                                        p: 1.5,
+                                        borderRadius: 1,
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: 'background.paper',
+                                    },
+                                },
+                            }}
+                        >
+                            <IconButton size="small" sx={{ ml: 0.5, p: 0.5 }}>
+                                <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </Box>
 
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <Typography variant="h3">{total}</Typography>

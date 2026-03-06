@@ -88,7 +88,12 @@ const WorkOrderIssueSchema = zod.object({
 
 export const WorkOrderSchema = zod.object({
   vehicleId: zod.string().min(1, { message: 'Vehicle is required' }),
-  category: zod.string().optional(),
+  category: zod.preprocess((val) => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object' && 'value' in val) return val.value;
+    return val;
+  }, zod.string().optional()),
   status: zod
     .enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value))
     .optional(),
@@ -404,7 +409,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     try {
       const payload = {
         vehicle: formData.vehicleId,
-        category: formData.category || undefined,
+        category: typeof formData.category === 'object' ? formData.category?.value : (formData.category || undefined),
         status: formData.status || undefined,
         priority: formData.priority || undefined,
         scheduledStartDate:
@@ -595,21 +600,12 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-        <Field.Select
+        <Field.AutocompleteFreeSolo
+          fullWidth
           name="category"
           label="Category"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-        >
-          <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-            None
-          </MenuItem>
-          {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Field.Select>
+          options={WORK_ORDER_CATEGORY_OPTIONS.map((option) => ({ label: option, value: option }))}
+        />
 
         <Field.Select
           name="priority"
