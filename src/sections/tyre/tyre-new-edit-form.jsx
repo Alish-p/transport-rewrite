@@ -26,6 +26,7 @@ const TYPE_OPTIONS = [
     { value: 'New', label: 'New' },
     { value: 'Remolded', label: 'Remolded' },
     { value: 'Used', label: 'Used' },
+    { value: 'Rejected', label: 'Rejected' },
 ];
 
 const stringOrObjectSchema = (requiredMessage) => zod.preprocess(

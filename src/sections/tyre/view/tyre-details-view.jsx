@@ -21,7 +21,7 @@ import { fToNow, fDaysDuration } from 'src/utils/format-time';
 import { ICONS } from 'src/assets/data/icons';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
-import { useGetTyre, useMountTyre, useScrapTyre, useUnmountTyre } from 'src/query/use-tyre';
+import { useGetTyre, useMountTyre, useScrapTyre, useUpdateTyre, useUnmountTyre } from 'src/query/use-tyre';
 
 import { useSettingsContext } from 'src/components/settings';
 import { HeroHeader } from 'src/components/hero-header-card';
@@ -51,6 +51,7 @@ export default function TyreDetailsView() {
     const { mutateAsync: mountTyre } = useMountTyre();
     const { mutateAsync: unmountTyre } = useUnmountTyre();
     const { mutateAsync: scrapTyre } = useScrapTyre();
+    const { mutateAsync: updateTyre } = useUpdateTyre();
 
     const [openThreadDialog, setOpenThreadDialog] = useState(false);
     const [openMountWizard, setOpenMountWizard] = useState(false);
@@ -117,6 +118,21 @@ export default function TyreDetailsView() {
         } catch (e) {
             console.error(e);
             toast.error(e?.message || 'Failed to scrap tyre');
+        }
+    };
+
+    const handleMarkAsRejected = async () => {
+        try {
+            await updateTyre({
+                id: tyre._id,
+                data: {
+                    type: 'Rejected'
+                }
+            });
+            toast.success('Tyre marked as rejected successfully');
+        } catch (e) {
+            console.error(e);
+            toast.error(e?.message || 'Failed to mark tyre as rejected');
         }
     };
 
@@ -218,6 +234,13 @@ export default function TyreDetailsView() {
                                     icon: ICONS.tyre.trashFilled,
                                     onClick: () => setOpenScrapDialog(true),
                                     disabled: tyre.status === TYRE_STATUS.SCRAPPED,
+                                    sx: { color: 'error.main' },
+                                },
+                                {
+                                    label: 'Mark as Rejected',
+                                    icon: ICONS.common.close,
+                                    onClick: () => handleMarkAsRejected(),
+                                    disabled: tyre.type === 'Rejected' || tyre.status === TYRE_STATUS.SCRAPPED,
                                     sx: { color: 'error.main' },
                                 },
                                 {

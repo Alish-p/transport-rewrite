@@ -35,6 +35,7 @@ export const TYRE_HISTORY_ACTION = {
     UPDATE: 'UPDATE',
     SCRAP: 'SCRAP',
     REMOLD: 'REMOLD',
+    REJECT: 'REJECT',
 };
 
 export default function TyreHistory({ tyreId, ...other }) {
@@ -156,6 +157,8 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return `Moved to Scrap`;
             case 'REMOLD':
                 return `Tyre remolded. Thread depth reset to ${newThreadDepth}mm from ${previousThreadDepth}mm`;
+            case 'REJECT':
+                return `Tyre marked as Rejected`;
             default:
                 return action;
         }
@@ -170,6 +173,8 @@ function HistoryItem({ item, lastItem, onEdit }) {
             case 'THREAD_UPDATE':
                 return 'info';
             case 'SCRAP':
+                return 'error';
+            case 'REJECT':
                 return 'error';
             case 'REMOLD':
                 return 'warning'; // or 'success' or 'info'

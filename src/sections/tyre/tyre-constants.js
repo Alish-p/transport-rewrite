@@ -8,6 +8,7 @@ export const TYRE_TYPE = {
     NEW: 'New',
     REMOLDED: 'Remolded',
     USED: 'Used',
+    REJECTED: 'Rejected',
 };
 
 export const TYRE_POSITIONS = {
