@@ -31,6 +31,7 @@ const EVENT_ICONS = {
   INVOICE_DELETED: 'mdi:file-document-remove',
   INVOICE_PAID: 'mdi:file-document-check',
   DRIVER_SALARY_GENERATED: 'mdi:cash-check',
+  TRANSPORTER_PAYMENT_GENERATED: 'mdi:bank-transfer',
   UPDATED: 'mdi:refresh',
 };
 
@@ -71,32 +72,69 @@ function formatEventMessage(event, subtripExpenseTypes) {
 
   // 3. Invoice events
   if (eventType === 'INVOICE_GENERATED' && details.invoiceNo && details.amount != null) {
-    return `${userPrefix}Generated invoice ${details.invoiceNo} for ₹${details.amount}`;
+    return (
+      <span>
+        {userPrefix}Generated invoice{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.invoice.details(details.invoiceId)}
+          color="primary"
+        >
+          {details.invoiceNo}
+        </Link>{' '}
+        for ₹{details.amount}
+      </span>
+    );
   }
   if (eventType === 'INVOICE_PAID' && details.invoiceNo) {
-    return `${userPrefix}Marked invoice ${details.invoiceNo} as paid`;
+    return (
+      <span>
+        {userPrefix}Marked invoice{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.invoice.details(details.invoiceId)}
+          color="primary"
+        >
+          {details.invoiceNo}
+        </Link>{' '}
+        as paid
+      </span>
+    );
   }
   if (eventType === 'INVOICE_DELETED' && details.invoiceNo) {
     return `${userPrefix}Deleted invoice ${details.invoiceNo}`;
   }
 
-  // Driver salary events
-  if (eventType === 'DRIVER_SALARY_GENERATED') {
-    if (details.paymentId) {
-      return (
-        <span>
-          {userPrefix}Processed driver salary{' '}
-          <Link
-            component={RouterLink}
-            href={paths.dashboard.driverSalary.details(details.salaryId)}
-            color="primary"
-          >
-            {details.paymentId}
-          </Link>
-        </span>
-      );
-    }
-    return `${userPrefix}Driver salary processed`;
+  // Driver salary events (This block is not called because of early return but moving the logic out so it's consistent)
+  if (eventType === 'DRIVER_SALARY_GENERATED' && details.paymentId) {
+    return (
+      <span>
+        {userPrefix}Processed driver salary{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.driverSalary.details(details.salaryId)}
+          color="primary"
+        >
+          {details.paymentId}
+        </Link>
+      </span>
+    );
+  }
+
+  // Transporter payment events
+  if (eventType === 'TRANSPORTER_PAYMENT_GENERATED' && details.paymentId) {
+    return (
+      <span>
+        {userPrefix}Processed transporter payment{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
+          color="primary"
+        >
+          {details.paymentId}
+        </Link>
+      </span>
+    );
   }
 
   // 4. Material added event
