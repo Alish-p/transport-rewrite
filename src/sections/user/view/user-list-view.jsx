@@ -15,6 +15,8 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+
 import { useDeleteUser } from 'src/query/use-user';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -66,7 +68,7 @@ export function UserListView({ users }) {
     setTableData(users);
   }, [users]);
 
-  const filters = useSetState({ name: '', designation: '' });
+  const filters = useSetState({ name: '', designation: '', permission: '' });
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -76,7 +78,7 @@ export function UserListView({ users }) {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!filters.state.name || filters.state.designation;
+  const canReset = !!filters.state.name || !!filters.state.designation || !!filters.state.permission;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -147,11 +149,37 @@ export function UserListView({ users }) {
                 )
               }
               action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={confirm.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Export to Excel">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id) || table.selected.includes(r.id));
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            [
+                              { id: 'name', label: 'Name', getter: (r) => r.name },
+                              { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
+                              { id: 'address', label: 'Address', getter: (r) => r.address },
+                              { id: 'designation', label: 'Designation', getter: (r) => r.designation },
+                            ],
+                            ['name', 'mobile', 'address', 'designation'],
+                            []
+                          ),
+                          'Users-selected-list'
+                        );
+                      }}
+                    >
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               }
             />
 
@@ -238,7 +266,7 @@ export function UserListView({ users }) {
 }
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { name, designation } = filters;
+  const { name, designation, permission } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -259,6 +287,22 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter(
       (user) => user.designation.toLowerCase().indexOf(designation.toLowerCase()) !== -1
     );
+  }
+  if (permission) {
+    const searchTerms = permission.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+    if (searchTerms.length > 0) {
+      inputData = inputData.filter((user) => {
+        const userPerms = [];
+        if (user.permissions) {
+          Object.entries(user.permissions).forEach(([mod, actions]) => {
+            Object.entries(actions).forEach(([act, val]) => {
+              if (val === true) userPerms.push(`${mod}.${act}`.toLowerCase());
+            });
+          });
+        }
+        return searchTerms.every((term) => userPerms.some((p) => p.includes(term)));
+      });
+    }
   }
 
   return inputData;
