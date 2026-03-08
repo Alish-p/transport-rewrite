@@ -53,8 +53,8 @@ import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payro
 const STORAGE_KEY = 'driver-payroll-table-columns';
 
 const defaultFilters = {
-  driver: '',
-  subtrip: '',
+  driver: null,
+  subtrip: null,
   fromDate: null,
   endDate: null,
 };
@@ -343,16 +343,14 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (driver) {
+  if (driver && driver._id) {
     inputData = inputData.filter(
-      (record) =>
-        record.driverId &&
-        record.driverId.driverName.toLowerCase().indexOf(driver.toLowerCase()) !== -1
+      (record) => record.driverId && record.driverId._id === driver._id
     );
   }
-  if (subtrip) {
+  if (subtrip && subtrip._id) {
     inputData = inputData.filter(
-      (record) => record.subtrips && record.subtrips.some((st) => st._id === subtrip)
+      (record) => record.associatedSubtrips && record.associatedSubtrips.some((st) => st === subtrip._id)
     );
   }
 

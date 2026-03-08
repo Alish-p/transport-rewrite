@@ -19,11 +19,11 @@ export default function DriverPayrollTableFiltersResult({
   ...other
 }) {
   const handleRemoveDriver = () => {
-    onFilters('driver', '');
+    onFilters('driver', null);
   };
 
   const handleRemoveSubtrip = () => {
-    onFilters('subtrip', '');
+    onFilters('subtrip', null);
   };
 
   const handleRemoveDate = () => {
@@ -45,13 +45,13 @@ export default function DriverPayrollTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.driver && (
           <Block label="Driver">
-            <Chip size="small" label={filters.driver} onDelete={handleRemoveDriver} />
+            <Chip size="small" label={filters.driver.driverName} onDelete={handleRemoveDriver} />
           </Block>
         )}
 
         {filters.subtrip && (
           <Block label="Job:">
-            <Chip size="small" label={filters.subtrip} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={filters.subtrip.subtripNo} onDelete={handleRemoveSubtrip} />
           </Block>
         )}
 

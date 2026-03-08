@@ -110,10 +110,7 @@ export const TABLE_COLUMNS = [
             <ListItemText
                 primary={fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)}
                 primaryTypographyProps={{
-                    mt: 0.5,
-                    component: 'span',
-                    typography: 'caption',
-                    color: 'text.disabled',
+                    typography: 'body2', noWrap: true
                 }}
             />
         ),

@@ -3,11 +3,11 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 // @mui
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 // components
 
 import Badge from '@mui/material/Badge';
@@ -18,7 +18,12 @@ import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 
 import { TABLE_COLUMNS } from './driver-payroll-table-config';
 
@@ -37,17 +42,19 @@ export default function DriverPayrollTableToolbar({
 }) {
   const popover = usePopover();
   const columnsPopover = usePopover();
+  const driverDialogOpen = useBoolean();
+  const subtripDialogOpen = useBoolean();
 
   const handleFilterDriverName = useCallback(
-    (event) => {
-      onFilters('driver', event.target.value);
+    (driver) => {
+      onFilters('driver', driver);
     },
     [onFilters]
   );
 
   const handleFilterSubtrip = useCallback(
-    (event) => {
-      onFilters('subtrip', event.target.value);
+    (subtrip) => {
+      onFilters('subtrip', subtrip);
     },
     [onFilters]
   );
@@ -80,32 +87,18 @@ export default function DriverPayrollTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.driver}
-          onChange={handleFilterDriverName}
-          placeholder="Search driver ..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={driverDialogOpen.onTrue}
+          placeholder="Driver"
+          selected={filters.driver?.driverName}
+          iconName="mdi:steering"
         />
 
-        <TextField
-          fullWidth
-          value={filters.subtrip}
-          onChange={handleFilterSubtrip}
-          placeholder="Search job..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
+        <DialogSelectButton
+          onClick={subtripDialogOpen.onTrue}
+          placeholder="Job"
+          selected={filters.subtrip?.subtripNo}
+          iconName="mdi:bookmark"
         />
 
         <DatePicker
@@ -196,6 +189,24 @@ export default function DriverPayrollTableToolbar({
         onResetColumns={onResetColumns}
         canResetColumns={canResetColumns}
       />
+      {driverDialogOpen.value && (
+        <KanbanDriverDialog
+          open={driverDialogOpen.value}
+          onClose={driverDialogOpen.onFalse}
+          onDriverChange={handleFilterDriverName}
+          selectedDriver={filters.driver}
+        />
+      )}
+
+      {subtripDialogOpen.value && (
+        <KanbanSubtripDialog
+          open={subtripDialogOpen.value}
+          onClose={subtripDialogOpen.onFalse}
+          onSubtripChange={handleFilterSubtrip}
+          selectedSubtrip={filters.subtrip}
+          statusList={Object.values(SUBTRIP_STATUS)}
+        />
+      )}
     </>
   );
 }
