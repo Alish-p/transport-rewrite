@@ -232,7 +232,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
           { id: 'driver', label: 'Driver' },
           { id: 'customer', label: 'Customer' },
           { id: 'route', label: 'Route' },
-          { id: 'date', label: 'Date' },
+          { id: 'date', label: 'Dispatch Date' },
           { id: 'weight', label: 'Weight (T)' },
           { id: 'rate', label: 'Rate' },
         ];

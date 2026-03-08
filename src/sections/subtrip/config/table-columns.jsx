@@ -377,6 +377,27 @@ export const TABLE_COLUMNS = [
     align: 'center',
   },
   {
+    id: 'createdAt',
+    label: 'Created At',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => fDateTime(row?.createdAt) || '-',
+    type: 'date',
+    align: 'center',
+    render: (row) => (
+      <ListItemText
+        primary={row?.createdAt ? fDate(new Date(row?.createdAt)) : '-'}
+        secondary={row?.createdAt ? fTime(new Date(row?.createdAt)) : '-'}
+        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        secondaryTypographyProps={{
+          mt: 0.5,
+          component: 'span',
+          typography: 'caption',
+        }}
+      />
+    ),
+  },
+  {
     id: 'subtripStatus',
     label: 'Job Status',
     defaultVisible: true,
