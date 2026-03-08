@@ -125,11 +125,11 @@ export function WorkOrderDetailView({ workOrder }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={vehicle?.vehicleNo || 'Work Order'}
+        heading={workOrderNo || 'Work Order'}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Work Orders', href: paths.dashboard.workOrder.list },
-          { name: vehicle?.vehicleNo || 'Work Order' },
+          { name: workOrderNo || 'Work Order' },
         ]}
         action={
           <Stack direction="row" spacing={1}>
