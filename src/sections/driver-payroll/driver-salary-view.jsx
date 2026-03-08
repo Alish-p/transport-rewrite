@@ -50,7 +50,17 @@ function RenderHeader({ driverSalary }) {
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
       sx={{ mb: 2 }}
     >
-      <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60 }} />
+      <Box
+        component="img"
+        alt="logo"
+        src={getTenantLogoUrl(tenant)}
+        sx={{
+          width: 60,
+          height: 60,
+          bgcolor: 'background.neutral',
+          borderRadius: '10px',
+        }}
+      />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
         <Label
           variant="soft"
@@ -80,17 +90,6 @@ function RenderAddress({ title, children }) {
       </Typography>
       {children}
     </Stack>
-  );
-}
-
-function RenderDateInfo({ issueDate, billingPeriod }) {
-  return (
-    <>
-      <RenderAddress title="Issue Date">{issueDate && fDate(issueDate)}</RenderAddress>
-      <RenderAddress title="Billing Period">
-        {billingPeriod && fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}
-      </RenderAddress>
-    </>
   );
 }
 
@@ -202,7 +201,7 @@ export default function DriverSalaryView({ driverSalary }) {
     <Card sx={{ pt: 5, px: 5 }}>
       <RenderHeader driverSalary={driverSalary} />
 
-      <Box display="grid" rowGap={4} gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr 1fr' }}>
+      <Box display="grid" rowGap={4} gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}>
         <RenderAddress title="Salary From">
           <>
             {tenant?.name}
@@ -235,7 +234,13 @@ export default function DriverSalaryView({ driverSalary }) {
           )}
         </RenderAddress>
 
-        <RenderDateInfo issueDate={issueDate} billingPeriod={billingPeriod} />
+        <RenderAddress title="Issue Date">
+          {issueDate && fDate(issueDate)}
+        </RenderAddress>
+
+        <RenderAddress title="Billing Period">
+          {billingPeriod && fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}
+        </RenderAddress>
       </Box>
 
       <RenderTable driverSalary={driverSalary} />
