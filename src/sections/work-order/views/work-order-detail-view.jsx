@@ -340,14 +340,17 @@ export function WorkOrderDetailView({ workOrder }) {
                     </Typography>
                     {issue &&
                       typeof issue === 'object' &&
-                      issue.assignedTo &&
-                      (issue.assignedTo.name || issue.assignedTo.customerName) && (
+                      Array.isArray(issue.assignedTo) &&
+                      issue.assignedTo.length > 0 && (
                         <Typography
                           variant="caption"
                           sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}
                         >
                           Assigned to:{' '}
-                          {issue.assignedTo.name || issue.assignedTo.customerName}
+                          {issue.assignedTo
+                            .map((user) => user.name || user.customerName)
+                            .filter(Boolean)
+                            .join(', ')}
                         </Typography>
                       )}
                   </Box>

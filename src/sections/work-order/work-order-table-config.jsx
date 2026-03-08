@@ -142,12 +142,13 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => {
       const issues = row.issues || [];
-      const names = issues
-        .map((issue) => {
-          if (!issue || typeof issue !== 'object' || !issue.assignedTo) return null;
-          return issue.assignedTo.name || issue.assignedTo.customerName || null;
-        })
-        .filter(Boolean);
+      const names = issues.flatMap((issue) => {
+        if (!issue || typeof issue !== 'object' || !Array.isArray(issue.assignedTo)) return [];
+        return issue.assignedTo.map((user) => {
+          if (!user) return null;
+          return user.name || user.customerName || null;
+        }).filter(Boolean);
+      });
       const unique = Array.from(new Set(names));
       return unique.join(', ');
     },

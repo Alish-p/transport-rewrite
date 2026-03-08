@@ -16,6 +16,7 @@ export default function WorkOrderTableFiltersResult({
   selectedPart,
   selectedCreatedBy,
   selectedClosedBy,
+  selectedIssueAssignee,
   ...other
 }) {
   const handleRemoveStatus = () => {
@@ -44,6 +45,10 @@ export default function WorkOrderTableFiltersResult({
 
   const handleRemoveClosedBy = () => {
     onFilters('closedBy', '');
+  };
+
+  const handleRemoveIssueAssignee = () => {
+    onFilters('issueAssignee', '');
   };
 
   return (
@@ -110,6 +115,16 @@ export default function WorkOrderTableFiltersResult({
               size="small"
               label={selectedClosedBy?.name || filters.closedBy}
               onDelete={handleRemoveClosedBy}
+            />
+          </Block>
+        )}
+
+        {filters.issueAssignee && (
+          <Block label="Issue Assignee :">
+            <Chip
+              size="small"
+              label={selectedIssueAssignee?.name || filters.issueAssignee}
+              onDelete={handleRemoveIssueAssignee}
             />
           </Block>
         )}

@@ -83,7 +83,7 @@ const WorkOrderLineSchema = zod.object({
 
 const WorkOrderIssueSchema = zod.object({
   issue: stringOrObjectSchema('Issue cannot be empty'),
-  assignedTo: zod.string().optional(),
+  assignedTo: zod.array(zod.string()).optional(),
 });
 
 export const WorkOrderSchema = zod.object({
@@ -155,14 +155,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         if (!currentWorkOrder?.issues) return [];
         return currentWorkOrder.issues.map((issue) => {
           if (typeof issue === 'string') {
-            return { issue, assignedTo: '' };
+            return { issue, assignedTo: [] };
           }
           return {
             issue: issue.issue || '',
-            assignedTo:
-              issue.assignedTo?._id ||
-              issue.assignedTo ||
-              '',
+            assignedTo: Array.isArray(issue.assignedTo)
+              ? issue.assignedTo.map((u) => u?._id || u || '')
+              : (issue.assignedTo ? [issue.assignedTo?._id || issue.assignedTo] : []),
           };
         });
       })(),
@@ -294,8 +293,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     const mapping = {};
     issueFields.forEach((field, index) => {
       const existing = currentWorkOrder.issues?.[index];
-      if (existing && typeof existing === 'object' && existing.assignedTo) {
+      if (existing && typeof existing === 'object' && Array.isArray(existing.assignedTo)) {
         mapping[field.id] = existing.assignedTo;
+      } else if (existing && typeof existing === 'object' && existing.assignedTo) {
+        mapping[field.id] = [existing.assignedTo];
       }
     });
 
@@ -330,22 +331,19 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   };
 
   const handleIssueAssigneesChange = (assignees) => {
-    const user = assignees?.[0] || null;
     if (!activeIssueFieldId) return;
     const index = issueFields.findIndex((f) => f.id === activeIssueFieldId);
     if (index < 0) return;
 
     setIssueAssignees((prev) => ({
       ...prev,
-      [activeIssueFieldId]: user,
+      [activeIssueFieldId]: assignees,
     }));
 
-    setValue(`issues.${index}.assignedTo`, user?._id || '', {
+    setValue(`issues.${index}.assignedTo`, assignees.map((user) => user?._id || '').filter(Boolean), {
       shouldDirty: true,
       shouldValidate: true,
     });
-
-    assigneeDialog.onFalse();
   };
 
   const handleScheduledDateChange = (newDate) => {
@@ -436,7 +434,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             const issueText = typeof item?.issue === 'object' ? item.issue.value : item?.issue;
             return {
               issue: issueText.trim(),
-              assignedTo: item.assignedTo || undefined,
+              assignedTo: Array.isArray(item.assignedTo) && item.assignedTo.length > 0 ? item.assignedTo : undefined,
             };
           }),
         description: formData.description || undefined,
@@ -663,7 +661,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             onClick={() =>
               appendIssue({
                 issue: '',
-                assignedTo: '',
+                assignedTo: [],
               })
             }
           >
@@ -691,9 +689,11 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               </TableHead>
               <TableBody>
                 {issueFields.map((field, index) => {
-                  const assignee = issueAssignees[field.id];
-                  const assigneeLabel =
-                    assignee?.name || assignee?.customerName || '';
+                  const assignees = issueAssignees[field.id] || [];
+                  const assigneeLabel = assignees
+                    .map((a) => a?.name || a?.customerName)
+                    .filter(Boolean)
+                    .join(', ');
 
                   return (
                     <TableRow key={field.id}>
@@ -713,8 +713,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                           }}
                           selected={assigneeLabel || ''}
                           placeholder="Assign to..."
-                          iconName="mdi:account"
-                          iconNameSelected="mdi:account-check"
+                          iconName="mdi:account-multiple"
+                          iconNameSelected="mdi:account-multiple-check"
                         />
                       </TableCell>
                       <TableCell align="center">
@@ -1083,10 +1083,9 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         onClose={assigneeDialog.onFalse}
         assignees={
           activeIssueFieldId && issueAssignees[activeIssueFieldId]
-            ? [issueAssignees[activeIssueFieldId]]
+            ? issueAssignees[activeIssueFieldId]
             : []
         }
-        single
         onAssigneeChange={handleIssueAssigneesChange}
       />
 

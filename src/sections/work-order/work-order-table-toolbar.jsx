@@ -6,6 +6,7 @@ import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -37,12 +38,15 @@ export default function WorkOrderTableToolbar({
   onSelectCreatedBy,
   selectedClosedBy,
   onSelectClosedBy,
+  selectedIssueAssignee,
+  onSelectIssueAssignee,
 }) {
   const columnsPopover = usePopover();
   const vehicleDialog = usePopover();
   const partDialog = usePopover();
   const createdByDialog = useBoolean();
   const closedByDialog = useBoolean();
+  const issueAssigneeDialog = useBoolean();
 
   const handleFilterPriority = useCallback(
     (event) => {
@@ -52,8 +56,8 @@ export default function WorkOrderTableToolbar({
   );
 
   const handleFilterCategory = useCallback(
-    (event) => {
-      onFilters('category', event.target.value);
+    (event, newValue) => {
+      onFilters('category', newValue || 'all');
     },
     [onFilters]
   );
@@ -98,6 +102,16 @@ export default function WorkOrderTableToolbar({
     [onFilters, onSelectClosedBy, closedByDialog]
   );
 
+  const handleSelectIssueAssignee = useCallback(
+    (assignees) => {
+      const user = assignees[0];
+      onFilters('issueAssignee', user?._id || '');
+      if (onSelectIssueAssignee) onSelectIssueAssignee(user || null);
+      issueAssigneeDialog.onFalse();
+    },
+    [onFilters, onSelectIssueAssignee, issueAssigneeDialog]
+  );
+
   return (
     <>
       <Stack
@@ -129,20 +143,17 @@ export default function WorkOrderTableToolbar({
           ))}
         </TextField>
 
-        <TextField
-          select
-          label="Filter by category"
-          value={filters.category}
+        <Autocomplete
+          freeSolo
+          options={WORK_ORDER_CATEGORY_OPTIONS}
+          value={filters.category === 'all' ? '' : filters.category}
           onChange={handleFilterCategory}
+          onInputChange={(event, newInputValue) => {
+            handleFilterCategory(event, newInputValue);
+          }}
+          renderInput={(params) => <TextField {...params} label="Filter by category" />}
           sx={{ width: { xs: 1, md: 200 } }}
-        >
-          <MenuItem value="all">All categories</MenuItem>
-          {WORK_ORDER_CATEGORY_OPTIONS.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
 
         <DialogSelectButton
           onClick={vehicleDialog.onOpen}
@@ -173,6 +184,14 @@ export default function WorkOrderTableToolbar({
           selected={selectedClosedBy?.name}
           placeholder="Closed By"
           iconName="mdi:account-check"
+          sx={{ width: { xs: 1, md: 150 } }}
+        />
+
+        <DialogSelectButton
+          onClick={issueAssigneeDialog.onTrue}
+          selected={selectedIssueAssignee?.name}
+          placeholder="Issue Assignee"
+          iconName="mdi:account-hard-hat"
           sx={{ width: { xs: 1, md: 150 } }}
         />
 
@@ -230,6 +249,14 @@ export default function WorkOrderTableToolbar({
         open={closedByDialog.value}
         onClose={closedByDialog.onFalse}
         onAssigneeChange={handleSelectClosedBy}
+        single
+      />
+
+      <KanbanContactsDialog
+        assignees={selectedIssueAssignee ? [selectedIssueAssignee] : []}
+        open={issueAssigneeDialog.value}
+        onClose={issueAssigneeDialog.onFalse}
+        onAssigneeChange={handleSelectIssueAssignee}
         single
       />
     </>

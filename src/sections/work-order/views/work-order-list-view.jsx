@@ -59,6 +59,7 @@ const defaultFilters = {
   partId: '',
   createdBy: '',
   closedBy: '',
+  issueAssignee: '',
 };
 
 const STATUS_TABS = [
@@ -91,6 +92,7 @@ export function WorkOrderListView() {
   const [selectedPart, setSelectedPart] = useState(null);
   const [selectedCreatedBy, setSelectedCreatedBy] = useState(null);
   const [selectedClosedBy, setSelectedClosedBy] = useState(null);
+  const [selectedIssueAssignee, setSelectedIssueAssignee] = useState(null);
 
   const {
     visibleColumns,
@@ -112,6 +114,7 @@ export function WorkOrderListView() {
     part: filters.partId || undefined,
     createdBy: filters.createdBy || undefined,
     closedBy: filters.closedBy || undefined,
+    issueAssignee: filters.issueAssignee || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -214,6 +217,10 @@ export function WorkOrderListView() {
     if (!filters.closedBy) setSelectedClosedBy(null);
   }, [filters.closedBy]);
 
+  useEffect(() => {
+    if (!filters.issueAssignee) setSelectedIssueAssignee(null);
+  }, [filters.issueAssignee]);
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -272,6 +279,8 @@ export function WorkOrderListView() {
           onSelectCreatedBy={setSelectedCreatedBy}
           selectedClosedBy={selectedClosedBy}
           onSelectClosedBy={setSelectedClosedBy}
+          selectedIssueAssignee={selectedIssueAssignee}
+          onSelectIssueAssignee={setSelectedIssueAssignee}
         />
 
         {canReset && (
@@ -283,6 +292,7 @@ export function WorkOrderListView() {
             selectedPart={selectedPart}
             selectedCreatedBy={selectedCreatedBy}
             selectedClosedBy={selectedClosedBy}
+            selectedIssueAssignee={selectedIssueAssignee}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -345,6 +355,7 @@ export function WorkOrderListView() {
                               part: filters.partId || undefined,
                               createdBy: filters.createdBy || undefined,
                               closedBy: filters.closedBy || undefined,
+                              issueAssignee: filters.issueAssignee || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
