@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
@@ -7,6 +9,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 // @mui
+import { alpha, useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -28,6 +31,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteDriverPayroll } from 'src/query/use-driver-payroll';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -55,6 +59,7 @@ const STORAGE_KEY = 'driver-payroll-table-columns';
 const defaultFilters = {
   driver: null,
   subtrip: null,
+  status: 'all',
   fromDate: null,
   endDate: null,
 };
@@ -62,6 +67,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function DriverPayrollListView({ driversPayrolls }) {
+  const theme = useTheme();
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
@@ -141,6 +147,20 @@ export function DriverPayrollListView({ driversPayrolls }) {
     return orderedIds;
   };
 
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: tableData.length },
+    { value: 'generated', label: 'Generated', color: 'info', count: tableData.filter((item) => item.status === 'generated').length },
+    { value: 'paid', label: 'Paid', color: 'success', count: tableData.filter((item) => item.status === 'paid').length },
+    { value: 'cancelled', label: 'Cancelled', color: 'error', count: tableData.filter((item) => item.status === 'cancelled').length },
+  ];
+
+  const handleFilterStatus = useCallback(
+    (event, newValue) => {
+      handleFilters('status', newValue);
+    },
+    [handleFilters]
+  );
+
   return (
     <>
       <DashboardContent>
@@ -176,6 +196,35 @@ export function DriverPayrollListView({ driversPayrolls }) {
 
         {/* Table Section */}
         <Card>
+          <Tabs
+            value={filters.status}
+            onChange={handleFilterStatus}
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
           <DriverPayrollTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -331,7 +380,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
 
 // filtering logic
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { driver, subtrip, invoiceStatus, fromDate, endDate } = filters;
+  const { driver, subtrip, status, fromDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -354,15 +403,16 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
     );
   }
 
-  if (invoiceStatus !== 'all') {
-    inputData = inputData.filter((record) => record.invoiceStatus === invoiceStatus);
+  if (status && status !== 'all') {
+    inputData = inputData.filter((record) => record.status === status);
   }
+
   if (!dateError) {
     if (fromDate && endDate) {
       inputData = inputData.filter(
-        (Invoice) =>
-          fTimestamp(Invoice.date) >= fTimestamp(fromDate) &&
-          fTimestamp(Invoice.date) <= fTimestamp(endDate)
+        (record) =>
+          fTimestamp(record.date) >= fTimestamp(fromDate) &&
+          fTimestamp(record.date) <= fTimestamp(endDate)
       );
     }
   }

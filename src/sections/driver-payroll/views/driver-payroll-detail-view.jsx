@@ -9,9 +9,9 @@ import DriverSalaryView from '../driver-salary-view';
 import DriverSalaryToolbar from '../driver-salary-toolbar';
 
 export const PAYSLIP_STATUS_OPTIONS = [
+  { value: 'generated', label: 'Generated' },
   { value: 'paid', label: 'Paid' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'processing', label: 'Processing' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 export function DriverPayrollDetailView({ driverPayroll }) {

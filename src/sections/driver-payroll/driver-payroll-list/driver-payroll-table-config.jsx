@@ -8,6 +8,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate, fTime, fDateRangeShortLabel } from 'src/utils/format-time';
+import { Label } from 'src/components/label';
 
 
 export const TABLE_COLUMNS = [
@@ -113,6 +114,26 @@ export const TABLE_COLUMNS = [
                     typography: 'body2', noWrap: true
                 }}
             />
+        ),
+    },
+    {
+        id: 'status',
+        label: 'Status',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.status,
+        render: ({ status }) => (
+            <Label
+                variant="soft"
+                color={
+                    status === 'paid' ? 'success' :
+                        status === 'generated' ? 'info' :
+                            status === 'cancelled' ? 'error' :
+                                'default'
+                }
+            >
+                {status ? status.charAt(0).toUpperCase() + status.slice(1) : '-'}
+            </Label>
         ),
     },
 ];
