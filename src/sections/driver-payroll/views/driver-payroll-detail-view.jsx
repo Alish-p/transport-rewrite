@@ -17,7 +17,7 @@ export const PAYSLIP_STATUS_OPTIONS = [
 export function DriverPayrollDetailView({ driverPayroll }) {
   const driverPayrollStatus = useUpdateDriverPayrollStatus();
 
-  const { status, _id } = driverPayroll;
+  const { status, _id, paymentId } = driverPayroll;
 
   const handleChangeStatus = useCallback(
     (event) => {
@@ -31,11 +31,11 @@ export function DriverPayrollDetailView({ driverPayroll }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={_id}
+        heading={paymentId}
         links={[
           { name: 'Dashboard', href: '/dashboard' },
           { name: 'Payslip', href: '/dashboard/payslip' },
-          { name: _id },
+          { name: paymentId },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

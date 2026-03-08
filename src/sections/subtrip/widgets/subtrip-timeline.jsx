@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Timeline from '@mui/lab/Timeline';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
@@ -8,6 +9,9 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
 
@@ -26,6 +30,7 @@ const EVENT_ICONS = {
   INVOICE_GENERATED: 'mdi:file-document-edit',
   INVOICE_DELETED: 'mdi:file-document-remove',
   INVOICE_PAID: 'mdi:file-document-check',
+  DRIVER_SALARY_GENERATED: 'mdi:cash-check',
   UPDATED: 'mdi:refresh',
 };
 
@@ -73,6 +78,25 @@ function formatEventMessage(event, subtripExpenseTypes) {
   }
   if (eventType === 'INVOICE_DELETED' && details.invoiceNo) {
     return `${userPrefix}Deleted invoice ${details.invoiceNo}`;
+  }
+
+  // Driver salary events
+  if (eventType === 'DRIVER_SALARY_GENERATED') {
+    if (details.paymentId) {
+      return (
+        <span>
+          {userPrefix}Processed driver salary{' '}
+          <Link
+            component={RouterLink}
+            href={paths.dashboard.driverSalary.details(details.salaryId)}
+            color="primary"
+          >
+            {details.paymentId}
+          </Link>
+        </span>
+      );
+    }
+    return `${userPrefix}Driver salary processed`;
   }
 
   // 4. Material added event

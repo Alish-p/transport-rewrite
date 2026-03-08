@@ -10,17 +10,33 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // components
 
+import Badge from '@mui/material/Badge';
 import { MenuList } from '@mui/material';
+import Button from '@mui/material/Button';
 
 import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
+import { ColumnSelectorList } from 'src/components/table';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+import { TABLE_COLUMNS } from './driver-payroll-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function DriverPayrollTableToolbar({ filters, onFilters, tableData }) {
+export default function DriverPayrollTableToolbar({
+  filters,
+  onFilters,
+  tableData,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+  onResetColumns,
+  canResetColumns,
+}) {
   const popover = usePopover();
+  const columnsPopover = usePopover();
 
   const handleFilterDriverName = useCallback(
     (event) => {
@@ -112,9 +128,24 @@ export default function DriverPayrollTableToolbar({ filters, onFilters, tableDat
           }}
         />
 
-        <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+        <Stack direction="row" spacing={1}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={columnsPopover.onOpen}
+            startIcon={
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:settings-bold" />
+              </Badge>
+            }
+            sx={{ flexShrink: 0 }}
+          >
+            Columns
+          </Button>
+          <IconButton onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        </Stack>
       </Stack>
 
       <CustomPopover
@@ -153,6 +184,18 @@ export default function DriverPayrollTableToolbar({ filters, onFilters, tableDat
           </MenuItem>
         </MenuList>
       </CustomPopover>
+
+      <ColumnSelectorList
+        open={Boolean(columnsPopover.open)}
+        onClose={columnsPopover.onClose}
+        TABLE_COLUMNS={TABLE_COLUMNS}
+        visibleColumns={visibleColumns}
+        disabledColumns={disabledColumns}
+        handleToggleColumn={onToggleColumn}
+        handleToggleAllColumns={onToggleAllColumns}
+        onResetColumns={onResetColumns}
+        canResetColumns={canResetColumns}
+      />
     </>
   );
 }

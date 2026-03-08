@@ -19,10 +19,11 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
 import { fIsAfter, fTimestamp } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteDriverPayroll } from 'src/query/use-driver-payroll';
@@ -42,20 +43,14 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { TABLE_COLUMNS } from '../driver-payroll-list/driver-payroll-table-config';
 import DriverPayrollTableRow from '../driver-payroll-list/driver-payroll-table-row';
 import DriverPayrollTableToolbar from '../driver-payroll-list/driver-payroll-table-toolbar';
 import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payroll-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: '_id', label: '#' },
-  { id: 'driver', label: 'Driver' },
-  { id: 'createdDate', label: 'Created Date' },
-  { id: 'amount', label: 'Amount' },
-  { id: 'duration', label: 'Duration' },
-  { id: '', label: '' },
-];
+const STORAGE_KEY = 'driver-payroll-table-columns';
 
 const defaultFilters = {
   driver: '',
@@ -76,6 +71,18 @@ export function DriverPayrollListView({ driversPayrolls }) {
   const deleteDriverPayroll = useDeleteDriverPayroll();
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  const {
+    visibleColumns,
+    visibleHeaders,
+    columnOrder,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
   const dateError = fIsAfter(filters.fromDate, filters.endDate);
 
@@ -127,6 +134,13 @@ export function DriverPayrollListView({ driversPayrolls }) {
     setFilters(defaultFilters);
   }, []);
 
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+    ).filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
+
   return (
     <>
       <DashboardContent>
@@ -166,6 +180,12 @@ export function DriverPayrollListView({ driversPayrolls }) {
             filters={filters}
             onFilters={handleFilters}
             tableData={dataFiltered}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
 
           {canReset && (
@@ -198,7 +218,12 @@ export function DriverPayrollListView({ driversPayrolls }) {
                         const selectedRows = tableData.filter(({ _id }) =>
                           table.selected.includes(_id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = getVisibleColumnsForExport();
+
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          'Driver-Payroll-selected-list'
+                        );
                       }}
                     >
                       <Iconify icon="file-icons:microsoft-excel" />
@@ -219,9 +244,10 @@ export function DriverPayrollListView({ driversPayrolls }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={visibleHeaders}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
+                  onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -244,6 +270,9 @@ export function DriverPayrollListView({ driversPayrolls }) {
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
                         onDeleteRow={() => deleteDriverPayroll(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
                       />
                     ))}
 
