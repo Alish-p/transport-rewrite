@@ -1,0 +1,42 @@
+# Date Handling Audit Report
+
+Based on a scan of the frontend and backend applications, here are the current risks and best practices concerning date handling:
+
+## 1. Frontend Filtering (Low Risk, Good Pattern)
+
+**Files Used**: `src/hooks/use-filters.js`, date picker components.
+**Pattern**: When you select dates in your UI filters, the `useFilters` hook parses them into `dayjs` objects and serializes them using `.toISOString()` when attaching to query parameters.
+**Verdict**: **SAFE**.
+Because `.toISOString()` outputs strings explicitly tagged with `Z` (e.g. `2024-03-07T18:30:00.000Z`), the backend can safely consume these without guessing the timezone. However, ensure that _all_ custom filters use this hook and don't manually send strings like `2024-03-08`.
+
+## 2. Backend Query Parsing (Medium Risk)
+
+**Files Used**: `subtrip.controller.js` (L115, L255, etc.), `invoice.controller.js` (L204), `job.controller.js` (L73).
+**Pattern**:
+
+```javascript
+if (fromDate) query.startDate.$gte = new Date(fromDate);
+```
+
+**Verdict**: **SAFE ONLY IF FRONTEND IS STRICT**.
+Because `new Date()` is used, if the frontend ever sends a partial string like `2024-03-08T00:00:00` (missing the `Z`), `new Date()` will interpret it in the **Server's Local Timezone**. Since the frontend seems to be sending ISO strings correctly right now, this is currently safe, but fragile.
+
+## 3. Backend Start/End of Day Calculations (High Risk ⚠️)
+
+**Files Used**: `job.template.js` or `job.validation.js` (L70), `job.controller.js` (L164), `customer.controller.js` (L355).
+**Pattern**:
+
+```javascript
+const now = new Date();
+const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+```
+
+**Verdict**: **HIGH RISK**.
+This code explicitly uses the **server's local timezone**.
+If your backend is hosted on AWS with a UTC timezone, then at 3:00 AM in India on March 8th, the server thinks it is 9:30 PM on March 7th.
+`startOfToday` will incorrectly be calculated as midnight of March 7th. This will cause validations or queries to fail or return weird data during the 5.5 hour overlap window every day.
+
+## Recommendations
+
+1. **Fix Backend Local Time Logic**: Replace instances of `new Date(year, month, day)` with timezone-aware logic. If the business logic dictates that a "day" means an IST day, you should use `moment-timezone` or `dayjs.tz` on the backend to securely calculate the start of the day in `Asia/Kolkata`.
+2. **Sanitize Backend Inputs**: Instead of blindly trusting `new Date(req.query.fromDate)`, implement a utility function `parseUTCDate(req.query.fromDate)` that rejects or strictly sanitizes dates that lack timezone information.

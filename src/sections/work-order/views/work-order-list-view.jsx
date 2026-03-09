@@ -2,11 +2,13 @@ import { toast } from 'sonner'
 import { useState, useEffect, useCallback } from 'react'
   ;
 
+import { Stack } from '@mui/material';
+
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
 import Link from '@mui/material/Link';
-import { Stack } from '@mui/material';
+
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -21,6 +23,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
@@ -46,6 +49,7 @@ import { TABLE_COLUMNS } from '../work-order-table-config';
 import WorkOrderTableToolbar from '../work-order-table-toolbar';
 import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
 import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
+import WorkOrderLearn from '../work-order-learn';
 
 ;
 
@@ -83,6 +87,7 @@ const STATUS_TABS = [
 export function WorkOrderListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
+  const learn = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -223,8 +228,17 @@ export function WorkOrderListView() {
 
   return (
     <DashboardContent>
+      <WorkOrderLearn open={learn.value} onClose={learn.onFalse} />
+
       <CustomBreadcrumbs
-        heading="Work Orders"
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Work Orders</span>
+            <IconButton color="default" onClick={learn.onTrue}>
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Vehicle Maintenance', href: paths.dashboard.workOrder.root },

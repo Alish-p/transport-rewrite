@@ -47,6 +47,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import DriverSalaryLearn from '../driver-salary-learn';
 import { TABLE_COLUMNS } from '../driver-payroll-list/driver-payroll-table-config';
 import DriverPayrollTableRow from '../driver-payroll-list/driver-payroll-table-row';
 import DriverPayrollTableToolbar from '../driver-payroll-list/driver-payroll-table-toolbar';
@@ -71,6 +72,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const confirm = useBoolean();
+  const learn = useBoolean();
 
   const navigate = useNavigate();
 
@@ -164,8 +166,17 @@ export function DriverPayrollListView({ driversPayrolls }) {
   return (
     <>
       <DashboardContent>
+        <DriverSalaryLearn open={learn.value} onClose={learn.onFalse} />
+
         <CustomBreadcrumbs
-          heading="Payslip List"
+          heading={
+            <Stack direction="row" alignItems="center" spacing={1} component="span">
+              <span>Payslip List</span>
+              <IconButton color="default" onClick={learn.onTrue}>
+                <Iconify icon="mage:light-bulb" />
+              </IconButton>
+            </Stack>
+          }
           links={[
             {
               name: 'Dashboard',

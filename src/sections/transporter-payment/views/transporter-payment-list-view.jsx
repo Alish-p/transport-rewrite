@@ -22,6 +22,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
@@ -49,6 +50,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import TransporterPaymentLearn from '../transporter-payment-learn';
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
 import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
@@ -73,6 +75,7 @@ export function TransporterPaymentListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
+  const learn = useBoolean();
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
@@ -152,260 +155,269 @@ export function TransporterPaymentListView() {
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Transporter Payment List"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Transporter Payment', href: paths.dashboard.transporterPayment.root },
-          { name: 'List' },
-        ]}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.transporterPayment.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Transport Payment
-          </Button>
-        }
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
+        <TransporterPaymentLearn open={learn.value} onClose={learn.onFalse} />
 
-      <Card>
-        <Tabs
-          value={filters.status}
-          onChange={(e, value) => handleFilters('status', value)}
-          sx={{ px: 2.5, boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}` }}
-        >
-          {TABS.map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              label={tab.label}
-              iconPosition="end"
-              icon={
-                <Label variant={tab.value === filters.status ? 'filled' : 'soft'} color={tab.color}>
-                  {tab.count}
-                </Label>
-              }
-            />
-          ))}
-        </Tabs>
-
-        <TransporterPaymentTableToolbar
-          filters={filters}
-          onFilters={handleFilters}
-          visibleColumns={visibleColumns}
-          disabledColumns={disabledColumns}
-          onToggleColumn={toggleColumnVisibility}
-          onToggleAllColumns={toggleAllColumnsVisibility}
-          onResetColumns={resetColumns}
-          canResetColumns={canResetColumns}
+        <CustomBreadcrumbs
+          heading={
+            <Stack direction="row" alignItems="center" spacing={1} component="span">
+              <span>Transporter Payment List</span>
+              <IconButton color="default" onClick={learn.onTrue}>
+                <Iconify icon="mage:light-bulb" />
+              </IconButton>
+            </Stack>
+          }
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Transporter Payment', href: paths.dashboard.transporterPayment.root },
+            { name: 'List' },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.transporterPayment.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New Transport Payment
+            </Button>
+          }
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
 
-        {canReset && (
-          <TransporterPaymentTableFiltersResult
+        <Card>
+          <Tabs
+            value={filters.status}
+            onChange={(e, value) => handleFilters('status', value)}
+            sx={{ px: 2.5, boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}` }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label variant={tab.value === filters.status ? 'filled' : 'soft'} color={tab.color}>
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
+          <TransporterPaymentTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
-            results={totalCount}
-            sx={{ p: 2.5, pt: 0 }}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
           />
-        )}
 
-        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-          <TableSelectedAction
-            dense={table.dense}
-            numSelected={table.selected.length}
-            rowCount={tableData.length}
-            onSelectAllRows={(checked) => {
-              if (!checked) {
-                setSelectAllMode(false);
+          {canReset && (
+            <TransporterPaymentTableFiltersResult
+              filters={filters}
+              onFilters={handleFilters}
+              onResetFilters={handleResetFilters}
+              results={totalCount}
+              sx={{ p: 2.5, pt: 0 }}
+            />
+          )}
+
+          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={tableData.length}
+              onSelectAllRows={(checked) => {
+                if (!checked) {
+                  setSelectAllMode(false);
+                }
+                table.onSelectAllRows(
+                  checked,
+                  tableData.map((row) => row._id)
+                );
+              }}
+              label={
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="subtitle2">
+                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  </Typography>
+
+                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} payments
+                    </Link>
+                  )}
+                </Stack>
               }
-              table.onSelectAllRows(
-                checked,
-                tableData.map((row) => row._id)
-              );
-            }}
-            label={
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
-                </Typography>
-
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} payments
-                  </Link>
-                )}
-              </Stack>
-            }
-            action={
-              <Stack direction="row">
-                <Tooltip title="Download Excel">
-                  <IconButton
-                    color="primary"
-                    onClick={async () => {
-                      const visibleCols = (
-                        columnOrder && columnOrder.length
-                          ? columnOrder
-                          : Object.keys(visibleColumns)
-                      ).filter((id) => visibleColumns[id]);
-
-                      if (selectAllMode) {
-                        try {
-                          setIsDownloading(true);
-                          const response = await axios.get('/api/transporter-payments/export', {
-                            params: {
-                              transporterId: filters.transporterId || undefined,
-                              subtripId: filters.subtripId || undefined,
-                              vehicleId: filters.vehicleId || undefined,
-                              paymentId: filters.paymentId || undefined,
-                              status: filters.status !== 'all' ? filters.status : undefined,
-                              hasTds: filters.hasTds || undefined,
-                              issueFromDate: filters.issueFromDate || undefined,
-                              issueToDate: filters.issueToDate || undefined,
-                              columns: visibleCols.join(','),
-                            },
-                            responseType: 'blob',
-                          });
-
-                          const url = window.URL.createObjectURL(new Blob([response.data]));
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.setAttribute('download', 'TransporterPayments.xlsx');
-                          document.body.appendChild(link);
-                          link.click();
-                          link.remove();
-                        } catch (error) {
-                          console.error('Export failed:', error);
-                        } finally {
-                          setIsDownloading(false);
-                        }
-                      } else {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        exportToExcel(
-                          prepareDataForExport(
-                            selectedRows,
-                            TABLE_COLUMNS,
-                            visibleCols,
-                            columnOrder
-                          ),
-                          'Transporter-payment-selected'
-                        );
-                      }
-                    }}
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? (
-                      <CircularProgress size={24} />
-                    ) : (
-                      <Iconify icon="file-icons:microsoft-excel" />
-                    )}
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Download PDF">
-                  <span>
-                    <PDFDownloadLink
-                      document={(() => {
-                        const selectedRows = tableData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
+              action={
+                <Stack direction="row">
+                  <Tooltip title="Download Excel">
+                    <IconButton
+                      color="primary"
+                      onClick={async () => {
                         const visibleCols = (
                           columnOrder && columnOrder.length
                             ? columnOrder
                             : Object.keys(visibleColumns)
                         ).filter((id) => visibleColumns[id]);
-                        return (
-                          <TransporterPaymentListPdf
-                            payments={selectedRows}
-                            visibleColumns={visibleCols}
-                            tenant={tenant}
-                          />
-                        );
-                      })()}
-                      fileName="Transporter-payment-list.pdf"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
+
+                        if (selectAllMode) {
+                          try {
+                            setIsDownloading(true);
+                            const response = await axios.get('/api/transporter-payments/export', {
+                              params: {
+                                transporterId: filters.transporterId || undefined,
+                                subtripId: filters.subtripId || undefined,
+                                vehicleId: filters.vehicleId || undefined,
+                                paymentId: filters.paymentId || undefined,
+                                status: filters.status !== 'all' ? filters.status : undefined,
+                                hasTds: filters.hasTds || undefined,
+                                issueFromDate: filters.issueFromDate || undefined,
+                                issueToDate: filters.issueToDate || undefined,
+                                columns: visibleCols.join(','),
+                              },
+                              responseType: 'blob',
+                            });
+
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', 'TransporterPayments.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                          } catch (error) {
+                            console.error('Export failed:', error);
+                          } finally {
+                            setIsDownloading(false);
+                          }
+                        } else {
+                          const selectedRows = tableData.filter((r) =>
+                            table.selected.includes(r._id)
+                          );
+                          exportToExcel(
+                            prepareDataForExport(
+                              selectedRows,
+                              TABLE_COLUMNS,
+                              visibleCols,
+                              columnOrder
+                            ),
+                            'Transporter-payment-selected'
+                          );
+                        }
+                      }}
+                      disabled={isDownloading}
                     >
-                      {({ loading }) => (
-                        <IconButton color="primary" disabled={selectAllMode}>
-                          <Iconify
-                            icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'}
-                          />
-                        </IconButton>
+                      {isDownloading ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        <Iconify icon="file-icons:microsoft-excel" />
                       )}
-                    </PDFDownloadLink>
-                  </span>
-                </Tooltip>
-              </Stack>
-            }
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download PDF">
+                    <span>
+                      <PDFDownloadLink
+                        document={(() => {
+                          const selectedRows = tableData.filter((r) =>
+                            table.selected.includes(r._id)
+                          );
+                          const visibleCols = (
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : Object.keys(visibleColumns)
+                          ).filter((id) => visibleColumns[id]);
+                          return (
+                            <TransporterPaymentListPdf
+                              payments={selectedRows}
+                              visibleColumns={visibleCols}
+                              tenant={tenant}
+                            />
+                          );
+                        })()}
+                        fileName="Transporter-payment-list.pdf"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        {({ loading }) => (
+                          <IconButton color="primary" disabled={selectAllMode}>
+                            <Iconify
+                              icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'}
+                            />
+                          </IconButton>
+                        )}
+                      </PDFDownloadLink>
+                    </span>
+                  </Tooltip>
+                </Stack>
+              }
+            />
+
+            <Scrollbar>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={visibleHeaders}
+                  rowCount={tableData.length}
+                  numSelected={table.selected.length}
+                  onOrderChange={moveColumn}
+                  onSelectAllRows={(checked) => {
+                    table.onSelectAllRows(
+                      checked,
+                      tableData.map((row) => row._id)
+                    );
+                    if (!checked) {
+                      setSelectAllMode(false);
+                    }
+                  }}
+                />
+                <TableBody>
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                      <TableSkeleton key={i} />
+                    ))
+                    : tableData.map((row) => (
+                      <TransporterPaymentTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
+                  <TableNoData notFound={notFound} />
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </TableContainer>
+
+          <TablePaginationCustom
+            count={totalCount}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+            dense={table.dense}
+            onChangeDense={table.onChangeDense}
           />
-
-          <Scrollbar>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-              <TableHeadCustom
-                order={table.order}
-                orderBy={table.orderBy}
-                headLabel={visibleHeaders}
-                rowCount={tableData.length}
-                numSelected={table.selected.length}
-                onOrderChange={moveColumn}
-                onSelectAllRows={(checked) => {
-                  table.onSelectAllRows(
-                    checked,
-                    tableData.map((row) => row._id)
-                  );
-                  if (!checked) {
-                    setSelectAllMode(false);
-                  }
-                }}
-              />
-              <TableBody>
-                {isLoading
-                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
-                  : tableData.map((row) => (
-                    <TransporterPaymentTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
-                <TableNoData notFound={notFound} />
-              </TableBody>
-            </Table>
-          </Scrollbar>
-        </TableContainer>
-
-        <TablePaginationCustom
-          count={totalCount}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-          dense={table.dense}
-          onChangeDense={table.onChangeDense}
-        />
-      </Card>
-    </DashboardContent>
+        </Card>
+      </DashboardContent>
   );
 }

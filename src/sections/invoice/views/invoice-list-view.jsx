@@ -26,6 +26,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
@@ -51,6 +52,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import InvoiceLearn from '../invoice-learn';
 import { TABLE_COLUMNS } from '../invoice-table-config';
 import InvoiceAnalytic from '../invoice-list/invoice-analytic';
 import InvoiceTableRow from '../invoice-list/invoice-table-row';
@@ -81,6 +83,7 @@ export function InvoiceListView() {
 
   const cancelInvoice = useCancelInvoice();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
+  const learn = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -222,8 +225,17 @@ export function InvoiceListView() {
   return (
     <>
       <DashboardContent>
+        <InvoiceLearn open={learn.value} onClose={learn.onFalse} />
+
         <CustomBreadcrumbs
-          heading="Invoice List"
+          heading={
+            <Stack direction="row" alignItems="center" spacing={1} component="span">
+              <span>Invoice List</span>
+              <IconButton color="default" onClick={learn.onTrue}>
+                <Iconify icon="mage:light-bulb" />
+              </IconButton>
+            </Stack>
+          }
           links={[
             {
               name: 'Dashboard',
