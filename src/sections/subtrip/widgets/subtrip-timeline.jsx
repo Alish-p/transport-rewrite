@@ -1,4 +1,3 @@
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Timeline from '@mui/lab/Timeline';
@@ -16,6 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 
 import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
@@ -172,7 +172,7 @@ export function SubtripTimeline({ events = [] }) {
       }}
     >
       <CardHeader title="Activity timeline" />
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+      <Scrollbar sx={{ flexGrow: 1 }}>
         <Timeline
           sx={{
             m: 0,
@@ -211,7 +211,7 @@ export function SubtripTimeline({ events = [] }) {
             </TimelineItem>
           ))}
         </Timeline>
-      </Box>
+      </Scrollbar>
     </Card>
   );
 }

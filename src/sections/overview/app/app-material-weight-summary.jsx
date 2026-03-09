@@ -2,9 +2,9 @@ import dayjs from 'dayjs';
 import { useTheme } from '@emotion/react';
 import { useMemo, useState, useEffect } from 'react';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import { Divider, CardHeader } from '@mui/material';
+import Button from '@mui/material/Button';
+import { Box, Divider, CardHeader } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { fShortenNumber } from 'src/utils/format-number';
@@ -17,6 +17,7 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
   const theme = useTheme();
 
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
+  const [showAll, setShowAll] = useState(false);
 
   const monthParam = useMemo(() => selectedMonth?.format('YYYY-MM'), [selectedMonth]);
 
@@ -65,6 +66,8 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
     plotOptions: { pie: { donut: { labels: { show: false } } } },
   });
 
+  const displayCount = showAll ? mapped.length : 6;
+
   return (
     <Card {...other}>
       <CardHeader
@@ -107,18 +110,30 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
           height={{ xs: 240, md: 280 }}
         />
 
-        <ChartLegends
-          colors={chartColorsAll}
-          labels={mapped.map((item) => item.label)}
-          sublabels={mapped.map((item) => fShortenNumber(item.value))}
-          activeIndexes={activeIndexes}
-          onToggle={(idx) =>
-            setActiveIndexes((prev) =>
-              prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
-            )
-          }
-          sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
-        />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <ChartLegends
+            colors={chartColorsAll.slice(0, displayCount)}
+            labels={mapped.map((item) => item.label).slice(0, displayCount)}
+            sublabels={mapped.map((item) => fShortenNumber(item.value)).slice(0, displayCount)}
+            activeIndexes={activeIndexes}
+            onToggle={(idx) =>
+              setActiveIndexes((prev) =>
+                prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+              )
+            }
+            sx={{ gap: 2.5, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}
+          />
+          {mapped.length > 6 && (
+            <Button
+              size="small"
+              color="inherit"
+              onClick={() => setShowAll((prev) => !prev)}
+              sx={{ alignSelf: 'flex-start' }}
+            >
+              {showAll ? '- View Less' : '+ View More'}
+            </Button>
+          )}
+        </Box>
       </Box>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
