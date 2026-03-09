@@ -224,10 +224,23 @@ export default function DriverSalaryView({ driverSalary }) {
               {driver.driverPresentAddress}
               <br />
               Phone: {driver.driverCellNo}
-              {driver.driverLicenceNo && (
+
+              {driver.bankDetails?.name && (
                 <>
                   <br />
-                  Licence: {driver.driverLicenceNo}
+                  Bank: {driver.bankDetails.name}
+                  {driver.bankDetails?.accNo && (
+                    <>
+                      <br />
+                      A/C: {driver.bankDetails.accNo}
+                    </>
+                  )}
+                  {driver.bankDetails?.ifsc && (
+                    <>
+                      <br />
+                      IFSC: {driver.bankDetails.ifsc}
+                    </>
+                  )}
                 </>
               )}
             </>

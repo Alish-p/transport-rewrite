@@ -64,7 +64,7 @@ export default function DriverSalaryPdf({ driverSalary, tenant }) {
             driver?.driverName,
             driver?.driverPresentAddress,
             `Phone: ${driver?.driverCellNo}`,
-            driver?.driverLicenceNo && `Licence: ${driver.driverLicenceNo}`,
+            driver?.bankDetails?.name && `Bank: ${driver.bankDetails.name} A/C: ${driver.bankDetails.accNo || ''} IFSC: ${driver.bankDetails.ifsc || ''}`.trim(),
           ].filter(Boolean)}
           metaDetails={[
             ['Salary No.', paymentId],

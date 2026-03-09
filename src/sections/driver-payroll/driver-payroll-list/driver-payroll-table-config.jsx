@@ -137,4 +137,34 @@ export const TABLE_COLUMNS = [
             </Label>
         ),
     },
+    {
+        id: 'bankDetails',
+        label: 'Bank Details',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => {
+            const { name, accNo, ifsc } = row.driverId?.bankDetails || {};
+            return `${name || ''} ${accNo || ''} ${ifsc || ''}`.trim();
+        },
+        render: ({ driverId }) => {
+            const bankDetails = driverId?.bankDetails;
+            if (!bankDetails || !bankDetails.name) return '-';
+            return (
+                <ListItemText
+                    disableTypography
+                    primary={
+                        <Typography variant="body2" sx={{ color: 'text.primary', noWrap: true }}>
+                            {bankDetails.name}
+                        </Typography>
+                    }
+                    secondary={
+                        <Typography variant="caption" sx={{ color: 'text.disabled', display: 'block', noWrap: true }}>
+                            {bankDetails.accNo ? `A/C: ${bankDetails.accNo} ` : ''}
+                            {bankDetails.ifsc ? `IFSC: ${bankDetails.ifsc}` : ''}
+                        </Typography>
+                    }
+                />
+            );
+        },
+    },
 ];
