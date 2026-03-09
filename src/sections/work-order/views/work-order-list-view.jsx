@@ -2,13 +2,11 @@ import { toast } from 'sonner'
 import { useState, useEffect, useCallback } from 'react'
   ;
 
-import { Stack } from '@mui/material';
-
 import Tab from '@mui/material/Tab';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
 import Link from '@mui/material/Link';
-
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -44,12 +42,12 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import WorkOrderLearn from '../work-order-learn';
 import WorkOrderTableRow from '../work-order-table-row';
 import { TABLE_COLUMNS } from '../work-order-table-config';
 import WorkOrderTableToolbar from '../work-order-table-toolbar';
 import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
 import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
-import WorkOrderLearn from '../work-order-learn';
 
 ;
 
@@ -234,7 +232,18 @@ export function WorkOrderListView() {
         heading={
           <Stack direction="row" alignItems="center" spacing={1} component="span">
             <span>Work Orders</span>
-            <IconButton color="default" onClick={learn.onTrue}>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+              sx={{
+                color: 'warning.main',
+                animation: 'pulseGlow 2s ease-in-out infinite',
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                },
+              }}
+            >
               <Iconify icon="mage:light-bulb" />
             </IconButton>
           </Stack>

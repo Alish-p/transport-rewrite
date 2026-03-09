@@ -231,7 +231,18 @@ export function InvoiceListView() {
           heading={
             <Stack direction="row" alignItems="center" spacing={1} component="span">
               <span>Invoice List</span>
-              <IconButton color="default" onClick={learn.onTrue}>
+              <IconButton
+                color="default"
+                onClick={learn.onTrue}
+                sx={{
+                  color: 'warning.main',
+                  animation: 'pulseGlow 2s ease-in-out infinite',
+                  '@keyframes pulseGlow': {
+                    '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                    '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  },
+                }}
+              >
                 <Iconify icon="mage:light-bulb" />
               </IconButton>
             </Stack>

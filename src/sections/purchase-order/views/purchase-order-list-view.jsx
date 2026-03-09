@@ -235,256 +235,267 @@ export function PurchaseOrderListView() {
 
   return (
     <DashboardContent>
-        <PurchaseOrderLearn open={learn.value} onClose={learn.onFalse} />
+      <PurchaseOrderLearn open={learn.value} onClose={learn.onFalse} />
 
-        <CustomBreadcrumbs
-          heading={
-            <Stack direction="row" alignItems="center" spacing={1} component="span">
-              <span>Purchase Orders</span>
-              <IconButton color="default" onClick={learn.onTrue}>
-                <Iconify icon="mage:light-bulb" />
-              </IconButton>
-            </Stack>
-          }
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Vehicle Maintenance', href: paths.dashboard.purchaseOrder.root },
-            { name: 'Purchase Orders' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.purchaseOrder.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
+      <CustomBreadcrumbs
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Purchase Orders</span>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+              sx={{
+                color: 'warning.main',
+                animation: 'pulseGlow 2s ease-in-out infinite',
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                },
+              }}
             >
-              New Purchase Order
-            </Button>
-          }
-          sx={{ mb: { xs: 3, md: 5 } }}
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Vehicle Maintenance', href: paths.dashboard.purchaseOrder.root },
+          { name: 'Purchase Orders' },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.purchaseOrder.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            New Purchase Order
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
+
+      <Card>
+        <Tabs
+          value={filters.status}
+          onChange={handleFilterStatus}
+          sx={{
+            px: 2.5,
+          }}
+        >
+          {STATUS_TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                <Label
+                  variant={
+                    ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                  }
+                  color={tab.color}
+                >
+                  {getStatusCount(tab.value)}
+                </Label>
+              }
+            />
+          ))}
+        </Tabs>
+
+        <PurchaseOrderTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={handleToggleColumn}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
+          selectedPart={selectedPart}
+          onSelectPart={handleSelectPart}
+          selectedVendor={selectedVendor}
+          onSelectVendor={setSelectedVendor}
+          selectedCreatedBy={selectedCreatedBy}
+          onSelectCreatedBy={setSelectedCreatedBy}
+          selectedApprovedBy={selectedApprovedBy}
+          onSelectApprovedBy={setSelectedApprovedBy}
+          selectedPurchasedBy={selectedPurchasedBy}
+          onSelectPurchasedBy={setSelectedPurchasedBy}
         />
 
-        <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-            }}
-          >
-            {STATUS_TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {getStatusCount(tab.value)}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <PurchaseOrderTableToolbar
+        {canReset && (
+          <PurchaseOrderTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={handleToggleColumn}
-            onToggleAllColumns={toggleAllColumnsVisibility}
-            onResetColumns={resetColumns}
-            canResetColumns={canResetColumns}
+            onResetFilters={handleResetFilters}
             selectedPart={selectedPart}
-            onSelectPart={handleSelectPart}
             selectedVendor={selectedVendor}
-            onSelectVendor={setSelectedVendor}
             selectedCreatedBy={selectedCreatedBy}
-            onSelectCreatedBy={setSelectedCreatedBy}
             selectedApprovedBy={selectedApprovedBy}
-            onSelectApprovedBy={setSelectedApprovedBy}
             selectedPurchasedBy={selectedPurchasedBy}
-            onSelectPurchasedBy={setSelectedPurchasedBy}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
           />
+        )}
 
-          {canReset && (
-            <PurchaseOrderTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              selectedPart={selectedPart}
-              selectedVendor={selectedVendor}
-              selectedCreatedBy={selectedCreatedBy}
-              selectedApprovedBy={selectedApprovedBy}
-              selectedPurchasedBy={selectedPurchasedBy}
-              results={totalCount}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) => {
-                if (!checked) {
-                  setSelectAllMode(false);
-                }
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                );
-              }}
-              label={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="subtitle2">
-                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
-                  </Typography>
-
-                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                    <Link
-                      component="button"
-                      variant="subtitle2"
-                      onClick={() => {
-                        setSelectAllMode(true);
-                      }}
-                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                    >
-                      Select all {totalCount} purchase orders
-                    </Link>
-                  )}
-                </Stack>
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
               }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Download Excel">
-                    <IconButton
-                      color="primary"
-                      onClick={async () => {
-                        if (selectAllMode) {
-                          try {
-                            setIsDownloading(true);
-                            toast.info('Export started... Please wait.');
-                            const orderedIds = (
-                              columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
-                            ).filter((id) => visibleColumns[id]);
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
 
-                            const response = await axios.get('/api/maintenance/purchase-orders/export', {
-                              params: {
-                                status: filters.status === 'all' ? undefined : filters.status,
-                                vendor: filters.vendorId || undefined,
-                                fromDate: filters.fromDate || undefined,
-                                toDate: filters.toDate || undefined,
-                                part: filters.partId || undefined,
-                                partLocation: filters.partLocationId || undefined,
-                                createdBy: filters.createdBy || undefined,
-                                approvedBy: filters.approvedBy || undefined,
-                                purchasedBy: filters.purchasedBy || undefined,
-                                columns: orderedIds.join(','),
-                              },
-                              responseType: 'blob',
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', 'PurchaseOrders.xlsx');
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                            setIsDownloading(false);
-                            toast.success('Export completed!');
-                          } catch (error) {
-                            console.error('Failed to download excel', error);
-                            setIsDownloading(false);
-                            toast.error('Failed to export purchase orders.');
-                          }
-                        } else {
-                          const selectedRows = tableData.filter((r) =>
-                            table.selected.includes(r._id)
-                          );
-                          const visibleCols = getVisibleColumnsForExport();
-                          exportToExcel(
-                            prepareDataForExport(
-                              selectedRows,
-                              TABLE_COLUMNS,
-                              visibleCols,
-                              columnOrder
-                            ),
-                            'PurchaseOrders-selected-list'
-                          );
+                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                  <Link
+                    component="button"
+                    variant="subtitle2"
+                    onClick={() => {
+                      setSelectAllMode(true);
+                    }}
+                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    Select all {totalCount} purchase orders
+                  </Link>
+                )}
+              </Stack>
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = (
+                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                          ).filter((id) => visibleColumns[id]);
+
+                          const response = await axios.get('/api/maintenance/purchase-orders/export', {
+                            params: {
+                              status: filters.status === 'all' ? undefined : filters.status,
+                              vendor: filters.vendorId || undefined,
+                              fromDate: filters.fromDate || undefined,
+                              toDate: filters.toDate || undefined,
+                              part: filters.partId || undefined,
+                              partLocation: filters.partLocationId || undefined,
+                              createdBy: filters.createdBy || undefined,
+                              approvedBy: filters.approvedBy || undefined,
+                              purchasedBy: filters.purchasedBy || undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'PurchaseOrders.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export purchase orders.');
                         }
-                      }}
-                    >
-                      {isDownloading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        <Iconify icon="file-icons:microsoft-excel" />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleHeaders}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onOrderChange={moveColumn}
-                  onSelectAllRows={(checked) => {
-                    if (!checked) {
-                      setSelectAllMode(false);
-                    }
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    );
-                  }}
-                />
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
-                    : tableData.map((row) => (
-                      <PurchaseOrderTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+                      } else {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'PurchaseOrders-selected-list'
+                        );
+                      }
+                    }}
+                  >
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
           />
-        </Card>
-      </DashboardContent>
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onOrderChange={moveColumn}
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  );
+                }}
+              />
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                    <TableSkeleton key={i} />
+                  ))
+                  : tableData.map((row) => (
+                    <PurchaseOrderTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
