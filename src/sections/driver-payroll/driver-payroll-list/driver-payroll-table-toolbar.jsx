@@ -2,8 +2,6 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 // @mui
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
@@ -11,15 +9,12 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // components
 
 import Badge from '@mui/material/Badge';
-import { MenuList } from '@mui/material';
 import Button from '@mui/material/Button';
-
-import { exportToExcel } from 'src/utils/export-to-excel';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
+import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
@@ -32,7 +27,6 @@ import { TABLE_COLUMNS } from './driver-payroll-table-config';
 export default function DriverPayrollTableToolbar({
   filters,
   onFilters,
-  tableData,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -40,7 +34,6 @@ export default function DriverPayrollTableToolbar({
   onResetColumns,
   canResetColumns,
 }) {
-  const popover = usePopover();
   const columnsPopover = usePopover();
   const driverDialogOpen = useBoolean();
   const subtripDialogOpen = useBoolean();
@@ -135,48 +128,9 @@ export default function DriverPayrollTableToolbar({
           >
             Columns
           </Button>
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
         </Stack>
       </Stack>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Driver-list');
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
 
       <ColumnSelectorList
         open={Boolean(columnsPopover.open)}
