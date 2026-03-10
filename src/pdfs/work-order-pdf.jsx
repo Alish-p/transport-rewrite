@@ -38,19 +38,18 @@ export default function WorkOrderPdf({ workOrder, tenant }) {
         { header: 'S.No', accessor: 'sno', width: '5%' },
         { header: 'Part', accessor: 'part', width: '30%' },
         { header: 'Part No.', accessor: 'partNumber', width: '20%' },
-        { header: 'Unit', accessor: 'unit', width: '10%' },
-        { header: 'Qty', accessor: 'qty', width: '10%', align: 'right' },
+        { header: 'Qty', accessor: 'qty', width: '15%', align: 'right' },
         {
             header: 'Price',
             accessor: 'price',
-            width: '10%',
+            width: '12%',
             align: 'right',
             formatter: (v) => fCurrency(v || 0),
         },
         {
             header: 'Amount',
             accessor: 'amount',
-            width: '15%',
+            width: '13%',
             align: 'right',
             formatter: (v) => fCurrency(v || 0),
             showTotal: true,
@@ -66,8 +65,7 @@ export default function WorkOrderPdf({ workOrder, tenant }) {
             sno: index + 1,
             part: displayPartName,
             partNumber: displayPartNumber,
-            unit: displayUnit,
-            qty: line.quantity || 0,
+            qty: `${line.quantity || 0}${displayUnit !== '-' ? ` ${displayUnit}` : ''}`,
             price: line.price || 0,
             amount: line.amount || (line.quantity || 0) * (line.price || 0),
         };
@@ -76,25 +74,25 @@ export default function WorkOrderPdf({ workOrder, tenant }) {
     const partsExtraRows = [
         {
             cells: [
-                { startIndex: 0, colspan: 5, value: '', align: 'left' },
-                { startIndex: 5, colspan: 1, value: 'Parts Cost', align: 'right' },
-                { startIndex: 6, colspan: 1, value: fCurrency(partsCost), align: 'right' },
+                { startIndex: 0, colspan: 4, value: '', align: 'left' },
+                { startIndex: 4, colspan: 1, value: 'Parts Cost', align: 'right' },
+                { startIndex: 5, colspan: 1, value: fCurrency(partsCost), align: 'right' },
             ],
             highlight: false,
         },
         {
             cells: [
-                { startIndex: 0, colspan: 5, value: '', align: 'left' },
-                { startIndex: 5, colspan: 1, value: 'Labour Charge', align: 'right' },
-                { startIndex: 6, colspan: 1, value: fCurrency(labourCharge), align: 'right' },
+                { startIndex: 0, colspan: 4, value: '', align: 'left' },
+                { startIndex: 4, colspan: 1, value: 'Labour Charge', align: 'right' },
+                { startIndex: 5, colspan: 1, value: fCurrency(labourCharge), align: 'right' },
             ],
             highlight: false,
         },
         {
             cells: [
-                { startIndex: 0, colspan: 5, value: '', align: 'left' },
-                { startIndex: 5, colspan: 1, value: 'Total Cost', align: 'right' },
-                { startIndex: 6, colspan: 1, value: fCurrency(totalCost), align: 'right' },
+                { startIndex: 0, colspan: 4, value: '', align: 'left' },
+                { startIndex: 4, colspan: 1, value: 'Total Cost', align: 'right' },
+                { startIndex: 5, colspan: 1, value: fCurrency(totalCost), align: 'right' },
             ],
             highlight: true,
         },

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -15,6 +16,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -162,12 +164,14 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           const totalReceived = line.quantityReceived || 0;
           const remaining = Math.max(totalOrdered - totalReceived, 0);
           const partName = line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+          const unit = line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
 
           return {
             lineId: line._id || String(index),
             partName,
             totalOrdered,
             totalReceived,
+            unit,
             receiveQty: remaining,
             checked: remaining > 0,
           };
@@ -368,7 +372,6 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   <TableCell>#</TableCell>
                   <TableCell>Part</TableCell>
                   <TableCell>Part No.</TableCell>
-                  <TableCell>Unit</TableCell>
                   <TableCell align="right">Qty Ordered</TableCell>
                   <TableCell align="right">Qty Received</TableCell>
                   <TableCell align="right">Unit Cost</TableCell>
@@ -387,11 +390,30 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   return (
                     <TableRow key={line._id || idx}>
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{displayPartName}</TableCell>
+                      <TableCell>
+                        {line.part?._id ? (
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.part.details(line.part._id)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'success.dark', fontWeight: 600 }}
+                          >
+                            {displayPartName}
+                          </Link>
+                        ) : (
+                          <Typography variant="body2">{displayPartName}</Typography>
+                        )}
+                      </TableCell>
                       <TableCell>{displayPartNumber}</TableCell>
-                      <TableCell>{displayUnit}</TableCell>
-                      <TableCell align="right">{line.quantityOrdered}</TableCell>
-                      <TableCell align="right">{line.quantityReceived || 0}</TableCell>
+                      <TableCell align="right">
+                        {line.quantityOrdered}
+                        {displayUnit !== '-' ? ` ${displayUnit}` : ''}
+                      </TableCell>
+                      <TableCell align="right">
+                        {line.quantityReceived || 0}
+                        {displayUnit !== '-' ? ` ${displayUnit}` : ''}
+                      </TableCell>
                       <TableCell align="right">{fCurrency(line.unitCost || 0)}</TableCell>
                       <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
                     </TableRow>
@@ -411,32 +433,38 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           >
             <Card
               variant="outlined"
-              sx={{ p: 2.5, height: 'fit-content', bgcolor: 'background.neutral' }}
+              sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}
             >
-              <Stack spacing={1.5}>
+              <Stack spacing={1.5} sx={{ height: 1 }}>
                 <Typography variant="subtitle2" color="green">
                   Order Description
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    whiteSpace: 'pre-wrap',
-                    color: description ? 'text.primary' : 'text.disabled',
-                    lineHeight: 1.7,
-                    minHeight: '60px',
-                  }}
-                >
-                  {description || 'No description provided'}
-                </Typography>
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      color: description ? 'text.primary' : 'text.disabled',
+                      lineHeight: 1.7,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 8,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {description || 'No description provided'}
+                  </Typography>
+                </Box>
               </Stack>
             </Card>
 
-            <Card variant="outlined" sx={{ p: 2.5, bgcolor: 'background.neutral' }}>
-              <Stack spacing={2}>
+            <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+              <Stack spacing={2} sx={{ height: 1 }}>
                 <Typography variant="subtitle2" color="green">
                   Order Summary
                 </Typography>
-                <Stack spacing={1.5}>
+                <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
                   <SummaryRow label="Subtotal" value={fCurrency(subtotal || 0)} />
                   {discount > 0 && (
                     <SummaryRow
@@ -583,9 +611,11 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                       <TableCell>{line.partName}</TableCell>
                       <TableCell align="right">
                         {line.totalReceived}
+                        {line.unit !== '-' ? ` ${line.unit}` : ''}
                       </TableCell>
                       <TableCell align="right">
                         {line.totalOrdered}
+                        {line.unit !== '-' ? ` ${line.unit}` : ''}
                       </TableCell>
                       <TableCell align="right">
                         <TextField
@@ -623,7 +653,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           </Button>
         }
       />
-    </DashboardContent>
+    </DashboardContent >
   );
 }
 

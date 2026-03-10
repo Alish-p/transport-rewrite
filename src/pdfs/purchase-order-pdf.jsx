@@ -45,20 +45,19 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     { header: 'S.No', accessor: 'sno', width: '5%' },
     { header: 'Part', accessor: 'part', width: '25%' },
     { header: 'Part No.', accessor: 'partNumber', width: '15%' },
-    { header: 'Unit', accessor: 'unit', width: '10%' },
-    { header: 'Qty Ordered', accessor: 'qtyOrdered', width: '10%', align: 'right' },
-    { header: 'Qty Received', accessor: 'qtyReceived', width: '10%', align: 'right' },
+    { header: 'Qty Ordered', accessor: 'qtyOrdered', width: '15%', align: 'right' },
+    { header: 'Qty Received', accessor: 'qtyReceived', width: '15%', align: 'right' },
     {
       header: 'Unit Cost (₹)',
       accessor: 'unitCost',
-      width: '10%',
+      width: '12%',
       align: 'right',
       formatter: (v) => fCurrency(v || 0),
     },
     {
       header: 'Amount (₹)',
       accessor: 'amount',
-      width: '15%',
+      width: '13%',
       align: 'right',
       formatter: (v) => fCurrency(v || 0),
       showTotal: true,
@@ -74,9 +73,8 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
       sno: index + 1,
       part: displayPartName,
       partNumber: displayPartNumber,
-      unit: displayUnit,
-      qtyOrdered: fNumber(line.quantityOrdered || 0),
-      qtyReceived: fNumber(line.quantityReceived || 0),
+      qtyOrdered: `${fNumber(line.quantityOrdered || 0)}${displayUnit !== '-' ? ` ${displayUnit}` : ''}`,
+      qtyReceived: `${fNumber(line.quantityReceived || 0)}${displayUnit !== '-' ? ` ${displayUnit}` : ''}`,
       unitCost: line.unitCost || 0,
       amount: line.amount || (line.quantityOrdered || 0) * (line.unitCost || 0),
     };
@@ -96,9 +94,9 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
 
   extraRows.push({
     cells: [
-      { startIndex: 0, colspan: 4, value: '', align: 'left' },
-      { startIndex: 4, colspan: 1, value: 'Subtotal', align: 'right' },
-      { startIndex: 5, colspan: 1, value: fCurrency(subtotal), align: 'right' },
+      { startIndex: 0, colspan: 3, value: '', align: 'left' },
+      { startIndex: 3, colspan: 1, value: 'Subtotal', align: 'right' },
+      { startIndex: 4, colspan: 1, value: fCurrency(subtotal), align: 'right' },
     ],
     highlight: false,
   });
@@ -106,16 +104,16 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
   if (discount > 0) {
     extraRows.push({
       cells: [
-        { startIndex: 0, colspan: 4, value: '', align: 'left' },
+        { startIndex: 0, colspan: 3, value: '', align: 'left' },
         {
-          startIndex: 4,
+          startIndex: 3,
           colspan: 1,
           value: `Discount${discountType === 'percentage' ? ` (${discount}%)` : ''
             }`,
           align: 'right',
         },
         {
-          startIndex: 5,
+          startIndex: 4,
           colspan: 1,
           value: `- ${fCurrency(effectiveDiscountAmount || 0)}`,
           align: 'right',
@@ -128,9 +126,9 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
   if (shipping > 0) {
     extraRows.push({
       cells: [
-        { startIndex: 0, colspan: 4, value: '', align: 'left' },
-        { startIndex: 4, colspan: 1, value: 'Shipping', align: 'right' },
-        { startIndex: 5, colspan: 1, value: fCurrency(shipping), align: 'right' },
+        { startIndex: 0, colspan: 3, value: '', align: 'left' },
+        { startIndex: 3, colspan: 1, value: 'Shipping', align: 'right' },
+        { startIndex: 4, colspan: 1, value: fCurrency(shipping), align: 'right' },
       ],
       highlight: false,
     });
@@ -139,15 +137,15 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
   if (tax > 0) {
     extraRows.push({
       cells: [
-        { startIndex: 0, colspan: 4, value: '', align: 'left' },
+        { startIndex: 0, colspan: 3, value: '', align: 'left' },
         {
-          startIndex: 4,
+          startIndex: 3,
           colspan: 1,
           value: `Tax${taxType === 'percentage' ? ` (${tax}%)` : ''}`,
           align: 'right',
         },
         {
-          startIndex: 5,
+          startIndex: 4,
           colspan: 1,
           value: fCurrency(effectiveTaxAmount || 0),
           align: 'right',
@@ -159,9 +157,9 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
 
   extraRows.push({
     cells: [
-      { startIndex: 0, colspan: 4, value: '', align: 'left' },
-      { startIndex: 4, colspan: 1, value: 'Total', align: 'right' },
-      { startIndex: 5, colspan: 1, value: fCurrency(total), align: 'right' },
+      { startIndex: 0, colspan: 3, value: '', align: 'left' },
+      { startIndex: 3, colspan: 1, value: 'Total', align: 'right' },
+      { startIndex: 4, colspan: 1, value: fCurrency(total), align: 'right' },
     ],
     highlight: true,
   });

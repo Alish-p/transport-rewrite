@@ -377,7 +377,6 @@ export function WorkOrderDetailView({ workOrder }) {
                 <TableCell>#</TableCell>
                 <TableCell>Part</TableCell>
                 <TableCell>Part No.</TableCell>
-                <TableCell>Unit</TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell align="right">Qty</TableCell>
                 <TableCell align="right">Price</TableCell>
@@ -419,9 +418,11 @@ export function WorkOrderDetailView({ workOrder }) {
                         )}
                       </TableCell>
                       <TableCell>{displayPartNumber}</TableCell>
-                      <TableCell>{displayUnit}</TableCell>
                       <TableCell>{line.partLocation?.name || '-'}</TableCell>
-                      <TableCell align="right">{line.quantity || 0}</TableCell>
+                      <TableCell align="right">
+                        {line.quantity || 0}
+                        {displayUnit !== '-' ? ` ${displayUnit}` : ''}
+                      </TableCell>
                       <TableCell align="right">{fCurrency(line.price || 0)}</TableCell>
                       <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
                     </TableRow>

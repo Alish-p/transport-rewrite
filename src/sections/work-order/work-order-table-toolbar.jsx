@@ -48,13 +48,6 @@ export default function WorkOrderTableToolbar({
   const closedByDialog = useBoolean();
   const issueAssigneeDialog = useBoolean();
 
-  const handleFilterPriority = useCallback(
-    (event) => {
-      onFilters('priority', event.target.value);
-    },
-    [onFilters]
-  );
-
   const handleFilterCategory = useCallback(
     (event, newValue) => {
       onFilters('category', newValue || 'all');
@@ -128,20 +121,17 @@ export default function WorkOrderTableToolbar({
           flexWrap: 'wrap',
         }}
       >
-        <TextField
-          select
-          label="Filter by priority"
-          value={filters.priority}
-          onChange={handleFilterPriority}
+        <Autocomplete
+          fullWidth
+          options={WORK_ORDER_PRIORITY_OPTIONS}
+          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+          value={WORK_ORDER_PRIORITY_OPTIONS.find((opt) => opt.value === filters.priority) || null}
+          onChange={(event, newValue) => {
+            onFilters('priority', newValue?.value || 'all');
+          }}
+          renderInput={(params) => <TextField {...params} label="Priority" />}
           sx={{ width: { xs: 1, md: 200 } }}
-        >
-          <MenuItem value="all">All priorities</MenuItem>
-          {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
 
         <Autocomplete
           freeSolo
@@ -151,7 +141,7 @@ export default function WorkOrderTableToolbar({
           onInputChange={(event, newInputValue) => {
             handleFilterCategory(event, newInputValue);
           }}
-          renderInput={(params) => <TextField {...params} label="Filter by category" />}
+          renderInput={(params) => <TextField {...params} label="Category" />}
           sx={{ width: { xs: 1, md: 200 } }}
         />
 
