@@ -17,7 +17,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
   const workspace = {
     ...data[0],
     name: tenant?.name ?? data[0]?.name,
-    plan: 'basic',
+    plan: tenant?.subscription?.planName,
   };
 
   return (
