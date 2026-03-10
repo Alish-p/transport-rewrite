@@ -3,6 +3,7 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Radio from '@mui/material/Radio';
@@ -27,6 +28,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -402,7 +404,19 @@ export function WorkOrderDetailView({ workOrder }) {
                     <TableRow key={line._id || index}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <Typography variant="body2">{displayPartName}</Typography>
+                        {line.part?._id ? (
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.part.details(line.part._id)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'success.dark' }}
+                          >
+                            {displayPartName}
+                          </Link>
+                        ) : (
+                          <Typography variant="body2">{displayPartName}</Typography>
+                        )}
                       </TableCell>
                       <TableCell>{displayPartNumber}</TableCell>
                       <TableCell>{displayUnit}</TableCell>
@@ -428,32 +442,38 @@ export function WorkOrderDetailView({ workOrder }) {
         >
           <Card
             variant="outlined"
-            sx={{ p: 2.5, height: 'fit-content', bgcolor: 'background.neutral' }}
+            sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}
           >
-            <Stack spacing={1.5}>
+            <Stack spacing={1.5} sx={{ height: 1 }}>
               <Typography variant="subtitle2" color="green">
                 Description / Notes
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  whiteSpace: 'pre-wrap',
-                  color: description ? 'text.primary' : 'text.disabled',
-                  lineHeight: 1.7,
-                  minHeight: '60px',
-                }}
-              >
-                {description || 'No description provided'}
-              </Typography>
+              <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    color: description ? 'text.primary' : 'text.disabled',
+                    lineHeight: 1.7,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {description || 'No description provided'}
+                </Typography>
+              </Box>
             </Stack>
           </Card>
 
-          <Card variant="outlined" sx={{ p: 2.5, bgcolor: 'background.neutral' }}>
-            <Stack spacing={2}>
+          <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+            <Stack spacing={2} sx={{ height: 1 }}>
               <Typography variant="subtitle2" color="green">
                 Cost Summary
               </Typography>
-              <Stack spacing={1.5}>
+              <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
                 <SummaryRow label="Parts Cost" value={fCurrency(computed.partsCost)} />
                 <SummaryRow label="Labour Charge" value={fCurrency(computed.labourCharge)} />
                 <Divider sx={{ my: 0.5 }} />
