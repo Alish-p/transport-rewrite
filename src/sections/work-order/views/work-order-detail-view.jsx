@@ -131,54 +131,59 @@ export function WorkOrderDetailView({ workOrder }) {
           { name: 'Work Orders', href: paths.dashboard.workOrder.list },
           { name: workOrderNo || 'Work Order' },
         ]}
-        action={
-          <Stack direction="row" spacing={1}>
-            <Tooltip title="View PDF">
-              <IconButton onClick={viewPdf.onTrue}>
-                <Iconify icon="solar:eye-bold" />
-              </IconButton>
-            </Tooltip>
-
-            <PDFDownloadLink
-              document={<WorkOrderPdf workOrder={workOrder} tenant={tenant} />}
-              fileName={workOrderNo || 'work-order'}
-              style={{ textDecoration: 'none' }}
-            >
-              {({ loading }) => (
-                <Tooltip title="Download PDF">
-                  <IconButton>
-                    {loading ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : (
-                      <Iconify icon="eva:cloud-download-fill" />
-                    )}
-                  </IconButton>
-                </Tooltip>
-              )}
-            </PDFDownloadLink>
-
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<Iconify icon="solar:pen-bold" />}
-              onClick={handleEdit}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              color="primary"
-              startIcon={<Iconify icon="mdi:check-decagram-outline" />}
-              onClick={closeDialog.onTrue}
-              disabled={!canClose}
-            >
-              {canClose ? 'Close Work Order' : 'Already Closed'}
-            </Button>
-          </Stack>
-        }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
+
+      <Stack
+        spacing={3}
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'flex-end', sm: 'center' }}
+        sx={{ mb: { xs: 2 } }}
+      >
+        <Stack direction="row" spacing={1} flexGrow={1} sx={{ width: 1 }}>
+          <Tooltip title="Edit">
+            <IconButton onClick={handleEdit}>
+              <Iconify icon="solar:pen-bold" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="View PDF">
+            <IconButton onClick={viewPdf.onTrue}>
+              <Iconify icon="solar:eye-bold" />
+            </IconButton>
+          </Tooltip>
+
+          <PDFDownloadLink
+            document={<WorkOrderPdf workOrder={workOrder} tenant={tenant} />}
+            fileName={workOrderNo || 'work-order'}
+            style={{ textDecoration: 'none' }}
+          >
+            {({ loading }) => (
+              <Tooltip title="Download PDF">
+                <IconButton>
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    <Iconify icon="eva:cloud-download-fill" />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+          </PDFDownloadLink>
+
+          <Box sx={{ flexGrow: 1 }} />
+
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Iconify icon="mdi:check-decagram-outline" />}
+            onClick={closeDialog.onTrue}
+            disabled={!canClose}
+          >
+            {canClose ? 'Close Work Order' : 'Already Closed'}
+          </Button>
+        </Stack>
+      </Stack>
 
       <Card sx={{ p: 3 }}>
         <Box
