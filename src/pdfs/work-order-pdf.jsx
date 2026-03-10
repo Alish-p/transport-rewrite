@@ -157,8 +157,12 @@ export default function WorkOrderPdf({ workOrder, tenant }) {
                                 const descriptionText = typeof issue === 'string' ? issue : issue.issue;
                                 const assignedToText =
                                     (typeof issue === 'object' &&
-                                        issue.assignedTo &&
-                                        (issue.assignedTo.name || issue.assignedTo.customerName)) ||
+                                        Array.isArray(issue.assignedTo) &&
+                                        issue.assignedTo.length > 0 &&
+                                        issue.assignedTo
+                                            .map((user) => user.name || user.customerName)
+                                            .filter(Boolean)
+                                            .join(', ')) ||
                                     '-';
 
                                 return (
