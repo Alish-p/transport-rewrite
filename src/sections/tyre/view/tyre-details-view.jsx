@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
@@ -7,22 +7,31 @@ import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import Popover from '@mui/material/Popover';
 import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
+import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import CardContent from '@mui/material/CardContent';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fToNow, fDaysDuration } from 'src/utils/format-time';
 
+import { useGps } from 'src/query/use-gps';
 import { ICONS } from 'src/assets/data/icons';
+import { useTenant } from 'src/query/use-tenant';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
+import { useVehicle, useUpdateVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
 import { useGetTyre, useMountTyre, useScrapTyre, useUpdateTyre, useUnmountTyre } from 'src/query/use-tyre';
 
+import { Label } from 'src/components/label';
 import { useSettingsContext } from 'src/components/settings';
 import { HeroHeader } from 'src/components/hero-header-card';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -52,6 +61,7 @@ export default function TyreDetailsView() {
     const { mutateAsync: unmountTyre } = useUnmountTyre();
     const { mutateAsync: scrapTyre } = useScrapTyre();
     const { mutateAsync: updateTyre } = useUpdateTyre();
+    const updateVehicle = useUpdateVehicle();
 
     const [openThreadDialog, setOpenThreadDialog] = useState(false);
     const [openMountWizard, setOpenMountWizard] = useState(false);
@@ -59,8 +69,43 @@ export default function TyreDetailsView() {
     const [openScrapDialog, setOpenScrapDialog] = useState(false);
     const [openRemoldDialog, setOpenRemoldDialog] = useState(false);
 
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [vehicleOdometer, setVehicleOdometer] = useState('');
+    const isEditingOdometer = Boolean(anchorEl);
+
     // Fetch current vehicle details if mounted (for display in Info and Unmount dialog)
     const { data: currentVehicle } = useVehicle(tyre?.currentVehicleId);
+
+    const { data: tenant } = useTenant();
+    const gpsEnabled = !!tenant?.integrations?.vehicleGPS?.enabled;
+
+    const { data: gpsData, isLoading: isLoadingGps } = useGps(currentVehicle?.vehicleNo || '', {
+        enabled: gpsEnabled && !!(currentVehicle?.vehicleNo),
+    });
+
+    useEffect(() => {
+        if (currentVehicle?.currentOdometer != null) {
+            setVehicleOdometer(currentVehicle.currentOdometer);
+        } else if (gpsData?.totalOdometer) {
+            setVehicleOdometer(gpsData.totalOdometer);
+        }
+    }, [gpsData, currentVehicle]);
+
+    const handleSaveOdometer = async () => {
+        if (currentVehicle && vehicleOdometer !== '') {
+            try {
+                await updateVehicle({
+                    id: currentVehicle._id,
+                    data: { currentOdometer: Number(vehicleOdometer) }
+                });
+                toast.success('Odometer updated successfully');
+                setAnchorEl(null);
+            } catch (e) {
+                console.error(e);
+                toast.error(e?.message || 'Failed to update odometer');
+            }
+        }
+    };
 
     // For layout display on details page
     const { data: layoutsData } = useGetTyreLayouts();
@@ -156,15 +201,26 @@ export default function TyreDetailsView() {
         if (diff > 0) liveKm += diff;
 
         const updatedAt = currentVehicle?.currentOdometerUpdatedAt;
+        let subtitleText = 'Capture time unknown';
+
         if (updatedAt) {
-            liveKmSubtitle = `Captured ${fToNow(updatedAt)} ago`;
+            subtitleText = `Captured ${fToNow(updatedAt)} ago`;
             const daysOld = fDaysDuration(updatedAt, new Date());
             if (daysOld < 3) liveKmSubtitleColor = 'success.light';
             else if (daysOld <= 10) liveKmSubtitleColor = 'warning.light';
             else liveKmSubtitleColor = 'error.light';
-        } else {
-            liveKmSubtitle = 'Capture time unknown';
         }
+
+        liveKmSubtitle = (
+            <Stack component="span" direction="row" alignItems="center" spacing={0.5}>
+                <Box component="span">{subtitleText}</Box>
+                <Tooltip title="Update Vehicle Odometer">
+                    <IconButton component="span" size="small" onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0.5, color: 'inherit' }}>
+                        <Iconify icon="solar:pen-bold" width={14} />
+                    </IconButton>
+                </Tooltip>
+            </Stack>
+        );
 
         infoTooltipContent = (
             <Stack spacing={1}>
@@ -359,6 +415,68 @@ export default function TyreDetailsView() {
                         <TyreHistory tyreId={tyre._id} />
                     </Grid>
                 </Grid>
+
+                <Popover
+                    open={isEditingOdometer}
+                    anchorEl={anchorEl}
+                    onClose={() => setAnchorEl(null)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    slotProps={{ paper: { sx: { p: 2, width: 340 } } }}
+                >
+                    <Stack spacing={2}>
+                        <Typography variant="subtitle2">Update Odometer</Typography>
+
+                        <TextField
+                            size="small"
+                            placeholder="Current Odometer"
+                            type="number"
+                            value={vehicleOdometer}
+                            onChange={(e) => setVehicleOdometer(e.target.value)}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                            }}
+                            fullWidth
+                        />
+
+                        {gpsEnabled && (
+                            <Stack direction="column" spacing={1}>
+                                {isLoadingGps ? (
+                                    <Label variant="soft" color="default">Fetching GPS Data...</Label>
+                                ) : gpsData?.totalOdometer != null ? (
+                                    <Stack spacing={0.5}>
+                                        <Label variant="soft" color="warning" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
+                                            <Iconify icon="mdi:alert" sx={{ mr: 0.5, flexShrink: 0 }} />
+                                            GPS: {gpsData.totalOdometer} km (May be inaccurate)
+                                        </Label>
+                                        <Button
+                                            size="small"
+                                            variant="text"
+                                            fullWidth
+                                            onClick={() => setVehicleOdometer(gpsData.totalOdometer)}
+                                        >
+                                            Use GPS Odometer
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <Label variant="soft" color="error" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
+                                        <Iconify icon="mdi:alert-circle" sx={{ mr: 0.5, flexShrink: 0 }} />
+                                        GPS Odometer unavailable
+                                    </Label>
+                                )}
+                            </Stack>
+                        )}
+
+                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <Button size="small" variant="outlined" color="inherit" onClick={() => setAnchorEl(null)}>
+                                Cancel
+                            </Button>
+                            <Button size="small" variant="contained" color="primary" onClick={handleSaveOdometer}>
+                                Save
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </Popover>
 
                 <TyreThreadUpdateDialog
                     open={openThreadDialog}
