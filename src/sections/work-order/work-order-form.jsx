@@ -93,19 +93,25 @@ export const WorkOrderSchema = zod.object({
     if (typeof val === 'string') return val;
     if (typeof val === 'object' && 'value' in val) return val.value;
     return val;
-  }, zod.string().optional()),
+  }, zod.string().min(1, { message: 'Category is required' })),
   status: zod
     .enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value))
     .optional(),
   priority: zod
     .enum(WORK_ORDER_PRIORITY_OPTIONS.map((p) => p.value))
     .default('non-scheduled'),
-  scheduledStartDate: schemaHelper.dateOptional().optional(),
+  scheduledStartDate: schemaHelper.date({ message: 'Scheduled start date is required' }),
   actualStartDate: schemaHelper.dateOptional().optional(),
-  odometerReading: zod.number().nonnegative().optional(),
-  labourCharge: zod.number().nonnegative().optional(),
+  odometerReading: zod.preprocess(
+    (val) => (val === '' || val === null || Number.isNaN(Number(val)) ? undefined : Number(val)),
+    zod.number().nonnegative().optional()
+  ),
+  labourCharge: zod.preprocess(
+    (val) => (val === '' || val === null || Number.isNaN(Number(val)) ? undefined : Number(val)),
+    zod.number().nonnegative().optional()
+  ),
   description: zod.string().optional(),
-  issues: zod.array(WorkOrderIssueSchema).optional(),
+  issues: zod.array(WorkOrderIssueSchema).min(1, { message: 'At least 1 issue is required' }),
   parts: zod.array(WorkOrderLineSchema).optional(),
 });
 
@@ -303,18 +309,15 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     setIssueAssignees(mapping);
   }, [currentWorkOrder, issueFields]);
 
-  const computed = useMemo(() => {
-    const partsCost = (values.parts || []).reduce((sum, line) => {
-      const qty = Number(line.quantity) || 0;
-      const price = Number(line.price) || 0;
-      return sum + qty * price;
-    }, 0);
+  const partsCost = (values.parts || []).reduce((sum, line) => {
+    const qty = Number(line.quantity) || 0;
+    const price = Number(line.price) || 0;
+    return sum + qty * price;
+  }, 0);
 
-    const labour = Number(values.labourCharge) || 0;
-    const total = partsCost + labour;
-
-    return { partsCost, total };
-  }, [values.parts, values.labourCharge]);
+  const labour = Number(values.labourCharge) || 0;
+  const total = partsCost + labour;
+  const computed = { partsCost, total };
 
   const getLinePart = (fieldId, partId) =>
     lineParts[fieldId] || parts.find((p) => p._id === partId) || null;
@@ -577,6 +580,11 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               <Typography variant="body2" sx={{ color: values.scheduledStartDate ? 'text.primary' : 'text.secondary' }}>
                 {values.scheduledStartDate ? fDate(values.scheduledStartDate) : 'Select date'}
               </Typography>
+              {methods.formState.errors.scheduledStartDate && (
+                <Typography variant="caption" color="error" sx={{ width: '100%', ml: 11 }}>
+                  {methods.formState.errors.scheduledStartDate.message}
+                </Typography>
+              )}
             </Stack>
 
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -600,6 +608,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         <Field.AutocompleteFreeSolo
           fullWidth
+          required
           name="category"
           label="Category"
           options={WORK_ORDER_CATEGORY_OPTIONS.map((option) => ({ label: option, value: option }))}
