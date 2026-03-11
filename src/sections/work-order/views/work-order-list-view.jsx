@@ -30,6 +30,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteWorkOrder, usePaginatedWorkOrders } from 'src/query/use-work-order';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -136,7 +137,9 @@ export function WorkOrderListView() {
     }
   }, [data]);
 
-  const totalCount = data?.total || tableData.length;
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || data?.total || tableData.length;
+  const getWorkOrderCount = (status) => totals[status]?.count || 0;
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -274,15 +277,28 @@ export function WorkOrderListView() {
             px: 2.5,
           }}
         >
-          {STATUS_TABS.map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              icon={tab.icon}
-              label={tab.label}
-              iconPosition="start"
-            />
-          ))}
+          {STATUS_TABS.map((tab) => {
+            const count = tab.value === 'all' ? totalCount : getWorkOrderCount(tab.value);
+            return (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {count}
+                  </Label>
+                }
+              />
+            );
+          })}
         </Tabs>
 
         <WorkOrderTableToolbar
