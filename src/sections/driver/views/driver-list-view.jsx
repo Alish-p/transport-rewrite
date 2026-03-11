@@ -59,6 +59,7 @@ const STORAGE_KEY = 'driver-table-columns';
 const defaultFilters = {
   search: '',
   status: 'all',
+  driverType: 'all',
 };
 
 export function DriverListView() {
@@ -91,6 +92,7 @@ export function DriverListView() {
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
     status: filters.status,
+    driverType: filters.driverType !== 'all' ? filters.driverType : undefined,
     includeInactive: includeInactive.value ? 'true' : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,

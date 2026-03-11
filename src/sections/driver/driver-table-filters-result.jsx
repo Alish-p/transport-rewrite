@@ -26,6 +26,10 @@ export default function DriverTableFiltersResult({
     onFilters('search', '');
   };
 
+  const handleRemoveDriverType = () => {
+    onFilters('driverType', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -45,6 +49,12 @@ export default function DriverTableFiltersResult({
         {filters.search && (
           <Block label="Search:">
             <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
+          </Block>
+        )}
+
+        {filters.driverType !== 'all' && (
+          <Block label="Driver Type:">
+            <Chip size="small" label={filters.driverType} onDelete={handleRemoveDriverType} />
           </Block>
         )}
 

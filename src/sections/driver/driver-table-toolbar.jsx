@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 
@@ -31,6 +33,13 @@ export default function DriverTableToolbar({
     [onFilters]
   );
 
+  const handleFilterDriverType = useCallback(
+    (event) => {
+      onFilters('driverType', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -42,19 +51,38 @@ export default function DriverTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.search}
-          onChange={handleFilterSearch}
-          placeholder="Search by Name or Mobile No..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }}
+          gap={2}
+          sx={{ flexGrow: 1 }}
+        >
+          <TextField
+            fullWidth
+            value={filters.search}
+            onChange={handleFilterSearch}
+            placeholder="Search by Name or Mobile No..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            fullWidth
+            select
+            label="Driver Type"
+            value={filters.driverType}
+            onChange={handleFilterDriverType}
+          >
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="Own">Own</MenuItem>
+            <MenuItem value="Market">Market</MenuItem>
+          </TextField>
+        </Box>
 
         <Stack direction="row" spacing={1}>
           <Button
