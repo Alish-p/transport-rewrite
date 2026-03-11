@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Link from '@mui/material/Link';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
 
@@ -43,15 +42,10 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       const value = row.vehicleId?.vehicleNo;
       return (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={value} sx={{ mr: 2 }}>
-            {value?.slice(0, 2).toUpperCase()}
-          </Avatar>
-          <ListItemText
-            primary={value}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          />
-        </div>
+        <ListItemText
+          primary={value}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
       );
     },
   },
