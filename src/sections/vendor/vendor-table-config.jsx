@@ -68,6 +68,13 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'gstNumber',
+    label: 'GST Number',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row.gstNumber,
+  },
+  {
     id: 'bankName',
     label: 'Bank Name',
     defaultVisible: false,

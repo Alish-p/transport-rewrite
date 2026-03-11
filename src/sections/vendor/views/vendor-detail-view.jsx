@@ -10,7 +10,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 export function VendorDetailView({ vendor }) {
-  const { name, phone, address, bankDetails } = vendor || {};
+  const { name, phone, address, bankDetails, gstNumber } = vendor || {};
 
   return (
     <DashboardContent>
@@ -34,6 +34,7 @@ export function VendorDetailView({ vendor }) {
                 <DetailRow label="Name" value={name} />
                 <DetailRow label="Phone" value={phone} />
                 <DetailRow label="Address" value={address} multiline />
+                <DetailRow label="GST Number" value={gstNumber} />
               </Stack>
             </Card>
           </Grid>

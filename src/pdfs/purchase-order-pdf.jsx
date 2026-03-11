@@ -180,6 +180,7 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
             ['PO No.', displayPoNo],
             ['Date', displayDate && fDate(displayDate)],
             ['Location', displayLocation?.name],
+            ...(displayVendor?.gstNumber ? [['GST No.', displayVendor.gstNumber]] : []),
           ]}
         />
 

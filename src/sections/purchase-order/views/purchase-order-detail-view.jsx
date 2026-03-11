@@ -329,6 +329,9 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   {displayVendor?.phone && (
                     <Typography variant="body2">Phone: {displayVendor.phone}</Typography>
                   )}
+                  {displayVendor?.gstNumber && (
+                    <Typography variant="body2">GST No: {displayVendor.gstNumber}</Typography>
+                  )}
                 </Stack>
               ) : (
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>

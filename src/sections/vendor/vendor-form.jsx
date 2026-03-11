@@ -26,6 +26,7 @@ export const VendorSchema = zod.object({
     },
   }),
   address: zod.string().min(1, { message: 'Address is required' }),
+  gstNumber: schemaHelper.gstNumberOptional(),
   bankDetails: zod
     .object({
       name: zod.string().optional(),
@@ -49,6 +50,7 @@ export default function VendorForm({ currentVendor }) {
       name: currentVendor?.name || '',
       phone: currentVendor?.phone || '',
       address: currentVendor?.address || '',
+      gstNumber: currentVendor?.gstNumber || '',
       bankDetails: {
         name: currentVendor?.bankDetails?.name || '',
         ifsc: currentVendor?.bankDetails?.ifsc || '',
@@ -98,6 +100,7 @@ export default function VendorForm({ currentVendor }) {
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="name" label="Vendor Name" />
         <Field.Text name="phone" label="Phone" />
+        <Field.Text name="gstNumber" label="GST Number" />
         <Field.Text name="address" label="Address" multiline rows={3} />
       </Stack>
     </Card>
