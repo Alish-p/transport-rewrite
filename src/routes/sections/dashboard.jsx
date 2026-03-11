@@ -71,6 +71,7 @@ const TripDetailsPage = lazy(() => import('src/pages/dashboard/trip/details'));
 const TripListPage = lazy(() => import('src/pages/dashboard/trip/list'));
 const TripCreatePage = lazy(() => import('src/pages/dashboard/trip/new'));
 const TripEditPage = lazy(() => import('src/pages/dashboard/trip/edit'));
+const RouteAnalyzerPage = lazy(() => import('src/pages/dashboard/trip/route-analyzer'));
 
 // Invoice
 const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
@@ -623,6 +624,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="trip" action="update" hasContent>
                 <TripEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'route-analyzer',
+            element: (
+              <PermissionBasedGuard resource="trip" action="view" hasContent>
+                <RouteAnalyzerPage />
               </PermissionBasedGuard>
             ),
           },

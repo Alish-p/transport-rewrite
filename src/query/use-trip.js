@@ -168,3 +168,19 @@ export function useDeleteTrip() {
   });
   return mutate;
 }
+
+// Route Analytics
+const getRouteAnalytics = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/route-analytics`, { params });
+  return data;
+};
+
+export function useRouteAnalytics(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'route-analytics', params],
+    queryFn: () => getRouteAnalytics(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
+}

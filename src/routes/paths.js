@@ -169,6 +169,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/trip`,
       new: `${ROOTS.DASHBOARD}/trip/new`,
       list: `${ROOTS.DASHBOARD}/trip/list`,
+      routeAnalyzer: `${ROOTS.DASHBOARD}/trip/route-analyzer`,
       edit: (id) => `${ROOTS.DASHBOARD}/trip/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/trip/${id}`,
     },

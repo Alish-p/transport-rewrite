@@ -98,7 +98,10 @@ export const navData = [
         path: paths.dashboard.trip.root,
         icon: ICONS.trip,
         resource: 'trip',
-        children: [{ title: 'List', path: paths.dashboard.trip.root, action: 'view' }],
+        children: [
+          { title: 'List', path: paths.dashboard.trip.root, action: 'view' },
+          { title: 'Route Analyzer', path: paths.dashboard.trip.routeAnalyzer, action: 'view' },
+        ],
       },
       {
         title: 'Jobs',
