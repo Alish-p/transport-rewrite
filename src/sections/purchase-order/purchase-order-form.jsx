@@ -335,7 +335,7 @@ export default function PurchaseOrderForm() {
         >
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:warehouse" width={20} />
-            <Typography variant="h6">Location & Issue Date</Typography>
+            <Typography variant="h6">Delivery Location & Issue Date</Typography>
           </Stack>
         </Stack>
 

@@ -43,21 +43,20 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
 
   const columns = [
     { header: 'S.No', accessor: 'sno', width: '5%' },
-    { header: 'Part', accessor: 'part', width: '25%' },
-    { header: 'Part No.', accessor: 'partNumber', width: '15%' },
+    { header: 'Part', accessor: 'part', width: '30%' },
+    { header: 'Part No.', accessor: 'partNumber', width: '20%' },
     { header: 'Qty Ordered', accessor: 'qtyOrdered', width: '15%', align: 'right' },
-    { header: 'Qty Received', accessor: 'qtyReceived', width: '15%', align: 'right' },
     {
       header: 'Unit Cost (₹)',
       accessor: 'unitCost',
-      width: '12%',
+      width: '15%',
       align: 'right',
       formatter: (v) => fCurrency(v || 0),
     },
     {
       header: 'Amount (₹)',
       accessor: 'amount',
-      width: '13%',
+      width: '15%',
       align: 'right',
       formatter: (v) => fCurrency(v || 0),
       showTotal: true,

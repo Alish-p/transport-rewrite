@@ -346,7 +346,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           >
             <Stack sx={{ width: 1 }}>
               <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-                Part Location
+                Delivery Location
               </Typography>
               <Typography variant="subtitle2">
                 {displayLocation?.name || '-'}
