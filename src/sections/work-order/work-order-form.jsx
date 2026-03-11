@@ -79,6 +79,14 @@ const WorkOrderLineSchema = zod.object({
     .number({ required_error: 'Price is required' })
     .min(0, { message: 'Price cannot be negative' }),
   partSnapshot: zod.any().optional(),
+}).superRefine((data, ctx) => {
+  if (data.part && (!data.partLocation || data.partLocation.trim() === '')) {
+    ctx.addIssue({
+      code: zod.ZodIssueCode.custom,
+      path: ['partLocation'],
+      message: 'Location is required',
+    });
+  }
 });
 
 const WorkOrderIssueSchema = zod.object({
@@ -396,6 +404,14 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       // Clear custom name if selecting a real part
       setValue(`parts.${lineIndex}.name`, '', { shouldDirty: true });
 
+      const currentLoc = getValues(`parts.${lineIndex}.partLocation`);
+      if (!currentLoc && locations?.length > 0) {
+        setValue(`parts.${lineIndex}.partLocation`, locations[0]._id, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+
       setLineParts((prev) => ({
         ...prev,
         [activePartLineId]: part,
@@ -424,7 +440,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         parts: (formData.parts || []).map((line) => ({
           part: line.part || undefined,
           name: line.name || undefined,
-          partLocation: line.partLocation || undefined,
+          partLocation: line.part ? (line.partLocation || undefined) : undefined,
           quantity: line.quantity,
           price: line.price,
         })),
@@ -778,7 +794,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               append({
                 part: '',
                 name: '',
-                partLocation: '',
+                partLocation: locations?.length > 0 ? locations[0]._id : '',
                 quantity: 1,
                 price: 0,
               })
@@ -862,8 +878,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                             label=""
                             InputLabelProps={{ shrink: true }}
                           >
-                            <MenuItem value="" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                              None
+                            <MenuItem value="" sx={{ display: 'none' }}>
+                              Select Location
                             </MenuItem>
                             {locations.map((loc) => (
                               <MenuItem key={loc._id} value={loc._id}>
