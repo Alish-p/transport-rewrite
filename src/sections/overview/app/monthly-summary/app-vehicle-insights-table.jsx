@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
@@ -22,7 +23,8 @@ import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/tabl
 
 export function VehicleInsightsTable({ month, ...other }) {
   const [showAll, setShowAll] = useState(false);
-  const { data: summary = [], isLoading } = useMonthlyVehicleSubtrips(month);
+  const effectiveMonth = month || dayjs().format('YYYY-MM');
+  const { data: summary = [], isLoading } = useMonthlyVehicleSubtrips(effectiveMonth);
   const displayedSummary = showAll ? summary : summary.slice(0, 6);
 
   return (
@@ -60,7 +62,17 @@ export function VehicleInsightsTable({ month, ...other }) {
                     </TableCell>
                     <TableCell>{fNumber(row.totalKm)} Km </TableCell>
                     <TableCell>{fNumber(row.totalDiesel)} L</TableCell>
-                    <TableCell>{row.subtripCount}</TableCell>
+                    <TableCell>
+                      <Link
+                        component={RouterLink}
+                        to={`${paths.dashboard.subtrip.list}?vehicleNo=${row.vehicleId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}`}
+                        variant="body2"
+                        noWrap
+                        sx={{ color: 'primary.main' }}
+                      >
+                        {row.subtripCount}
+                      </Link>
+                    </TableCell>
                     <TableCell>{fNumber(row.totalLoadingWeight)}</TableCell>
                   </TableRow>
                 ))}

@@ -253,6 +253,24 @@ export default function SubtripFiltersDrawer({
                         </FormControl>
 
                         <FormControl fullWidth>
+                            <InputLabel id="subtrip-transporter-payment-select-label">
+                                Transporter Payment
+                            </InputLabel>
+                            <Select
+                                value={filters.transporterPaymentGenerated || ''}
+                                onChange={(event) => onFilters('transporterPaymentGenerated', event.target.value)}
+                                input={<OutlinedInput label="Transporter Payment" />}
+                                labelId="subtrip-transporter-payment-select-label"
+                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+                                <MenuItem value="yes">Yes</MenuItem>
+                                <MenuItem value="no">No</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
                             <InputLabel id="subtrip-type-select-label">Subtrip Type</InputLabel>
                             <Select
                                 value={filters.subtripType || ''}

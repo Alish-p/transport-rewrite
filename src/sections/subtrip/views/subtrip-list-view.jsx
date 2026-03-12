@@ -74,6 +74,7 @@ const defaultFilters = {
   vehicleOwnership: '',
   loadingPoint: '',
   unloadingPoint: '',
+  transporterPaymentGenerated: '',
 };
 
 // ----------------------------------------------------------------------
@@ -133,6 +134,7 @@ export function SubtripListView() {
     materials: filters.materials.length ? filters.materials : undefined,
     loadingPoint: filters.loadingPoint || undefined,
     unloadingPoint: filters.unloadingPoint || undefined,
+    transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
   });
 
   useEffect(() => {
@@ -476,6 +478,7 @@ export function SubtripListView() {
                               materials: filters.materials.length ? filters.materials : undefined,
                               loadingPoint: filters.loadingPoint || undefined,
                               unloadingPoint: filters.unloadingPoint || undefined,
+                              transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
