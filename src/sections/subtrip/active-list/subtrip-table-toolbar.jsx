@@ -105,6 +105,13 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
+  const handleFilterEwayBill = useCallback(
+    (event) => {
+      onFilters('ewayBill', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -132,6 +139,20 @@ export default function SubtripTableToolbar({
           value={filters.referenceSubtripNo}
           onChange={handleFilterReferenceSubtripNo}
           placeholder="Reference Job No"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          value={filters.ewayBill || ''}
+          onChange={handleFilterEwayBill}
+          placeholder="E-way Bill No"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

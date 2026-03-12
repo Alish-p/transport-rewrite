@@ -103,6 +103,14 @@ export const TABLE_COLUMNS = [
     align: 'center',
   },
   {
+    id: 'ewayBill',
+    label: 'E-way Bill No',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.ewayBill || '-',
+    align: 'center',
+  },
+  {
     id: 'invoiceNo',
     label: 'Invoice No',
     defaultVisible: false,
