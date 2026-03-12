@@ -25,15 +25,24 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-import { STATE_OPTIONS } from './constants';
+import { useAuthContext } from 'src/auth/hooks';
+
+import { STATE_OPTIONS, STATE_CODE_MAP } from './constants';
 
 export function EwaybillByStateWidget({
   title = 'E-Waybills',
-  defaultStateCode = '29',
   ...other
 }) {
+  const { tenant } = useAuthContext();
+
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [stateCode, setStateCode] = useState(defaultStateCode);
+  const [stateCode, setStateCode] = useState(() => {
+    const addressState = tenant?.address?.state || '';
+    const entry = Object.entries(STATE_CODE_MAP).find(
+      ([_, val]) => val.toLowerCase().trim() === addressState.toLowerCase().trim()
+    );
+    return entry ? entry[0] : '29';
+  });
 
   const params = useMemo(
     () => ({ generated_date: selectedDate.format('DD/MM/YYYY'), state_code: stateCode }),

@@ -14,52 +14,39 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
-import { PartCategorySettings } from '../part-category';
-import { WorkOrderIssueSettings } from '../work-order-issue';
-import { PartManufacturerSettings } from '../part-manufacturer';
 
 // ----------------------------------------------------------------------
 
 const SETTINGS_ITEMS = [
   {
     id: 'tenant',
-    label: 'Tenant Setting',
+    label: 'Company Setting',
     icon: <Iconify icon="solar:user-id-bold" />,
   },
   {
     id: 'vehicle',
-    label: 'Vehicle Configuration',
+    label: 'Vehicle',
     icon: <Iconify icon="mdi:truck" />,
   },
   {
     id: 'driver',
-    label: 'Driver Configuration',
+    label: 'Driver',
     icon: <Iconify icon="mdi:account-tie-hat" />,
   },
   {
     id: 'transporter',
-    label: 'Transporter Configuration',
+    label: 'Transporter',
     icon: <Iconify icon="mdi:truck-fast" />,
   },
   {
     id: 'customer',
-    label: 'Customer Configuration',
+    label: 'Customer',
     icon: <Iconify icon="mdi:account-group" />,
   },
   {
     id: 'invoice',
-    label: 'Invoice Configuration',
+    label: 'Invoice',
     icon: <Iconify icon="mdi:file-document-outline" />,
-  },
-  {
-    id: 'maintenance',
-    label: 'Vehicle Maintenance and Inventory Management',
-    icon: <Iconify icon="mdi:tools" />,
-    children: [
-      { id: 'part-manufacturer', label: 'Part Manufacturer' },
-      { id: 'part-category', label: 'Part Category' },
-      { id: 'work-order-issues', label: 'Work Order Issues' },
-    ],
   },
 ];
 
@@ -90,14 +77,6 @@ export function SettingsView({ tenant }) {
         return <Box>Sample Text: Customer Configuration</Box>;
       case 'invoice':
         return <Box>Sample Text: Invoice Configuration</Box>;
-      case 'maintenance':
-        return <Box>Sample Text: Vehicle Maintenance and Inventory Management</Box>;
-      case 'part-manufacturer':
-        return <PartManufacturerSettings />;
-      case 'part-category':
-        return <PartCategorySettings />;
-      case 'work-order-issues':
-        return <WorkOrderIssueSettings />;
       default:
         return null;
     }

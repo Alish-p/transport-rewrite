@@ -50,7 +50,7 @@ export function OverviewAppView({
   transporterPaymentSummary,
   vehicleDocsSummary,
 }) {
-  const { user } = useAuthContext();
+  const { user, tenant } = useAuthContext();
 
   const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
 
@@ -210,9 +210,11 @@ export function OverviewAppView({
           <FinancialMonthlyChart title="Financial overview" />
         </Grid>
 
-        <Grid xs={12}>
-          <EwaybillByStateWidget />
-        </Grid>
+        {tenant?.integrations?.ewayBill?.enabled && (
+          <Grid xs={12}>
+            <EwaybillByStateWidget />
+          </Grid>
+        )}
 
         <Grid xs={12} lg={12}>
           <LoadingTargetWidget />

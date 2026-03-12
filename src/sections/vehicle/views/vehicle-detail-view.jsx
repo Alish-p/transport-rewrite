@@ -11,6 +11,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { VehicleFuelWidget } from '../widgets/vehicle-fuel-widget';
 import { VehicleTyreLayoutView } from './vehicle-tyre-layout-view';
@@ -25,6 +26,7 @@ import { VehicleDocumentsWidget } from '../widgets/vehicle-documents-widget';
 
 export function VehicleDetailView({ vehicle }) {
   const navigate = useNavigate();
+  const { tenant } = useAuthContext();
   const {
     vehicleNo,
     vehicleType,
@@ -253,9 +255,11 @@ export function VehicleDetailView({ vehicle }) {
             <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
           </Grid>
 
-          <Grid xs={12} item>
-            <VehicleChallanWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
-          </Grid>
+          {tenant?.integrations?.challanApi?.enabled && (
+            <Grid xs={12} item>
+              <VehicleChallanWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+            </Grid>
+          )}
 
           <Grid xs={12} item>
             <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
