@@ -16,6 +16,7 @@ export const receiveSchema = zod
     shortageWeight: zod.number().optional(),
     shortageAmount: zod.number().optional(),
     hasShortage: zod.boolean().optional(),
+    docs: zod.array(zod.any()).max(5, { message: 'Maximum 5 documents allowed' }).optional(),
 
     // Required for validation [not the actual fields]
   })

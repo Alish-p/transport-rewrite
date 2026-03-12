@@ -318,6 +318,11 @@ const getSubtripsByTransporter = async ({ queryKey }) => {
   return data;
 };
 
+export const getSubtripDocumentUploadUrl = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/upload-url`, { params });
+  return data;
+};
+
 export function useSubtripsByTransporter(startDate, endDate) {
   return useQuery({
     queryKey: [QUERY_KEY, 'by-transporter', { startDate, endDate }],

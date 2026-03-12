@@ -176,6 +176,11 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   onClick: () => viewTransporterPayment.onTrue(),
                   disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
                 },
+                ...(subtrip.docs || []).map((doc, index) => ({
+                  label: `Document ${index + 1}`,
+                  icon: 'mdi:file-document-outline',
+                  onClick: () => window.open(doc, '_blank', 'noopener,noreferrer'),
+                })),
               ].filter(Boolean),
             },
             {

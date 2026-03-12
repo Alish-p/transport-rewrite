@@ -20,7 +20,7 @@ import {
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useSubtrip, useUpdateSubtripReceiveInfo } from 'src/query/use-subtrip';
+import { useSubtrip, useUpdateSubtripReceiveInfo, getSubtripDocumentUploadUrl } from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -43,12 +43,46 @@ const defaultValues = {
   shortageWeight: 0,
   shortageAmount: 0,
   remarks: '',
+  docs: [],
 };
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
-  const { watch } = methods;
+  const { watch, setValue } = methods;
   const { hasError, hasShortage, unloadingWeight, commissionRate } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
+
+  const handleDropMultiFile = useCallback(
+    (acceptedFiles) => {
+      const currentDocs = watch('docs') || [];
+      const newFiles = acceptedFiles.map((file) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        })
+      );
+      
+      const totalFiles = [...currentDocs, ...newFiles];
+      if (totalFiles.length > 5) {
+        // We can just slice it to 5, or leave it to show the zod validation error
+        setValue('docs', totalFiles.slice(0, 5), { shouldValidate: true });
+      } else {
+        setValue('docs', totalFiles, { shouldValidate: true });
+      }
+    },
+    [setValue, watch]
+  );
+
+  const handleRemoveFile = useCallback(
+    (inputFile) => {
+      const currentDocs = watch('docs') || [];
+      const filtered = currentDocs.filter((file) => file !== inputFile);
+      setValue('docs', filtered, { shouldValidate: true });
+    },
+    [setValue, watch]
+  );
+
+  const handleRemoveAllFiles = useCallback(() => {
+    setValue('docs', [], { shouldValidate: true });
+  }, [setValue]);
 
   return (
     <Card sx={{ p: 2, height: '100%' }}>
@@ -159,6 +193,21 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               <Field.Text name="remarks" label="Error Remarks" type="text" multiline rows={3} />
             </Box>
           )}
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+              Documents (Optional)
+            </Typography>
+            <Field.Upload
+              multiple
+              name="docs"
+              maxSize={3145728}
+              accept={{ 'image/*': [], 'application/pdf': [] }}
+              onDrop={handleDropMultiFile}
+              onRemove={handleRemoveFile}
+              onRemoveAll={handleRemoveAllFiles}
+            />
+          </Box>
         </>
       )}
 
@@ -221,8 +270,28 @@ export function SubtripReceiveForm() {
 
   const onSubmit = async (data) => {
     try {
-      console.log('form data', data);
-      await receiveSubtrip({ id: selectedSubtripData._id, data });
+      let uploadedDocs = [];
+      if (data.docs && data.docs.length > 0) {
+        uploadedDocs = await Promise.all(
+          data.docs.map(async (file) => {
+            if (typeof file === 'string') return file;
+            const fileExtension = file.name.split('.').pop() || 'pdf';
+            const contentType = file.type || 'application/pdf';
+            const resUrl = await getSubtripDocumentUploadUrl({ contentType, fileExtension });
+            const res = await fetch(resUrl.uploadUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': contentType },
+              body: file,
+            });
+            if (!res.ok) throw new Error('Upload failed');
+            return resUrl.publicUrl;
+          })
+        );
+      }
+      
+      const submissionData = { ...data, docs: uploadedDocs };
+
+      await receiveSubtrip({ id: selectedSubtripData._id, data: submissionData });
       reset(defaultValues);
       setSelectedSubtripId(null);
       if (redirectTo) navigate(redirectTo);
