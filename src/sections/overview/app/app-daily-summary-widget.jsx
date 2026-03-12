@@ -12,6 +12,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
@@ -24,6 +25,7 @@ import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { useDailySummary } from 'src/query/use-dashboard';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
@@ -231,6 +233,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
           { id: 'subtripNo', label: 'Job No' },
           { id: 'vehicleNo', label: 'Vehicle' },
           { id: 'driver', label: 'Driver' },
+          { id: 'isOwn', label: 'Market/Own' },
           { id: 'customer', label: 'Customer' },
           { id: 'route', label: 'Route' },
           { id: 'date', label: 'Dispatch Date' },
@@ -322,10 +325,28 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                           {row?.subtripNo}
                         </Link>
                       </TableCell>
+
                       <TableCell>{vehicleNo}</TableCell>
                       <TableCell>{driverName}</TableCell>
-                      <TableCell>{customerName}</TableCell>
-                      <TableCell>{route}</TableCell>
+                      <TableCell>
+                        <Label variant="soft" color={row?.vehicleId?.isOwn ? 'success' : 'info'}>
+                          {row?.vehicleId?.isOwn ? 'Own' : 'Market'}
+                        </Label>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 170 }}>
+                        <Tooltip title={customerName} placement="top-start">
+                          <Typography variant="body2" noWrap>
+                            {customerName}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 200 }}>
+                        <Tooltip title={route} placement="top-start">
+                          <Typography variant="body2" noWrap>
+                            {route}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell>
                         <ListItemText
                           primary={fDate(row?.startDate)}
