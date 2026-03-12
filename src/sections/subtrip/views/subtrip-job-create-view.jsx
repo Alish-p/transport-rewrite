@@ -378,7 +378,6 @@ export function SubtripJobCreateView() {
 
       // Prefill fields
       const expiry = parseEwayDate(message?.eway_bill_valid_date);
-      const billDate = parseEwayDate(message?.eway_bill_date);
       const firstItem = Array.isArray(message?.itemList) ? message.itemList[0] : undefined;
       const qty = firstItem?.quantity;
       const desc = firstItem?.product_description;
@@ -390,8 +389,6 @@ export function SubtripJobCreateView() {
       if (expiry) {
         setValue('ewayExpiryDate', expiry, { shouldDirty: true, shouldValidate: true });
       }
-      // billDate intentionally NOT used for startDate — dispatch date should
-      // reflect the actual dispatch time, not the eWay Bill generation date.
 
       // Prefill invoice
       if (message?.document_number) {
