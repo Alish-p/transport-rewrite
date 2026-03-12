@@ -390,9 +390,8 @@ export function SubtripJobCreateView() {
       if (expiry) {
         setValue('ewayExpiryDate', expiry, { shouldDirty: true, shouldValidate: true });
       }
-      if (billDate) {
-        setValue('startDate', billDate, { shouldDirty: true, shouldValidate: true });
-      }
+      // billDate intentionally NOT used for startDate — dispatch date should
+      // reflect the actual dispatch time, not the eWay Bill generation date.
 
       // Prefill invoice
       if (message?.document_number) {
