@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
+import { ListItemText } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -18,7 +19,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { useTabs } from 'src/hooks/use-tabs';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate, fTime } from 'src/utils/format-time';
 import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { useDailySummary } from 'src/query/use-dashboard';
@@ -325,7 +326,18 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                       <TableCell>{driverName}</TableCell>
                       <TableCell>{customerName}</TableCell>
                       <TableCell>{route}</TableCell>
-                      <TableCell>{fDate(row?.startDate)}</TableCell>
+                      <TableCell>
+                        <ListItemText
+                          primary={fDate(row?.startDate)}
+                          secondary={fTime(row?.startDate)}
+                          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+                          secondaryTypographyProps={{
+                            mt: 0.5,
+                            component: 'span',
+                            typography: 'caption',
+                          }}
+                        />
+                      </TableCell>
                       <TableCell>{row?.loadingWeight ?? '-'}</TableCell>
                       <TableCell>{row?.rate ? fCurrency(row.rate) : '-'}</TableCell>
                     </TableRow>
