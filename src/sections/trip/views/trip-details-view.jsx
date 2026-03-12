@@ -90,7 +90,17 @@ export function TripDetailView({ trip }) {
     totalKm,
   } = getTripDashboardData(trip);
 
-  const { vehicleId = {}, driverId = {}, _id, tripStatus, subtrips, tripNo } = trip;
+  const { vehicleId = {}, _id, tripStatus, subtrips, tripNo } = trip;
+
+  const subtripsArr = Array.isArray(trip?.subtrips) ? trip.subtrips : [];
+  const uniqueDriversMap = new Map();
+
+  subtripsArr.forEach((st) => {
+    if (st?.driverId?._id) {
+      uniqueDriversMap.set(st.driverId._id, st.driverId);
+    }
+  });
+  const uniqueDrivers = Array.from(uniqueDriversMap.values());
 
   // Trip Sheet dialog state
   const viewTripSheet = useBoolean();
@@ -98,7 +108,6 @@ export function TripDetailView({ trip }) {
   const tenant = useTenantContext();
 
   const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
-  const subtripsArr = Array.isArray(trip?.subtrips) ? trip.subtrips : [];
   const allSubtripsBilled =
     subtripsArr.length > 0 && subtripsArr.every((st) => st?.subtripStatus === 'billed');
   const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
@@ -117,11 +126,11 @@ export function TripDetailView({ trip }) {
         status={tripStatus}
         icon="mdi:routes"
         meta={[
-          {
+          ...uniqueDrivers.map((drv) => ({
             icon: 'mdi:account',
-            label: driverId?.driverName,
-            href: driverId?._id ? paths.dashboard.driver.details(driverId._id) : undefined,
-          },
+            label: drv?.driverName,
+            href: drv?._id ? paths.dashboard.driver.details(drv._id) : undefined,
+          })),
 
           {
             icon: 'mdi:truck-outline',
@@ -257,13 +266,20 @@ export function TripDetailView({ trip }) {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
-            <DriverCard
-              driver={driverId}
-              sx={{ minHeight: 200 }}
-              onDriverEdit={() => {
-                navigate(paths.dashboard.driver.edit(trip?.driverId?._id));
-              }}
-            />
+            {uniqueDrivers.length > 0 ? (
+              uniqueDrivers.map((drv) => (
+                <DriverCard
+                  key={drv._id}
+                  driver={drv}
+                  sx={{ minHeight: 200 }}
+                  onDriverEdit={() => {
+                    navigate(paths.dashboard.driver.edit(drv._id));
+                  }}
+                />
+              ))
+            ) : (
+              <DriverCard driver={{}} sx={{ minHeight: 200 }} />
+            )}
             <VehicleCard
               vehicle={vehicleId}
               sx={{ minHeight: 200 }}

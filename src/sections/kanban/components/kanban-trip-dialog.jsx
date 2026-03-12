@@ -49,8 +49,17 @@ function TripItem({ trip, selectedTrip, onSelect }) {
         primary={`Trip ${trip.tripNo}`}
         secondary={
           <>
-            {trip.vehicleId?.vehicleNo || '—'} | {trip.driverId?.driverName || '—'} |{' '}
-            {fDate(trip.fromDate)}
+            {trip.vehicleId?.vehicleNo || '—'} |{' '}
+            {(() => {
+              const drivers = new Set();
+              if (trip.subtrips && trip.subtrips.length > 0) {
+                trip.subtrips.forEach((st) => {
+                  if (st.driverId?.driverName) drivers.add(st.driverId.driverName);
+                });
+              }
+              return drivers.size > 0 ? Array.from(drivers).join(', ') : '—';
+            })()}{' '}
+            | {fDate(trip.fromDate)}
           </>
         }
       />

@@ -19,7 +19,6 @@ import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
@@ -30,10 +29,6 @@ import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialo
 // --------------------------------------------------------------------------------------
 const NewTripSchema = zod
   .object({
-    driver: zod
-      .any()
-      .nullable()
-      .refine((val) => val !== null, { message: 'Driver is required' }),
     vehicleId: zod
       .any()
       .nullable()
@@ -97,7 +92,6 @@ export default function TripForm({ currentTrip }) {
   const createSubtrip = useCreateSubtrip();
 
   const vehicleDialog = useBoolean(false);
-  const driverDialog = useBoolean(false);
 
   // ------------------------------------------------------------------------------------
   // 2) Build defaultValues including `closePreviousTrips: true`
@@ -105,7 +99,6 @@ export default function TripForm({ currentTrip }) {
   // ------------------------------------------------------------------------------------
   const defaultValues = useMemo(
     () => ({
-      driver: currentTrip?.driver || currentTrip?.driverId || null,
       vehicleId: currentTrip?.vehicleId || null,
       fromDate: currentTrip?.fromDate ? new Date(currentTrip.fromDate) : new Date(),
       toDate: currentTrip?.toDate ? new Date(currentTrip.toDate) : null,
@@ -186,11 +179,6 @@ export default function TripForm({ currentTrip }) {
     }
   };
 
-  const handleDriverChange = (driver) => {
-    setValue('driver', driver);
-    clearErrors('driver');
-  };
-
   const handleCustomerChange = (customer) => {
     setSelectedCustomer(customer);
     setValue('customerId', { label: customer.customerName, value: customer._id });
@@ -205,7 +193,6 @@ export default function TripForm({ currentTrip }) {
       if (currentTrip) {
         const updateData = {
           ...data,
-          driverId: data.driver._id,
         };
         if (updateData.startKm === '') updateData.startKm = null;
         if (updateData.endKm === '') updateData.endKm = null;
@@ -219,7 +206,7 @@ export default function TripForm({ currentTrip }) {
         navigate(paths.dashboard.trip.details(currentTrip._id));
       } else {
         const { addFirstSubtrip, customerId, diNumber, subtripRemarks, ...tripData } = data;
-        const createdTrip = await createTrip({ ...tripData, driverId: data.driver._id });
+        const createdTrip = await createTrip(tripData);
 
         if (addFirstSubtrip) {
           await createSubtrip({
@@ -268,17 +255,6 @@ export default function TripForm({ currentTrip }) {
                   error={!!errors.vehicleId?.message}
                   iconName="mdi:truck"
                   disabled={!!currentTrip} // disable if in edit mode
-                />
-              </Box>
-
-              {/* Driver Selection */}
-              <Box>
-                <DialogSelectButton
-                  onClick={driverDialog.onTrue}
-                  placeholder="Select Driver"
-                  selected={watch('driver')?.driverName || ''}
-                  error={!!errors.driver?.message}
-                  iconName="mdi:account"
                 />
               </Box>
 
@@ -351,13 +327,6 @@ export default function TripForm({ currentTrip }) {
         onVehicleChange={handleVehicleChange}
       />
 
-      <KanbanDriverDialog
-        open={driverDialog.value}
-        onClose={driverDialog.onFalse}
-        selectedDriver={watch('driver')}
-        onDriverChange={handleDriverChange}
-        allowQuickCreate={!currentTrip}
-      />
       <KanbanCustomerDialog
         open={customerDialog.value}
         onClose={customerDialog.onFalse}

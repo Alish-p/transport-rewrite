@@ -24,11 +24,18 @@ export default function TripSheetPdf({ trip, tenant }) {
     fromDate,
     toDate,
     vehicleId,
-    driverId,
     startKm: tripStartKm,
     endKm: tripEndKm,
     subtrips = [],
   } = trip || {};
+
+  const uniqueDriversMap = new Map();
+  subtrips.forEach((st) => {
+    if (st?.driverId?._id) {
+      uniqueDriversMap.set(st.driverId._id, st.driverId);
+    }
+  });
+  const uniqueDrivers = Array.from(uniqueDriversMap.values());
 
   // Prepare subtrip table data
   const subtripColumns = [
@@ -213,8 +220,19 @@ export default function TripSheetPdf({ trip, tenant }) {
           </View>
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Driver Details</Text>
-            <Text>Name: {driverId?.driverName}</Text>
-            <Text>Cell No: {driverId?.driverCellNo}</Text>
+            {uniqueDrivers.length > 0 ? (
+              uniqueDrivers.map((drv) => (
+                <View key={drv._id} style={{ marginBottom: 4 }}>
+                  <Text>Name: {drv?.driverName}</Text>
+                  <Text>Cell No: {drv?.driverCellNo}</Text>
+                </View>
+              ))
+            ) : (
+              <View>
+                <Text>Name: N/A</Text>
+                <Text>Cell No: N/A</Text>
+              </View>
+            )}
           </View>
         </View>
 

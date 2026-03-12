@@ -55,7 +55,15 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'left',
-    getter: (row) => row.driverId?.driverName,
+    getter: (row) => {
+      const drivers = new Set();
+      if (row.subtrips && row.subtrips.length > 0) {
+        row.subtrips.forEach((st) => {
+          if (st.driverId?.driverName) drivers.add(st.driverId.driverName);
+        });
+      }
+      return drivers.size > 0 ? Array.from(drivers).join(', ') : '-';
+    },
   },
   {
     id: 'tripStatus',
