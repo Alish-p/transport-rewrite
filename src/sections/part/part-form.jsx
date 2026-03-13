@@ -324,6 +324,8 @@ export default function PartForm({ currentPart }) {
     }
   };
 
+  const hasActiveLocations = locations.length > 0;
+
   const renderDetails = (
     <Card>
       <CardHeader title="Part Details" sx={{ mb: 3 }} />
@@ -403,54 +405,64 @@ export default function PartForm({ currentPart }) {
           </Alert>
         )}
 
-        <Typography variant="subtitle2" sx={{ mb: 2, color: 'text.secondary' }}>
-          {currentPart
-            ? 'View current quantities and edit reorder points per location'
-            : 'Configure initial quantities and reorder points per location'}
-        </Typography>
+        {!hasActiveLocations && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            No active Part Locations found. Please create at least one Part Location before adding parts.
+          </Alert>
+        )}
 
-        <Stack spacing={2}>
-          {locations.map((loc) => (
-            <Stack
-              key={loc._id}
-              direction={{ xs: 'column', sm: 'row' }}
-              alignItems={{ sm: 'center' }}
-              spacing={2}
-              sx={(theme) => ({
-                p: 2,
-                borderRadius: 1.5,
-                border: `1px solid ${theme.palette.divider}`,
-                bgcolor: 'background.neutral',
-              })}
-            >
-              <Box sx={{ flex: 1, minWidth: 160 }}>
-                <Typography variant="subtitle2">{loc.name}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {loc.address || 'No address'}
-                </Typography>
-              </Box>
+        {hasActiveLocations && (
+          <>
+            <Typography variant="subtitle2" sx={{ mb: 2, color: 'text.secondary' }}>
+              {currentPart
+                ? 'View current quantities and edit reorder points per location'
+                : 'Configure initial quantities and reorder points per location'}
+            </Typography>
 
-              <Field.Text
-                name={`locationQuantities.${loc._id}`}
-                label={currentPart ? 'Current Qty' : 'Initial Qty'}
-                placeholder="0"
-                type="number"
-                InputLabelProps={{ shrink: true }}
-                sx={{ maxWidth: { sm: 140 } }}
-                disabled={!!currentPart}
-              />
+            <Stack spacing={2}>
+              {locations.map((loc) => (
+                <Stack
+                  key={loc._id}
+                  direction={{ xs: 'column', sm: 'row' }}
+                  alignItems={{ sm: 'center' }}
+                  spacing={2}
+                  sx={(theme) => ({
+                    p: 2,
+                    borderRadius: 1.5,
+                    border: `1px solid ${theme.palette.divider}`,
+                    bgcolor: 'background.neutral',
+                  })}
+                >
+                  <Box sx={{ flex: 1, minWidth: 160 }}>
+                    <Typography variant="subtitle2">{loc.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {loc.address || 'No address'}
+                    </Typography>
+                  </Box>
 
-              <Field.Text
-                name={`locationThresholds.${loc._id}`}
-                label="Reorder Point"
-                placeholder="0"
-                type="number"
-                InputLabelProps={{ shrink: true }}
-                sx={{ maxWidth: { sm: 140 } }}
-              />
+                  <Field.Text
+                    name={`locationQuantities.${loc._id}`}
+                    label={currentPart ? 'Current Qty' : 'Initial Qty'}
+                    placeholder="0"
+                    type="number"
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ maxWidth: { sm: 140 } }}
+                    disabled={!!currentPart}
+                  />
+
+                  <Field.Text
+                    name={`locationThresholds.${loc._id}`}
+                    label="Reorder Point"
+                    placeholder="0"
+                    type="number"
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ maxWidth: { sm: 140 } }}
+                  />
+                </Stack>
+              ))}
             </Stack>
-          ))}
-        </Stack>
+          </>
+        )}
       </Stack>
     </Card>
   );
@@ -472,7 +484,12 @@ export default function PartForm({ currentPart }) {
 
   const renderActions = (
     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+      <LoadingButton
+        type="submit"
+        variant="contained"
+        loading={isSubmitting}
+        disabled={!hasActiveLocations && !currentPart}
+      >
         {!currentPart ? 'Create Part' : 'Save Changes'}
       </LoadingButton>
     </Stack>
@@ -489,3 +506,4 @@ export default function PartForm({ currentPart }) {
     </Form>
   );
 }
+
