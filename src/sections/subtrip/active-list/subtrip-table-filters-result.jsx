@@ -26,8 +26,9 @@ export default function SubtripTableFiltersResult({
   ...other
 }) {
   const { data: customers = [] } = useCustomersSummary();
-  const handleRemoveSubtripStatus = () => {
-    onFilters('subtripStatus', 'all');
+  const handleRemoveSubtripStatus = (statusToRemove) => {
+    const newStatuses = (filters.subtripStatus || []).filter((s) => s !== statusToRemove);
+    onFilters('subtripStatus', newStatuses);
   };
 
   const handleRemoveCustomer = () => {
@@ -113,9 +114,16 @@ export default function SubtripTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.subtripStatus !== 'all' && (
+        {filters.subtripStatus && filters.subtripStatus.length > 0 && (
           <Block label="Job Status :">
-            <Chip size="small" label={filters.subtripStatus} onDelete={handleRemoveSubtripStatus} />
+            {filters.subtripStatus.map((status) => (
+              <Chip
+                key={status}
+                size="small"
+                label={status.charAt(0).toUpperCase() + status.slice(1)}
+                onDelete={() => handleRemoveSubtripStatus(status)}
+              />
+            ))}
           </Block>
         )}
 

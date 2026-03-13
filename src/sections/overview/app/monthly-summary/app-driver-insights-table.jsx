@@ -62,7 +62,7 @@ export function DriverInsightsTable({ month: controlledMonth, ...other }) {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`${paths.dashboard.subtrip.list}?driverId=${row.driverId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}`}
+                        to={`${paths.dashboard.subtrip.list}?driverId=${row.driverId}&fromDate=${dayjs(`${effectiveMonth}-01`).startOf('month').toISOString()}&toDate=${dayjs(`${effectiveMonth}-01`).endOf('month').toISOString()}&subtripStatus=received,billed`}
                         variant="body2"
                         noWrap
                         sx={{ color: 'primary.main' }}

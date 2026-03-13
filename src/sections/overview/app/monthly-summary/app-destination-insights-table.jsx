@@ -52,7 +52,7 @@ export function AppDestinationInsightsTable({ month, ...other }) {
                                                     .startOf('month')
                                                     .format('YYYY-MM-DD')}&toDate=${dayjs(effectiveMonth)
                                                         .endOf('month')
-                                                        .format('YYYY-MM-DD')}`}
+                                                        .format('YYYY-MM-DD')}&subtripStatus=received,billed`}
                                                 underline="always"
                                                 color="primary"
                                             >

@@ -64,7 +64,7 @@ const defaultFilters = {
   vehicleNo: '',
   transportName: '',
   driverId: '',
-  subtripStatus: 'all',
+  subtripStatus: [],
   subtripType: '',
   fromDate: null,
   toDate: null,
@@ -117,7 +117,7 @@ export function SubtripListView() {
   const { data, isLoading, isFetching } = usePaginatedSubtrips({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
-    subtripStatus: filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
+    subtripStatus: filters.subtripStatus.length ? filters.subtripStatus : undefined,
     subtripNo: filters.subtripNo || undefined,
     referenceSubtripNo: filters.referenceSubtripNo || undefined,
     ewayBill: filters.ewayBill || undefined,
@@ -240,7 +240,7 @@ export function SubtripListView() {
 
   const handleFilterSubtripStatus = useCallback(
     (event, newValue) => {
-      handleFilterChange('subtripStatus', newValue);
+      handleFilterChange('subtripStatus', newValue === 'all' ? [] : [newValue]);
     },
     [handleFilterChange]
   );
@@ -342,36 +342,45 @@ export function SubtripListView() {
       <Card>
         {/* filtering Tabs */}
         <Tabs
-          value={filters.subtripStatus}
+          value={
+            filters.subtripStatus.length === 1
+              ? filters.subtripStatus[0]
+              : filters.subtripStatus.length === 0
+                ? 'all'
+                : false
+          }
           onChange={handleFilterSubtripStatus}
           sx={{
             px: 2.5,
             boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
         >
-          {TABS.map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              label={tab.label}
-              iconPosition="end"
-              icon={
-                isCountLoading ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.subtripStatus) && 'filled') ||
-                      'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
-                )
-              }
-            />
-          ))}
+          {TABS.map((tab) => {
+            const isActive =
+              tab.value === 'all'
+                ? filters.subtripStatus.length === 0
+                : filters.subtripStatus.includes(tab.value);
+            return (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  isCountLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <Label
+                      variant={isActive ? 'filled' : 'soft'}
+                      color={tab.color}
+                    >
+                      {tab.count}
+                    </Label>
+                  )
+                }
+              />
+            );
+          })}
         </Tabs>
 
         <SubtripTableToolbar
@@ -461,7 +470,7 @@ export function SubtripListView() {
 
                           const response = await axios.get('/api/subtrips/export', {
                             params: {
-                              subtripStatus: filters.subtripStatus !== 'all' ? filters.subtripStatus : undefined,
+                              subtripStatus: filters.subtripStatus.length ? filters.subtripStatus : undefined,
                               subtripNo: filters.subtripNo || undefined,
                               referenceSubtripNo: filters.referenceSubtripNo || undefined,
                               ewayBill: filters.ewayBill || undefined,

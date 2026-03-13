@@ -285,6 +285,26 @@ export default function SubtripFiltersDrawer({
                                 <MenuItem value="Loaded">Loaded</MenuItem>
                             </Select>
                         </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel id="subtrip-status-select-label">Job Status</InputLabel>
+                            <Select
+                                multiple
+                                value={filters.subtripStatus || []}
+                                onChange={(event) => onFilters('subtripStatus', event.target.value)}
+                                input={<OutlinedInput label="Job Status" />}
+                                labelId="subtrip-status-select-label"
+                                renderValue={(selected) => selected.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}
+                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                            >
+                                {['loaded', 'received', 'error', 'billed'].map((status) => (
+                                    <MenuItem key={status} value={status}>
+                                        <Checkbox checked={(filters.subtripStatus || []).includes(status)} />
+                                        <ListItemText primary={status.charAt(0).toUpperCase() + status.slice(1)} />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Stack>
                 </Scrollbar>
             </Drawer>
