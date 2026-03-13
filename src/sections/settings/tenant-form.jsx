@@ -153,6 +153,16 @@ export const TenantSchema = zod
               .optional(),
           })
           .optional(),
+        maintenanceAndInventory: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
+        tyre: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
       })
       .optional(),
   })
@@ -307,6 +317,12 @@ export default function TenantForm({ currentTenant }) {
             },
           },
         },
+        maintenanceAndInventory: {
+          enabled: currentTenant?.integrations?.maintenanceAndInventory?.enabled || false,
+        },
+        tyre: {
+          enabled: currentTenant?.integrations?.tyre?.enabled || false,
+        },
       },
     }),
     [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
@@ -391,6 +407,16 @@ export default function TenantForm({ currentTenant }) {
                 config: cleaned,
               };
             })()
+            : undefined,
+          maintenanceAndInventory: data.integrations?.maintenanceAndInventory
+            ? {
+              ...data.integrations.maintenanceAndInventory,
+            }
+            : undefined,
+          tyre: data.integrations?.tyre
+            ? {
+              ...data.integrations.tyre,
+            }
             : undefined,
         },
       };
@@ -769,6 +795,34 @@ export default function TenantForm({ currentTenant }) {
               )}
             </Stack>
           )}
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.maintenanceAndInventory.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:tools" />
+                Maintenance & Inventory
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.tyre.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:tire" />
+                Tyre
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
         </Stack>
       </Stack>
     </Card>
