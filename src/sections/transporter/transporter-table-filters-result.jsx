@@ -55,12 +55,21 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
-        {filters.vehicleCount >= 0 && (
+        {(filters.vehicleCountMin || filters.vehicleCountMax) && (
           <Block label="Vehicles:">
             <Chip
               size="small"
-              label={filters.vehicleCount}
-              onDelete={() => onFilters('vehicleCount', -1)}
+              label={
+                filters.vehicleCountMin && filters.vehicleCountMax
+                  ? `${filters.vehicleCountMin} – ${filters.vehicleCountMax}`
+                  : filters.vehicleCountMin
+                    ? `≥ ${filters.vehicleCountMin}`
+                    : `≤ ${filters.vehicleCountMax}`
+              }
+              onDelete={() => {
+                onFilters('vehicleCountMin', '');
+                onFilters('vehicleCountMax', '');
+              }}
             />
           </Block>
         )}

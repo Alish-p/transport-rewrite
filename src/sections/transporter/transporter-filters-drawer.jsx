@@ -1,4 +1,6 @@
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Slider from '@mui/material/Slider';
 import Drawer from '@mui/material/Drawer';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
@@ -87,23 +89,30 @@ export default function TransporterFiltersDrawer({
                         }}
                     />
 
-                    <TextField
-                        fullWidth
-                        value={filters.vehicleCount === -1 ? '' : filters.vehicleCount}
-                        onChange={(event) => {
-                            const { value } = event.target;
-                            onFilters('vehicleCount', value === '' ? -1 : Number(value));
-                        }}
-                        placeholder="No. of Vehicles"
-                        type="number"
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Iconify icon="mdi:truck" sx={{ color: 'text.disabled' }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
+                    <Box sx={{ px: 1 }}>
+                        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+                            <Iconify icon="mdi:truck" sx={{ color: 'text.disabled', width: 18, height: 18 }} />
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                                Vehicles: {filters.vehicleCountMin || 0} – {filters.vehicleCountMax || '50+'}
+                            </Typography>
+                        </Stack>
+                        <Slider
+                            value={[
+                                filters.vehicleCountMin ? Number(filters.vehicleCountMin) : 0,
+                                filters.vehicleCountMax ? Number(filters.vehicleCountMax) : 50,
+                            ]}
+                            onChange={(event, newValue) => {
+                                onFilters('vehicleCountMin', newValue[0] === 0 ? '' : String(newValue[0]));
+                                onFilters('vehicleCountMax', newValue[1] === 50 ? '' : String(newValue[1]));
+                            }}
+                            valueLabelDisplay="auto"
+                            valueLabelFormat={(value) => (value === 50 ? '50+' : value)}
+                            min={0}
+                            max={50}
+                            size="small"
+                            disableSwap
+                        />
+                    </Box>
 
                     <DialogSelectButton
                         onClick={vehicleDialog.onTrue}

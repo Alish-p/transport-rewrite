@@ -66,7 +66,8 @@ const STORAGE_KEY = 'transporter-table-columns';
 
 const defaultFilters = {
   search: '',
-  vehicleCount: -1,
+  vehicleCountMin: '',
+  vehicleCountMax: '',
   state: '',
   paymentMode: '',
   gstEnabled: 'all',
@@ -129,7 +130,8 @@ export function TransporterListView() {
 
   const { data, isLoading } = usePaginatedTransporters({
     search: filters.search || undefined,
-    vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
+    vehicleCountMin: filters.vehicleCountMin || undefined,
+    vehicleCountMax: filters.vehicleCountMax || undefined,
     state: filters.state || undefined,
     paymentMode: filters.paymentMode || undefined,
     gstEnabled: filters.gstEnabled !== 'all' ? filters.gstEnabled : undefined,
@@ -322,7 +324,8 @@ export function TransporterListView() {
                           const response = await axios.get('/api/transporters/export', {
                             params: {
                               search: filters.search || undefined,
-                              vehicleCount: filters.vehicleCount >= 0 ? filters.vehicleCount : undefined,
+                              vehicleCountMin: filters.vehicleCountMin || undefined,
+                              vehicleCountMax: filters.vehicleCountMax || undefined,
                               state: filters.state || undefined,
                               paymentMode: filters.paymentMode || undefined,
                               gstEnabled: filters.gstEnabled !== 'all' ? filters.gstEnabled : undefined,

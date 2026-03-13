@@ -4,22 +4,28 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify/';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { STATES } from '../customer/config';
 import { TABLE_COLUMNS } from './transporter-table-config';
 import { ColumnSelectorList } from '../../components/table';
 import { usePopover } from '../../components/custom-popover';
 import TransporterFiltersDrawer from './transporter-filters-drawer';
+import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -56,20 +62,6 @@ export default function TransporterTableToolbar({
     [onFilters]
   );
 
-  const handleFilterState = useCallback(
-    (event) => {
-      onFilters('state', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterPaymentMode = useCallback(
-    (event) => {
-      onFilters('paymentMode', event.target.value);
-    },
-    [onFilters]
-  );
-
   return (
     <>
       <Stack
@@ -88,7 +80,7 @@ export default function TransporterTableToolbar({
             value={filters.search}
             onChange={handleFilterSearch}
             placeholder="Name or Mobile No."
-            sx={{ width: { xs: 1, md: 200 } }}
+            sx={{ width: { xs: 1, md: 170 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -98,46 +90,44 @@ export default function TransporterTableToolbar({
             }}
           />
 
+          <Box sx={{ width: { xs: 1, md: 170 } }}>
+            <DialogSelectButton
+              onClick={vehicleDialog.onTrue}
+              selected={selectedVehicle?.vehicleNo}
+              placeholder="Vehicle"
+              iconName="mdi:truck"
+            />
+          </Box>
+
           <TextField
-            sx={{ width: { md: 200 } }}
-            value={filters.vehicleCount === -1 ? '' : filters.vehicleCount}
-            onChange={(event) => {
-              const { value } = event.target;
-              onFilters('vehicleCount', value === '' ? -1 : Number(value));
-            }}
-            placeholder="No. of Vehicles"
-            type="number"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="mdi:truck" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
+            value={filters.gstNo}
+            onChange={(e) => onFilters('gstNo', e.target.value)}
+            placeholder="GST Number"
+            sx={{ width: { xs: 1, md: 170 } }}
           />
 
           <TextField
-            select
-            label="State"
-            value={filters.state}
-            onChange={handleFilterState}
-            sx={{ width: { xs: 1, md: 200 } }}
-          >
-            <MenuItem value="">None</MenuItem>
-            {STATES.map((state) => (
-              <MenuItem key={state.value} value={state.value}>
-                {state.label}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label="Payment Mode"
-            placeholder="Cash, UPI, NEFT, Cheque"
-            value={filters.paymentMode}
-            onChange={handleFilterPaymentMode}
-            sx={{ width: { xs: 1, md: 200 } }}
+            value={filters.panNo}
+            onChange={(e) => onFilters('panNo', e.target.value)}
+            placeholder="PAN Number"
+            sx={{ width: { xs: 1, md: 170 } }}
           />
+
+          <FormControl sx={{ width: { xs: 1, md: 170 } }}>
+            <InputLabel id="toolbar-gst-status-label">GST Status</InputLabel>
+            <Select
+              value={filters.gstEnabled}
+              onChange={(e) => onFilters('gstEnabled', e.target.value)}
+              input={<OutlinedInput label="GST Status" />}
+              labelId="toolbar-gst-status-label"
+              MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              <MenuItem value="true">Yes</MenuItem>
+              <MenuItem value="false">No</MenuItem>
+            </Select>
+          </FormControl>
         </Stack>
 
         <Stack direction="row" spacing={1}>
@@ -146,7 +136,7 @@ export default function TransporterTableToolbar({
             variant="outlined"
             startIcon={<Iconify icon="solar:filter-bold" />}
             onClick={filtersDrawer.onTrue}
-            sx={{ flexShrink: 0 }}
+            sx={{ flexShrink: 0, width: 140 }}
           >
             More Filters
           </Button>
@@ -160,7 +150,7 @@ export default function TransporterTableToolbar({
                 <Iconify icon="solar:settings-bold" />
               </Badge>
             }
-            sx={{ flexShrink: 0 }}
+            sx={{ flexShrink: 0, width: 140 }}
           >
             Columns
           </Button>
