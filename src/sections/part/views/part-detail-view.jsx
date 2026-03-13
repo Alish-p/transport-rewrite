@@ -27,6 +27,7 @@ export function PartDetailView({ part }) {
     inventoryLocation,
     inventory,
     locations: partLocations,
+    isActive
   } = part || {};
 
   const [currentTab, setCurrentTab] = useState('overview');
@@ -85,7 +86,7 @@ export function PartDetailView({ part }) {
       <HeroHeader
         offsetTop={70}
         title={name || partNumber}
-        status="Active"
+        status={isActive ? 'Active' : 'In-Active'}
         icon="mdi:cog-outline"
         meta={[
           { icon: 'mdi:format-list-numbered', label: partNumber },
