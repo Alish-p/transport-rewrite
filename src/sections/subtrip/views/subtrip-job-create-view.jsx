@@ -603,7 +603,7 @@ export function SubtripJobCreateView() {
       const vehicleStageError = getVehicleStepError(form);
       if (vehicleStageError) return vehicleStageError;
 
-      if (!selectedDriver) return 'Please select a driver';
+      if (!selectedDriver?._id) return 'Please select a driver';
       if (!form.startDate) return 'Please select a start date';
 
       const isOwnVehicle = !!selectedVehicle?.isOwn;

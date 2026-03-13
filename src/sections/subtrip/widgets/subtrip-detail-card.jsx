@@ -29,8 +29,6 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
   const {
     loadingWeight,
     rate,
-
-    startKm,
     invoiceNo,
     shipmentNo,
     consignee,
@@ -100,14 +98,6 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
                   {fCurrency(rate || 0)}
                 </Typography>
               </Box>
-              {isOwn && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Start Km</Typography>
-                  <Typography variant="body2" fontWeight="bold" color="primary">
-                    {startKm || '-'} km
-                  </Typography>
-                </Box>
-              )}
               {!isOwn && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2">Effective Rate</Typography>
