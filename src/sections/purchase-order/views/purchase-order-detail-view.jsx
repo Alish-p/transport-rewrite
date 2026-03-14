@@ -7,6 +7,8 @@ import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
+import Collapse from '@mui/material/Collapse';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableBody from '@mui/material/TableBody';
@@ -165,6 +167,20 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           const remaining = Math.max(totalOrdered - totalReceived, 0);
           const partName = line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
           const unit = line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+          const isTyre = (line.partSnapshot?.category ?? line.part?.category) === 'Tires';
+          const manufacturer = line.partSnapshot?.manufacturer ?? line.part?.manufacturer ?? '';
+
+          // For tyre lines, create empty tyre detail entries
+          const tyreDetails = isTyre
+            ? Array.from({ length: remaining }, () => ({
+                serialNumber: '',
+                model: '',
+                size: '',
+                type: 'New',
+                originalThreadDepth: 0,
+                brand: manufacturer,
+              }))
+            : null;
 
           return {
             lineId: line._id || String(index),
@@ -174,6 +190,9 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
             unit,
             receiveQty: remaining,
             checked: remaining > 0,
+            isTyre,
+            manufacturer,
+            tyreDetails,
           };
         })
       );
@@ -195,7 +214,41 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         const raw = Number(value);
         const remaining = Math.max(line.totalOrdered - line.totalReceived, 0);
         const safeValue = Number.isNaN(raw) ? 0 : Math.min(Math.max(raw, 0), remaining);
-        return { ...line, receiveQty: safeValue };
+
+        // For tyre lines, resize the tyreDetails array to match new qty
+        let { tyreDetails } = line;
+        if (line.isTyre) {
+          const currentLen = (tyreDetails || []).length;
+          if (safeValue > currentLen) {
+            tyreDetails = [
+              ...(tyreDetails || []),
+              ...Array.from({ length: safeValue - currentLen }, () => ({
+                serialNumber: '',
+                model: '',
+                size: '',
+                type: 'New',
+                originalThreadDepth: 0,
+                brand: line.manufacturer,
+              })),
+            ];
+          } else if (safeValue < currentLen) {
+            tyreDetails = (tyreDetails || []).slice(0, safeValue);
+          }
+        }
+
+        return { ...line, receiveQty: safeValue, tyreDetails };
+      })
+    );
+  }, []);
+
+  // Handler for updating individual tyre detail fields
+  const handleChangeTyreDetail = useCallback((lineId, tyreIndex, field, value) => {
+    setReceiveLines((prev) =>
+      prev.map((line) => {
+        if (line.lineId !== lineId || !line.tyreDetails) return line;
+        const updatedDetails = [...line.tyreDetails];
+        updatedDetails[tyreIndex] = { ...updatedDetails[tyreIndex], [field]: value };
+        return { ...line, tyreDetails: updatedDetails };
       })
     );
   }, []);
@@ -241,6 +294,9 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         lines: selectedLines.map((line) => ({
           lineId: line.lineId,
           quantityToReceive: line.receiveQty,
+          ...(line.isTyre && line.tyreDetails
+            ? { tyreDetails: line.tyreDetails.slice(0, line.receiveQty) }
+            : {}),
         })),
       };
 
@@ -604,42 +660,147 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                     0
                   );
                   return (
-                    <TableRow key={line.lineId}>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={line.checked}
-                          onChange={() => handleToggleReceiveLine(line.lineId)}
-                        />
-                      </TableCell>
-                      <TableCell>{line.partName}</TableCell>
-                      <TableCell align="right">
-                        {line.totalReceived}
-                        {line.unit !== '-' ? ` ${line.unit}` : ''}
-                      </TableCell>
-                      <TableCell align="right">
-                        {line.totalOrdered}
-                        {line.unit !== '-' ? ` ${line.unit}` : ''}
-                      </TableCell>
-                      <TableCell align="right">
-                        <TextField
-                          type="number"
-                          size="small"
-                          value={line.receiveQty}
-                          onChange={(event) =>
-                            handleChangeReceiveQty(
-                              line.lineId,
-                              event.target.value
-                            )
-                          }
-                          inputProps={{
-                            min: 0,
-                            max: remaining,
-                            step: 1,
-                          }}
-                          sx={{ width: 100 }}
-                        />
-                      </TableCell>
-                    </TableRow>
+                    <>
+                      <TableRow key={line.lineId}>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={line.checked}
+                            onChange={() => handleToggleReceiveLine(line.lineId)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {line.partName}
+                          {line.isTyre && (
+                            <Typography variant="caption" sx={{ ml: 1, color: 'info.main', fontWeight: 600 }}>
+                              (Tyre)
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          {line.totalReceived}
+                          {line.unit !== '-' ? ` ${line.unit}` : ''}
+                        </TableCell>
+                        <TableCell align="right">
+                          {line.totalOrdered}
+                          {line.unit !== '-' ? ` ${line.unit}` : ''}
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            type="number"
+                            size="small"
+                            value={line.receiveQty}
+                            onChange={(event) =>
+                              handleChangeReceiveQty(
+                                line.lineId,
+                                event.target.value
+                              )
+                            }
+                            inputProps={{
+                              min: 0,
+                              max: remaining,
+                              step: 1,
+                            }}
+                            sx={{ width: 100 }}
+                          />
+                        </TableCell>
+                      </TableRow>
+
+                      {/* Tyre details rows — shown when line is checked and isTyre */}
+                      {line.isTyre && line.checked && line.receiveQty > 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} sx={{ py: 0 }}>
+                            <Collapse in timeout="auto" unmountOnExit>
+                              <Box sx={{ py: 2 }}>
+                                <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'text.secondary' }}>
+                                  Enter tyre details for {line.receiveQty} unit{line.receiveQty > 1 ? 's' : ''}
+                                  {line.manufacturer && ` — Brand: ${line.manufacturer}`}
+                                </Typography>
+                                <Stack spacing={2}>
+                                  {(line.tyreDetails || []).slice(0, line.receiveQty).map((td, idx) => (
+                                    <Stack
+                                      key={idx}
+                                      direction={{ xs: 'column', sm: 'row' }}
+                                      spacing={1.5}
+                                      alignItems={{ sm: 'center' }}
+                                      sx={{
+                                        p: 1.5,
+                                        borderRadius: 1,
+                                        bgcolor: 'background.neutral',
+                                        border: (theme) => `1px solid ${theme.palette.divider}`,
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ fontWeight: 700, minWidth: 24, color: 'text.secondary' }}
+                                      >
+                                        #{idx + 1}
+                                      </Typography>
+                                      <TextField
+                                        size="small"
+                                        label="Serial No. *"
+                                        value={td.serialNumber}
+                                        onChange={(e) =>
+                                          handleChangeTyreDetail(line.lineId, idx, 'serialNumber', e.target.value)
+                                        }
+                                        sx={{ minWidth: 140 }}
+                                      />
+                                      <TextField
+                                        size="small"
+                                        label="Model"
+                                        value={td.model}
+                                        onChange={(e) =>
+                                          handleChangeTyreDetail(line.lineId, idx, 'model', e.target.value)
+                                        }
+                                        sx={{ minWidth: 120 }}
+                                      />
+                                      <TextField
+                                        size="small"
+                                        label="Size"
+                                        value={td.size}
+                                        onChange={(e) =>
+                                          handleChangeTyreDetail(line.lineId, idx, 'size', e.target.value)
+                                        }
+                                        sx={{ minWidth: 120 }}
+                                      />
+                                      <TextField
+                                        size="small"
+                                        select
+                                        label="Type"
+                                        value={td.type}
+                                        onChange={(e) =>
+                                          handleChangeTyreDetail(line.lineId, idx, 'type', e.target.value)
+                                        }
+                                        sx={{ minWidth: 100 }}
+                                      >
+                                        <MenuItem value="New">New</MenuItem>
+                                        <MenuItem value="Remolded">Remolded</MenuItem>
+                                        <MenuItem value="Used">Used</MenuItem>
+                                      </TextField>
+                                      <TextField
+                                        size="small"
+                                        label="Thread (mm)"
+                                        type="number"
+                                        value={td.originalThreadDepth}
+                                        onChange={(e) =>
+                                          handleChangeTyreDetail(
+                                            line.lineId,
+                                            idx,
+                                            'originalThreadDepth',
+                                            Number(e.target.value) || 0
+                                          )
+                                        }
+                                        inputProps={{ min: 0 }}
+                                        sx={{ minWidth: 100 }}
+                                      />
+                                    </Stack>
+                                  ))}
+                                </Stack>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   );
                 })}
               </TableBody>
