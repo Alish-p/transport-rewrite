@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
@@ -168,3 +169,18 @@ export function useRemoldTyre() {
     });
 }
 
+export function useDeleteTyre() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id) => axios.delete(`/api/tyre/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: TYRE_QUERY_KEYS.all });
+            toast.success('Tyre deleted successfully');
+        },
+        onError: (error) => {
+            const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
+            toast.error(errorMessage);
+        },
+    });
+}

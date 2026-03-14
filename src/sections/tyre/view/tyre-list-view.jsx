@@ -29,9 +29,9 @@ import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { ICONS } from 'src/assets/data/icons';
-import { useGetTyres } from 'src/query/use-tyre';
 import { useVehicle } from 'src/query/use-vehicle';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetTyres, useDeleteTyre } from 'src/query/use-tyre';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -78,6 +78,8 @@ export default function TyreListView() {
     const router = useRouter();
     const table = useTable({ defaultOrderBy: 'serialNumber', syncToUrl: true });
     const learn = useBoolean();
+
+    const deleteTyre = useDeleteTyre();
 
     const [selectAllMode, setSelectAllMode] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -464,7 +466,7 @@ export default function TyreListView() {
                                             onSelectRow={() => table.onSelectRow(row._id)}
                                             onViewRow={() => handleViewRow(row._id)}
                                             onEditRow={() => handleEditRow(row._id)}
-                                            onDeleteRow={() => console.info('DELETE', row._id)}
+                                            onDeleteRow={() => deleteTyre.mutate(row._id)}
                                             visibleColumns={visibleColumns}
                                             disabledColumns={disabledColumns}
                                             columnOrder={columnOrder}
