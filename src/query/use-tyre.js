@@ -22,6 +22,22 @@ export function useGetTyres(params) {
     });
 }
 
+export function useTyreStatsByPart(partId) {
+    return useQuery({
+        queryKey: ['tyres', 'stats', partId],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/tyre', {
+                params: {
+                    inventoryPart: partId,
+                    limit: 0, // We only want the total counts, not the items
+                },
+            });
+            return data.totals;
+        },
+        enabled: !!partId,
+    });
+}
+
 export function useInfiniteTyres(params, options = {}) {
     return useInfiniteQuery({
         queryKey: TYRE_QUERY_KEYS.list({ ...params, infinite: true }),

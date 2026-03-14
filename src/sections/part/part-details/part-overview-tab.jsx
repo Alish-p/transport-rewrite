@@ -11,6 +11,8 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
+import { useTyreStatsByPart } from 'src/query/use-tyre';
+
 import { Iconify } from 'src/components/iconify';
 
 import { PartStockTransferDialog } from './part-stock-transfer-dialog';
@@ -30,6 +32,9 @@ export function PartOverviewTab({
   locations = [],
   photo,
 }) {
+  const isTyre = category === 'Tires';
+  const { data: tyreStats, isLoading: statsLoading } = useTyreStatsByPart(isTyre ? partId : null);
+
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
@@ -103,27 +108,67 @@ export function PartOverviewTab({
         </Grid>
 
         <Grid item xs={12} md={photo ? 12 : 6}>
-          <Card>
-            <CardHeader title="Locations" />
-            <Box sx={{ p: 2.5, pb: 2 }}>
-              {locations.length === 0 ? (
-                <Typography variant="body2" color="text.secondary">
-                  No locations configured for this part.
-                </Typography>
-              ) : (
-                <Stack spacing={2.5}>
-                  {locations.map((location) => (
-                    <LocationItem
-                      key={location.id || location.name}
-                      location={location}
-                      onAdjustInventory={() => handleOpenAdjustDialog(location)}
-                      onTransferInventory={() => handleOpenTransferDialog(location)}
-                    />
-                  ))}
-                </Stack>
-              )}
-            </Box>
-          </Card>
+          {isTyre ? (
+            <Card>
+              <CardHeader title="Tyre Inventory (from Tyre Module)" />
+              <Box sx={{ p: 2.5, pb: 2 }}>
+                {statsLoading ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Loading tyre stats...
+                  </Typography>
+                ) : (
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    divider={
+                      <Divider
+                        orientation="vertical"
+                        flexItem
+                        sx={{ display: { xs: 'none', sm: 'block' }, borderStyle: 'dashed' }}
+                      />
+                    }
+                    spacing={2}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 2,
+                      border: (theme) => `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    <LocationMetric label="Total Tyres" value={tyreStats?.all?.count || 0} />
+                    <LocationMetric label="In Stock" value={tyreStats?.In_Stock?.count || 0} highlightPositive />
+                    <LocationMetric label="Mounted" value={tyreStats?.Mounted?.count || 0} highlightPositive />
+                    <LocationMetric label="Scrapped" value={tyreStats?.Scrapped?.count || 0} />
+                  </Stack>
+                )}
+                <Box sx={{ mt: 2 }}>
+                   <Typography variant="caption" color="text.secondary">
+                     Note: Inventory for tyres is managed entirely within the Tyre module. Standard inventory locations are ignored.
+                   </Typography>
+                </Box>
+              </Box>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader title="Locations" />
+              <Box sx={{ p: 2.5, pb: 2 }}>
+                {locations.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No locations configured for this part.
+                  </Typography>
+                ) : (
+                  <Stack spacing={2.5}>
+                    {locations.map((location) => (
+                      <LocationItem
+                        key={location.id || location.name}
+                        location={location}
+                        onAdjustInventory={() => handleOpenAdjustDialog(location)}
+                        onTransferInventory={() => handleOpenTransferDialog(location)}
+                      />
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+            </Card>
+          )}
         </Grid>
       </Grid>
 
