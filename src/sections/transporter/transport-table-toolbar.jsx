@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
+import { Box } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
@@ -25,7 +26,6 @@ import { TABLE_COLUMNS } from './transporter-table-config';
 import { ColumnSelectorList } from '../../components/table';
 import { usePopover } from '../../components/custom-popover';
 import TransporterFiltersDrawer from './transporter-filters-drawer';
-import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 

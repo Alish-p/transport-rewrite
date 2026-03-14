@@ -173,13 +173,14 @@ export function HomeHero({ sx, ...other }) {
           color="inherit"
           size="large"
           variant="outlined"
-          target="_blank"
-          rel="noopener"
-          href={paths.figma}
-          startIcon={<Iconify width={24} icon="solar:figma-outline" />}
+          onClick={() => {
+            const el = document.getElementById('lr-generator');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+          startIcon={<Iconify width={24} icon="mdi:file-document-outline" />}
           sx={{ borderColor: 'text.primary' }}
         >
-          Contact Us
+          Free LR Generator
         </Button>
       </MInview>
     </Box>
