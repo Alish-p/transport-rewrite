@@ -20,10 +20,12 @@ import { FinancialMonthlyChart } from '../app-finance-charts';
 import { LoadingTargetWidget } from '../loading-target-widget';
 import { InvoicePiechartWidget } from '../app-invoice-pie-chart';
 import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
+import { AppTyreSummaryWidget } from '../app-tyre-summary-widget';
 import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
+import { AppInventorySummaryWidget } from '../app-inventory-summary-widget';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 import { AppVehicleDocumentsExpiryTable } from '../app-vehicle-documents-expiry-table';
@@ -53,6 +55,9 @@ export function OverviewAppView({
   const { user, tenant } = useAuthContext();
 
   const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
+
+  const tyreEnabled = tenant?.integrations?.tyre?.enabled;
+  const inventoryEnabled = tenant?.integrations?.maintenanceAndInventory?.enabled;
 
   return (
     <DashboardContent>
@@ -198,6 +203,20 @@ export function OverviewAppView({
           </Grid>
         )}
 
+        {/* Tyre Module Widget — only shown when tyre integration is enabled */}
+        {tyreEnabled && (
+          <Grid xs={12} md={6} lg={4}>
+            <AppTyreSummaryWidget />
+          </Grid>
+        )}
+
+        {/* Inventory & Maintenance Widget — only shown when M&I integration is enabled */}
+        {inventoryEnabled && (
+          <Grid xs={12} md={6} lg={8}>
+            <AppInventorySummaryWidget />
+          </Grid>
+        )}
+
         <Grid xs={12} lg={6}>
           <AppMaterialWeightSummary title="Material summary" />
         </Grid>
@@ -223,3 +242,4 @@ export function OverviewAppView({
     </DashboardContent>
   );
 }
+

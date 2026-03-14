@@ -263,3 +263,36 @@ export function useMonthlyDestinationSubtrips(month) {
     enabled: Boolean(month),
   });
 }
+
+// ----------------------------------------------------------------------
+// Tyre dashboard summary
+
+const getTyreDashboardSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/tyre-summary`);
+  return data;
+};
+
+export function useTyreDashboardSummary(enabled = true) {
+  return useQuery({
+    queryKey: ['tyreDashboardSummary'],
+    queryFn: getTyreDashboardSummary,
+    enabled,
+  });
+}
+
+// ----------------------------------------------------------------------
+// Inventory dashboard summary
+
+const getInventoryDashboardSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/inventory-summary`);
+  return data;
+};
+
+export function useInventoryDashboardSummary(enabled = true) {
+  return useQuery({
+    queryKey: ['inventoryDashboardSummary'],
+    queryFn: getInventoryDashboardSummary,
+    enabled,
+  });
+}
+
