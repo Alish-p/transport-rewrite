@@ -34,7 +34,13 @@ const LINKS = [
       { name: 'Privacy policy', href: '#' },
     ],
   },
-  { headline: 'Contact', children: [{ name: 'support@transport.cc', href: '#' }] },
+  {
+    headline: 'Contact',
+    children: [
+      { name: 'palasaraalis@gmail.com', href: 'mailto:palasaraalis@gmail.com' },
+      { name: '+91 7575049646', href: 'tel:+917575049646' },
+    ],
+  },
 ];
 
 // ----------------------------------------------------------------------

@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 
 import { fToNow } from 'src/utils/format-time';
 
-import { _mock } from 'src/_mock';
+import { _testimonials } from 'src/_mock';
 import { maxLine, varAlpha, textGradient } from 'src/theme/styles';
 
 import { varFade, MotionViewport, AnimateCountUp } from 'src/components/animate';
@@ -100,11 +100,12 @@ export function HomeTestimonials({ sx, ...other }) {
       {horizontalDivider('top')}
 
       <Carousel carousel={carousel}>
-        {TESTIMONIALS.map((item) => (
-          <Stack key={item.id} component={m.div} variants={varFade().in}>
+        {_testimonials.map((item, index) => (
+          <Stack key={item.name} component={m.div} variants={varFade().in}>
             <Stack spacing={1} sx={{ typography: 'subtitle2' }}>
-              <Rating size="small" name="read-only" value={item.rating} precision={0.5} readOnly />
-              {item.category}
+              <Rating size="small" name="read-only" value={item.ratingNumber} precision={0.5} readOnly />
+              {/* Fallback category based on index since _testimonials doesn't have it */}
+              {['Fleet Management', 'Fuel Management', 'Driver Management', 'Customer Support', 'Tire Management', 'Accounting'][index % 6]}
             </Stack>
 
             <Typography
@@ -114,11 +115,11 @@ export function HomeTestimonials({ sx, ...other }) {
             </Typography>
 
             <Stack direction="row" alignItems="center" spacing={2}>
-              <Avatar alt={item.name} src={item.avatar} sx={{ width: 48, height: 48 }} />
+              <Avatar alt={item.name} src={item.avatarUrl} sx={{ width: 48, height: 48 }} />
               <Stack sx={{ typography: 'subtitle1' }}>
                 <Box component="span">{item.name}</Box>
                 <Box component="span" sx={{ typography: 'body2', color: 'text.disabled' }}>
-                  {fToNow(new Date(item.postedAt))}
+                  {fToNow(item.postedDate)}
                 </Box>
               </Stack>
             </Stack>
@@ -211,64 +212,4 @@ export function HomeTestimonials({ sx, ...other }) {
 
 // ----------------------------------------------------------------------
 
-const base = (index) => ({
-  id: _mock.id(index),
-  name: _mock.fullName(index),
-  avatar: _mock.image.avatar(index),
-  rating: 5,
-});
-
-const TESTIMONIALS = [
-  {
-    ...base(1),
-    category: 'Fleet Management',
-    content: `The fleet tracking feature is extremely reliable, and the user interface is intuitive. The platform helps streamline operations effectively, and the support team is highly responsive! I recommend this solution to any logistics business aiming to optimize performance.`,
-    postedAt: 'April 20, 2024 23:15:30',
-  },
-  {
-    ...base(2),
-    category: 'Fuel Management',
-    content: `Fantastic platform! The fuel tracking and consumption analysis have helped us significantly cut costs. I’m definitely sticking with this for our fleet management needs.`,
-    postedAt: 'March 19, 2024 23:15:30',
-  },
-  {
-    ...base(3),
-    category: 'Driver Management',
-    content: `The system is clean and easy to use, especially for assigning trips and managing driver payments. Thanks to the Transport ++ team for making logistics so efficient!`,
-    postedAt: 'April 19, 2023 23:15:30',
-  },
-  {
-    ...base(4),
-    category: 'Customer Support',
-    content: `The customer support team was amazing in resolving my queries promptly. The system’s functionality and ease of use are excellent, making it a must-have for any logistics business.`,
-    postedAt: 'May 19, 2023 23:15:30',
-  },
-  {
-    ...base(5),
-    category: 'Tire Management',
-    content:
-      'The tire tracking feature is very effective and has helped us improve safety while reducing costs. The team is also quick to respond to support requests. Highly recommended!',
-    postedAt: 'June 19, 2023 23:15:30',
-  },
-  {
-    ...base(6),
-    category: 'Customizability',
-    content:
-      'This platform is incredibly customizable. It allowed us to tailor the features to meet our specific operational needs perfectly.',
-    postedAt: 'July 19, 2023 23:15:30',
-  },
-  {
-    ...base(7),
-    category: 'Cost Efficiency',
-    content:
-      'The platform offers excellent value for money, especially for optimizing fuel usage and improving operational efficiency. It’s an investment every logistics business should consider.',
-    postedAt: 'August 19, 2023 23:15:30',
-  },
-  {
-    ...base(8),
-    category: 'Performance',
-    content:
-      'This platform is a game-changer for logistics. The real-time tracking, customizable reports, and regular updates make managing a fleet seamless and efficient.',
-    postedAt: 'September 19, 2023 23:15:30',
-  },
-];
+// ----------------------------------------------------------------------
