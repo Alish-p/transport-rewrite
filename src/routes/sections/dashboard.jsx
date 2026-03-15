@@ -15,6 +15,11 @@ import { AuthGuard, RoleBasedGuard, PermissionBasedGuard } from 'src/auth/guard'
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard'));
 
+// Live Tracking
+const LiveTrackingPage = lazy(() =>
+  import('src/sections/live-tracking/live-tracking-view')
+);
+
 // Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
 const VehicleListPage = lazy(() => import('src/pages/dashboard/vehicle/list'));
@@ -229,6 +234,7 @@ export const dashboardRoutes = [
     element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
     children: [
       { element: <IndexPage />, index: true },
+      { path: 'live-tracking', element: <LiveTrackingPage /> },
 
       {
         path: 'vehicle',

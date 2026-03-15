@@ -66,7 +66,15 @@ export const navData = [
    */
   {
     subheader: 'Main',
-    items: [{ title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard }],
+    items: [
+      { title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard },
+      {
+        title: 'Live Tracking',
+        path: paths.dashboard.liveTracking,
+        icon: <Iconify icon="mdi:map-marker-radius" />,
+        info: 'New'
+      },
+    ],
   },
 
   {

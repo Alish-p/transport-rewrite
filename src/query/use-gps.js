@@ -17,3 +17,18 @@ export function useGps(vehicleNo, options = {}) {
     enabled: !!vehicleNo && (options.enabled ?? true),
   });
 }
+
+// Fetch all vehicles' GPS data
+const getAllGpsData = async () => {
+  const { data } = await axios.get(ENDPOINT);
+  return data;
+};
+
+export function useAllGps(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'all'],
+    queryFn: getAllGpsData,
+    refetchInterval: 30000, // auto-refresh every 30s
+    ...options,
+  });
+}
