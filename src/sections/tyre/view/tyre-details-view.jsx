@@ -483,6 +483,7 @@ export default function TyreDetailsView() {
                     onClose={() => setOpenThreadDialog(false)}
                     tyreId={tyre._id}
                     currentDepth={tyre?.threadDepth?.current}
+                    isMounted={tyre.status === TYRE_STATUS.MOUNTED}
                 />
 
                 <TyreMountWizard

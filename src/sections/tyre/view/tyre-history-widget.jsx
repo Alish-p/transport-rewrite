@@ -146,8 +146,13 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return `Mounted on ${vehicleId?.vehicleNo || 'Unknown Vehicle'} at position ${position}. Odometer: ${odometer} km`;
             case 'UNMOUNT':
                 return `Unmounted. Odometer: ${odometer} km. Distance Covered: ${distanceCovered} km`;
-            case 'THREAD_UPDATE':
-                return `Thread depth updated from ${previousThreadDepth}mm to ${newThreadDepth}mm`;
+            case 'THREAD_UPDATE': {
+                let threadUpdateText = `Thread depth updated from ${previousThreadDepth}mm to ${newThreadDepth}mm`;
+                if (odometer) {
+                    threadUpdateText += ` at ${odometer} km`;
+                }
+                return threadUpdateText;
+            }
             case 'UPDATE':
                 return `Tyre details updated`;
             case 'SCRAP':

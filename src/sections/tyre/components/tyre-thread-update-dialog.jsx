@@ -15,17 +15,19 @@ import { useUpdateTyreThread } from 'src/query/use-tyre';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-export default function TyreThreadUpdateDialog({ open, onClose, tyreId, currentDepth }) {
+export default function TyreThreadUpdateDialog({ open, onClose, tyreId, currentDepth, isMounted }) {
     const updateThread = useUpdateTyreThread();
 
     const UpdateThreadSchema = zod.object({
         current: zod.coerce.number().min(0, { message: 'Must be positive' }),
         measuringDate: schemaHelper.date({ message: { required_error: 'Measuring date is required' } }),
+        odometer: zod.any(),
     });
 
     const defaultValues = {
         current: currentDepth || 0,
         measuringDate: new Date(),
+        odometer: '',
     };
 
     const methods = useForm({
@@ -45,7 +47,8 @@ export default function TyreThreadUpdateDialog({ open, onClose, tyreId, currentD
                 id: tyreId,
                 data: {
                     current: data.current,
-                    measuringDate: data.measuringDate
+                    measuringDate: data.measuringDate,
+                    ...(isMounted && data.odometer && { odometer: Number(data.odometer) })
                 },
             });
             reset();
@@ -66,6 +69,9 @@ export default function TyreThreadUpdateDialog({ open, onClose, tyreId, currentD
                     <Box display="flex" flexDirection="column" gap={3} sx={{ mt: 1 }}>
                         <Field.Text name="current" label="Current Thread Depth (mm)" type="number" />
                         <Field.DatePicker name="measuringDate" label="Measuring Date" />
+                        {isMounted && (
+                            <Field.Text name="odometer" label="Vehicle Odometer (Optional)" type="number" />
+                        )}
                     </Box>
                 </DialogContent>
 
