@@ -3,20 +3,24 @@ import { useMemo, useState } from 'react';
 import { Popup, Marker, TileLayer, MapContainer } from 'react-leaflet';
 
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
+import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { CONFIG } from 'src/config-global';
 import { useAllGps } from 'src/query/use-gps';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
@@ -87,9 +91,13 @@ function statusLabel(resolved) {
 // ---------------------------------------------------------------------------
 
 export default function LiveTrackingView() {
+  const theme = useTheme();
   const { data, isLoading, isError, dataUpdatedAt } = useAllGps();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isListExpanded, setIsListExpanded] = useState(true);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Convert object map → array
   const vehicles = useMemo(() => {
@@ -101,10 +109,16 @@ export default function LiveTrackingView() {
 
   // Filtered list
   const filtered = useMemo(() => {
-    if (!search) return vehicles;
-    const q = search.toLowerCase();
-    return vehicles.filter((v) => v.vehicleNumber.toLowerCase().includes(q));
-  }, [vehicles, search]);
+    let list = vehicles;
+    if (statusFilter !== 'all') {
+      list = list.filter((v) => v._resolved === statusFilter);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter((v) => v.vehicleNumber.toLowerCase().includes(q));
+    }
+    return list;
+  }, [vehicles, search, statusFilter]);
 
   // Stats
   const stats = useMemo(() => {
@@ -128,6 +142,41 @@ export default function LiveTrackingView() {
   // Timestamp of last update
   const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : '—';
 
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: stats.total },
+    { value: 'running', label: 'Running', color: 'success', count: stats.running },
+    { value: 'idle', label: 'Idle', color: 'warning', count: stats.idle },
+    { value: 'stopped', label: 'Stopped', color: 'error', count: stats.stopped },
+  ];
+
+  const renderTabs = (
+    <Tabs
+      value={statusFilter}
+      onChange={(e, newValue) => setStatusFilter(newValue)}
+      sx={{
+        px: 2.5,
+        boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+      }}
+    >
+      {TABS.map((tab) => (
+        <Tab
+          key={tab.value}
+          value={tab.value}
+          label={tab.label}
+          iconPosition="end"
+          icon={
+            <Label
+              variant={((tab.value === 'all' || tab.value === statusFilter) && 'filled') || 'soft'}
+              color={tab.color}
+            >
+              {tab.count}
+            </Label>
+          }
+        />
+      ))}
+    </Tabs>
+  );
+
   // -----------------------------------------------------------------------
   // Render
   // -----------------------------------------------------------------------
@@ -136,7 +185,18 @@ export default function LiveTrackingView() {
   // Map content (shared between normal & fullscreen)
   // -------------------------------------------------------------------
   const mapContent = (
-    <>
+    <Box
+      sx={{
+        height: '100%',
+        width: '100%',
+        '& .leaflet-layer, & .leaflet-control-zoom-in, & .leaflet-control-zoom-out, & .leaflet-control-attribution':
+        {
+          filter: isDarkMode
+            ? 'invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) grayscale(60%)'
+            : 'none',
+        },
+      }}
+    >
       {isLoading && (
         <Box
           sx={{
@@ -231,7 +291,118 @@ export default function LiveTrackingView() {
           ))}
         </MapContainer>
       )}
-    </>
+
+      {/* Overlay Vehicle List */}
+      {filtered.length > 0 && (
+        <Card
+          sx={{
+            position: 'absolute',
+            bottom: 16,
+            right: 16,
+            zIndex: 1000,
+            width: { xs: 'calc(100% - 32px)', sm: 400 },
+            maxHeight: isListExpanded ? '75%' : 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: theme.customShadows.z24,
+            bgcolor: 'background.paper',
+            transition: 'max-height 0.3s ease',
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            onClick={() => setIsListExpanded(!isListExpanded)}
+            sx={{
+              p: 2,
+              pb: isListExpanded ? 1.5 : 2,
+              borderBottom: (t) => (isListExpanded ? `solid 1px ${t.palette.divider}` : 'none'),
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Vehicles List
+              </Typography>
+              <Chip
+                label={filtered.length}
+                size="small"
+                color="primary"
+                sx={{ height: 20, fontSize: 11, fontWeight: 700 }}
+              />
+            </Stack>
+            <IconButton size="small" sx={{ mr: -1 }}>
+              <Iconify
+                icon={isListExpanded ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-upward-fill'}
+              />
+            </IconButton>
+          </Stack>
+          
+          {isListExpanded && (
+            <Box
+              sx={{ overflowY: 'auto', flexGrow: 1, p: 1 }}
+            >
+              <Stack spacing={1}>
+                {filtered.map((v) => (
+                  <Box
+                    key={v.vehicleNumber}
+                    sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'background.neutral' }}
+                  >
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                      <Typography variant="subtitle2">{v.vehicleNumber}</Typography>
+                      <Chip
+                        label={statusLabel(v._resolved)}
+                        color={statusColor(v._resolved)}
+                        size="small"
+                        variant="soft"
+                        sx={{ height: 20, fontSize: 10 }}
+                      />
+                    </Stack>
+                    {v.address && (
+                      <Stack direction="row" spacing={0.5} sx={{ mb: 0.5 }}>
+                        <Iconify
+                          icon="mingcute:location-fill"
+                          width={14}
+                          sx={{ color: 'text.disabled', flexShrink: 0, mt: 0.25 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {v.address}
+                        </Typography>
+                      </Stack>
+                    )}
+                    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1 }}>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Iconify icon="solar:speedometer-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Typography variant="caption" color="text.secondary">
+                          {v.speed != null ? `${v.speed} km/h` : '—'}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Typography variant="caption" color="text.secondary">
+                          {v.fuel || '—'}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          )}
+        </Card>
+      )}
+    </Box>
   );
 
   // -------------------------------------------------------------------
@@ -239,53 +410,57 @@ export default function LiveTrackingView() {
   // -------------------------------------------------------------------
   const toolbar = (
     <Stack
-      direction="row"
-      spacing={1}
-      alignItems="center"
-      flexWrap="wrap"
+      direction="column"
       sx={{
         position: 'absolute',
         top: 12,
         left: 12,
         right: 12,
         zIndex: 1100,
-        bgcolor: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'blur(8px)',
-        borderRadius: 1.5,
-        px: 2,
-        py: 1,
-        boxShadow: 3,
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: theme.customShadows.z16,
       }}
     >
-      <Typography variant="subtitle1" sx={{ fontWeight: 700, mr: 1 }}>
-        Live Tracking
-      </Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2, pb: 0 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          Live Tracking
+        </Typography>
 
-      <Chip label={`Total: ${stats.total}`} variant="outlined" size="small" />
-      <Chip icon={<Iconify icon="mdi:truck-check" width={16} />} label={`${stats.running}`} color="success" size="small" variant="soft" />
-      <Chip icon={<Iconify icon="mdi:timer-sand" width={16} />} label={`${stats.idle}`} color="warning" size="small" variant="soft" />
-      <Chip icon={<Iconify icon="mdi:truck-off-road" width={16} />} label={`${stats.stopped}`} color="error" size="small" variant="soft" />
+        <Stack direction="row" spacing={1} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Search vehicle..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: 220 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" width={18} />
+                </InputAdornment>
+              ),
+            }}
+          />
 
-      <TextField
-        size="small"
-        placeholder="Search vehicle..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ ml: 'auto', width: 200 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" width={18} />
-            </InputAdornment>
-          ),
-        }}
-      />
+          <Tooltip title={isDarkMode ? 'Light map' : 'Dark map'}>
+            <IconButton onClick={() => setIsDarkMode(!isDarkMode)} size="small">
+              <Iconify
+                icon={isDarkMode ? 'mdi:white-balance-sunny' : 'mdi:moon-waning-crescent'}
+                width={22}
+              />
+            </IconButton>
+          </Tooltip>
 
-      <Tooltip title="Exit fullscreen">
-        <IconButton onClick={() => setIsFullscreen(false)} size="small">
-          <Iconify icon="mdi:fullscreen-exit" width={22} />
-        </IconButton>
-      </Tooltip>
+          <Tooltip title="Exit fullscreen">
+            <IconButton onClick={() => setIsFullscreen(false)} size="small" color="error">
+              <Iconify icon="mdi:fullscreen-exit" width={22} />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Stack>
+
+      {renderTabs}
     </Stack>
   );
 
@@ -312,30 +487,31 @@ export default function LiveTrackingView() {
   // Normal mode
   // -------------------------------------------------------------------
   return (
-    <Box sx={{ p: { xs: 2, md: 3 }, height: '100%' }}>
+    <Box sx={{ pb: { xs: 2, md: 3 }, height: '100%' }}>
       {/* Header */}
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         alignItems={{ md: 'center' }}
         justifyContent="space-between"
         spacing={2}
-        sx={{ mb: 2 }}
+        sx={{ mb: 3, px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
       >
         <Box>
           <Typography variant="h4">Live Tracking</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Real-time GPS positions of your fleet • Auto-refreshes every 30s
-          </Typography>
         </Box>
 
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <Chip label={`Total: ${stats.total}`} variant="outlined" size="small" />
-          <Chip icon={<Iconify icon="mdi:truck-check" width={16} />} label={`Running: ${stats.running}`} color="success" size="small" variant="soft" />
-          <Chip icon={<Iconify icon="mdi:timer-sand" width={16} />} label={`Idle: ${stats.idle}`} color="warning" size="small" variant="soft" />
-          <Chip icon={<Iconify icon="mdi:truck-off-road" width={16} />} label={`Stopped: ${stats.stopped}`} color="error" size="small" variant="soft" />
-          <Typography variant="caption" color="text.disabled" sx={{ pl: 1 }}>
+          <Typography variant="caption" color="text.disabled" sx={{ pl: 1, mr: 1 }}>
             Updated {lastUpdated}
           </Typography>
+          <Tooltip title={isDarkMode ? 'Light map' : 'Dark map'}>
+            <IconButton onClick={() => setIsDarkMode(!isDarkMode)} size="small">
+              <Iconify
+                icon={isDarkMode ? 'mdi:white-balance-sunny' : 'mdi:moon-waning-crescent'}
+                width={22}
+              />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Fullscreen">
             <IconButton onClick={() => setIsFullscreen(true)} size="small">
               <Iconify icon="mdi:fullscreen" width={22} />
@@ -344,32 +520,36 @@ export default function LiveTrackingView() {
         </Stack>
       </Stack>
 
-      {/* Search */}
-      <TextField
-        fullWidth
-        size="small"
-        placeholder="Search vehicle number..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 2, maxWidth: 360 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" />
-            </InputAdornment>
-          ),
-        }}
-      />
+      <Card sx={{ mx: { xs: 2, md: 3 }, mb: 3 }}>
+        {renderTabs}
+
+        <Stack sx={{ p: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search vehicle number..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+      </Card>
 
       {/* Error */}
       {isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mx: { xs: 2, md: 3 }, mb: 3 }}>
           Failed to fetch GPS data. Please check that GPS integration is enabled for your tenant.
         </Alert>
       )}
 
       {/* Map */}
-      <Card sx={{ position: 'relative', overflow: 'hidden', height: { xs: 500, md: 'calc(100vh - 280px)' } }}>
+      <Card sx={{ position: 'relative', overflow: 'hidden', height: { xs: 500, md: 'calc(100vh - 350px)' }, mx: { xs: 2, md: 3 } }}>
         {mapContent}
       </Card>
     </Box>
