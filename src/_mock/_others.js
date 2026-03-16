@@ -166,7 +166,7 @@ export const _pricingPlans = [
   },
   {
     subscription: 'standard',
-    price: 350,
+    price: 400,
     caption: 'Best for growing fleets',
     lists: [
       { text: 'Trip & Subtrip Management', enabled: true },
