@@ -62,8 +62,16 @@ function resolveStatus(vehicle) {
   const cs = (vehicle.currentStatus || '').toLowerCase();
   const st = (vehicle.status || '').toLowerCase();
 
-  if (cs === 'running' || st.includes('ignition on') || cs.includes('moving')) return 'running';
   if (cs === 'idle' || st.includes('idle')) return 'idle';
+
+  // If ignition is on but the vehicle isn't moving, it's idle.
+  if (st.includes('ignition on')) {
+    if (vehicle.speed === 0 || vehicle.speed === '0') return 'idle';
+    return 'running';
+  }
+
+  if (cs === 'running' || cs.includes('moving')) return 'running';
+
   // everything else (STOPPED, UNREACHABLE, Ignition Off, etc.)
   return 'stopped';
 }

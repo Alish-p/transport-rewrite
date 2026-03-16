@@ -147,6 +147,7 @@ export function PartLocationOverviewTab({ partLocation }) {
         {
             inventoryLocation: partLocation?._id,
             search: search || undefined,
+            status: statusFilter,
             page: table.page + 1,
             rowsPerPage: table.rowsPerPage,
         },
@@ -155,21 +156,13 @@ export function PartLocationOverviewTab({ partLocation }) {
         }
     );
 
-    const parts = data?.parts || [];
-    const totalParts = data?.total || 0;
+    const filteredParts = data?.parts || [];
+    const paginationTotal = data?.total || 0;
+
+    const totalParts = data?.count || 0;
     const outOfStock = data?.outOfStockItems || 0;
     const lowStock = data?.lowStockItems || 0;
     const inStock = totalParts - outOfStock - lowStock;
-
-    // Filter parts based on status filter
-    const filteredParts = parts.filter((part) => {
-        if (statusFilter === 'all') return true;
-        if (statusFilter === 'outOfStock') return part.totalQuantity === 0;
-        if (statusFilter === 'lowStock')
-            return part.totalQuantity < part.threshold && part.totalQuantity > 0;
-        if (statusFilter === 'inStock') return part.totalQuantity >= part.threshold;
-        return true;
-    });
 
     const notFound = !filteredParts.length && !isLoading;
 
@@ -391,7 +384,7 @@ export function PartLocationOverviewTab({ partLocation }) {
                 </TableContainer>
 
                 <TablePaginationCustom
-                    count={totalParts}
+                    count={paginationTotal}
                     page={table.page}
                     rowsPerPage={table.rowsPerPage}
                     onPageChange={table.onChangePage}
