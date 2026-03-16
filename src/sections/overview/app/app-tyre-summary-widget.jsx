@@ -31,9 +31,10 @@ export function AppTyreSummaryWidget({ ...other }) {
   const lowThreadAlerts = data?.lowThreadAlerts || 0;
 
   const chartColors = [
-    theme.palette.info.main,
-    theme.palette.success.main,
-    theme.palette.grey[500],
+    theme.palette.primary.lighter,
+    theme.palette.primary.light,
+    theme.palette.primary.main,
+    theme.palette.primary.dark,
   ];
 
   const chartSeries = statusBreakdown.map((item) => item.value);

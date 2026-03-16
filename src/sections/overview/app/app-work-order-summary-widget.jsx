@@ -20,9 +20,10 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
   const { data, isLoading } = useWorkOrderDashboardSummary();
 
   const chartColors = [
-    theme.palette.info.main,    // Open
-    theme.palette.warning.main, // Pending
-    theme.palette.success.main, // Completed
+    theme.palette.primary.main,
+    theme.palette.primary.lighter,
+    theme.palette.primary.light,
+    theme.palette.primary.dark,
   ];
 
   const totalParts = data?.totalWorkOrders || 0;

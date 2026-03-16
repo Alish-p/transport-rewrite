@@ -20,9 +20,10 @@ export function AppInventorySummaryWidget({ ...other }) {
   const { data, isLoading } = useInventoryDashboardSummary();
 
   const chartColors = [
-    theme.palette.success.main, // In stock
-    theme.palette.warning.main, // Low stock
-    theme.palette.error.main,   // Out of stock
+    theme.palette.primary.light,
+    theme.palette.primary.lighter,
+    theme.palette.primary.main,
+    theme.palette.primary.dark,
   ];
 
   const inStock = data?.inStockItems || 0;
