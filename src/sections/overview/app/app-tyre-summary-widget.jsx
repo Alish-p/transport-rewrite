@@ -26,7 +26,6 @@ export function AppTyreSummaryWidget({ ...other }) {
   const { data, isLoading } = useTyreDashboardSummary();
 
   const statusBreakdown = data?.statusBreakdown || DEFAULT_BREAKDOWN;
-  const totalCount = data?.totalCount || 0;
   const totalValue = data?.totalValue || 0;
   const avgKm = data?.avgKm || 0;
   const lowThreadAlerts = data?.lowThreadAlerts || 0;
@@ -71,12 +70,6 @@ export function AppTyreSummaryWidget({ ...other }) {
   if (isLoading || !data) return null;
 
   const STATS = [
-    {
-      title: 'Total Tyres',
-      value: totalCount,
-      icon: 'mdi:tire',
-      color: theme.palette.primary.main,
-    },
     {
       title: 'Total Value',
       value: `₹${fShortenNumber(totalValue)}`,

@@ -8,33 +8,32 @@ import { alpha, useTheme } from '@mui/material/styles';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
-import { useInventoryDashboardSummary } from 'src/query/use-dashboard';
+import { useWorkOrderDashboardSummary } from 'src/query/use-dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export function AppInventorySummaryWidget({ ...other }) {
+export function AppWorkOrderSummaryWidget({ ...other }) {
   const theme = useTheme();
-  const { data, isLoading } = useInventoryDashboardSummary();
+  const { data, isLoading } = useWorkOrderDashboardSummary();
 
   const chartColors = [
-    theme.palette.success.main, // In stock
-    theme.palette.warning.main, // Low stock
-    theme.palette.error.main,   // Out of stock
+    theme.palette.info.main,    // Open
+    theme.palette.warning.main, // Pending
+    theme.palette.success.main, // Completed
   ];
 
-  const inStock = data?.inStockItems || 0;
-  const lowStock = data?.lowStockItems || 0;
-  const outOfStock = data?.outOfStockItems || 0;
-  const totalParts = data?.totalParts || 0;
-  const openPurchaseOrders = data?.openPurchaseOrders || 0;
+  const totalParts = data?.totalWorkOrders || 0;
+  const openWorkOrders = data?.openWorkOrders || 0;
+  const pendingWorkOrders = data?.pendingWorkOrders || 0;
+  const completedWorkOrders = data?.completedWorkOrders || 0;
 
   const statusBreakdown = [
-    { label: 'In Stock', value: inStock },
-    { label: 'Low Stock', value: lowStock },
-    { label: 'Out of Stock', value: outOfStock },
+    { label: 'Open', value: openWorkOrders },
+    { label: 'Pending', value: pendingWorkOrders },
+    { label: 'Completed', value: completedWorkOrders },
   ];
 
   const chartSeries = statusBreakdown.map((item) => item.value);
@@ -69,19 +68,36 @@ export function AppInventorySummaryWidget({ ...other }) {
 
   const STATS = [
     {
-      title: 'Open PO',
-      value: openPurchaseOrders,
+      title: 'Total WO',
+      value: totalParts,
+      icon: 'mdi:file-document-multiple-outline',
+      color: theme.palette.primary.main,
+    },
+    {
+      title: 'Open',
+      value: openWorkOrders,
       icon: 'mdi:file-document-outline',
       color: theme.palette.info.main,
     },
-
+    {
+      title: 'Pending',
+      value: pendingWorkOrders,
+      icon: 'mdi:clock-outline',
+      color: theme.palette.warning.main,
+    },
+    {
+      title: 'Completed',
+      value: completedWorkOrders,
+      icon: 'mdi:check-circle-outline',
+      color: theme.palette.success.main,
+    },
   ];
 
   return (
     <Card {...other}>
       <CardHeader
-        title="Parts & Inventory overview"
-        subheader="Stock distribution and related documentation"
+        title="Work Orders Overview"
+        subheader="Status distribution of service tasks"
       />
 
       <Chart

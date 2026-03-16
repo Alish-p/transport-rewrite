@@ -26,6 +26,7 @@ import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppInventorySummaryWidget } from '../app-inventory-summary-widget';
+import { AppWorkOrderSummaryWidget } from '../app-work-order-summary-widget';
 import { VehicleDocumentsPieChart } from '../app-vehicle-documents-pie-chart';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 import { AppVehicleDocumentsExpiryTable } from '../app-vehicle-documents-expiry-table';
@@ -212,9 +213,14 @@ export function OverviewAppView({
 
         {/* Inventory & Maintenance Widget — only shown when M&I integration is enabled */}
         {inventoryEnabled && (
-          <Grid xs={12} md={6} lg={8}>
-            <AppInventorySummaryWidget />
-          </Grid>
+          <>
+            <Grid xs={12} md={6} lg={4}>
+              <AppInventorySummaryWidget />
+            </Grid>
+            <Grid xs={12} md={6} lg={4}>
+              <AppWorkOrderSummaryWidget />
+            </Grid>
+          </>
         )}
 
         <Grid xs={12} lg={6}>

@@ -296,3 +296,19 @@ export function useInventoryDashboardSummary(enabled = true) {
   });
 }
 
+// ----------------------------------------------------------------------
+// Work order dashboard summary
+
+const getWorkOrderDashboardSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/work-order-summary`);
+  return data;
+};
+
+export function useWorkOrderDashboardSummary(enabled = true) {
+  return useQuery({
+    queryKey: ['workOrderDashboardSummary'],
+    queryFn: getWorkOrderDashboardSummary,
+    enabled,
+  });
+}
+
