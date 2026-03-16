@@ -52,7 +52,7 @@ export function VehicleDetailView({ vehicle }) {
 
   const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
   const odometer = gpsData?.totalOdometer || 0;
-  const fuelValue = parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, '')) || 0;
+  const fuelValue = Math.round(parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, ''))) || 0;
 
   const renderDetails = (
     <Card>

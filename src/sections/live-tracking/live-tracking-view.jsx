@@ -285,7 +285,7 @@ export default function LiveTrackingView() {
                   )}
                   {v.fuel != null && (
                     <Typography variant="caption" display="block" color="text.secondary">
-                      Fuel: {v.fuel}
+                      Fuel: {v.fuel.toString().includes(' ') ? v.fuel : `${Math.round(parseFloat(String(v.fuel).replace(/[^\d.]/g, '')))} L`}
                     </Typography>
                   )}
                   {v.lastUpdatedAt && (
@@ -399,7 +399,7 @@ export default function LiveTrackingView() {
                       <Stack direction="row" alignItems="center" spacing={0.5}>
                         <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: 'text.disabled' }} />
                         <Typography variant="caption" color="text.secondary">
-                          {v.fuel || '—'}
+                          {v.fuel ? (v.fuel.toString().includes(' ') ? v.fuel : `${Math.round(parseFloat(String(v.fuel).replace(/[^\d.]/g, '')))} L`) : '—'}
                         </Typography>
                       </Stack>
                     </Stack>
