@@ -1,6 +1,6 @@
 import L from 'leaflet';
-import { useMemo, useState } from 'react';
-import { Popup, Marker, TileLayer, MapContainer } from 'react-leaflet';
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { Popup, Marker, useMap, TileLayer, MapContainer } from 'react-leaflet';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -95,6 +95,34 @@ function statusLabel(resolved) {
 }
 
 // ---------------------------------------------------------------------------
+// Fly-to helper – lives inside <MapContainer> so it can call useMap()
+// ---------------------------------------------------------------------------
+
+function FlyToVehicle({ vehicle, markerRefs }) {
+  const map = useMap();
+
+  useEffect(() => {
+    let timeout;
+
+    if (vehicle) {
+      map.flyTo([vehicle.latitude, vehicle.longitude], 16, { duration: 1.2 });
+
+      // Open the marker popup after fly animation finishes
+      timeout = setTimeout(() => {
+        const ref = markerRefs.current?.[vehicle.vehicleNumber];
+        if (ref) ref.openPopup();
+      }, 1300);
+    }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [vehicle, map, markerRefs]);
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -106,6 +134,8 @@ export default function LiveTrackingView() {
   const [isListExpanded, setIsListExpanded] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const markerRefs = useRef({});
 
   // Convert object map → array
   const vehicles = useMemo(() => {
@@ -244,9 +274,11 @@ export default function LiveTrackingView() {
             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <FlyToVehicle vehicle={selectedVehicle} markerRefs={markerRefs} />
           {filtered.map((v) => (
             <Marker
               key={v.vehicleNumber}
+              ref={(ref) => { if (ref) markerRefs.current[v.vehicleNumber] = ref; }}
               position={[v.latitude, v.longitude]}
               icon={getMarkerIcon(v._resolved)}
             >
@@ -356,7 +388,25 @@ export default function LiveTrackingView() {
                 {filtered.map((v) => (
                   <Box
                     key={v.vehicleNumber}
-                    sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'background.neutral' }}
+                    onClick={() => setSelectedVehicle(v)}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 1.5,
+                      bgcolor: selectedVehicle?.vehicleNumber === v.vehicleNumber
+                        ? alpha(theme.palette.primary.main, 0.12)
+                        : 'background.neutral',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      border: selectedVehicle?.vehicleNumber === v.vehicleNumber
+                        ? `1.5px solid ${theme.palette.primary.main}`
+                        : '1.5px solid transparent',
+                      '&:hover': {
+                        bgcolor: selectedVehicle?.vehicleNumber === v.vehicleNumber
+                          ? alpha(theme.palette.primary.main, 0.16)
+                          : 'action.hover',
+                        transform: 'translateX(4px)',
+                      },
+                    }}
                   >
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                       <Typography variant="subtitle2">{v.vehicleNumber}</Typography>
