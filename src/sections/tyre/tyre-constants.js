@@ -11,6 +11,12 @@ export const TYRE_TYPE = {
     REJECTED: 'Rejected',
 };
 
+export const TYRE_CATEGORIES = [
+    'Rear - New Cross',
+    'Rear - RM Cross',
+    'Front - New Line',
+];
+
 export const TYRE_POSITIONS = {
     AXLE_1_LEFT_OUTER: 'Axle-1 Left Outer',
     AXLE_1_LEFT_INNER: 'Axle-1 Left Inner',

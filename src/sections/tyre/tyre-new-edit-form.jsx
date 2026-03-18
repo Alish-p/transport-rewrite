@@ -18,7 +18,7 @@ import { useCreateTyre, useUpdateTyre } from 'src/query/use-tyre';
 
 import { Form, Field } from 'src/components/hook-form';
 
-import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_BRAND_MODELS } from './tyre-constants';
+import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_CATEGORIES, TYRE_BRAND_MODELS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ export const TyreSchema = zod.object({
     metadata: zod.object({
         isRemoldable: zod.boolean().optional(),
     }).optional(),
+    category: zod.string().optional(),
 });
 
 export default function TyreNewEditForm({ currentTyre }) {
@@ -77,7 +78,8 @@ export default function TyreNewEditForm({ currentTyre }) {
             },
             metadata: {
                 isRemoldable: currentTyre?.metadata?.isRemoldable ?? true,
-            }
+            },
+            category: currentTyre?.category || '',
         }),
         [currentTyre]
     );
@@ -182,6 +184,12 @@ export default function TyreNewEditForm({ currentTyre }) {
                     label="Size"
                     placeholder="e.g. 295/80R22.5"
                     options={TYRE_SIZES.map((option) => ({ label: option, value: option }))}
+                />
+                <Field.AutocompleteFreeSolo
+                    name="category"
+                    label="Category (Optional)"
+                    placeholder="e.g. Rear - New Cross"
+                    options={TYRE_CATEGORIES.map((option) => ({ label: option, value: option }))}
                 />
             </Stack>
         </Card>

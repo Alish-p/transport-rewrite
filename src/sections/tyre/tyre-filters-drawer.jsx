@@ -23,7 +23,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_BRAND_MODELS } from './tyre-constants';
+import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_CATEGORIES, TYRE_BRAND_MODELS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -169,6 +169,33 @@ export default function TyreFiltersDrawer({
                     <TextField
                         {...params}
                         placeholder="Search Size..."
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon={ICONS.common.search} sx={{ color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                )}
+            />
+
+            <Autocomplete
+                fullWidth
+                freeSolo
+                options={TYRE_CATEGORIES}
+                value={filters.category}
+                onChange={(event, newValue) => {
+                    onFilters('category', newValue);
+                }}
+                onInputChange={(event, newInputValue) => {
+                    onFilters('category', newInputValue);
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        placeholder="Search Category..."
                         InputProps={{
                             ...params.InputProps,
                             startAdornment: (

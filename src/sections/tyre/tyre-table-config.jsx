@@ -193,6 +193,13 @@ export const TYRE_TABLE_COLUMNS = [
         disabled: false,
         getter: (row) => row.type,
     },
+    {
+        id: 'category',
+        label: 'Category',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.category || '-',
+    },
 
     {
         id: 'cost',
