@@ -12,6 +12,7 @@ import {
   Menu,
   Stack,
   Table,
+  Alert,
   Button,
   Dialog,
   Divider,
@@ -227,6 +228,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
   const values = watch();
   const priorityMenuOpen = Boolean(priorityAnchorEl);
+
+  const isExternalWorkshop = typeof values.category === 'object'
+    ? values.category?.value === 'External Workshop'
+    : values.category === 'External Workshop';
 
   const vehicleNo = selectedVehicle?.vehicleNo;
   const selectedVehicleId = selectedVehicle?._id || selectedVehicle || '';
@@ -803,6 +808,12 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             Add Part
           </Button>
         </Stack>
+
+        {isExternalWorkshop && (
+          <Alert severity="info" sx={{ mb: 3 }}>
+            Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;, inventory for attached parts will not be deducted.
+          </Alert>
+        )}
 
         {fields.length === 0 ? (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>

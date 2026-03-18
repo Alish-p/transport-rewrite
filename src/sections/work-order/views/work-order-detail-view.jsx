@@ -7,6 +7,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Radio from '@mui/material/Radio';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Tooltip from '@mui/material/Tooltip';
@@ -399,6 +400,11 @@ export function WorkOrderDetailView({ workOrder }) {
           <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
             Parts Used
           </Typography>
+          {category === 'External Workshop' && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;, inventory for these parts will not be deducted.
+            </Alert>
+          )}
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -527,9 +533,10 @@ export function WorkOrderDetailView({ workOrder }) {
         <DialogTitle>Close Work Order</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            This will mark the work order as{' '}
-            <strong>Completed</strong> and adjust inventory for all
-            parts used.
+            This will mark the work order as <strong>Completed</strong>
+            {category === 'External Workshop'
+              ? ' without deducting inventory since it is an External Workshop work order.'
+              : ' and adjust inventory for all parts used.'}
           </Typography>
 
           <FormControl component="fieldset" sx={{ mt: 2, width: '100%' }}>
