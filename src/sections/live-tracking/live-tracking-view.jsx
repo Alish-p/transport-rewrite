@@ -4,6 +4,7 @@ import { Popup, Marker, useMap, TileLayer, MapContainer } from 'react-leaflet';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
+import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Tabs from '@mui/material/Tabs';
@@ -17,8 +18,12 @@ import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { CONFIG } from 'src/config-global';
 import { useAllGps } from 'src/query/use-gps';
+import { useActiveTripsMap } from 'src/query/use-trip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -129,6 +134,7 @@ function FlyToVehicle({ vehicle, markerRefs }) {
 export default function LiveTrackingView() {
   const theme = useTheme();
   const { data, isLoading, isError, dataUpdatedAt } = useAllGps();
+  const { data: activeTripsMap } = useActiveTripsMap();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isListExpanded, setIsListExpanded] = useState(true);
@@ -295,6 +301,19 @@ export default function LiveTrackingView() {
                     variant="soft"
                     sx={{ mb: 0.5 }}
                   />
+                  {activeTripsMap?.[v.vehicleNumber] && (
+                    <Typography variant="caption" display="block" color="text.secondary">
+                      Trip:{' '}
+                      <Link
+                        component={RouterLink}
+                        to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
+                        color="primary"
+                        underline="hover"
+                      >
+                        {activeTripsMap[v.vehicleNumber].tripNo}
+                      </Link>
+                    </Typography>
+                  )}
                   {v.speed != null && (
                     <Typography variant="caption" display="block" color="text.secondary">
                       Speed: {v.speed} km/h
@@ -409,7 +428,22 @@ export default function LiveTrackingView() {
                     }}
                   >
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">{v.vehicleNumber}</Typography>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Typography variant="subtitle2">{v.vehicleNumber}</Typography>
+                        {activeTripsMap?.[v.vehicleNumber] && (
+                          <Chip
+                            label={activeTripsMap[v.vehicleNumber].tripNo}
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            component={RouterLink}
+                            to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
+                            clickable
+                            onClick={(e) => e.stopPropagation()}
+                            sx={{ height: 20, fontSize: 10, cursor: 'pointer' }}
+                          />
+                        )}
+                      </Stack>
                       <Chip
                         label={statusLabel(v._resolved)}
                         color={statusColor(v._resolved)}

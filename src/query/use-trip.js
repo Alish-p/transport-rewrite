@@ -99,6 +99,21 @@ export function useVehicleActiveTrip(vehicleId, options = {}) {
   });
 }
 
+// Fetch a map of vehicleNo → { tripId, tripNo } for all open trips
+const getActiveTripsMap = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/active-trips-map`);
+  return data;
+};
+
+export function useActiveTripsMap(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'active-trips-map'],
+    queryFn: getActiveTripsMap,
+    staleTime: 60_000,
+    ...options,
+  });
+}
+
 export function useCreateTrip() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
