@@ -196,7 +196,7 @@ export const TYRE_TABLE_COLUMNS = [
     {
         id: 'category',
         label: 'Category',
-        defaultVisible: true,
+        defaultVisible: false,
         disabled: false,
         getter: (row) => row.category || '-',
     },
