@@ -38,7 +38,7 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import WorkOrderPdf from 'src/pdfs/work-order-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useCloseWorkOrder } from 'src/query/use-work-order';
+import { useCloseWorkOrder, useAddWorkOrderExpense } from 'src/query/use-work-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -59,8 +59,11 @@ export function WorkOrderDetailView({ workOrder }) {
   const closeDialog = useBoolean(false);
   const viewPdf = useBoolean();
   const closeWorkOrder = useCloseWorkOrder();
+  const addWorkOrderExpense = useAddWorkOrderExpense();
   const [isClosing, setIsClosing] = useState(false);
   const [closeMode, setCloseMode] = useState('closeOnly'); // 'closeOnly' | 'closeAndExpense'
+  const addExpenseDialog = useBoolean(false);
+  const [isAddingExpense, setIsAddingExpense] = useState(false);
 
   const {
     _id,
@@ -80,6 +83,7 @@ export function WorkOrderDetailView({ workOrder }) {
     parts = [],
     createdAt,
     issues = [],
+    expenseAdded,
   } = workOrder || {};
 
   const statusLabel = WORK_ORDER_STATUS_LABELS[status] || status || 'Unknown';
@@ -121,6 +125,19 @@ export function WorkOrderDetailView({ workOrder }) {
       setIsClosing(false);
     }
   }, [_id, closeDialog, closeWorkOrder, closeMode]);
+
+  const handleConfirmAddExpense = useCallback(async () => {
+    if (!_id) return;
+    try {
+      setIsAddingExpense(true);
+      await addWorkOrderExpense(_id);
+      addExpenseDialog.onFalse();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsAddingExpense(false);
+    }
+  }, [_id, addExpenseDialog, addWorkOrderExpense]);
 
   const canClose = status !== 'completed';
 
@@ -174,6 +191,17 @@ export function WorkOrderDetailView({ workOrder }) {
           </PDFDownloadLink>
 
           <Box sx={{ flexGrow: 1 }} />
+
+          {!canClose && !expenseAdded && (
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<Iconify icon="mdi:cash-plus" />}
+              onClick={addExpenseDialog.onTrue}
+            >
+              Add Final Expense
+            </Button>
+          )}
 
           <Button
             variant="contained"
@@ -550,6 +578,39 @@ export function WorkOrderDetailView({ workOrder }) {
             }
           >
             {isClosing ? 'Closing...' : 'Confirm'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={addExpenseDialog.value}
+        onClose={addExpenseDialog.onFalse}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Add Final Expense</DialogTitle>
+        <DialogContent sx={{ typography: 'body2' }}>
+          Are you sure you want to add an expense of <strong>{fCurrency(computed.totalCost)}</strong> to this vehicle?
+          This will use the work order closed date.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={addExpenseDialog.onFalse} disabled={isAddingExpense}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleConfirmAddExpense}
+            disabled={isAddingExpense}
+            startIcon={
+              isAddingExpense ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : (
+                <Iconify icon="mdi:cash-plus" />
+              )
+            }
+          >
+            {isAddingExpense ? 'Adding...' : 'Confirm'}
           </Button>
         </DialogActions>
       </Dialog>

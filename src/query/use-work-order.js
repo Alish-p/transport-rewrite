@@ -32,6 +32,11 @@ const closeWorkOrderApi = async ({ id, ...payload }) => {
   return data;
 };
 
+const addWorkOrderExpenseApi = async (id) => {
+  const { data } = await axios.post(`${ENDPOINT}/${id}/expense`);
+  return data;
+};
+
 const deleteWorkOrderApi = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
@@ -139,6 +144,28 @@ export function useDeleteWorkOrder() {
     onError: (error) => {
       const errorMessage =
         error?.response?.data?.message || error?.message || 'Failed to delete work order';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useAddWorkOrderExpense() {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: (id) => addWorkOrderExpenseApi(id),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      if (updated?._id) {
+        queryClient.setQueryData([QUERY_KEY, updated._id], updated);
+      }
+      toast.success('Expense added successfully!');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'Failed to add expense';
       toast.error(errorMessage);
     },
   });

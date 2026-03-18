@@ -190,6 +190,21 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'expenseAdded',
+    label: 'Expense Added',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.expenseAdded,
+    render: (row) => {
+      const value = row.expenseAdded;
+      return (
+        <Label variant="soft" color={value ? 'success' : 'error'}>
+          {value ? 'Yes' : 'No'}
+        </Label>
+      );
+    },
+  },
+  {
     id: 'totalCost',
     label: 'Total Cost',
     defaultVisible: true,

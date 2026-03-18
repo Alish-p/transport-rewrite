@@ -63,6 +63,7 @@ const defaultFilters = {
   createdBy: '',
   closedBy: '',
   issueAssignee: '',
+  expenseAdded: 'all',
 };
 
 const STATUS_TABS = [
@@ -119,6 +120,7 @@ export function WorkOrderListView() {
     createdBy: filters.createdBy || undefined,
     closedBy: filters.closedBy || undefined,
     issueAssignee: filters.issueAssignee || undefined,
+    expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -395,6 +397,7 @@ export function WorkOrderListView() {
                               createdBy: filters.createdBy || undefined,
                               closedBy: filters.closedBy || undefined,
                               issueAssignee: filters.issueAssignee || undefined,
+                              expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

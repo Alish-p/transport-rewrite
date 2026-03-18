@@ -122,6 +122,28 @@ export default function WorkOrderTableToolbar({
       >
         <Autocomplete
           fullWidth
+          options={[
+            { value: 'all', label: 'All Expenses' },
+            { value: 'true', label: 'Added' },
+            { value: 'false', label: 'Not Added' },
+          ]}
+          getOptionLabel={(option) => option.label}
+          value={
+            [
+              { value: 'all', label: 'All Expenses' },
+              { value: 'true', label: 'Added' },
+              { value: 'false', label: 'Not Added' },
+            ].find((opt) => opt.value === filters.expenseAdded) || { value: 'all', label: 'All Expenses' }
+          }
+          onChange={(event, newValue) => {
+            onFilters('expenseAdded', newValue?.value || 'all');
+          }}
+          renderInput={(params) => <TextField {...params} label="Expense Status" />}
+          sx={{ width: { xs: 1, md: 170 } }}
+        />
+
+        <Autocomplete
+          fullWidth
           options={WORK_ORDER_PRIORITY_OPTIONS}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
           value={WORK_ORDER_PRIORITY_OPTIONS.find((opt) => opt.value === filters.priority) || null}
