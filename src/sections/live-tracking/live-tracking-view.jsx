@@ -297,8 +297,7 @@ export default function LiveTrackingView() {
                   <Chip
                     label={statusLabel(v._resolved)}
                     color={statusColor(v._resolved)}
-                    size="small"
-                    variant="soft"
+                    variant="outlined"
                     sx={{ mb: 0.5 }}
                   />
                   {activeTripsMap?.[v.vehicleNumber] && (
@@ -317,11 +316,6 @@ export default function LiveTrackingView() {
                   {v.speed != null && (
                     <Typography variant="caption" display="block" color="text.secondary">
                       Speed: {v.speed} km/h
-                    </Typography>
-                  )}
-                  {v.driverName && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Driver: {v.driverName}
                     </Typography>
                   )}
                   {v.address && (
@@ -398,7 +392,7 @@ export default function LiveTrackingView() {
               />
             </IconButton>
           </Stack>
-          
+
           {isListExpanded && (
             <Box
               sx={{ overflowY: 'auto', flexGrow: 1, p: 1 }}
