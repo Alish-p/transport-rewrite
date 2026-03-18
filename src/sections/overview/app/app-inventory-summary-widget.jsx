@@ -6,7 +6,7 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
-import { fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber, } from 'src/utils/format-number';
 
 import { useInventoryDashboardSummary } from 'src/query/use-dashboard';
 
@@ -31,6 +31,7 @@ export function AppInventorySummaryWidget({ ...other }) {
   const outOfStock = data?.outOfStockItems || 0;
   const totalParts = data?.totalParts || 0;
   const openPurchaseOrders = data?.openPurchaseOrders || 0;
+  const inventoryValue = data?.totalInventoryValue || 0;
 
   const statusBreakdown = [
     { label: 'In Stock', value: inStock },
@@ -75,7 +76,12 @@ export function AppInventorySummaryWidget({ ...other }) {
       icon: 'mdi:file-document-outline',
       color: theme.palette.info.main,
     },
-
+    {
+      title: 'Inventory Value',
+      value: `₹${fShortenNumber(inventoryValue)}`,
+      icon: 'mdi:wallet-bifold',
+      color: theme.palette.success.main,
+    },
   ];
 
   return (

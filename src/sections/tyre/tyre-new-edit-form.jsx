@@ -189,7 +189,7 @@ export default function TyreNewEditForm({ currentTyre }) {
                     name="category"
                     label="Category (Optional)"
                     placeholder="e.g. Rear - New Cross"
-                    options={TYRE_CATEGORIES.map((option) => ({ label: option, value: option }))}
+                    options={TYRE_CATEGORIES}
                 />
             </Stack>
         </Card>

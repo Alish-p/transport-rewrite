@@ -86,6 +86,12 @@ export default function TyreTableFiltersResult({
                     </Block>
                 )}
 
+                {filters.category && (
+                    <Block label="Category:">
+                        <Chip size="small" label={filters.category} onDelete={() => onFilters('category', '')} />
+                    </Block>
+                )}
+
                 {filters.vehicle && (
                     <Block label="Vehicle:">
                         <Chip
