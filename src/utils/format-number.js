@@ -11,23 +11,26 @@ function processInput(inputValue) {
 
 // ----------------------------------------------------------------------
 
-export function fNumber(inputValue, options) {
-  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+// this returns string value so dificult to use in Excel export
 
-  const number = processInput(inputValue);
-  if (number === null) return '';
+// export function fNumber(inputValue, options) {
+//   const locale = formatNumberLocale() || DEFAULT_LOCALE;
 
-  const fm = new Intl.NumberFormat(locale.code, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-    ...options,
-  }).format(number);
+//   const number = processInput(inputValue);
+//   if (number === null) return '';
 
-  return fm;
-}
+//   const fm = new Intl.NumberFormat(locale.code, {
+//     minimumFractionDigits: 2,
+//     maximumFractionDigits: 2,
+//     ...options,
+//   }).format(number);
 
+//   return fm;
+// }
 
-export function fNumberRaw(inputValue, options) {
+// ----------------------------------------------------------------------
+
+export function fNumber(inputValue) {
   const number = processInput(inputValue);
   if (number === null) return null;
 

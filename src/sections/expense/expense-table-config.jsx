@@ -3,7 +3,7 @@ import { Link, Stack, Typography, ListItemText } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fNumberRaw } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -180,7 +180,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     type: 'number',
     disabled: true,
-    getter: (row) => fNumberRaw(row?.amount),
+    getter: (row) => fNumber(row?.amount),
     align: 'right',
     showTotal: true,
   },
