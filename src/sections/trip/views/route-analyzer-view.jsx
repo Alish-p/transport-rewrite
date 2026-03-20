@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
+import Tooltip from '@mui/material/Tooltip';
 import Collapse from '@mui/material/Collapse';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
@@ -34,16 +35,13 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-// ─── Deviation Chip ──────────────────────────────────────────────────────────
-function DeviationChip({ value, label, invertColor = false }) {
+// ─── Deviation Label ──────────────────────────────────────────────────────────
+function DeviationLabel({ value, invertColor = false, avgValue, currentValue, formatParams = {} }) {
   if (value === 0 || value == null) {
     return (
-      <Chip
-        size="small"
-        label={`${label}: Avg`}
-        variant="outlined"
-        sx={{ borderColor: 'text.disabled', color: 'text.secondary', fontSize: 11 }}
-      />
+      <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: 11 }}>
+        Avg Match
+      </Typography>
     );
   }
 
@@ -51,20 +49,46 @@ function DeviationChip({ value, label, invertColor = false }) {
   // For expense & diesel: positive deviation is bad (red); for profit & income: positive is good (green)
   let color;
   if (invertColor) {
-    color = isPositive ? 'error' : 'success';
+    color = isPositive ? 'error.main' : 'success.main';
   } else {
-    color = isPositive ? 'success' : 'error';
+    color = isPositive ? 'success.main' : 'error.main';
   }
 
   const sign = isPositive ? '+' : '';
+
+  let tooltipText = null;
+  if (avgValue != null && currentValue != null) {
+    const diff = currentValue - avgValue;
+    const absDiff = Math.abs(diff);
+    const diffText = diff > 0 ? 'more' : 'lower';
+    
+    const isCurrency = formatParams?.type === 'currency';
+    const unit = formatParams?.unit || '';
+    const prefix = isCurrency ? '₹' : '';
+    
+    const formattedAvg = `${prefix}${fNumber(avgValue)}${unit ? ` ${  unit}` : ''}`;
+    const formattedCur = `${prefix}${fNumber(currentValue)}${unit ? ` ${  unit}` : ''}`;
+    const formattedDiff = `${prefix}${fNumber(absDiff)}${unit ? ` ${  unit}` : ''}`;
+
+    tooltipText = (
+      <Stack spacing={0.5} sx={{ p: 0.5, typography: 'caption' }}>
+        <Box>Average is <strong>{formattedAvg}</strong></Box>
+        <Box>This Trip value is <strong>{formattedCur}</strong></Box>
+        <Box sx={{ mt: 0.5 }}>
+          <strong>{formattedDiff}</strong> {diffText} than Average
+        </Box>
+      </Stack>
+    );
+  }
+
   return (
-    <Chip
-      size="small"
-      label={`${label}: ${sign}${value}%`}
-      color={color}
-      variant="soft"
-      sx={{ fontSize: 11 }}
-    />
+    <Tooltip title={tooltipText || ''} placement="top" arrow>
+      <Box sx={{ cursor: tooltipText ? 'help' : 'inherit', display: 'inline-flex' }}>
+        <Typography variant="caption" sx={{ color, fontSize: 11, fontWeight: 600 }}>
+          {sign}{value}%
+        </Typography>
+      </Box>
+    </Tooltip>
   );
 }
 
@@ -171,31 +195,82 @@ function RouteRow({ route, index }) {
               <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.8 } }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Trip No</TableCell>
-                    <TableCell>Vehicle</TableCell>
-                    <TableCell>Driver</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell align="center">Jobs</TableCell>
-                    <TableCell align="right">Income</TableCell>
-                    <TableCell align="right">Expense</TableCell>
-                    <TableCell align="right">Profit</TableCell>
-                    <TableCell align="right">Diesel</TableCell>
-                    <TableCell align="right">KM</TableCell>
-                    <TableCell>Deviations</TableCell>
+                    <TableCell sx={{ verticalAlign: 'bottom' }}>Trip No</TableCell>
+                    <TableCell sx={{ verticalAlign: 'bottom' }}>Vehicle</TableCell>
+                    <TableCell sx={{ verticalAlign: 'bottom' }}>Driver</TableCell>
+                    <TableCell sx={{ verticalAlign: 'bottom' }}>Date</TableCell>
+                    <TableCell align="center" sx={{ verticalAlign: 'bottom' }}>Jobs</TableCell>
+                    <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
+                      <Stack alignItems="flex-end">
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                          Avg: ₹{fNumber(route.avgIncome)}
+                        </Typography>
+                        Income
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
+                      <Stack alignItems="flex-end">
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                          Avg: ₹{fNumber(route.avgExpense)}
+                        </Typography>
+                        Expense
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
+                      <Stack alignItems="flex-end">
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                          Avg: ₹{fNumber(route.avgProfit)}
+                        </Typography>
+                        Profit
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
+                      <Stack alignItems="flex-end">
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                          Avg: {fNumber(route.avgDieselLtr)} Ltr
+                        </Typography>
+                        Diesel
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
+                      <Stack alignItems="flex-end">
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                          Avg: {fNumber(route.avgKm)} km
+                        </Typography>
+                        KM
+                      </Stack>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {route.trips.map((trip) => (
+                  {route.trips.map((trip) => {
+                    const hasHighDeviation = 
+                      Math.abs(trip.deviations?.income || 0) > 50 ||
+                      Math.abs(trip.deviations?.expense || 0) > 50 ||
+                      Math.abs(trip.deviations?.profit || 0) > 50 ||
+                      Math.abs(trip.deviations?.diesel || 0) > 50 ||
+                      Math.abs(trip.deviations?.km || 0) > 50;
+
+                    return (
                     <TableRow key={trip._id} hover>
                       <TableCell>
-                        <Link
-                          component={RouterLink}
-                          to={paths.dashboard.trip.details(trip._id)}
-                          variant="body2"
-                          sx={{ color: 'primary.main', fontWeight: 600 }}
-                        >
-                          {trip.tripNo}
-                        </Link>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 60 }}>
+                          {hasHighDeviation && (
+                            <Tooltip title="High deviation in one or more metrics (>50%)" placement="top">
+                              <Box component="span" sx={{ display: 'flex', color: 'warning.main' }}>
+                                <Iconify icon="eva:alert-triangle-fill" width={18} />
+                              </Box>
+                            </Tooltip>
+                          )}
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.trip.details(trip._id)}
+                            variant="body2"
+                            sx={{ color: 'primary.main', fontWeight: 600 }}
+                          >
+                            {trip.tripNo}
+                          </Link>
+                        </Stack>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">{trip.vehicleNo || '—'}</Typography>
@@ -212,39 +287,73 @@ function RouteRow({ route, index }) {
                         <Typography variant="body2">{trip.subtripCount || 0}</Typography>
                       </TableCell>
                       <TableCell align="right">
-                        <Typography variant="body2">₹{fNumber(trip.totalIncome)}</Typography>
+                        <Stack alignItems="flex-end">
+                          <Typography variant="body2">₹{fNumber(trip.totalIncome)}</Typography>
+                          <DeviationLabel 
+                            value={trip.deviations?.income} 
+                            avgValue={route.avgIncome} 
+                            currentValue={trip.totalIncome}
+                            formatParams={{ type: 'currency' }}
+                          />
+                        </Stack>
                       </TableCell>
                       <TableCell align="right">
-                        <Typography variant="body2">₹{fNumber(trip.totalExpense)}</Typography>
+                        <Stack alignItems="flex-end">
+                          <Typography variant="body2">₹{fNumber(trip.totalExpense)}</Typography>
+                          <DeviationLabel 
+                            value={trip.deviations?.expense} 
+                            invertColor 
+                            avgValue={route.avgExpense} 
+                            currentValue={trip.totalExpense}
+                            formatParams={{ type: 'currency' }}
+                          />
+                        </Stack>
                       </TableCell>
                       <TableCell align="right">
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 600,
-                            color: trip.profitAndLoss >= 0 ? 'success.main' : 'error.main',
-                          }}
-                        >
-                          ₹{fNumber(trip.profitAndLoss)}
-                        </Typography>
+                        <Stack alignItems="flex-end">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 600,
+                              color: trip.profitAndLoss >= 0 ? 'success.main' : 'error.main',
+                            }}
+                          >
+                            ₹{fNumber(trip.profitAndLoss)}
+                          </Typography>
+                          <DeviationLabel 
+                            value={trip.deviations?.profit} 
+                            avgValue={route.avgProfit} 
+                            currentValue={trip.profitAndLoss}
+                            formatParams={{ type: 'currency' }}
+                          />
+                        </Stack>
                       </TableCell>
                       <TableCell align="right">
-                        <Typography variant="body2">{fNumber(trip.totalDieselLtr)} Ltr</Typography>
+                        <Stack alignItems="flex-end">
+                          <Typography variant="body2">{fNumber(trip.totalDieselLtr)} Ltr</Typography>
+                          <DeviationLabel 
+                            value={trip.deviations?.diesel} 
+                            invertColor 
+                            avgValue={route.avgDieselLtr} 
+                            currentValue={trip.totalDieselLtr}
+                            formatParams={{ unit: 'Ltr' }}
+                          />
+                        </Stack>
                       </TableCell>
                       <TableCell align="right">
-                        <Typography variant="body2">{fNumber(trip.totalKm)} km</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" flexWrap="wrap" spacing={0.5} useFlexGap>
-                          <DeviationChip value={trip.deviations?.income} label="Income" />
-                          <DeviationChip value={trip.deviations?.expense} label="Expense" invertColor />
-                          <DeviationChip value={trip.deviations?.profit} label="Profit" />
-                          <DeviationChip value={trip.deviations?.diesel} label="Diesel" invertColor />
-                          <DeviationChip value={trip.deviations?.km} label="KM" />
+                        <Stack alignItems="flex-end">
+                          <Typography variant="body2">{fNumber(trip.totalKm)} km</Typography>
+                          <DeviationLabel 
+                            value={trip.deviations?.km} 
+                            avgValue={route.avgKm} 
+                            currentValue={trip.totalKm}
+                            formatParams={{ unit: 'km' }}
+                          />
                         </Stack>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                })}
                 </TableBody>
               </Table>
             </Box>
