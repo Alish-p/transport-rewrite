@@ -26,6 +26,14 @@ export function fNumber(inputValue, options) {
   return fm;
 }
 
+
+export function fNumberRaw(inputValue, options) {
+  const number = processInput(inputValue);
+  if (number === null) return null;
+
+  return Number(number.toFixed(2));
+}
+
 // ----------------------------------------------------------------------
 
 export function fCurrency(inputValue, options) {
