@@ -467,6 +467,48 @@ export default function LiveTrackingView() {
                         </Typography>
                       </Stack>
                     )}
+                    {activeTripsMap?.[v.vehicleNumber]?.loadedSubtrips?.map((st, i) => (
+                      <Box key={i} sx={{ mt: 1, p: 1, bgcolor: 'background.paper', borderRadius: 1, border: (t) => `1px dashed ${t.palette.divider}` }}>
+                        {st.driverName && (
+                          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              <Iconify icon="mdi:account" width={14} sx={{ color: 'text.disabled' }} />
+                              <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
+                                {st.driverName}
+                              </Typography>
+                            </Stack>
+                            {st.driverCellNo && (
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const num = st.driverCellNo.replace(/\D/g, '');
+                                  const waNum = num.length <= 10 ? `91${num}` : num;
+                                  window.open(`https://wa.me/${waNum}`, '_blank');
+                                }}
+                                sx={{ p: 0, '&:hover': { bgcolor: 'transparent' } }}
+                              >
+                                <Iconify icon="logos:whatsapp-icon" width={14} />
+                              </IconButton>
+                            )}
+                          </Stack>
+                        )}
+                        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.5 }}>
+                          <Iconify icon="mdi:truck-delivery-outline" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                          <Typography variant="caption" color="text.secondary" noWrap>
+                            {st.loadingPoint || 'N/A'} ➔ {st.unloadingPoint || 'N/A'}
+                          </Typography>
+                        </Stack>
+                        {st.customerName && (
+                          <Stack direction="row" alignItems="center" spacing={0.5}>
+                            <Iconify icon="mdi:domain" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                            <Typography variant="caption" color="text.secondary" noWrap>
+                              {st.customerName}
+                            </Typography>
+                          </Stack>
+                        )}
+                      </Box>
+                    ))}
                     <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1 }}>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
                         <Iconify icon="solar:speedometer-bold" width={14} sx={{ color: 'text.disabled' }} />
