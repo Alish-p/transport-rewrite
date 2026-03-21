@@ -192,8 +192,8 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
       },
     ];
 
-    // EPOD: only show for customers with epodEnabled and loaded jobs
-    if (subtrip.customerId?.epodEnabled && subtrip.subtripStatus === SUBTRIP_STATUS.LOADED) {
+    // EPOD: only show when tenant has EPOD enabled and job is loaded
+    if (tenant?.integrations?.epod?.enabled && subtrip.subtripStatus === SUBTRIP_STATUS.LOADED) {
       actions.push({
         label: subtrip.podSignature ? 'EPOD ✅ Signed' : 'Share EPOD Link',
         action: () => {

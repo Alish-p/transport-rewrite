@@ -95,7 +95,6 @@ export const NewCustomerSchema = zod
 
     // Additional Details
     transporterCode: zod.string().optional(),
-    epodEnabled: zod.boolean().optional(),
     invoiceDueInDays: zod.number().min(1, { message: 'Invoice Due In Days is required' }),
     invoicePrefix: zod.string().min(1, { message: 'Invoice Prefix is required' }),
     invoiceSuffix: zod.string().optional(),
@@ -171,7 +170,6 @@ export default function CustomerNewForm({ currentCustomer }) {
 
       // Additional Details
       transporterCode: currentCustomer?.transporterCode || '',
-      epodEnabled: currentCustomer?.epodEnabled ?? false,
       invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
       invoiceSuffix: currentCustomer?.invoiceSuffix || '',
@@ -468,14 +466,7 @@ export default function CustomerNewForm({ currentCustomer }) {
           </Stack>
         </Paper>
 
-        <Divider sx={{ my: 1 }} />
 
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Field.Switch name="epodEnabled" label="Enable Electronic POD (EPOD)" />
-          <Tooltip title="When enabled, you can share an EPOD link for jobs of this customer. The consignee can digitally sign the delivery receipt." arrow>
-            <Iconify icon="mdi:information-outline" sx={{ color: 'text.disabled', cursor: 'help' }} />
-          </Tooltip>
-        </Stack>
       </Stack>
     </Card>
   );

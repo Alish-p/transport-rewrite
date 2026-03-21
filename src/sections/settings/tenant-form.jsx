@@ -163,6 +163,11 @@ export const TenantSchema = zod
             enabled: zod.boolean().optional(),
           })
           .optional(),
+        epod: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
+          .optional(),
       })
       .optional(),
   })
@@ -323,6 +328,9 @@ export default function TenantForm({ currentTenant }) {
         tyre: {
           enabled: currentTenant?.integrations?.tyre?.enabled || false,
         },
+        epod: {
+          enabled: currentTenant?.integrations?.epod?.enabled || false,
+        },
       },
     }),
     [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
@@ -416,6 +424,11 @@ export default function TenantForm({ currentTenant }) {
           tyre: data.integrations?.tyre
             ? {
               ...data.integrations.tyre,
+            }
+            : undefined,
+          epod: data.integrations?.epod
+            ? {
+              ...data.integrations.epod,
             }
             : undefined,
         },
@@ -819,6 +832,20 @@ export default function TenantForm({ currentTenant }) {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Iconify icon="mdi:tire" />
                 Tyre
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          <Field.Switch
+            name="integrations.epod.enabled"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:signature-freehand" />
+                Electronic POD (EPOD)
               </Stack>
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
