@@ -17,6 +17,7 @@ const ComingSoonPage = lazy(() => import('src/pages/coming-soon'));
 const MaintenancePage = lazy(() => import('src/pages/maintenance'));
 // Public detail pages
 const PublicSubtripDetailsPage = lazy(() => import('src/pages/public/subtrip/details'));
+const PublicEpodPage = lazy(() => import('src/pages/public/subtrip/epod'));
 const PublicTransporterPaymentDetailsPage = lazy(
   () => import('src/pages/public/transporter-payment/details')
 );
@@ -68,6 +69,7 @@ export const mainRoutes = [
         element: <Outlet />,
         children: [
           { path: 'subtrip/:id', element: <PublicSubtripDetailsPage /> },
+          { path: 'subtrip/:id/epod', element: <PublicEpodPage /> },
           { path: 'transporter-payment/:id', element: <PublicTransporterPaymentDetailsPage /> },
         ],
       },

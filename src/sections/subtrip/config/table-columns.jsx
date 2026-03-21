@@ -1,4 +1,4 @@
-import { Link, ListItemText } from '@mui/material';
+import { Link, Tooltip, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -404,6 +404,24 @@ export const TABLE_COLUMNS = [
         }}
       />
     ),
+  },
+  {
+    id: 'epod',
+    label: 'EPOD',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => (row?.podSignature ? 'Signed' : '-'),
+    align: 'center',
+    render: (row) => {
+      if (!row?.podSignature) return '-';
+      return (
+        <Tooltip title={`Signed by ${row.podSignedBy || 'N/A'}`} arrow>
+          <Label variant="soft" color="success">
+            ✍️ Signed
+          </Label>
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'subtripStatus',

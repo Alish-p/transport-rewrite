@@ -330,3 +330,14 @@ export function useSubtripsByTransporter(startDate, endDate) {
     enabled: !!startDate && !!endDate,
   });
 }
+
+// EPOD (Electronic Proof of Delivery) helpers
+export const getEpodUploadUrl = async (subtripId, params) => {
+  const { data } = await axios.get(`${PUBLIC_ENDPOINT}/${subtripId}/epod/upload-url`, { params });
+  return data;
+};
+
+export const submitPublicEpod = async (subtripId, epodData) => {
+  const { data } = await axios.post(`${PUBLIC_ENDPOINT}/${subtripId}/epod`, epodData);
+  return data;
+};

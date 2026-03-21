@@ -37,6 +37,7 @@ export const paths = {
   public: {
     root: `/public`,
     subtrip: (id) => `/public/subtrip/${id}`,
+    epod: (id) => `/public/subtrip/${id}/epod`,
     transporterPayment: (id) => `/public/transporter-payment/${id}`,
   },
   product: {

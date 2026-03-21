@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import 'leaflet/dist/leaflet.css';
+
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Stack, Button, Dialog, DialogActions } from '@mui/material';
+import { Box, Grid, Card, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { generateStaticMapImage } from 'src/utils/generate-static-map';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -14,6 +19,7 @@ import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
+import MapWithMarker from 'src/components/map/map-with-marker';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -21,6 +27,7 @@ import { SUBTRIP_STATUS } from '../constants';
 // PDFs
 import LRPDF from '../pdfs/lorry-reciept-pdf';
 import EntryPassPdf from '../pdfs/entry-pass-pdf';
+import ESignedLRPDF from '../pdfs/esigned-lr-pdf';
 import { mapExpensesToChartData } from '../utils';
 import LRInfo from '../widgets/subtrip-info-widget';
 import DriverPaymentPdf from '../pdfs/driver-payment-pdf';
@@ -34,6 +41,76 @@ import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
+
+// -----------------------------------------------------------------------
+
+function EpodInfoCard({ subtrip: st }) {
+  if (!st.podSignature) return null;
+
+  return (
+    <Card variant="outlined" sx={{ mt: 3 }}>
+      <CardHeader
+        title={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Iconify icon="mdi:signature-freehand" width={22} sx={{ color: 'success.main' }} />
+            <Typography variant="subtitle1">Electronic Proof of Delivery</Typography>
+          </Stack>
+        }
+      />
+      <Divider />
+      <Stack spacing={2} sx={{ p: 2 }}>
+        <Box
+          component="img"
+          src={st.podSignature}
+          alt="e-Signature"
+          sx={{
+            maxWidth: 300,
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: 1,
+            bgcolor: '#fff',
+          }}
+        />
+        <Stack spacing={0.5}>
+          <Typography variant="body2">
+            <strong>Signed by:</strong> {st.podSignedBy}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Signed at:</strong> {new Date(st.podSignedAt).toLocaleString()}
+          </Typography>
+          {st.podRemarks && (
+            <Typography variant="body2">
+              <strong>Remarks:</strong> {st.podRemarks}
+            </Typography>
+          )}
+          {st.podGeoLocation?.latitude && (
+            <>
+              <Typography variant="body2">
+                <strong>Location:</strong>
+              </Typography>
+              <Box
+                sx={{
+                  height: 200,
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                  border: 1,
+                  borderColor: 'divider',
+                  mt: 1,
+                }}
+              >
+                <MapWithMarker
+                  lat={st.podGeoLocation.latitude}
+                  lng={st.podGeoLocation.longitude}
+                  zoom={15}
+                />
+              </Box>
+            </>
+          )}
+        </Stack>
+      </Stack>
+    </Card >
+  );
+}
 
 // ----------------------------------------------------------------------
 
@@ -69,6 +146,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const hasTrip = Boolean(subtrip?.tripId?._id);
 
   const viewLR = useBoolean();
+  const viewESignedLR = useBoolean();
   const viewIntent = useBoolean();
   const viewEntryPass = useBoolean();
   const viewDriverPayment = useBoolean();
@@ -78,6 +156,17 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const hasDieselIntent = subtrip?.intentFuelPump;
   const hasEntryPass = subtrip?.diNumber;
   const hasTransporterPayment = !subtrip?.vehicleId?.isOwn;
+  const hasEpod = Boolean(subtrip?.podSignature);
+
+  // Pre-generate static map image for EPOD PDF
+  const [mapImageUrl, setMapImageUrl] = useState(null);
+  useEffect(() => {
+    if (subtrip?.podGeoLocation?.latitude && subtrip?.podGeoLocation?.longitude) {
+      generateStaticMapImage(subtrip.podGeoLocation.latitude, subtrip.podGeoLocation.longitude)
+        .then(setMapImageUrl)
+        .catch(() => setMapImageUrl(null));
+    }
+  }, [subtrip?.podGeoLocation?.latitude, subtrip?.podGeoLocation?.longitude]);
 
   const getActions = () => {
     if (subtrip.isEmpty) {
@@ -86,7 +175,8 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
     if (publicMode) {
       return [];
     }
-    return [
+
+    const actions = [
       {
         label: 'Receive',
         action: () =>
@@ -101,6 +191,21 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
         disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.ERROR,
       },
     ];
+
+    // EPOD: only show for customers with epodEnabled and loaded jobs
+    if (subtrip.customerId?.epodEnabled && subtrip.subtripStatus === SUBTRIP_STATUS.LOADED) {
+      actions.push({
+        label: subtrip.podSignature ? 'EPOD ✅ Signed' : 'Share EPOD Link',
+        action: () => {
+          const epodUrl = `${window.location.origin}${paths.public.epod(subtrip._id)}`;
+          navigator.clipboard.writeText(epodUrl);
+          toast.success('EPOD link copied to clipboard!');
+        },
+        disabled: false,
+      });
+    }
+
+    return actions;
   };
 
   return (
@@ -125,12 +230,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                  {
-                    icon: 'mdi:routes',
-                    label: `Trip #${subtrip.tripId.tripNo}`,
-                    href: paths.dashboard.trip.details(subtrip.tripId._id),
-                  },
-                ]
+                {
+                  icon: 'mdi:routes',
+                  label: `Trip #${subtrip.tripId.tripNo}`,
+                  href: paths.dashboard.trip.details(subtrip.tripId._id),
+                },
+              ]
               : []),
           ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
@@ -181,6 +286,11 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   icon: 'mdi:file-document-outline',
                   onClick: () => window.open(doc, '_blank', 'noopener,noreferrer'),
                 })),
+                hasEpod && {
+                  label: 'E-Signed LR (EPOD)',
+                  icon: 'mdi:signature-freehand',
+                  onClick: () => viewESignedLR.onTrue(),
+                },
               ].filter(Boolean),
             },
             {
@@ -326,19 +436,46 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   ),
                   disabled: subtrip.subtripStatus === SUBTRIP_STATUS.IN_QUEUE,
                 },
+                hasEpod && {
+                  label: 'E-Signed LR (EPOD)',
+                  render: ({ close }) => (
+                    <PDFDownloadLink
+                      document={<ESignedLRPDF subtrip={subtrip} tenant={tenant} mapImageUrl={mapImageUrl} />}
+                      fileName={`${subtrip.subtripNo}_esigned_lr.pdf`}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
+                      onClick={() => setTimeout(close, 0)}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <Iconify
+                            icon={loading ? 'line-md:loading-loop' : 'eva:download-fill'}
+                            sx={{ mr: 2 }}
+                          />
+                          E-Signed LR (EPOD)
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  ),
+                },
               ].filter(Boolean),
             },
           ]}
           actions={
             !publicMode
               ? [
-                  {
-                    label: 'Edit',
-                    icon: 'solar:pen-bold',
-                    onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-                    disabled: !isEditingAllowed(),
-                  },
-                ]
+                {
+                  label: 'Edit',
+                  icon: 'solar:pen-bold',
+                  onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+                  disabled: !isEditingAllowed(),
+                },
+              ]
               : undefined
           }
         />
@@ -354,6 +491,22 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
               <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
                 <LRPDF subtrip={subtrip} tenant={tenant} />
+              </PDFViewer>
+            </Box>
+          </Box>
+        </Dialog>
+
+        {/* E-Signed LR Viewer */}
+        <Dialog fullScreen open={viewESignedLR.value}>
+          <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <DialogActions sx={{ p: 1.5 }}>
+              <Button color="primary" variant="outlined" onClick={viewESignedLR.onFalse}>
+                Close
+              </Button>
+            </DialogActions>
+            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                <ESignedLRPDF subtrip={subtrip} tenant={tenant} mapImageUrl={mapImageUrl} />
               </PDFViewer>
             </Box>
           </Box>
@@ -495,6 +648,8 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             <LRInfo subtrip={subtrip} />
 
             <SubtripTimeline events={events} />
+
+            <EpodInfoCard subtrip={subtrip} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} />
