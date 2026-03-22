@@ -37,6 +37,19 @@ export default function PublicEpodPage() {
   const [error, setError] = useState(null);
   const [geoLocation, setGeoLocation] = useState(null);
   const [deliveryStatus, setDeliveryStatus] = useState('Received');
+  const [evidenceImages, setEvidenceImages] = useState([]);
+
+  const handleImageChange = useCallback((e) => {
+    if (e.target.files) {
+      setEvidenceImages((prev) => [...prev, ...Array.from(e.target.files)]);
+    }
+    // Reset the input value so the same file can be selected again if it was removed
+    e.target.value = null;
+  }, []);
+
+  const removeImage = useCallback((indexToRemove) => {
+    setEvidenceImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  }, []);
 
   // Capture GPS location on mount
   useEffect(() => {
@@ -68,13 +81,31 @@ export default function PublicEpodPage() {
 
     setSubmitting(true);
     try {
-      // 1. Get pre-signed S3 URL
+      // 1. Upload evidence images to S3
+      const uploadedImageUrls = [];
+      for (const file of evidenceImages) {
+        const ext = file.name.split('.').pop() || 'png';
+        const type = file.type || 'image/png';
+        const { data: uploadData } = await axios.get(
+          `${PUBLIC_ENDPOINT}/${id}/epod/upload-url`,
+          { params: { contentType: type, fileExtension: ext } }
+        );
+
+        await fetch(uploadData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': type },
+          body: file,
+        });
+        uploadedImageUrls.push(uploadData.publicUrl);
+      }
+
+      // 2. Get pre-signed S3 URL for signature
       const { data: uploadData } = await axios.get(
         `${PUBLIC_ENDPOINT}/${id}/epod/upload-url`,
         { params: { contentType: 'image/png', fileExtension: 'png' } }
       );
 
-      // 2. Upload signature image to S3
+      // 3. Upload signature image to S3
       const blob = await sigPadRef.current.toBlob('image/png');
       await fetch(uploadData.uploadUrl, {
         method: 'PUT',
@@ -82,12 +113,13 @@ export default function PublicEpodPage() {
         body: blob,
       });
 
-      // 3. Submit EPOD metadata
+      // 4. Submit EPOD metadata
       await axios.post(`${PUBLIC_ENDPOINT}/${id}/epod`, {
         podSignature: uploadData.publicUrl,
         podSignedBy: signerName.trim(),
         podRemarks: `[${deliveryStatus}] ${remarks.trim()}`.trim() || deliveryStatus,
         podGeoLocation: geoLocation || undefined,
+        podImages: uploadedImageUrls,
       });
 
       setSubmitted(true);
@@ -97,7 +129,7 @@ export default function PublicEpodPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [id, signerName, remarks, geoLocation, deliveryStatus]);
+  }, [id, signerName, remarks, geoLocation, deliveryStatus, evidenceImages]);
 
   // Loading state
   if (isLoading) {
@@ -170,10 +202,35 @@ export default function PublicEpodPage() {
               borderColor: 'divider',
               borderRadius: 1,
               bgcolor: '#fff',
-
               mt: 1,
             }}
           />
+
+          {subtrip.podImages?.length > 0 && (
+            <Stack spacing={1} sx={{ mt: 2, width: '100%' }}>
+              <Typography variant="subtitle2" sx={{ textAlign: 'left', color: 'text.secondary' }}>
+                Evidence Images
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {subtrip.podImages.map((imgUrl, idx) => (
+                  <Box
+                    key={idx}
+                    component="img"
+                    src={imgUrl}
+                    alt="evidence"
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: 1,
+                      objectFit: 'cover',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                    }}
+                  />
+                ))}
+              </Box>
+            </Stack>
+          )}
         </Stack>
       </Box>
     );
@@ -355,6 +412,84 @@ export default function PublicEpodPage() {
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
             />
+
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                Evidence Images (Optional)
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                {evidenceImages.map((file, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      position: 'relative',
+                      width: 80,
+                      height: 80,
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                    }}
+                  >
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                    />
+                    <Box
+                      onClick={() => removeImage(idx)}
+                      sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        bgcolor: 'rgba(0,0,0,0.6)',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        width: 24,
+                        height: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
+                      }}
+                    >
+                      <Iconify icon="mdi:close" width={16} />
+                    </Box>
+                  </Box>
+                ))}
+
+                <Box
+                  component="label"
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 1,
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'action.hover' },
+                  }}
+                >
+                  <Iconify icon="mdi:camera-plus" width={24} sx={{ color: 'text.secondary', mb: 0.5 }} />
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: 10 }}>
+                    Add Photo
+                  </Typography>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={handleImageChange}
+                  />
+                </Box>
+              </Box>
+            </Stack>
 
             {geoLocation && (
               <Alert severity="info" icon={<Iconify icon="mdi:map-marker" />} variant="outlined">

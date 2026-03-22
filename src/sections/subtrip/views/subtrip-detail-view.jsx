@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Card, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions } from '@mui/material';
+import { Box, Grid, Card, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions, Link } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -105,6 +105,27 @@ function EpodInfoCard({ subtrip: st }) {
                 />
               </Box>
             </>
+          )}
+          {st.podImages && st.podImages.length > 0 && (
+            <Stack spacing={0.5} mt={1}>
+              <Typography variant="body2">
+                <strong>Evidence Images:</strong>
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                {st.podImages.map((imgUrl, index) => (
+                  <Link
+                    key={index}
+                    href={imgUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="body2"
+                    underline="always"
+                  >
+                    evidence-{index + 1}
+                  </Link>
+                ))}
+              </Stack>
+            </Stack>
           )}
         </Stack>
       </Stack>
