@@ -56,7 +56,7 @@ const SignaturePad = forwardRef(({ label = "Draw your signature", error, helperT
           border: 2,
           borderColor: error ? 'error.main' : 'divider',
           borderRadius: 1.5,
-          bgcolor: 'background.paper',
+          bgcolor: '#848484ff', // Forced white to keep contrast with dark pen
           overflow: 'hidden',
           position: 'relative',
           touchAction: 'none',
