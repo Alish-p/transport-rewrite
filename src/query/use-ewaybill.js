@@ -34,3 +34,18 @@ export function useTransporterEwaybillsByState(params, options = {}) {
     ...options,
   });
 }
+
+// Fetch single E-waybill by number
+const getEwaybillByNumber = async (number) => {
+  const { data } = await axios.get(`${ENDPOINT}/${number}`);
+  return data;
+};
+
+export function useEwaybillByNumber(number, options = {}) {
+  return useQuery({
+    queryKey: ['ewaybill', number],
+    queryFn: () => getEwaybillByNumber(number),
+    enabled: Boolean(number),
+    ...options,
+  });
+}

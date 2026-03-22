@@ -15,6 +15,7 @@ import { generateStaticMapImage } from 'src/utils/generate-static-map';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useEwaybillByNumber } from 'src/query/use-ewaybill';
 import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { Iconify } from 'src/components/iconify';
@@ -40,6 +41,7 @@ import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
+import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // -----------------------------------------------------------------------
@@ -149,6 +151,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   };
 
   const { data: events = [] } = useSubtripEvents(subtrip._id);
+
+  const { data: ewaybillData } = useEwaybillByNumber(subtrip?.ewayBill);
+  const consignorPincode = ewaybillData?.pincode_of_consignor;
+  const consigneePincode = ewaybillData?.pincode_of_consignee;
+
+  console.log(consignorPincode, consigneePincode);
 
   const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
   const totalDieselLtr = subtrip?.expenses?.reduce(
@@ -661,6 +669,10 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                   noDataMessage="No expenses recorded yet"
                 />
+
+              </Stack>
+              <Stack>
+                <SubtripRouteMapWidget payload={ewaybillData} />
               </Stack>
             </Stack>
           </Grid>
