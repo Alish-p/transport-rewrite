@@ -1,13 +1,15 @@
 import React from 'react';
+import dayjs from 'dayjs';
 
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate, fToNow } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -108,5 +110,37 @@ export const TABLE_COLUMNS = [
         {status}
       </Label>
     ),
+  },
+  {
+    id: 'iitrition',
+    label: 'Duration',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.firstJobAt,
+    render: ({ firstJobAt, lastJobAt }) => {
+      if (!firstJobAt || !lastJobAt) return '-';
+
+      const startDate = dayjs(firstJobAt);
+      const endDate = dayjs(lastJobAt);
+      const monthsDiff = dayjs().diff(endDate, 'month');
+
+      let color = 'success';
+      if (monthsDiff > 6) {
+        color = 'error';
+      } else if (monthsDiff > 3) {
+        color = 'warning';
+      }
+
+      const text = `${startDate.format('MM-YYYY')} to ${endDate.format('MM-YYYY')}`;
+
+      return (
+        <Tooltip title={`Last job was ${fToNow(lastJobAt)} ago`} placement="top">
+          <Label variant="soft" color={color}>
+            {text}
+          </Label>
+        </Tooltip>
+      );
+    },
   },
 ];

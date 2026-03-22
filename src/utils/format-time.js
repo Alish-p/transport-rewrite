@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 
 // ----------------------------------------------------------------------
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+dayjs.extend(advancedFormat);
 
 /**
  * Docs: https://day.js.org/docs/en/display/format
@@ -54,6 +56,20 @@ export function fDate(date, format) {
   const isValid = dayjs(date).isValid();
 
   return isValid ? dayjs(date).format(format ?? formatStr.date) : 'Invalid time value';
+}
+
+// ----------------------------------------------------------------------
+
+/** output: 1st Nov 2020
+ */
+export function fShortTime(date, format) {
+  if (!date) {
+    return null;
+  }
+
+  const isValid = dayjs(date).isValid();
+
+  return isValid ? dayjs(date).format(format ?? 'Do MMM YYYY') : 'Invalid time value';
 }
 
 // ----------------------------------------------------------------------
