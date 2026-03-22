@@ -99,6 +99,38 @@ function statusLabel(resolved) {
   return 'Unknown';
 }
 
+function getFuelIconColor(v) {
+  const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
+  const capacityStr = v?.otherAttributes?.fuelTankCapacity ?? v?.fuelTankCapacity;
+
+  if (fuelStr == null || capacityStr == null) return 'text.disabled';
+
+  const fuel = parseFloat(String(fuelStr).replace(/[^\d.]/g, ''));
+  const capacity = parseFloat(String(capacityStr).replace(/[^\d.]/g, ''));
+
+  if (Number.isNaN(fuel) || Number.isNaN(capacity) || capacity <= 0) return 'text.disabled';
+
+  const percentage = (fuel / capacity) * 100;
+
+  if (percentage > 70) return 'success.main';
+  if (percentage >= 40) return 'warning.main';
+  return 'error.main';
+}
+
+function getFuelText(v) {
+  const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
+  if (fuelStr == null) return '—';
+  const s = String(fuelStr);
+  if (s.includes(' ')) return s;
+  const num = parseFloat(s.replace(/[^\d.]/g, ''));
+  if (Number.isNaN(num)) return s;
+  return `${Math.round(num)} L`;
+}
+
+function hasFuelData(v) {
+  return (v?.otherAttributes?.fuel ?? v?.fuel) != null;
+}
+
 // ---------------------------------------------------------------------------
 // Fly-to helper – lives inside <MapContainer> so it can call useMap()
 // ---------------------------------------------------------------------------
@@ -328,10 +360,13 @@ export default function LiveTrackingView() {
                       Odometer: {v.totalOdometer.toLocaleString()} km
                     </Typography>
                   )}
-                  {v.fuel != null && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Fuel: {v.fuel.toString().includes(' ') ? v.fuel : `${Math.round(parseFloat(String(v.fuel).replace(/[^\d.]/g, '')))} L`}
-                    </Typography>
+                  {hasFuelData(v) && (
+                    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
+                      <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: getFuelIconColor(v) }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {getFuelText(v)}
+                      </Typography>
+                    </Stack>
                   )}
                   {v.lastUpdatedAt && (
                     <Typography variant="caption" display="block" color="text.disabled" sx={{ mt: 0.5 }}>
@@ -517,9 +552,9 @@ export default function LiveTrackingView() {
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: getFuelIconColor(v) }} />
                         <Typography variant="caption" color="text.secondary">
-                          {v.fuel ? (v.fuel.toString().includes(' ') ? v.fuel : `${Math.round(parseFloat(String(v.fuel).replace(/[^\d.]/g, '')))} L`) : '—'}
+                          {getFuelText(v)}
                         </Typography>
                       </Stack>
                     </Stack>
