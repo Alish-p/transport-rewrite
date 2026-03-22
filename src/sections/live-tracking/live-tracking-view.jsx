@@ -21,6 +21,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fToNow } from 'src/utils/format-time';
+
 import { CONFIG } from 'src/config-global';
 import { useAllGps } from 'src/query/use-gps';
 import { useActiveTripsMap } from 'src/query/use-trip';
@@ -216,7 +218,7 @@ export default function LiveTrackingView() {
   }, [filtered]);
 
   // Timestamp of last update
-  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : '—';
+  const lastUpdated = dataUpdatedAt ? fToNow(dataUpdatedAt) : '—';
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: stats.total },
@@ -370,7 +372,7 @@ export default function LiveTrackingView() {
                   )}
                   {v.lastUpdatedAt && (
                     <Typography variant="caption" display="block" color="text.disabled" sx={{ mt: 0.5 }}>
-                      Last seen: {new Date(v.lastUpdatedAt).toLocaleString()}
+                      Last seen: {fToNow(v.lastUpdatedAt)} ago
                     </Typography>
                   )}
                 </Box>
@@ -557,6 +559,12 @@ export default function LiveTrackingView() {
                           {getFuelText(v)}
                         </Typography>
                       </Stack>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Iconify icon="solar:clock-circle-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Typography variant="caption" color="text.secondary">
+                          {v.lastUpdatedAt ? `${fToNow(v.lastUpdatedAt)} ago` : '—'}
+                        </Typography>
+                      </Stack>
                     </Stack>
                   </Box>
                 ))}
@@ -665,7 +673,7 @@ export default function LiveTrackingView() {
 
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
           <Typography variant="caption" color="text.disabled" sx={{ pl: 1, mr: 1 }}>
-            Updated {lastUpdated}
+            Updated {lastUpdated} ago
           </Typography>
           <Tooltip title={isDarkMode ? 'Light map' : 'Dark map'}>
             <IconButton onClick={() => setIsDarkMode(!isDarkMode)} size="small">
