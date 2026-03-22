@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Card, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions, Link } from '@mui/material';
+import { Box, Grid, Card, Link, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 

@@ -82,8 +82,7 @@ export default function PublicEpodPage() {
     setSubmitting(true);
     try {
       // 1. Upload evidence images to S3
-      const uploadedImageUrls = [];
-      for (const file of evidenceImages) {
+      const uploadPromises = evidenceImages.map(async (file) => {
         const ext = file.name.split('.').pop() || 'png';
         const type = file.type || 'image/png';
         const { data: uploadData } = await axios.get(
@@ -96,8 +95,11 @@ export default function PublicEpodPage() {
           headers: { 'Content-Type': type },
           body: file,
         });
-        uploadedImageUrls.push(uploadData.publicUrl);
-      }
+        
+        return uploadData.publicUrl;
+      });
+
+      const uploadedImageUrls = await Promise.all(uploadPromises);
 
       // 2. Get pre-signed S3 URL for signature
       const { data: uploadData } = await axios.get(
