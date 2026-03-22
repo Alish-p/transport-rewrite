@@ -14,8 +14,8 @@ export default function SimpleSubtripList({ subtrips }) {
           <TableHeadCustom headLabel={subtripConfig} />
 
           <TableBody>
-            {subtrips.map((row) => (
-              <SubtripListRow key={row._id} row={row} />
+            {subtrips.map((row, i) => (
+              <SubtripListRow key={row._id} row={row} index={i + 1} />
             ))}
             <TableNoData notFound={subtrips.length === 0} />
           </TableBody>

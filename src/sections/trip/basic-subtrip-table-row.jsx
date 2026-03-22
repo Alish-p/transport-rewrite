@@ -13,7 +13,7 @@ import { subtripConfig } from './basic-subtrip-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripListRow({ row }) {
+export default function SubtripListRow({ row, index }) {
   const navigate = useNavigate();
 
   return (
@@ -22,6 +22,8 @@ export default function SubtripListRow({ row }) {
         <TableCell key={column.id} align="start">
           {(() => {
             switch (column.id) {
+              case 'index':
+                return index;
               case '_id':
                 return (
                   <Link

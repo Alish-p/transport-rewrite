@@ -26,6 +26,7 @@ import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
 import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
+import { TripRouteMapWidget } from '../widgets/trip-route-map-widget';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
 
 // ----------------------------------------------------------------------
@@ -313,6 +314,11 @@ export function TripDetailView({ trip }) {
             </Stack>
             <SimpleSubtripList subtrips={subtrips} />
           </Card>
+        </Grid>
+
+        {/* Trip Route Map */}
+        <Grid item xs={12}>
+          <TripRouteMapWidget subtrips={subtrips} />
         </Grid>
 
         {/* Expenses + Profit/Loss side-by-side on md+, stacked on xs/sm */}
