@@ -69,7 +69,7 @@ export const mainRoutes = [
         element: <Outlet />,
         children: [
           { path: 'subtrip/:id', element: <PublicSubtripDetailsPage /> },
-          { path: 'subtrip/:id/epod', element: <PublicEpodPage /> },
+          { path: 'subtrip/epod/:id', element: <PublicEpodPage /> },
           { path: 'transporter-payment/:id', element: <PublicTransporterPaymentDetailsPage /> },
         ],
       },
