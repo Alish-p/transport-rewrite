@@ -54,7 +54,14 @@ export const TyreSchema = zod.object({
     metadata: zod.object({
         isRemoldable: zod.boolean().optional(),
     }).optional(),
-    category: zod.string().optional(),
+    category: zod.preprocess(
+        (val) => {
+            if (typeof val === 'string') return val;
+            if (val && typeof val === 'object' && 'value' in val) return val.value;
+            return val;
+        },
+        zod.string().optional().nullable()
+    ),
 });
 
 export default function TyreNewEditForm({ currentTyre }) {
@@ -189,7 +196,7 @@ export default function TyreNewEditForm({ currentTyre }) {
                     name="category"
                     label="Category (Optional)"
                     placeholder="e.g. Rear - New Cross"
-                    options={TYRE_CATEGORIES}
+                    options={TYRE_CATEGORIES.map((option) => ({ label: option, value: option }))}
                 />
             </Stack>
         </Card>
