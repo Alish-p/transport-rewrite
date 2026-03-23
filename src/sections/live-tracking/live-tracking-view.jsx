@@ -10,7 +10,9 @@ import Chip from '@mui/material/Chip';
 import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -101,18 +103,24 @@ function statusLabel(resolved) {
   return 'Unknown';
 }
 
-function getFuelIconColor(v) {
+function getFuelPercentage(v) {
   const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
   const capacityStr = v?.otherAttributes?.fuelTankCapacity ?? v?.fuelTankCapacity;
 
-  if (fuelStr == null || capacityStr == null) return 'text.disabled';
+  if (fuelStr == null || capacityStr == null) return null;
 
   const fuel = parseFloat(String(fuelStr).replace(/[^\d.]/g, ''));
   const capacity = parseFloat(String(capacityStr).replace(/[^\d.]/g, ''));
 
-  if (Number.isNaN(fuel) || Number.isNaN(capacity) || capacity <= 0) return 'text.disabled';
+  if (Number.isNaN(fuel) || Number.isNaN(capacity) || capacity <= 0) return null;
 
-  const percentage = (fuel / capacity) * 100;
+  return (fuel / capacity) * 100;
+}
+
+function getFuelIconColor(v) {
+  const percentage = getFuelPercentage(v);
+
+  if (percentage == null) return 'text.disabled';
 
   if (percentage > 70) return 'success.main';
   if (percentage >= 40) return 'warning.main';
@@ -175,6 +183,8 @@ export default function LiveTrackingView() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [fuelFilter, setFuelFilter] = useState('all');
+  const [lastSeenFilter, setLastSeenFilter] = useState('all');
   const markerRefs = useRef({});
 
   // Convert object map → array
@@ -191,12 +201,41 @@ export default function LiveTrackingView() {
     if (statusFilter !== 'all') {
       list = list.filter((v) => v._resolved === statusFilter);
     }
+
+    if (fuelFilter !== 'all') {
+      list = list.filter((v) => {
+        const p = getFuelPercentage(v);
+        if (fuelFilter === 'none') return p === null;
+        if (p === null) return false;
+        
+        if (fuelFilter === 'high') return p > 70;
+        if (fuelFilter === 'medium') return p >= 40 && p <= 70;
+        if (fuelFilter === 'low') return p < 40;
+        return true;
+      });
+    }
+
+    if (lastSeenFilter !== 'all') {
+      const now = new Date().getTime();
+      list = list.filter((v) => {
+        if (!v.lastUpdatedAt) return false;
+        const lastSeenTime = new Date(v.lastUpdatedAt).getTime();
+        const diffHours = (now - lastSeenTime) / (1000 * 60 * 60);
+        
+        if (lastSeenFilter === '1h') return diffHours <= 1;
+        if (lastSeenFilter === '12h') return diffHours <= 12;
+        if (lastSeenFilter === '24h') return diffHours <= 24;
+        if (lastSeenFilter === 'older') return diffHours > 24;
+        return true;
+      });
+    }
+
     if (search) {
       const q = search.toLowerCase();
       list = list.filter((v) => v.vehicleNumber.toLowerCase().includes(q));
     }
     return list;
-  }, [vehicles, search, statusFilter]);
+  }, [vehicles, search, statusFilter, fuelFilter, lastSeenFilter]);
 
   // Stats
   const stats = useMemo(() => {
@@ -323,57 +362,108 @@ export default function LiveTrackingView() {
               icon={getMarkerIcon(v._resolved)}
             >
               <Popup>
-                <Box sx={{ minWidth: 200 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    {v.vehicleNumber}
-                    {v.vehicleName ? ` (${v.vehicleName})` : ''}
-                  </Typography>
-                  <Chip
-                    label={statusLabel(v._resolved)}
-                    color={statusColor(v._resolved)}
-                    variant="outlined"
-                    sx={{ mb: 0.5 }}
-                  />
-                  {activeTripsMap?.[v.vehicleNumber] && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Trip:{' '}
-                      <Link
-                        component={RouterLink}
-                        to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
-                        color="primary"
-                        underline="hover"
-                      >
-                        {activeTripsMap[v.vehicleNumber].tripNo}
-                      </Link>
+                <Box sx={{ minWidth: 240, maxWidth: 300, mx: -1, my: -0.5 }}>
+                  {/* ── Header ── */}
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    spacing={1}
+                    sx={{ px: 1.5, pt: 1.5, pb: 1 }}
+                  >
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                      {v.vehicleNumber}
                     </Typography>
-                  )}
-                  {v.speed != null && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Speed: {v.speed} km/h
-                    </Typography>
-                  )}
-                  {v.address && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      📍 {v.address}
-                    </Typography>
-                  )}
-                  {v.totalOdometer != null && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Odometer: {v.totalOdometer.toLocaleString()} km
-                    </Typography>
-                  )}
-                  {hasFuelData(v) && (
-                    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
-                      <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: getFuelIconColor(v) }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {getFuelText(v)}
-                      </Typography>
+                    <Chip
+                      label={statusLabel(v._resolved)}
+                      color={statusColor(v._resolved)}
+                      size="small"
+                      variant="filled"
+                      sx={{ height: 22, fontSize: 11, fontWeight: 700 }}
+                    />
+                  </Stack>
+
+                  <Divider />
+
+                  {/* ── Body ── */}
+                  <Stack spacing={0.75} sx={{ px: 1.5, py: 1.25 }}>
+                    {activeTripsMap?.[v.vehicleNumber] && (
+                      <Stack direction="row" alignItems="center" spacing={0.75}>
+                        <Iconify icon="mdi:highway" width={15} sx={{ color: 'info.main', flexShrink: 0 }} />
+                        <Typography variant="caption" color="text.secondary">
+                          Trip:{' '}
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
+                            color="primary"
+                            underline="hover"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {activeTripsMap[v.vehicleNumber].tripNo}
+                          </Link>
+                        </Typography>
+                      </Stack>
+                    )}
+
+                    {v.address && (
+                      <Stack direction="row" spacing={0.75} alignItems="flex-start">
+                        <Iconify icon="mingcute:location-fill" width={15} sx={{ color: 'error.main', flexShrink: 0, mt: 0.15 }} />
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {v.address}
+                        </Typography>
+                      </Stack>
+                    )}
+
+                    <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+                      {v.speed != null && (
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <Iconify icon="solar:speedometer-bold" width={15} sx={{ color: 'text.disabled' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {v.speed} km/h
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {v.totalOdometer != null && (
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <Iconify icon="mdi:counter" width={15} sx={{ color: 'text.disabled' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {v.totalOdometer.toLocaleString()} km
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {hasFuelData(v) && (
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <Iconify icon="solar:gas-station-bold" width={15} sx={{ color: getFuelIconColor(v) }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {getFuelText(v)}
+                          </Typography>
+                        </Stack>
+                      )}
                     </Stack>
-                  )}
+                  </Stack>
+
+                  {/* ── Footer ── */}
                   {v.lastUpdatedAt && (
-                    <Typography variant="caption" display="block" color="text.disabled" sx={{ mt: 0.5 }}>
-                      Last seen: {fToNow(v.lastUpdatedAt)} ago
-                    </Typography>
+                    <>
+                      <Divider />
+                      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ px: 1.5, py: 1 }}>
+                        <Iconify icon="solar:clock-circle-bold" width={13} sx={{ color: 'text.disabled' }} />
+                        <Typography variant="caption" color="text.disabled">
+                          {fToNow(v.lastUpdatedAt)} ago
+                        </Typography>
+                      </Stack>
+                    </>
                   )}
                 </Box>
               </Popup>
@@ -600,11 +690,41 @@ export default function LiveTrackingView() {
 
         <Stack direction="row" spacing={1} alignItems="center">
           <TextField
+            select
+            size="small"
+            label="Fuel"
+            value={fuelFilter}
+            onChange={(e) => setFuelFilter(e.target.value)}
+            sx={{ width: 100, display: { xs: 'none', md: 'inline-flex' } }}
+          >
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="high">High</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="low">Low</MenuItem>
+            <MenuItem value="none">No Data</MenuItem>
+          </TextField>
+
+          <TextField
+            select
+            size="small"
+            label="Last Seen"
+            value={lastSeenFilter}
+            onChange={(e) => setLastSeenFilter(e.target.value)}
+            sx={{ width: 110, display: { xs: 'none', md: 'inline-flex' } }}
+          >
+            <MenuItem value="all">Any</MenuItem>
+            <MenuItem value="1h">&le; 1h</MenuItem>
+            <MenuItem value="12h">&le; 12h</MenuItem>
+            <MenuItem value="24h">&le; 24h</MenuItem>
+            <MenuItem value="older">&gt; 24h</MenuItem>
+          </TextField>
+
+          <TextField
             size="small"
             placeholder="Search vehicle..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            sx={{ width: 220 }}
+            sx={{ width: { xs: 150, md: 220 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -694,13 +814,19 @@ export default function LiveTrackingView() {
       <Card sx={{ mx: { xs: 2, md: 3 }, mb: 3 }}>
         {renderTabs}
 
-        <Stack sx={{ p: 2 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{ p: 2 }}
+          alignItems="center"
+        >
           <TextField
             fullWidth
             size="small"
             placeholder="Search vehicle number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            sx={{ flex: 1 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -709,6 +835,38 @@ export default function LiveTrackingView() {
               ),
             }}
           />
+
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label="Fuel Level"
+            value={fuelFilter}
+            onChange={(e) => setFuelFilter(e.target.value)}
+            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
+          >
+            <MenuItem value="all">All Fuel Levels</MenuItem>
+            <MenuItem value="high">High (&gt; 70%)</MenuItem>
+            <MenuItem value="medium">Medium (40-70%)</MenuItem>
+            <MenuItem value="low">Low (&lt; 40%)</MenuItem>
+            <MenuItem value="none">No Fuel Data</MenuItem>
+          </TextField>
+
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label="Last Seen"
+            value={lastSeenFilter}
+            onChange={(e) => setLastSeenFilter(e.target.value)}
+            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
+          >
+            <MenuItem value="all">Any Time</MenuItem>
+            <MenuItem value="1h">Last 1 Hour</MenuItem>
+            <MenuItem value="12h">Last 12 Hours</MenuItem>
+            <MenuItem value="24h">Last 24 Hours</MenuItem>
+            <MenuItem value="older">Older than 24h</MenuItem>
+          </TextField>
         </Stack>
       </Card>
 
