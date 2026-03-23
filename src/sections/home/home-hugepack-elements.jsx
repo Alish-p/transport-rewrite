@@ -192,7 +192,7 @@ function ScrollContent() {
             sx={{
               height: { xs: 400, md: 480 },
               width: { xs: '600%', md: '400%' },
-              backgroundImage: `url(${CONFIG.site.basePath}/assets/images/home/bundle_transport1.png)`,
+              backgroundImage: `url(${CONFIG.site.basePath}/assets/images/home/bundle-dark-3.svg)`,
             }}
           />
         </StyledContent>
