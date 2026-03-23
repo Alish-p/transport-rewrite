@@ -91,7 +91,7 @@ export function HomeMinimal({ sx, ...other }) {
         <Box
           component="img"
           alt="Home Chart"
-          src={`${CONFIG.site.basePath}/assets/images/home/home-chart.webp`}
+          src={`${CONFIG.site.basePath}/assets/images/home/home-chart-2.png`}
           sx={{ width: 720 }}
         />
       </Box>
