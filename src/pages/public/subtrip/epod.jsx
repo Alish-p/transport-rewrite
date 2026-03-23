@@ -31,6 +31,7 @@ export default function PublicEpodPage() {
 
   const sigPadRef = useRef(null);
   const [signerName, setSignerName] = useState('');
+  const [signerMobile, setSignerMobile] = useState('');
   const [remarks, setRemarks] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -72,6 +73,10 @@ export default function PublicEpodPage() {
 
     if (!signerName.trim()) {
       setError('Please enter your name');
+      return;
+    }
+    if (!signerMobile.trim()) {
+      setError('Please enter your mobile number');
       return;
     }
     if (sigPadRef.current?.isEmpty()) {
@@ -119,6 +124,7 @@ export default function PublicEpodPage() {
       await axios.post(`${PUBLIC_ENDPOINT}/${id}/epod`, {
         podSignature: uploadData.publicUrl,
         podSignedBy: signerName.trim(),
+        podSigneeMobile: signerMobile.trim(),
         podRemarks: `[${deliveryStatus}] ${remarks.trim()}`.trim() || deliveryStatus,
         podGeoLocation: geoLocation || undefined,
         podImages: uploadedImageUrls,
@@ -131,7 +137,7 @@ export default function PublicEpodPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [id, signerName, remarks, geoLocation, deliveryStatus, evidenceImages]);
+  }, [id, signerName, signerMobile, remarks, geoLocation, deliveryStatus, evidenceImages]);
 
   // Loading state
   if (isLoading) {
@@ -191,7 +197,7 @@ export default function PublicEpodPage() {
           <Iconify icon="mdi:check-circle" width={64} sx={{ color: 'success.main' }} />
           <Typography variant="h5">Already Signed</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            This delivery has already been signed by <strong>{subtrip.podSignedBy}</strong> on{' '}
+            This delivery has already been signed by <strong>{subtrip.podSignedBy}</strong>{subtrip.podSigneeMobile ? ` (${subtrip.podSigneeMobile})` : ''} on{' '}
             {new Date(subtrip.podSignedAt).toLocaleString()}.
           </Typography>
           <Box
@@ -382,6 +388,17 @@ export default function PublicEpodPage() {
               helperText={error === 'Please enter your name' ? error : ''}
             />
 
+            <TextField
+              fullWidth
+              label="Mobile Number *"
+              placeholder="Enter your mobile number"
+              value={signerMobile}
+              onChange={(e) => setSignerMobile(e.target.value)}
+              error={error === 'Please enter your mobile number'}
+              helperText={error === 'Please enter your mobile number' ? error : ''}
+              type="tel"
+            />
+
             <SignaturePad
               ref={sigPadRef}
               label="Sign Below *"
@@ -500,7 +517,7 @@ export default function PublicEpodPage() {
               </Alert>
             )}
 
-            {error && error !== 'Please enter your name' && error !== 'Please draw your signature' && (
+            {error && error !== 'Please enter your name' && error !== 'Please enter your mobile number' && error !== 'Please draw your signature' && (
               <Alert severity="error" variant="outlined">
                 {error}
               </Alert>
