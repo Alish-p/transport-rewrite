@@ -65,6 +65,7 @@ const SignaturePad = forwardRef(({ label = "Draw your signature", error, helperT
         <SignatureCanvas
           ref={sigRef}
           penColor="#1a1a2e"
+          clearOnResize={false}
           canvasProps={{
             style: {
               width: '100%',
