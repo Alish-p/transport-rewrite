@@ -77,6 +77,11 @@ function EpodInfoCard({ subtrip: st }) {
           <Typography variant="body2">
             <strong>Signed by:</strong> {st.podSignedBy}
           </Typography>
+          {st.podSigneeMobile && (
+            <Typography variant="body2">
+              <strong>Mobile Number:</strong> {st.podSigneeMobile}
+            </Typography>
+          )}
           <Typography variant="body2">
             <strong>Signed at:</strong> {new Date(st.podSignedAt).toLocaleString()}
           </Typography>

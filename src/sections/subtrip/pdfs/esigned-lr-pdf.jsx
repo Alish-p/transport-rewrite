@@ -36,6 +36,7 @@ export default function ESignedLRPDF({ subtrip, tenant, mapImageUrl }) {
     // EPOD fields
     podSignature,
     podSignedBy,
+    podSigneeMobile,
     podSignedAt,
     podRemarks,
     podGeoLocation,
@@ -154,6 +155,12 @@ export default function ESignedLRPDF({ subtrip, tenant, mapImageUrl }) {
               <Text style={{ fontSize: 6, fontWeight: 700, color: '#637381' }}>SIGNED BY</Text>
               <Text style={{ fontSize: 8, fontWeight: 700 }}>{podSignedBy || '-'}</Text>
             </View>
+            {podSigneeMobile && (
+              <View style={{ marginBottom: 4 }}>
+                <Text style={{ fontSize: 6, fontWeight: 700, color: '#637381' }}>MOBILE NUMBER</Text>
+                <Text style={{ fontSize: 8, fontWeight: 700 }}>{podSigneeMobile}</Text>
+              </View>
+            )}
             <View style={{ marginBottom: 4 }}>
               <Text style={{ fontSize: 6, fontWeight: 700, color: '#637381' }}>DATE & TIME</Text>
               <Text style={{ fontSize: 7 }}>{podSignedAt ? fDateTime(podSignedAt) : '-'}</Text>
