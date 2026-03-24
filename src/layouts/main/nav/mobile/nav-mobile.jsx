@@ -66,7 +66,7 @@ export function NavMobile({ data, open, onClose, slots, sx }) {
             target="_blank"
             href={paths.minimalStore}
           >
-            Purchase
+            Book Free demo
           </Button>
         </Box>
       )}

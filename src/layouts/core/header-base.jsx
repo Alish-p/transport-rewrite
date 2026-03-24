@@ -169,7 +169,7 @@ export function HeaderBase({
                     },
                   }}
                 >
-                  Purchase
+                  Book Free demo
                 </Button>
               )}
             </Box>

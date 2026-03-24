@@ -144,7 +144,7 @@ export function HomeHero({ sx, ...other }) {
             href={paths.dashboard.root}
             color="inherit"
             size="large"
-            variant="contained"
+            variant="outlined"
             startIcon={<Iconify width={24} icon="iconoir:flash" />}
           >
             <span>Login for Existing Customers</span>
@@ -169,15 +169,15 @@ export function HomeHero({ sx, ...other }) {
         <Button
           color="inherit"
           size="large"
-          variant="outlined"
+          variant="contained"
           onClick={() => {
-            const el = document.getElementById('lr-generator');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            // const el = document.getElementById('lr-generator');
+            // if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
           startIcon={<Iconify width={24} icon="mdi:file-document-outline" />}
           sx={{ borderColor: 'text.primary' }}
         >
-          Free LR Generator
+          Book Free demo
         </Button>
       </MInview>
     </Box>
