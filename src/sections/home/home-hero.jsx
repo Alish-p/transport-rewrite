@@ -18,11 +18,9 @@ import { RouterLink } from 'src/routes/components';
 import { useResponsive } from 'src/hooks/use-responsive';
 
 import { _mock } from 'src/_mock';
-import { CONFIG } from 'src/config-global';
 import { textGradient } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
-import { SvgColor } from 'src/components/svg-color';
 import { varFade, MotionContainer } from 'src/components/animate';
 
 import { HeroBackground } from './components/hero-background';
@@ -46,7 +44,6 @@ export function HomeHero({ sx, ...other }) {
   const y2 = useTransformY(scroll.scrollY, distance * -6);
   const y3 = useTransformY(scroll.scrollY, distance * -5);
   const y4 = useTransformY(scroll.scrollY, distance * -4);
-  const y5 = useTransformY(scroll.scrollY, distance * -3);
 
   const opacity = useTransform(
     scroll.scrollY,
@@ -186,36 +183,6 @@ export function HomeHero({ sx, ...other }) {
     </Box>
   );
 
-  const renderIcons = (
-    <Stack spacing={3} sx={{ textAlign: 'center' }}>
-      <MInview>
-        <Typography variant="overline" sx={{ opacity: 0.4 }}>
-          Available For
-        </Typography>
-      </MInview>
-
-      <Stack spacing={2.5} direction="row">
-        {['js', 'ts', 'nextjs', 'vite', 'figma'].map((platform) => (
-          <MInview key={platform}>
-            {platform === 'nextjs' ? (
-              <SvgColor
-                src={`${CONFIG.site.basePath}/assets/icons/platforms/ic-${platform}.svg`}
-                sx={{ width: 24, height: 24 }}
-              />
-            ) : (
-              <Box
-                component="img"
-                alt={platform}
-                src={`${CONFIG.site.basePath}/assets/icons/platforms/ic-${platform}.svg`}
-                sx={{ width: 24, height: 24 }}
-              />
-            )}
-          </MInview>
-        ))}
-      </Stack>
-    </Stack>
-  );
-
   return (
     <Stack
       ref={scroll.elementRef}
@@ -273,7 +240,6 @@ export function HomeHero({ sx, ...other }) {
           </Stack>
           <m.div style={{ y: y3 }}>{renderRatings}</m.div>
           <m.div style={{ y: y4 }}>{renderButtons}</m.div>
-          <m.div style={{ y: y5 }}>{renderIcons}</m.div>
         </Container>
 
         <HeroBackground />

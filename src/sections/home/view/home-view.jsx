@@ -7,7 +7,6 @@ import { HomeHero } from '../home-hero';
 import { HomeFAQs } from '../home-faqs';
 import { HomeMinimal } from '../home-minimal';
 import { HomePricing } from '../home-pricing';
-import { HomeLRGenerator } from '../home-lr-generator';
 import { HomeTestimonials } from '../home-testimonials';
 import { HomeIntegrations } from '../home-integrations';
 import { HomeHugePackElements } from '../home-hugepack-elements';
@@ -33,8 +32,6 @@ export function HomeView() {
       <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
         <HomeMinimal />
 
-        <HomeLRGenerator />
-
         <HomeHugePackElements />
 
         {/* <HomeForDesigner /> */}
@@ -56,3 +53,4 @@ export function HomeView() {
     </>
   );
 }
+

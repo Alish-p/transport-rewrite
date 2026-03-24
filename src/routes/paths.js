@@ -34,6 +34,13 @@ export const paths = {
   minimalStore: '/',
   freeUI: '/',
   figma: '',
+  tools: {
+    root: '/tools',
+    lrGenerator: '/tools/lr-generator',
+  },
+  blog: {
+    root: '/blog',
+  },
   public: {
     root: `/public`,
     subtrip: (id) => `/public/subtrip/${id}`,

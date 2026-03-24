@@ -15,6 +15,8 @@ const PricingPage = lazy(() => import('src/pages/pricing'));
 const PaymentPage = lazy(() => import('src/pages/payment'));
 const ComingSoonPage = lazy(() => import('src/pages/coming-soon'));
 const MaintenancePage = lazy(() => import('src/pages/maintenance'));
+// Tools
+const LRGeneratorPage = lazy(() => import('src/pages/tools/lr-generator'));
 // Public detail pages
 const PublicSubtripDetailsPage = lazy(() => import('src/pages/public/subtrip/details'));
 const PublicEpodPage = lazy(() => import('src/pages/public/subtrip/epod'));
@@ -61,6 +63,10 @@ export const mainRoutes = [
           {
             path: 'blank',
             element: <BlankPage />,
+          },
+          {
+            path: 'tools/lr-generator',
+            element: <LRGeneratorPage />,
           },
         ],
       },
