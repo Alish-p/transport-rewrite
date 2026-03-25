@@ -233,11 +233,10 @@ const ITEMS = [
     subtitle: 'Express your own style with just one click.',
     icon: 'solar:pallete-2-bold-duotone',
     imgUrl: [
-      `${CONFIG.site.basePath}/assets/images/home/1.png`,
-      `${CONFIG.site.basePath}/assets/images/home/2.png`,
-      `${CONFIG.site.basePath}/assets/images/home/details-3.png`,
-      `${CONFIG.site.basePath}/assets/images/home/details-4.png`,
-      `${CONFIG.site.basePath}/assets/images/home/highlight-presets-5.webp`,
+      `${CONFIG.site.basePath}/assets/images/home/1.svg`,
+      `${CONFIG.site.basePath}/assets/images/home/2.svg`,
+      `${CONFIG.site.basePath}/assets/images/home/3.svg`,
+      `${CONFIG.site.basePath}/assets/images/home/4.svg`,
     ],
   },
 ];
