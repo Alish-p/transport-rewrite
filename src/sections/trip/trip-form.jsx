@@ -258,8 +258,8 @@ export default function TripForm({ currentTrip }) {
                 />
               </Box>
 
-              <Field.DatePicker name="fromDate" label="From Date" maxDate={dayjs()} />
-              {!!currentTrip && <Field.DatePicker name="toDate" label="To Date" maxDate={dayjs()} />}
+              <Field.DatePicker name="fromDate" label="From Date" maxDate={dayjs()} disabled={!!currentTrip} />
+              {!!currentTrip && <Field.DatePicker name="toDate" label="To Date" maxDate={dayjs()} disabled={!!currentTrip} />}
               {!!currentTrip && <Field.Text name="startKm" label="Start KM" type="number" />}
               {!!currentTrip && <Field.Text name="endKm" label="End KM" type="number" />}
 
