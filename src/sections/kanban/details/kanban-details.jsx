@@ -548,7 +548,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         {tabs.value === 'activities' && renderTabComments}
       </Scrollbar>
 
-      {tabs.value === 'activities' && <KanbanDetailsCommentInput />}
+      {tabs.value === 'activities' && <KanbanDetailsCommentInput taskId={task._id} />}
     </Drawer>
   );
 }

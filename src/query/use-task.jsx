@@ -48,6 +48,11 @@ const removeSubtask = async (taskId, subtaskId) => {
   return data;
 };
 
+const addActivityToTask = async (taskId, activity) => {
+  const { data } = await axios.post(`${ENDPOINT}/${taskId}/activity`, activity);
+  return data;
+};
+
 // Queries & Mutations
 export function useTasks() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getTasks });
@@ -187,6 +192,23 @@ export function useDeleteSubtask() {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
       toast.success('Subtask deleted successfully!');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'An error occurred';
+      toast.error(errorMessage);
+    },
+  });
+  return mutateAsync;
+}
+
+export function useAddActivity() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ taskId, activity }) => addActivityToTask(taskId, activity),
+    onSuccess: (updatedTask) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
+      toast.success('Comment added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
