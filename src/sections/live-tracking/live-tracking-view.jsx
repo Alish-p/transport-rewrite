@@ -103,6 +103,42 @@ function statusLabel(resolved) {
   return 'Unknown';
 }
 
+const STATUS_INSIGHT_MAP = {
+  running: { label: 'Moving', icon: 'mdi:truck-fast-outline', color: 'success.main' },
+  idle:    { label: 'Idle',   icon: 'mdi:timer-sand',          color: 'warning.main' },
+  stopped: { label: 'Stopped', icon: 'mdi:truck-off-road',     color: 'error.main' },
+};
+
+function formatDuration(ms) {
+  const totalMin = Math.floor(ms / 60000);
+  if (totalMin < 1) return 'less than a min';
+  const hours = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hours === 0) return `~${totalMin} min`;
+  if (mins === 0) return `~${hours} hr`;
+  return `~${hours} hr ${mins} min`;
+}
+
+function StatusInsight({ vehicle, iconSize = 14 }) {
+  const resolved = vehicle._resolved || resolveStatus(vehicle);
+  const lastStatus = vehicle.lastStatusTime;
+  if (!lastStatus) return null;
+
+  const diffMs = Date.now() - lastStatus;
+  if (diffMs < 0) return null;
+
+  const { label, icon, color } = STATUS_INSIGHT_MAP[resolved] || STATUS_INSIGHT_MAP.stopped;
+
+  return (
+    <Stack direction="row" alignItems="center" spacing={0.5}>
+      <Iconify icon={icon} width={iconSize} sx={{ color, flexShrink: 0 }} />
+      <Typography variant="caption" sx={{ color, fontWeight: 600 }}>
+        {label} for {formatDuration(diffMs)}
+      </Typography>
+    </Stack>
+  );
+}
+
 function getFuelPercentage(v) {
   const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
   const capacityStr = v?.otherAttributes?.fuelTankCapacity ?? v?.fuelTankCapacity;
@@ -423,6 +459,8 @@ export default function LiveTrackingView() {
                       </Stack>
                     )}
 
+                    <StatusInsight vehicle={v} iconSize={15} />
+
                     <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
                       {v.speed != null && (
                         <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -636,6 +674,7 @@ export default function LiveTrackingView() {
                         )}
                       </Box>
                     ))}
+                    <StatusInsight vehicle={v} />
                     <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1 }}>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
                         <Iconify icon="solar:speedometer-bold" width={14} sx={{ color: 'text.disabled' }} />
