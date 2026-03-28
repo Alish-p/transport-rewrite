@@ -594,7 +594,7 @@ export default function LiveTrackingView() {
                         </Typography>
                       </Stack>
                     )}
-                    {activeTripsMap?.[v.vehicleNumber]?.loadedSubtrips?.map((st, i) => (
+                    {activeTripsMap?.[v.vehicleNumber]?.loadedSubtrips?.slice(-1)?.map((st, i) => (
                       <Box key={i} sx={{ mt: 1, p: 1, bgcolor: 'background.paper', borderRadius: 1, border: (t) => `1px dashed ${t.palette.divider}` }}>
                         {st.driverName && (
                           <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
