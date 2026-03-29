@@ -1,4 +1,3 @@
-import L from 'leaflet';
 import { useRef, useMemo, useState, useEffect } from 'react';
 import { Popup, Marker, useMap, TileLayer, MapContainer } from 'react-leaflet';
 
@@ -34,149 +33,17 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
-// ---------------------------------------------------------------------------
-// Marker icons by status
-// ---------------------------------------------------------------------------
-
-const TRUCK_SVG = (color) => `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-  <g filter="url(#shadow)">
-    <path fill="${color}" stroke="#fff" stroke-width="1" d="M18 18.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM8.5 18.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-    <path fill="${color}" stroke="#fff" stroke-width="0.8" d="M3 4h10v11H3V4Zm10 2h3l3 4v5h-2.5a2 2 0 0 0-3.5 0V6Z"/>
-  </g>
-  <defs>
-    <filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/></filter>
-  </defs>
-</svg>`;
-
-const createStatusIcon = (color) =>
-  L.divIcon({
-    className: 'custom-marker',
-    html: TRUCK_SVG(color),
-    iconSize: [32, 32],
-    iconAnchor: [16, 28],
-    popupAnchor: [0, -24],
-  });
-
-const ICONS_BY_STATUS = {
-  running: createStatusIcon('#16a34a'),
-  idle: createStatusIcon('#d97706'),
-  stopped: createStatusIcon('#dc2626'),
-  default: createStatusIcon('#6b7280'),
-};
-
-// Normalise Fleetx status → running | idle | stopped
-// currentStatus can be: RUNNING, IDLE, STOPPED, UNREACHABLE, etc.
-// status can be: "Ignition On", "Ignition Off", "Idle", etc.
-function resolveStatus(vehicle) {
-  const cs = (vehicle.currentStatus || '').toLowerCase();
-  const st = (vehicle.status || '').toLowerCase();
-
-  if (cs === 'idle' || st.includes('idle')) return 'idle';
-
-  // If ignition is on but the vehicle isn't moving, it's idle.
-  if (st.includes('ignition on')) {
-    if (vehicle.speed === 0 || vehicle.speed === '0') return 'idle';
-    return 'running';
-  }
-
-  if (cs === 'running' || cs.includes('moving')) return 'running';
-
-  // everything else (STOPPED, UNREACHABLE, Ignition Off, etc.)
-  return 'stopped';
-}
-
-function getMarkerIcon(resolved) {
-  return ICONS_BY_STATUS[resolved] || ICONS_BY_STATUS.default;
-}
-
-function statusColor(resolved) {
-  if (resolved === 'running') return 'success';
-  if (resolved === 'idle') return 'warning';
-  if (resolved === 'stopped') return 'error';
-  return 'default';
-}
-
-function statusLabel(resolved) {
-  if (resolved === 'running') return 'Running';
-  if (resolved === 'idle') return 'Idle';
-  if (resolved === 'stopped') return 'Stopped';
-  return 'Unknown';
-}
-
-const STATUS_INSIGHT_MAP = {
-  running: { label: 'Moving', icon: 'mdi:truck-fast-outline', color: 'success.main' },
-  idle: { label: 'Idle', icon: 'mdi:timer-sand', color: 'warning.main' },
-  stopped: { label: 'Stopped', icon: 'mdi:truck-off-road', color: 'error.main' },
-};
-
-function formatDuration(ms) {
-  const totalMin = Math.floor(ms / 60000);
-  if (totalMin < 1) return 'less than a min';
-  const hours = Math.floor(totalMin / 60);
-  const mins = totalMin % 60;
-  if (hours === 0) return `~${totalMin} min`;
-  if (mins === 0) return `~${hours} hr`;
-  return `~${hours} hr ${mins} min`;
-}
-
-function StatusInsight({ vehicle, iconSize = 14 }) {
-  const resolved = vehicle._resolved || resolveStatus(vehicle);
-  const lastStatus = vehicle.lastStatusTime;
-  if (!lastStatus) return null;
-
-  const diffMs = Date.now() - lastStatus;
-  if (diffMs < 0) return null;
-
-  const { label, icon, color } = STATUS_INSIGHT_MAP[resolved] || STATUS_INSIGHT_MAP.stopped;
-
-  return (
-    <Stack direction="row" alignItems="center" spacing={0.5}>
-      <Iconify icon={icon} width={iconSize} sx={{ color, flexShrink: 0 }} />
-      <Typography variant="caption" sx={{ color, fontWeight: 600 }}>
-        {label} for {formatDuration(diffMs)}
-      </Typography>
-    </Stack>
-  );
-}
-
-function getFuelPercentage(v) {
-  const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
-  const capacityStr = v?.otherAttributes?.fuelTankCapacity ?? v?.fuelTankCapacity;
-
-  if (fuelStr == null || capacityStr == null) return null;
-
-  const fuel = parseFloat(String(fuelStr).replace(/[^\d.]/g, ''));
-  const capacity = parseFloat(String(capacityStr).replace(/[^\d.]/g, ''));
-
-  if (Number.isNaN(fuel) || Number.isNaN(capacity) || capacity <= 0) return null;
-
-  return (fuel / capacity) * 100;
-}
-
-function getFuelIconColor(v) {
-  const percentage = getFuelPercentage(v);
-
-  if (percentage == null) return 'text.disabled';
-
-  if (percentage > 70) return 'success.main';
-  if (percentage >= 40) return 'warning.main';
-  return 'error.main';
-}
-
-function getFuelText(v) {
-  const fuelStr = v?.otherAttributes?.fuel ?? v?.fuel;
-  if (fuelStr == null) return '—';
-  const s = String(fuelStr);
-  if (s.includes(' ')) return s;
-  const num = parseFloat(s.replace(/[^\d.]/g, ''));
-  if (Number.isNaN(num)) return s;
-  return `${Math.round(num)} L`;
-}
-
-function hasFuelData(v) {
-  return (v?.otherAttributes?.fuel ?? v?.fuel) != null;
-}
+import {
+  statusColor,
+  statusLabel,
+  getFuelText,
+  hasFuelData,
+  resolveStatus,
+  getMarkerIcon,
+  StatusInsight,
+  getFuelIconColor,
+  getFuelPercentage,
+} from './utils';
 
 // ---------------------------------------------------------------------------
 // Fly-to helper – lives inside <MapContainer> so it can call useMap()
@@ -294,11 +161,12 @@ export default function LiveTrackingView() {
 
   // Stats
   const stats = useMemo(() => {
-    const s = { total: vehicles.length, running: 0, idle: 0, stopped: 0 };
+    const s = { total: vehicles.length, running: 0, idle: 0, parked: 0, inactive: 0 };
     vehicles.forEach((v) => {
       if (v._resolved === 'running') s.running += 1;
       else if (v._resolved === 'idle') s.idle += 1;
-      else s.stopped += 1;
+      else if (v._resolved === 'parked') s.parked += 1;
+      else s.inactive += 1;
     });
     return s;
   }, [vehicles]);
@@ -318,7 +186,8 @@ export default function LiveTrackingView() {
     { value: 'all', label: 'All', color: 'default', count: stats.total },
     { value: 'running', label: 'Running', color: 'success', count: stats.running },
     { value: 'idle', label: 'Idle', color: 'warning', count: stats.idle },
-    { value: 'stopped', label: 'Stopped', color: 'error', count: stats.stopped },
+    { value: 'parked', label: 'Parked', color: 'info', count: stats.parked },
+    { value: 'inactive', label: 'Inactive', color: 'error', count: stats.inactive },
   ];
 
   const renderTabs = (
