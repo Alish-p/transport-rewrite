@@ -18,12 +18,22 @@ export default function LoansTableFiltersResult({
   results,
   ...other
 }) {
-  const handleRemoveBorrower = () => {
-    onFilters('borrower', '');
+  const handleRemoveDriver = () => {
+    onFilters('driverId', '');
+    onFilters('driverName', '');
+  };
+
+  const handleRemoveTransporter = () => {
+    onFilters('transporterId', '');
+    onFilters('transporterName', '');
   };
 
   const handleRemoveLoanNo = () => {
     onFilters('loanNo', '');
+  };
+
+  const handleRemoveLoanReason = () => {
+    onFilters('loanReason', '');
   };
 
   const handleRemoveDate = () => {
@@ -49,9 +59,21 @@ export default function LoansTableFiltersResult({
           </Block>
         )}
 
-        {filters.borrower && (
-          <Block label="Borrower:">
-            <Chip size="small" label={filters.borrower} onDelete={handleRemoveBorrower} />
+        {filters.driverName && (
+          <Block label="Driver:">
+            <Chip size="small" label={filters.driverName} onDelete={handleRemoveDriver} />
+          </Block>
+        )}
+
+        {filters.transporterName && (
+          <Block label="Transporter:">
+            <Chip size="small" label={filters.transporterName} onDelete={handleRemoveTransporter} />
+          </Block>
+        )}
+
+        {filters.loanReason && (
+          <Block label="Reason:">
+            <Chip size="small" label={filters.loanReason} onDelete={handleRemoveLoanReason} />
           </Block>
         )}
 

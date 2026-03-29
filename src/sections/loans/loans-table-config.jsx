@@ -88,6 +88,19 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'loanReason',
+    label: 'Reason',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => row.loanReason || '-',
+    render: (row) => (
+      <ListItemText
+        primary={row.loanReason || '-'}
+        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+      />
+    ),
+  },
+  {
     id: 'principalAmount',
     label: 'Loan Amount',
     defaultVisible: true,

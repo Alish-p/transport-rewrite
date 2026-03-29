@@ -28,17 +28,19 @@ import { useCreateLoan, useUpdateLoan } from 'src/query/use-loan';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { RHFFreeSoloAutocomplete } from 'src/components/hook-form/rhf-autocomplete-freesolo';
 
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { BORROWER_TYPES } from './loans-config';
+import { LOAN_REASONS, BORROWER_TYPES } from './loans-config';
 
 // ----------------------------------------------------------------------
 
 export const LoansSchema = zod.object({
   borrowerId: zod.string().min(1),
   borrowerType: zod.string().min(1),
+  loanReason: zod.any().optional(),
   principalAmount: zod.number().min(1, { message: 'Amount is required' }),
   remarks: zod.string().optional(),
   disbursementDate: schemaHelper
@@ -61,6 +63,7 @@ export default function LoanForm({ currentLoan }) {
       remarks: currentLoan?.remarks || '',
       disbursementDate: currentLoan?.disbursementDate || new Date(),
       loanNo: currentLoan?.loanNo || '',
+      loanReason: currentLoan?.loanReason || '',
     }),
     [currentLoan]
   );
@@ -121,8 +124,13 @@ export default function LoanForm({ currentLoan }) {
   };
 
   // Handle form submission (create or update)
-  const onSubmit = async (data) => {
+  const onSubmit = async (formData) => {
     try {
+      const data = { ...formData };
+      if (data.loanReason && typeof data.loanReason === 'object') {
+        data.loanReason = data.loanReason.inputValue || data.loanReason.value || data.loanReason.label || '';
+      }
+
       if (currentLoan) {
         await updateLoan({ id: currentLoan._id, data });
         navigate(paths.dashboard.loan.details(currentLoan._id));
@@ -154,6 +162,13 @@ export default function LoanForm({ currentLoan }) {
             </MenuItem>
           ))}
         </Field.Select>
+
+        <RHFFreeSoloAutocomplete
+          name="loanReason"
+          label="Loan Reason / Type"
+          options={borrowerType ? LOAN_REASONS[borrowerType] || [] : []}
+          placeholder="Select or enter reason"
+        />
 
         <Box>
           <DialogSelectButton

@@ -9,11 +9,13 @@ import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -23,12 +25,14 @@ import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useDeleteLoan, usePaginatedLoans } from 'src/query/use-loan';
 
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -42,6 +46,7 @@ import {
 } from 'src/components/table';
 
 import { TABLE_COLUMNS } from '../loans-table-config';
+import LoansAnalytic from '../loans-list/loans-analytic';
 import LoanTableRow from '../loans-list/loans-table-row';
 import LoanTableToolbar from '../loans-list/loans-table-toolbar';
 import { LOAN_STATUS, LOAN_STATUS_COLOR } from '../loans-config';
@@ -53,7 +58,11 @@ const STORAGE_KEY = 'loan-table-columns';
 
 const defaultFilters = {
   loanNo: '',
-  borrower: '',
+  driverId: '',
+  driverName: '',
+  transporterId: '',
+  transporterName: '',
+  loanReason: '',
   loanStatus: 'all',
   fromDate: null,
   endDate: null,
@@ -88,9 +97,13 @@ export function LoansListView() {
 
   const [tableData, setTableData] = useState([]);
   const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data, isLoading } = usePaginatedLoans({
     loanNo: filters.loanNo || undefined,
+    driverId: filters.driverId || undefined,
+    transporterId: filters.transporterId || undefined,
+    loanReason: filters.loanReason || undefined,
     loanStatus: filters.loanStatus !== 'all' ? filters.loanStatus : undefined,
     fromDate: filters.fromDate || undefined,
     endDate: filters.endDate || undefined,
@@ -111,15 +124,8 @@ export function LoansListView() {
     }
   }, [data]);
 
-  // Client-side borrower name filter (since server doesn't have name search on populated field)
-  const filteredData = tableData.filter((row) => {
-    if (!filters.borrower) return true;
-    const name =
-      row.borrowerType === 'Driver'
-        ? row.borrowerId?.driverName
-        : row.borrowerId?.transportName;
-    return name && name.toLowerCase().includes(filters.borrower.toLowerCase());
-  });
+  // Client-side filter
+  const filteredData = tableData;
 
   const notFound = !isLoading && !filteredData.length;
 
@@ -127,6 +133,11 @@ export function LoansListView() {
   const totalCount = totals.all?.count || 0;
 
   const getStatusCount = (status) => totals[status]?.count || 0;
+
+  // Analytics calculations
+  const totalGiven = totals.all?.amount || 0;
+  const totalRemaining = totals.all?.outstanding || 0;
+  const totalPaid = Math.max(0, totalGiven - totalRemaining);
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
@@ -184,6 +195,48 @@ export function LoansListView() {
           }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
+
+        {/* Analytics Section */}
+        <Card
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        >
+          <Scrollbar>
+            <Stack
+              direction="row"
+              divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
+              sx={{ py: 2 }}
+            >
+              <LoansAnalytic
+                title="Total Given"
+                total={totalCount}
+                percent={100}
+                price={totalGiven}
+                icon="mdi:cash-multiple"
+                color={theme.palette.info.main}
+              />
+
+              <LoansAnalytic
+                title="Total Paid"
+                total={totalCount} // we can keep total count or omit
+                percent={totalGiven ? (totalPaid / totalGiven) * 100 : 0}
+                price={totalPaid}
+                icon="mdi:cash-check"
+                color={theme.palette.success.main}
+              />
+
+              <LoansAnalytic
+                title="Total Remaining"
+                total={getStatusCount(LOAN_STATUS.ACTIVE)}
+                percent={totalGiven ? (totalRemaining / totalGiven) * 100 : 0}
+                price={totalRemaining}
+                icon="mdi:cash-clock"
+                color={theme.palette.warning.main}
+              />
+            </Stack>
+          </Scrollbar>
+        </Card>
 
         {/* Table Section */}
         <Card>
@@ -281,23 +334,64 @@ export function LoansListView() {
                   <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
-                      onClick={() => {
-                        const selectedRows = filteredData.filter((r) =>
-                          table.selected.includes(r._id)
-                        );
-                        const visibleCols = getVisibleColumnsForExport();
-                        exportToExcel(
-                          prepareDataForExport(
-                            selectedRows,
-                            TABLE_COLUMNS,
-                            visibleCols,
-                            columnOrder
-                          ),
-                          'Loans-selected-list'
-                        );
+                      onClick={async () => {
+                        if (selectAllMode) {
+                          try {
+                            setIsDownloading(true);
+                            toast.info('Export started... Please wait.');
+                            const orderedIds = (
+                              columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                            ).filter((id) => visibleColumns[id]);
+
+                            const response = await axios.get('/api/loans/export', {
+                              params: {
+                                loanNo: filters.loanNo || undefined,
+                                driverId: filters.driverId || undefined,
+                                transporterId: filters.transporterId || undefined,
+                                loanReason: filters.loanReason || undefined,
+                                loanStatus: filters.loanStatus !== 'all' ? filters.loanStatus : undefined,
+                                fromDate: filters.fromDate || undefined,
+                                endDate: filters.endDate || undefined,
+                                columns: orderedIds.join(','),
+                              },
+                              responseType: 'blob',
+                            });
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', 'Loans.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            setIsDownloading(false);
+                            toast.success('Export completed!');
+                          } catch (error) {
+                            console.error('Failed to download excel', error);
+                            setIsDownloading(false);
+                            toast.error('Failed to export loans.');
+                          }
+                        } else {
+                          const selectedRows = filteredData.filter((r) =>
+                            table.selected.includes(r._id)
+                          );
+                          const visibleCols = getVisibleColumnsForExport();
+                          exportToExcel(
+                            prepareDataForExport(
+                              selectedRows,
+                              TABLE_COLUMNS,
+                              visibleCols,
+                              columnOrder
+                            ),
+                            'Loans-selected-list'
+                          );
+                        }
                       }}
                     >
-                      <Iconify icon="file-icons:microsoft-excel" />
+                      {isDownloading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        <Iconify icon="file-icons:microsoft-excel" />
+                      )}
                     </IconButton>
                   </Tooltip>
 

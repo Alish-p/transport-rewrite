@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -17,6 +19,10 @@ import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+
+import { LOAN_REASONS } from '../loans-config';
 import { TABLE_COLUMNS } from '../loans-table-config';
 
 // ----------------------------------------------------------------------
@@ -33,17 +39,13 @@ export default function LoansTableToolbar({
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
+  
+  const driverDialog = useBoolean();
+  const transporterDialog = useBoolean();
 
   const handleFilterLoanNo = useCallback(
     (event) => {
       onFilters('loanNo', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterBorrower = useCallback(
-    (event) => {
-      onFilters('borrower', event.target.value);
     },
     [onFilters]
   );
@@ -61,6 +63,20 @@ export default function LoansTableToolbar({
     },
     [onFilters]
   );
+
+  const handleDriverChange = (driver) => {
+    onFilters('driverId', driver._id);
+    onFilters('driverName', driver.driverName);
+    onFilters('transporterId', '');
+    onFilters('transporterName', '');
+  };
+
+  const handleTransporterChange = (transporter) => {
+    onFilters('transporterId', transporter._id);
+    onFilters('transporterName', transporter.transportName);
+    onFilters('driverId', '');
+    onFilters('driverName', '');
+  };
 
   return (
     <>
@@ -90,18 +106,55 @@ export default function LoansTableToolbar({
           }}
         />
 
-        <TextField
+        <Box sx={{ width: 1 }}>
+          <DialogSelectButton
+            onClick={driverDialog.onTrue}
+            placeholder="Select Driver"
+            selected={filters.driverName || undefined}
+            iconName="mdi:account"
+            sx={{ width: '100%', mt: 0 }}
+          />
+        </Box>
+
+        <Box sx={{ width: 1 }}>
+          <DialogSelectButton
+            onClick={transporterDialog.onTrue}
+            placeholder="Select Transporter"
+            selected={filters.transporterName || undefined}
+            iconName="mdi:truck-delivery"
+            sx={{ width: '100%', mt: 0 }}
+          />
+        </Box>
+
+        <Autocomplete
           fullWidth
-          value={filters.borrower}
-          onChange={handleFilterBorrower}
-          placeholder="Search Borrower..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="mdi:account-search" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
+          freeSolo
+          options={[...LOAN_REASONS.Driver, ...LOAN_REASONS.Transporter].map((opt) => opt.label)}
+          getOptionLabel={(option) => option}
+          value={filters.loanReason || ''}
+          onChange={(event, newValue) => {
+            onFilters('loanReason', newValue || '');
           }}
+          onInputChange={(event, newInputValue) => {
+            onFilters('loanReason', newInputValue || '');
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search Reason..."
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: (
+                  <>
+                    <InputAdornment position="start" sx={{ pl: 1, mr: -0.5 }}>
+                      <Iconify icon="mdi:text-box-search" sx={{ color: 'text.disabled' }} />
+                    </InputAdornment>
+                    {params.InputProps.startAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
         />
 
         <DialogSelectButton
@@ -152,6 +205,18 @@ export default function LoansTableToolbar({
         endDate={filters.endDate}
         onChangeStartDate={handleChangeStartDate}
         onChangeEndDate={handleChangeEndDate}
+      />
+
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        onDriverChange={handleDriverChange}
+      />
+
+      <KanbanTransporterDialog
+        open={transporterDialog.value}
+        onClose={transporterDialog.onFalse}
+        onTransporterChange={handleTransporterChange}
       />
     </>
   );
