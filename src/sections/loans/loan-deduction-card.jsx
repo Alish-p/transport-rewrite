@@ -50,7 +50,7 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
       const copy = [...prev];
       copy[index] = { ...copy[index], checked: !copy[index].checked };
       onChange?.(
-        copy.filter((s) => s.checked && s.amount > 0).map(({ loanId, amount, loan }) => ({ loanId, amount, loanNo: loan?.loanNo }))
+        copy.filter((s) => s.checked && Number(s.amount) > 0).map(({ loanId, amount, loan }) => ({ loanId, amount: Number(amount), loanNo: loan?.loanNo }))
       );
       return copy;
     });
@@ -59,9 +59,9 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
   const handleAmountChange = (index, value) => {
     setSelections((prev) => {
       const copy = [...prev];
-      copy[index] = { ...copy[index], amount: Number(value) || 0 };
+      copy[index] = { ...copy[index], amount: value === '' ? '' : Number(value) };
       onChange?.(
-        copy.filter((s) => s.checked && s.amount > 0).map(({ loanId, amount }) => ({ loanId, amount }))
+        copy.filter((s) => s.checked && Number(s.amount) > 0).map(({ loanId, amount, loan }) => ({ loanId, amount: Number(amount), loanNo: loan?.loanNo }))
       );
       return copy;
     });
@@ -72,8 +72,8 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
   }
 
   const totalDeduction = selections
-    .filter((s) => s.checked && s.amount > 0)
-    .reduce((sum, s) => sum + s.amount, 0);
+    .filter((s) => s.checked && Number(s.amount) > 0)
+    .reduce((sum, s) => sum + Number(s.amount), 0);
 
   return (
     <Card sx={{ p: 3, my: 3, border: (theme) => `dashed 1px ${theme.palette.warning.main}`, }}>
@@ -104,7 +104,7 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
             <TableBody>
               {selections.map((sel, idx) => {
                 const { loan } = sel;
-                const isError = sel.amount > loan.outstandingBalance;
+                const isError = Number(sel.amount) > loan.outstandingBalance;
 
                 return (
                   <TableRow

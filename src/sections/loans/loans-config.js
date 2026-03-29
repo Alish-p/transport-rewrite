@@ -5,18 +5,14 @@ export const BORROWER_TYPES = [
 
 export const LOAN_REASONS = {
   Driver: [
-    { label: 'Advance for Trip', value: 'Advance for Trip' },
-    { label: 'Medical Emergency', value: 'Medical Emergency' },
-    { label: 'Personal Expense', value: 'Personal Expense' },
-    { label: 'Vehicle Maintenance', value: 'Vehicle Maintenance' },
-    { label: 'Challan / Fine', value: 'Challan / Fine' },
+    { label: 'Personal Loan', value: 'Personal Loan' },
+    { label: 'Advance Agaist Salary', value: 'Advance Agaist Salary' },
   ],
   Transporter: [
-    { label: 'Advance Payment', value: 'Advance Payment' },
-    { label: 'Fuel Advance', value: 'Fuel Advance' },
-    { label: 'Toll Advance', value: 'Toll Advance' },
-    { label: 'Operational Expense', value: 'Operational Expense' },
-    { label: 'Repair & Maintenance', value: 'Repair & Maintenance' },
+    { label: 'Personal Loan', value: 'Personal Loan' },
+    { label: 'Tyre Loan', value: 'Tyre Loan' },
+    { label: 'Maintenance Loan', value: 'Maintenance Loan' },
+    { label: 'GPS Device Loan', value: 'GPS Device Loan' },
   ],
 };
 
