@@ -223,7 +223,17 @@ export default function SimplerNewInvoiceForm() {
           gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
           sx={{ mb: 3 }}
         >
-          <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60 }} />
+          <Box
+            component="img"
+            alt="logo"
+            src={getTenantLogoUrl(tenant)}
+            sx={{
+              width: 60,
+              height: 60,
+              bgcolor: 'background.neutral',
+              borderRadius: '10px',
+            }}
+          />
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
             <Label variant="soft" color="warning">
               Draft
