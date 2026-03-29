@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -32,6 +32,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { usePendingLoans } from 'src/query/use-loan';
 import { useFetchSubtripsForTransporterBilling } from 'src/query/use-subtrip';
 import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 
@@ -41,6 +42,7 @@ import { Iconify } from 'src/components/iconify';
 import { useTenantContext } from 'src/auth/tenant';
 
 import { TableSkeleton } from '../../components/table';
+import LoanDeductionCard from '../loans/loan-deduction-card';
 import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
@@ -93,6 +95,7 @@ export default function TransporterPaymentSimpleForm() {
   const transporterDialog = useBoolean();
   const dateDialog = useBoolean();
   const tenant = useTenantContext();
+  const [loanDeductions, setLoanDeductions] = useState([]);
 
   const methods = useForm({
     resolver: zodResolver(PaymentSchema),
@@ -137,6 +140,12 @@ export default function TransporterPaymentSimpleForm() {
   const createPayment = useCreateTransporterPayment();
   const navigate = useNavigate();
 
+  // Fetch pending loans for selected transporter
+  const { data: pendingLoans = [], isLoading: loansLoading } = usePendingLoans(
+    'Transporter',
+    transporter?._id
+  );
+
   useEffect(() => {
     if (transporter?._id && billingPeriod?.start && billingPeriod?.end) {
       refetch();
@@ -172,6 +181,13 @@ export default function TransporterPaymentSimpleForm() {
   };
 
   const onSubmit = async (data) => {
+    const selected = data.subtrips.filter((st) => st.selected);
+    if (selected.length === 0) return;
+
+    await submitPayment(data, loanDeductions);
+  };
+
+  const submitPayment = async (data, submittedDeductions = []) => {
     const {
       transporter: selectedTransporter,
       billingPeriod: period,
@@ -180,6 +196,12 @@ export default function TransporterPaymentSimpleForm() {
     } = data;
     const selected = subtripData.filter((st) => st.selected);
     try {
+      // Add loan deductions as negative additional charges
+      const loanCharges = submittedDeductions.map((ld) => ({
+        label: 'Loan Repayment',
+        amount: -ld.amount,
+      }));
+
       const payment = await createPayment({
         transporterId: selectedTransporter._id,
         billingPeriod: period,
@@ -190,7 +212,9 @@ export default function TransporterPaymentSimpleForm() {
             amount: selected.length * (selectedTransporter?.podCharges || 0) * -1,
           },
           ...addCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
+          ...loanCharges,
         ],
+        loanDeductions: submittedDeductions,
       });
       navigate(paths.dashboard.transporterPayment.details(payment._id));
     } catch (error) {
@@ -198,12 +222,18 @@ export default function TransporterPaymentSimpleForm() {
     }
   };
 
+
   const selectedSubtrips = subtrips.filter((st) => st.selected);
   const podCharge = selectedSubtrips.length * (transporter?.podCharges || 0);
+
+  const loanChargesForSummary = selectedSubtrips.length > 0
+    ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: -ld.amount }))
+    : [];
 
   const summary = calculateTransporterPaymentSummary(selectedSubtrips, transporter, [
     { label: 'POD Charges', amount: -podCharge },
     ...additionalCharges.map((it) => ({ label: it.label, amount: Number(it.amount) || 0 })),
+    ...loanChargesForSummary,
   ]);
 
   const {
@@ -331,6 +361,12 @@ export default function TransporterPaymentSimpleForm() {
           endDate={billingPeriod?.end}
           onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
           onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+        />
+
+        <LoanDeductionCard
+          loans={pendingLoans}
+          isLoading={loansLoading}
+          onChange={setLoanDeductions}
         />
 
         <TableContainer sx={{ overflowX: 'auto', mt: 3 }}>
@@ -500,6 +536,18 @@ export default function TransporterPaymentSimpleForm() {
                   </TableCell>
                 </StyledTableRow>
 
+                {loanDeductions.map((ld, idx) => (
+                  <StyledTableRow key={`loan-${idx}`}>
+                    <TableCell colSpan={14} align="right">
+                      Loan Repayment (LN-{ld.loanNo})
+                    </TableCell>
+                    <TableCell sx={{ color: 'error.main' }} align="right">
+                      -{fCurrency(ld.amount)}
+                    </TableCell>
+                    <TableCell />
+                  </StyledTableRow>
+                ))}
+
                 <StyledTableRow>
                   <TableCell colSpan={14} align="right">
                     <strong>Net Total</strong>
@@ -523,6 +571,7 @@ export default function TransporterPaymentSimpleForm() {
           Create Payment
         </LoadingButton>
       </Stack>
+
     </Form>
   );
 }

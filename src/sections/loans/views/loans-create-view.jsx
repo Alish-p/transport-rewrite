@@ -1,3 +1,5 @@
+import { paths } from 'src/routes/paths';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -10,9 +12,9 @@ export function LoansCreateView() {
       <CustomBreadcrumbs
         heading="Create Loan"
         links={[
-          { name: 'Dashboard', href: '/dashboard' },
-          { name: 'Payroll', href: '/dashboard/driver-payroll' },
-          { name: 'Driver Salary Creation' },
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Loans', href: paths.dashboard.loan.root },
+          { name: 'Create Loan' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

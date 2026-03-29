@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -22,6 +20,8 @@ import { Iconify } from 'src/components/iconify';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+// ----------------------------------------------------------------------
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
     borderBottom: 'none',
@@ -30,171 +30,284 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+// ----------------------------------------------------------------------
+
 function RenderHeader({ loan }) {
-  const { status } = loan;
+  const { status, loanNo, createdAt } = loan;
   const tenant = useTenantContext();
+
   return (
     <Box
       rowGap={3}
       display="grid"
       alignItems="center"
       gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
+      sx={{ mb: 3 }}
     >
-      <Box component="img" alt="logo" src={getTenantLogoUrl(tenant)} sx={{ width: 60, height: 60, mb: 3 }} />
+      <Box
+        component="img"
+        alt="logo"
+        src={getTenantLogoUrl(tenant)}
+        sx={{
+          width: 60,
+          height: 60,
+          bgcolor: 'background.neutral',
+          borderRadius: '10px',
+        }}
+      />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label variant="soft" color={status === 'pending' ? 'warning' : 'success'}>
-          {status}
+        <Label variant="soft" color={status === 'active' ? 'warning' : 'success'}>
+          {status === 'active' ? 'Active' : 'Closed'}
         </Label>
+        <Typography variant="h6">Loan</Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {loanNo ? `Loan No: ${loanNo}` : 'Loan No: -'}
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {createdAt ? fDate(createdAt) : '-'}
+        </Typography>
       </Stack>
     </Box>
   );
 }
 
-function RenderAddress({ title, details }) {
+// ----------------------------------------------------------------------
+
+function RenderBorrowerInfo({ loan }) {
+  const { borrowerId: borrower, borrowerType, disbursementDate } = loan;
+  const tenant = useTenantContext();
+
+  const borrowerName = borrower?.driverName || borrower?.transportName || '-';
+  const borrowerPhone = borrower?.driverCellNo || borrower?.cellNo || '-';
+  const borrowerAddress = borrower?.driverPresentAddress || borrower?.address || '';
+
   return (
-    <Stack sx={{ typography: 'body2' }}>
-      <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-        {title}
-      </Typography>
-      {details && details}
+    <Stack
+      spacing={{ xs: 3, md: 5 }}
+      direction={{ xs: 'column', md: 'row' }}
+      divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+    >
+      <Stack sx={{ width: 1 }}>
+        <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+          From:
+        </Typography>
+        <Stack spacing={1}>
+          <Typography variant="subtitle2">{tenant?.name}</Typography>
+          <Typography variant="body2">{tenant?.address?.line1}</Typography>
+          {tenant?.address?.line2 && (
+            <Typography variant="body2">{tenant?.address?.line2}</Typography>
+          )}
+          {tenant?.address?.state && (
+            <Typography variant="body2">{tenant?.address?.state}</Typography>
+          )}
+          {tenant?.contactDetails?.phone && (
+            <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
+          )}
+        </Stack>
+      </Stack>
+
+      <Stack sx={{ width: 1 }}>
+        <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+          Borrower:
+        </Typography>
+        <Stack spacing={1}>
+          <Stack direction="row" spacing={1}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+              Name:
+            </Typography>
+            <Typography variant="subtitle2">{borrowerName}</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+              Type:
+            </Typography>
+            <Label variant="soft" color="info">
+              {borrowerType}
+            </Label>
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+              Phone:
+            </Typography>
+            <Typography variant="body2">{borrowerPhone}</Typography>
+          </Stack>
+          {borrowerAddress && (
+            <Stack direction="row" spacing={1}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                Address:
+              </Typography>
+              <Typography variant="body2">{borrowerAddress}</Typography>
+            </Stack>
+          )}
+          {borrower?.driverLicenceNo && (
+            <Stack direction="row" spacing={1}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                License:
+              </Typography>
+              <Typography variant="body2">{borrower.driverLicenceNo}</Typography>
+            </Stack>
+          )}
+          {borrower?.gstNo && (
+            <Stack direction="row" spacing={1}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                GST:
+              </Typography>
+              <Typography variant="body2">{borrower.gstNo}</Typography>
+            </Stack>
+          )}
+          <Stack direction="row" spacing={1}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+              Disbursed:
+            </Typography>
+            <Typography variant="body2">
+              {disbursementDate ? fDate(disbursementDate) : '-'}
+            </Typography>
+          </Stack>
+        </Stack>
+      </Stack>
     </Stack>
   );
 }
 
-function RenderInstallments({ loan }) {
-  const { installments = [] } = loan;
-  const hasOverpayment = installments.some((inst) => inst.paidAmount > inst.totalDue);
+// ----------------------------------------------------------------------
+
+function RenderLoanSummary({ loan }) {
+  const { principalAmount, outstandingBalance, payments = [] } = loan;
+  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return (
-    <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>No.</TableCell>
-            <TableCell>EMI Amount</TableCell>
-            <TableCell>Due Date</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Paid</TableCell>
-            {hasOverpayment && <TableCell>Extra Paid</TableCell>}
-            <TableCell>Paid Date</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {installments.map((inst) => {
-            const { installmentNumber, totalDue, dueDate, status, paidAmount = 0, paidDate } = inst;
-            const extra = paidAmount > totalDue ? paidAmount - totalDue : 0;
+    <Box
+      sx={{
+        mt: 4,
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gap: 3,
+      }}
+    >
+      <div />
 
-            return (
-              <StyledTableRow key={installmentNumber}>
-                <TableCell>{installmentNumber}</TableCell>
-                <TableCell>{fCurrency(totalDue)}</TableCell>
-                <TableCell>{fDate(dueDate)}</TableCell>
-                <TableCell>
-                  {status === 'paid' ? (
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Iconify icon="eva:checkmark-circle-2-fill" sx={{ color: 'success.main' }} />
-                      <Typography variant="body2" sx={{ color: 'success.main' }}>
-                        Paid
-                      </Typography>
-                    </Stack>
-                  ) : (
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </Typography>
-                  )}
-                </TableCell>
-                <TableCell>{fCurrency(paidAmount)}</TableCell>
-                {hasOverpayment && <TableCell>{extra > 0 ? fCurrency(extra) : '-'}</TableCell>}
-                <TableCell>{paidDate ? fDate(paidDate) : '-'}</TableCell>
-              </StyledTableRow>
-            );
-          })}
-
-          {/* summary rows */}
-          <StyledTableRow>
-            <TableCell colSpan={hasOverpayment ? 5 : 4} />
-            <TableCell sx={{ fontWeight: 'bold' }}>Total Amount</TableCell>
-            <TableCell>{fCurrency(loan.totalAmount)}</TableCell>
-          </StyledTableRow>
-
-          <StyledTableRow>
-            <TableCell colSpan={hasOverpayment ? 5 : 4} />
-            <TableCell sx={{ fontWeight: 'bold' }}>Paid Amount</TableCell>
-            <TableCell>{fCurrency(loan.totalAmount - loan.outstandingBalance)}</TableCell>
-          </StyledTableRow>
-
-          <StyledTableRow>
-            <TableCell colSpan={hasOverpayment ? 5 : 4} />
-            <TableCell sx={{ fontWeight: 'bold' }}>Remaining Balance</TableCell>
-            <TableCell sx={{ color: 'error.main' }}>{fCurrency(loan.outstandingBalance)}</TableCell>
-          </StyledTableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+        <Stack spacing={2} sx={{ height: 1 }}>
+          <Typography variant="subtitle2" color="green">
+            Financial Summary
+          </Typography>
+          <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
+            <SummaryRow label="Loan Amount" value={fCurrency(principalAmount)} />
+            <SummaryRow
+              label="Total Paid"
+              value={fCurrency(totalPaid)}
+              color="success.main"
+            />
+            <Divider sx={{ my: 0.5 }} />
+            <SummaryRow
+              label="Remaining Balance"
+              value={fCurrency(outstandingBalance)}
+              bold
+              color={outstandingBalance > 0 ? 'error.main' : 'success.main'}
+              highlight
+            />
+          </Stack>
+        </Stack>
+      </Card>
+    </Box>
   );
 }
 
-export default function LoansPreview({ loan }) {
-  const { borrowerId: borrower, createdAt } = loan;
+// ----------------------------------------------------------------------
+
+function RenderPayments({ loan }) {
+  const { payments = [] } = loan;
 
   return (
-    <Card sx={{ pt: 5, px: 5 }}>
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="subtitle2" color="green" sx={{ mb: 2 }}>
+        Payment History
+      </Typography>
+
+      <TableContainer sx={{ overflowX: 'auto' }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Source</TableCell>
+              <TableCell>Remarks</TableCell>
+              <TableCell align="right">Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {payments.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                  No payments recorded yet
+                </TableCell>
+              </TableRow>
+            )}
+
+            {payments.map((p, idx) => (
+              <StyledTableRow key={p._id || idx}>
+                <TableCell>{idx + 1}</TableCell>
+                <TableCell>{fDate(p.paymentDate)}</TableCell>
+                <TableCell>
+                  <Label variant="soft" color="info" sx={{ textTransform: 'none' }}>
+                    {p.source || 'Manual'}
+                  </Label>
+                </TableCell>
+                <TableCell>{p.remarks || '-'}</TableCell>
+                <TableCell align="right">
+                  <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                    <Iconify
+                      icon="eva:checkmark-circle-2-fill"
+                      sx={{ color: 'success.main' }}
+                      width={16}
+                    />
+                    <Typography variant="body2">{fCurrency(p.amount)}</Typography>
+                  </Stack>
+                </TableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function SummaryRow({ label, value, bold, color, highlight }) {
+  return (
+    <Stack direction="row" justifyContent="space-between">
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {label}
+      </Typography>
+      <Typography
+        variant={bold ? 'subtitle2' : 'body2'}
+        sx={{
+          color: color || (highlight ? 'primary.main' : 'text.primary'),
+          fontWeight: bold || highlight ? 600 : undefined,
+        }}
+      >
+        {value}
+      </Typography>
+    </Stack>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+export default function LoansPreview({ loan }) {
+  return (
+    <Card sx={{ p: 3 }}>
       <RenderHeader loan={loan} />
 
-      <Box
-        rowGap={5}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
-        sx={{ mb: 5 }}
-      >
-        <RenderAddress
-          title="Borrower Information"
-          details={
-            <>
-              {borrower?.driverName || borrower?.transportName}
-              <br />
-              {borrower?.driverPresentAddress || borrower?.address}
-              <br />
-              Phone: {borrower?.driverCellNo || borrower?.cellNo}
-              <br />
-              {borrower?.driverLicenceNo && `License - ${borrower?.driverLicenceNo}`}
-              {borrower?.gstNo && `GST - ${borrower?.driverLicenceNo}`}
-            </>
-          }
-        />
-        <RenderAddress
-          title="Bank Details"
-          details={
-            <>
-              {borrower?.bankDetails?.name}
-              <br />
-              Branch: {borrower?.bankDetails?.branch}
-              <br />
-              IFSC: {borrower?.bankDetails?.ifsc}
-              <br />
-              A/C: {borrower?.bankDetails?.accNo}
-            </>
-          }
-        />
-        <RenderAddress
-          title="Loan Details"
-          details={
-            <>
-              Principal: {fCurrency(loan?.principalAmount)}
-              <br />
-              Interest Rate: {loan?.interestRate}%
-              <br />
-              Tenure: {loan?.tenureMonths} months
-              <br />
-              Created: {fDate(createdAt)}
-            </>
-          }
-        />
-      </Box>
+      <RenderBorrowerInfo loan={loan} />
 
-      <RenderInstallments loan={loan} />
+      <RenderPayments loan={loan} />
 
-      <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
+      <RenderLoanSummary loan={loan} />
+
+      <Divider sx={{ mt: 4, borderStyle: 'dashed' }} />
     </Card>
   );
 }

@@ -1,118 +1,158 @@
+import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-// @mui
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
-
-// _mock
-
-import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
+import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { paramCase } from 'src/utils/change-case';
-import { exportToExcel } from 'src/utils/export-to-excel';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeleteLoan } from 'src/query/use-loan';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteLoan, usePaginatedLoans } from 'src/query/use-loan';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { TABLE_COLUMNS } from '../loans-table-config';
 import LoanTableRow from '../loans-list/loans-table-row';
 import LoanTableToolbar from '../loans-list/loans-table-toolbar';
+import { LOAN_STATUS, LOAN_STATUS_COLOR } from '../loans-config';
 import LoanTableFiltersResult from '../loans-list/loans-table-filters-result';
+
+const STORAGE_KEY = 'loan-table-columns';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'borrowerId', label: 'Borrower' },
-  { id: 'borrowerType', label: 'Borrower Type' },
-  { id: 'totalAmount', label: 'Total Amount' },
-  { id: 'remainingBalance', label: 'Remaining Balance' },
-  { id: 'remarks', label: 'Remarks' },
-  { id: 'status', label: 'Status' },
-  { id: 'issuedDate', label: 'Issued Date' },
-  { id: '', label: '' },
-];
-
 const defaultFilters = {
+  loanNo: '',
   borrower: '',
+  loanStatus: 'all',
   fromDate: null,
   endDate: null,
 };
 
 // ----------------------------------------------------------------------
 
-export function LoansListView({ loans }) {
+export function LoansListView() {
+  const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
-  const confirm = useBoolean();
-  const deleteLoan = useDeleteLoan();
-
   const navigate = useNavigate();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const deleteLoan = useDeleteLoan();
+  const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
+  const confirm = useBoolean();
 
-  const dateError = fIsAfter(filters.fromDate, filters.endDate);
-
-  useEffect(() => {
-    if (loans.length) {
-      setTableData(loans);
-    }
-  }, [loans]);
-
-  const [tableData, setTableData] = useState([]);
-
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
   });
 
-  const denseHeight = table.dense ? 56 : 76;
+  const {
+    visibleColumns,
+    visibleHeaders,
+    columnOrder,
+    disabledColumns,
+    toggleColumnVisibility,
+    toggleAllColumnsVisibility,
+    moveColumn,
+    resetColumns,
+    canReset: canResetColumns,
+  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const canReset = !!filters.borrower || (!!filters.fromDate && !!filters.endDate);
+  const [tableData, setTableData] = useState([]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const { data, isLoading } = usePaginatedLoans({
+    loanNo: filters.loanNo || undefined,
+    loanStatus: filters.loanStatus !== 'all' ? filters.loanStatus : undefined,
+    fromDate: filters.fromDate || undefined,
+    endDate: filters.endDate || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
+  const getVisibleColumnsForExport = () => {
+    const orderedIds = (
+      columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+    ).filter((id) => visibleColumns[id]);
+    return orderedIds;
+  };
+
+  useEffect(() => {
+    if (data?.loans) {
+      setTableData(data.loans);
+    }
+  }, [data]);
+
+  // Client-side borrower name filter (since server doesn't have name search on populated field)
+  const filteredData = tableData.filter((row) => {
+    if (!filters.borrower) return true;
+    const name =
+      row.borrowerType === 'Driver'
+        ? row.borrowerId?.driverName
+        : row.borrowerId?.transportName;
+    return name && name.toLowerCase().includes(filters.borrower.toLowerCase());
+  });
+
+  const notFound = !isLoading && !filteredData.length;
+
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || 0;
+
+  const getStatusCount = (status) => totals[status]?.count || 0;
+
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
+    {
+      value: LOAN_STATUS.ACTIVE,
+      label: 'Active',
+      color: LOAN_STATUS_COLOR[LOAN_STATUS.ACTIVE],
+      count: getStatusCount(LOAN_STATUS.ACTIVE),
     },
-    [table]
+    {
+      value: LOAN_STATUS.CLOSED,
+      label: 'Closed',
+      color: LOAN_STATUS_COLOR[LOAN_STATUS.CLOSED],
+      count: getStatusCount(LOAN_STATUS.CLOSED),
+    },
+  ];
+
+  const handleFilterStatus = useCallback(
+    (event, newValue) => {
+      handleFilters('loanStatus', newValue);
+    },
+    [handleFilters]
   );
 
   const handleEditRow = (id) => {
-    navigate(paths.dashboard.loan.edit(paramCase(id)));
+    navigate(paths.dashboard.loan.edit(id));
   };
 
   const handleViewRow = useCallback(
@@ -122,27 +162,15 @@ export function LoansListView({ loans }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
   return (
     <>
       <DashboardContent>
         <CustomBreadcrumbs
           heading="Loans List"
           links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Loans',
-              href: paths.dashboard.loan.root,
-            },
-            {
-              name: 'List',
-            },
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Loans', href: paths.dashboard.loan.root },
+            { name: 'List' },
           ]}
           action={
             <Button
@@ -151,24 +179,61 @@ export function LoansListView({ loans }) {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Loans
+              New Loan
             </Button>
           }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         {/* Table Section */}
         <Card>
-          <LoanTableToolbar filters={filters} onFilters={handleFilters} tableData={dataFiltered} />
+          {/* Status Tabs */}
+          <Tabs
+            value={filters.loanStatus}
+            onChange={handleFilterStatus}
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.label}
+                iconPosition="end"
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.loanStatus) && 'filled') ||
+                      'soft'
+                    }
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
+          <LoanTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            visibleColumns={visibleColumns}
+            disabledColumns={disabledColumns}
+            onToggleColumn={toggleColumnVisibility}
+            onToggleAllColumns={toggleAllColumnsVisibility}
+            onResetColumns={resetColumns}
+            canResetColumns={canResetColumns}
+          />
 
           {canReset && (
             <LoanTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -177,12 +242,39 @@ export function LoansListView({ loans }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
+              rowCount={filteredData.length}
+              onSelectAllRows={(checked) => {
+                if (!checked) {
+                  setSelectAllMode(false);
+                }
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
-                )
+                  filteredData.map((row) => row._id)
+                );
+              }}
+              label={
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="subtitle2">
+                    {selectAllMode
+                      ? `All ${totalCount} selected`
+                      : `${table.selected.length} selected`}
+                  </Typography>
+
+                  {!selectAllMode &&
+                    table.selected.length === filteredData.length &&
+                    totalCount > filteredData.length && (
+                      <Link
+                        component="button"
+                        variant="subtitle2"
+                        onClick={() => {
+                          setSelectAllMode(true);
+                        }}
+                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                      >
+                        Select all {totalCount} loans
+                      </Link>
+                    )}
+                </Stack>
               }
               action={
                 <Stack direction="row">
@@ -190,10 +282,19 @@ export function LoansListView({ loans }) {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
+                        const selectedRows = filteredData.filter((r) =>
+                          table.selected.includes(r._id)
                         );
-                        exportToExcel(selectedRows, 'filtered');
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'Loans-selected-list'
+                        );
                       }}
                     >
                       <Iconify icon="file-icons:microsoft-excel" />
@@ -214,38 +315,35 @@ export function LoansListView({ loans }) {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  headLabel={visibleHeaders}
+                  rowCount={filteredData.length}
                   numSelected={table.selected.length}
-                  onSelectAllRows={(checked) =>
+                  onOrderChange={moveColumn}
+                  onSelectAllRows={(checked) => {
+                    if (!checked) {
+                      setSelectAllMode(false);
+                    }
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
-                    )
-                  }
+                      filteredData.map((row) => row._id)
+                    );
+                  }}
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <LoanTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteLoan(row._id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {filteredData.map((row) => (
+                    <LoanTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                      onDeleteRow={() => deleteLoan(row._id)}
+                      visibleColumns={visibleColumns}
+                      disabledColumns={disabledColumns}
+                      columnOrder={columnOrder}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -254,19 +352,16 @@ export function LoansListView({ loans }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </DashboardContent>
 
-      {/* Delete Confirmations dialogue */}
+      {/* Bulk Delete dialog */}
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -281,7 +376,8 @@ export function LoansListView({ loans }) {
             variant="contained"
             color="error"
             onClick={() => {
-              // handleDeleteRows();
+              table.selected.forEach((id) => deleteLoan(id));
+              table.onSelectAllRows(false, []);
               confirm.onFalse();
             }}
           >
@@ -291,43 +387,4 @@ export function LoansListView({ loans }) {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { borrower, fromDate, endDate } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (borrower) {
-    inputData = inputData.filter((record) => {
-      const borrowerName = record?.borrowerType === 'Driver' ? 'driverName' : 'transportName';
-      return (
-        record.borrowerId &&
-        record.borrowerId[borrowerName].toLowerCase().indexOf(borrower.toLowerCase()) !== -1
-      );
-    });
-  }
-
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (Invoice) =>
-          fTimestamp(Invoice.date) >= fTimestamp(fromDate) &&
-          fTimestamp(Invoice.date) <= fTimestamp(endDate)
-      );
-    }
-  }
-
-  return inputData;
 }

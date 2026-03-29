@@ -7,10 +7,16 @@ const ENDPOINT = '/api/loans';
 const QUERY_KEY = 'loans';
 
 // Fetchers
+const getPaginatedLoans = async (params) => {
+  const { data } = await axios.get(ENDPOINT, { params });
+  return data;
+};
+
 const getLoans = async () => {
   const { data } = await axios.get(ENDPOINT);
   return data;
 };
+
 
 const getLoan = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
@@ -22,18 +28,16 @@ const createLoan = async (loan) => {
   return data;
 };
 
-const repayLoan = async ({ id, amount, paidDate, installmentNumber, remarks }) => {
+const repayLoan = async ({ id, amount, paidDate, remarks }) => {
   const { data } = await axios.post(`${ENDPOINT}/${id}/repay`, {
     amount,
     paidDate,
-    installmentNumber,
     remarks,
   });
   return data;
 };
 
 const updateLoan = async (id, loanData) => {
-  console.log({ loanDataInAPICAll: loanData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, loanData);
   return data;
 };
@@ -43,20 +47,19 @@ const deleteLoan = async (id) => {
   return data;
 };
 
-const deferNextInstallment = async ({ id, deferredTo }) => {
-  const { data } = await axios.post(`${ENDPOINT}/${id}/defer-next`, { deferredTo });
-  return data;
-};
-
-// API for “defer all installments”
-const deferAllInstallments = async ({ id, days }) => {
-  const { data } = await axios.post(`${ENDPOINT}/${id}/defer-all`, { days });
-  return data;
-};
-
 // Queries & Mutations
 export function useLoans() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getLoans });
+}
+
+export function usePaginatedLoans(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedLoans(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useLoan(id) {
@@ -90,7 +93,6 @@ export function useUpdateLoan() {
     onSuccess: (updatedLoan) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedLoan._id], updatedLoan);
-
       toast.success('Loan edited successfully!');
     },
     onError: (error) => {
@@ -98,7 +100,6 @@ export function useUpdateLoan() {
       toast.error(errorMessage);
     },
   });
-
   return mutate;
 }
 
@@ -106,12 +107,11 @@ export function useDeleteLoan() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteLoan(id),
-    onSuccess: (_) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
       toast.success('Loan deleted successfully!');
     },
     onError: (error) => {
-      console.log({ error });
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
@@ -125,10 +125,8 @@ export function useRepayLoan() {
   const { mutateAsync } = useMutation({
     mutationFn: repayLoan,
     onSuccess: (updatedLoan) => {
-      // Invalidate list, update detail cache
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedLoan._id], updatedLoan);
-
       toast.success('Payment recorded successfully!');
     },
     onError: (error) => {
@@ -140,44 +138,16 @@ export function useRepayLoan() {
   return mutateAsync;
 }
 
-// Hook to defer next pending EMI
-export function useDeferNextInstallment() {
-  const queryClient = useQueryClient();
+// Fetch pending (active) loans for a borrower
+const getPendingLoans = async (borrowerType, borrowerId) => {
+  const { data } = await axios.get(`${ENDPOINT}/pending/${borrowerType}/${borrowerId}`);
+  return data;
+};
 
-  const { mutateAsync } = useMutation({
-    mutationFn: deferNextInstallment,
-    onSuccess: (updatedLoan) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedLoan._id], updatedLoan);
-      toast.success('Next installment deferred');
-    },
-    onError: (error) => {
-      const msg =
-        error?.response?.data?.message || error?.message || 'Failed to defer next installment';
-      toast.error(msg);
-    },
+export function usePendingLoans(borrowerType, borrowerId) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'pending', borrowerType, borrowerId],
+    queryFn: () => getPendingLoans(borrowerType, borrowerId),
+    enabled: !!borrowerType && !!borrowerId,
   });
-
-  return mutateAsync;
-}
-
-// Hook to defer all pending EMIs
-export function useDeferAllInstallments() {
-  const queryClient = useQueryClient();
-
-  const { mutateAsync } = useMutation({
-    mutationFn: deferAllInstallments,
-    onSuccess: (updatedLoan) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedLoan._id], updatedLoan);
-      toast.success('All installments deferred');
-    },
-    onError: (error) => {
-      const msg =
-        error?.response?.data?.message || error?.message || 'Failed to defer all installments';
-      toast.error(msg);
-    },
-  });
-
-  return mutateAsync;
 }

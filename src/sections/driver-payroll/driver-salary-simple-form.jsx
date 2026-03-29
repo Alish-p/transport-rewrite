@@ -1,8 +1,8 @@
 /* eslint-disable no-shadow */
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -33,6 +33,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { usePendingLoans } from 'src/query/use-loan';
 import { useCreateDriverPayroll } from 'src/query/use-driver-payroll';
 import { useTripsCompletedByDriverAndDate } from 'src/query/use-subtrip';
 
@@ -44,6 +45,7 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/c
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import LoanDeductionCard from '../loans/loan-deduction-card';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import {
   calculateDriverSalary,
@@ -94,6 +96,7 @@ export default function DriverSalarySimpleForm() {
   const driverDialog = useBoolean();
   const dateDialog = useBoolean();
   const tenant = useTenantContext();
+  const [loanDeductions, setLoanDeductions] = useState([]);
 
   const methods = useForm({
     resolver: zodResolver(SalarySchema),
@@ -134,6 +137,12 @@ export default function DriverSalarySimpleForm() {
   const createSalary = useCreateDriverPayroll();
   const navigate = useNavigate();
 
+  // Fetch pending loans for selected driver
+  const { data: pendingLoans = [], isLoading: loansLoading } = usePendingLoans(
+    'Driver',
+    driver?._id
+  );
+
   useEffect(() => {
     if (driver?._id && billingPeriod?.start && billingPeriod?.end) {
       refetch();
@@ -169,6 +178,13 @@ export default function DriverSalarySimpleForm() {
   };
 
   const onSubmit = async (data) => {
+    const selected = data.associatedSubtrips.filter((st) => st.selected);
+    if (selected.length === 0) return;
+
+    await submitSalary(data, loanDeductions);
+  };
+
+  const submitSalary = async (data, submittedDeductions = []) => {
     const {
       driver: { _id: did } = {},
       billingPeriod: period,
@@ -183,18 +199,26 @@ export default function DriverSalarySimpleForm() {
       const deductions = charges
         .filter((c) => Number(c.amount) < 0)
         .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) }));
+
+      // Add loan deductions as additional deductions for the summary
+      submittedDeductions.forEach((ld) => {
+        deductions.push({ label: 'Loan Repayment', amount: ld.amount });
+      });
+
       const payroll = await createSalary({
         driverId: did,
         billingPeriod: period,
         associatedSubtrips: selected.map((st) => st._id),
         additionalPayments: payments,
         additionalDeductions: deductions,
+        loanDeductions: submittedDeductions,
       });
       navigate(paths.dashboard.driverSalary.details(payroll._id));
     } catch (error) {
       console.error('Failed to create driver salary', error);
     }
   };
+
 
   const selectedSubtrips = associatedSubtrips.filter((st) => st.selected);
 
@@ -206,7 +230,9 @@ export default function DriverSalarySimpleForm() {
       .map((c) => ({ label: c.label, amount: Number(c.amount) })),
     additionalCharges
       .filter((c) => Number(c.amount) < 0)
-      .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) }))
+      .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) })).concat(
+        selectedSubtrips.length > 0 ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: ld.amount })) : []
+      )
   );
 
   const { totalTripWiseIncome, netIncome } = summary;
@@ -327,6 +353,12 @@ export default function DriverSalarySimpleForm() {
           onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
         />
 
+        <LoanDeductionCard
+          loans={pendingLoans}
+          isLoading={loansLoading}
+          onChange={setLoanDeductions}
+        />
+
         <TableContainer sx={{ overflowX: 'auto', mt: 3 }}>
           <Table sx={{ minWidth: 720 }}>
             <TableHead>
@@ -413,10 +445,22 @@ export default function DriverSalarySimpleForm() {
                       onClick={handleAddCharge}
                       sx={{ width: { sm: 'auto', xs: 1 } }}
                     >
-                      Add Extra Charge
+                       Add Extra Charge
                     </Button>
                   </TableCell>
                 </StyledTableRow>
+
+                {loanDeductions.map((ld, idx) => (
+                  <StyledTableRow key={`loan-${idx}`}>
+                    <TableCell colSpan={6} align="right">
+                      Loan Repayment (LN-{ld.loanNo})
+                    </TableCell>
+                    <TableCell sx={{ color: 'error.main' }} align="right">
+                      -{fCurrency(ld.amount)}
+                    </TableCell>
+                    <TableCell />
+                  </StyledTableRow>
+                ))}
 
                 <StyledTableRow>
                   <TableCell colSpan={6} align="right">
@@ -441,6 +485,7 @@ export default function DriverSalarySimpleForm() {
           Create Salary
         </LoadingButton>
       </Stack>
+
     </Form>
   );
 }

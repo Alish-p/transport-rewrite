@@ -21,45 +21,45 @@ Font.register({
 export default function LoansPdf({ loan, tenant }) {
   const {
     _id,
+    loanNo,
     borrowerId: b,
     createdAt,
     disbursementDate,
-    installments = [],
-    totalAmount,
+    principalAmount,
     outstandingBalance,
     status,
     remarks,
-    payments,
+    payments = [],
   } = loan || {};
 
-  // table headers
-  const headers = ['No.', 'EMI Amount', 'Due Date', 'Status', 'Paid Amount', 'Paid Date'];
-
-  // build table data
-  const data = useMemo(
+  // Payment history table
+  const paymentHeaders = ['#', 'Date', 'Amount', 'Source', 'Remarks'];
+  const paymentData = useMemo(
     () =>
-      installments.map((inst) => [
-        inst.installmentNumber,
-        fCurrency(inst.totalDue),
-        fDate(inst.dueDate),
-        inst.status.charAt(0).toUpperCase() + inst.status.slice(1),
-        inst.paidAmount ? fCurrency(inst.paidAmount) : '-',
-        inst.paidDate ? fDate(inst.paidDate) : '-',
+      payments.map((p, idx) => [
+        idx + 1,
+        fDate(p.paymentDate),
+        fCurrency(p.amount),
+        p.source || 'Manual',
+        p.remarks || '-',
       ]),
-    [installments]
+    [payments]
   );
 
-  // summary rows
+  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+  // Summary rows
   const summaryData = [
-    ['Total Amount', fCurrency(totalAmount)],
+    ['Loan Amount', fCurrency(principalAmount)],
+    ['Total Paid', fCurrency(totalPaid)],
     ['Outstanding Balance', fCurrency(outstandingBalance)],
   ];
 
   // BillTo (borrower) details
   const billToDetails = [
-    b?.driverName,
-    b?.driverPresentAddress,
-    b?.driverCellNo && `Phone: ${b.driverCellNo}`,
+    b?.driverName || b?.transportName,
+    b?.driverPresentAddress || b?.address,
+    (b?.driverCellNo || b?.cellNo) && `Phone: ${b?.driverCellNo || b?.cellNo}`,
     b?.driverLicenceNo && `License: ${b.driverLicenceNo}`,
     b?.bankDetails?.name && `Bank: ${b.bankDetails.name}`,
     b?.bankDetails?.branch && `Branch: ${b.bankDetails.branch}`,
@@ -68,23 +68,16 @@ export default function LoansPdf({ loan, tenant }) {
   ].filter(Boolean);
 
   const metaDetails = [
-    ['Loan No.', _id],
+    ['Loan No.', loanNo || _id],
     ['Created', fDate(createdAt)],
-    ['Disbursement', fDate(disbursementDate)],
+    ['Issued', fDate(disbursementDate)],
     ['Status', status?.toUpperCase()],
   ];
-
-  // 2) Payments table
-  const paymentHeaders = ['Date', 'Amount', 'Remarks'];
-  const paymentData = useMemo(
-    () => payments.map((p) => [fDate(p.paymentDate), fCurrency(p.amount), p.remarks || '-']),
-    [payments]
-  );
 
   return (
     <Document>
       <Page size="A4" style={PDFStyles.page} orientation="landscape">
-        <PDFTitle title="Loan Summary" />
+        <PDFTitle title="Loan / Advance Summary" />
         <PDFHeader company={tenant} />
 
         <PDFBillToSection
@@ -93,20 +86,13 @@ export default function LoansPdf({ loan, tenant }) {
           metaDetails={metaDetails}
         />
 
-        <PDFTable headers={headers} data={data} columnWidths={[2, 2, 2, 2, 2, 2]} />
+        {payments.length > 0 && (
+          <PDFTable headers={paymentHeaders} data={paymentData} columnWidths={[1, 2, 2, 3, 3]} />
+        )}
 
         <PDFTable headers={['', '']} data={summaryData} columnWidths={[10, 2]} hideHeader />
 
         <PDFInvoiceFooter declaration={remarks} signatory={`For ${tenant.name}`} />
-      </Page>
-
-      <Page size="A4" style={PDFStyles.page} orientation="landscape">
-        {payments.length > 0 && (
-          <>
-            <PDFTitle title="Payment history" />
-            <PDFTable headers={paymentHeaders} data={paymentData} columnWidths={[1, 1, 2]} />
-          </>
-        )}
       </Page>
     </Document>
   );

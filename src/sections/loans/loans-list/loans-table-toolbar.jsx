@@ -2,43 +2,62 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
-import MenuItem from '@mui/material/MenuItem';
+import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-// @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// components
 
-import { MenuList } from '@mui/material';
+import { useBoolean } from 'src/hooks/use-boolean';
 
-import { exportToExcel } from 'src/utils/export-to-excel';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { ColumnSelectorList } from 'src/components/table';
+import { usePopover } from 'src/components/custom-popover';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+
+import { TABLE_COLUMNS } from '../loans-table-config';
 
 // ----------------------------------------------------------------------
 
-export default function LoansTableToolbar({ filters, onFilters, tableData }) {
-  const popover = usePopover();
+export default function LoansTableToolbar({
+  filters,
+  onFilters,
+  visibleColumns,
+  disabledColumns = {},
+  onToggleColumn,
+  onToggleAllColumns,
+  onResetColumns,
+  canResetColumns,
+}) {
+  const columnsPopover = usePopover();
+  const dateDialog = useBoolean();
 
-  const handleFilterBorrowerName = useCallback(
+  const handleFilterLoanNo = useCallback(
+    (event) => {
+      onFilters('loanNo', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterBorrower = useCallback(
     (event) => {
       onFilters('borrower', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterFromDate = useCallback(
-    (newValue) => {
-      onFilters('fromDate', newValue);
+  const handleChangeStartDate = useCallback(
+    (date) => {
+      onFilters('fromDate', date);
     },
     [onFilters]
   );
 
-  const handleFilterEndDate = useCallback(
-    (newValue) => {
-      onFilters('endDate', newValue);
+  const handleChangeEndDate = useCallback(
+    (date) => {
+      onFilters('endDate', date);
     },
     [onFilters]
   );
@@ -59,9 +78,9 @@ export default function LoansTableToolbar({ filters, onFilters, tableData }) {
       >
         <TextField
           fullWidth
-          value={filters.borrower}
-          onChange={handleFilterBorrowerName}
-          placeholder="Search Borrower ..."
+          value={filters.loanNo}
+          onChange={handleFilterLoanNo}
+          placeholder="Search Loan No..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -71,67 +90,69 @@ export default function LoansTableToolbar({ filters, onFilters, tableData }) {
           }}
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
+        <TextField
+          fullWidth
+          value={filters.borrower}
+          onChange={handleFilterBorrower}
+          placeholder="Search Borrower..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="mdi:account-search" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
           }}
         />
 
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={dateDialog.onTrue}
+          placeholder="Date range"
+          selected={
+            filters.fromDate && filters.endDate
+              ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
+              : undefined
+          }
+          iconName="mdi:calendar"
         />
 
-        <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+        <Stack direction="row" spacing={1}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={columnsPopover.onOpen}
+            startIcon={
+              <Badge color="error" variant="dot" invisible={!canResetColumns}>
+                <Iconify icon="solar:settings-bold" />
+              </Badge>
+            }
+            sx={{ flexShrink: 0 }}
+          >
+            Columns
+          </Button>
+        </Stack>
       </Stack>
 
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        anchorEl={popover.anchorEl}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
+      <ColumnSelectorList
+        open={Boolean(columnsPopover.open)}
+        onClose={columnsPopover.onClose}
+        TABLE_COLUMNS={TABLE_COLUMNS}
+        visibleColumns={visibleColumns}
+        disabledColumns={disabledColumns}
+        handleToggleColumn={onToggleColumn}
+        handleToggleAllColumns={onToggleAllColumns}
+        onResetColumns={onResetColumns}
+        canResetColumns={canResetColumns}
+      />
 
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              exportToExcel(tableData, 'Borrower-list');
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateDialog.value}
+        onClose={dateDialog.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.endDate}
+        onChangeStartDate={handleChangeStartDate}
+        onChangeEndDate={handleChangeEndDate}
+      />
     </>
   );
 }

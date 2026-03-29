@@ -13,8 +13,8 @@ export function LoanEditView({ loan }) {
         heading="Edit Loan"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'loan', href: paths.dashboard.loan.root },
-          { name: 'Loan Edit' },
+          { name: 'Loans', href: paths.dashboard.loan.root },
+          { name: 'Edit Loan' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

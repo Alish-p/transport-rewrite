@@ -22,6 +22,10 @@ export default function LoansTableFiltersResult({
     onFilters('borrower', '');
   };
 
+  const handleRemoveLoanNo = () => {
+    onFilters('loanNo', '');
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('endDate', null);
@@ -39,8 +43,14 @@ export default function LoansTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.loanNo && (
+          <Block label="Loan No:">
+            <Chip size="small" label={filters.loanNo} onDelete={handleRemoveLoanNo} />
+          </Block>
+        )}
+
         {filters.borrower && (
-          <Block label="Borrower">
+          <Block label="Borrower:">
             <Chip size="small" label={filters.borrower} onDelete={handleRemoveBorrower} />
           </Block>
         )}

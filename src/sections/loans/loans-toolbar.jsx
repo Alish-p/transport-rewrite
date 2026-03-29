@@ -6,27 +6,20 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
   Stack,
-  Radio,
   Button,
   Dialog,
   Tooltip,
   TextField,
-  FormLabel,
   IconButton,
-  RadioGroup,
   DialogTitle,
-  FormControl,
   DialogContent,
   DialogActions,
-  FormControlLabel,
   CircularProgress,
 } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fCurrency } from 'src/utils/format-number';
-
-import { useRepayLoan, useDeferNextInstallment, useDeferAllInstallments } from 'src/query/use-loan';
+import { useRepayLoan } from 'src/query/use-loan';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -41,32 +34,20 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
   // Repay
   const repay = useRepayLoan();
   const [openRepay, setOpenRepay] = useState(false);
-  const [repayType, setRepayType] = useState('full');
   const [repayForm, setRepayForm] = useState({
-    amount: loan.emi.amount,
+    amount: '',
     paidDate: dayjs(),
     remarks: '',
   });
 
-  // Defer Next
-  const deferNext = useDeferNextInstallment();
-  const [openNext, setOpenNext] = useState(false);
-  const [deferredTo, setDeferredTo] = useState(dayjs());
-
-  // Defer All
-  const deferAll = useDeferAllInstallments();
-  const [openAll, setOpenAll] = useState(false);
-  const [days, setDays] = useState(1);
-
-  // Handlers factory
+  // Handlers
   const handleField = (setter) => (e) => setter(e.target.value);
 
-  // === Repay handlers ===
   const startRepay = () => {
-    setRepayType('full');
-    setRepayForm({ amount: loan.emi.amount, paidDate: dayjs(), remarks: '' });
+    setRepayForm({ amount: '', paidDate: dayjs(), remarks: '' });
     setOpenRepay(true);
   };
+
   const submitRepay = async () => {
     await repay({
       id: loan._id,
@@ -78,35 +59,13 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
     onActionSuccess?.();
   };
 
-  // === Defer Next handlers ===
-  const startDeferNext = () => {
-    setDeferredTo(dayjs());
-    setOpenNext(true);
-  };
-  const submitDeferNext = async () => {
-    await deferNext({ id: loan._id, deferredTo: deferredTo.toISOString() });
-    setOpenNext(false);
-    onActionSuccess?.();
-  };
-
-  // === Defer All handlers ===
-  const startDeferAll = () => {
-    setDays(1);
-    setOpenAll(true);
-  };
-  const submitDeferAll = async () => {
-    await deferAll({ id: loan._id, days: Number(days) });
-    setOpenAll(false);
-    onActionSuccess?.();
-  };
-
   return (
     <>
       <Stack
         spacing={2}
         direction={{ xs: 'column', sm: 'row' }}
         alignItems="center"
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: 1 }}
       >
         <Stack direction="row" spacing={1} flexGrow={1}>
           <Tooltip title="View PDF">
@@ -133,23 +92,13 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
             )}
           </PDFDownloadLink>
 
-          <Tooltip title="Repay Loan">
-            <IconButton color="primary" onClick={startRepay}>
-              <Iconify icon="solar:hand-money-linear" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Defer Next EMI">
-            <IconButton color="warning" onClick={startDeferNext}>
-              <Iconify icon="eva:clock-outline" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Defer All EMIs">
-            <IconButton color="error" onClick={startDeferAll}>
-              <Iconify icon="material-symbols:more-time-rounded" />
-            </IconButton>
-          </Tooltip>
+          {loan.status === 'active' && (
+            <Tooltip title="Record Payment">
+              <IconButton color="primary" onClick={startRepay}>
+                <Iconify icon="solar:hand-money-linear" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
       </Stack>
 
@@ -167,41 +116,19 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
 
       {/* Repay Dialog */}
       <Dialog open={openRepay} onClose={() => setOpenRepay(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Repay Loan</DialogTitle>
+        <DialogTitle>Record Payment</DialogTitle>
         <DialogContent dividers>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <FormLabel>Amount</FormLabel>
-            <RadioGroup
-              row
-              value={repayType}
-              onChange={(e) => {
-                const t = e.target.value;
-                setRepayType(t);
-                setRepayForm((f) => ({
-                  ...f,
-                  amount: t === 'full' ? loan.emi.amount : f.amount,
-                }));
-              }}
-            >
-              <FormControlLabel
-                value="full"
-                control={<Radio />}
-                label={`Full EMI (${fCurrency(loan.emi.amount)})`}
-              />
-              <FormControlLabel value="custom" control={<Radio />} label="Custom" />
-            </RadioGroup>
-          </FormControl>
           <TextField
             label="Amount"
             type="number"
             fullWidth
             value={repayForm.amount}
             onChange={handleField((v) => setRepayForm((f) => ({ ...f, amount: v })))}
-            disabled={repayType === 'full'}
+            placeholder={`Max: ₹${loan.outstandingBalance}`}
             sx={{ mb: 2 }}
           />
           <DatePicker
-            label="Paid Date"
+            label="Payment Date"
             value={repayForm.paidDate}
             onChange={(d) => setRepayForm((f) => ({ ...f, paidDate: d }))}
             slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
@@ -217,47 +144,12 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenRepay(false)}>Cancel</Button>
-          <Button variant="contained" onClick={submitRepay}>
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Defer Next Dialog */}
-      <Dialog open={openNext} onClose={() => setOpenNext(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Defer Next EMI</DialogTitle>
-        <DialogContent dividers sx={{ padding: '1rem' }}>
-          <DatePicker
-            label="New Due Date"
-            value={deferredTo}
-            onChange={setDeferredTo}
-            slotProps={{ textField: { fullWidth: true } }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenNext(false)}>Cancel</Button>
-          <Button variant="contained" onClick={submitDeferNext}>
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Defer All Dialog */}
-      <Dialog open={openAll} onClose={() => setOpenAll(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Defer All EMIs</DialogTitle>
-        <DialogContent dividers sx={{ padding: '1rem' }}>
-          <TextField
-            label="Days to Defer"
-            type="number"
-            fullWidth
-            value={days}
-            onChange={handleField(setDays)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAll(false)}>Cancel</Button>
-          <Button variant="contained" onClick={submitDeferAll}>
-            Submit
+          <Button
+            variant="contained"
+            onClick={submitRepay}
+            disabled={!repayForm.amount || parseFloat(repayForm.amount) <= 0}
+          >
+            Submit Payment
           </Button>
         </DialogActions>
       </Dialog>
