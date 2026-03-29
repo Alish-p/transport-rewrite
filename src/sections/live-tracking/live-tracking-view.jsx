@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
@@ -105,8 +106,8 @@ function statusLabel(resolved) {
 
 const STATUS_INSIGHT_MAP = {
   running: { label: 'Moving', icon: 'mdi:truck-fast-outline', color: 'success.main' },
-  idle:    { label: 'Idle',   icon: 'mdi:timer-sand',          color: 'warning.main' },
-  stopped: { label: 'Stopped', icon: 'mdi:truck-off-road',     color: 'error.main' },
+  idle: { label: 'Idle', icon: 'mdi:timer-sand', color: 'warning.main' },
+  stopped: { label: 'Stopped', icon: 'mdi:truck-off-road', color: 'error.main' },
 };
 
 function formatDuration(ms) {
@@ -181,7 +182,7 @@ function hasFuelData(v) {
 // Fly-to helper – lives inside <MapContainer> so it can call useMap()
 // ---------------------------------------------------------------------------
 
-function FlyToVehicle({ vehicle, markerRefs }) {
+function FlyToVehicle({ vehicle, markerRefs, center, resetTrigger }) {
   const map = useMap();
 
   useEffect(() => {
@@ -202,6 +203,14 @@ function FlyToVehicle({ vehicle, markerRefs }) {
     };
   }, [vehicle, map, markerRefs]);
 
+  useEffect(() => {
+    if (resetTrigger > 0) {
+      map.flyTo(center, 5, { duration: 1.2 });
+      map.closePopup();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetTrigger, map]);
+
   return null;
 }
 
@@ -221,7 +230,17 @@ export default function LiveTrackingView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [fuelFilter, setFuelFilter] = useState('all');
   const [lastSeenFilter, setLastSeenFilter] = useState('all');
+  const [resetTrigger, setResetTrigger] = useState(0);
   const markerRefs = useRef({});
+
+  const handleReset = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setFuelFilter('all');
+    setLastSeenFilter('all');
+    setSelectedVehicle(null);
+    setResetTrigger((prev) => prev + 1);
+  };
 
   // Convert object map → array
   const vehicles = useMemo(() => {
@@ -243,7 +262,7 @@ export default function LiveTrackingView() {
         const p = getFuelPercentage(v);
         if (fuelFilter === 'none') return p === null;
         if (p === null) return false;
-        
+
         if (fuelFilter === 'high') return p > 70;
         if (fuelFilter === 'medium') return p >= 40 && p <= 70;
         if (fuelFilter === 'low') return p < 40;
@@ -257,7 +276,7 @@ export default function LiveTrackingView() {
         if (!v.lastUpdatedAt) return false;
         const lastSeenTime = new Date(v.lastUpdatedAt).getTime();
         const diffHours = (now - lastSeenTime) / (1000 * 60 * 60);
-        
+
         if (lastSeenFilter === '1h') return diffHours <= 1;
         if (lastSeenFilter === '12h') return diffHours <= 12;
         if (lastSeenFilter === '24h') return diffHours <= 24;
@@ -389,7 +408,7 @@ export default function LiveTrackingView() {
             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <FlyToVehicle vehicle={selectedVehicle} markerRefs={markerRefs} />
+          <FlyToVehicle vehicle={selectedVehicle} markerRefs={markerRefs} center={center} resetTrigger={resetTrigger} />
           {filtered.map((v) => (
             <Marker
               key={v.vehicleNumber}
@@ -489,6 +508,37 @@ export default function LiveTrackingView() {
                         </Stack>
                       )}
                     </Stack>
+                  </Stack>
+
+                  {/* ── Action Buttons ── */}
+                  <Divider />
+                  <Stack direction="row" spacing={1} sx={{ px: 1.5, py: 1.5 }}>
+                    <Button
+                      component={RouterLink}
+                      href={paths.dashboard.expense.new}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Add Expense
+                    </Button>
+                    <Button
+                      fullWidth
+                      component={RouterLink}
+                      href={
+                        activeTripsMap?.[v.vehicleNumber]
+                          ? `${paths.dashboard.subtrip.jobCreate}?id=${activeTripsMap[v.vehicleNumber].tripId}`
+                          : paths.dashboard.subtrip.jobCreate
+                      }
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Add Job
+                    </Button>
                   </Stack>
 
                   {/* ── Footer ── */}
@@ -782,6 +832,12 @@ export default function LiveTrackingView() {
             </IconButton>
           </Tooltip>
 
+          <Tooltip title="Reset map">
+            <IconButton onClick={handleReset} size="small">
+              <Iconify icon="mdi:refresh" width={22} />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Exit fullscreen">
             <IconButton onClick={() => setIsFullscreen(false)} size="small" color="error">
               <Iconify icon="mdi:fullscreen-exit" width={22} />
@@ -840,6 +896,11 @@ export default function LiveTrackingView() {
                 icon={isDarkMode ? 'mdi:white-balance-sunny' : 'mdi:moon-waning-crescent'}
                 width={22}
               />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Reset map">
+            <IconButton onClick={handleReset} size="small" >
+              <Iconify icon="mdi:refresh" width={22} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Fullscreen">
