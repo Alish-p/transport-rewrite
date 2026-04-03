@@ -27,6 +27,7 @@ import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { useDeleteExpense } from 'src/query/use-expense';
+import { useDeleteTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { TableNoData } from 'src/components/table';
@@ -36,23 +37,38 @@ import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
 export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd = false }) => {
   const deleteExpense = useDeleteExpense();
+  const deleteAdvance = useDeleteTransporterAdvance();
   const navigate = useNavigate();
   const confirm = useBoolean();
   const subtripExpenseTypes = useSubtripExpenseTypes();
 
-  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  const subtripExpenses = selectedSubtrip?.expenses || [];
-  const totalExpenses = subtripExpenses.reduce((acc, expense) => acc + expense.amount, 0);
+  // Determine if this is a market vehicle subtrip (use advances) or own vehicle (use expenses)
+  const isMarketVehicle = selectedSubtrip?.vehicleId?.isOwn === false;
+  const items = isMarketVehicle
+    ? (selectedSubtrip?.advances || [])
+    : (selectedSubtrip?.expenses || []);
+  const totalAmount = items.reduce((acc, item) => acc + (item.amount || 0), 0);
+
+  const label = isMarketVehicle ? 'Advances' : 'Expenses';
+
+  const handleDelete = (item) => {
+    if (isMarketVehicle) {
+      deleteAdvance(item._id);
+    } else {
+      deleteExpense(item._id);
+    }
+  };
 
   return (
     <Card sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle1">Existing Expenses</Typography>
+        <Typography variant="subtitle1">Existing {label}</Typography>
 
         <Stack direction="row" spacing={1}>
           <Chip
-            label={`Total: ${fCurrency(totalExpenses)}`}
+            label={`Total: ${fCurrency(totalAmount)}`}
             color="info"
             variant="outlined"
             sx={{ fontWeight: 'bold' }}
@@ -64,10 +80,18 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
               color="primary"
               startIcon={<Iconify icon="mdi:plus" />}
               onClick={() => {
-                navigate(`${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`);
+                if (isMarketVehicle) {
+                  navigate(
+                    `${paths.dashboard.expense.newAdvance}?currentSubtrip=${selectedSubtrip._id}`
+                  );
+                } else {
+                  navigate(
+                    `${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`
+                  );
+                }
               }}
             >
-              Add Expense
+              Add {isMarketVehicle ? 'Advance' : 'Expense'}
             </Button>
           )}
         </Stack>
@@ -104,58 +128,61 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
           </TableHead>
 
           <TableBody>
-            {subtripExpenses.map((expense) => (
-              <TableRow key={expense._id} hover>
-                <TableCell align="center">{fDate(expense.date)}</TableCell>
-                <TableCell align="center">
-                  <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-                    <Iconify
-                      icon={
-                        subtripExpenseTypes.find((type) => type.label === expense.expenseType)
-                          ?.icon || 'mdi:help-circle'
-                      }
-                      sx={{ color: 'primary.main' }}
-                    />
-                    <Typography variant="body2" noWrap>
-                      {expense.expenseType}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell align="center">
-                  {expense.dieselLtr ? `${fNumber(expense.dieselLtr)} L` : '-'}
-                </TableCell>
-                <TableCell align="center">
-                  {expense.dieselPrice ? `${fNumber(expense.dieselPrice)}` : '-'}
-                </TableCell>
-                <TableCell align="center">
-                  <Typography variant="body2" fontWeight="medium">
-                    {fCurrency(expense.amount)}
-                  </Typography>
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title={expense.remarks || '-'}>
-                    <Typography variant="body2" noWrap sx={{ maxWidth: 120 }}>
-                      {expense.remarks || '-'}
-                    </Typography>
-                  </Tooltip>
-                </TableCell>
-                {withDelete && (
+            {items.map((item) => {
+              const itemType = item.advanceType || item.expenseType;
+              return (
+                <TableRow key={item._id} hover>
+                  <TableCell align="center">{fDate(item.date)}</TableCell>
                   <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        confirm.onTrue();
-                        setSelectedExpense(expense);
-                      }}
-                    >
-                      <Iconify icon="mdi:delete" />
-                    </IconButton>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                      <Iconify
+                        icon={
+                          subtripExpenseTypes.find((type) => type.label === itemType)
+                            ?.icon || 'mdi:help-circle'
+                        }
+                        sx={{ color: 'primary.main' }}
+                      />
+                      <Typography variant="body2" noWrap>
+                        {itemType}
+                      </Typography>
+                    </Stack>
                   </TableCell>
-                )}
-              </TableRow>
-            ))}
-            <TableNoData notFound={subtripExpenses.length === 0} />
+                  <TableCell align="center">
+                    {item.dieselLtr ? `${fNumber(item.dieselLtr)} L` : '-'}
+                  </TableCell>
+                  <TableCell align="center">
+                    {item.dieselPrice ? `${fNumber(item.dieselPrice)}` : '-'}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Typography variant="body2" fontWeight="medium">
+                      {fCurrency(item.amount)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={item.remarks || '-'}>
+                      <Typography variant="body2" noWrap sx={{ maxWidth: 120 }}>
+                        {item.remarks || '-'}
+                      </Typography>
+                    </Tooltip>
+                  </TableCell>
+                  {withDelete && (
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          confirm.onTrue();
+                          setSelectedItem(item);
+                        }}
+                      >
+                        <Iconify icon="mdi:delete" />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+            <TableNoData notFound={items.length === 0} />
           </TableBody>
         </Table>
       </TableContainer>
@@ -163,23 +190,15 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        onConfirm={() => deleteExpense(selectedExpense._id)}
-        title="Delete Expense"
-        message="Are you sure you want to delete this expense?"
-      />
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete Expense"
-        content="Are you sure you want to delete this expense?"
+        title={`Delete ${isMarketVehicle ? 'Advance' : 'Expense'}`}
+        content={`Are you sure you want to delete this ${isMarketVehicle ? 'advance' : 'expense'}?`}
         action={
           <Button
             variant="contained"
             color="error"
             onClick={() => {
               confirm.onFalse();
-              deleteExpense(selectedExpense._id);
+              handleDelete(selectedItem);
             }}
           >
             Delete

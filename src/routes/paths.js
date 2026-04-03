@@ -165,6 +165,11 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/expense/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/expense/${id}`,
     },
+    transporterAdvance: {
+      root: `${ROOTS.DASHBOARD}/transporter-advance`,
+      list: `${ROOTS.DASHBOARD}/transporter-advance/list`,
+      new: `${ROOTS.DASHBOARD}/expense/new-transporter-advance`, // Reuse existing form route
+    },
     subtrip: {
       root: `${ROOTS.DASHBOARD}/subtrip`,
       jobCreate: `${ROOTS.DASHBOARD}/subtrip/job/create`,

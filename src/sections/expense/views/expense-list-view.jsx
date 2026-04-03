@@ -153,14 +153,16 @@ export function ExpenseListView() {
   const getPercentByCategory = (category) =>
     totalCount ? ((totals[category]?.count || 0) / totalCount) * 100 : 0;
 
+  const isMarketVehicleSelected = selectedVehicle && selectedVehicle.isOwn === false;
+
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
-    {
+    ...(!isMarketVehicleSelected ? [{
       value: 'subtrip',
       label: 'Job Expenses',
       color: 'primary',
       count: totals.subtrip?.count || 0,
-    },
+    }] : []),
     {
       value: 'vehicle',
       label: 'Vehicle Expenses',

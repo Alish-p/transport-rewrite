@@ -163,14 +163,22 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
   console.log(consignorPincode, consigneePincode);
 
-  const totalExpenses = subtrip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0);
-  const totalDieselLtr = subtrip?.expenses?.reduce(
-    (sum, expense) =>
-      sum + (expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? expense.dieselLtr : 0),
+  // For market vehicles, use advances; for own vehicles, use expenses
+  const isMarketVehicle = subtrip?.vehicleId?.isOwn === false;
+  const deductionItems = isMarketVehicle
+    ? (subtrip?.advances || [])
+    : (subtrip?.expenses || []);
+
+  const totalExpenses = deductionItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const totalDieselLtr = deductionItems.reduce(
+    (sum, item) => {
+      const itemType = item.advanceType || item.expenseType;
+      return sum + (itemType === SUBTRIP_EXPENSE_TYPES.DIESEL ? (item.dieselLtr || 0) : 0);
+    },
     0
   );
 
-  const expenseChartData = mapExpensesToChartData(subtrip?.expenses);
+  const expenseChartData = mapExpensesToChartData(deductionItems);
 
   // Route-based insights removed
 
@@ -629,7 +637,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   }}
                 />
                 <IncomeWidgetSummary
-                  title="Expenses"
+                  title={isMarketVehicle ? 'Advances' : 'Expenses'}
                   type="expense"
                   color="warning"
                   icon="eva:diagonal-arrow-right-up-fill"
@@ -667,12 +675,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart
-                  title="Expense Details"
+                  title={isMarketVehicle ? 'Advance Details' : 'Expense Details'}
                   chart={{
                     series: expenseChartData || [],
                   }}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
-                  noDataMessage="No expenses recorded yet"
+                  noDataMessage={isMarketVehicle ? 'No advances recorded yet' : 'No expenses recorded yet'}
                 />
 
               </Stack>

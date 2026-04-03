@@ -312,3 +312,20 @@ export function useWorkOrderDashboardSummary(enabled = true) {
   });
 }
 
+// ----------------------------------------------------------------------
+// Profitability summary
+
+const getProfitabilitySummary = async (month) => {
+  const { data } = await axios.get(`${ENDPOINT}/profitability-summary`, {
+    params: { month },
+  });
+  return data;
+};
+
+export function useMonthlyProfitability(month) {
+  return useQuery({
+    queryKey: ['profitabilitySummary', month],
+    queryFn: () => getProfitabilitySummary(month),
+    enabled: Boolean(month),
+  });
+}

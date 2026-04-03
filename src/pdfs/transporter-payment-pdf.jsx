@@ -71,7 +71,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
         formatter: (v) => fNumber(v),
       },
       {
-        header: 'Expense',
+        header: 'Advances',
         accessor: 'expense',
         width: '8%',
         align: 'right',
@@ -297,7 +297,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       </Page>
       {subtripSnapshot.some((st) => (st.expenses || []).length > 0) && (
         <Page size="A4" style={PDFStyles.page} orientation="landscape">
-          <PDFTitle title="Trip Expenses" />
+          <PDFTitle title="Trip Advances" />
           <PDFHeader company={tenant} />
           {renderExpenseTable()}
           <PDFInvoiceFooter

@@ -397,7 +397,7 @@ export default function TransporterPaymentSimpleForm() {
                   'Shortage Amt',
                   'FRT-RATE',
                   'FRT-AMT',
-                  'Expense',
+                  'Advances',
                   'Total Payable',
                 ].map((h, idx) => (
                   <StyledTableCell key={h} align={idx < 7 ? 'center' : 'right'}>

@@ -43,9 +43,16 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
 
   const { vehicleNo, transporter, vehicleType } = vehicleId;
 
+  // For market vehicles, use advances; for own vehicles, use expenses
+  const isMarketVehicle = vehicleId?.isOwn === false;
+  const deductionItems = useMemo(
+    () => (isMarketVehicle ? subtrip.advances || [] : expenses || []),
+    [isMarketVehicle, subtrip.advances, expenses]
+  );
+
   const totalExpense = useMemo(
-    () => expenses.reduce((total, expense) => total + expense.amount, 0),
-    [expenses]
+    () => deductionItems.reduce((total, item) => total + (item.amount || 0), 0),
+    [deductionItems]
   );
 
   const rateAfterCommission = rate - CONFIG.company.transporterCommissionRate;
@@ -210,7 +217,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
           <Text style={[styles.horizontalCellTitle]}>Freight Amount</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Total Expense</Text>
+          <Text style={[styles.horizontalCellTitle]}>Total Advances</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell]}>
           <Text style={[styles.horizontalCellTitle]}>Total Payment</Text>
@@ -251,7 +258,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
   const renderExpenseDetails = () => (
     <>
       <View style={[styles.gridContainer]}>
-        <Text style={[styles.h4, styles.mb4]}>Expense List</Text>
+        <Text style={[styles.h4, styles.mb4]}>Advance List</Text>
       </View>
       {/* Salary Details Header */}
       <View style={[styles.gridContainer, styles.border]}>
@@ -259,7 +266,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
           <Text style={[styles.horizontalCellTitle]}>#</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-          <Text style={[styles.horizontalCellTitle]}>Expense Type</Text>
+          <Text style={[styles.horizontalCellTitle]}>Advance Type</Text>
         </View>
         <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
           <Text style={[styles.horizontalCellTitle]}>Date</Text>
@@ -276,25 +283,25 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
       </View>
       {/* Values */}
 
-      {expenses.map((expense, idx) => (
+      {deductionItems.map((item, idx) => (
         <View style={[styles.gridContainer, styles.border, styles.noBorderTop]}>
           <View style={[styles.col1, styles.horizontalCell, styles.borderRight]}>
             <Text style={[styles.horizontalCellContent]}>{idx}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{expense?.expenseType}</Text>
+            <Text style={[styles.horizontalCellContent]}>{item?.advanceType || item?.expenseType}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{fDate(expense?.date)}</Text>
+            <Text style={[styles.horizontalCellContent]}>{fDate(item?.date)}</Text>
           </View>
           <View style={[styles.col3, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{expense.remarks}</Text>
+            <Text style={[styles.horizontalCellContent]}>{item.remarks}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{expense.paidThrough}</Text>
+            <Text style={[styles.horizontalCellContent]}>{item.paidThrough}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{expense.amount}</Text>
+            <Text style={[styles.horizontalCellContent]}>{item.amount}</Text>
           </View>
         </View>
       ))}

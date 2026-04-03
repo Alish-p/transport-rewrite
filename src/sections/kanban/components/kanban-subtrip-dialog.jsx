@@ -131,6 +131,9 @@ export function KanbanSubtripDialog({
   statusList = [],
   selectedSubtrip = null,
   open,
+  excludeBilled = false,
+  excludeIsOwn = false,
+  excludeIsMarket = false,
   onClose,
   onSubtripChange,
 }) {
@@ -146,6 +149,9 @@ export function KanbanSubtripDialog({
         subtripStatus: statusList,
         rowsPerPage: 50,
         search: debouncedSearch || undefined,
+        excludeBilled: excludeBilled || undefined,
+        excludeIsOwn: excludeIsOwn || undefined,
+        excludeIsMarket: excludeIsMarket || undefined,
       },
       { enabled: shouldFetch }
     );

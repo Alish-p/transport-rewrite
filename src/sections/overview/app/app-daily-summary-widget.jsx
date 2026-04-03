@@ -55,6 +55,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     const invoices = data?.invoices || { count: 0, amount: 0, list: [] };
     const transporterPayments = data?.transporterPayments || { count: 0, amount: 0, list: [] };
     const expenses = data?.expenses || { count: 0, amount: 0, list: [] };
+    const advances = data?.advances || { count: 0, amount: 0, list: [] };
     const materials = data?.materials || { count: 0, weight: 0, list: [] };
 
     return [
@@ -78,6 +79,13 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         icon: 'solar:bill-list-bold-duotone',
         count: expenses.count || 0,
         amount: expenses.amount || 0,
+      },
+      {
+        value: 'advances',
+        label: 'Advances Added',
+        icon: 'solar:wallet-money-bold-duotone',
+        count: advances.count || 0,
+        amount: advances.amount || 0,
       },
       {
         value: 'invoices',
@@ -192,7 +200,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                 </Box>
 
                 <Box sx={{ typography: 'h6' }}>
-                  {['invoices', 'transporterPayments', 'expenses'].includes(tab.value)
+                  {['invoices', 'transporterPayments', 'expenses', 'advances'].includes(tab.value)
                     ? fShortenNumber(tab.amount || 0)
                     : tab.count || 0}
                 </Box>
@@ -213,6 +221,8 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         return data?.subtrips?.received?.list || [];
       case 'expenses':
         return data?.expenses?.list || [];
+      case 'advances':
+        return data?.advances?.list || [];
       case 'invoices':
         return data?.invoices?.list || [];
       case 'transporterPayments':
@@ -253,6 +263,15 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         return [
           { id: 'index', label: 'No.' },
           { id: 'expenseType', label: 'Expense Type' },
+          { id: 'vehicleNo', label: 'Vehicle' },
+          { id: 'subtripNo', label: 'LR No' },
+          { id: 'date', label: 'Date' },
+          { id: 'amount', label: 'Amount' },
+        ];
+      case 'advances':
+        return [
+          { id: 'index', label: 'No.' },
+          { id: 'advanceType', label: 'Advance Type' },
           { id: 'vehicleNo', label: 'Vehicle' },
           { id: 'subtripNo', label: 'LR No' },
           { id: 'date', label: 'Date' },
@@ -373,6 +392,36 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                     <TableRow key={row?._id || idx}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{renderExpenseTypeCell(row?.expenseType)}</TableCell>
+                      <TableCell>{vehicleNo}</TableCell>
+                      <TableCell>
+                        {subtripId ? (
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.subtrip.details(subtripId)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'primary.main' }}
+                          >
+                            {subtripNo}
+                          </Link>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>{fDate(row?.date)}</TableCell>
+                      <TableCell>{row?.amount ? fCurrency(row.amount) : '-'}</TableCell>
+                    </TableRow>
+                  );
+                }
+
+                if (tabs.value === 'advances') {
+                  const vehicleNo = row?.vehicleId?.vehicleNo || row?.vehicleNo || '-';
+                  const subtripId = row?.subtripId?._id;
+                  const subtripNo = row?.subtripId?.subtripNo || '-';
+                  return (
+                    <TableRow key={row?._id || idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{renderExpenseTypeCell(row?.advanceType)}</TableCell>
                       <TableCell>{vehicleNo}</TableCell>
                       <TableCell>
                         {subtripId ? (

@@ -343,12 +343,39 @@ export const TABLE_COLUMNS = [
     }
   },
   {
+    id: 'advances',
+    label: 'Advances',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => {
+      if (!row?.advances || row.advances.length === 0) return fNumber(0);
+      const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
+      return fNumber(total);
+    },
+    render: (row) => {
+      if (!row?.advances || row.advances.length === 0) return fNumber(0);
+      const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
+      return (
+        <Label variant="soft" color="info">
+          {fNumber(total)}
+        </Label>
+      );
+    }
+  },
+  {
     id: 'profitAndLoss',
     label: 'Profit & Loss',
     defaultVisible: true,
     disabled: false,
     align: 'center',
     getter: (row) => {
+      if (row?.vehicleId?.isOwn === false) {
+        const commissionRate = row?.commissionRate || 0;
+        const loadingWeight = row?.loadingWeight || 0;
+        return fNumber(commissionRate * loadingWeight);
+      }
+
       let freight = 0;
       if (typeof row?.freightAmount === 'number') {
         freight = row.freightAmount;
@@ -360,15 +387,23 @@ export const TABLE_COLUMNS = [
       return fNumber(freight - expenses);
     },
     render: (row) => {
-      let freight = 0;
-      if (typeof row?.freightAmount === 'number') {
-        freight = row.freightAmount;
-      } else if (row?.rate && row?.loadingWeight) {
-        freight = row.rate * row.loadingWeight;
+      let pnl = 0;
+      if (row?.vehicleId?.isOwn === false) {
+        const commissionRate = row?.commissionRate || 0;
+        const loadingWeight = row?.loadingWeight || 0;
+        pnl = commissionRate * loadingWeight;
+      } else {
+        let freight = 0;
+        if (typeof row?.freightAmount === 'number') {
+          freight = row.freightAmount;
+        } else if (row?.rate && row?.loadingWeight) {
+          freight = row.rate * row.loadingWeight;
+        }
+
+        const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
+        pnl = freight - expenses;
       }
 
-      const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
-      const pnl = freight - expenses;
       return (
         <Label variant="soft" color={pnl >= 0 ? 'success' : 'error'}>
           {fNumber(pnl)}

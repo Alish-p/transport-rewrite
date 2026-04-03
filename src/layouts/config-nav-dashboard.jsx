@@ -252,6 +252,16 @@ export const navData = [
           },
         ],
       },
+      {
+        title: 'Transporter Advance',
+        path: paths.dashboard.transporterAdvance.root,
+        icon: ICONS.banking,
+        // resource: 'expense', // Needs read permission on expenses/advances
+        children: [
+          { title: 'List', path: paths.dashboard.transporterAdvance.list, action: 'view' },
+          { title: 'Create', path: paths.dashboard.transporterAdvance.new, action: 'create' },
+        ],
+      },
 
       {
         title: 'Driver Payroll',

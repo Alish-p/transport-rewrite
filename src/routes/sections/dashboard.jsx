@@ -141,6 +141,10 @@ const LoansEditPage = lazy(() => import('src/pages/dashboard/loans/edit'));
 const TransporterPaymentListPage = lazy(
   () => import('src/pages/dashboard/transporter-payment/list')
 );
+const TransporterAdvanceListPage = lazy(
+  () => import('src/pages/dashboard/transporter-advance/list')
+);
+const TransporterAdvanceCreatePage = lazy(() => import('src/pages/dashboard/expense/new-advance'));
 const TransporterPaymentDetailsPage = lazy(
   () => import('src/pages/dashboard/transporter-payment/details')
 );
@@ -523,6 +527,14 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="expense" action="create" hasContent>
                 <ExpenseCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'new-transporter-advance',
+            element: (
+              <PermissionBasedGuard resource="expense" action="create" hasContent>
+                <TransporterAdvanceCreatePage />
               </PermissionBasedGuard>
             ),
           },
@@ -1142,6 +1154,27 @@ export const dashboardRoutes = [
         ],
       },
 
+      {
+        path: 'transporter-advance',
+        children: [
+          {
+            element: (
+              <PermissionBasedGuard resource="expense" action="view" hasContent>
+                <TransporterAdvanceListPage />
+              </PermissionBasedGuard>
+            ),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: (
+              <PermissionBasedGuard resource="expense" action="view" hasContent>
+                <TransporterAdvanceListPage />
+              </PermissionBasedGuard>
+            ),
+          },
+        ],
+      },
       {
         path: 'transporterPayment',
         children: [

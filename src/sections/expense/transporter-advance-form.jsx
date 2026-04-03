@@ -3,32 +3,28 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, Card, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
-
-// Assuming you have a pump slice
-
 import { LoadingButton } from '@mui/lab';
+import { Box, Card, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useSubtrip } from 'src/query/use-subtrip';
-import { useCreateExpense } from 'src/query/use-expense';
 import { useCurrentFuelPrice } from 'src/query/use-fuel-prices';
+import { useCreateTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import ExpenseInsights from './expense-insights';
 import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { SubtripExpenseSchema } from './expense-schemas';
-import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { BasicExpenseTable } from '../subtrip/widgets/basic-expense-table';
+import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 import { usePaymentMethods, SUBTRIP_EXPENSE_TYPES, useSubtripExpenseTypes } from './expense-config';
 
-function ExpenseCoreForm({ currentSubtrip }) {
+function TransporterAdvanceCoreForm({ currentSubtrip }) {
   const [selectedPump, setSelectedPump] = useState(null);
 
   const [selectedSubtripId, setSelectedSubtripId] = useState(() => currentSubtrip || null);
@@ -40,7 +36,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const paymentMethods = usePaymentMethods();
 
-  const createExpense = useCreateExpense();
+  const createAdvance = useCreateTransporterAdvance();
 
   const { data: subtripData } = useSubtrip(selectedSubtripId);
 
@@ -110,7 +106,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
     [expenseType]
   );
 
-  // updating amount based on expense type (driver salary and diesel)
+  // updating amount based on advance type (driver salary and diesel)
   useEffect(() => {
     if (expenseType === SUBTRIP_EXPENSE_TYPES.DRIVER_SALARY) {
       const totalSalary =
@@ -156,26 +152,29 @@ function ExpenseCoreForm({ currentSubtrip }) {
   // Handlers for submit and cancel
   const onSubmit = async (data) => {
     const transformedData = {
-      ...data,
-      expenseCategory: 'subtrip',
       subtripId: selectedSubtripId,
-      vehicleId: subtripData?.vehicleId?._id,
+      advanceType: data.expenseType,
+      amount: data.amount,
+      date: data.date,
+      pumpCd: data.pumpCd || undefined,
+      dieselLtr: data.dieselLtr || undefined,
+      dieselPrice: data.dieselPrice || undefined,
+      remarks: data.remarks || undefined,
+      paidThrough: data.paidThrough || undefined,
+      adblueLiters: data.adblueLiters || undefined,
+      adbluePrice: data.adbluePrice || undefined,
     };
 
-    await createExpense(transformedData);
+    await createAdvance(transformedData);
 
-    // Reset form values when not using dialog
+    // Reset form values
     reset(defaultValues);
     setSelectedPump(null);
     setSelectedSubtripId(null);
   };
 
-  console.log({ errors, values: watch() });
-
   return (
     <>
-      <ExpenseInsights subtrip={subtripData} expenseType={expenseType} />
-
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Card sx={{ p: 3, mb: 5 }}>
           <Box
@@ -189,7 +188,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
             <Box>
               <DialogSelectButton
                 onClick={subtripDialog.onTrue}
-                placeholder="Select Subtrip"
+                placeholder="Select Job"
                 selected={subtripData?.subtripNo}
                 error={!!errors.subtripId?.message}
                 iconName="mdi:truck-fast"
@@ -198,7 +197,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
             <Field.DatePicker name="date" label="Date" maxDate={dayjs()} />
 
-            <Field.Select name="expenseType" label="Expense Type">
+            <Field.Select name="expenseType" label="Advance Type">
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
               {subtripExpenseTypes.map((type) => (
@@ -314,14 +313,14 @@ function ExpenseCoreForm({ currentSubtrip }) {
             loading={isSubmitting}
             disabled={!isValid || isSubmitting}
           >
-            Add Expense
+            Add Advance
           </LoadingButton>
         </Stack>
       </Form>
 
       <Divider sx={{ my: 3 }} />
 
-      {subtripData && subtripData.expenses.length > 0 && (
+      {subtripData && (subtripData.advances || []).length > 0 && (
         <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
       )}
 
@@ -337,8 +336,9 @@ function ExpenseCoreForm({ currentSubtrip }) {
         onClose={subtripDialog.onFalse}
         selectedSubtrip={subtripData}
         onSubtripChange={handleSubtripChange}
+        excludeBilled
+        excludeIsOwn
         statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
-        excludeIsMarket
       />
 
       <ConfirmDialog
@@ -362,4 +362,4 @@ function ExpenseCoreForm({ currentSubtrip }) {
   );
 }
 
-export default ExpenseCoreForm;
+export default TransporterAdvanceCoreForm;
