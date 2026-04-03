@@ -118,7 +118,7 @@ const createBulkParts = async (payload) => {
 
 export function useCreateBulkParts() {
   const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: createBulkParts,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -131,7 +131,7 @@ export function useCreateBulkParts() {
     },
   });
 
-  return mutateAsync;
+  return { createBulkParts: mutateAsync, isCreatingBulkParts: isPending };
 }
 
 export function useUpdatePart() {
@@ -214,6 +214,5 @@ export function useTransferPartStock() {
 
   return mutateAsync;
 }
-
 
 

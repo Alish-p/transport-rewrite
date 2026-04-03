@@ -1,5 +1,4 @@
 import { z as zod } from 'zod';
-import { toast } from 'sonner';
 import { useMemo } from 'react';
 import { saveAs } from 'file-saver';
 
@@ -16,7 +15,7 @@ import { ALLOWED_MEASUREMENT_UNITS } from '../part-constant';
 import { generatePartTemplate } from './part-bulk-import-utils';
 
 export function PartBulkImportView() {
-    const createBulkParts = useCreateBulkParts();
+    const { createBulkParts, isCreatingBulkParts } = useCreateBulkParts();
     const { data: locationsResponse, isLoading } = usePaginatedPartLocations(
         { page: 1, rowsPerPage: 1000 },
         { staleTime: 1000 * 60 * 10 }
@@ -99,11 +98,8 @@ export function PartBulkImportView() {
             });
 
             await createBulkParts({ parts: formattedData });
-            toast.success('Parts imported successfully!');
         } catch (error) {
             console.error(error);
-            const errorMessage = error?.response?.data?.message || error?.message || 'Import failed';
-            toast.error(errorMessage);
             throw error;
         }
     };
@@ -140,6 +136,7 @@ export function PartBulkImportView() {
                 columns={IMPORT_COLUMNS}
                 onImport={handleImport}
                 onDownloadTemplate={handleDownloadTemplate}
+                isImporting={isCreatingBulkParts}
             />
         </DashboardContent>
     );

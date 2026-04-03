@@ -15,7 +15,7 @@ import { parseImportFile, generateTemplate } from './utils';
 
 const STEPS = ['Upload File', 'Validate Data', 'Import'];
 
-export function BulkImportView({ entityName, schema, columns, onImport, onDownloadTemplate }) {
+export function BulkImportView({ entityName, schema, columns, onImport, onDownloadTemplate, isImporting = false }) {
     const [activeStep, setActiveStep] = useState(0);
     const [parsedData, setParsedData] = useState([]);
 
@@ -77,6 +77,7 @@ export function BulkImportView({ entityName, schema, columns, onImport, onDownlo
                     schema={schema}
                     onBack={() => setActiveStep(0)}
                     onImport={handleImport}
+                    isImporting={isImporting}
                 />
             )}
 
@@ -96,5 +97,3 @@ export function BulkImportView({ entityName, schema, columns, onImport, onDownlo
         </Container>
     );
 }
-
-

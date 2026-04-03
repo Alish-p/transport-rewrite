@@ -6,13 +6,14 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { Iconify } from 'src/components/iconify';
 
-export function ValidationStep({ data, columns, schema, onBack, onImport }) {
+export function ValidationStep({ data, columns, schema, onBack, onImport, isImporting = false }) {
     const theme = useTheme();
     const [rows, setRows] = useState([]);
     const [rowErrors, setRowErrors] = useState({});
@@ -154,15 +155,18 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
                 </Box>
 
                 <Stack direction="row" spacing={2}>
-                    <Button onClick={onBack}>Back</Button>
-                    <Button
+                    <Button onClick={onBack} disabled={isImporting}>
+                        Back
+                    </Button>
+                    <LoadingButton
                         variant="contained"
                         onClick={handleImport}
-                        disabled={hasErrors}
+                        loading={isImporting}
+                        disabled={hasErrors || isImporting}
                         color={hasErrors ? 'error' : 'primary'}
                     >
                         {hasErrors ? 'Fix Errors to Import' : `Import ${validCount} Items`}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </Stack>
 
@@ -189,5 +193,4 @@ export function ValidationStep({ data, columns, schema, onBack, onImport }) {
         </Stack>
     );
 }
-
 
