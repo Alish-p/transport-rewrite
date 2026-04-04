@@ -190,7 +190,7 @@ export default function TransporterAdvanceListView() {
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.transporterAdvance.new}
+            href={paths.dashboard.expense.new}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >

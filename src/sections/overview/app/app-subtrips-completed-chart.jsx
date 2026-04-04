@@ -171,6 +171,7 @@ function renderSubtripTooltip({
   const ownColor = colors?.[0] || theme.palette.primary.main;
   const marketColor = colors?.[1] || theme.palette.warning.main;
   const profitColor = own.profit >= 0 ? successColor : errorColor;
+  const commissionColor = successColor;
 
   const buildRow = (label, value, valueColor = textColor) => `
     <div style="display:flex;justify-content:space-between;gap:16px;font-size:12px;line-height:1.5;">
@@ -211,7 +212,7 @@ function renderSubtripTooltip({
         Market
       </div>
       ${buildRow('Total subtrips', String(market.totalSubtrips || 0))}
-      ${buildRow('Total commission', formatShortCurrency(market.totalCommission))}
+      ${buildRow('Total commission', formatShortCurrency(market.totalCommission), commissionColor)}
     </div>
   `;
 }

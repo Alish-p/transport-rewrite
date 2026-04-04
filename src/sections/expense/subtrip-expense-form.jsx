@@ -14,6 +14,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useCreateExpense } from 'src/query/use-expense';
 import { useCurrentFuelPrice } from 'src/query/use-fuel-prices';
+import { useCreateTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -41,6 +42,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const paymentMethods = usePaymentMethods();
 
   const createExpense = useCreateExpense();
+  const createAdvance = useCreateTransporterAdvance();
 
   const { data: subtripData } = useSubtrip(selectedSubtripId);
 
@@ -155,14 +157,34 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   // Handlers for submit and cancel
   const onSubmit = async (data) => {
-    const transformedData = {
-      ...data,
-      expenseCategory: 'subtrip',
-      subtripId: selectedSubtripId,
-      vehicleId: subtripData?.vehicleId?._id,
-    };
+    if (!subtripData) return;
 
-    await createExpense(transformedData);
+    if (subtripData.isOwn !== false) {
+      const transformedData = {
+        ...data,
+        expenseCategory: 'subtrip',
+        subtripId: selectedSubtripId,
+        vehicleId: subtripData?.vehicleId?._id,
+      };
+
+      await createExpense(transformedData);
+    } else {
+      const transformedData = {
+        subtripId: selectedSubtripId,
+        advanceType: data.expenseType,
+        amount: data.amount,
+        date: data.date,
+        pumpCd: data.pumpCd || undefined,
+        dieselLtr: data.dieselLtr || undefined,
+        dieselPrice: data.dieselPrice || undefined,
+        remarks: data.remarks || undefined,
+        paidThrough: data.paidThrough || undefined,
+        adblueLiters: data.adblueLiters || undefined,
+        adbluePrice: data.adbluePrice || undefined,
+      };
+
+      await createAdvance(transformedData);
+    }
 
     // Reset form values when not using dialog
     reset(defaultValues);
@@ -198,7 +220,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
             <Field.DatePicker name="date" label="Date" maxDate={dayjs()} />
 
-            <Field.Select name="expenseType" label="Expense Type">
+            <Field.Select name="expenseType" label={subtripData?.isOwn === false ? 'Advance Type' : 'Expense Type'}>
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
               {subtripExpenseTypes.map((type) => (
@@ -314,14 +336,14 @@ function ExpenseCoreForm({ currentSubtrip }) {
             loading={isSubmitting}
             disabled={!isValid || isSubmitting}
           >
-            Add Expense
+            {subtripData?.isOwn === false ? 'Add Advance' : 'Add Expense'}
           </LoadingButton>
         </Stack>
       </Form>
 
       <Divider sx={{ my: 3 }} />
 
-      {subtripData && subtripData.expenses.length > 0 && (
+      {subtripData && (subtripData.expenses?.length > 0 || subtripData.advances?.length > 0) && (
         <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
       )}
 
@@ -338,7 +360,6 @@ function ExpenseCoreForm({ currentSubtrip }) {
         selectedSubtrip={subtripData}
         onSubtripChange={handleSubtripChange}
         statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
-        excludeIsMarket
       />
 
       <ConfirmDialog

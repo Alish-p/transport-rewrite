@@ -10,11 +10,10 @@ export function SubtripExpenseCreateView({ currentSubtrip }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Add New Expense to Subtrip"
+        heading="Add New Expense/Advance to Job"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Expenses List', href: paths.dashboard.expense.list },
-          { name: 'Add New Expense' },
+          { name: 'Add New Expense/Advance' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

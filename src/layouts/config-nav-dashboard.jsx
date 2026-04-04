@@ -134,14 +134,15 @@ export const navData = [
         ],
       },
       {
-        title: 'Expense',
+        title: 'Expense & Advances',
         path: paths.dashboard.expense.root,
         icon: ICONS.expense,
         resource: 'expense',
         children: [
-          { title: 'List', path: paths.dashboard.expense.root, action: 'view' },
+          { title: 'Expense List', path: paths.dashboard.expense.root, action: 'view' },
+          { title: 'Advance List', path: paths.dashboard.transporterAdvance.list, action: 'view' },
           {
-            title: 'Add Expense to Job',
+            title: 'Add Expense/Advance to Job',
             path: paths.dashboard.expense.new,
             action: 'create',
           },
@@ -252,16 +253,7 @@ export const navData = [
           },
         ],
       },
-      {
-        title: 'Transporter Advance',
-        path: paths.dashboard.transporterAdvance.root,
-        icon: ICONS.banking,
-        // resource: 'expense', // Needs read permission on expenses/advances
-        children: [
-          { title: 'List', path: paths.dashboard.transporterAdvance.list, action: 'view' },
-          { title: 'Create', path: paths.dashboard.transporterAdvance.new, action: 'create' },
-        ],
-      },
+
 
       {
         title: 'Driver Payroll',
