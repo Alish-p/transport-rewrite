@@ -1,5 +1,5 @@
+import { useState, useCallback } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -109,12 +109,8 @@ export function VehicleDocumentsListView() {
     { enabled: view === 'list' }
   );
 
-  const [tableData, setTableData] = useState([]);
   const [detailsDoc, setDetailsDoc] = useState(null);
-
-  useEffect(() => {
-    if (data?.results) setTableData(data.results);
-  }, [data]);
+  const tableData = data?.results || [];
 
   const totalCount = data?.total ?? data?.docsTotal ?? 0;
 

@@ -37,7 +37,13 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
   const del = useDeleteVehicleDocument();
   const [editOpen, setEditOpen] = useState(false);
 
-  const vehicleId = useMemo(() => doc?.vehicle?._id || doc?.vehicleId || doc?.vehicle, [doc]);
+  const vehicleId = useMemo(() => {
+    const raw = doc?.vehicleId || doc?.vehicle?._id || doc?.vehicle?.id || doc?.vehicle;
+    if (!raw) return null;
+    if (typeof raw === 'string') return raw;
+    if (typeof raw === 'object') return raw?._id || raw?.id || null;
+    return String(raw);
+  }, [doc]);
 
   useEffect(() => {
     setTab('overview');

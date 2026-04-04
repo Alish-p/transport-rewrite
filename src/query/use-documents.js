@@ -6,6 +6,11 @@ import axios from 'src/utils/axios';
 const ENDPOINT = '/api/documents';
 const QUERY_KEY = 'documents';
 
+const invalidateDocumentQueries = (queryClient) =>
+  queryClient.invalidateQueries({
+    queryKey: [QUERY_KEY],
+  });
+
 // Fetchers
 const getPaginatedDocuments = async (params) => {
   const { data } = await axios.get(`${ENDPOINT}`, { params });
@@ -87,14 +92,9 @@ export function useCreateVehicleDocument() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: createVehicleDocument,
-    onSuccess: (doc) => {
+    onSuccess: async () => {
       toast.success('Document added successfully');
-      // Invalidate both active and history for this vehicle
-      const vid = doc?.vehicle?._id || doc?.vehicle;
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
-      // Also invalidate unified documents listing
-      queryClient.invalidateQueries(['documents']);
+      await invalidateDocumentQueries(queryClient);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'Failed to add document';
@@ -108,13 +108,9 @@ export function useUpdateVehicleDocument() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: updateVehicleDocument,
-    onSuccess: (doc) => {
+    onSuccess: async () => {
       toast.success('Document updated successfully');
-      const vid = doc?.vehicle?._id || doc?.vehicle;
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
-      // Also invalidate unified documents listing
-      queryClient.invalidateQueries(['documents']);
+      await invalidateDocumentQueries(queryClient);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'Failed to update document';
@@ -128,13 +124,9 @@ export function useDeleteVehicleDocument() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: deleteVehicleDocument,
-    onSuccess: (res, vars) => {
+    onSuccess: async () => {
       toast.success('Document deleted');
-      const vid = vars?.vehicleId;
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
-      queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
-      // Also invalidate unified documents listing
-      queryClient.invalidateQueries(['documents']);
+      await invalidateDocumentQueries(queryClient);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'Failed to delete document';
@@ -148,16 +140,10 @@ export function useSyncVehicleDocuments() {
   const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: syncDocuments,
-    onSuccess: (res, vars) => {
+    onSuccess: async (res) => {
       const added = res?.addedCount ?? 0;
       toast.success(added > 0 ? `Synced ${added} document${added > 1 ? 's' : ''}` : 'No new documents');
-      const vid = vars?.vehicleId;
-      if (vid) {
-        queryClient.invalidateQueries([QUERY_KEY, vid, 'active']);
-        queryClient.invalidateQueries([QUERY_KEY, vid, 'history']);
-      }
-      // Also invalidate unified list
-      queryClient.invalidateQueries(['documents']);
+      await invalidateDocumentQueries(queryClient);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'Failed to sync documents';
