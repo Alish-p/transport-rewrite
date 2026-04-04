@@ -46,6 +46,8 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const { data: subtripData } = useSubtrip(selectedSubtripId);
 
+  const isMarket = subtripData?.isOwn === false || subtripData?.vehicleId?.isOwn === false;
+
   const defaultValues = useMemo(
     () => ({
       subtripId: currentSubtrip || null,
@@ -159,7 +161,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const onSubmit = async (data) => {
     if (!subtripData) return;
 
-    if (subtripData.isOwn !== false) {
+    if (!isMarket) {
       const transformedData = {
         ...data,
         expenseCategory: 'subtrip',
@@ -220,7 +222,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
             <Field.DatePicker name="date" label="Date" maxDate={dayjs()} />
 
-            <Field.Select name="expenseType" label={subtripData?.isOwn === false ? 'Advance Type' : 'Expense Type'}>
+            <Field.Select name="expenseType" label={isMarket ? 'Advance Type' : 'Expense Type'}>
               <MenuItem value="">None</MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />
               {subtripExpenseTypes.map((type) => (
@@ -336,7 +338,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
             loading={isSubmitting}
             disabled={!isValid || isSubmitting}
           >
-            {subtripData?.isOwn === false ? 'Add Advance' : 'Add Expense'}
+            {isMarket ? 'Add Advance' : 'Add Expense'}
           </LoadingButton>
         </Stack>
       </Form>
