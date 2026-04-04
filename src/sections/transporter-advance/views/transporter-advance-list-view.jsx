@@ -27,6 +27,8 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
+import { useVehicle } from 'src/query/use-vehicle';
+import { useSubtrip } from 'src/query/use-subtrip';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { usePaginatedAdvances, useDeleteTransporterAdvance } from 'src/query/use-transporter-advance';
 
@@ -77,8 +79,13 @@ export default function TransporterAdvanceListView() {
   );
 
   const [selectedTransporter, setSelectedTransporter] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const { data: vehicleData } = useVehicle(filters.vehicleId);
+  const { data: subtripData } = useSubtrip(filters.subtripId);
 
   const {
     visibleColumns,
@@ -99,6 +106,7 @@ export default function TransporterAdvanceListView() {
     transporterId: filters.transporterId || undefined,
     tripId: filters.tripId || undefined,
     vehicleType: filters.vehicleType || undefined,
+    advanceType: filters.advanceType.length ? filters.advanceType : undefined,
     startDate: filters.fromDate || undefined,
     status: filters.status !== 'all' ? filters.status : undefined,
     endDate: filters.endDate || undefined,
@@ -134,6 +142,26 @@ export default function TransporterAdvanceListView() {
   useEffect(() => {
     if (!filters.transporterId) setSelectedTransporter(null);
   }, [filters.transporterId]);
+
+  useEffect(() => {
+    if (!filters.vehicleId) setSelectedVehicle(null);
+  }, [filters.vehicleId]);
+
+  useEffect(() => {
+    if (!filters.subtripId) setSelectedSubtrip(null);
+  }, [filters.subtripId]);
+
+  useEffect(() => {
+    if (vehicleData?._id) {
+      setSelectedVehicle(vehicleData);
+    }
+  }, [vehicleData]);
+
+  useEffect(() => {
+    if (subtripData?._id) {
+      setSelectedSubtrip(subtripData);
+    }
+  }, [subtripData]);
 
   const getVisibleColumnsForExport = () => (columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)).filter(
     (id) => visibleColumns[id]
@@ -250,6 +278,10 @@ export default function TransporterAdvanceListView() {
           canResetColumns={canResetColumns}
           selectedTransporter={selectedTransporter}
           onSelectTransporter={setSelectedTransporter}
+          selectedVehicle={selectedVehicle}
+          onSelectVehicle={setSelectedVehicle}
+          selectedSubtrip={selectedSubtrip}
+          onSelectSubtrip={setSelectedSubtrip}
         />
 
         {canReset && (
@@ -259,11 +291,15 @@ export default function TransporterAdvanceListView() {
             onResetFilters={() => {
               handleResetFilters();
               setSelectedTransporter(null);
+              setSelectedVehicle(null);
+              setSelectedSubtrip(null);
               setSelectAllMode(false);
               table.setSelected([]);
             }}
             results={totalCount}
             selectedTransporterName={selectedTransporter?.transportName}
+            selectedVehicleNo={selectedVehicle?.vehicleNo}
+            selectedSubtripNo={selectedSubtrip?.subtripNo}
             sx={{ p: 2.5, pt: 0 }}
           />
         )}

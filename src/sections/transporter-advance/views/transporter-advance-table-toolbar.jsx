@@ -3,6 +3,9 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -14,9 +17,25 @@ import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
+import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
+import {
+  DEFAULT_SUBTRIP_EXPENSE_TYPES,
+  DEFAULT_VEHICLE_EXPENSE_TYPES,
+} from 'src/sections/expense/expense-config';
 
 import { TABLE_COLUMNS } from '../transporter-advance-table-config';
+
+const ADVANCE_TYPE_OPTIONS = Array.from(
+  new Map(
+    [...DEFAULT_SUBTRIP_EXPENSE_TYPES, ...DEFAULT_VEHICLE_EXPENSE_TYPES].map((type) => [
+      type.label,
+      type.label,
+    ])
+  ).values()
+);
 
 export default function TransporterAdvanceTableToolbar({
   filters,
@@ -29,10 +48,16 @@ export default function TransporterAdvanceTableToolbar({
   canResetColumns,
   selectedTransporter,
   onSelectTransporter,
+  selectedVehicle,
+  onSelectVehicle,
+  selectedSubtrip,
+  onSelectSubtrip,
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
   const transporterDialog = useBoolean();
+  const vehicleDialog = useBoolean();
+  const subtripDialog = useBoolean();
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -40,6 +65,22 @@ export default function TransporterAdvanceTableToolbar({
       onFilters('transporterId', transporter?._id || '');
     },
     [onFilters, onSelectTransporter]
+  );
+
+  const handleSelectVehicle = useCallback(
+    (vehicle) => {
+      if (onSelectVehicle) onSelectVehicle(vehicle);
+      onFilters('vehicleId', vehicle?._id || '');
+    },
+    [onFilters, onSelectVehicle]
+  );
+
+  const handleSelectSubtrip = useCallback(
+    (subtrip) => {
+      if (onSelectSubtrip) onSelectSubtrip(subtrip);
+      onFilters('subtripId', subtrip?._id || '');
+    },
+    [onFilters, onSelectSubtrip]
   );
 
   const handleFilterFromDate = useCallback(
@@ -70,6 +111,38 @@ export default function TransporterAdvanceTableToolbar({
           placeholder="Transporter"
           iconName="mdi:truck-delivery"
           sx={{ maxWidth: { md: 240 } }}
+        />
+
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          selected={selectedVehicle?.vehicleNo}
+          placeholder="Vehicle"
+          iconName="mdi:truck"
+          sx={{ maxWidth: { md: 220 } }}
+        />
+
+        <DialogSelectButton
+          onClick={subtripDialog.onTrue}
+          selected={selectedSubtrip?.subtripNo}
+          placeholder="Job"
+          iconName="mdi:bookmark"
+          sx={{ maxWidth: { md: 220 } }}
+        />
+
+        <Autocomplete
+          multiple
+          disableCloseOnSelect
+          options={ADVANCE_TYPE_OPTIONS}
+          value={filters.advanceType || []}
+          onChange={(event, newValue) => onFilters('advanceType', newValue)}
+          renderInput={(params) => <TextField {...params} placeholder="Advance Type" />}
+          renderOption={(props, option, { selected }) => (
+            <li {...props} key={option}>
+              <Checkbox size="small" disableRipple checked={selected} />
+              {option}
+            </li>
+          )}
+          sx={{ width: { xs: 1, md: 280 } }}
         />
 
         <DialogSelectButton
@@ -128,6 +201,24 @@ export default function TransporterAdvanceTableToolbar({
         onClose={transporterDialog.onFalse}
         selectedTransporter={selectedTransporter}
         onTransporterChange={handleSelectTransporter}
+      />
+
+      <KanbanVehicleDialog
+        open={vehicleDialog.value}
+        onClose={vehicleDialog.onFalse}
+        selectedVehicle={selectedVehicle}
+        onVehicleChange={handleSelectVehicle}
+        onlyMarket
+      />
+
+      <KanbanSubtripDialog
+        open={subtripDialog.value}
+        onClose={subtripDialog.onFalse}
+        selectedSubtrip={selectedSubtrip}
+        onSubtripChange={handleSelectSubtrip}
+        excludeBilled
+        excludeIsOwn
+        statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
       />
     </>
   );

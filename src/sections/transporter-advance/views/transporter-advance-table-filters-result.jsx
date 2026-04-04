@@ -14,15 +14,32 @@ export default function TransporterAdvanceTableFiltersResult({
   onResetFilters,
   results,
   selectedTransporterName,
+  selectedVehicleNo,
+  selectedSubtripNo,
   ...other
 }) {
   const handleRemoveTransporter = () => {
     onFilters('transporterId', '');
   };
 
+  const handleRemoveVehicle = () => {
+    onFilters('vehicleId', '');
+  };
+
+  const handleRemoveSubtrip = () => {
+    onFilters('subtripId', '');
+  };
+
   const handleRemoveDate = () => {
     onFilters('fromDate', null);
     onFilters('endDate', null);
+  };
+
+  const handleRemoveAdvanceType = (typeToRemove) => {
+    onFilters(
+      'advanceType',
+      (filters.advanceType || []).filter((type) => type !== typeToRemove)
+    );
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
@@ -54,6 +71,31 @@ export default function TransporterAdvanceTableFiltersResult({
               label={selectedTransporterName || filters.transporterId}
               onDelete={handleRemoveTransporter}
             />
+          </Block>
+        )}
+
+        {filters.vehicleId && (
+          <Block label="Vehicle:">
+            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+          </Block>
+        )}
+
+        {filters.subtripId && (
+          <Block label="Job:">
+            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {!!filters.advanceType?.length && (
+          <Block label="Advance Type:">
+            {filters.advanceType.map((type) => (
+              <Chip
+                key={type}
+                size="small"
+                label={type}
+                onDelete={() => handleRemoveAdvanceType(type)}
+              />
+            ))}
           </Block>
         )}
 
