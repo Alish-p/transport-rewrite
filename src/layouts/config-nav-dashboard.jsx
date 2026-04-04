@@ -87,7 +87,7 @@ export const navData = [
         info: <Iconify icon="gravity-ui:star" />,
       },
       {
-        title: 'Add Expense',
+        title: 'Add Expense / Advance',
         path: paths.dashboard.expense.new,
         icon: ICONS.expense,
       },
