@@ -157,19 +157,21 @@ export const TABLE_COLUMNS = [
     label: 'Payment Receipt',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => (row?.subtripId?.transporterPaymentReceiptId ? 'Linked' : '-'),
+    getter: (row) => row?.subtripId?.transporterPaymentReceiptId?.paymentId || '-',
     align: 'left',
     render: ({ subtripId }) => {
-      if (subtripId?.transporterPaymentReceiptId) {
+      const receipt = subtripId?.transporterPaymentReceiptId;
+
+      if (receipt?._id) {
         return (
           <Link
             component={RouterLink}
-            to={paths.dashboard.transporterPayment.details(subtripId.transporterPaymentReceiptId)}
+            to={paths.dashboard.transporterPayment.details(receipt._id)}
             variant="body2"
             noWrap
             sx={{ color: 'primary.main' }}
           >
-            View Receipt
+            {receipt.paymentId || '-'}
           </Link>
         );
       }

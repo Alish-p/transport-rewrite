@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -15,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components/router-link';
@@ -22,6 +24,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -74,6 +77,8 @@ export default function TransporterAdvanceListView() {
   );
 
   const [selectedTransporter, setSelectedTransporter] = useState(null);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const {
     visibleColumns,
@@ -254,6 +259,8 @@ export default function TransporterAdvanceListView() {
             onResetFilters={() => {
               handleResetFilters();
               setSelectedTransporter(null);
+              setSelectAllMode(false);
+              table.setSelected([]);
             }}
             results={totalCount}
             selectedTransporterName={selectedTransporter?.transportName}
@@ -267,28 +274,94 @@ export default function TransporterAdvanceListView() {
             numSelected={table.selected.length}
             rowCount={tableData.length}
             onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
               table.onSelectAllRows(checked, tableData.map((row) => row._id));
             }}
             label={
-              <Typography variant="subtitle2">
-                {table.selected.length} selected
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} advances
+                    </Link>
+                  )}
+              </Stack>
             }
             action={
               <Stack direction="row">
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
-                    onClick={() => {
-                      const selectedRows = tableData.filter(({ _id }) => table.selected.includes(_id));
-                      const visibleCols = getVisibleColumnsForExport();
-                      exportToExcel(
-                        prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                        'Advances-selected-list'
-                      );
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+
+                          const orderedIds = getVisibleColumnsForExport();
+                          const response = await axios.get('/api/transporter-advances/export', {
+                            params: {
+                              subtripId: filters.subtripId || undefined,
+                              vehicleId: filters.vehicleId || undefined,
+                              transporterId: filters.transporterId || undefined,
+                              advanceType: filters.advanceType.length
+                                ? filters.advanceType
+                                : undefined,
+                              startDate: filters.fromDate || undefined,
+                              endDate: filters.endDate || undefined,
+                              status: filters.status !== 'all' ? filters.status : undefined,
+                              columns: orderedIds.join(','),
+                            },
+                            responseType: 'blob',
+                          });
+
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'TransporterAdvances.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          window.URL.revokeObjectURL(url);
+
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          toast.error('Failed to export advances.');
+                        } finally {
+                          setIsDownloading(false);
+                        }
+                      } else {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
+                        exportToExcel(
+                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          'Advances-selected-list'
+                        );
+                      }
                     }}
                   >
-                    <Iconify icon="file-icons:microsoft-excel" />
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
                   </IconButton>
                 </Tooltip>
               </Stack>
@@ -302,9 +375,12 @@ export default function TransporterAdvanceListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
-                onSelectAllRows={(checked) =>
-                  table.onSelectAllRows(checked, tableData.map((row) => row._id))
-                }
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
+                  table.onSelectAllRows(checked, tableData.map((row) => row._id));
+                }}
               />
               <TableBody>
                 {isLoading ? (
