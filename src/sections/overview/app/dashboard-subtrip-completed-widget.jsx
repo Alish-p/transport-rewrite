@@ -62,6 +62,7 @@ export function DashboardSubtripCompletedWidget({ ...other }) {
             chart={{
                 categories: CATEGORIES,
                 series,
+                tooltipDetails: subtripMonthlyData?.monthlyMetrics,
             }}
             {...other}
         />

@@ -23,7 +23,6 @@ import { SubtripExpiryTable } from '../app-subtrip-expiry-table';
 import { AppTyreSummaryWidget } from '../app-tyre-summary-widget';
 import { AppDailySummaryWidget } from '../app-daily-summary-widget';
 import { AppSubtripExpensesCategory } from '../app-subtrip-expenses';
-import { AppProfitabilityWidget } from '../app-profitability-widget';
 import { AppInvoiceAmountSummary } from '../app-invoice-amount-summary';
 import { AppMaterialWeightSummary } from '../app-material-weight-summary';
 import { AppInventorySummaryWidget } from '../app-inventory-summary-widget';
@@ -170,10 +169,6 @@ export function OverviewAppView({
           <AppDailySummaryWidget />
         </Grid>
 
-        <Grid xs={12}>
-          <AppProfitabilityWidget />
-        </Grid>
-
         <Grid xs={12} md={12}>
           <AppMonthlySummaryTabs />
         </Grid>
@@ -253,4 +248,3 @@ export function OverviewAppView({
     </DashboardContent>
   );
 }
-

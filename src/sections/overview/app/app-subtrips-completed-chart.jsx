@@ -28,6 +28,7 @@ export function AppSubtripCompletedChart({
   const isControlled = controlledSelectedSeries !== undefined;
 
   const selectedSeries = isControlled ? controlledSelectedSeries : internalSelectedSeries;
+  const { tooltipDetails } = chart;
 
   const chartColors = chart.colors ?? [
     theme.palette.primary.dark,
@@ -39,12 +40,32 @@ export function AppSubtripCompletedChart({
     chart: { stacked: true },
     colors: chartColors,
     stroke: { width: 0 },
-    xaxis: { categories: chart.categories },
-    tooltip: {
-      y: {
-        formatter: (value) => value,
+    xaxis: {
+      categories: chart.categories,
+      crosshairs: {
+        width: 'barWidth',
       },
     },
+    tooltip: tooltipDetails
+      ? {
+          shared: false,
+          intersect: true,
+          custom: ({ dataPointIndex, seriesIndex, series }) =>
+            renderSubtripTooltip({
+              dataPointIndex,
+              seriesIndex,
+              series,
+              categories: chart.categories,
+              tooltipDetails,
+              colors: chartColors,
+              theme,
+            }),
+        }
+      : {
+          y: {
+            formatter: (value) => value,
+          },
+        },
     // Show total (own + market) labels on top of each stacked bar
     plotOptions: {
       bar: {
@@ -115,4 +136,82 @@ export function AppSubtripCompletedChart({
       />
     </Card>
   );
+}
+
+function renderSubtripTooltip({
+  dataPointIndex,
+  seriesIndex,
+  series,
+  categories,
+  tooltipDetails,
+  colors,
+  theme,
+}) {
+  if (dataPointIndex == null || dataPointIndex < 0) {
+    return '';
+  }
+
+  const own = tooltipDetails?.own?.[dataPointIndex] || {
+    totalSubtrips: 0,
+    totalIncome: 0,
+    totalExpense: 0,
+    profit: 0,
+  };
+  const market = tooltipDetails?.market?.[dataPointIndex] || {
+    totalSubtrips: 0,
+    totalCommission: 0,
+  };
+
+  const surfaceColor = theme.palette.background.paper;
+  const borderColor = theme.vars?.palette?.divider || theme.palette.divider;
+  const titleColor = theme.palette.text.secondary;
+  const textColor = theme.palette.text.primary;
+  const successColor = theme.palette.success.main;
+  const errorColor = theme.palette.error.main;
+  const ownColor = colors?.[0] || theme.palette.primary.main;
+  const marketColor = colors?.[1] || theme.palette.warning.main;
+  const profitColor = own.profit >= 0 ? successColor : errorColor;
+
+  const buildRow = (label, value, valueColor = textColor) => `
+    <div style="display:flex;justify-content:space-between;gap:16px;font-size:12px;line-height:1.5;">
+      <span style="color:${titleColor};">${label}</span>
+      <span style="color:${valueColor};font-weight:600;text-align:right;">${value}</span>
+    </div>
+  `;
+  const formatShortCurrency = (value) => `₹ ${fShortenNumber(value || 0)}`;
+  const hoveredSubtripCount = series?.[seriesIndex]?.[dataPointIndex] ?? 0;
+
+  if (seriesIndex === 0) {
+    return `
+    <div style="min-width:240px;padding:12px 14px;background:${surfaceColor};border:1px solid ${borderColor};border-radius:12px;color:${textColor};">
+      <div style="font-size:12px;font-weight:700;color:${titleColor};margin-bottom:10px;">
+        ${categories?.[dataPointIndex] || ''}
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:${textColor};margin-bottom:8px;">
+        <span style="width:8px;height:8px;border-radius:999px;background:${ownColor};display:inline-block;"></span>
+        Own
+      </div>
+      ${buildRow('Total subtrips', String(hoveredSubtripCount))}
+      ${buildRow('Total income', formatShortCurrency(own.totalIncome))}
+      ${buildRow('Total expense', formatShortCurrency(own.totalExpense))}
+      ${buildRow('Profit', formatShortCurrency(own.profit), profitColor)}
+    </div>
+  `;
+  }
+
+  return `
+    <div style="min-width:240px;padding:12px 14px;background:${surfaceColor};border:1px solid ${borderColor};border-radius:12px;color:${textColor};">
+      <div style="font-size:12px;font-weight:700;color:${titleColor};margin-bottom:10px;">
+        ${categories?.[dataPointIndex] || ''}
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:${textColor};margin-bottom:8px;">
+        <span style="width:8px;height:8px;border-radius:999px;background:${marketColor};display:inline-block;"></span>
+        Market
+      </div>
+      ${buildRow('Total subtrips', String(market.totalSubtrips || 0))}
+      ${buildRow('Total commission', formatShortCurrency(market.totalCommission))}
+    </div>
+  `;
 }
