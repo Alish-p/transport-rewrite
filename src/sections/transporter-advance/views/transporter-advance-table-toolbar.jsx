@@ -18,6 +18,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
@@ -52,12 +53,15 @@ export default function TransporterAdvanceTableToolbar({
   onSelectVehicle,
   selectedSubtrip,
   onSelectSubtrip,
+  selectedPump,
+  onSelectPump,
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
   const transporterDialog = useBoolean();
   const vehicleDialog = useBoolean();
   const subtripDialog = useBoolean();
+  const pumpDialog = useBoolean();
 
   const handleSelectTransporter = useCallback(
     (transporter) => {
@@ -81,6 +85,14 @@ export default function TransporterAdvanceTableToolbar({
       onFilters('subtripId', subtrip?._id || '');
     },
     [onFilters, onSelectSubtrip]
+  );
+
+  const handleSelectPump = useCallback(
+    (pump) => {
+      if (onSelectPump) onSelectPump(pump);
+      onFilters('pumpId', pump?._id || '');
+    },
+    [onFilters, onSelectPump]
   );
 
   const handleFilterFromDate = useCallback(
@@ -126,6 +138,14 @@ export default function TransporterAdvanceTableToolbar({
           selected={selectedSubtrip?.subtripNo}
           placeholder="Job"
           iconName="mdi:bookmark"
+          sx={{ maxWidth: { md: 220 } }}
+        />
+
+        <DialogSelectButton
+          onClick={pumpDialog.onTrue}
+          selected={selectedPump?.name}
+          placeholder="Pump"
+          iconName="mdi:gas-station"
           sx={{ maxWidth: { md: 220 } }}
         />
 
@@ -219,6 +239,13 @@ export default function TransporterAdvanceTableToolbar({
         excludeBilled
         excludeIsOwn
         statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
+      />
+
+      <KanbanPumpDialog
+        open={pumpDialog.value}
+        onClose={pumpDialog.onFalse}
+        selectedPump={selectedPump}
+        onPumpChange={handleSelectPump}
       />
     </>
   );

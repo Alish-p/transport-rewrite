@@ -81,6 +81,7 @@ export default function TransporterAdvanceListView() {
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(null);
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -146,6 +147,10 @@ export default function TransporterAdvanceListView() {
   useEffect(() => {
     if (!filters.vehicleId) setSelectedVehicle(null);
   }, [filters.vehicleId]);
+
+  useEffect(() => {
+    if (!filters.pumpId) setSelectedPump(null);
+  }, [filters.pumpId]);
 
   useEffect(() => {
     if (!filters.subtripId) setSelectedSubtrip(null);
@@ -282,6 +287,8 @@ export default function TransporterAdvanceListView() {
           onSelectVehicle={setSelectedVehicle}
           selectedSubtrip={selectedSubtrip}
           onSelectSubtrip={setSelectedSubtrip}
+          selectedPump={selectedPump}
+          onSelectPump={setSelectedPump}
         />
 
         {canReset && (
@@ -293,6 +300,7 @@ export default function TransporterAdvanceListView() {
               setSelectedTransporter(null);
               setSelectedVehicle(null);
               setSelectedSubtrip(null);
+              setSelectedPump(null);
               setSelectAllMode(false);
               table.setSelected([]);
             }}
@@ -300,6 +308,7 @@ export default function TransporterAdvanceListView() {
             selectedTransporterName={selectedTransporter?.transportName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedSubtripNo={selectedSubtrip?.subtripNo}
+            selectedPumpName={selectedPump?.name}
             sx={{ p: 2.5, pt: 0 }}
           />
         )}
@@ -354,6 +363,7 @@ export default function TransporterAdvanceListView() {
                               subtripId: filters.subtripId || undefined,
                               vehicleId: filters.vehicleId || undefined,
                               transporterId: filters.transporterId || undefined,
+                              pumpId: filters.pumpId || undefined,
                               advanceType: filters.advanceType.length
                                 ? filters.advanceType
                                 : undefined,

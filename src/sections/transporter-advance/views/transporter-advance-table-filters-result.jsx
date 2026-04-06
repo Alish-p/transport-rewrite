@@ -16,6 +16,7 @@ export default function TransporterAdvanceTableFiltersResult({
   selectedTransporterName,
   selectedVehicleNo,
   selectedSubtripNo,
+  selectedPumpName,
   ...other
 }) {
   const handleRemoveTransporter = () => {
@@ -28,6 +29,10 @@ export default function TransporterAdvanceTableFiltersResult({
 
   const handleRemoveSubtrip = () => {
     onFilters('subtripId', '');
+  };
+
+  const handleRemovePump = () => {
+    onFilters('pumpId', '');
   };
 
   const handleRemoveDate = () => {
@@ -83,6 +88,12 @@ export default function TransporterAdvanceTableFiltersResult({
         {filters.subtripId && (
           <Block label="Job:">
             <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {filters.pumpId && (
+          <Block label="Pump:">
+            <Chip size="small" label={selectedPumpName || filters.pumpId} onDelete={handleRemovePump} />
           </Block>
         )}
 

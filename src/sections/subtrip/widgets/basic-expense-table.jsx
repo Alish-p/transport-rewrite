@@ -80,15 +80,9 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
               color="primary"
               startIcon={<Iconify icon="mdi:plus" />}
               onClick={() => {
-                if (isMarketVehicle) {
-                  navigate(
-                    `${paths.dashboard.expense.newAdvance}?currentSubtrip=${selectedSubtrip._id}`
-                  );
-                } else {
-                  navigate(
-                    `${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`
-                  );
-                }
+                navigate(
+                  `${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`
+                );
               }}
             >
               Add {isMarketVehicle ? 'Advance' : 'Expense'}
