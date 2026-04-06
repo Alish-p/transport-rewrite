@@ -162,7 +162,7 @@ export default function TransporterAdvanceTableToolbar({
               {option}
             </li>
           )}
-          sx={{ width: { xs: 1, md: 280 } }}
+          sx={{ width: { xs: 1, md: 280 }, minWidth: { sm: 240 } }}
         />
 
         <DialogSelectButton
