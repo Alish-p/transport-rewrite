@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Box, Card, Stack, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
+import { Box, Card, Stack, Alert, Button, Divider, MenuItem, InputAdornment } from '@mui/material';
 
 // Assuming you have a pump slice
 
@@ -12,8 +12,8 @@ import { LoadingButton } from '@mui/lab';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useSubtrip } from 'src/query/use-subtrip';
-import { useCreateExpense } from 'src/query/use-expense';
 import { useCurrentFuelPrice } from 'src/query/use-fuel-prices';
+import { useCreateExpense, usePaginatedExpenses } from 'src/query/use-expense';
 import { useCreateTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
@@ -47,6 +47,15 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const { data: subtripData } = useSubtrip(selectedSubtripId);
 
   const isMarket = subtripData?.isOwn === false || subtripData?.vehicleId?.isOwn === false;
+
+  // For own vehicles, resolve tripId from subtrip and fetch trip-level expenses
+  const resolvedTripId = !isMarket ? (subtripData?.tripId?._id || subtripData?.tripId) : null;
+
+  // Fetch trip-level expenses for own vehicles
+  const { data: tripExpensesData } = usePaginatedExpenses(
+    resolvedTripId ? { tripId: resolvedTripId, rowsPerPage: 100 } : null
+  );
+  const tripExpenses = tripExpensesData?.expenses || [];
 
   const defaultValues = useMemo(
     () => ({
@@ -162,9 +171,10 @@ function ExpenseCoreForm({ currentSubtrip }) {
     if (!subtripData) return;
 
     if (!isMarket) {
+      // Own vehicle: save expense at Trip level
       const transformedData = {
         ...data,
-        expenseCategory: 'subtrip',
+        expenseCategory: 'trip',
         subtripId: selectedSubtripId,
         vehicleId: subtripData?.vehicleId?._id,
       };
@@ -194,11 +204,22 @@ function ExpenseCoreForm({ currentSubtrip }) {
     setSelectedSubtripId(null);
   };
 
-  console.log({ errors, values: watch() });
+  // Determine what to show below the form
+  const hasExpensesToShow = isMarket
+    ? (subtripData?.advances || []).length > 0
+    : tripExpenses.length > 0;
 
   return (
     <>
       <ExpenseInsights subtrip={subtripData} expenseType={expenseType} />
+
+      {subtripData && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          {isMarket
+            ? 'This is a Market Vehicle. Your entry will be added as a Transporter Advance.'
+            : 'This is an Own Vehicle. Your entry will be added as a Trip Expense.'}
+        </Alert>
+      )}
 
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Card sx={{ p: 3, mb: 5 }}>
@@ -345,8 +366,13 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
       <Divider sx={{ my: 3 }} />
 
-      {subtripData && (subtripData.expenses?.length > 0 || subtripData.advances?.length > 0) && (
-        <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
+      {/* Show trip-level expenses for own vehicles, or subtrip advances for market vehicles */}
+      {subtripData && hasExpensesToShow && (
+        isMarket ? (
+          <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
+        ) : (
+          <BasicExpenseTable tripExpenses={tripExpenses} withDelete />
+        )
       )}
 
       <KanbanPumpDialog
