@@ -1,6 +1,6 @@
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import { Card, Chip, Stack, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -12,11 +12,13 @@ import { Chart, useChart } from 'src/components/chart';
 
 export default function IncomeWidgetSummary({
   title,
-  type,
   total,
   icon,
   color = 'primary',
   chart,
+  description,
+  badge,
+  badgeColor = 'default',
   sx,
   ...other
 }) {
@@ -91,30 +93,29 @@ export default function IncomeWidgetSummary({
       />
 
       <Stack spacing={1} sx={{ p: 3 }}>
-        <Typography variant="subtitle2">{title}</Typography>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="subtitle2">{title}</Typography>
+          {badge && (
+            <Chip
+              label={badge}
+              size="small"
+              color={badgeColor}
+              sx={{ fontSize: 10, height: 18, fontWeight: 600 }}
+            />
+          )}
+        </Stack>
 
         <Typography variant="h3">{fCurrency(total) || 0}</Typography>
 
-        <TrendingInfo type={type} />
+        {description && (
+          <Typography variant="caption" sx={{ opacity: 0.72, fontStyle: 'italic' }}>
+            {description}
+          </Typography>
+        )}
+
       </Stack>
 
       <Chart type="area" series={[{ data: series }]} options={chartOptions} height={120} />
     </Card>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-function TrendingInfo({ type }) {
-  return (
-    <Stack direction="row" alignItems="center" flexWrap="wrap" spacing={0.5}>
-      <Iconify icon={type === 'expense' ? 'eva:trending-down-fill' : 'eva:trending-up-fill'} />
-
-      <Typography variant="subtitle2" component="span">
-        <Box component="span" sx={{ opacity: 0.72, typography: 'body2' }}>
-          {`  Total ${type} of Subtrip. `}
-        </Box>
-      </Typography>
-    </Stack>
   );
 }

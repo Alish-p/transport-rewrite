@@ -1,20 +1,23 @@
 import React from 'react';
-import Grid from '@mui/material/Unstable_Grid2';
-import Card from '@mui/material/Card';
-import Typography from '@mui/material/Typography';
-import CardHeader from '@mui/material/CardHeader';
+
 import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-import { useTheme, alpha } from '@mui/material/styles';
+import Grid from '@mui/material/Unstable_Grid2';
+import Typography from '@mui/material/Typography';
+import CardHeader from '@mui/material/CardHeader';
+import { alpha, useTheme } from '@mui/material/styles';
 
-import { fShortenNumber, fCurrency } from 'src/utils/format-number';
+import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useTyreDetailedDashboardSummary } from 'src/query/use-dashboard';
+
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart } from 'src/components/chart';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { useTyreDetailedDashboardSummary } from 'src/query/use-dashboard';
 import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget';
 
 // --- WIDGETS ---
@@ -166,7 +169,6 @@ export default function TyreDashboardView() {
   }
 
   const {
-    statusSummary,
     typeSummary,
     brandSummary,
     sizeSummary,
@@ -322,7 +324,7 @@ export default function TyreDashboardView() {
         </Grid>
 
         <Grid xs={12} md={4}>
-           <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardHeader title="Recent Activity" subheader="Last 30 Days" />
             <Box sx={{ p: 3, flexGrow: 1 }}>
               <Stack spacing={3}>
@@ -342,8 +344,8 @@ export default function TyreDashboardView() {
                     >
                       <Iconify icon={
                         activity.action === 'MOUNT' ? 'mdi:arrow-up-circle' :
-                        activity.action === 'UNMOUNT' ? 'mdi:arrow-down-circle' :
-                        activity.action === 'SCRAP' ? 'mdi:trash-can' : 'mdi:history'
+                          activity.action === 'UNMOUNT' ? 'mdi:arrow-down-circle' :
+                            activity.action === 'SCRAP' ? 'mdi:trash-can' : 'mdi:history'
                       } width={24} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>

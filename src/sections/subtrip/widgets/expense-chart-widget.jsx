@@ -8,6 +8,9 @@ import { fNumber } from 'src/utils/format-number';
 
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
+// Only these three types appear in the legend below the chart.
+const LEGEND_LABELS = ['Diesel', 'Adblue', 'Trip Advance'];
+
 // ----------------------------------------------------------------------
 
 export function ExpenseChart({ title, subheader, chart, noDataMessage, ...other }) {
@@ -64,11 +67,24 @@ export function ExpenseChart({ title, subheader, chart, noDataMessage, ...other 
 
           <Divider sx={{ borderStyle: 'dashed' }} />
 
-          <ChartLegends
-            labels={chartOptions?.labels}
-            colors={chartOptions?.colors}
-            sx={{ p: 3, justifyContent: 'center' }}
-          />
+          {/* Legend — only Diesel / Adblue / Trip Advance entries that have actual data */}
+          {(() => {
+            const allLabels = chartOptions?.labels || [];
+            const allColors = chartOptions?.colors || [];
+            const filteredIndexes = allLabels
+              .map((lbl, i) => i)
+              .filter((i) => LEGEND_LABELS.includes(allLabels[i]) && chartSeries[i] > 0);
+
+            if (filteredIndexes.length === 0) return null;
+
+            return (
+              <ChartLegends
+                labels={filteredIndexes.map((i) => allLabels[i])}
+                colors={filteredIndexes.map((i) => allColors[i])}
+                sx={{ p: 3, justifyContent: 'center' }}
+              />
+            );
+          })()}
         </>
       ) : (
         <Box sx={{ p: 5, textAlign: 'center' }}>

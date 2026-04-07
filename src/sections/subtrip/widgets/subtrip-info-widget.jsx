@@ -2,10 +2,14 @@
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
 
@@ -30,7 +34,6 @@ export default function LRInfoCard({ subtrip }) {
     endDate,
     rate = '-',
     commissionRate = '-',
-    subtripStatus = '-',
     loadingWeight = '-',
     unloadingWeight = '-',
     shortageWeight = '-',
@@ -43,12 +46,13 @@ export default function LRInfoCard({ subtrip }) {
     referenceSubtripNo = '-',
   } = subtrip;
 
-  const routeName =
-    loadingPoint && unloadingPoint ? `${loadingPoint} → ${unloadingPoint}` : '-';
   const customerName = customerId?.customerName || '-';
+  const customerId_ = customerId?._id;
   const tripNo = tripId?.tripNo || '-';
   const vehicleNo = vehicleId?.vehicleNo || '-';
+  const vehicleId_ = vehicleId?._id;
   const driverName = driverId?.driverName || '-';
+  const driverId_ = driverId?._id;
 
   const renderCustomer = (
     <>
@@ -64,23 +68,20 @@ export default function LRInfoCard({ subtrip }) {
         <Stack spacing={0.5} alignItems="flex-start" sx={{ typography: 'body2', width: '100%' }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ width: '100%' }}>
             <Iconify icon="mdi:account" width={20} />
-            <Typography variant="subtitle2">{customerName}</Typography>
-          </Stack>
-
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ width: '100%' }}>
-            <Iconify icon="mdi:flag" width={20} />
-            <Typography>
-              Status:{' '}
-              <Box
-                component="span"
-                sx={{
-                  color: 'primary.main',
-                  fontWeight: 'bold',
-                }}
+            {customerId_ ? (
+              <Link
+                component={RouterLink}
+                href={paths.dashboard.customer.details(customerId_)}
+                variant="subtitle2"
+                color="primary"
+                underline="hover"
+                sx={{ fontWeight: 500 }}
               >
-                {subtripStatus}
-              </Box>
-            </Typography>
+                {customerName}
+              </Link>
+            ) : (
+              <Typography variant="subtitle2">{customerName}</Typography>
+            )}
           </Stack>
 
           <Stack direction="row" alignItems="center" spacing={1}>
@@ -127,9 +128,19 @@ export default function LRInfoCard({ subtrip }) {
             <Iconify icon="mdi:truck-outline" width={20} />
             <Typography>
               Vehicle:{' '}
-              <Box component="span" sx={{ color: 'text.secondary' }}>
-                {vehicleNo}
-              </Box>
+              {vehicleId_ ? (
+                <Link
+                  component={RouterLink}
+                  href={paths.dashboard.vehicle.details(vehicleId_)}
+                  color="primary"
+                  underline="hover"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {vehicleNo}
+                </Link>
+              ) : (
+                <Box component="span" sx={{ color: 'text.secondary' }}>{vehicleNo}</Box>
+              )}
             </Typography>
           </Stack>
 
@@ -137,9 +148,19 @@ export default function LRInfoCard({ subtrip }) {
             <Iconify icon="healthicons:truck-driver" width={20} />
             <Typography>
               Driver:{' '}
-              <Box component="span" sx={{ color: 'text.secondary' }}>
-                {driverName}
-              </Box>
+              {driverId_ ? (
+                <Link
+                  component={RouterLink}
+                  href={paths.dashboard.driver.details(driverId_)}
+                  color="primary"
+                  underline="hover"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {driverName}
+                </Link>
+              ) : (
+                <Box component="span" sx={{ color: 'text.secondary' }}>{driverName}</Box>
+              )}
             </Typography>
           </Stack>
         </Stack>
@@ -158,14 +179,6 @@ export default function LRInfoCard({ subtrip }) {
         }
       />
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:road-variant" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Route
-          </Box>
-          <Typography>{routeName}</Typography>
-        </Stack>
-
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify icon="mdi:map-marker" width={20} />
           <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>

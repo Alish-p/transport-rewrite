@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Card, Link, Stack, Button, Dialog, Divider, CardHeader, Typography, DialogActions } from '@mui/material';
+import { Box, Grid, Stack, Button, Dialog, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { generateStaticMapImage } from 'src/utils/generate-static-map';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
@@ -20,7 +21,6 @@ import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
-import MapWithMarker from 'src/components/map/map-with-marker';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -31,6 +31,7 @@ import EntryPassPdf from '../pdfs/entry-pass-pdf';
 import ESignedLRPDF from '../pdfs/esigned-lr-pdf';
 import { mapExpensesToChartData } from '../utils';
 import LRInfo from '../widgets/subtrip-info-widget';
+import { EpodInfoCard } from '../widgets/epod-info-card';
 import DriverPaymentPdf from '../pdfs/driver-payment-pdf';
 import { SubtripTimeline } from '../widgets/subtrip-timeline';
 import AnalyticsWidgetSummary from '../widgets/summary-widget';
@@ -41,104 +42,9 @@ import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
+import { FinancialLinksWidget } from '../widgets/financial-links-widget';
 import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
-
-// -----------------------------------------------------------------------
-
-function EpodInfoCard({ subtrip: st }) {
-  if (!st.podSignature) return null;
-
-  return (
-    <Card variant="outlined" sx={{ mt: 3 }}>
-      <CardHeader
-        title={
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Iconify icon="mdi:signature-freehand" width={22} sx={{ color: 'success.main' }} />
-            <Typography variant="subtitle1">Electronic Proof of Delivery</Typography>
-          </Stack>
-        }
-      />
-      <Divider />
-      <Stack spacing={2} sx={{ p: 2 }}>
-        <Box
-          component="img"
-          src={st.podSignature}
-          alt="e-Signature"
-          sx={{
-            maxWidth: 300,
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            bgcolor: '#fff',
-          }}
-        />
-        <Stack spacing={0.5}>
-          <Typography variant="body2">
-            <strong>Signed by:</strong> {st.podSignedBy}
-          </Typography>
-          {st.podSigneeMobile && (
-            <Typography variant="body2">
-              <strong>Mobile Number:</strong> {st.podSigneeMobile}
-            </Typography>
-          )}
-          <Typography variant="body2">
-            <strong>Signed at:</strong> {new Date(st.podSignedAt).toLocaleString()}
-          </Typography>
-          {st.podRemarks && (
-            <Typography variant="body2">
-              <strong>Remarks:</strong> {st.podRemarks}
-            </Typography>
-          )}
-          {st.podGeoLocation?.latitude && (
-            <>
-              <Typography variant="body2">
-                <strong>Location:</strong>
-              </Typography>
-              <Box
-                sx={{
-                  height: 200,
-                  borderRadius: 1,
-                  overflow: 'hidden',
-                  border: 1,
-                  borderColor: 'divider',
-                  mt: 1,
-                }}
-              >
-                <MapWithMarker
-                  lat={st.podGeoLocation.latitude}
-                  lng={st.podGeoLocation.longitude}
-                  zoom={15}
-                />
-              </Box>
-            </>
-          )}
-          {st.podImages && st.podImages.length > 0 && (
-            <Stack spacing={0.5} mt={1}>
-              <Typography variant="body2">
-                <strong>Evidence Images:</strong>
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {st.podImages.map((imgUrl, index) => (
-                  <Link
-                    key={index}
-                    href={imgUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="body2"
-                    underline="always"
-                  >
-                    evidence-{index + 1}
-                  </Link>
-                ))}
-              </Stack>
-            </Stack>
-          )}
-        </Stack>
-      </Stack>
-    </Card >
-  );
-}
 
 // ----------------------------------------------------------------------
 
@@ -177,6 +83,19 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
     },
     0
   );
+
+  // Income calculation: own vehicle = freight (rate × loadingWeight), market = commission (commissionRate × loadingWeight)
+  const ownIncomeTotal = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
+  const marketIncomeTotal = (subtrip.commissionRate || 0) * (subtrip.loadingWeight || 0);
+  const incomeTotal = isMarketVehicle ? marketIncomeTotal : ownIncomeTotal;
+
+  const incomeDescription = isMarketVehicle
+    ? `Commission: ${fCurrency(subtrip.commissionRate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`
+    : `Freight: ${fCurrency(subtrip.rate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+
+  const expenseDescription = isMarketVehicle
+    ? `Total advances paid to transporter`
+    : `Total expenses incurred on this job`;
 
   const expenseChartData = mapExpensesToChartData(deductionItems);
 
@@ -617,6 +536,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
         <Grid container spacing={3} mt={2}>
           <Grid item xs={12} md={8}>
             <Stack spacing={3} direction={{ xs: 'column', md: 'column' }}>
+              {/* Status stepper */}
               {subtrip.isEmpty ? (
                 <EmptySubtripStatusStepper status={subtrip?.subtripStatus} />
               ) : (
@@ -627,11 +547,14 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <IncomeWidgetSummary
-                  title="Income"
+                  title={isMarketVehicle ? 'Commission Income' : 'Freight Income'}
                   type="income"
                   color="primary"
                   icon="eva:diagonal-arrow-right-up-fill"
-                  total={subtrip.rate * subtrip.loadingWeight || 0}
+                  total={incomeTotal}
+                  description={incomeDescription}
+                  badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
+                  badgeColor={isMarketVehicle ? 'warning' : 'success'}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
@@ -642,6 +565,9 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   color="warning"
                   icon="eva:diagonal-arrow-right-up-fill"
                   total={-totalExpenses || 0}
+                  description={expenseDescription}
+                  badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
+                  badgeColor={isMarketVehicle ? 'warning' : 'success'}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
@@ -662,11 +588,9 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   icon="ant-design:clock-circle-filled"
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />
-                <AnalyticsWidgetSummary
-                  title={`${subtrip.subtripStatus.toUpperCase()}`}
-                  total={subtrip.subtripStatus || '0'}
-                  color={subtrip.subtripStatus === 'completed' ? 'error' : 'error'}
-                  icon="ant-design:check-circle-filled"
+                <FinancialLinksWidget
+                  subtrip={subtrip}
+                  isMarketVehicle={isMarketVehicle}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
                 />
               </Stack>
