@@ -350,6 +350,7 @@ export const navData = [
         icon: ICONS.tyre,
         resource: 'tyre',
         children: [
+          { title: 'Dashboard', path: paths.dashboard.tyre.dashboard, action: 'view' },
           { title: 'List', path: paths.dashboard.tyre.list, action: 'view' },
           { title: 'Create', path: paths.dashboard.tyre.new, action: 'create' },
         ],

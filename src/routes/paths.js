@@ -259,6 +259,7 @@ export const paths = {
     },
     tyre: {
       root: `${ROOTS.DASHBOARD}/tyre`,
+      dashboard: `${ROOTS.DASHBOARD}/tyre/dashboard`,
       new: `${ROOTS.DASHBOARD}/tyre/new`,
       list: `${ROOTS.DASHBOARD}/tyre/list`,
       bulkImport: `${ROOTS.DASHBOARD}/tyre/bulk-import`,

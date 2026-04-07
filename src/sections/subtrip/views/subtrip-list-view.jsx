@@ -75,6 +75,8 @@ const defaultFilters = {
   loadingPoint: '',
   unloadingPoint: '',
   transporterPaymentGenerated: '',
+  epodSigned: '',
+  shortage: '',
 };
 
 // ----------------------------------------------------------------------
@@ -135,6 +137,8 @@ export function SubtripListView() {
     loadingPoint: filters.loadingPoint || undefined,
     unloadingPoint: filters.unloadingPoint || undefined,
     transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
+    epodSigned: filters.epodSigned || undefined,
+    shortage: filters.shortage || undefined,
   });
 
   useEffect(() => {
@@ -488,6 +492,8 @@ export function SubtripListView() {
                               loadingPoint: filters.loadingPoint || undefined,
                               unloadingPoint: filters.unloadingPoint || undefined,
                               transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
+                              epodSigned: filters.epodSigned || undefined,
+                              shortage: filters.shortage || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

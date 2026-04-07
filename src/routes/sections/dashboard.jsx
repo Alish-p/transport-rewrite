@@ -182,6 +182,7 @@ const TenantsEditPage = lazy(() => import('src/pages/dashboard/tenants/edit'));
 const TenantsDetailsPage = lazy(() => import('src/pages/dashboard/tenants/details'));
 
 // Tyre
+const TyreDashboardPage = lazy(() => import('src/sections/tyre/view/tyre-dashboard-view'));
 const TyreListPage = lazy(() => import('src/sections/tyre/view/tyre-list-view'));
 const TyreCreatePage = lazy(() => import('src/sections/tyre/view/tyre-create-view'));
 const TyreDetailsPage = lazy(() => import('src/sections/tyre/view/tyre-details-view'));
@@ -874,6 +875,14 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
             index: true,
+          },
+          {
+            path: 'dashboard',
+            element: (
+              <PermissionBasedGuard resource="tyre" action="view" hasContent>
+                <TyreDashboardPage />
+              </PermissionBasedGuard>
+            ),
           },
           {
             path: 'list',

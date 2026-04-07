@@ -271,6 +271,38 @@ export default function SubtripFiltersDrawer({
                         </FormControl>
 
                         <FormControl fullWidth>
+                            <InputLabel id="subtrip-epod-signed-select-label">Epod Signed</InputLabel>
+                            <Select
+                                value={filters.epodSigned || ''}
+                                onChange={(event) => onFilters('epodSigned', event.target.value)}
+                                input={<OutlinedInput label="Epod Signed" />}
+                                labelId="subtrip-epod-signed-select-label"
+                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+                                <MenuItem value="yes">Yes</MenuItem>
+                                <MenuItem value="no">No</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel id="subtrip-shortage-select-label">Shortage</InputLabel>
+                            <Select
+                                value={filters.shortage || ''}
+                                onChange={(event) => onFilters('shortage', event.target.value)}
+                                input={<OutlinedInput label="Shortage" />}
+                                labelId="subtrip-shortage-select-label"
+                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+                                <MenuItem value="yes">Has Shortage</MenuItem>
+                                <MenuItem value="no">No shortage</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
                             <InputLabel id="subtrip-type-select-label">Subtrip Type</InputLabel>
                             <Select
                                 value={filters.subtripType || ''}

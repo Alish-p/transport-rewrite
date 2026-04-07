@@ -280,6 +280,19 @@ export function useTyreDashboardSummary(enabled = true) {
   });
 }
 
+const getTyreDetailedDashboardSummary = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/tyre-dashboard`);
+  return data;
+};
+
+export function useTyreDetailedDashboardSummary(enabled = true) {
+  return useQuery({
+    queryKey: ['tyreDetailedDashboardSummary'],
+    queryFn: getTyreDetailedDashboardSummary,
+    enabled,
+  });
+}
+
 // ----------------------------------------------------------------------
 // Inventory dashboard summary
 

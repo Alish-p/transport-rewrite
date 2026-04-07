@@ -88,6 +88,14 @@ export default function SubtripTableFiltersResult({
     onFilters('transporterPaymentGenerated', '');
   };
 
+  const handleRemoveEpodSigned = () => {
+    onFilters('epodSigned', '');
+  };
+
+  const handleRemoveShortage = () => {
+    onFilters('shortage', '');
+  };
+
   const handleRemoveLoadingPoint = () => {
     onFilters('loadingPoint', '');
   };
@@ -249,6 +257,26 @@ export default function SubtripTableFiltersResult({
               size="small"
               label={filters.transporterPaymentGenerated === 'yes' ? 'Yes' : 'No'}
               onDelete={handleRemoveTransporterPaymentGenerated}
+            />
+          </Block>
+        )}
+
+        {filters.epodSigned && (
+          <Block label="Epod Signed:">
+            <Chip
+              size="small"
+              label={filters.epodSigned === 'yes' ? 'Yes' : 'No'}
+              onDelete={handleRemoveEpodSigned}
+            />
+          </Block>
+        )}
+
+        {filters.shortage && (
+          <Block label="Shortage:">
+            <Chip
+              size="small"
+              label={filters.shortage === 'yes' ? 'Has Shortage' : 'No shortage'}
+              onDelete={handleRemoveShortage}
             />
           </Block>
         )}
