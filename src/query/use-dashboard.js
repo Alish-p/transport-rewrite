@@ -324,3 +324,19 @@ export function useWorkOrderDashboardSummary(enabled = true) {
     enabled,
   });
 }
+
+// ----------------------------------------------------------------------
+// Maintenance & Inventory Detailed Dashboard
+
+const getMaintenanceDashboard = async () => {
+  const { data } = await axios.get(`${ENDPOINT}/maintenance-dashboard`);
+  return data;
+};
+
+export function useMaintenanceDashboard(enabled = true) {
+  return useQuery({
+    queryKey: ['maintenanceDashboard'],
+    queryFn: getMaintenanceDashboard,
+    enabled,
+  });
+}

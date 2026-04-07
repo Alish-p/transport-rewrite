@@ -288,6 +288,11 @@ export const navData = [
     feature: 'maintenanceAndInventory',
     items: [
       {
+        title: 'Dashboard',
+        path: paths.dashboard.maintenanceDashboard,
+        icon: ICONS.dashboard,
+      },
+      {
         title: 'Parts',
         path: paths.dashboard.part.root,
         icon: ICONS.parts,

@@ -221,6 +221,7 @@ export const paths = {
       details: (id) => `${ROOTS.DASHBOARD}/tenants/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/tenants/${id}/edit`,
     },
+    maintenanceDashboard: `${ROOTS.DASHBOARD}/maintenance-dashboard`,
     part: {
       root: `${ROOTS.DASHBOARD}/part`,
       new: `${ROOTS.DASHBOARD}/part/new`,

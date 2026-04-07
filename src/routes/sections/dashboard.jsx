@@ -189,6 +189,9 @@ const TyreDetailsPage = lazy(() => import('src/sections/tyre/view/tyre-details-v
 const TyreEditPage = lazy(() => import('src/sections/tyre/view/tyre-edit-view'));
 const TyreBulkImportPage = lazy(() => import('src/pages/dashboard/tyre/bulk-import'));
 
+// Maintenance Dashboard
+const MaintenanceDashboardPage = lazy(() => import('src/sections/maintenance/view/maintenance-dashboard-view'));
+
 // ----------------------------------------------------------------------
 
 const layoutContent = (
@@ -701,6 +704,14 @@ export const dashboardRoutes = [
             ),
           },
         ],
+      },
+      {
+        path: 'maintenance-dashboard',
+        element: (
+          <FeatureGuard feature="maintenanceAndInventory">
+            <MaintenanceDashboardPage />
+          </FeatureGuard>
+        ),
       },
       {
         path: 'part',
