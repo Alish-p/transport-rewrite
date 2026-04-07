@@ -960,58 +960,192 @@ export function SubtripJobCreateView() {
                             onClose={handleCloseSubtripPopover}
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                            PaperProps={{ sx: { width: 420, maxWidth: '90vw' } }}
+                            PaperProps={{
+                              sx: {
+                                width: 460,
+                                maxWidth: '95vw',
+                                borderRadius: 2,
+                                boxShadow: (theme) => theme.customShadows?.dialog || theme.shadows[16],
+                              },
+                            }}
                           >
-                            <Box sx={{ p: 2 }}>
-                              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                                Jobs in Trip {targetTrip.tripNo}
-                              </Typography>
-                              <Divider sx={{ mb: 1 }} />
-                              <Box sx={{ maxHeight: 320, overflow: 'auto' }}>
-                                {(targetTripDetails?.subtrips || []).length === 0 ? (
+                            {/* Header */}
+                            <Box
+                              sx={{
+                                px: 2.5,
+                                py: 1.75,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                bgcolor: 'background.neutral',
+                              }}
+                            >
+                              <Stack direction="row" alignItems="center" spacing={1}>
+                                <Iconify icon="mdi:truck-cargo-container" width={20} color="primary.main" />
+                                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                  Jobs in Trip{' '}
+                                  <Box component="span" sx={{ color: 'primary.main' }}>
+                                    {targetTrip.tripNo}
+                                  </Box>
+                                </Typography>
+                              </Stack>
+                              <Chip
+                                size="small"
+                                label={`${(targetTripDetails?.subtrips || []).length} Jobs`}
+                                color="primary"
+                                variant="soft"
+                              />
+                            </Box>
+
+                            {/* Job list */}
+                            <Box sx={{ maxHeight: 380, overflow: 'auto', px: 2, py: 1.5 }}>
+                              {(targetTripDetails?.subtrips || []).length === 0 ? (
+                                <Box sx={{ py: 3, textAlign: 'center' }}>
+                                  <Iconify icon="mdi:clipboard-off-outline" width={36} sx={{ color: 'text.disabled', mb: 1 }} />
                                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                     No jobs found in this trip.
                                   </Typography>
-                                ) : (
-                                  <Stack spacing={1.5}>
-                                    {(targetTripDetails?.subtrips || [])
-                                      .slice()
-                                      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
-                                      .map((st) => (
+                                </Box>
+                              ) : (
+                                <Stack spacing={1.25}>
+                                  {(targetTripDetails?.subtrips || [])
+                                    .slice()
+                                    .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
+                                    .map((st, idx, arr) => {
+                                      const driverName =
+                                        st?.driverId?.driverName ||
+                                        st?.driver?.driverName ||
+                                        st?.driverName ||
+                                        (typeof st?.driver === 'string' ? st.driver : undefined) ||
+                                        targetTrip?.driverId?.driverName ||
+                                        '-';
+
+                                      const statusRaw = (st.subtripStatus || '').replace(/-/g, ' ');
+                                      const statusColorMap = {
+                                        loaded: 'info',
+                                        'in transit': 'warning',
+                                        unloaded: 'success',
+                                        billed: 'success',
+                                        settled: 'default',
+                                        default: 'default',
+                                      };
+                                      const statusColor = statusColorMap[statusRaw.toLowerCase()] || statusColorMap.default;
+
+                                      return (
                                         <Box key={st._id}>
-                                          <Typography variant="body2">
-                                            <strong>LR:</strong> {st.subtripNo} •{' '}
-                                            <strong>Customer:</strong>{' '}
-                                            {st.customerId?.customerName || '-'}
-                                          </Typography>
-                                          <Typography
-                                            variant="caption"
-                                            sx={{ color: 'text.secondary' }}
+                                          <Box
+                                            sx={{
+                                              borderRadius: 1.5,
+                                              border: '1px solid',
+                                              borderColor: 'divider',
+                                              p: 1.5,
+                                              bgcolor: 'background.paper',
+                                              transition: 'box-shadow 0.15s',
+                                              '&:hover': {
+                                                boxShadow: (theme) => theme.customShadows?.z8 || theme.shadows[4],
+                                              },
+                                            }}
                                           >
-                                            <strong>Status:</strong>{' '}
-                                            {st.subtripStatus?.replace('-', ' ') || '-'} •{' '}
-                                            <strong>Route:</strong> {st.loadingPoint} →{' '}
-                                            {st.unloadingPoint}
-                                          </Typography>
-                                          <Typography
-                                            variant="caption"
-                                            sx={{ color: 'text.secondary', display: 'block' }}
-                                          >
-                                            <strong>Dispatch:</strong>{' '}
-                                            {st.startDate ? fDate(new Date(st.startDate)) : '-'} •{' '}
-                                            <strong>Driver:</strong>{' '}
-                                            {st?.driverId?.driverName ||
-                                              st?.driver?.driverName ||
-                                              st?.driverName ||
-                                              (typeof st?.driver === 'string' ? st.driver : undefined) ||
-                                              targetTrip?.driverId?.driverName ||
-                                              '-'}
-                                          </Typography>
+                                            {/* Top row: LR + Status */}
+                                            <Stack
+                                              direction="row"
+                                              alignItems="center"
+                                              justifyContent="space-between"
+                                              sx={{ mb: 1 }}
+                                            >
+                                              <Stack direction="row" alignItems="center" spacing={0.75}>
+                                                <Iconify icon="mdi:file-document-outline" width={15} sx={{ color: 'text.secondary' }} />
+                                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                                  LR
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                  {st.subtripNo || '-'}
+                                                </Typography>
+                                              </Stack>
+                                              <Chip
+                                                size="small"
+                                                label={statusRaw || '-'}
+                                                color={statusColor}
+                                                variant="soft"
+                                                sx={{ textTransform: 'capitalize', height: 20, fontSize: '0.68rem' }}
+                                              />
+                                            </Stack>
+
+                                            {/* Customer */}
+                                            <Stack direction="row" alignItems="flex-start" spacing={0.75} sx={{ mb: 0.75 }}>
+                                              <Iconify icon="mdi:domain" width={14} sx={{ color: 'text.disabled', mt: '2px', flexShrink: 0 }} />
+                                              <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500, lineHeight: 1.4 }}>
+                                                {st.customerId?.customerName || '-'}
+                                              </Typography>
+                                            </Stack>
+
+                                            {/* Route */}
+                                            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.75 }}>
+                                              <Iconify icon="mdi:map-marker-outline" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                                              <Typography
+                                                variant="caption"
+                                                sx={{
+                                                  color: 'text.secondary',
+                                                  overflow: 'hidden',
+                                                  textOverflow: 'ellipsis',
+                                                  whiteSpace: 'nowrap',
+                                                  maxWidth: 320,
+                                                }}
+                                              >
+                                                {st.loadingPoint || '—'}
+                                              </Typography>
+                                              <Iconify icon="mdi:arrow-right" width={13} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                                              <Typography
+                                                variant="caption"
+                                                sx={{
+                                                  color: 'text.secondary',
+                                                  overflow: 'hidden',
+                                                  textOverflow: 'ellipsis',
+                                                  whiteSpace: 'nowrap',
+                                                  maxWidth: 320,
+                                                }}
+                                              >
+                                                {st.unloadingPoint || '—'}
+                                              </Typography>
+                                            </Stack>
+
+                                            {/* Dispatch + Driver */}
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                              <Stack direction="row" alignItems="center" spacing={0.5}>
+                                                <Iconify icon="mdi:calendar-outline" width={13} sx={{ color: 'text.disabled' }} />
+                                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                                  {st.startDate ? fDate(new Date(st.startDate)) : '-'}
+                                                </Typography>
+                                              </Stack>
+                                              <Stack direction="row" alignItems="center" spacing={0.5}>
+                                                <Avatar
+                                                  sx={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    fontSize: '0.6rem',
+                                                    bgcolor: 'primary.lighter',
+                                                    color: 'primary.dark',
+                                                  }}
+                                                >
+                                                  {driverName.charAt(0).toUpperCase()}
+                                                </Avatar>
+                                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                                  {driverName}
+                                                </Typography>
+                                              </Stack>
+                                            </Stack>
+                                          </Box>
+
+                                          {idx < arr.length - 1 && (
+                                            <Divider sx={{ mt: 1.25 }} />
+                                          )}
                                         </Box>
-                                      ))}
-                                  </Stack>
-                                )}
-                              </Box>
+                                      );
+                                    })}
+                                </Stack>
+                              )}
                             </Box>
                           </Popover>
                         </Alert>
@@ -1075,9 +1209,6 @@ export function SubtripJobCreateView() {
                           </Stack>
                         </MenuItem>
                       </Field.Select>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        Loaded requires Customer and DI/DO number. Empty requires Route.
-                      </Typography>
                     </>
                   )}
 
@@ -1261,7 +1392,7 @@ export function SubtripJobCreateView() {
                       {!isEwayIntegrationEnabled && <Field.Text name="ewayBill" label="Eway Bill" />}
                       <Field.DatePicker
                         name="ewayExpiryDate"
-                        label="Eway Expiry Date"
+                        label="Eway Expiry Date *"
                         minDate={dayjs()}
                       />
                       <Field.Text name="invoiceNo" label="Invoice No *" />
