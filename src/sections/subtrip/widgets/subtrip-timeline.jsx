@@ -13,6 +13,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -67,7 +68,7 @@ function formatEventMessage(event, subtripExpenseTypes) {
   if (details.expenseType && typeof details.amount !== 'undefined') {
     const label = getExpenseLabel(subtripExpenseTypes, details.expenseType);
     const action = eventType === 'EXPENSE_DELETED' ? 'removed' : 'added';
-    return `${userPrefix}${label} expense ${action} for ₹${details.amount}`;
+    return `${userPrefix}${label} expense ${action} for ${fCurrency(details.amount)}`;
   }
 
   // 3. Invoice events
@@ -82,7 +83,7 @@ function formatEventMessage(event, subtripExpenseTypes) {
         >
           {details.invoiceNo}
         </Link>{' '}
-        for ₹{details.amount}
+        for {fCurrency(details.amount)}
       </span>
     );
   }
@@ -142,16 +143,16 @@ function formatEventMessage(event, subtripExpenseTypes) {
     const { materialType, quantity, loadingWeight, rate } = details;
     const parts = [];
     if (materialType) parts.push(materialType);
-    if (typeof quantity !== 'undefined') parts.push(`qty ${quantity}`);
-    if (typeof loadingWeight !== 'undefined') parts.push(`weight ${loadingWeight}`);
-    if (typeof rate !== 'undefined') parts.push(`rate ₹${rate}`);
+    if (typeof quantity !== 'undefined') parts.push(`qty ${fNumber(quantity)}`);
+    if (typeof loadingWeight !== 'undefined') parts.push(`weight ${fNumber(loadingWeight)}`);
+    if (typeof rate !== 'undefined') parts.push(`rate ${fCurrency(rate)}`);
     const detail = parts.join(', ');
     return `${userPrefix}Added material${detail ? ` ${detail}` : ''}`;
   }
 
   // 5. Received event
   if (eventType === 'RECEIVED' && typeof details.unloadingWeight === 'number') {
-    return `${userPrefix}Recorded unloading weight of ${details.unloadingWeight} kg`;
+    return `${userPrefix}Recorded unloading weight of ${fNumber(details.unloadingWeight)} kg`;
   }
 
   // 6. Any other details just JSON-dumped (or empty)

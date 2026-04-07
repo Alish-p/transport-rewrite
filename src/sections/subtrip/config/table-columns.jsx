@@ -272,7 +272,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'shortageWeight',
-    label: 'Shortage (Weight)',
+    label: 'Shortage Weight (Ton)',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.shortageWeight || '-',
@@ -281,7 +281,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'shortageAmount',
-    label: 'Shortage (₹)',
+    label: 'Shortage Amount (₹)',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.shortageAmount || '-',
