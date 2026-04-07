@@ -261,7 +261,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
           meta={[
             {
               icon: 'mdi:truck-outline',
-              label: vehicleId?.vehicleNo,
+              label: isMarketVehicle ? `${vehicleId?.vehicleNo} ( Market )` : `${vehicleId?.vehicleNo} ( Own )`,
               href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
             },
             {
