@@ -48,24 +48,24 @@ export function AppSubtripCompletedChart({
     },
     tooltip: tooltipDetails
       ? {
-          shared: false,
-          intersect: true,
-          custom: ({ dataPointIndex, seriesIndex, series }) =>
-            renderSubtripTooltip({
-              dataPointIndex,
-              seriesIndex,
-              series,
-              categories: chart.categories,
-              tooltipDetails,
-              colors: chartColors,
-              theme,
-            }),
-        }
+        shared: false,
+        intersect: true,
+        custom: ({ dataPointIndex, seriesIndex, series }) =>
+          renderSubtripTooltip({
+            dataPointIndex,
+            seriesIndex,
+            series,
+            categories: chart.categories,
+            tooltipDetails,
+            colors: chartColors,
+            theme,
+          }),
+      }
       : {
-          y: {
-            formatter: (value) => value,
-          },
+        y: {
+          formatter: (value) => value,
         },
+      },
     // Show total (own + market) labels on top of each stacked bar
     plotOptions: {
       bar: {
@@ -154,7 +154,8 @@ function renderSubtripTooltip({
   const own = tooltipDetails?.own?.[dataPointIndex] || {
     totalSubtrips: 0,
     totalIncome: 0,
-    totalExpense: 0,
+    subtripExpense: 0,
+    vehicleExpense: 0,
     profit: 0,
   };
   const market = tooltipDetails?.market?.[dataPointIndex] || {
@@ -195,7 +196,8 @@ function renderSubtripTooltip({
       </div>
       ${buildRow('Total subtrips', String(hoveredSubtripCount))}
       ${buildRow('Total income', formatShortCurrency(own.totalIncome))}
-      ${buildRow('Total expense', formatShortCurrency(own.totalExpense))}
+      ${buildRow('Job expense', formatShortCurrency(own.subtripExpense))}
+      ${buildRow('Vehicle expense', formatShortCurrency(own.vehicleExpense))}
       ${buildRow('Profit', formatShortCurrency(own.profit), profitColor)}
     </div>
   `;
