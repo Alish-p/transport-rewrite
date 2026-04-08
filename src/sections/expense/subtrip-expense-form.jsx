@@ -12,8 +12,8 @@ import { LoadingButton } from '@mui/lab';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useSubtrip } from 'src/query/use-subtrip';
+import { useCreateExpense } from 'src/query/use-expense';
 import { useCurrentFuelPrice } from 'src/query/use-fuel-prices';
-import { useCreateExpense, usePaginatedExpenses } from 'src/query/use-expense';
 import { useCreateTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
@@ -47,15 +47,6 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const { data: subtripData } = useSubtrip(selectedSubtripId);
 
   const isMarket = subtripData?.isOwn === false || subtripData?.vehicleId?.isOwn === false;
-
-  // For own vehicles, resolve tripId from subtrip and fetch trip-level expenses
-  const resolvedTripId = !isMarket ? (subtripData?.tripId?._id || subtripData?.tripId) : null;
-
-  // Fetch trip-level expenses for own vehicles
-  const { data: tripExpensesData } = usePaginatedExpenses(
-    resolvedTripId ? { tripId: resolvedTripId, rowsPerPage: 100 } : null
-  );
-  const tripExpenses = tripExpensesData?.expenses || [];
 
   const defaultValues = useMemo(
     () => ({
@@ -171,10 +162,10 @@ function ExpenseCoreForm({ currentSubtrip }) {
     if (!subtripData) return;
 
     if (!isMarket) {
-      // Own vehicle: save expense at Trip level
+      // Own vehicle: save expense linked to selected subtrip
       const transformedData = {
         ...data,
-        expenseCategory: 'trip',
+        expenseCategory: 'subtrip',
         subtripId: selectedSubtripId,
         vehicleId: subtripData?.vehicleId?._id,
       };
@@ -207,7 +198,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
   // Determine what to show below the form
   const hasExpensesToShow = isMarket
     ? (subtripData?.advances || []).length > 0
-    : tripExpenses.length > 0;
+    : (subtripData?.expenses || []).length > 0;
 
   return (
     <>
@@ -217,7 +208,7 @@ function ExpenseCoreForm({ currentSubtrip }) {
         <Alert severity="info" sx={{ mb: 3 }}>
           {isMarket
             ? 'This is a Market Vehicle. Your entry will be added as a Transporter Advance.'
-            : 'This is an Own Vehicle. Your entry will be added as a Trip Expense.'}
+            : 'This is an Own Vehicle. Your entry will be added as a Subtrip Expense.'}
         </Alert>
       )}
 
@@ -366,12 +357,12 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Show trip-level expenses for own vehicles, or subtrip advances for market vehicles */}
+      {/* Show subtrip advances for market vehicles and subtrip expenses for own vehicles */}
       {subtripData && hasExpensesToShow && (
         isMarket ? (
           <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
         ) : (
-          <BasicExpenseTable tripExpenses={tripExpenses} withDelete />
+          <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
         )
       )}
 
