@@ -83,6 +83,31 @@ export const TABLE_COLUMNS = [
     align: 'left',
   },
   {
+    id: 'transporter',
+    label: 'Transporter',
+    defaultVisible: true,
+    disabled: false,
+    align: 'left',
+    getter: (row) => row?.vehicleId?.transporter?.transportName || '-',
+    render: ({ vehicleId }) => {
+      const transporter = vehicleId?.transporter;
+      if (transporter?._id) {
+        return (
+          <Link
+            component={RouterLink}
+            to={paths.dashboard.transporter.details(transporter._id)}
+            variant="body2"
+            noWrap
+            sx={{ color: 'primary.main' }}
+          >
+            {transporter.transportName || '-'}
+          </Link>
+        );
+      }
+      return '-';
+    },
+  },
+  {
     id: 'advanceType',
     label: 'Advance Type',
     defaultVisible: true,
