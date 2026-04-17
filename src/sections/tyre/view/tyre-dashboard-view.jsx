@@ -176,7 +176,8 @@ export default function TyreDashboardView() {
     agingSummary,
     threadHealthSummary,
     topStats,
-    recentActivity
+    recentActivity,
+    liveKmSummary
   } = data;
 
   // Formatting for Donut Charts
@@ -319,6 +320,26 @@ export default function TyreDashboardView() {
               theme.palette.primary.light,
               theme.palette.primary.main,
               theme.palette.primary.dark,
+            ]}
+          />
+        </Grid>
+
+        <Grid xs={12} md={4}>
+          <TyreDonutChart
+            title="Live KM Update Status"
+            subheader="Freshness of odometer readings"
+            labels={['< 3 Days', '3-10 Days', '> 10 Days', 'Unknown']}
+            data={[
+              liveKmSummary?.fresh || 0,
+              liveKmSummary?.warning || 0,
+              liveKmSummary?.stale || 0,
+              liveKmSummary?.unknown || 0
+            ]}
+            colors={[
+              theme.palette.success.main,
+              theme.palette.warning.main,
+              theme.palette.error.main,
+              theme.palette.text.disabled,
             ]}
           />
         </Grid>

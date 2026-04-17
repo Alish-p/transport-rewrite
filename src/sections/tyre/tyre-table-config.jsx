@@ -10,6 +10,7 @@ import { RouterLink } from 'src/routes/components';
 import { fDate, fTime, fToNow, fDaysDuration } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
 import MiniTyreLayout from 'src/sections/vehicle/components/mini-tyre-layout';
 
@@ -126,20 +127,32 @@ export const TYRE_TABLE_COLUMNS = [
                 const updatedAt = row.currentVehicleId.currentOdometerUpdatedAt;
 
                 let subtitleColor = 'text.disabled';
+                let isStale = false;
                 if (updatedAt) {
                     const daysOld = fDaysDuration(updatedAt, new Date());
                     if (daysOld < 3) subtitleColor = 'success.light';
                     else if (daysOld <= 10) subtitleColor = 'warning.light';
-                    else subtitleColor = 'error.light';
+                    else { subtitleColor = 'error.light'; isStale = true; }
+                } else {
+                    isStale = true;
                 }
 
                 return (
-                    <ListItemText
-                        primary={`${liveKm} km`}
-                        secondary={updatedAt ? `${fToNow(updatedAt)} ago` : 'Unknown'}
-                        primaryTypographyProps={{ typography: 'body2' }}
-                        secondaryTypographyProps={{ component: 'span', typography: 'caption', color: subtitleColor }}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <ListItemText
+                            primary={`${liveKm} km`}
+                            secondary={updatedAt ? `${fToNow(updatedAt)} ago` : 'Unknown'}
+                            primaryTypographyProps={{ typography: 'body2' }}
+                            secondaryTypographyProps={{ component: 'span', typography: 'caption', color: subtitleColor }}
+                        />
+                        {isStale && (
+                            <Tooltip title="Odometer reading is stale (> 10 days) or unknown" placement="top">
+                                <Box component="span" sx={{ color: 'error.main', ml: 1, display: 'flex' }}>
+                                    <Iconify icon="mdi:alert-circle" width={16} />
+                                </Box>
+                            </Tooltip>
+                        )}
+                    </Box>
                 );
             }
             return `${row.currentKm || 0} km`;
