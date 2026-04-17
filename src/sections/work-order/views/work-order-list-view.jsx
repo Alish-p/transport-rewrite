@@ -63,6 +63,7 @@ const defaultFilters = {
   createdBy: '',
   closedBy: '',
   issueAssignee: '',
+  issue: '',
   expenseAdded: 'all',
 };
 
@@ -120,6 +121,7 @@ export function WorkOrderListView() {
     createdBy: filters.createdBy || undefined,
     closedBy: filters.closedBy || undefined,
     issueAssignee: filters.issueAssignee || undefined,
+    issue: filters.issue || undefined,
     expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
@@ -397,6 +399,7 @@ export function WorkOrderListView() {
                               createdBy: filters.createdBy || undefined,
                               closedBy: filters.closedBy || undefined,
                               issueAssignee: filters.issueAssignee || undefined,
+                              issue: filters.issue || undefined,
                               expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
                               columns: orderedIds.join(','),
                             },

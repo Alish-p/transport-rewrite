@@ -51,6 +51,10 @@ export default function WorkOrderTableFiltersResult({
     onFilters('issueAssignee', '');
   };
 
+  const handleRemoveIssue = () => {
+    onFilters('issue', '');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -125,6 +129,16 @@ export default function WorkOrderTableFiltersResult({
               size="small"
               label={selectedIssueAssignee?.name || filters.issueAssignee}
               onDelete={handleRemoveIssueAssignee}
+            />
+          </Block>
+        )}
+
+        {filters.issue && (
+          <Block label="Issue :">
+            <Chip
+              size="small"
+              label={filters.issue}
+              onDelete={handleRemoveIssue}
             />
           </Block>
         )}

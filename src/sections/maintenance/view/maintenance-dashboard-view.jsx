@@ -73,11 +73,22 @@ function DonutWidget({ title, subheader, labels, data, colors }) {
   );
 }
 
-function BarWidget({ title, subheader, categories, series, colors, height = 320, stacked = false }) {
+function BarWidget({
+  title,
+  subheader,
+  categories,
+  series,
+  colors,
+  height = 320,
+  stacked = false,
+  yAxisFormatter,
+}) {
   const chartOptions = useChart({
     colors,
     chart: { stacked },
     xaxis: { categories },
+    yaxis: yAxisFormatter ? { labels: { formatter: yAxisFormatter } } : undefined,
+    tooltip: yAxisFormatter ? { y: { formatter: yAxisFormatter } } : undefined,
     plotOptions: {
       bar: {
         borderRadius: 4,
@@ -355,6 +366,7 @@ export default function MaintenanceDashboardView() {
             series={woMonthSeries}
             colors={[theme.palette.warning.main, theme.palette.primary.main]}
             stacked
+            yAxisFormatter={(value) => fShortenNumber(value)}
           />
         </Grid>
 
@@ -373,7 +385,7 @@ export default function MaintenanceDashboardView() {
         <Grid xs={12} md={6}>
           <Card sx={{ height: '100%' }}>
             <CardHeader title="Top Vendors" subheader="By total spend" />
-            <TableContainer sx={{ px: 2, pb: 2 }}>
+            <TableContainer sx={{ p: 2 }}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -444,8 +456,8 @@ export default function MaintenanceDashboardView() {
                       <Iconify
                         icon={
                           activity.type.includes('PURCHASE') ? 'mdi:package-variant-closed' :
-                          activity.type.includes('WORK_ORDER') ? 'mdi:wrench' :
-                          activity.type.includes('TRANSFER') ? 'mdi:swap-horizontal' : 'mdi:history'
+                            activity.type.includes('WORK_ORDER') ? 'mdi:wrench' :
+                              activity.type.includes('TRANSFER') ? 'mdi:swap-horizontal' : 'mdi:history'
                         }
                         width={22}
                       />
@@ -474,7 +486,7 @@ export default function MaintenanceDashboardView() {
         <Grid xs={12} md={6}>
           <Card>
             <CardHeader title="Recent Purchase Orders" />
-            <TableContainer sx={{ px: 2, pb: 2 }}>
+            <TableContainer sx={{ p: 2 }}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -509,7 +521,7 @@ export default function MaintenanceDashboardView() {
         <Grid xs={12} md={6}>
           <Card>
             <CardHeader title="Recent Work Orders" />
-            <TableContainer sx={{ px: 2, pb: 2 }}>
+            <TableContainer sx={{ p: 2 }}>
               <Table size="small">
                 <TableHead>
                   <TableRow>

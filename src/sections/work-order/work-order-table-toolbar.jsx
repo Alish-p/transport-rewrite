@@ -15,6 +15,7 @@ import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { TABLE_COLUMNS } from './work-order-table-config';
+import WorkOrderFiltersDrawer from './work-order-filters-drawer';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 import { KanbanContactsDialog } from '../kanban/components/kanban-contacts-dialog';
@@ -41,6 +42,8 @@ export default function WorkOrderTableToolbar({
   onSelectIssueAssignee,
 }) {
   const columnsPopover = usePopover();
+  const filtersDrawer = useBoolean();
+
   const vehicleDialog = usePopover();
   const partDialog = usePopover();
   const createdByDialog = useBoolean();
@@ -182,29 +185,15 @@ export default function WorkOrderTableToolbar({
           sx={{ width: { xs: 1, md: 150 } }}
         />
 
-        <DialogSelectButton
-          onClick={createdByDialog.onTrue}
-          selected={selectedCreatedBy?.name}
-          placeholder="Created By"
-          iconName="mdi:account"
-          sx={{ width: { xs: 1, md: 150 } }}
-        />
-
-        <DialogSelectButton
-          onClick={closedByDialog.onTrue}
-          selected={selectedClosedBy?.name}
-          placeholder="Closed By"
-          iconName="mdi:account-check"
-          sx={{ width: { xs: 1, md: 150 } }}
-        />
-
-        <DialogSelectButton
-          onClick={issueAssigneeDialog.onTrue}
-          selected={selectedIssueAssignee?.name}
-          placeholder="Issue Assignee"
-          iconName="mdi:account-hard-hat"
-          sx={{ width: { xs: 1, md: 150 } }}
-        />
+        <Button
+          color="inherit"
+          variant="outlined"
+          startIcon={<Iconify icon="solar:filter-bold" />}
+          onClick={filtersDrawer.onTrue}
+          sx={{ flexShrink: 0 }}
+        >
+          More Filters
+        </Button>
 
         <Button
           color="inherit"
@@ -231,6 +220,19 @@ export default function WorkOrderTableToolbar({
         handleToggleAllColumns={onToggleAllColumns}
         onResetColumns={onResetColumns}
         canResetColumns={canResetColumns}
+      />
+
+      <WorkOrderFiltersDrawer
+        open={filtersDrawer.value}
+        onClose={filtersDrawer.onFalse}
+        filters={filters}
+        onFilters={onFilters}
+        createdByDialog={createdByDialog}
+        closedByDialog={closedByDialog}
+        issueAssigneeDialog={issueAssigneeDialog}
+        selectedCreatedBy={selectedCreatedBy}
+        selectedClosedBy={selectedClosedBy}
+        selectedIssueAssignee={selectedIssueAssignee}
       />
 
       <KanbanVehicleDialog
