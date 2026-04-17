@@ -136,6 +136,29 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'issues',
+    label: 'Issues',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => {
+      const issues = row.issues || [];
+      const values = issues.map((issue) => typeof issue?.issue === 'object' ? issue.issue.value : issue.issue).filter(Boolean);
+      return values.join(', ') || '-';
+    },
+    render: (row) => {
+      const issues = row.issues || [];
+      const values = issues.map((issue) => typeof issue?.issue === 'object' ? issue.issue.value : issue.issue).filter(Boolean);
+      const text = values.join(', ') || '-';
+      return (
+        <Tooltip title={text}>
+          <Typography variant="body2" sx={{ maxWidth: 200 }} noWrap>
+            {text}
+          </Typography>
+        </Tooltip>
+      );
+    },
+  },
+  {
     id: 'issueAssignees',
     label: 'Issue Assignees',
     defaultVisible: true,
