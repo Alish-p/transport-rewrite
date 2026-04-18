@@ -69,6 +69,10 @@ export default function TyreFiltersDrawer({
         onFilters('attachmentStatus', filters.attachmentStatus === status ? '' : status);
     };
 
+    const handleFilterLiveKm = (freshness) => {
+        onFilters('liveKmFreshness', filters.liveKmFreshness === freshness ? '' : freshness);
+    };
+
     // const handleFilterKm = (event, newValue) => {
     //     onFilters('currentKm', newValue);
     // };
@@ -266,6 +270,32 @@ export default function TyreFiltersDrawer({
             </Stack>
 
             {/* The dialog needs to be somewhere. Can be outside renderFilters stack or inside, usually fine inside if properly memoized/rendered. */}
+
+            <Stack spacing={1}>
+                <Typography variant="subtitle2">Live KM Freshness</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', mt: -1 }}>Based on vehicle odometer update recency (mounted tyres only)</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {[
+                        { value: 'fresh', label: '< 3 Days', color: 'success' },
+                        { value: 'warning', label: '3–10 Days', color: 'warning' },
+                        { value: 'stale', label: '> 10 Days', color: 'error' },
+                        { value: 'unknown', label: 'Unknown', color: 'default' },
+                    ].map((item) => {
+                        const isSelected = filters.liveKmFreshness === item.value;
+                        return (
+                            <Chip
+                                key={item.value}
+                                label={item.label}
+                                onClick={() => handleFilterLiveKm(item.value)}
+                                color={isSelected ? item.color : 'default'}
+                                variant={isSelected ? 'filled' : 'soft'}
+                                sx={{ mb: 1, '&:hover': { opacity: 0.8 } }}
+                                clickable
+                            />
+                        );
+                    })}
+                </Stack>
+            </Stack>
         </Stack>
     );
 

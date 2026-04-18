@@ -73,6 +73,7 @@ const defaultFilters = {
     maxThread: null,
     position: '',
     attachmentStatus: '',
+    liveKmFreshness: '',
 };
 
 export default function TyreListView() {
@@ -119,6 +120,7 @@ export default function TyreListView() {
         maxThread: filters.maxThread || undefined,
         position: filters.position || undefined,
         attachmentStatus: filters.attachmentStatus || undefined,
+        liveKmFreshness: filters.liveKmFreshness || undefined,
         orderBy: table.orderBy,
         order: table.order,
     });
@@ -395,12 +397,14 @@ export default function TyreListView() {
                                                             type: filters.type.length ? filters.type : undefined,
                                                             model: filters.model || undefined,
                                                             size: filters.size || undefined,
+                                                            category: filters.category || undefined,
                                                             minKm: filters.minKm || undefined,
                                                             maxKm: filters.maxKm || undefined,
                                                             minThread: filters.minThread || undefined,
                                                             maxThread: filters.maxThread || undefined,
                                                             position: filters.position || undefined,
                                                             attachmentStatus: filters.attachmentStatus || undefined,
+                                                            liveKmFreshness: filters.liveKmFreshness || undefined,
                                                             columns: orderedIds.join(','),
                                                         },
                                                         responseType: 'blob',

@@ -50,6 +50,10 @@ export default function TyreTableFiltersResult({
         onFilters('attachmentStatus', '');
     };
 
+    const handleRemoveLiveKmFreshness = () => {
+        onFilters('liveKmFreshness', '');
+    };
+
     return (
         <Stack spacing={1.5} {...other}>
             <Box sx={{ typography: 'body2' }}>
@@ -167,6 +171,21 @@ export default function TyreTableFiltersResult({
                                         : 'Never Attached'
                             }
                             onDelete={handleRemoveAttachment}
+                        />
+                    </Block>
+                )}
+
+                {filters.liveKmFreshness && (
+                    <Block label="Live KM:">
+                        <Chip
+                            size="small"
+                            label={{
+                                fresh: '< 3 Days',
+                                warning: '3–10 Days',
+                                stale: '> 10 Days',
+                                unknown: 'Unknown',
+                            }[filters.liveKmFreshness] || filters.liveKmFreshness}
+                            onDelete={handleRemoveLiveKmFreshness}
                         />
                     </Block>
                 )}
