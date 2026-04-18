@@ -11,7 +11,7 @@ import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
 
-export function DashboardTotalWidget({ icon, title, total, color = 'primary', sx, ...other }) {
+export function DashboardTotalWidget({ icon, title, total, color = 'primary', onTotalClick, sx, ...other }) {
   const theme = useTheme();
 
   return (
@@ -41,7 +41,23 @@ export function DashboardTotalWidget({ icon, title, total, color = 'primary', sx
       >
         <Box sx={{ flexGrow: 1, minWidth: 112 }}>
           <Box sx={{ mb: 1, typography: 'subtitle2', minHeight: 40 }}>{title}</Box>
-          <Box sx={{ typography: 'h4' }}>{fShortenNumber(total)}</Box>
+          <Box
+            onClick={onTotalClick}
+            sx={{
+              typography: 'h4',
+              ...(onTotalClick && {
+                cursor: 'pointer',
+                display: 'inline-block',
+                borderBottom: `2px solid currentColor`,
+                lineHeight: 1.2,
+                pb: '2px',
+                transition: 'opacity 0.15s',
+                '&:hover': { opacity: 0.65 },
+              }),
+            }}
+          >
+            {fShortenNumber(total)}
+          </Box>
         </Box>
       </Box>
 

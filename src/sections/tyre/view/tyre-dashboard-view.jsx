@@ -243,41 +243,40 @@ export default function TyreDashboardView() {
             total={attachmentSummary.total}
             color="primary"
             icon={<Iconify icon="mingcute:tyre-line" width={36} />}
+            onTotalClick={() => router.push(paths.dashboard.tyre.root)}
           />
         </Grid>
 
         <Grid xs={6} sm={3}>
-          <Box sx={{ cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.8 } }} onClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=newlyAttached`)}>
-            <DashboardTotalWidget
-              title="Newly Attached"
-              total={attachmentSummary.newlyAttached}
-              color="success"
-              icon={<Iconify icon="mdi:truck-check-outline" width={36} />}
-            />
-          </Box>
+          <DashboardTotalWidget
+            title="Newly Attached"
+            total={attachmentSummary.newlyAttached}
+            color="success"
+            icon={<Iconify icon="mdi:truck-check-outline" width={36} />}
+            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=newlyAttached`)}
+          />
         </Grid>
 
         <Grid xs={6} sm={3}>
-          <Box sx={{ cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.8 } }} onClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=oldAttached`)}>
-            <DashboardTotalWidget
-              title="Re-attached"
-              total={attachmentSummary.oldAttached}
-              color="warning"
-              icon={<Iconify icon="mdi:refresh" width={36} />}
-            />
-          </Box>
+          <DashboardTotalWidget
+            title="Re-attached"
+            total={attachmentSummary.oldAttached}
+            color="warning"
+            icon={<Iconify icon="mdi:refresh" width={36} />}
+            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=oldAttached`)}
+          />
         </Grid>
 
         <Grid xs={6} sm={3}>
-          <Box sx={{ cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.8 } }} onClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=neverAttached`)}>
-            <DashboardTotalWidget
-              title="Never Attached"
-              total={attachmentSummary.neverAttached}
-              color="info"
-              icon={<Iconify icon="mdi:box-variant-closed" width={36} />}
-            />
-          </Box>
+          <DashboardTotalWidget
+            title="Never Attached"
+            total={attachmentSummary.neverAttached}
+            color="info"
+            icon={<Iconify icon="mdi:box-variant-closed" width={36} />}
+            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=neverAttached`)}
+          />
         </Grid>
+
 
         {/* Brand and Size breakdown */}
         <Grid xs={12} md={6}>
