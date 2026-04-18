@@ -70,7 +70,7 @@ export function KanbanDriverDialog({
   const [isQuickMode, setQuickMode] = useState(false);
   const [driverName, setDriverName] = useState('');
   const [driverCellNo, setDriverCellNo] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const { mutateAsync: createDriver, isLoading: isCreating } = useCreateQuickDriver();
 
   // Reset when dialog opens
@@ -80,7 +80,7 @@ export function KanbanDriverDialog({
       setQuickMode(false);
       setDriverName('');
       setDriverCellNo('');
-      setError('');
+      setErrors({});
     }
   }, [open]);
 
@@ -90,23 +90,37 @@ export function KanbanDriverDialog({
   };
 
   const handleQuickSubmit = async () => {
-    setError('');
+    setErrors({});
+    const newErrors = {};
+    let hasError = false;
+
     if (!driverName.trim()) {
-      return setError('Driver Name is required');
+      newErrors.driverName = 'Driver Name is required';
+      hasError = true;
+    } else if (driverName.trim().length < 3) {
+      newErrors.driverName = 'Driver Name must have at least 3 characters';
+      hasError = true;
+    } else if (/\d/.test(driverName)) {
+      newErrors.driverName = 'Driver Name must not contain numbers';
+      hasError = true;
     }
-    if (/\d/.test(driverName)) {
-      return setError('Driver Name must not contain numbers');
-    }
+
     if (!/^\d{10}$/.test(driverCellNo)) {
-      return setError('Driver Cell No must be exactly 10 digits');
+      newErrors.driverCellNo = 'Driver Cell No must be exactly 10 digits';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
     }
 
     try {
-      const newDriver = await createDriver({ driverName, driverCellNo });
+      const newDriver = await createDriver({ driverName, driverCellNo, type: 'Market' });
       onDriverChange(newDriver);
       onClose();
     } catch (e) {
-      setError(e.message || 'Failed to create driver. Please try again.');
+      setErrors({ global: e.message || 'Failed to create driver. Please try again.' });
     }
   };
 
@@ -149,9 +163,9 @@ export function KanbanDriverDialog({
       <DialogContent sx={{ p: 0 }}>
         {isQuickMode ? (
           <Box sx={{ px: 3, py: 2 }}>
-            {error && (
+            {errors.global && (
               <Typography color="error" sx={{ mb: 2 }}>
-                {error}
+                {errors.global}
               </Typography>
             )}
             <TextField
@@ -160,6 +174,8 @@ export function KanbanDriverDialog({
               value={driverName}
               onChange={(e) => setDriverName(e.target.value)}
               margin="dense"
+              error={!!errors.driverName}
+              helperText={errors.driverName}
             />
             <TextField
               fullWidth
@@ -167,6 +183,8 @@ export function KanbanDriverDialog({
               value={driverCellNo}
               onChange={(e) => setDriverCellNo(e.target.value)}
               margin="dense"
+              error={!!errors.driverCellNo}
+              helperText={errors.driverCellNo}
               InputProps={{
                 startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
               }}

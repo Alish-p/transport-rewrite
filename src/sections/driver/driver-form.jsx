@@ -28,7 +28,7 @@ import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 export const NewDriverSchema = zod.object({
   driverName: zod
     .string()
-    .min(1, { message: 'Driver Name is required' })
+    .min(3, { message: 'Driver Name is required and must have at least 3 characters' })
     .regex(/^[^0-9]*$/, { message: 'Driver Name must not contain numbers' }),
   photoImage: zod.any().nullable(),
   driverLicenceNo: zod
@@ -64,7 +64,7 @@ export const NewDriverSchema = zod.object({
   dob: schemaHelper.dateOptional(),
   permanentAddress: zod.string().optional(),
   isActive: zod.boolean().optional(),
-  type: zod.string().optional().nullable(),
+  type: zod.string().min(1, { message: 'Driver Type is required' }),
   bankDetails: zod.object({
     name: zod.string().optional(),
     branch: zod.string().optional(),
@@ -98,7 +98,7 @@ export default function DriverForm({ currentDriver }) {
       dob: currentDriver?.dob ? new Date(currentDriver.dob) : undefined,
       permanentAddress: currentDriver?.permanentAddress || '',
       isActive: currentDriver?.isActive ?? true,
-      type: currentDriver?.type || '',
+      type: currentDriver?.type || 'Market',
       bankDetails: {
         name: currentDriver?.bankDetails?.name || '',
         ifsc: currentDriver?.bankDetails?.ifsc || '',
@@ -214,8 +214,7 @@ export default function DriverForm({ currentDriver }) {
               startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
             }}
           />
-          <Field.Select name="type" label="Driver Type">
-            <MenuItem value="">None</MenuItem>
+          <Field.Select required name="type" label="Driver Type">
             {['Own', 'Market'].map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
