@@ -35,12 +35,14 @@ import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 // Route dialog removed
 import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
+import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 
 // Base schema for common fields
 const baseSchema = z.object({
   customerId: z.string().min(1, 'Customer is required'),
-  diNumber: z.string().max(50, 'DI/DO No is too long'),
+  driverId: z.string().min(1, 'Driver is required'),
+  diNumber: z.string().max(50, 'DI/DO No is too long').optional(),
   startDate: schemaHelper.date(),
 });
 
@@ -103,9 +105,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const customerDialog = useBoolean();
   const pumpDialog = useBoolean();
+  const driverDialog = useBoolean();
   // Route dialog removed
 
   const [selectedPump, setSelectedPump] = useState(currentSubtrip?.intentFuelPump);
+  const [selectedDriver, setSelectedDriver] = useState(currentSubtrip?.driverId);
   // Route selection removed
   const [selectedCustomer, setSelectedCustomer] = useState(currentSubtrip?.customerId);
 
@@ -114,6 +118,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       ...currentSubtrip,
       hasShortage: currentSubtrip?.shortageWeight > 0 || false,
       customerId: currentSubtrip?.customerId?._id,
+      driverId: currentSubtrip?.driverId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
       
     }),
@@ -144,6 +149,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const values = watch();
 
   const { vehicleType, isOwn } = currentSubtrip?.vehicleId || {};
+
+  const handleDriverChange = (driver) => {
+    setSelectedDriver(driver);
+    setValue('driverId', driver._id, { shouldDirty: true });
+  };
 
   const handleCustomerChange = (customer) => {
     setSelectedCustomer(customer);
@@ -209,6 +219,14 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   disabled
                 />
               </Tooltip>
+              <DialogSelectButton
+                variant="outlined"
+                placeholder="Select Driver"
+                selected={selectedDriver?.driverName}
+                onClick={driverDialog.onTrue}
+                iconName="mdi:account"
+                sx={{ mb: 2 }}
+              />
               <Field.Text name="diNumber" label="DI/DO No" />
               <Field.DatePicker name="startDate" label="Job Start Date" />
             </Box>
@@ -480,6 +498,14 @@ export default function SubtripEditForm({ currentSubtrip }) {
         onClose={pumpDialog.onFalse}
         selectedPump={selectedPump}
         onPumpChange={handlePumpChange}
+      />
+      
+      <KanbanDriverDialog
+        open={driverDialog.value}
+        onClose={driverDialog.onFalse}
+        selectedDriver={selectedDriver}
+        onDriverChange={handleDriverChange}
+        allowQuickCreate
       />
     </>
   );
