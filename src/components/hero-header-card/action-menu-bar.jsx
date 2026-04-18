@@ -51,8 +51,8 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
           {actions.map((action) => (
             <Button
               key={action.label}
-              color="primary"
-              variant="outlined"
+              color={action.color || 'primary'}
+              variant={action.variant || 'outlined'}
               startIcon={action.icon ? <Iconify icon={action.icon} /> : null}
               onClick={action.onClick}
               disabled={action.disabled}

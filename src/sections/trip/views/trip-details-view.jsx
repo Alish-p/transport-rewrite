@@ -9,6 +9,7 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useDeleteTrip } from 'src/query/use-trip';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -24,6 +25,7 @@ import TripSheetPdf from '../pdfs/trip-sheet-pdf';
 import DriverCard from '../widgets/DriverWidgets';
 import VehicleCard from '../widgets/VehicleWidgets';
 import SimpleSubtripList from '../basic-subtrip-table';
+import { TripDeleteDialog } from '../trip-delete-dialog';
 import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import { TripRouteMapWidget } from '../widgets/trip-route-map-widget';
@@ -106,7 +108,9 @@ export function TripDetailView({ trip }) {
   // Trip Sheet dialog state
   const viewTripSheet = useBoolean();
   const confirm = useBoolean();
+  const deleteDialog = useBoolean();
   const tenant = useTenantContext();
+  const deleteTrip = useDeleteTrip();
 
   const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
   const allSubtripsBilled =
@@ -192,6 +196,12 @@ export function TripDetailView({ trip }) {
             label: 'Edit',
             icon: 'solar:pen-bold',
             onClick: () => navigate(paths.dashboard.trip.edit(_id)),
+          },
+          {
+            label: 'Delete',
+            icon: 'solar:trash-bin-trash-bold',
+            color: 'error',
+            onClick: () => deleteDialog.onTrue(),
           },
         ]}
       />
@@ -356,6 +366,18 @@ export function TripDetailView({ trip }) {
             Confirmed
           </Button>
         }
+      />
+
+      <TripDeleteDialog
+        trip={trip}
+        open={deleteDialog.value}
+        onClose={deleteDialog.onFalse}
+        onConfirm={() => {
+          deleteTrip(_id, {
+            onSuccess: () => navigate(paths.dashboard.trip.root),
+          });
+          deleteDialog.onFalse();
+        }}
       />
     </DashboardContent>
   );

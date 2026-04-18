@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { TripCreateView } from 'src/sections/trip/views';
+// import { TripCreateView } from 'src/sections/trip/views';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TripCreateView />
+      {/* <TripCreateView /> */}
     </>
   );
 }
