@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Divider from '@mui/material/Divider';
@@ -13,6 +14,9 @@ import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency, fShortenNumber } from 'src/utils/format-number';
@@ -501,7 +505,14 @@ export default function MaintenanceDashboardView() {
                   {purchaseOrders.recentOrders.map((po) => (
                     <TableRow key={po._id}>
                       <TableCell>
-                        <Typography variant="subtitle2">{po.purchaseOrderNo}</Typography>
+                        <Link
+                          component={RouterLink}
+                          to={paths.dashboard.purchaseOrder.details(po._id)}
+                          variant="subtitle2"
+                          sx={{ color: 'primary.main' }}
+                        >
+                          {po.purchaseOrderNo}
+                        </Link>
                       </TableCell>
                       <TableCell>{po.vendor}</TableCell>
                       <TableCell>
@@ -536,7 +547,14 @@ export default function MaintenanceDashboardView() {
                   {workOrders.recentOrders.map((wo) => (
                     <TableRow key={wo._id}>
                       <TableCell>
-                        <Typography variant="subtitle2">{wo.workOrderNo}</Typography>
+                        <Link
+                          component={RouterLink}
+                          to={paths.dashboard.workOrder.details(wo._id)}
+                          variant="subtitle2"
+                          sx={{ color: 'primary.main' }}
+                        >
+                          {wo.workOrderNo}
+                        </Link>
                       </TableCell>
                       <TableCell>{wo.vehicle}</TableCell>
                       <TableCell>{wo.category}</TableCell>
