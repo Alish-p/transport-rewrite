@@ -136,6 +136,7 @@ export default function TyreListView() {
         { value: TYRE_STATUS.IN_STOCK, label: 'In Stock', color: 'success', count: getTyreLength(TYRE_STATUS.IN_STOCK) },
         { value: TYRE_STATUS.MOUNTED, label: 'Mounted', color: 'warning', count: getTyreLength(TYRE_STATUS.MOUNTED) },
         { value: TYRE_STATUS.SCRAPPED, label: 'Scrapped', color: 'error', count: getTyreLength(TYRE_STATUS.SCRAPPED) },
+        { value: TYRE_STATUS.SOLD, label: 'Sold', color: 'info', count: getTyreLength(TYRE_STATUS.SOLD) },
     ];
 
     const notFound = (!tableData.length && canReset) || !tableData.length;
@@ -266,6 +267,15 @@ export default function TyreListView() {
                             price={getTotalValue(TYRE_STATUS.SCRAPPED)}
                             icon={ICONS.tyre.trash}
                             color={theme.palette.error.main}
+                        />
+
+                        <TyreAnalytic
+                            title="Sold"
+                            total={getTyreLength(TYRE_STATUS.SOLD)}
+                            percent={getPercentByStatus(TYRE_STATUS.SOLD)}
+                            price={getTotalValue(TYRE_STATUS.SOLD)}
+                            icon={ICONS.tyre.bill}
+                            color={theme.palette.info.main}
                         />
                     </Stack>
                 </Scrollbar>

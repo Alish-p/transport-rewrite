@@ -29,7 +29,7 @@ import { ICONS } from 'src/assets/data/icons';
 import { useTenant } from 'src/query/use-tenant';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useUpdateVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
-import { useGetTyre, useMountTyre, useScrapTyre, useUpdateTyre, useUnmountTyre } from 'src/query/use-tyre';
+import { useGetTyre, useSellTyre, useMountTyre, useScrapTyre, useUpdateTyre, useUnmountTyre } from 'src/query/use-tyre';
 
 import { Label } from 'src/components/label';
 import { useSettingsContext } from 'src/components/settings';
@@ -43,6 +43,7 @@ import { TYRE_STATUS } from '../tyre-constants';
 import TyreGeneralInfo from './tyre-general-info';
 import { Iconify } from '../../../components/iconify';
 import OverviewWidget from '../components/overview-widget';
+import TyreSellDialog from '../components/tyre-sell-dialog';
 import TyreMountWizard from '../components/tyre-mount-wizard';
 import TyreScrapDialog from '../components/tyre-scrap-dialog';
 import TyreRemoldDialog from '../components/tyre-remold-dialog';
@@ -60,6 +61,7 @@ export default function TyreDetailsView() {
     const { mutateAsync: mountTyre } = useMountTyre();
     const { mutateAsync: unmountTyre } = useUnmountTyre();
     const { mutateAsync: scrapTyre } = useScrapTyre();
+    const { mutateAsync: sellTyre } = useSellTyre();
     const { mutateAsync: updateTyre } = useUpdateTyre();
     const updateVehicle = useUpdateVehicle();
 
@@ -67,6 +69,7 @@ export default function TyreDetailsView() {
     const [openMountWizard, setOpenMountWizard] = useState(false);
     const [openUnmountDialog, setOpenUnmountDialog] = useState(false);
     const [openScrapDialog, setOpenScrapDialog] = useState(false);
+    const [openSellDialog, setOpenSellDialog] = useState(false);
     const [openRemoldDialog, setOpenRemoldDialog] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -163,6 +166,22 @@ export default function TyreDetailsView() {
         } catch (e) {
             console.error(e);
             toast.error(e?.message || 'Failed to scrap tyre');
+        }
+    };
+
+    const handleSell = async ({ sellAmount, sellDate }) => {
+        try {
+            await sellTyre({
+                id: tyre._id,
+                data: {
+                    sellAmount,
+                    sellDate
+                }
+            });
+            setOpenSellDialog(false);
+        } catch (e) {
+            console.error(e);
+            toast.error(e?.message || 'Failed to sell tyre');
         }
     };
 
@@ -289,14 +308,21 @@ export default function TyreDetailsView() {
                                     label: 'Move to Scrap',
                                     icon: ICONS.tyre.trashFilled,
                                     onClick: () => setOpenScrapDialog(true),
-                                    disabled: tyre.status === TYRE_STATUS.SCRAPPED,
+                                    disabled: tyre.status === TYRE_STATUS.SCRAPPED || tyre.status === TYRE_STATUS.SOLD,
                                     sx: { color: 'error.main' },
+                                },
+                                {
+                                    label: 'Sell',
+                                    icon: ICONS.tyre.bill,
+                                    onClick: () => setOpenSellDialog(true),
+                                    disabled: tyre.status !== TYRE_STATUS.SCRAPPED,
+                                    sx: { color: 'success.main' },
                                 },
                                 {
                                     label: 'Mark as Rejected',
                                     icon: ICONS.common.close,
                                     onClick: () => handleMarkAsRejected(),
-                                    disabled: tyre.type === 'Rejected' || tyre.status === TYRE_STATUS.SCRAPPED,
+                                    disabled: tyre.type === 'Rejected' || tyre.status === TYRE_STATUS.SCRAPPED || tyre.status === TYRE_STATUS.SOLD,
                                     sx: { color: 'error.main' },
                                 },
                                 {
@@ -505,6 +531,12 @@ export default function TyreDetailsView() {
                     onScrap={handleScrap}
                     currentStatus={tyre.status}
                     vehicleNo={currentVehicle?.vehicleNo}
+                />
+
+                <TyreSellDialog
+                    open={openSellDialog}
+                    onClose={() => setOpenSellDialog(false)}
+                    onSell={handleSell}
                 />
 
                 <TyreRemoldDialog
