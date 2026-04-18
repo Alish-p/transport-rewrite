@@ -273,13 +273,11 @@ export default function TyreFiltersDrawer({
 
             <Stack spacing={1}>
                 <Typography variant="subtitle2">Live KM Freshness</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', mt: -1 }}>Based on vehicle odometer update recency (mounted tyres only)</Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                     {[
                         { value: 'fresh', label: '< 3 Days', color: 'success' },
                         { value: 'warning', label: '3–10 Days', color: 'warning' },
                         { value: 'stale', label: '> 10 Days', color: 'error' },
-                        { value: 'unknown', label: 'Unknown', color: 'default' },
                     ].map((item) => {
                         const isSelected = filters.liveKmFreshness === item.value;
                         return (

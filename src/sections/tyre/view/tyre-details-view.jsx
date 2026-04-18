@@ -31,7 +31,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useVehicle, useUpdateVehicle, useGetTyreLayouts } from 'src/query/use-vehicle';
 import { useGetTyre, useSellTyre, useMountTyre, useScrapTyre, useUpdateTyre, useUnmountTyre } from 'src/query/use-tyre';
 
-import { Label } from 'src/components/label';
 import { useSettingsContext } from 'src/components/settings';
 import { HeroHeader } from 'src/components/hero-header-card';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -93,6 +92,10 @@ export default function TyreDetailsView() {
             setVehicleOdometer(gpsData.totalOdometer);
         }
     }, [gpsData, currentVehicle]);
+
+    const lastOdometer = currentVehicle?.currentOdometer || 0;
+    const diff = vehicleOdometer !== '' ? Number(vehicleOdometer) - lastOdometer : 0;
+    const isGpsSuspicious = gpsData?.totalOdometer != null && gpsData.totalOdometer < lastOdometer;
 
     const handleSaveOdometer = async () => {
         if (currentVehicle && vehicleOdometer !== '') {
@@ -216,8 +219,8 @@ export default function TyreDetailsView() {
     let infoTooltipContent = null;
 
     if (tyre.status === TYRE_STATUS.MOUNTED && currentVehicle?.currentOdometer != null && tyre.mountOdometer != null) {
-        const diff = currentVehicle.currentOdometer - tyre.mountOdometer;
-        if (diff > 0) liveKm += diff;
+        const liveDiff = currentVehicle.currentOdometer - tyre.mountOdometer;
+        if (liveDiff > 0) liveKm += liveDiff;
 
         const updatedAt = currentVehicle?.currentOdometerUpdatedAt;
         let subtitleText = 'Capture time unknown';
@@ -445,59 +448,71 @@ export default function TyreDetailsView() {
                 <Popover
                     open={isEditingOdometer}
                     anchorEl={anchorEl}
-                    onClose={() => setAnchorEl(null)}
+                    onClose={() => {
+                        setAnchorEl(null);
+                        setVehicleOdometer(lastOdometer);
+                    }}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    slotProps={{ paper: { sx: { p: 2, width: 340 } } }}
+                    slotProps={{ paper: { sx: { p: 2, width: 280 } } }}
                 >
                     <Stack spacing={2}>
                         <Typography variant="subtitle2">Update Odometer</Typography>
 
                         <TextField
                             size="small"
-                            placeholder="Current Odometer"
+                            label={`Last Reading: ${lastOdometer} km`}
                             type="number"
                             value={vehicleOdometer}
                             onChange={(e) => setVehicleOdometer(e.target.value)}
+                            error={diff < 0}
                             InputProps={{
                                 endAdornment: <InputAdornment position="end">km</InputAdornment>,
                             }}
+                            helperText={
+                                vehicleOdometer !== '' && diff !== 0 ? (
+                                    <Box component="span" sx={{ color: diff > 0 ? 'success.main' : 'error.main' }}>
+                                        {diff > 0 ? `+${diff}` : diff} km
+                                    </Box>
+                                ) : ''
+                            }
                             fullWidth
                         />
 
                         {gpsEnabled && (
-                            <Stack direction="column" spacing={1}>
+                            <Box>
                                 {isLoadingGps ? (
-                                    <Label variant="soft" color="default">Fetching GPS Data...</Label>
+                                    <Typography variant="caption" color="text.secondary">Fetching GPS Data...</Typography>
                                 ) : gpsData?.totalOdometer != null ? (
-                                    <Stack spacing={0.5}>
-                                        <Label variant="soft" color="warning" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
-                                            <Iconify icon="mdi:alert" sx={{ mr: 0.5, flexShrink: 0 }} />
-                                            GPS: {gpsData.totalOdometer} km (May be inaccurate)
-                                        </Label>
-                                        <Button
-                                            size="small"
-                                            variant="text"
-                                            fullWidth
-                                            onClick={() => setVehicleOdometer(gpsData.totalOdometer)}
-                                        >
-                                            Use GPS Odometer
-                                        </Button>
-                                    </Stack>
+                                    <Button
+                                        size="small"
+                                        variant="soft"
+                                        color={isGpsSuspicious ? "error" : "primary"}
+                                        onClick={() => setVehicleOdometer(gpsData.totalOdometer)}
+                                        startIcon={<Iconify icon={isGpsSuspicious ? "mdi:alert-circle" : "solar:gps-bold"} />}
+                                        fullWidth
+                                    >
+                                        Use GPS: {gpsData.totalOdometer} km
+                                    </Button>
                                 ) : (
-                                    <Label variant="soft" color="error" sx={{ whiteSpace: 'normal', textAlign: 'left' }}>
-                                        <Iconify icon="mdi:alert-circle" sx={{ mr: 0.5, flexShrink: 0 }} />
-                                        GPS Odometer unavailable
-                                    </Label>
+                                    <Typography variant="caption" color="error">GPS unavailable</Typography>
                                 )}
-                            </Stack>
+                            </Box>
                         )}
 
                         <Stack direction="row" spacing={1} justifyContent="flex-end">
-                            <Button size="small" variant="outlined" color="inherit" onClick={() => setAnchorEl(null)}>
+                            <Button size="small" color="inherit" onClick={() => {
+                                setAnchorEl(null);
+                                setVehicleOdometer(lastOdometer);
+                            }}>
                                 Cancel
                             </Button>
-                            <Button size="small" variant="contained" color="primary" onClick={handleSaveOdometer}>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSaveOdometer}
+                            >
                                 Save
                             </Button>
                         </Stack>
