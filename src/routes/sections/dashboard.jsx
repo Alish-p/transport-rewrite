@@ -74,7 +74,7 @@ const SubtripJobCreatePage = lazy(() => import('src/pages/dashboard/subtrip/job-
 // Trip
 const TripDetailsPage = lazy(() => import('src/pages/dashboard/trip/details'));
 const TripListPage = lazy(() => import('src/pages/dashboard/trip/list'));
-const TripCreatePage = lazy(() => import('src/pages/dashboard/trip/new'));
+// TripCreatePage removed — trips are only created via the Job Create flow (subtrip-job-create-view)
 const TripEditPage = lazy(() => import('src/pages/dashboard/trip/edit'));
 const RouteAnalyzerPage = lazy(() => import('src/pages/dashboard/trip/route-analyzer'));
 
@@ -633,14 +633,7 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
           },
-          {
-            path: 'new',
-            element: (
-              <PermissionBasedGuard resource="trip" action="create" hasContent>
-                <TripCreatePage />
-              </PermissionBasedGuard>
-            ),
-          },
+          // trip/new route removed — trips are only created via the Job Create flow
           {
             path: ':id/edit',
             element: (

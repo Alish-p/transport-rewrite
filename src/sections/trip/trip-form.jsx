@@ -12,8 +12,7 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useCreateSubtrip } from 'src/query/use-subtrip';
-import { useCreateTrip, useUpdateTrip } from 'src/query/use-trip';
+import { useUpdateTrip } from 'src/query/use-trip';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -87,9 +86,7 @@ const NewTripSchema = zod
 export default function TripForm({ currentTrip }) {
   const navigate = useNavigate();
 
-  const createTrip = useCreateTrip();
   const updateTrip = useUpdateTrip();
-  const createSubtrip = useCreateSubtrip();
 
   const vehicleDialog = useBoolean(false);
 
@@ -190,38 +187,24 @@ export default function TripForm({ currentTrip }) {
   // ------------------------------------------------------------------------------------
   const onSubmit = async (data) => {
     try {
-      if (currentTrip) {
-        const updateData = {
-          ...data,
-        };
-        if (updateData.startKm === '') updateData.startKm = null;
-        if (updateData.endKm === '') updateData.endKm = null;
-        if (updateData.startKm !== null) updateData.startKm = Number(updateData.startKm);
-        if (updateData.endKm !== null) updateData.endKm = Number(updateData.endKm);
-
-        await updateTrip({
-          id: currentTrip._id,
-          data: updateData,
-        });
-        navigate(paths.dashboard.trip.details(currentTrip._id));
-      } else {
-        const { addFirstSubtrip, customerId, diNumber, subtripRemarks, ...tripData } = data;
-        const createdTrip = await createTrip(tripData);
-
-        if (addFirstSubtrip) {
-          await createSubtrip({
-            tripId: createdTrip._id,
-            customerId: customerId.value,
-            diNumber,
-            startDate: tripData.fromDate,
-            isEmpty: false,
-            remarks: subtripRemarks || undefined,
-          });
-          toast.success('Trip and first subtrip created successfully!');
-        }
-
-        navigate(paths.dashboard.trip.details(createdTrip._id));
+      if (!currentTrip) {
+        toast.error('Trip creation is not supported from this form. Use the Job Create flow.');
+        return;
       }
+
+      const updateData = {
+        ...data,
+      };
+      if (updateData.startKm === '') updateData.startKm = null;
+      if (updateData.endKm === '') updateData.endKm = null;
+      if (updateData.startKm !== null) updateData.startKm = Number(updateData.startKm);
+      if (updateData.endKm !== null) updateData.endKm = Number(updateData.endKm);
+
+      await updateTrip({
+        id: currentTrip._id,
+        data: updateData,
+      });
+      navigate(paths.dashboard.trip.details(currentTrip._id));
       reset();
     } catch (error) {
       console.error(error);
