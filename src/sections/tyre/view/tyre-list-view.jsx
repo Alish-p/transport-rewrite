@@ -72,6 +72,7 @@ const defaultFilters = {
     minThread: null,
     maxThread: null,
     position: '',
+    attachmentStatus: '',
 };
 
 export default function TyreListView() {
@@ -117,6 +118,7 @@ export default function TyreListView() {
         minThread: filters.minThread || undefined,
         maxThread: filters.maxThread || undefined,
         position: filters.position || undefined,
+        attachmentStatus: filters.attachmentStatus || undefined,
         orderBy: table.orderBy,
         order: table.order,
     });
@@ -398,6 +400,7 @@ export default function TyreListView() {
                                                             minThread: filters.minThread || undefined,
                                                             maxThread: filters.maxThread || undefined,
                                                             position: filters.position || undefined,
+                                                            attachmentStatus: filters.attachmentStatus || undefined,
                                                             columns: orderedIds.join(','),
                                                         },
                                                         responseType: 'blob',

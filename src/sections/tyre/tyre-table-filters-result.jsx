@@ -46,6 +46,10 @@ export default function TyreTableFiltersResult({
         onFilters('maxThread', null);
     };
 
+    const handleRemoveAttachment = () => {
+        onFilters('attachmentStatus', '');
+    };
+
     return (
         <Stack spacing={1.5} {...other}>
             <Box sx={{ typography: 'body2' }}>
@@ -147,6 +151,22 @@ export default function TyreTableFiltersResult({
                             size="small"
                             label={filters.position}
                             onDelete={() => onFilters('position', '')}
+                        />
+                    </Block>
+                )}
+                
+                {filters.attachmentStatus && (
+                    <Block label="Attachment:">
+                        <Chip
+                            size="small"
+                            label={
+                                filters.attachmentStatus === 'newlyAttached' 
+                                    ? 'Newly Attached' 
+                                    : filters.attachmentStatus === 'oldAttached' 
+                                        ? 'Re-attached' 
+                                        : 'Never Attached'
+                            }
+                            onDelete={handleRemoveAttachment}
                         />
                     </Block>
                 )}

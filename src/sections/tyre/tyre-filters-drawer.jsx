@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
@@ -62,6 +63,10 @@ export default function TyreFiltersDrawer({
 
     const handleFilterPosition = (event) => {
         onFilters('position', event.target.value);
+    };
+
+    const handleFilterAttachment = (status) => {
+        onFilters('attachmentStatus', filters.attachmentStatus === status ? '' : status);
     };
 
     // const handleFilterKm = (event, newValue) => {
@@ -238,6 +243,28 @@ export default function TyreFiltersDrawer({
                     ))}
                 </Select>
             </FormControl>
+
+            <Stack spacing={1}>
+                <Typography variant="subtitle2">Attachment Status</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {['newlyAttached', 'oldAttached', 'neverAttached'].map((status) => {
+                        const label = status === 'newlyAttached' ? 'Newly Attached' : status === 'oldAttached' ? 'Re-attached' : 'Never Attached';
+                        const isSelected = filters.attachmentStatus === status;
+                        return (
+                            <Chip
+                                key={status}
+                                label={label}
+                                onClick={() => handleFilterAttachment(status)}
+                                color={isSelected ? 'primary' : 'default'}
+                                variant={isSelected ? 'filled' : 'soft'}
+                                sx={{ mb: 1, '&:hover': { opacity: 0.8 } }}
+                                clickable
+                            />
+                        );
+                    })}
+                </Stack>
+            </Stack>
+
             {/* The dialog needs to be somewhere. Can be outside renderFilters stack or inside, usually fine inside if properly memoized/rendered. */}
         </Stack>
     );
