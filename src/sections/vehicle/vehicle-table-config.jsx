@@ -72,6 +72,19 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'isActive',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => (row.isActive ? 'Active' : 'Inactive'),
+    render: (row) => (
+      <Label variant="soft" color={row.isActive ? 'success' : 'error'}>
+        {row.isActive ? 'Active' : 'Inactive'}
+      </Label>
+    ),
+  },
+  {
     id: 'transporter',
     label: 'Transport Company',
     defaultVisible: true,

@@ -42,6 +42,10 @@ export default function InvoiceTableFiltersResult({
     onFilters('isOwn', 'all');
   };
 
+  const handleRemoveIsActive = () => {
+    onFilters('isActive', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -86,6 +90,16 @@ export default function InvoiceTableFiltersResult({
               size="small"
               label={filters.isOwn === 'market' ? 'Market Vehicles' : 'Own Vehicles'}
               onDelete={handleRemoveIsOwn}
+            />
+          </Block>
+        )}
+
+        {filters.isActive && filters.isActive !== 'all' && (
+          <Block label="Status:">
+            <Chip
+              size="small"
+              label={filters.isActive === 'active' ? 'Active' : 'Inactive'}
+              onDelete={handleRemoveIsActive}
             />
           </Block>
         )}

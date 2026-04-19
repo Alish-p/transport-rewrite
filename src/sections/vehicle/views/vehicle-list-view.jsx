@@ -65,6 +65,7 @@ const defaultFilters = {
   vehicleType: '',
   noOfTyres: '',
   isOwn: 'all',
+  isActive: 'all',
 };
 
 export function VehicleListView() {
@@ -108,6 +109,7 @@ export function VehicleListView() {
     noOfTyres: filters.noOfTyres || undefined,
     transporter: filters.transporter || undefined,
     isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
+    isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
   });
 
   const [tableData, setTableData] = useState([]);
@@ -309,6 +311,7 @@ export function VehicleListView() {
                               noOfTyres: filters.noOfTyres || undefined,
                               transporter: filters.transporter || undefined,
                               isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
+                              isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

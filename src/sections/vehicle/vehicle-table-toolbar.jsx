@@ -74,6 +74,13 @@ export default function VehicleTableToolbar({
     [onFilters]
   );
 
+  const handleFilterIsActive = useCallback(
+    (event) => {
+      onFilters('isActive', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -136,6 +143,20 @@ export default function VehicleTableToolbar({
           }}
           sx={{ maxWidth: { xs: 1, md: 300 } }}
         />
+
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel id="is-active-select-label">Status</InputLabel>
+          <Select
+            value={filters.isActive || 'all'}
+            onChange={handleFilterIsActive}
+            input={<OutlinedInput label="Status" />}
+            labelId="is-active-select-label"
+          >
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="inactive">Inactive</MenuItem>
+          </Select>
+        </FormControl>
 
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
