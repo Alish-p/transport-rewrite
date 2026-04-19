@@ -30,6 +30,10 @@ export default function DriverTableFiltersResult({
     onFilters('driverType', 'all');
   };
 
+  const handleRemoveIsActive = () => {
+    onFilters('isActive', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -55,6 +59,16 @@ export default function DriverTableFiltersResult({
         {filters.driverType !== 'all' && (
           <Block label="Driver Type:">
             <Chip size="small" label={filters.driverType} onDelete={handleRemoveDriverType} />
+          </Block>
+        )}
+
+        {filters.isActive && filters.isActive !== 'all' && (
+          <Block label="Active:">
+            <Chip 
+              size="small" 
+              label={filters.isActive === 'active' ? 'Active' : 'Inactive'} 
+              onDelete={handleRemoveIsActive} 
+            />
           </Block>
         )}
 

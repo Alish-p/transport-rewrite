@@ -40,6 +40,13 @@ export default function DriverTableToolbar({
     [onFilters]
   );
 
+  const handleFilterIsActive = useCallback(
+    (event) => {
+      onFilters('isActive', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -53,7 +60,7 @@ export default function DriverTableToolbar({
       >
         <Box
           display="grid"
-          gridTemplateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }}
+          gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }}
           gap={2}
           sx={{ flexGrow: 1 }}
         >
@@ -81,6 +88,18 @@ export default function DriverTableToolbar({
             <MenuItem value="all">All</MenuItem>
             <MenuItem value="Own">Own</MenuItem>
             <MenuItem value="Market">Market</MenuItem>
+          </TextField>
+
+          <TextField
+            fullWidth
+            select
+            label="Active"
+            value={filters.isActive || 'all'}
+            onChange={handleFilterIsActive}
+          >
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="inactive">Inactive</MenuItem>
           </TextField>
         </Box>
 

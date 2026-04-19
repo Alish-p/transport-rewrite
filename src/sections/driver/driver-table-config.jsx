@@ -112,6 +112,19 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'isActive',
+    label: 'Active',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => (row.isActive === false ? 'Inactive' : 'Active'),
+    render: (row) => (
+      <Label variant="soft" color={row.isActive === false ? 'error' : 'success'}>
+        {row.isActive === false ? 'Inactive' : 'Active'}
+      </Label>
+    ),
+  },
+  {
     id: 'iitrition',
     label: 'Duration',
     defaultVisible: true,

@@ -9,7 +9,6 @@ import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
@@ -18,7 +17,6 @@ import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -64,6 +62,7 @@ const defaultFilters = {
   search: '',
   status: 'all',
   driverType: 'all',
+  isActive: 'all',
 };
 
 export function DriverListView() {
@@ -74,7 +73,6 @@ export function DriverListView() {
   const deleteDriver = useDeleteDriver();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const cleanupDialog = useBoolean();
-  const includeInactive = useBoolean();
   const learn = useBoolean(); // Added learn state
 
   const [selectAllMode, setSelectAllMode] = useState(false);
@@ -100,7 +98,7 @@ export function DriverListView() {
     search: filters.search || undefined,
     status: filters.status,
     driverType: filters.driverType !== 'all' ? filters.driverType : undefined,
-    includeInactive: includeInactive.value ? 'true' : undefined,
+    isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -324,7 +322,7 @@ export function DriverListView() {
                               search: filters.search || undefined,
                               status: filters.status,
                               driverType: filters.driverType !== 'all' ? filters.driverType : undefined,
-                              includeInactive: includeInactive.value ? 'true' : undefined,
+                              isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
@@ -440,21 +438,9 @@ export function DriverListView() {
         <Stack
           direction="row"
           alignItems="center"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           sx={{ px: 2 }}
         >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={includeInactive.value}
-                onChange={(e) =>
-                  e.target.checked ? includeInactive.onTrue() : includeInactive.onFalse()
-                }
-                size="small"
-              />
-            }
-            label="Include Inactive Drivers"
-          />
           <TablePaginationCustom
             count={totalCount}
             page={table.page}
