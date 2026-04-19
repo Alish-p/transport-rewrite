@@ -221,8 +221,6 @@ export default function LRPdf({ data }) {
     companyGst = '',
     lrNumber = '',
     lrDate = new Date(),
-    fromCity = '',
-    toCity = '',
     consignorName = '',
     consignorAddress = '',
     consignorGst = '',
@@ -271,12 +269,12 @@ export default function LRPdf({ data }) {
               <Text style={styles.metaValue}>{fDate(lrDate)}</Text>
             </View>
             <View style={styles.metaItem}>
-              <Text style={styles.metaLabel}>From</Text>
-              <Text style={styles.metaValue}>{fromCity || '-'}</Text>
+              <Text style={styles.metaLabel}>Vehicle No</Text>
+              <Text style={styles.metaValue}>{vehicleNo || '-'}</Text>
             </View>
             <View style={[styles.metaItem, { borderRight: 0 }]}>
-              <Text style={styles.metaLabel}>To</Text>
-              <Text style={styles.metaValue}>{toCity || '-'}</Text>
+              <Text style={styles.metaLabel}>Driver Name</Text>
+              <Text style={styles.metaValue}>{driverName || '-'}</Text>
             </View>
           </View>
 
@@ -293,18 +291,6 @@ export default function LRPdf({ data }) {
               <Text style={styles.partyName}>{consigneeName || '-'}</Text>
               <Text style={styles.partyAddress}>{consigneeAddress}</Text>
               {consigneeGst ? <Text style={[styles.partyAddress, { marginTop: 4 }]}>GST: {consigneeGst}</Text> : null}
-            </View>
-          </View>
-
-          {/* Vehicle Bar */}
-          <View style={styles.infoBar}>
-            <View style={styles.infoItem}>
-              <Text style={styles.metaLabel}>Vehicle No</Text>
-              <Text style={styles.metaValue}>{vehicleNo || '-'}</Text>
-            </View>
-            <View style={[styles.infoItem, { borderRight: 0 }]}>
-              <Text style={styles.metaLabel}>Driver Name</Text>
-              <Text style={styles.metaValue}>{driverName || '-'}</Text>
             </View>
           </View>
 

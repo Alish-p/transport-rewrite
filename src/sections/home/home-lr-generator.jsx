@@ -58,8 +58,6 @@ export function HomeLRGenerator() {
       companyPan: '',
       lrNumber: '',
       lrDate: dayjs().format('YYYY-MM-DD'),
-      fromCity: '',
-      toCity: '',
       consignorName: '',
       consignorAddress: '',
       consignorGst: '',
@@ -68,7 +66,6 @@ export function HomeLRGenerator() {
       consigneeGst: '',
       vehicleNo: '',
       driverName: '',
-      driverLicense: '',
       goods: [{ description: '', quantity: '', weight: '', unit: 'Kg', rate: '', amount: '' }],
       freight: '',
       loadingCharges: '',
@@ -207,10 +204,10 @@ export function HomeLRGenerator() {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField fullWidth label="From City" {...register('fromCity')} size="small" />
+          <TextField fullWidth label="Vehicle No" {...register('vehicleNo')} size="small" />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField fullWidth label="To City" {...register('toCity')} size="small" />
+          <TextField fullWidth label="Driver Name" {...register('driverName')} size="small" />
         </Grid>
       </Grid>
     </Box>
@@ -328,23 +325,7 @@ export function HomeLRGenerator() {
               </Card>
 
               <Card sx={sectionCardSx}>
-                {renderSectionTitle('Vehicle & Goods', 'mdi:truck-fast-outline')}
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={12} sm={4}>
-                    <TextField fullWidth label="Vehicle No" {...register('vehicleNo')} size="small" />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField fullWidth label="Driver Name" {...register('driverName')} size="small" />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="License No"
-                      {...register('driverLicense')}
-                      size="small"
-                    />
-                  </Grid>
-                </Grid>
+                {renderSectionTitle('Goods Details', 'mdi:package-variant-closed')}
 
                 <Stack spacing={2}>
                   {goodsFields.map((field, index) => (
