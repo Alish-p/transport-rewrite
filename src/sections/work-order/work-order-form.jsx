@@ -1112,6 +1112,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleVehicleChange}
+        onlyOwn
       />
 
       <KanbanContactsDialog
