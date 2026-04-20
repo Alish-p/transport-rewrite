@@ -309,6 +309,10 @@ function useNavColorVars(theme, settings) {
 const FEATURE_CHECKERS = {
   maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
   tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
+  marketVehicle: (tenant) => tenant?.config?.marketVehicles !== false,
+  noMarketVehicle: (tenant) => tenant?.config?.marketVehicles === false,
+  pumps: (tenant) => tenant?.config?.pumps !== false,
+  noPumps: (tenant) => tenant?.config?.pumps === false,
 };
 
 function filterNavByFeatures(navSections, tenant) {

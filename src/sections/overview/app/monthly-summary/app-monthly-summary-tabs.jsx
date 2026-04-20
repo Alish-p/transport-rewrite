@@ -7,6 +7,8 @@ import Card from '@mui/material/Card';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+import { useSystemFeatures } from 'src/hooks/use-system-features';
+
 import { CONFIG } from 'src/config-global';
 
 import { SvgColor } from 'src/components/svg-color';
@@ -20,6 +22,7 @@ import { AppDestinationInsightsTable } from './app-destination-insights-table';
 
 export function AppMonthlySummaryTabs() {
   const theme = useTheme();
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
   const [tab, setTab] = useState('customer');
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -47,16 +50,19 @@ export function AppMonthlySummaryTabs() {
     />
   );
 
-  const tabs = useMemo(
-    () => [
+  const tabs = useMemo(() => {
+    const baseTabs = [
       { value: 'customer', label: 'Customer', icon: icon('ic_customer') },
       { value: 'vehicle', label: 'Vehicle', icon: icon('ic_vehicle') },
       { value: 'transporter', label: 'Transporter', icon: icon('ic_transporter') },
       { value: 'driver', label: 'Driver', icon: icon('ic-user') },
       { value: 'destination', label: 'Destination', icon: icon('ic_map') },
-    ],
-    []
-  );
+    ];
+    if (!managesMarketVehicles) {
+      return baseTabs.filter((t) => t.value !== 'transporter');
+    }
+    return baseTabs;
+  }, [managesMarketVehicles]);
 
   const renderHeader = (
     <Box

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Button, Divider, MenuItem, CardHeader } from '@mui/material';
+import { Box, Card, Stack, Button, Divider, Tooltip, MenuItem, CardHeader } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
@@ -55,6 +55,8 @@ export const TenantSchema = zod
       .optional(),
     config: zod
       .object({
+        marketVehicles: zod.boolean().optional(),
+        pumps: zod.boolean().optional(),
         materialOptions: zod
           .array(zod.object({ label: zod.string(), value: zod.string() }))
           .optional(),
@@ -257,6 +259,8 @@ export default function TenantForm({ currentTenant }) {
         accNo: currentTenant?.bankDetails?.accNo || '',
       },
       config: {
+        marketVehicles: currentTenant?.config?.marketVehicles ?? true,
+        pumps: currentTenant?.config?.pumps ?? true,
         materialOptions: currentTenant?.config?.materialOptions || materialOptions,
         subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || subtripExpenseTypes,
         vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || vehicleExpenseTypes,
@@ -590,6 +594,55 @@ export default function TenantForm({ currentTenant }) {
     <TenantLogoCard tenant={currentTenant} />
   );
 
+  const renderSystemConfigs = () => (
+    <Card>
+      <CardHeader 
+        title="System Configurations" 
+        sx={{ mb: 3 }} 
+        subheader="Enable or disable core system features to simplify the application for different operating models. In the future there will be more such configs." 
+      />
+      <Divider />
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Stack spacing={1}>
+          <Field.Switch
+            name="config.marketVehicles"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:truck-fast" />
+                Manages Market & Supplier Vehicles
+                <Tooltip title="If disabled, all transporter-related functionality (advances, payments, tracking, filtering) will be hidden, streamlining the interface for operators who only manage their own vehicles.">
+                  <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled', ml: 0.5 }} />
+                  </Box>
+                </Tooltip>
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+        <Stack spacing={1}>
+          <Field.Switch
+            name="config.pumps"
+            labelPlacement="start"
+            label={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Iconify icon="mdi:gas-station" />
+                Manages Fuel Pumps
+                <Tooltip title="If disabled, all Pump-related functionality (pump list, fuel indent, pump expense forms, filters) will be hidden, streamlining the interface.">
+                  <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled', ml: 0.5 }} />
+                  </Box>
+                </Tooltip>
+              </Stack>
+            }
+            sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+          />
+        </Stack>
+      </Stack>
+    </Card>
+  );
+
   const renderIntegrations = () => (
     <Card>
       <CardHeader title="Integrations" sx={{ mb: 3 }} />
@@ -871,6 +924,7 @@ export default function TenantForm({ currentTenant }) {
         {renderAddress()}
         {renderTheme()}
         {renderBank()}
+        {renderSystemConfigs()}
         {renderConfig()}
         {renderIntegrations()}
         {renderActions()}

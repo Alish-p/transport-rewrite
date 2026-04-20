@@ -10,6 +10,7 @@ import { Box, Card, Stack, Alert, Button, Divider, MenuItem, InputAdornment } fr
 import { LoadingButton } from '@mui/lab';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { useSubtrip } from 'src/query/use-subtrip';
 import { useCreateExpense } from 'src/query/use-expense';
@@ -37,6 +38,8 @@ function ExpenseCoreForm({ currentSubtrip }) {
   const pumpDialog = useBoolean(false);
   const subtripDialog = useBoolean(false);
   const confirm = useBoolean(false);
+
+  const { pumps: managesPumps } = useSystemFeatures();
 
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const paymentMethods = usePaymentMethods();
@@ -106,12 +109,13 @@ function ExpenseCoreForm({ currentSubtrip }) {
 
   const showPumpSelection = useMemo(
     () =>
+      managesPumps &&
       [
         SUBTRIP_EXPENSE_TYPES.DIESEL,
         SUBTRIP_EXPENSE_TYPES.ADBLUE,
         SUBTRIP_EXPENSE_TYPES.DRIVER_ADVANCE,
       ].includes(expenseType),
-    [expenseType]
+    [expenseType, managesPumps]
   );
 
   // updating amount based on expense type (driver salary and diesel)
@@ -366,12 +370,14 @@ function ExpenseCoreForm({ currentSubtrip }) {
         )
       )}
 
-      <KanbanPumpDialog
-        open={pumpDialog.value}
-        onClose={pumpDialog.onFalse}
-        selectedPump={selectedPump}
-        onPumpChange={handlePumpChange}
-      />
+      {managesPumps && (
+        <KanbanPumpDialog
+          open={pumpDialog.value}
+          onClose={pumpDialog.onFalse}
+          selectedPump={selectedPump}
+          onPumpChange={handlePumpChange}
+        />
+      )}
 
       <KanbanSubtripDialog
         open={subtripDialog.value}

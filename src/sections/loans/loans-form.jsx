@@ -21,6 +21,7 @@ import {
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { useCreateLoan, useUpdateLoan } from 'src/query/use-loan';
 
@@ -82,6 +83,13 @@ export default function LoanForm({ currentLoan }) {
   } = methods;
 
   const { borrowerType } = watch();
+
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+
+  const availableBorrowerTypes = useMemo(() => BORROWER_TYPES.filter((type) => {
+      if (!managesMarketVehicles && type.key === 'Transporter') return false;
+      return true;
+    }), [managesMarketVehicles]);
 
   // Dialog controls
   const driverDialog = useBoolean(false);
@@ -156,7 +164,7 @@ export default function LoanForm({ currentLoan }) {
         <Field.Select name="borrowerType" label="Borrower Type">
           <MenuItem value="">None</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
-          {BORROWER_TYPES.map(({ key, label }) => (
+          {availableBorrowerTypes.map(({ key, label }) => (
             <MenuItem key={key} value={key}>
               {label}
             </MenuItem>

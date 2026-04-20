@@ -23,6 +23,7 @@ import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
@@ -82,6 +83,8 @@ export function LoansListView() {
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
+
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
   const {
     visibleColumns,
@@ -279,6 +282,7 @@ export function LoansListView() {
             onToggleAllColumns={toggleAllColumnsVisibility}
             onResetColumns={resetColumns}
             canResetColumns={canResetColumns}
+            managesMarketVehicles={managesMarketVehicles}
           />
 
           {canReset && (

@@ -36,6 +36,7 @@ export default function LoansTableToolbar({
   onToggleAllColumns,
   onResetColumns,
   canResetColumns,
+  managesMarketVehicles,
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
@@ -116,20 +117,25 @@ export default function LoansTableToolbar({
           />
         </Box>
 
-        <Box sx={{ width: 1 }}>
-          <DialogSelectButton
-            onClick={transporterDialog.onTrue}
-            placeholder="Select Transporter"
-            selected={filters.transporterName || undefined}
-            iconName="mdi:truck-delivery"
-            sx={{ width: '100%', mt: 0 }}
-          />
-        </Box>
+        {managesMarketVehicles && (
+          <Box sx={{ width: 1 }}>
+            <DialogSelectButton
+              onClick={transporterDialog.onTrue}
+              placeholder="Select Transporter"
+              selected={filters.transporterName || undefined}
+              iconName="mdi:truck-delivery"
+              sx={{ width: '100%', mt: 0 }}
+            />
+          </Box>
+        )}
 
         <Autocomplete
           fullWidth
           freeSolo
-          options={[...LOAN_REASONS.Driver, ...LOAN_REASONS.Transporter].map((opt) => opt.label)}
+          options={[
+            ...LOAN_REASONS.Driver,
+            ...(managesMarketVehicles ? LOAN_REASONS.Transporter : []),
+          ].map((opt) => opt.label)}
           getOptionLabel={(option) => option}
           value={filters.loanReason || ''}
           onChange={(event, newValue) => {
@@ -213,11 +219,13 @@ export default function LoansTableToolbar({
         onDriverChange={handleDriverChange}
       />
 
-      <KanbanTransporterDialog
-        open={transporterDialog.value}
-        onClose={transporterDialog.onFalse}
-        onTransporterChange={handleTransporterChange}
-      />
+      {managesMarketVehicles && (
+        <KanbanTransporterDialog
+          open={transporterDialog.value}
+          onClose={transporterDialog.onFalse}
+          onTransporterChange={handleTransporterChange}
+        />
+      )}
     </>
   );
 }

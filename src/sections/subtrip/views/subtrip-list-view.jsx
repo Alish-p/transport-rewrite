@@ -48,7 +48,6 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
@@ -112,6 +111,8 @@ export function SubtripListView() {
     moveColumn,
     resetColumns,
     canReset: canResetColumns,
+    tableColumns,
+    managesMarketVehicles,
   } = useVisibleColumns();
 
   const [tableData, setTableData] = useState([]);
@@ -308,7 +309,7 @@ export function SubtripListView() {
 
   const getVisibleColumnsForExport = () => {
     const orderedIds = (
-      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+      columnOrder && columnOrder.length ? columnOrder : tableColumns.map((c) => c.id)
     ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
@@ -407,6 +408,8 @@ export function SubtripListView() {
 
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
+          tableColumns={tableColumns}
+          managesMarketVehicles={managesMarketVehicles}
         />
 
         {canReset && (
@@ -469,7 +472,7 @@ export function SubtripListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+                            columnOrder && columnOrder.length ? columnOrder : tableColumns.map((c) => c.id)
                           ).filter((id) => visibleColumns[id]);
 
                           const response = await axios.get('/api/subtrips/export', {
@@ -520,7 +523,7 @@ export function SubtripListView() {
                         exportToExcel(
                           prepareDataForExport(
                             selectedRows,
-                            TABLE_COLUMNS,
+                            tableColumns,
                             selectedVisibleColumns,
                             columnOrder
                           ),

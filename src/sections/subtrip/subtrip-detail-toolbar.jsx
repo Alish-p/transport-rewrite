@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import { Box, Dialog, MenuList, DialogActions } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
 
@@ -131,7 +132,9 @@ export default function SubtripToolbar({
     ];
   };
 
-  const hasDieselIntent = subtrip?.intentFuelPump;
+  const { pumps: managesPumps } = useSystemFeatures();
+
+  const hasDieselIntent = subtrip?.intentFuelPump && managesPumps;
   const hasEntryPass = subtrip?.diNumber;
   const hasTransporterPayment = !subtrip?.vehicleId?.isOwn;
 

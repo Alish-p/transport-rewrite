@@ -37,6 +37,8 @@ import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 // Route expenses logic removed
 
+import { useSystemFeatures } from 'src/hooks/use-system-features';
+
 import { useGps } from 'src/query/use-gps';
 // Route API not needed
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -189,6 +191,7 @@ export function SubtripJobCreateView() {
   const [searchParams] = useSearchParams();
   const tenant = useTenantContext();
   const isEwayIntegrationEnabled = Boolean(tenant?.integrations?.ewayBill?.enabled);
+  const { pumps: managesPumps } = useSystemFeatures();
   // Step state
   const [activeStep, setActiveStep] = useState(0);
 
@@ -1466,7 +1469,9 @@ export function SubtripJobCreateView() {
                           }}
                         />
                         <Field.Select name="driverAdvanceGivenBy" label="Given By">
-                          {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((option) => (
+                          {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
+                            .filter(option => managesPumps || option !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP)
+                            .map((option) => (
                             <MenuItem key={option} value={option}>
                               {option}
                             </MenuItem>
@@ -1478,61 +1483,63 @@ export function SubtripJobCreateView() {
                       </Stack>
                     </Box>
 
-                    <Box
-                      sx={{
-                        p: 2,
-                        border: 1,
-                        borderColor: 'divider',
-                        borderRadius: 1.5,
-                        bgcolor: 'background.default',
-                      }}
-                    >
+                    {managesPumps && (
                       <Box
-                        display="grid"
-                        gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
-                        gap={1.5}
+                        sx={{
+                          p: 2,
+                          border: 1,
+                          borderColor: 'divider',
+                          borderRadius: 1.5,
+                          bgcolor: 'background.default',
+                        }}
                       >
-                        <Field.InputWithUnit
-                          name="initialAdvanceDiesel"
-                          unitName="initialAdvanceDieselUnit"
-                          label="Diesel Intent"
-                          placeholder="0"
-                          textFieldProps={{}}
-                          unitOptions={[
-                            { label: 'Litre', value: 'litre' },
-                            { label: 'Amount', value: 'amount' },
-                          ]}
-                          defaultUnit="litre"
-                        />
-                        <Box>
-                          <DialogSelectButton
-                            onClick={pumpDialog.onTrue}
-                            placeholder={`Select Pump${requiresPumpSelection ? ' *' : ''}`}
-                            selected={selectedPump?.name}
-                            iconName="mdi:gas-station"
-                            error={Boolean(errors.pumpCd)}
+                        <Box
+                          display="grid"
+                          gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
+                          gap={1.5}
+                        >
+                          <Field.InputWithUnit
+                            name="initialAdvanceDiesel"
+                            unitName="initialAdvanceDieselUnit"
+                            label="Diesel Intent"
+                            placeholder="0"
+                            textFieldProps={{}}
+                            unitOptions={[
+                              { label: 'Litre', value: 'litre' },
+                              { label: 'Amount', value: 'amount' },
+                            ]}
+                            defaultUnit="litre"
                           />
-                          {errors.pumpCd && (
-                            <Typography
-                              variant="caption"
-                              color="error"
-                              sx={{ mt: 0.75, display: 'block' }}
-                            >
-                              {errors.pumpCd.message}
-                            </Typography>
-                          )}
+                          <Box>
+                            <DialogSelectButton
+                              onClick={pumpDialog.onTrue}
+                              placeholder={`Select Pump${requiresPumpSelection ? ' *' : ''}`}
+                              selected={selectedPump?.name}
+                              iconName="mdi:gas-station"
+                              error={Boolean(errors.pumpCd)}
+                            />
+                            {errors.pumpCd && (
+                              <Typography
+                                variant="caption"
+                                color="error"
+                                sx={{ mt: 0.75, display: 'block' }}
+                              >
+                                {errors.pumpCd.message}
+                              </Typography>
+                            )}
+                          </Box>
                         </Box>
+                        <Stack spacing={0.75} sx={{ mt: 1 }}>
+                          {/* Route-based suggestions removed */}
+                          {initialAdvanceDieselUnit === 'litre' && (
+                            <Alert variant="outlined" severity="info">
+                              In case of Litre Diesel Intent, expense will not be added automatically.
+                              Actuals need to be added.
+                            </Alert>
+                          )}
+                        </Stack>
                       </Box>
-                      <Stack spacing={0.75} sx={{ mt: 1 }}>
-                        {/* Route-based suggestions removed */}
-                        {initialAdvanceDieselUnit === 'litre' && (
-                          <Alert variant="outlined" severity="info">
-                            In case of Litre Diesel Intent, expense will not be added automatically.
-                            Actuals need to be added.
-                          </Alert>
-                        )}
-                      </Stack>
-                    </Box>
+                    )}
                   </Stack>
 
                   <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
@@ -1576,12 +1583,14 @@ export function SubtripJobCreateView() {
 
           {/* Route selection removed */}
 
-          <KanbanPumpDialog
-            open={pumpDialog.value}
-            onClose={pumpDialog.onFalse}
-            selectedPump={selectedPump}
-            onPumpChange={handlePumpChange}
-          />
+          {managesPumps && (
+            <KanbanPumpDialog
+              open={pumpDialog.value}
+              onClose={pumpDialog.onFalse}
+              selectedPump={selectedPump}
+              onPumpChange={handlePumpChange}
+            />
+          )}
         </Form>
       </Card>
     </DashboardContent>

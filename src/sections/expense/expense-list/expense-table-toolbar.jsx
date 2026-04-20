@@ -18,6 +18,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import { MenuList } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
@@ -63,6 +64,8 @@ export default function ExpenseTableToolbar({
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
+  
+  const { pumps: managesPumps } = useSystemFeatures();
   // removed unused tenant context
 
   const vehicleDialog = useBoolean();
@@ -177,13 +180,15 @@ export default function ExpenseTableToolbar({
           sx={{ maxWidth: { md: 200 } }}
         />
 
-        <DialogSelectButton
-          onClick={pumpDialog.onTrue}
-          selected={selectedPump?.name}
-          placeholder="Pump"
-          iconName="mdi:gas-station"
-          sx={{ maxWidth: { md: 200 } }}
-        />
+        {managesPumps && (
+          <DialogSelectButton
+            onClick={pumpDialog.onTrue}
+            selected={selectedPump?.name}
+            placeholder="Pump"
+            iconName="mdi:gas-station"
+            sx={{ maxWidth: { md: 200 } }}
+          />
+        )}
 
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
@@ -322,12 +327,14 @@ export default function ExpenseTableToolbar({
         ]}
       />
 
-      <KanbanPumpDialog
-        open={pumpDialog.value}
-        onClose={pumpDialog.onFalse}
-        selectedPump={selectedPump}
-        onPumpChange={handleSelectPump}
-      />
+      {managesPumps && (
+        <KanbanPumpDialog
+          open={pumpDialog.value}
+          onClose={pumpDialog.onFalse}
+          selectedPump={selectedPump}
+          onPumpChange={handleSelectPump}
+        />
+      )}
 
       <KanbanTransporterDialog
         open={transporterDialog.value}

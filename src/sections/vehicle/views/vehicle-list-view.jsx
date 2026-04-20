@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -25,6 +25,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
@@ -89,6 +90,13 @@ export function VehicleListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+
+  const tableColumns = useMemo(() => {
+    if (managesMarketVehicles) return TABLE_COLUMNS;
+    return TABLE_COLUMNS.filter((c) => c.id !== 'transporter' && c.id !== 'isOwn');
+  }, [managesMarketVehicles]);
+
   const {
     visibleColumns,
     visibleHeaders,
@@ -99,7 +107,7 @@ export function VehicleListView() {
     moveColumn,
     resetColumns,
     canReset: canResetColumns,
-  } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
+  } = useColumnVisibility(tableColumns, STORAGE_KEY);
 
   const { data, isLoading } = usePaginatedVehicles({
     page: table.page + 1,
@@ -146,7 +154,7 @@ export function VehicleListView() {
 
   const getVisibleColumnsForExport = () => {
     const orderedIds = (
-      columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+      columnOrder && columnOrder.length ? columnOrder : tableColumns.map((c) => c.id)
     ).filter((id) => visibleColumns[id]);
     return orderedIds;
   };
@@ -156,8 +164,10 @@ export function VehicleListView() {
     const TABS = [
       { value: 'all', label: 'All', color: 'default', count: data?.total },
       { value: 'own', label: 'Own', color: 'success', count: data?.totalOwnVehicle },
-      { value: 'market', label: 'Market', color: 'warning', count: data?.totalMarketVehicle },
     ];
+    if (managesMarketVehicles) {
+      TABS.push({ value: 'market', label: 'Market', color: 'warning', count: data?.totalMarketVehicle });
+    }
 
     return (
       <Tabs
@@ -244,6 +254,8 @@ export function VehicleListView() {
           onSelectTransporter={handleSelectTransporter}
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
+          tableColumns={tableColumns}
+          managesMarketVehicles={managesMarketVehicles}
         />
 
         {canReset && (
@@ -335,7 +347,7 @@ export function VehicleListView() {
                         const visibleCols = getVisibleColumnsForExport();
 
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(selectedRows, tableColumns, visibleCols, columnOrder),
                           'Vehicles-selected-list'
                         );
                       }

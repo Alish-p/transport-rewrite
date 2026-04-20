@@ -19,6 +19,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { useTabs } from 'src/hooks/use-tabs';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { fDate, fTime } from 'src/utils/format-time';
 import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
@@ -44,6 +45,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const tabs = useTabs('created');
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
   const dateParam = useMemo(() => selectedDate?.format('YYYY-MM-DD'), [selectedDate]);
 
@@ -58,7 +60,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
     const advances = data?.advances || { count: 0, amount: 0, list: [] };
     const materials = data?.materials || { count: 0, weight: 0, list: [] };
 
-    return [
+    const baseTabs = [
       {
         value: 'created',
         label: 'Jobs Created',
@@ -108,7 +110,13 @@ export function AppDailySummaryWidget({ sx, ...other }) {
         count: `${parseInt(materials.amount, 10) || 0}  Ton`,
       },
     ];
-  }, [data]);
+
+    if (!managesMarketVehicles) {
+      return baseTabs.filter((t) => t.value !== 'advances' && t.value !== 'transporterPayments');
+    }
+
+    return baseTabs;
+  }, [data, managesMarketVehicles]);
 
   const renderHeader = (
     <Box

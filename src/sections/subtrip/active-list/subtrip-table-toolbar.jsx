@@ -20,7 +20,6 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
 import SubtripFiltersDrawer from './subtrip-filters-drawer';
 
 // ----------------------------------------------------------------------
@@ -42,6 +41,8 @@ export default function SubtripTableToolbar({
   onSelectDriver,
   onResetColumns,
   canResetColumns,
+  tableColumns,
+  managesMarketVehicles,
 }) {
   const columnsPopover = usePopover();
   const filtersDrawer = useBoolean();
@@ -162,12 +163,14 @@ export default function SubtripTableToolbar({
           }}
         />
 
-        <DialogSelectButton
-          onClick={transporterDialog.onTrue}
-          selected={selectedTransporter?.transportName}
-          placeholder="Transporter"
-          iconName="mdi:truck-delivery"
-        />
+        {managesMarketVehicles && (
+          <DialogSelectButton
+            onClick={transporterDialog.onTrue}
+            selected={selectedTransporter?.transportName}
+            placeholder="Transporter"
+            iconName="mdi:truck-delivery"
+          />
+        )}
 
         <DialogSelectButton
           onClick={customerDialog.onTrue}
@@ -206,7 +209,7 @@ export default function SubtripTableToolbar({
       <ColumnSelectorList
         open={Boolean(columnsPopover.open)}
         onClose={columnsPopover.onClose}
-        TABLE_COLUMNS={TABLE_COLUMNS}
+        TABLE_COLUMNS={tableColumns}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         handleToggleColumn={onToggleColumn}
@@ -230,12 +233,14 @@ export default function SubtripTableToolbar({
         selectedDriver={selectedDriver}
       />
 
-      <KanbanTransporterDialog
-        open={transporterDialog.value}
-        onClose={transporterDialog.onFalse}
-        selectedTransporter={selectedTransporter}
-        onTransporterChange={handleSelectTransporter}
-      />
+      {managesMarketVehicles && (
+        <KanbanTransporterDialog
+          open={transporterDialog.value}
+          onClose={transporterDialog.onFalse}
+          selectedTransporter={selectedTransporter}
+          onTransporterChange={handleSelectTransporter}
+        />
+      )}
 
       <KanbanCustomerDialog
         open={customerDialog.value}

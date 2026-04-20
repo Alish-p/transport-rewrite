@@ -1,6 +1,8 @@
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { useSystemFeatures } from 'src/hooks/use-system-features';
+
 import { _appFeatured } from 'src/_mock';
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -54,6 +56,7 @@ export function OverviewAppView({
   vehicleDocsSummary,
 }) {
   const { user, tenant } = useAuthContext();
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
   const { invoices, vehicles, transporters, customers, drivers, subtrips } = counts;
 
@@ -109,14 +112,16 @@ export function OverviewAppView({
             />
           </Grid>
 
-          <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget
-              title="Total Transporters"
-              total={transporters}
-              color="info"
-              icon={ICONS.transporter}
-            />
-          </Grid>
+          {managesMarketVehicles && (
+            <Grid xs={6} sm={4} md={2}>
+              <DashboardTotalWidget
+                title="Total Transporters"
+                total={transporters}
+                color="info"
+                icon={ICONS.transporter}
+              />
+            </Grid>
+          )}
 
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
@@ -143,7 +148,7 @@ export function OverviewAppView({
           </Grid>
         )}
 
-        {transporterPaymentSummary && (
+        {managesMarketVehicles && transporterPaymentSummary && (
           <Grid xs={12} sm={6}>
             <AppTransporterPaymentSummary summary={transporterPaymentSummary} />
           </Grid>

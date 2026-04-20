@@ -90,6 +90,13 @@ export const navData = [
         title: 'Add Expense / Advance',
         path: paths.dashboard.expense.new,
         icon: ICONS.expense,
+        feature: 'marketVehicle',
+      },
+      {
+        title: 'Add Expense',
+        path: paths.dashboard.expense.new,
+        icon: ICONS.expense,
+        feature: 'noMarketVehicle',
       },
     ],
   },
@@ -138,9 +145,10 @@ export const navData = [
         path: paths.dashboard.expense.root,
         icon: ICONS.expense,
         resource: 'expense',
+        feature: 'marketVehicle',
         children: [
           { title: 'Expense List', path: paths.dashboard.expense.root, action: 'view' },
-          { title: 'Advance List', path: paths.dashboard.transporterAdvance.list, action: 'view' },
+          { title: 'Advance List', path: paths.dashboard.transporterAdvance.list, action: 'view', feature: 'marketVehicle' },
           {
             title: 'Add Expense/Advance to Job',
             path: paths.dashboard.expense.new,
@@ -148,6 +156,26 @@ export const navData = [
           },
           {
             title: 'Add Expense to Vehicle ',
+            path: paths.dashboard.expense.newVehicleExpense,
+            action: 'create',
+          },
+        ],
+      },
+      {
+        title: 'Expenses',
+        path: paths.dashboard.expense.root,
+        icon: ICONS.expense,
+        resource: 'expense',
+        feature: 'noMarketVehicle',
+        children: [
+          { title: 'Expense List', path: paths.dashboard.expense.root, action: 'view' },
+          {
+            title: 'Add Job Expense',
+            path: paths.dashboard.expense.new,
+            action: 'create',
+          },
+          {
+            title: 'Add Vehicle Expense',
             path: paths.dashboard.expense.newVehicleExpense,
             action: 'create',
           },
@@ -171,6 +199,7 @@ export const navData = [
         path: paths.dashboard.pump.root,
         icon: ICONS.pump,
         resource: 'pump',
+        feature: 'pumps',
         children: [
           { title: 'List', path: paths.dashboard.pump.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.pump.new, action: 'create' },
@@ -203,6 +232,7 @@ export const navData = [
         path: paths.dashboard.transporter.root,
         icon: ICONS.transporter,
         resource: 'transporter',
+        feature: 'marketVehicle',
         children: [
           { title: 'List', path: paths.dashboard.transporter.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.transporter.new, action: 'create' },
@@ -243,6 +273,7 @@ export const navData = [
         path: paths.dashboard.transporterPayment.root,
         icon: ICONS.transporterPayment,
         resource: 'transporterPayment',
+        feature: 'marketVehicle',
         children: [
           { title: 'List', path: paths.dashboard.transporterPayment.root, action: 'view' },
           { title: 'Create', path: paths.dashboard.transporterPayment.new, action: 'create' },

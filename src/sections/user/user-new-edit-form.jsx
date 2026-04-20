@@ -14,6 +14,8 @@ import { Chip, Table, Stack, Alert, Button, Tooltip, Divider, TableRow, Checkbox
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { useSystemFeatures } from 'src/hooks/use-system-features';
+
 import { fData } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
@@ -21,6 +23,8 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { ACTIONS, PERMISSIONS } from './config';
 import { useCreateUser, useUpdateUser } from '../../query/use-user';
@@ -99,7 +103,18 @@ export function UserNewEditForm({ currentUser }) {
 
   const values = watch();
 
-  const groupedPermissions = PERMISSIONS.reduce((acc, permission) => {
+  const tenant = useTenantContext();
+  const { marketVehicles, pumps } = useSystemFeatures();
+
+  const filteredPermissions = useMemo(() => PERMISSIONS.filter((perm) => {
+      if (!marketVehicles && (perm.name === 'transporter' || perm.name === 'transporterPayment')) return false;
+      if (!pumps && perm.name === 'pump') return false;
+      if (!tenant?.integrations?.tyre?.enabled && perm.group === 'Tyre Management') return false;
+      if (!tenant?.integrations?.maintenanceAndInventory?.enabled && perm.group === 'Vehicle Maintenance') return false;
+      return true;
+    }), [marketVehicles, pumps, tenant]);
+
+  const groupedPermissions = filteredPermissions.reduce((acc, permission) => {
     const group = permission.group || 'Other';
     if (!acc[group]) {
       acc[group] = [];
@@ -109,8 +124,9 @@ export function UserNewEditForm({ currentUser }) {
   }, {});
 
   const getCheckedStatus = (action) => {
-    const all = PERMISSIONS.every((item) => values.permissions?.[item.name]?.[action]);
-    const some = PERMISSIONS.some((item) => values.permissions?.[item.name]?.[action]);
+    if (filteredPermissions.length === 0) return { all: false, some: false };
+    const all = filteredPermissions.every((item) => values.permissions?.[item.name]?.[action]);
+    const some = filteredPermissions.some((item) => values.permissions?.[item.name]?.[action]);
     return { all, some };
   };
 
@@ -128,7 +144,7 @@ export function UserNewEditForm({ currentUser }) {
   };
 
   const applyPreset = (preset) => {
-    PERMISSIONS.forEach((item) => {
+    filteredPermissions.forEach((item) => {
       switch (preset) {
         case 'admin':
           ACTIONS.forEach((action) => {
@@ -160,7 +176,7 @@ export function UserNewEditForm({ currentUser }) {
 
   const getPermissionCount = () => {
     let count = 0;
-    PERMISSIONS.forEach((item) => {
+    filteredPermissions.forEach((item) => {
       ACTIONS.forEach((action) => {
         if (values.permissions?.[item.name]?.[action]) {
           count += 1;
@@ -183,7 +199,7 @@ export function UserNewEditForm({ currentUser }) {
               checked={all}
               indeterminate={some && !all}
               onChange={(event) => {
-                PERMISSIONS.forEach((item) => {
+                filteredPermissions.forEach((item) => {
                   setValue(`permissions.${item.name}.${action}`, event.target.checked);
                 });
               }}

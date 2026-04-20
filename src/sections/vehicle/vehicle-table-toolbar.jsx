@@ -24,7 +24,6 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { vehicleTypes } from './vehicle-config';
-import { TABLE_COLUMNS } from './vehicle-table-config';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +38,8 @@ export default function VehicleTableToolbar({
   onSelectTransporter,
   onResetColumns,
   canResetColumns,
+  tableColumns,
+  managesMarketVehicles,
 }) {
   const columnsPopover = usePopover();
   const transporterDialog = useBoolean();
@@ -158,12 +159,14 @@ export default function VehicleTableToolbar({
           </Select>
         </FormControl>
 
-        <DialogSelectButton
-          onClick={transporterDialog.onTrue}
-          placeholder="Search transporter"
-          selected={selectedTransporter?.transportName}
-          iconName="mdi:truck"
-        />
+        {managesMarketVehicles && (
+          <DialogSelectButton
+            onClick={transporterDialog.onTrue}
+            placeholder="Search transporter"
+            selected={selectedTransporter?.transportName}
+            iconName="mdi:truck"
+          />
+        )}
 
         <Stack direction="row" spacing={1}>
           <Button
@@ -187,7 +190,7 @@ export default function VehicleTableToolbar({
       <ColumnSelectorList
         open={Boolean(columnsPopover.open)}
         onClose={columnsPopover.onClose}
-        TABLE_COLUMNS={TABLE_COLUMNS}
+        TABLE_COLUMNS={tableColumns}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         handleToggleColumn={onToggleColumn}
@@ -198,12 +201,14 @@ export default function VehicleTableToolbar({
 
       {/* Removed export popover */}
 
-      <KanbanTransporterDialog
-        open={transporterDialog.value}
-        onClose={transporterDialog.onFalse}
-        selectedTransporter={selectedTransporter}
-        onTransporterChange={handleSelectTransporter}
-      />
+      {managesMarketVehicles && (
+        <KanbanTransporterDialog
+          open={transporterDialog.value}
+          onClose={transporterDialog.onFalse}
+          selectedTransporter={selectedTransporter}
+          onTransporterChange={handleSelectTransporter}
+        />
+      )}
     </>
   );
 }

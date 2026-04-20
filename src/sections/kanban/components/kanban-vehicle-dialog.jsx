@@ -17,6 +17,7 @@ import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useDebounce } from 'src/hooks/use-debounce';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { useCreateVehicle, useInfiniteVehicles } from 'src/query/use-vehicle';
 
@@ -46,7 +47,7 @@ const QuickVehicleSchema = zod.object({
     .number()
     .min(3, { message: 'No Of Tyres must be at least 3' })
     .max(30, { message: 'No Of Tyres cannot exceed 30' }),
-  transporter: zod.string(),
+  transporter: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -86,6 +87,8 @@ function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = f
 
 // Form for creating a vehicle quickly
 const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error }) => {
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  
   const methods = useForm({
     resolver: zodResolver(QuickVehicleSchema),
     defaultValues: {
@@ -129,15 +132,17 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
           ))}
         </Field.Select>
         <Field.Text name="noOfTyres" label="No Of Tyres" type="number" required sx={{ mb: 2 }} />
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => setTransporterDialogOpen(true)}
-          sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
-          startIcon={<Iconify icon="mdi:truck-outline" sx={{ color: 'text.disabled' }} />}
-        >
-          {selectedTransporter ? selectedTransporter.transportName : 'Select Transport Company *'}
-        </Button>
+        {managesMarketVehicles && (
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => setTransporterDialogOpen(true)}
+            sx={{ height: 56, justifyContent: 'flex-start', typography: 'body2' }}
+            startIcon={<Iconify icon="mdi:truck-outline" sx={{ color: 'text.disabled' }} />}
+          >
+            {selectedTransporter ? selectedTransporter.transportName : 'Select Transport Company *'}
+          </Button>
+        )}
       </Box>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
@@ -146,12 +151,14 @@ const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error 
         </Button>
       </DialogActions>
 
-      <KanbanTransporterDialog
-        selectedTransporter={selectedTransporter}
-        open={transporterDialogOpen}
-        onClose={() => setTransporterDialogOpen(false)}
-        onTransporterChange={handleTransporterSelect}
-      />
+      {managesMarketVehicles && (
+        <KanbanTransporterDialog
+          selectedTransporter={selectedTransporter}
+          open={transporterDialogOpen}
+          onClose={() => setTransporterDialogOpen(false)}
+          onTransporterChange={handleTransporterSelect}
+        />
+      )}
     </Form>
   );
 };
@@ -205,6 +212,7 @@ export function KanbanVehicleDialog({
   const [error, setError] = useState(null);
 
   const createVehicle = useCreateVehicle();
+  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
   const { vehicles, total, isLoading, isFetchingNext, loadMoreRef } = useVehicleSearch(
     search,
@@ -232,7 +240,7 @@ export function KanbanVehicleDialog({
 
       const newVehicle = {
         ...data,
-        isOwn: false,
+        isOwn: !managesMarketVehicles || onlyOwn,
         modelType: '3118',
         vehicleCompany: 'NA',
         chasisNo: '0000000000000',
@@ -326,6 +334,11 @@ export function KanbanVehicleDialog({
                         >
                           {vehicle.isOwn ? 'Own' : 'Market'}
                         </Label>
+                        {!vehicle.isActive && (
+                          <Label color="error" size="small" variant="soft" sx={{ ml: 0.5 }}>
+                            Inactive
+                          </Label>
+                        )}
                       </Typography>
                       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         {vehicle.vehicleType} • {vehicle.modelType} • {vehicle.vehicleCompany}

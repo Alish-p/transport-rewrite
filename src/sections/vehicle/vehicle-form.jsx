@@ -76,6 +76,7 @@ export default function VehicleForm({ currentVehicle }) {
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
   const gpsEnabled = !!tenant?.integrations?.vehicleGPS?.enabled;
+  const managesMarketVehicles = tenant?.config?.marketVehicles !== false;
 
   const { data: gpsData, isLoading: isLoadingGps } = useGps(currentVehicle?.vehicleNo || '', {
     enabled: gpsEnabled && !!(currentVehicle?.vehicleNo),
@@ -266,29 +267,31 @@ export default function VehicleForm({ currentVehicle }) {
           label="No Of Tyres"
           type="number"
         />
-        <Stack direction="row" spacing={2} alignItems="center" >
-          <Field.Switch
-            name="isOwn"
-            labelPlacement="start"
-            label="Market Vehicle ?"
-            slotProps={{
-              switch: {
-                checked: !values.isOwn,
-                onChange: (_e, checked) => setValue('isOwn', !checked, { shouldValidate: true }),
-              },
-            }}
-          />
-
-          {!values.isOwn && (
-            <DialogSelectButton
-              onClick={transporterDialog.onTrue}
-              placeholder="Select Transport Company"
-              selected={selectedTransporter?.transportName}
-              error={!!errors.transporter?.message}
-              iconName="mdi:truck"
+        {managesMarketVehicles && (
+          <Stack direction="row" spacing={2} alignItems="center" >
+            <Field.Switch
+              name="isOwn"
+              labelPlacement="start"
+              label="Market Vehicle ?"
+              slotProps={{
+                switch: {
+                  checked: !values.isOwn,
+                  onChange: (_e, checked) => setValue('isOwn', !checked, { shouldValidate: true }),
+                },
+              }}
             />
-          )}
-        </Stack>
+
+            {!values.isOwn && (
+              <DialogSelectButton
+                onClick={transporterDialog.onTrue}
+                placeholder="Select Transport Company"
+                selected={selectedTransporter?.transportName}
+                error={!!errors.transporter?.message}
+                iconName="mdi:truck"
+              />
+            )}
+          </Stack>
+        )}
       </Stack>
     </Card>
   );
