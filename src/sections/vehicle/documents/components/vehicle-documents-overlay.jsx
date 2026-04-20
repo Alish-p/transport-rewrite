@@ -113,7 +113,7 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
   const handleDownload = useCallback(
     async (doc) => {
       if (!vehicleId || !doc?._id) return;
-      await openDocumentDownload({ vehicleId, docId: doc._id });
+      await openDocumentDownload({ vehicleId, docId: doc._id, fallbackUrl: doc?.fileUrl });
     },
     [vehicleId]
   );
@@ -182,6 +182,7 @@ export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
                       <TableCell align="center">
                         <Button
                           size="small"
+                          disabled={!d.fileUrl}
                           onClick={() => handleDownload(d)}
                           startIcon={<Iconify icon="eva:download-outline" />}
                         >
