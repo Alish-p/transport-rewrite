@@ -22,6 +22,7 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { paramCase } from 'src/utils/change-case';
@@ -99,6 +100,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
   const materialOptions = useMaterialOptions();
+  const { pumps: hasPumps } = useSystemFeatures();
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -335,30 +337,35 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     <Field.RadioGroup
                       row
                       name="driverAdvanceGivenBy"
-                      options={Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).map((opt) => ({
-                        label: opt,
-                        value: opt,
-                      }))}
+                      options={Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
+                        .filter(
+                          (opt) => hasPumps || opt !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
+                        )
+                        .map((opt) => ({ label: opt, value: opt }))}
                     />
                   </Box>
 
-                  <Field.Text
-                    name="initialAdvanceDiesel"
-                    label="Diesel"
-                    type="number"
-                    placeholder="0"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
-                    }}
-                  />
+                  {hasPumps && (
+                    <Field.Text
+                      name="initialAdvanceDiesel"
+                      label="Diesel"
+                      type="number"
+                      placeholder="0"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">Ltr</InputAdornment>,
+                      }}
+                    />
+                  )}
 
-                  <DialogSelectButton
-                    variant="outlined"
-                    placeholder="Select Pump"
-                    selected={selectedPump?.name}
-                    onClick={pumpDialog.onTrue}
-                    iconName="mdi:gas-station"
-                  />
+                  {hasPumps && (
+                    <DialogSelectButton
+                      variant="outlined"
+                      placeholder="Select Pump"
+                      selected={selectedPump?.name}
+                      onClick={pumpDialog.onTrue}
+                      iconName="mdi:gas-station"
+                    />
+                  )}
                 </Box>
               </Box>
             </Card>
@@ -493,12 +500,14 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
       {/* Route dialog removed */}
 
-      <KanbanPumpDialog
-        open={pumpDialog.value}
-        onClose={pumpDialog.onFalse}
-        selectedPump={selectedPump}
-        onPumpChange={handlePumpChange}
-      />
+      {hasPumps && (
+        <KanbanPumpDialog
+          open={pumpDialog.value}
+          onClose={pumpDialog.onFalse}
+          selectedPump={selectedPump}
+          onPumpChange={handlePumpChange}
+        />
+      )}
       
       <KanbanDriverDialog
         open={driverDialog.value}
