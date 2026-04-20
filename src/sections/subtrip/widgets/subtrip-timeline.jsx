@@ -14,6 +14,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { safeStr } from 'src/utils/safe-str';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -51,9 +52,9 @@ function formatEventMessage(event, subtripExpenseTypes) {
     const changeLines = Object.entries(changed)
       .map(([field, change]) => {
         if (change && typeof change === 'object' && 'from' in change && 'to' in change) {
-          return `${field}: ${change.from} → ${change.to}`;
+          return `${field}: ${safeStr(change.from)} → ${safeStr(change.to)}`;
         }
-        return `${field}: ${change}`;
+        return `${field}: ${safeStr(change)}`;
       })
       .join('\n');
     return changeLines ? `${baseMessage}\n${changeLines}` : baseMessage;
