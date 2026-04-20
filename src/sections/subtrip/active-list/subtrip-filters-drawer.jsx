@@ -14,6 +14,7 @@ import { MenuList, Checkbox, ListItemText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
@@ -43,6 +44,7 @@ export default function SubtripFiltersDrawer({
 }) {
     const materialPopover = usePopover();
     const materialOptions = useMaterialOptions();
+    const { marketVehicles: hasMarketVehicles } = useSystemFeatures();
 
     const startRange = useBoolean();
     const endRange = useBoolean();
@@ -175,12 +177,14 @@ export default function SubtripFiltersDrawer({
                             }}
                         />
 
-                        <DialogSelectButton
-                            onClick={transporterDialog.onTrue}
-                            selected={selectedTransporter?.transportName}
-                            placeholder="Transporter"
-                            iconName="mdi:truck-delivery"
-                        />
+                        {hasMarketVehicles && (
+                            <DialogSelectButton
+                                onClick={transporterDialog.onTrue}
+                                selected={selectedTransporter?.transportName}
+                                placeholder="Transporter"
+                                iconName="mdi:truck-delivery"
+                            />
+                        )}
 
                         <DialogSelectButton
                             onClick={customerDialog.onTrue}
@@ -247,28 +251,30 @@ export default function SubtripFiltersDrawer({
                             >
                                 <MenuItem value="">All</MenuItem>
                                 <Divider sx={{ borderStyle: 'dashed' }} />
-                                <MenuItem value="Market">Market</MenuItem>
+                                {hasMarketVehicles && <MenuItem value="Market">Market</MenuItem>}
                                 <MenuItem value="Own">Own</MenuItem>
                             </Select>
                         </FormControl>
 
-                        <FormControl fullWidth>
-                            <InputLabel id="subtrip-transporter-payment-select-label">
-                                Transporter Payment
-                            </InputLabel>
-                            <Select
-                                value={filters.transporterPaymentGenerated || ''}
-                                onChange={(event) => onFilters('transporterPaymentGenerated', event.target.value)}
-                                input={<OutlinedInput label="Transporter Payment" />}
-                                labelId="subtrip-transporter-payment-select-label"
-                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-                            >
-                                <MenuItem value="">All</MenuItem>
-                                <Divider sx={{ borderStyle: 'dashed' }} />
-                                <MenuItem value="yes">Yes</MenuItem>
-                                <MenuItem value="no">No</MenuItem>
-                            </Select>
-                        </FormControl>
+                        {hasMarketVehicles && (
+                            <FormControl fullWidth>
+                                <InputLabel id="subtrip-transporter-payment-select-label">
+                                    Transporter Payment
+                                </InputLabel>
+                                <Select
+                                    value={filters.transporterPaymentGenerated || ''}
+                                    onChange={(event) => onFilters('transporterPaymentGenerated', event.target.value)}
+                                    input={<OutlinedInput label="Transporter Payment" />}
+                                    labelId="subtrip-transporter-payment-select-label"
+                                    MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                                >
+                                    <MenuItem value="">All</MenuItem>
+                                    <Divider sx={{ borderStyle: 'dashed' }} />
+                                    <MenuItem value="yes">Yes</MenuItem>
+                                    <MenuItem value="no">No</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
 
                         <FormControl fullWidth>
                             <InputLabel id="subtrip-epod-signed-select-label">Epod Signed</InputLabel>

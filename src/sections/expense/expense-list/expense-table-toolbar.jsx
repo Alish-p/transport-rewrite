@@ -65,7 +65,7 @@ export default function ExpenseTableToolbar({
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
   
-  const { pumps: managesPumps } = useSystemFeatures();
+  const { pumps: managesPumps, marketVehicles: hasMarketVehicles } = useSystemFeatures();
   // removed unused tenant context
 
   const vehicleDialog = useBoolean();
@@ -190,13 +190,15 @@ export default function ExpenseTableToolbar({
           />
         )}
 
-        <DialogSelectButton
-          onClick={transporterDialog.onTrue}
-          selected={selectedTransporter?.transportName}
-          placeholder="Transporter"
-          iconName="mdi:truck-delivery"
-          sx={{ maxWidth: { md: 200 } }}
-        />
+        {hasMarketVehicles && (
+          <DialogSelectButton
+            onClick={transporterDialog.onTrue}
+            selected={selectedTransporter?.transportName}
+            placeholder="Transporter"
+            iconName="mdi:truck-delivery"
+            sx={{ maxWidth: { md: 200 } }}
+          />
+        )}
 
         <DialogSelectButton
           onClick={tripDialog.onTrue}
@@ -219,7 +221,7 @@ export default function ExpenseTableToolbar({
           >
             <MenuItem value="">All</MenuItem>
             <Divider sx={{ borderStyle: 'dashed' }} />
-            <MenuItem value="Market">Market</MenuItem>
+            {hasMarketVehicles && <MenuItem value="Market">Market</MenuItem>}
             <MenuItem value="Own">Own</MenuItem>
           </Select>
         </FormControl>
@@ -336,12 +338,14 @@ export default function ExpenseTableToolbar({
         />
       )}
 
-      <KanbanTransporterDialog
-        open={transporterDialog.value}
-        onClose={transporterDialog.onFalse}
-        selectedTransporter={selectedTransporter}
-        onTransporterChange={handleSelectTransporter}
-      />
+      {hasMarketVehicles && (
+        <KanbanTransporterDialog
+          open={transporterDialog.value}
+          onClose={transporterDialog.onFalse}
+          selectedTransporter={selectedTransporter}
+          onTransporterChange={handleSelectTransporter}
+        />
+      )}
 
       {/* Route dialog removed */}
 
