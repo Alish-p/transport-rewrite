@@ -45,17 +45,26 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.subtripId?.subtripNo || '-',
     align: 'left',
-    render: ({ subtripId = '-' }) => (
-      <Link
-        component={RouterLink}
-        to={paths.dashboard.subtrip.details(subtripId?._id)}
-        variant="body2"
-        noWrap
-        sx={{ color: 'primary.main' }}
-      >
-        {subtripId?.subtripNo || '-'}
-      </Link>
-    ),
+    render: ({ subtripId }) => {
+      if (!subtripId?._id || !subtripId?.subtripNo) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            -
+          </Typography>
+        );
+      }
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.subtrip.details(subtripId._id)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {subtripId.subtripNo}
+        </Link>
+      );
+    },
   },
   {
     id: 'vehicleNo',
@@ -64,6 +73,22 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.vehicleId?.vehicleNo || row?.vehicleNo || '-',
     align: 'left',
+    render: (row) => {
+      const value = row?.vehicleId?._id;
+      const vehicleNo = row?.vehicleId?.vehicleNo || row?.vehicleNo || '-';
+      if (!value) return vehicleNo;
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.vehicle.details(value)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {vehicleNo}
+        </Link>
+      );
+    },
   },
 
   {

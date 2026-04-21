@@ -3,15 +3,10 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
-import OutlinedInput from '@mui/material/OutlinedInput';
 // @mui
 // components
 
@@ -33,7 +28,6 @@ import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dia
 import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
-import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { TABLE_COLUMNS } from '../expense-table-config';
 import { SUBTRIP_STATUS } from '../../subtrip/constants';
@@ -57,20 +51,17 @@ export default function ExpenseTableToolbar({
   onSelectSubtrip,
   selectedPump,
   onSelectPump,
-  selectedTransporter,
-  onSelectTransporter,
   selectedTrip,
   onSelectTrip,
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
   
-  const { pumps: managesPumps, marketVehicles: hasMarketVehicles } = useSystemFeatures();
+  const { pumps: managesPumps } = useSystemFeatures();
   // removed unused tenant context
 
   const vehicleDialog = useBoolean();
   const pumpDialog = useBoolean();
-  const transporterDialog = useBoolean();
   const tripDialog = useBoolean();
   const subtripDialog = useBoolean();
   // Route dialog removed
@@ -90,14 +81,6 @@ export default function ExpenseTableToolbar({
       onFilters('pumpId', pump?._id || '');
     },
     [onFilters, onSelectPump]
-  );
-
-  const handleSelectTransporter = useCallback(
-    (transporter) => {
-      if (onSelectTransporter) onSelectTransporter(transporter);
-      onFilters('transporterId', transporter?._id || '');
-    },
-    [onFilters, onSelectTransporter]
   );
 
   const handleSelectTrip = useCallback(
@@ -143,13 +126,6 @@ export default function ExpenseTableToolbar({
     [filters.expenseType, onFilters]
   );
 
-  const handleFilterVehicleType = useCallback(
-    (event) => {
-      onFilters('vehicleType', event.target.value);
-    },
-    [onFilters]
-  );
-
   return (
     <>
       <Stack
@@ -190,16 +166,6 @@ export default function ExpenseTableToolbar({
           />
         )}
 
-        {hasMarketVehicles && (
-          <DialogSelectButton
-            onClick={transporterDialog.onTrue}
-            selected={selectedTransporter?.transportName}
-            placeholder="Transporter"
-            iconName="mdi:truck-delivery"
-            sx={{ maxWidth: { md: 200 } }}
-          />
-        )}
-
         <DialogSelectButton
           onClick={tripDialog.onTrue}
           selected={selectedTrip?.tripNo}
@@ -209,22 +175,6 @@ export default function ExpenseTableToolbar({
         />
 
         {/* Route filter removed */}
-
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel id="expense-vehicle-type-select-label">Vehicle Type</InputLabel>
-          <Select
-            value={filters.vehicleType || ''}
-            onChange={handleFilterVehicleType}
-            input={<OutlinedInput label="Vehicle Type" />}
-            labelId="expense-vehicle-type-select-label"
-            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-          >
-            <MenuItem value="">All</MenuItem>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            {hasMarketVehicles && <MenuItem value="Market">Market</MenuItem>}
-            <MenuItem value="Own">Own</MenuItem>
-          </Select>
-        </FormControl>
 
         <DialogSelectButton
           sx={{ maxWidth: { md: 200 } }}
@@ -320,6 +270,7 @@ export default function ExpenseTableToolbar({
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
+        excludeIsMarket
         statusList={[
           SUBTRIP_STATUS.IN_QUEUE,
           SUBTRIP_STATUS.LOADED,
@@ -335,15 +286,6 @@ export default function ExpenseTableToolbar({
           onClose={pumpDialog.onFalse}
           selectedPump={selectedPump}
           onPumpChange={handleSelectPump}
-        />
-      )}
-
-      {hasMarketVehicles && (
-        <KanbanTransporterDialog
-          open={transporterDialog.value}
-          onClose={transporterDialog.onFalse}
-          selectedTransporter={selectedTransporter}
-          onTransporterChange={handleSelectTransporter}
         />
       )}
 

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
+import { TABLE_COLUMNS } from '../active-list/subtrip-table-config';
 
 const STORAGE_KEY = 'subtrip-table-columns';
 

@@ -236,9 +236,14 @@ export default function TransporterAdvanceTableToolbar({
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
-        excludeBilled
         excludeIsOwn
-        statusList={[SUBTRIP_STATUS.IN_QUEUE, SUBTRIP_STATUS.LOADED, SUBTRIP_STATUS.RECEIVED]}
+        statusList={[
+          SUBTRIP_STATUS.IN_QUEUE,
+          SUBTRIP_STATUS.LOADED,
+          SUBTRIP_STATUS.RECEIVED,
+          SUBTRIP_STATUS.BILLED,
+          SUBTRIP_STATUS.ERROR,
+        ]}
       />
 
       <KanbanPumpDialog

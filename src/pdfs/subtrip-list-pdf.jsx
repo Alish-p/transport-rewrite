@@ -1,4 +1,4 @@
-import { TABLE_COLUMNS } from 'src/sections/subtrip/config/table-columns';
+import { TABLE_COLUMNS } from 'src/sections/subtrip/active-list/subtrip-table-config';
 
 import GenericListPdf from './generic-list-pdf';
 

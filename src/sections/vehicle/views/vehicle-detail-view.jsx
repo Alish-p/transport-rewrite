@@ -255,13 +255,17 @@ export function VehicleDetailView({ vehicle }) {
             {renderDetails}
           </Grid>
 
-          <Grid xs={12} item>
-            <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
-          </Grid>
+          {vehicle.isOwn && (
+            <>
+              <Grid xs={12} item>
+                <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+              </Grid>
 
-          <Grid xs={12} item>
-            <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
-          </Grid>
+              <Grid xs={12} item>
+                <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+              </Grid>
+            </>
+          )}
 
           <Grid xs={12} item>
             <VehicleSubtripsWidget vehicleId={vehicle._id} />

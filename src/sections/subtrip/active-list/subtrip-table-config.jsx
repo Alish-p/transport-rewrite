@@ -59,6 +59,21 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.vehicleId?.vehicleNo || '-',
     align: 'center',
+    render: (row) => {
+      const value = row?.vehicleId?._id;
+      if (!value) return row?.vehicleId?.vehicleNo || '-';
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.vehicle.details(value)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {row?.vehicleId?.vehicleNo}
+        </Link>
+      );
+    },
   },
   {
     id: 'driver',
@@ -71,17 +86,34 @@ export const TABLE_COLUMNS = [
       return cell ? `${name} - ${cell}` : name;
     },
     align: 'center',
-    render: (row) => (
-      <ListItemText
-        primary={row?.driverId?.driverName || '-'}
-        secondary={row?.driverId?.driverCellNo || ''}
-        primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        secondaryTypographyProps={{
-          component: 'span',
-          typography: 'caption',
-        }}
-      />
-    ),
+    render: (row) => {
+      const value = row?.driverId?._id;
+      return (
+        <ListItemText
+          primary={
+            value ? (
+              <Link
+                component={RouterLink}
+                to={paths.dashboard.driver.details(value)}
+                variant="body2"
+                noWrap
+                sx={{ color: 'primary.main' }}
+              >
+                {row?.driverId?.driverName || '-'}
+              </Link>
+            ) : (
+              row?.driverId?.driverName || '-'
+            )
+          }
+          secondary={row?.driverId?.driverCellNo || ''}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            component: 'span',
+            typography: 'caption',
+          }}
+        />
+      );
+    },
   },
   {
     id: 'customerId',
@@ -90,6 +122,21 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.customerId?.customerName || '-',
     align: 'center',
+    render: (row) => {
+      const value = row?.customerId?._id;
+      if (!value) return row?.customerId?.customerName || '-';
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.customer.details(value)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {row?.customerId?.customerName}
+        </Link>
+      );
+    },
   },
   {
     id: 'route',

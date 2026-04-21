@@ -2,8 +2,10 @@ import { useInView } from 'react-intersection-observer';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
 import Skeleton from '@mui/material/Skeleton';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -137,6 +139,8 @@ export function KanbanSubtripDialog({
   onClose,
   onSubtripChange,
 }) {
+  // Check if any filter is active for the header display
+  const hasActiveFilters = excludeIsMarket || excludeIsOwn || excludeBilled;
   const scrollRef = useRef(null);
   const [searchSubtrip, setSearchSubtrip] = useState('');
   const debouncedSearch = useDebounce(searchSubtrip);
@@ -188,11 +192,56 @@ export function KanbanSubtripDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ pb: 0 }}>
-        Jobs{' '}
-        <Typography component="span" sx={{ color: 'text.secondary' }}>
-          ({data?.pages?.[0]?.total || 0})
-        </Typography>
+      <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box>
+          Jobs{' '}
+          <Typography component="span" sx={{ color: 'text.secondary' }}>
+            ({data?.pages?.[0]?.total || 0})
+          </Typography>
+        </Box>
+
+        {hasActiveFilters && (
+          <Stack direction="row" spacing={0.75} alignItems="center">
+            {excludeIsMarket && (
+              <Tooltip title="Showing only own vehicle jobs" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:truck-check" width={16} />}
+                  label="Own only"
+                  size="small"
+                  color="info"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+
+            {excludeIsOwn && (
+              <Tooltip title="Showing only market vehicle jobs" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:truck-delivery" width={16} />}
+                  label="Market only"
+                  size="small"
+                  color="warning"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+
+            {excludeBilled && (
+              <Tooltip title="Showing only unbilled jobs" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:receipt-text-remove" width={16} />}
+                  label="Unbilled"
+                  size="small"
+                  color="success"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+          </Stack>
+        )}
       </DialogTitle>
 
       <Box sx={{ px: 3, py: 2.5 }}>

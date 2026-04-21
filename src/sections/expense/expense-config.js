@@ -19,6 +19,7 @@ export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
 ];
 
 export const DEFAULT_VEHICLE_EXPENSE_TYPES = [
+  { label: 'Work Order', icon: 'mdi:wrench' },
   { label: 'Insurance', icon: 'mdi:shield-check' },
   { label: 'EMI', icon: 'mdi:bank' },
   { label: 'AMC', icon: 'mdi:toolbox' },

@@ -42,10 +42,29 @@ export const TABLE_COLUMNS = [
     align: 'left',
     getter: (row) => row.vehicleId?.vehicleNo,
     render: (row) => {
-      const value = row.vehicleId?.vehicleNo;
+      const value = row.vehicleId?._id;
+      const vehicleNo = row.vehicleId?.vehicleNo || '-';
+      if (!value) {
+        return (
+          <ListItemText
+            primary={vehicleNo}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        );
+      }
       return (
         <ListItemText
-          primary={value}
+          primary={
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.vehicle.details(value)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {vehicleNo}
+            </Link>
+          }
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       );
@@ -65,6 +84,38 @@ export const TABLE_COLUMNS = [
         });
       }
       return drivers.size > 0 ? Array.from(drivers).join(', ') : '-';
+    },
+    render: (row) => {
+      if (!row.subtrips || row.subtrips.length === 0) return '-';
+      
+      const driversMap = new Map();
+      row.subtrips.forEach((st) => {
+        if (st.driverId && st.driverId.driverName && !driversMap.has(st.driverId._id || st.driverId.driverName)) {
+          driversMap.set(st.driverId._id || st.driverId.driverName, st.driverId);
+        }
+      });
+      
+      if (driversMap.size === 0) return '-';
+      
+      const drivers = Array.from(driversMap.values());
+      return drivers.map((driver, index) => (
+        <React.Fragment key={driver._id || index}>
+          {driver._id ? (
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.driver.details(driver._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main' }}
+            >
+              {driver.driverName}
+            </Link>
+          ) : (
+            driver.driverName
+          )}
+          {index < drivers.length - 1 ? ', ' : ''}
+        </React.Fragment>
+      ));
     },
   },
   {

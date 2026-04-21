@@ -2,7 +2,7 @@ import React from 'react';
 
 import { GenericTableRow } from 'src/components/table';
 
-import { TABLE_COLUMNS } from '../config/table-columns';
+import { TABLE_COLUMNS } from './subtrip-table-config';
 
 export default function SubtripTableRow({
   row,

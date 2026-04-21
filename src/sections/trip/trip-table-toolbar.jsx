@@ -18,6 +18,7 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './trip-table-config';
 import TripFiltersDrawer from './trip-filters-drawer';
+import { SUBTRIP_STATUS } from '../subtrip/constants';
 import { fDateRangeShortLabel } from '../../utils/format-time';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
@@ -235,7 +236,14 @@ export default function TripTableToolbar({
         onClose={subtripDialog.onFalse}
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
-        statusList={['in-queue', 'loaded', 'received', 'error', 'billed']}
+        excludeIsMarket
+        statusList={[
+          SUBTRIP_STATUS.IN_QUEUE,
+          SUBTRIP_STATUS.LOADED,
+          SUBTRIP_STATUS.RECEIVED,
+          SUBTRIP_STATUS.BILLED,
+          SUBTRIP_STATUS.ERROR,
+        ]}
       />
 
       <CustomDateRangePicker
