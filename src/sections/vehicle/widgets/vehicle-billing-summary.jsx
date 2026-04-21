@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 
 import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
@@ -16,7 +17,6 @@ import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -29,9 +29,11 @@ import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 import { usePaginatedSubtrips } from 'src/query/use-subtrip';
 import { usePaginatedExpenses } from 'src/query/use-expense';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
+import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
@@ -47,9 +49,10 @@ const TABLE_HEAD = [
 ];
 
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
-  const [selectedMonth, setSelectedMonth] = useState(dayjs());
-  const start = selectedMonth.startOf('month').format('YYYY-MM-DD');
-  const end = selectedMonth.endOf('month').format('YYYY-MM-DD');
+  const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs().endOf('month'));
+
+  const start = rangePicker.startDate ? dayjs(rangePicker.startDate).format('YYYY-MM-DD') : undefined;
+  const end = rangePicker.endDate ? dayjs(rangePicker.endDate).format('YYYY-MM-DD') : undefined;
 
   const { data, isLoading } = usePaginatedSubtrips(
     {
@@ -94,32 +97,61 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const expenses = expData?.expenses || [];
 
   const [currentTab, setCurrentTab] = useState('profits');
-  const monthLabel = selectedMonth.format('MMM-YYYY');
+  const monthLabel = rangePicker.shortLabel;
   const infoText = `Data for vehicle ${vehicleNo || '-'} for ${monthLabel}`;
+
+  const totalNetProfit = subtrips.reduce(
+    (sum, st) => sum + (st.amt || 0) - (st.totalExpense || 0),
+    0
+  );
+  const totalLoss = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const overall = totalNetProfit - totalLoss;
 
   return (
     <Card>
       <CardHeader
-        title="P&L Report"
-        subheader="Only jobs with completed billing are listed below. Jobs still in receive or loaded status are not included."
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="h6">P&L Report</Typography>
+            <Tooltip
+              arrow
+              slotProps={{
+                tooltip: { sx: { bgcolor: 'grey.800', p: 1.25, maxWidth: 280 } },
+                arrow: { sx: { color: 'grey.800' } },
+              }}
+              title={
+                <Typography variant="caption" sx={{ lineHeight: 1.7, display: 'block' }}>
+                  Only jobs with completed billing are listed below. Jobs still in{' '}
+                  <Label color="warning" variant="soft" sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}>Receive</Label>
+                  {' '}or{' '}
+                  <Label color="info" variant="soft" sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}>Loaded</Label>
+                  {' '}status are not included.
+                </Typography>
+              }
+            >
+              <Iconify icon="eva:info-outline" width={18} sx={{ color: 'text.disabled', cursor: 'help' }} />
+            </Tooltip>
+          </Stack>
+        }
         action={
           <Stack direction={{ sm: 'column', md: 'row' }} spacing={1}>
-            <DatePicker
-              label="Select month"
-              views={['year', 'month']}
-              openTo="month"
-              value={selectedMonth}
-              onChange={(newValue) => {
-                if (newValue) {
-                  setSelectedMonth(newValue);
-                }
-              }}
-              disableFuture
-              slotProps={{
-                textField: {
-                  sx: { minWidth: 150 },
-                },
-              }}
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={rangePicker.onOpen}
+              startIcon={<Iconify icon="solar:calendar-date-bold" />}
+            >
+              {rangePicker.shortLabel}
+            </Button>
+            <CustomDateRangePicker
+              variant="calendar"
+              open={rangePicker.open}
+              startDate={rangePicker.startDate}
+              endDate={rangePicker.endDate}
+              onChangeStartDate={rangePicker.onChangeStartDate}
+              onChangeEndDate={rangePicker.onChangeEndDate}
+              onClose={rangePicker.onClose}
+              error={rangePicker.error}
             />
             <Button
               variant="contained"
@@ -146,12 +178,6 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                   Amount: e.amount || 0,
                 }));
 
-                const totalNetProfit = subtrips.reduce(
-                  (sum, st) => sum + (st.amt || 0) - (st.totalExpense || 0),
-                  0
-                );
-                const totalLoss = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-                const overall = totalNetProfit - totalLoss;
                 const status = overall >= 0 ? 'Profit' : 'Loss';
 
                 const summaryData = [
@@ -181,6 +207,34 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
         }
       />
 
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 2,
+          gridTemplateColumns: {
+            xs: 'repeat(1, 1fr)',
+            md: 'repeat(3, 1fr)',
+          },
+          px: 3,
+          mt: 2,
+        }}
+      >
+        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Net Job Profit</Typography>
+          <Typography variant="subtitle1">{fCurrency(totalNetProfit)}</Typography>
+        </Stack>
+        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Vehicle Expense</Typography>
+          <Typography variant="subtitle1" sx={{ color: 'error.main' }}>{fCurrency(totalLoss)}</Typography>
+        </Stack>
+        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Overall P&L</Typography>
+          <Typography variant="subtitle1" sx={{ color: overall >= 0 ? 'success.main' : 'error.main' }}>
+            {fCurrency(overall)}
+          </Typography>
+        </Stack>
+      </Box>
+
       <Tabs
         value={currentTab}
         onChange={(_e, v) => setCurrentTab(v)}
@@ -206,7 +260,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 
       {currentTab === 'loss' && <VehicleLossTable expenses={expenses} isLoading={isExpLoading} />}
 
-      {/* Month selector replaces date range calendar */}
+      {/* Date range picker handles the calendar popover automatically */}
     </Card>
   );
 }
@@ -251,9 +305,9 @@ function ProfitsTable({ subtrips, isLoading }) {
                       </Tooltip>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title={row.routeName}>
+                      <Tooltip title={row.route}>
                         <Typography variant="body2" noWrap>
-                          {wrapText(row.routeName || '-', 20)}
+                          {wrapText(row.route || '-', 20)}
                         </Typography>
                       </Tooltip>
                     </TableCell>

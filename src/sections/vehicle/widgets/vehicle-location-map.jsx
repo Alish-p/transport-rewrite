@@ -18,7 +18,7 @@ export function VehicleLocationMap({ vehicleNo, isOwn }) {
       <CardHeader title="Vehicle Location" subheader={data?.address ? data?.address : ''} />
       <Box sx={{ height: 400, p: 2 }}>
         {lat && lng ? (
-          <MapWithMarker lat={lat} lng={lng} zoom={15} />
+          <MapWithMarker lat={lat} lng={lng} zoom={12} />
         ) : (
           <EmptyContent
             filled
