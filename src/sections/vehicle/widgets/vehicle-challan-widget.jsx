@@ -1,55 +1,26 @@
 import { toast } from 'sonner';
 import { useMemo, useState, useEffect } from 'react';
 
-import {
-  Box,
-  Tab,
-  Card,
-  Tabs,
-  Stack,
-  Table,
-  Button,
-  Tooltip,
-  TableRow,
-  Collapse,
-  TableHead,
-  TableCell,
-  TableBody,
-  CardHeader,
-  Typography,
-  IconButton,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Popover from '@mui/material/Popover';
+import Tooltip from '@mui/material/Tooltip';
+import { useTheme } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import ButtonBase from '@mui/material/ButtonBase';
 
 import { fDateTime } from 'src/utils/format-time';
 
+import { varAlpha } from 'src/theme/styles';
 import { useTenant } from 'src/query/use-tenant';
 import { useFetchVehicleChallans, useCachedVehicleChallans } from 'src/query/use-challan';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { TableNoData, TableSkeleton } from 'src/components/table';
-
-function statusMeta(status) {
-  const s = String(status || '').toLowerCase();
-  if (s === 'pending') return { color: 'warning', icon: 'mdi:clock-outline', label: 'Pending' };
-  if (s === 'disposed') return { color: 'success', icon: 'mdi:check-decagram-outline', label: 'Paid' };
-  return { color: 'default', icon: 'mdi:help-circle-outline', label: status || '-' };
-}
-
-function toDisplayRow(item) {
-  // Works for both provider-normalized and DB-cached shapes
-  return {
-    challanNo: item?.challanNo || '-',
-    challanDateTime: item?.challanDateTime || item?.challanDate || null,
-    place: item?.place || '-',
-    status: item?.status || '-',
-    fineImposed: item?.fineImposed ?? item?.amountOfFineImposed ?? null,
-    receivedAmount: item?.receivedAmount ?? null,
-    courtName: item?.courtName || '-',
-    offenceDetails: Array.isArray(item?.offenceDetails) ? item.offenceDetails : [],
-    stateCode: item?.stateCode || null,
-  };
-}
+import { Scrollbar } from 'src/components/scrollbar';
 
 function splitResultsToBuckets(resultsArray) {
   const pending = [];
@@ -63,19 +34,123 @@ function splitResultsToBuckets(resultsArray) {
   return { pending, disposed, pendingCount: pending.length, disposedCount: disposed.length };
 }
 
-export function VehicleChallanWidget({ vehicleNo, isOwn }) {
-  const [tab, setTab] = useState('pending');
+function toDisplayRow(item) {
+  return {
+    challanNo: item?.challanNo || '-',
+    challanDateTime: item?.challanDateTime || item?.challanDate || null,
+    place: item?.place || '-',
+    status: item?.status || '-',
+    fineImposed: item?.fineImposed ?? item?.amountOfFineImposed ?? null,
+    receivedAmount: item?.receivedAmount ?? null,
+    courtName: item?.courtName || '-',
+    offenceDetails: Array.isArray(item?.offenceDetails) ? item.offenceDetails : [],
+    stateCode: item?.stateCode || null,
+  };
+}
+
+// Reusable popover content for challan list
+function ChallanPopoverContent({ challans, title, labelColor, theme, isPending }) {
+  return (
+    <>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ p: 2, borderBottom: `dashed 1px ${theme.vars.palette.divider}` }}
+      >
+        <Typography variant="h6">{title}</Typography>
+        {isPending && (
+          <Button
+            size="small"
+            variant="soft"
+            color="primary"
+            startIcon={<Iconify icon="mdi:credit-card-outline" />}
+            href="https://echallan.parivahan.gov.in/index/accused-challan"
+            target="_blank"
+            rel="noopener"
+          >
+            Pay Online
+          </Button>
+        )}
+      </Stack>
+      <Scrollbar sx={{ maxHeight: 400 }}>
+        {(!challans || challans.length === 0) && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>No challans found.</Typography>
+          </Box>
+        )}
+        {challans?.map((challan, index) => (
+          <Stack
+            key={index}
+            sx={{
+              p: 2,
+              borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+              '&:last-child': { borderBottom: 'none' },
+              transition: 'background-color 0.2s',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+            spacing={1.5}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack spacing={0.5}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {challan.challanNo}
+                </Typography>
+                {challan.challanDateTime && (
+                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ color: 'text.secondary', typography: 'caption' }}>
+                    <Iconify icon="solar:calendar-date-bold" width={14} />
+                    <span>{fDateTime(challan.challanDateTime)}</span>
+                  </Stack>
+                )}
+              </Stack>
+              <Label color={labelColor} variant="soft" sx={{ fontSize: 13, fontWeight: 700 }}>
+                {challan.fineImposed != null ? `₹${challan.fineImposed}` : '-'}
+              </Label>
+            </Stack>
+            
+            {challan.place && challan.place !== '-' && (
+              <Stack direction="row" alignItems="flex-start" spacing={0.5} sx={{ color: 'text.secondary', typography: 'body2' }}>
+                <Iconify icon="solar:map-point-bold" width={16} sx={{ mt: 0.25, flexShrink: 0 }} />
+                <span>{challan.place}</span>
+              </Stack>
+            )}
+
+            {(challan.offenceDetails && challan.offenceDetails.length > 0) && (
+              <Box sx={{ mt: 0.5, p: 1.5, bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08), borderRadius: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                  Offenses:
+                </Typography>
+                <Stack spacing={0.5}>
+                  {challan.offenceDetails.map((o, idx) => (
+                    <Typography key={idx} variant="caption" display="flex" alignItems="flex-start" sx={{ color: 'text.primary' }}>
+                      <Box component="span" sx={{ mr: 0.75, color: 'text.disabled' }}>•</Box>
+                      {o?.name || o?.act || 'Unknown offense'}
+                    </Typography>
+                  ))}
+                </Stack>
+              </Box>
+            )}
+          </Stack>
+        ))}
+      </Scrollbar>
+    </>
+  );
+}
+
+export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
+  const theme = useTheme();
+
   const [data, setData] = useState(null);
   const [cooldownInfo, setCooldownInfo] = useState(null);
-  const [expanded, setExpanded] = useState(new Set());
+  const [popoverType, setPopoverType] = useState(null); // 'pending' | 'disposed' | null
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.challanApi?.enabled;
 
   const { fetchChallans, isFetching } = useFetchVehicleChallans();
-  const { data: cached, isLoading: isLoadingCached } = useCachedVehicleChallans(vehicleNo);
+  const { data: cached } = useCachedVehicleChallans(vehicleNo);
 
-  // Auto-seed with cached challans (DB) on mount/update without calling provider
   useEffect(() => {
     if (!cached) return;
     const pending = Array.isArray(cached?.results?.pending)
@@ -105,7 +180,6 @@ export function VehicleChallanWidget({ vehicleNo, isOwn }) {
     if (disabledReason) return;
     try {
       const res = await fetchChallans({ vehicleNo });
-      // Success 200 shape
       const { results, pendingCount = 0, disposedCount = 0 } = res || {};
       const pending = Array.isArray(results?.pending) ? results.pending.map(toDisplayRow) : [];
       const disposed = Array.isArray(results?.disposed) ? results.disposed.map(toDisplayRow) : [];
@@ -119,7 +193,6 @@ export function VehicleChallanWidget({ vehicleNo, isOwn }) {
         toast.info('No challans found for this vehicle');
       }
     } catch (e) {
-      // 429 cooldown expected here; axios interceptor rejects with response.data
       if (e && (e.cached || e.message)) {
         const { lastFetchedAt, nextAllowedAt } = e || {};
         const resultsArr = Array.isArray(e?.results) ? e.results : [];
@@ -150,173 +223,160 @@ export function VehicleChallanWidget({ vehicleNo, isOwn }) {
     disposed: data?.disposedCount ?? (data?.disposed?.length || 0),
   }), [data]);
 
-  const rows = tab === 'pending' ? data?.pending || [] : data?.disposed || [];
-
-  const rowId = (r) => `${r.challanNo}-${r.challanDateTime || ''}`;
-  const isExpanded = (r) => expanded.has(rowId(r));
-  const toggleRow = (r) => {
-    const id = rowId(r);
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const handleOpenPopover = (event, type) => {
+    setPopoverType(type);
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClosePopover = () => {
+    setPopoverType(null);
+    setAnchorEl(null);
   };
 
+  const hasData = (counts.pending > 0 || counts.disposed > 0);
+  const color = counts.pending > 0 ? 'error' : (hasData ? 'success' : 'info');
+
+  const getLinkSx = (typeColor) => ({
+    cursor: 'pointer',
+    borderRadius: 1,
+    p: 1,
+    mx: -1,
+    transition: 'all 0.2s ease-in-out',
+    display: 'flex', 
+    alignItems: 'baseline', 
+    gap: 1,
+    justifyContent: 'flex-start',
+    '&:hover': {
+      bgcolor: varAlpha(theme.vars.palette[typeColor].mainChannel, 0.08),
+    },
+  });
+
   return (
-    <Card>
-      <CardHeader
-        title={
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Iconify icon="mdi:police-badge" width={24} />
-            <Typography variant="h6">Traffic Challans</Typography>
-          </Stack>
-        }
-        action={
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Tooltip
-              title={
-                disabledReason || (cooldownActive && cooldownInfo?.nextAllowedAt
-                  ? `Next sync allowed at ${fDateTime(cooldownInfo.nextAllowedAt)}`
-                  : 'One provider call per vehicle per 10 days')
-              }
+    <>
+      <Card sx={{ py: 3, pl: 3, pr: 2.5, position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', ...sx }} {...other}>
+        <Box sx={{ flexGrow: 1, zIndex: 1 }}>
+          <ButtonBase
+            onClick={(e) => counts.pending > 0 && handleOpenPopover(e, 'pending')}
+            disableRipple={counts.pending === 0}
+            sx={{ ...getLinkSx('error'), ...(!hasData && { mb: 1, display: 'inline-flex' }), width: 'auto' }}
+          >
+            <Box sx={{ typography: 'h3', color: counts.pending > 0 ? `error.main` : 'text.primary' }}>
+              {counts.pending}
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+              Pending Challans
+            </Typography>
+          </ButtonBase>
+
+          {hasData && (
+            <ButtonBase
+              onClick={(e) => counts.disposed > 0 && handleOpenPopover(e, 'disposed')}
+              disableRipple={counts.disposed === 0}
+              sx={{ ...getLinkSx('success'), mt: 0.5, gap: 0.75, width: 'auto' }}
             >
-              <span>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  startIcon={
-                    <Iconify icon={isFetching ? 'line-md:loading-twotone-loop' : 'mdi:cloud-download-outline'} />
-                  }
-                  onClick={handleFetch}
-                  disabled={!!disabledReason || isFetching || cooldownActive}
-                >
-                  {isFetching ? 'Fetching…' : 'Fetch Challans'}
-                </Button>
-              </span>
-            </Tooltip>
-          </Stack>
-        }
-      />
+              <Box sx={{ typography: 'subtitle1', color: 'success.main' }}>
+                {counts.disposed}
+              </Box>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                Paid
+              </Typography>
+            </ButtonBase>
+          )}
 
-      <Tabs
-        value={tab}
-        onChange={(_e, v) => setTab(v)}
-        sx={{ px: 3, mt: 1 }}
-        variant="scrollable"
-        allowScrollButtonsMobile
+          {!hasData && (
+            <Typography variant="body2" sx={{ color: 'text.disabled', fontWeight: 500, mt: 0.5 }}>
+              No challans recorded
+            </Typography>
+          )}
+        </Box>
+
+        {/* Refresh icon button at bottom right */}
+        <Tooltip
+          title={
+            disabledReason || (cooldownActive && cooldownInfo?.nextAllowedAt
+              ? `Next sync allowed at ${fDateTime(cooldownInfo.nextAllowedAt)}`
+              : 'Refresh challans')
+          }
+        >
+          <span style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 2 }}>
+            <IconButton
+              size="small"
+              onClick={handleFetch}
+              disabled={!!disabledReason || isFetching || cooldownActive}
+              sx={{
+                color: 'text.secondary',
+                bgcolor: 'action.hover',
+                '&:hover': { bgcolor: 'action.selected' },
+              }}
+            >
+              <Iconify icon={isFetching ? 'line-md:loading-twotone-loop' : 'solar:refresh-bold-duotone'} width={18} />
+            </IconButton>
+          </span>
+        </Tooltip>
+
+        {/* Main widget icon matching Odometer */}
+        <Iconify
+          icon="mdi:police-badge"
+          width={36}
+          height={36}
+          sx={{
+            top: 24,
+            right: 20,
+            position: 'absolute',
+            background: `linear-gradient(135deg, ${theme.vars.palette[color].main} 0%, ${theme.vars.palette[color].dark} 100%)`,
+            borderRadius: 1,
+            p: 0.5,
+            color: 'common.white',
+          }}
+        />
+
+        <Box
+          sx={{
+            top: -44,
+            width: 160,
+            zIndex: 0,
+            height: 160,
+            right: -104,
+            opacity: 0.12,
+            borderRadius: 3,
+            position: 'absolute',
+            transform: 'rotate(40deg)',
+            background: `linear-gradient(to right, ${theme.vars.palette[color].main} 0%, ${varAlpha(theme.vars.palette[color].mainChannel, 0)} 100%)`,
+          }}
+        />
+      </Card>
+
+      <Popover
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        slotProps={{
+          paper: {
+            sx: { width: 380, p: 0, mt: 1, borderRadius: 2 },
+          },
+        }}
       >
-        <Tab
-          value="pending"
-          label={`Pending (${counts.pending})`}
-          icon={<Iconify icon="mdi:clock-outline" sx={{ color: 'warning.main' }} />}
-          iconPosition="start"
-        />
-        <Tab
-          value="disposed"
-          label={`Paid (${counts.disposed})`}
-          icon={<Iconify icon="mdi:check-decagram-outline" sx={{ color: 'success.main' }} />}
-          iconPosition="start"
-        />
-      </Tabs>
-
-      <Box sx={{ p: 3, pt: 2, overflowX: { xs: 'auto', md: 'visible' } }}>
-        {isLoadingCached && !data ? (
-          <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={8} />
-        ) : null}
-        {isFetching ? (
-          <TableSkeleton sx={{ minWidth: 720 }} rowCount={3} headCount={8} />
-        ) : (
-          <Table size="small" sx={{ minWidth: 900 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell width={48} />
-                <TableCell>Challan No</TableCell>
-                <TableCell>Date/Time</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Fine</TableCell>
-                <TableCell>Place</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(!rows || rows.length === 0) && (
-                <TableNoData
-                  notFound
-                  title={data ? 'No items' : 'Fetch challans to view records'}
-                />
-              )}
-              {rows?.map((row) => {
-                const meta = statusMeta(row.status);
-                return (
-                  <>
-                    <TableRow key={`${row.challanNo}-${row.challanDateTime || ''}`} hover>
-                      <TableCell padding="checkbox" sx={{ pr: 0 }}>
-                        <IconButton size="small" onClick={() => toggleRow(row)} aria-label="expand row">
-                          <Iconify
-                            icon={isExpanded(row) ? 'eva:arrow-ios-downward-outline' : 'eva:arrow-ios-forward-outline'}
-                          />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>{row.challanNo}</TableCell>
-                      <TableCell>
-                        {row.challanDateTime ? fDateTime(row.challanDateTime) : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <Label color={meta.color} startIcon={<Iconify icon={meta.icon} />}
-                        >
-                          {meta.label}
-                        </Label>
-                      </TableCell>
-                      <TableCell>{row.fineImposed != null ? `₹${row.fineImposed}` : '-'}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" noWrap title={row.place || ''}>
-                          {row.place || '-'}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
-                        <Collapse in={isExpanded(row)} timeout="auto" unmountOnExit>
-                          <Box sx={{ py: 1.5, px: 1.5, bgcolor: 'background.neutral', borderRadius: 1 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              Offence Details
-                            </Typography>
-                            {(row.offenceDetails && row.offenceDetails.length > 0) ? (
-                              <Stack spacing={1}>
-                                {row.offenceDetails.map((o, idx) => (
-                                  <Stack key={`${row.challanNo}-offence-${idx}`} direction="row" spacing={1.5} alignItems="flex-start">
-                                    {o?.act ? (
-                                      <Label variant="soft" color="default" startIcon={<Iconify icon="mdi:scale-balance" />}>
-                                        {o.act}
-                                      </Label>
-                                    ) : (
-                                      <Box sx={{ width: 0 }} />
-                                    )}
-                                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                      {o?.name || '-'}
-                                    </Typography>
-                                  </Stack>
-                                ))}
-                              </Stack>
-                            ) : (
-                              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                No offence details available
-                              </Typography>
-                            )}
-                          </Box>
-                        </Collapse>
-                      </TableCell>
-                    </TableRow>
-                  </>
-                );
-              })}
-            </TableBody>
-          </Table>
+        {popoverType === 'pending' && (
+          <ChallanPopoverContent
+            challans={data?.pending}
+            title="Pending Challans"
+            labelColor="error"
+            theme={theme}
+            isPending
+          />
         )}
-      </Box>
-    </Card>
+        {popoverType === 'disposed' && (
+          <ChallanPopoverContent
+            challans={data?.disposed}
+            title="Paid Challans"
+            labelColor="success"
+            theme={theme}
+            isPending={false}
+          />
+        )}
+      </Popover>
+    </>
   );
 }
 

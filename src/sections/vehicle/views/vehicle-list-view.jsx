@@ -14,8 +14,9 @@ import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-// @mui
 import { alpha, useTheme } from '@mui/material/styles';
+// @mui
+import useMediaQuery from '@mui/material/useMediaQuery';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -72,6 +73,7 @@ const defaultFilters = {
 export function VehicleListView() {
   const tenant = useTenantContext();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const router = useRouter();
   const navigate = useNavigate();
   const deleteVehicle = useDeleteVehicle();
@@ -209,32 +211,96 @@ export function VehicleListView() {
           { name: 'Vehicle List' },
         ]}
         action={
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<Iconify icon="mdi:broom" />}
-              onClick={cleanupDialog.onTrue}
-            >
-              Cleanup
-            </Button>
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.vehicle.bulkKmImport}
-              variant="outlined"
-              color="primary"
-              startIcon={<Iconify icon={ICONS.common.import} />}
-            >
-              Import KM
-            </Button>
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.vehicle.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Vehicle
-            </Button>
+          <Stack
+            direction="row"
+            spacing={isMobile ? 0.5 : 1}
+            flexWrap="wrap"
+            useFlexGap
+            justifyContent={{ xs: 'flex-end', sm: 'flex-start' }}
+          >
+            {isMobile ? (
+              /* ── Mobile: icon-only buttons with tooltips ── */
+              <>
+                <Tooltip title="Cleanup">
+                  <IconButton
+                    color="warning"
+                    onClick={cleanupDialog.onTrue}
+                    sx={{
+                      border: 1,
+                      borderColor: 'warning.main',
+                      borderRadius: 1,
+                      p: 0.75,
+                    }}
+                  >
+                    <Iconify icon="mdi:broom" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Import KM">
+                  <IconButton
+                    component={RouterLink}
+                    href={paths.dashboard.vehicle.bulkKmImport}
+                    color="primary"
+                    sx={{
+                      border: 1,
+                      borderColor: 'primary.main',
+                      borderRadius: 1,
+                      p: 0.75,
+                    }}
+                  >
+                    <Iconify icon={ICONS.common.import} />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="New Vehicle">
+                  <IconButton
+                    component={RouterLink}
+                    href={paths.dashboard.vehicle.new}
+                    color="primary"
+                    sx={{
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      borderRadius: 1,
+                      p: 0.75,
+                      '&:hover': { bgcolor: 'primary.dark' },
+                    }}
+                  >
+                    <Iconify icon="mingcute:add-line" />
+                  </IconButton>
+                </Tooltip>
+              </>
+            ) : (
+              /* ── Desktop: full text buttons ── */
+              <>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  startIcon={<Iconify icon="mdi:broom" />}
+                  onClick={cleanupDialog.onTrue}
+                >
+                  Cleanup
+                </Button>
+
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.vehicle.bulkKmImport}
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<Iconify icon={ICONS.common.import} />}
+                >
+                  Import KM
+                </Button>
+
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.vehicle.new}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  New Vehicle
+                </Button>
+              </>
+            )}
           </Stack>
         }
         sx={{ mb: { xs: 3, md: 5 } }}

@@ -32,7 +32,7 @@ import { SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
 export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
 
-  const table = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
+  const table = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 10 });
 
   const startDate = selectedMonth.startOf('month').format('YYYY-MM-DD');
   const endDate = selectedMonth.endOf('month').format('YYYY-MM-DD');
@@ -77,7 +77,7 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
       />
 
       <Scrollbar sx={{ minHeight: 401, maxHeight: 401 }}>
-        <Table sx={{ minWidth: 680 }}>
+        <Table size="small" sx={{ minWidth: 680 }}>
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
@@ -138,8 +138,6 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
         rowsPerPage={table.rowsPerPage}
         onPageChange={table.onChangePage}
         onRowsPerPageChange={table.onChangeRowsPerPage}
-        dense={table.dense}
-        onChangeDense={table.onChangeDense}
       />
     </Card>
   );

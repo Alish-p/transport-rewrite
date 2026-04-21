@@ -243,6 +243,9 @@ export function VehicleDetailView({ vehicle }) {
             <Grid xs={12} sm={6} item>
               <VehicleFuelWidget value={fuelValue} total={400} />
             </Grid>
+            {tenant?.integrations?.challanApi?.enabled && <Grid xs={12} sm={6} item>
+              <VehicleChallanWidget vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+            </Grid>}
             <Grid xs={12} item>
               <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
             </Grid>
@@ -255,12 +258,6 @@ export function VehicleDetailView({ vehicle }) {
           <Grid xs={12} item>
             <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
           </Grid>
-
-          {tenant?.integrations?.challanApi?.enabled && (
-            <Grid xs={12} item>
-              <VehicleChallanWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
-            </Grid>
-          )}
 
           <Grid xs={12} item>
             <VehicleBillingSummary vehicleId={vehicle._id} vehicleNo={vehicleNo} />
