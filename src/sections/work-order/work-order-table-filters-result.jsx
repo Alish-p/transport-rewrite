@@ -55,6 +55,10 @@ export default function WorkOrderTableFiltersResult({
     onFilters('issue', '');
   };
 
+  const handleRemoveExpenseAdded = () => {
+    onFilters('expenseAdded', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -139,6 +143,16 @@ export default function WorkOrderTableFiltersResult({
               size="small"
               label={filters.issue}
               onDelete={handleRemoveIssue}
+            />
+          </Block>
+        )}
+
+        {filters.expenseAdded && filters.expenseAdded !== 'all' && (
+          <Block label="Expense Status :">
+            <Chip
+              size="small"
+              label={filters.expenseAdded === 'true' ? 'Added' : 'Not Added'}
+              onDelete={handleRemoveExpenseAdded}
             />
           </Block>
         )}
