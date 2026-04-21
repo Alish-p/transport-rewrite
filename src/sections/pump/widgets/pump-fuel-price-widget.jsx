@@ -28,13 +28,20 @@ export function PumpDieselPriceWidget({ pumpId }) {
     date: today,
   });
 
+  const compactSx = {
+    py: 1.5,
+    '& .MuiIconify-root, & svg': { width: 40, height: 40, p: 1 },
+    '& .MuiTypography-h3': { fontSize: '1.25rem' },
+  };
+
   return (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
       <AnalyticsWidgetSummary
         title="Live Diesel Price"
         total={dieselPriceOnDate?.price || 0}
         color="info"
         icon="solar:gas-station-bold"
+        sx={compactSx}
       />
 
       <AnalyticsWidgetSummary
@@ -42,6 +49,7 @@ export function PumpDieselPriceWidget({ pumpId }) {
         total={petrolPriceOnDate?.price || 0}
         color="success"
         icon="solar:gas-station-bold"
+        sx={compactSx}
       />
 
       <AnalyticsWidgetSummary
@@ -49,6 +57,7 @@ export function PumpDieselPriceWidget({ pumpId }) {
         total={cngPriceOnDate?.price || 0}
         color="warning"
         icon="solar:gas-station-bold"
+        sx={compactSx}
       />
     </Stack>
   );
