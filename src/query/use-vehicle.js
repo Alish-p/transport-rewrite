@@ -22,6 +22,11 @@ const getTransporterVehicles = async (transporterId) => {
   return data;
 };
 
+const getVehicleAnalytics = async (id, year) => {
+  const { data } = await axios.get(`${ENDPOINT}/${id}/analytics`, { params: { year } });
+  return data;
+};
+
 const createVehicle = async (vehicle) => {
   const { data } = await axios.post(ENDPOINT, vehicle);
   return data;
@@ -112,6 +117,15 @@ export function useTransporterVehicles(transporterId, options = {}) {
     queryKey: [QUERY_KEY, 'by-transporter', transporterId],
     queryFn: () => getTransporterVehicles(transporterId),
     enabled: !!transporterId,
+    ...options,
+  });
+}
+
+export function useVehicleAnalytics(id, year, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'analytics', id, year],
+    queryFn: () => getVehicleAnalytics(id, year),
+    enabled: !!id && !!year,
     ...options,
   });
 }

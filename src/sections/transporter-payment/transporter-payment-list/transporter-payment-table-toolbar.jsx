@@ -214,6 +214,7 @@ export default function TransporterPaymentTableToolbar({
         selectedSubtrip={selectedSubtrip}
         onSubtripChange={handleSelectSubtrip}
         statusList={[SUBTRIP_STATUS.RECEIVED, SUBTRIP_STATUS.BILLED]}
+        excludeIsOwn
       />
 
       <KanbanVehicleDialog

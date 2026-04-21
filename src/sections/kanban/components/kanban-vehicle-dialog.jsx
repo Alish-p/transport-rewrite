@@ -5,8 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useInView } from 'react-intersection-observer';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
@@ -211,6 +214,8 @@ export function KanbanVehicleDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const hasActiveFilters = onlyOwn || onlyMarket;
+
   const createVehicle = useCreateVehicle();
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
@@ -266,12 +271,44 @@ export function KanbanVehicleDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ pb: 0 }}>
-        {showQuickCreate ? 'Create New Vehicle' : 'Vehicles'}{' '}
-        {!showQuickCreate && (
-          <Typography component="span" sx={{ color: 'text.secondary' }}>
-            ({total})
-          </Typography>
+      <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box>
+          {showQuickCreate ? 'Create New Vehicle' : 'Vehicles'}{' '}
+          {!showQuickCreate && (
+            <Typography component="span" sx={{ color: 'text.secondary' }}>
+              ({total})
+            </Typography>
+          )}
+        </Box>
+
+        {hasActiveFilters && !showQuickCreate && (
+          <Stack direction="row" spacing={0.75} alignItems="center">
+            {onlyOwn && (
+              <Tooltip title="Showing only own vehicles" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:truck-check" width={16} />}
+                  label="Own only"
+                  size="small"
+                  color="info"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+
+            {onlyMarket && (
+              <Tooltip title="Showing only market vehicles" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:truck-delivery" width={16} />}
+                  label="Market only"
+                  size="small"
+                  color="warning"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+          </Stack>
         )}
       </DialogTitle>
 

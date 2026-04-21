@@ -263,6 +263,7 @@ export default function ExpenseTableToolbar({
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleSelectVehicle}
+        onlyOwn
       />
 
       <KanbanSubtripDialog

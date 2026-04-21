@@ -22,6 +22,7 @@ import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
 import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
 import { VehicleSubtripsWidget } from '../widgets/vehicle-subtrips-widget';
 import { VehicleDocumentsWidget } from '../widgets/vehicle-documents-widget';
+import { VehicleMonthlyAnalyticsWidget } from '../widgets/vehicle-monthly-analytics-widget';
 
 // ----------------------------------------------------------------------
 
@@ -257,6 +258,10 @@ export function VehicleDetailView({ vehicle }) {
 
           {vehicle.isOwn && (
             <>
+              <Grid xs={12} item>
+                <VehicleMonthlyAnalyticsWidget vehicleId={vehicle._id} />
+              </Grid>
+
               <Grid xs={12} item>
                 <VehicleDocumentsWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
               </Grid>

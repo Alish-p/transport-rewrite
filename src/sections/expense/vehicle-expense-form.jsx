@@ -185,6 +185,7 @@ export default function VehicleExpenseForm({ currentExpense }) {
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleVehicleChange}
+        onlyOwn
       />
     </Form>
   );

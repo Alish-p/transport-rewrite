@@ -159,6 +159,7 @@ export default function DriverPayrollTableToolbar({
           onSubtripChange={handleFilterSubtrip}
           selectedSubtrip={filters.subtrip}
           statusList={Object.values(SUBTRIP_STATUS)}
+          excludeIsMarket
         />
       )}
     </>
