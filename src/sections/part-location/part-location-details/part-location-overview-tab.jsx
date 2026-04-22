@@ -40,96 +40,6 @@ const STORAGE_KEY = 'part-location-overview-table-columns';
 
 // ----------------------------------------------------------------------
 
-function StockLevelIndicator({ quantity, threshold, unit }) {
-    const theme = useTheme();
-
-    const percentage = threshold > 0 ? Math.min((quantity / threshold) * 100, 100) : 100;
-    const isLow = quantity < threshold && quantity > 0;
-    const isOut = quantity === 0;
-
-    let color = theme.palette.success.main;
-    if (isOut) color = theme.palette.error.main;
-    else if (isLow) color = theme.palette.warning.main;
-
-    return (
-        <Tooltip title={`${quantity} ${unit} / Threshold: ${threshold} ${unit}`} arrow placement="top">
-            <Box sx={{ width: '100%', maxWidth: 140 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                        {quantity}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {unit}
-                    </Typography>
-                </Stack>
-                <LinearProgress
-                    variant="determinate"
-                    value={percentage}
-                    sx={{
-                        height: 6,
-                        borderRadius: 1,
-                        bgcolor: alpha(color, 0.16),
-                        '& .MuiLinearProgress-bar': {
-                            borderRadius: 1,
-                            bgcolor: color,
-                        },
-                    }}
-                />
-            </Box>
-        </Tooltip>
-    );
-}
-
-// ----------------------------------------------------------------------
-
-function StatCard({ title, value, icon, color, onClick, active }) {
-    const theme = useTheme();
-
-    return (
-        <Card
-            onClick={onClick}
-            sx={{
-                p: 3,
-                cursor: onClick ? 'pointer' : 'default',
-                transition: 'all 0.2s ease-in-out',
-                border: active ? `2px solid ${color}` : '2px solid transparent',
-                '&:hover': onClick
-                    ? {
-                        transform: 'translateY(-2px)',
-                        boxShadow: theme.customShadows?.z8 || theme.shadows[8],
-                    }
-                    : {},
-            }}
-        >
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <Box
-                    sx={{
-                        width: 48,
-                        height: 48,
-                        display: 'flex',
-                        borderRadius: 1.5,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: alpha(color, 0.12),
-                    }}
-                >
-                    <Iconify icon={icon} width={28} sx={{ color }} />
-                </Box>
-                <Box>
-                    <Typography variant="h3" sx={{ color }}>
-                        {value}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {title}
-                    </Typography>
-                </Box>
-            </Stack>
-        </Card>
-    );
-}
-
-// ----------------------------------------------------------------------
-
 export function PartLocationOverviewTab({ partLocation }) {
     const theme = useTheme();
     const table = useTable({ defaultOrderBy: 'name' });
@@ -175,14 +85,6 @@ export function PartLocationOverviewTab({ partLocation }) {
     const handleSearchChange = useCallback(
         (event) => {
             setSearch(event.target.value);
-            table.onResetPage();
-        },
-        [table]
-    );
-
-    const handleStatusFilterCard = useCallback(
-        (status) => {
-            setStatusFilter((prev) => (prev === status ? 'all' : status));
             table.onResetPage();
         },
         [table]
@@ -248,7 +150,7 @@ export function PartLocationOverviewTab({ partLocation }) {
                                             const orderedIds = (
                                                 columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
                                             ).filter((id) => visibleColumns[id]);
-                                            
+
                                             exportToExcel(
                                                 prepareDataForExport(
                                                     selectedRows,
