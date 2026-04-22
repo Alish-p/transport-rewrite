@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
@@ -9,10 +8,8 @@ import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
-import LinearProgress from '@mui/material/LinearProgress';
 
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
