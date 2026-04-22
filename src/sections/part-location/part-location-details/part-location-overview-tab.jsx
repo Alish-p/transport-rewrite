@@ -1,25 +1,22 @@
-import { useNavigate } from 'react-router';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
+import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
-import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
-import TextField from '@mui/material/TextField';
-import TableCell from '@mui/material/TableCell';
-import Grid from '@mui/material/Unstable_Grid2';
-import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
-import InputAdornment from '@mui/material/InputAdornment';
 import TableContainer from '@mui/material/TableContainer';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { paths } from 'src/routes/paths';
+import { useColumnVisibility } from 'src/hooks/use-column-visibility';
+
+import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { usePaginatedParts } from 'src/query/use-part';
 
@@ -31,17 +28,15 @@ import {
     TableNoData,
     TableSkeleton,
     TableHeadCustom,
+    TableSelectedAction,
     TablePaginationCustom,
 } from 'src/components/table';
 
-const TABLE_HEAD = [
-    { id: 'partNumber', label: 'Part #', width: 120 },
-    { id: 'name', label: 'Part Details' },
-    { id: 'category', label: 'Category', width: 140 },
-    { id: 'quantity', label: 'Stock Level', width: 180 },
-    { id: 'unitCost', label: 'Unit Cost', width: 100 },
-    { id: 'status', label: 'Status', width: 120, align: 'center' },
-];
+import PartLocationOverviewTableRow from './part-location-overview-table-row';
+import PartLocationOverviewTableToolbar from './part-location-overview-table-toolbar';
+import { PART_LOCATION_OVERVIEW_TABLE_COLUMNS } from './part-location-overview-table-config';
+
+const STORAGE_KEY = 'part-location-overview-table-columns';
 
 // ----------------------------------------------------------------------
 
@@ -137,11 +132,22 @@ function StatCard({ title, value, icon, color, onClick, active }) {
 
 export function PartLocationOverviewTab({ partLocation }) {
     const theme = useTheme();
-    const navigate = useNavigate();
     const table = useTable({ defaultOrderBy: 'name' });
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+
+    const {
+        visibleColumns,
+        visibleHeaders,
+        columnOrder,
+        disabledColumns,
+        toggleColumnVisibility,
+        toggleAllColumnsVisibility,
+        moveColumn,
+        resetColumns,
+        canReset: canResetColumns,
+    } = useColumnVisibility(PART_LOCATION_OVERVIEW_TABLE_COLUMNS, STORAGE_KEY);
 
     const { data, isLoading } = usePaginatedParts(
         {
@@ -174,7 +180,7 @@ export function PartLocationOverviewTab({ partLocation }) {
         [table]
     );
 
-    const handleStatusFilter = useCallback(
+    const handleStatusFilterCard = useCallback(
         (status) => {
             setStatusFilter((prev) => (prev === status ? 'all' : status));
             table.onResetPage();
@@ -182,114 +188,101 @@ export function PartLocationOverviewTab({ partLocation }) {
         [table]
     );
 
-    const handleRowClick = useCallback(
-        (partId) => {
-            navigate(paths.dashboard.part.details(partId));
+    const handleStatusFilterTab = useCallback(
+        (event, newValue) => {
+            setStatusFilter(newValue);
+            table.onResetPage();
         },
-        [navigate]
+        [table]
     );
 
     return (
         <Stack spacing={3}>
-            {/* Stats Row */}
-            <Grid container spacing={3}>
-                <Grid xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Total Parts"
-                        value={totalParts}
-                        icon="mdi:package-variant-closed"
-                        color={theme.palette.info.main}
-                        onClick={() => handleStatusFilter('all')}
-                        active={statusFilter === 'all'}
-                    />
-                </Grid>
-                <Grid xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="In Stock"
-                        value={inStock}
-                        icon="mdi:check-circle-outline"
-                        color={theme.palette.success.main}
-                        onClick={() => handleStatusFilter('inStock')}
-                        active={statusFilter === 'inStock'}
-                    />
-                </Grid>
-                <Grid xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Low Stock"
-                        value={lowStock}
-                        icon="mdi:alert-outline"
-                        color={theme.palette.warning.main}
-                        onClick={() => handleStatusFilter('lowStock')}
-                        active={statusFilter === 'lowStock'}
-                    />
-                </Grid>
-                <Grid xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Out of Stock"
-                        value={outOfStock}
-                        icon="mdi:alert-circle-outline"
-                        color={theme.palette.error.main}
-                        onClick={() => handleStatusFilter('outOfStock')}
-                        active={statusFilter === 'outOfStock'}
-                    />
-                </Grid>
-            </Grid>
-
             {/* Parts Table */}
             <Card>
-                <CardHeader
-                    title={
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <span>Parts Inventory</span>
-                            {statusFilter !== 'all' && (
-                                <Chip
-                                    size="small"
-                                    label={
-                                        statusFilter === 'outOfStock'
-                                            ? 'Out of Stock'
-                                            : statusFilter === 'lowStock'
-                                                ? 'Low Stock'
-                                                : 'In Stock'
-                                    }
-                                    onDelete={() => setStatusFilter('all')}
-                                    color={
-                                        statusFilter === 'outOfStock'
-                                            ? 'error'
-                                            : statusFilter === 'lowStock'
-                                                ? 'warning'
-                                                : 'success'
-                                    }
-                                />
-                            )}
-                        </Stack>
-                    }
-                    action={
-                        <TextField
-                            size="small"
-                            placeholder="Search parts..."
-                            value={search}
-                            onChange={handleSearchChange}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                                    </InputAdornment>
-                                ),
-                            }}
-                            sx={{ width: 240 }}
-                        />
-                    }
-                    sx={{ mb: 1 }}
+                <Tabs
+                    value={statusFilter}
+                    onChange={handleStatusFilterTab}
+                    sx={{
+                        px: 2.5,
+                        boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+                    }}
+                >
+                    <Tab value="all" label="All" iconPosition="end" icon={<Label variant={statusFilter === 'all' ? 'filled' : 'soft'} color="info">{totalParts}</Label>} />
+                    <Tab value="inStock" label="In Stock" iconPosition="end" icon={<Label variant={statusFilter === 'inStock' ? 'filled' : 'soft'} color="success">{inStock}</Label>} />
+                    <Tab value="lowStock" label="Low Stock" iconPosition="end" icon={<Label variant={statusFilter === 'lowStock' ? 'filled' : 'soft'} color="warning">{lowStock}</Label>} />
+                    <Tab value="outOfStock" label="Out of Stock" iconPosition="end" icon={<Label variant={statusFilter === 'outOfStock' ? 'filled' : 'soft'} color="error">{outOfStock}</Label>} />
+                </Tabs>
+
+                <PartLocationOverviewTableToolbar
+                    search={search}
+                    onSearchChange={handleSearchChange}
+                    visibleColumns={visibleColumns}
+                    disabledColumns={disabledColumns}
+                    onToggleColumn={toggleColumnVisibility}
+                    onToggleAllColumns={toggleAllColumnsVisibility}
+                    onResetColumns={resetColumns}
+                    canResetColumns={canResetColumns}
                 />
 
                 <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+                    <TableSelectedAction
+                        dense={table.dense}
+                        numSelected={table.selected.length}
+                        rowCount={filteredParts.length}
+                        onSelectAllRows={(checked) =>
+                            table.onSelectAllRows(
+                                checked,
+                                filteredParts.map((row) => row._id)
+                            )
+                        }
+                        action={
+                            <Stack direction="row">
+                                <Tooltip title="Download Excel">
+                                    <IconButton
+                                        color="primary"
+                                        onClick={() => {
+                                            const selectedRows = filteredParts.filter((r) =>
+                                                table.selected.includes(r._id)
+                                            );
+                                            const orderedIds = (
+                                                columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                                            ).filter((id) => visibleColumns[id]);
+                                            
+                                            exportToExcel(
+                                                prepareDataForExport(
+                                                    selectedRows,
+                                                    PART_LOCATION_OVERVIEW_TABLE_COLUMNS,
+                                                    orderedIds,
+                                                    columnOrder
+                                                ),
+                                                'part-location-inventory'
+                                            );
+                                        }}
+                                    >
+                                        <Iconify icon="file-icons:microsoft-excel" />
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
+                        }
+                    />
+
                     <Scrollbar>
                         <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
                             <TableHeadCustom
                                 order={table.order}
                                 orderBy={table.orderBy}
-                                headLabel={TABLE_HEAD}
+                                headLabel={visibleHeaders}
                                 onSort={table.onSort}
+                                onOrderChange={moveColumn}
+                                rowCount={filteredParts.length}
+                                numSelected={table.selected.length}
+                                onSelectAllRows={(checked) =>
+                                    table.onSelectAllRows(
+                                        checked,
+                                        filteredParts.map((row) => row._id)
+                                    )
+                                }
                             />
 
                             <TableBody>
@@ -297,85 +290,17 @@ export function PartLocationOverviewTab({ partLocation }) {
                                     ? Array.from({ length: 5 }).map((_, index) => (
                                         <TableSkeleton key={index} sx={{ height: 72 }} />
                                     ))
-                                    : filteredParts.map((row) => {
-                                        const isLowStock = row.totalQuantity < row.threshold;
-                                        const isOutOfStock = row.totalQuantity === 0;
-
-                                        return (
-                                            <TableRow
-                                                key={row._id}
-                                                hover
-                                                onClick={() => handleRowClick(row._id)}
-                                                sx={{
-                                                    cursor: 'pointer',
-                                                    ...(isOutOfStock && {
-                                                        bgcolor: alpha(theme.palette.error.main, 0.04),
-                                                    }),
-                                                    ...(isLowStock &&
-                                                        !isOutOfStock && {
-                                                        bgcolor: alpha(theme.palette.warning.main, 0.04),
-                                                    }),
-                                                    '&:hover': {
-                                                        bgcolor: isOutOfStock
-                                                            ? alpha(theme.palette.error.main, 0.08)
-                                                            : isLowStock
-                                                                ? alpha(theme.palette.warning.main, 0.08)
-                                                                : undefined,
-                                                    },
-                                                }}
-                                            >
-                                                <TableCell>
-                                                    <Typography variant="subtitle2" sx={{ fontFamily: 'monospace' }}>
-                                                        {row.partNumber}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Stack spacing={0.5}>
-                                                        <Typography variant="subtitle2">{row.name}</Typography>
-                                                        {row.manufacturer && (
-                                                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                                                {row.manufacturer}
-                                                            </Typography>
-                                                        )}
-                                                    </Stack>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {row.category && (
-                                                        <Chip
-                                                            size="small"
-                                                            label={row.category}
-                                                            variant="soft"
-                                                            sx={{ borderRadius: 1 }}
-                                                        />
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <StockLevelIndicator
-                                                        quantity={row.totalQuantity}
-                                                        threshold={row.threshold}
-                                                        unit={row.measurementUnit || 'units'}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                                        ₹{row.unitCost?.toLocaleString() || 0}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Label
-                                                        variant="soft"
-                                                        color={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'}
-                                                    >
-                                                        {isOutOfStock
-                                                            ? 'Out of Stock'
-                                                            : isLowStock
-                                                                ? 'Low Stock'
-                                                                : 'In Stock'}
-                                                    </Label>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                    : filteredParts.map((row) => (
+                                        <PartLocationOverviewTableRow
+                                            key={row._id}
+                                            row={row}
+                                            selected={table.selected.includes(row._id)}
+                                            onSelectRow={() => table.onSelectRow(row._id)}
+                                            visibleColumns={visibleColumns}
+                                            disabledColumns={disabledColumns}
+                                            columnOrder={columnOrder}
+                                        />
+                                    ))}
 
                                 <TableNoData notFound={notFound} />
                             </TableBody>
