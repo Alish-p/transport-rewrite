@@ -1,6 +1,6 @@
-import { toast } from 'sonner'
-import { useState, useEffect, useCallback } from 'react'
-  ;
+import dayjs from 'dayjs';
+import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import { Stack } from '@mui/material';
@@ -50,6 +50,8 @@ import WorkOrderTableToolbar from '../work-order-table-toolbar';
 import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
 import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
 
+  ;
+
 ;
 
 const STORAGE_KEY = 'work-order-table-columns';
@@ -65,6 +67,8 @@ const defaultFilters = {
   issueAssignee: '',
   issue: '',
   expenseAdded: 'all',
+  startDate: null,
+  endDate: null,
 };
 
 const STATUS_TABS = [
@@ -123,6 +127,8 @@ export function WorkOrderListView() {
     issueAssignee: filters.issueAssignee || undefined,
     issue: filters.issue || undefined,
     expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
+    startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
+    endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -401,6 +407,8 @@ export function WorkOrderListView() {
                               issueAssignee: filters.issueAssignee || undefined,
                               issue: filters.issue || undefined,
                               expenseAdded: filters.expenseAdded === 'all' ? undefined : filters.expenseAdded,
+                              startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
+                              endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

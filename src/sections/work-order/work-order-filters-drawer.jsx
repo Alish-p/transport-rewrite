@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -70,6 +71,28 @@ export default function WorkOrderFiltersDrawer({
               onFilters('issue', newInputValue || '');
             }}
             renderInput={(params) => <TextField {...params} label="Issue" />}
+          />
+
+          <DatePicker
+            label="Work order start date"
+            value={filters.startDate}
+            onChange={(newValue) => onFilters('startDate', newValue)}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+              },
+            }}
+          />
+
+          <DatePicker
+            label="Work order end date"
+            value={filters.endDate}
+            onChange={(newValue) => onFilters('endDate', newValue)}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+              },
+            }}
           />
 
           <DialogSelectButton
