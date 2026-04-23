@@ -57,7 +57,7 @@ const QuickVehicleSchema = zod.object({
 // Custom hook for debounced search + infinite scroll
 // ----------------------------------------------------------------------
 // Custom hook for debounced search + infinite scroll
-function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = false } = {}) {
+function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = false, onlyActive = false } = {}) {
   const debounced = useDebounce(searchText, 500);
   const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
 
@@ -66,7 +66,7 @@ function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = f
   else if (onlyMarket) isOwn = false;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteVehicles(
-    { vehicleNo: debounced || undefined, rowsPerPage: 50, isOwn },
+    { vehicleNo: debounced || undefined, rowsPerPage: 50, isOwn, ...(onlyActive && { isActive: true }) },
     { enabled }
   );
 
@@ -208,6 +208,7 @@ export function KanbanVehicleDialog({
   onVehicleChange,
   onlyOwn = false,
   onlyMarket = false,
+  onlyActive = false,
 }) {
   const [search, setSearch] = useState('');
   const [showQuickCreate, setShowQuickCreate] = useState(false);
@@ -222,7 +223,7 @@ export function KanbanVehicleDialog({
   const { vehicles, total, isLoading, isFetchingNext, loadMoreRef } = useVehicleSearch(
     search,
     open && !showQuickCreate,
-    { onlyOwn, onlyMarket }
+    { onlyOwn, onlyMarket, onlyActive }
   );
 
   useEffect(() => {

@@ -186,6 +186,7 @@ export default function VehicleExpenseForm({ currentExpense }) {
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleVehicleChange}
         onlyOwn
+        onlyActive
       />
     </Form>
   );

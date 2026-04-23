@@ -1564,6 +1564,7 @@ export function SubtripJobCreateView() {
             onClose={vehicleDialog.onFalse}
             selectedVehicle={selectedVehicle}
             onVehicleChange={handleVehicleChange}
+            onlyActive
           />
 
           <KanbanDriverDialog

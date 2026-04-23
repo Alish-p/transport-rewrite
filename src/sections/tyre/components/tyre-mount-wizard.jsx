@@ -39,7 +39,7 @@ export default function TyreMountWizard({ open, onClose, onMount }) {
     // Data Fetching for Step 1 (Vehicles)
     const debouncedSearch = useDebounce(vehicleSearch, 300);
     const { data: vehiclesData, isLoading: isLoadingVehicles } = useInfiniteVehicles(
-        { vehicleNo: debouncedSearch, rowsPerPage: 250, isOwn: true },
+        { vehicleNo: debouncedSearch, rowsPerPage: 250, isOwn: true, isActive: true },
         { enabled: open }
     );
 

@@ -53,6 +53,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import VehicleLearn from '../vehicle-learn';
 import VehicleTableRow from '../vehicle-table-row';
 import { TABLE_COLUMNS } from '../vehicle-table-config';
 import VehicleTableToolbar from '../vehicle-table-toolbar';
@@ -79,6 +80,7 @@ export function VehicleListView() {
   const deleteVehicle = useDeleteVehicle();
   const table = useTable({ syncToUrl: true });
   const cleanupDialog = useBoolean();
+  const learn = useBoolean();
 
   // Use custom filters hook
   const {
@@ -203,8 +205,28 @@ export function VehicleListView() {
 
   return (
     <DashboardContent>
+      <VehicleLearn open={learn.value} onClose={learn.onFalse} />
+
       <CustomBreadcrumbs
-        heading="Vehicle List"
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Vehicle List</span>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+              sx={{
+                color: 'warning.main',
+                animation: 'pulseGlow 2s ease-in-out infinite',
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                },
+              }}
+            >
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Vehicle', href: paths.dashboard.vehicle.root },

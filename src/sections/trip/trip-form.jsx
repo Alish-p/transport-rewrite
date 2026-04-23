@@ -308,6 +308,7 @@ export default function TripForm({ currentTrip }) {
         onClose={vehicleDialog.onFalse}
         selectedVehicle={selectedVehicle}
         onVehicleChange={handleVehicleChange}
+        onlyActive
       />
 
       <KanbanCustomerDialog
