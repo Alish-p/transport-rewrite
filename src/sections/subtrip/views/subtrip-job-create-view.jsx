@@ -293,7 +293,7 @@ export function SubtripJobCreateView() {
 
   const fetchVehicleByNo = async (vehicleNo) => {
     try {
-      const { data } = await axios.get('/api/vehicles', { params: { vehicleNo, rowsPerPage: 1 } });
+      const { data } = await axios.get('/api/vehicles', { params: { vehicleNo, isActive: true, rowsPerPage: 1 } });
       const results = data?.results || [];
       return results[0];
     } catch (e) {
