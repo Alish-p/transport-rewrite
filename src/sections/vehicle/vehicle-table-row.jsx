@@ -2,10 +2,15 @@ import React, { useMemo } from 'react';
 
 import Button from '@mui/material/Button';
 
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { GenericTableRow } from 'src/components/table';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+
+import { useTenantContext } from 'src/auth/tenant';
 
 import { TABLE_COLUMNS } from './vehicle-table-config';
 
@@ -22,6 +27,8 @@ export default function VehicleTableRow({
   columnOrder,
 }) {
   const toggleConfirm = useBoolean();
+  const router = useRouter();
+  const tenant = useTenantContext();
 
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
@@ -30,18 +37,36 @@ export default function VehicleTableRow({
   const { isActive } = row;
 
   const customActions = useMemo(() => {
-    if (!onToggleActive) return [];
+    const actions = [];
 
-    return [
-      {
+    if (tenant?.integrations?.maintenanceAndInventory?.enabled) {
+      actions.push({
+        label: 'Create Work Order',
+        icon: 'mdi:tools',
+        onClick: () => router.push(`${paths.dashboard.workOrder.new}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}&vehicleType=${row.vehicleType}`),
+      });
+    }
+
+    if (row.isOwn) {
+      actions.push({
+        label: 'Create Expense',
+        icon: 'mdi:cash-plus',
+        onClick: () => router.push(`${paths.dashboard.expense.newVehicleExpense}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}`),
+      });
+    }
+
+    if (onToggleActive) {
+      actions.push({
         label: isActive ? 'Make Inactive' : 'Make Active',
         icon: isActive ? 'mdi:cancel' : 'mdi:check-circle-outline',
         color: isActive ? 'warning.main' : 'success.main',
         onClick: () => toggleConfirm.onTrue(),
-      },
-    ];
+      });
+    }
+
+    return actions;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onToggleActive, isActive]);
+  }, [onToggleActive, isActive, tenant, router, row]);
 
   return (
     <>

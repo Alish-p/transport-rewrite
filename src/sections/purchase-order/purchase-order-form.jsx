@@ -74,13 +74,13 @@ export const PurchaseOrderSchema = zod.object({
   lines: zod.array(PurchaseOrderLineSchema).min(1, { message: 'Add at least one line item' }),
 });
 
-export default function PurchaseOrderForm() {
+export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   const navigate = useNavigate();
   const tenant = useTenantContext();
 
   const defaultValues = useMemo(
     () => ({
-      vendorId: '',
+      vendorId: currentPurchaseOrder?.vendor?._id || currentPurchaseOrder?.vendor || '',
       partLocationId: '',
       orderDate: new Date(),
       description: '',
@@ -91,11 +91,11 @@ export default function PurchaseOrderForm() {
       tax: 0,
       lines: [],
     }),
-    []
+    [currentPurchaseOrder]
   );
 
   const vendorDialog = useBoolean();
-  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(currentPurchaseOrder?.vendor || null);
   const [activeLineId, setActiveLineId] = useState(null);
   const [lineParts, setLineParts] = useState({});
   const partDialog = useBoolean();

@@ -91,7 +91,7 @@ const PaymentSchema = zod.object({
     .default([]),
 });
 
-export default function TransporterPaymentSimpleForm() {
+export default function TransporterPaymentSimpleForm({ currentTransporter = null }) {
   const transporterDialog = useBoolean();
   const dateDialog = useBoolean();
   const tenant = useTenantContext();
@@ -100,7 +100,7 @@ export default function TransporterPaymentSimpleForm() {
   const methods = useForm({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
-      transporter: null,
+      transporter: currentTransporter,
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       subtrips: [],
       additionalCharges: [],

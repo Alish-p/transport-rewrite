@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import { GenericTableRow } from 'src/components/table';
 
@@ -15,9 +18,27 @@ export default function VendorTableRow({
   disabledColumns,
   columnOrder,
 }) {
+  const router = useRouter();
+
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
   const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
+
+  const customActions = useMemo(() => [
+      {
+        label: 'Create Purchase Order',
+        icon: 'mdi:cart-plus',
+        onClick: () => {
+          const query = new URLSearchParams({
+            vendor: row._id,
+            vendorName: row.name || '',
+            vendorAddress: row.address || '',
+            vendorPhone: row.phone || ''
+          }).toString();
+          router.push(`${paths.dashboard.purchaseOrder.new}?${query}`);
+        },
+      },
+    ], [router, row]);
 
   return (
     <GenericTableRow
@@ -28,6 +49,7 @@ export default function VendorTableRow({
       onViewRow={handleView}
       onEditRow={handleEdit}
       onDeleteRow={handleDelete}
+      customActions={customActions}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}

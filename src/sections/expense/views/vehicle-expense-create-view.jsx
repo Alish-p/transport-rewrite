@@ -1,3 +1,5 @@
+import { useSearchParams } from 'react-router-dom';
+
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -7,6 +9,12 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import ExpenseNewForm from '../vehicle-expense-form';
 
 export function VehicleExpenseCreateView() {
+  const [searchParams] = useSearchParams();
+  const vehicleId = searchParams.get('vehicle');
+  const vehicleNo = searchParams.get('vehicleNo');
+
+  const currentExpense = vehicleId ? { vehicleId: { _id: vehicleId, vehicleNo } } : undefined;
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +27,7 @@ export function VehicleExpenseCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ExpenseNewForm />
+      <ExpenseNewForm currentExpense={currentExpense} />
     </DashboardContent>
   );
 }
