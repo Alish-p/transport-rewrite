@@ -329,6 +329,7 @@ export default function VehicleDocumentFormDialog({
           selectedVehicle={selectedVehicle}
           onVehicleChange={setSelectedVehicle}
           onlyOwn
+          onlyActive
         />
       )}
     </Dialog>

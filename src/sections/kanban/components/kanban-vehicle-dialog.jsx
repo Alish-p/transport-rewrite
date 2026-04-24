@@ -215,7 +215,7 @@ export function KanbanVehicleDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const hasActiveFilters = onlyOwn || onlyMarket;
+  const hasActiveFilters = onlyOwn || onlyMarket || onlyActive;
 
   const createVehicle = useCreateVehicle();
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
@@ -304,6 +304,19 @@ export function KanbanVehicleDialog({
                   label="Market only"
                   size="small"
                   color="warning"
+                  variant="soft"
+                  sx={{ cursor: 'default' }}
+                />
+              </Tooltip>
+            )}
+
+            {onlyActive && (
+              <Tooltip title="Showing only active vehicles" arrow>
+                <Chip
+                  icon={<Iconify icon="mdi:check-circle" width={16} />}
+                  label="Active only"
+                  size="small"
+                  color="success"
                   variant="soft"
                   sx={{ cursor: 'default' }}
                 />
