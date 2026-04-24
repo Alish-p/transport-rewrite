@@ -43,7 +43,7 @@ export default function InvoiceTableFiltersResult({
   };
 
   const handleRemoveIsActive = () => {
-    onFilters('isActive', 'all');
+    onFilters('isActive', '');
   };
 
   return (
@@ -94,11 +94,11 @@ export default function InvoiceTableFiltersResult({
           </Block>
         )}
 
-        {filters.isActive && filters.isActive !== 'all' && (
+        {filters.isActive && (
           <Block label="Status:">
             <Chip
               size="small"
-              label={filters.isActive === 'active' ? 'Active' : 'Inactive'}
+              label={filters.isActive === 'true' ? 'Active' : 'Inactive'}
               onDelete={handleRemoveIsActive}
             />
           </Block>

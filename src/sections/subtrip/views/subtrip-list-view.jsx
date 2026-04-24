@@ -48,6 +48,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { SUBTRIP_STATUS_COLORS } from '../constants';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
 import SubtripTableToolbar from '../active-list/subtrip-table-toolbar';
@@ -189,31 +190,31 @@ export function SubtripListView() {
     // {
     //   value: 'in-queue',
     //   label: 'In-queue',
-    //   color: 'error',
+    //   color: SUBTRIP_STATUS_COLORS['in-queue'] || 'default',
     //   count: statusCounts['in-queue'],
     // },
     {
       value: 'loaded',
       label: 'Loaded',
-      color: 'success',
+      color: SUBTRIP_STATUS_COLORS.loaded || 'success',
       count: statusCounts.loaded,
     },
     {
       value: 'received',
       label: 'Recieved',
-      color: 'success',
+      color: SUBTRIP_STATUS_COLORS.received || 'success',
       count: statusCounts.received,
     },
     {
       value: 'error',
       label: 'Error',
-      color: 'error',
+      color: SUBTRIP_STATUS_COLORS.error || 'error',
       count: statusCounts.error,
     },
     {
       value: 'billed',
       label: 'Billed',
-      color: 'success',
+      color: SUBTRIP_STATUS_COLORS.billed || 'success',
       count: statusCounts.billed,
     },
   ];

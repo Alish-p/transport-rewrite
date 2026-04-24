@@ -65,24 +65,11 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       const value = row.isOwn ? 'Own' : 'Market';
       return (
-        <Label variant="soft" color={value === 'Own' ? 'secondary' : 'warning'}>
+        <Label variant="soft" color={value === 'Own' ? 'primary' : 'secondary'}>
           {value}
         </Label>
       );
     },
-  },
-  {
-    id: 'isActive',
-    label: 'Status',
-    defaultVisible: true,
-    disabled: false,
-    align: 'center',
-    getter: (row) => (row.isActive ? 'Active' : 'Inactive'),
-    render: (row) => (
-      <Label variant="soft" color={row.isActive ? 'success' : 'error'}>
-        {row.isActive ? 'Active' : 'Inactive'}
-      </Label>
-    ),
   },
   {
     id: 'transporter',
@@ -155,10 +142,23 @@ export const TABLE_COLUMNS = [
   {
     id: 'fuelTankCapacity',
     label: 'Fuel Tank Capacity',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row.fuelTankCapacity || '-',
+  },
+  {
+    id: 'isActive',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => (row.isActive ? 'Active' : 'Inactive'),
+    render: (row) => (
+      <Label variant="soft" color={row.isActive ? 'success' : 'error'}>
+        {row.isActive ? 'Active' : 'Inactive'}
+      </Label>
+    ),
   },
   {
     id: 'vehicleCompany',

@@ -1,8 +1,9 @@
-import { Link, Tooltip, ListItemText } from '@mui/material';
+import { Link, Tooltip, Typography, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { wrapText } from 'src/utils/change-case';
 import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
@@ -74,6 +75,19 @@ export const TABLE_COLUMNS = [
         </Link>
       );
     },
+  },
+  {
+    id: 'vehicleOwnership',
+    label: 'Vehicle Ownership',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => (row?.vehicleId?.isOwn ? 'Own' : 'Market'),
+    align: 'center',
+    render: (row) => (
+      <Label variant="soft" color={row?.vehicleId?.isOwn ? 'primary' : 'secondary'}>
+        {row?.vehicleId?.isOwn ? 'Own' : 'Market'}
+      </Label>
+    ),
   },
   {
     id: 'driver',
@@ -148,6 +162,20 @@ export const TABLE_COLUMNS = [
         ? `${row.loadingPoint} → ${row.unloadingPoint}`
         : '-',
     align: 'center',
+    render: (row) => {
+      const routeText =
+        row?.loadingPoint && row?.unloadingPoint
+          ? `${row.loadingPoint} → ${row.unloadingPoint}`
+          : '-';
+
+      if (routeText === '-') return routeText;
+
+      return (
+        <Tooltip title={routeText} arrow placement="top">
+          <div>{wrapText(routeText, 40)}</div>
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'ewayBill',
@@ -375,11 +403,19 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => {
+      if (row?.vehicleId?.isOwn === false) return 'N.A.';
       if (!row?.expenses || row.expenses.length === 0) return fNumber(0);
       const total = row.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
       return fNumber(total);
     },
     render: (row) => {
+      if (row?.vehicleId?.isOwn === false) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            N.A.
+          </Typography>
+        );
+      }
       if (!row?.expenses || row.expenses.length === 0) return fNumber(0);
       const total = row.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
       return (
@@ -396,11 +432,19 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => {
+      if (row?.vehicleId?.isOwn === true) return 'N.A.';
       if (!row?.advances || row.advances.length === 0) return fNumber(0);
       const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
       return fNumber(total);
     },
     render: (row) => {
+      if (row?.vehicleId?.isOwn === true) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            N.A.
+          </Typography>
+        );
+      }
       if (!row?.advances || row.advances.length === 0) return fNumber(0);
       const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
       return (

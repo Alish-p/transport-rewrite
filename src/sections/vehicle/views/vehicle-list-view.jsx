@@ -68,7 +68,7 @@ const defaultFilters = {
   vehicleType: '',
   noOfTyres: '',
   isOwn: 'all',
-  isActive: 'all',
+  isActive: '',
 };
 
 export function VehicleListView() {
@@ -122,7 +122,7 @@ export function VehicleListView() {
     noOfTyres: filters.noOfTyres || undefined,
     transporter: filters.transporter || undefined,
     isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
-    isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
+    isActive: filters.isActive || undefined,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -168,10 +168,10 @@ export function VehicleListView() {
   const renderTabs = () => {
     const TABS = [
       { value: 'all', label: 'All', color: 'default', count: data?.total },
-      { value: 'own', label: 'Own', color: 'success', count: data?.totalOwnVehicle },
+      { value: 'own', label: 'Own', color: 'primary', count: data?.totalOwnVehicle },
     ];
     if (managesMarketVehicles) {
-      TABS.push({ value: 'market', label: 'Market', color: 'warning', count: data?.totalMarketVehicle });
+      TABS.push({ value: 'market', label: 'Market', color: 'secondary', count: data?.totalMarketVehicle });
     }
 
     return (
@@ -412,7 +412,7 @@ export function VehicleListView() {
                               noOfTyres: filters.noOfTyres || undefined,
                               transporter: filters.transporter || undefined,
                               isOwn: filters.isOwn === 'all' ? undefined : filters.isOwn === 'own',
-                              isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
+                              isActive: filters.isActive || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

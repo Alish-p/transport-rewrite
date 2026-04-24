@@ -18,6 +18,7 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -249,10 +250,14 @@ export default function SubtripFiltersDrawer({
                                 labelId="subtrip-vehicle-ownership-select-label"
                                 MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
                             >
-                                <MenuItem value="">All</MenuItem>
-                                <Divider sx={{ borderStyle: 'dashed' }} />
-                                {hasMarketVehicles && <MenuItem value="Market">Market</MenuItem>}
-                                <MenuItem value="Own">Own</MenuItem>
+                                {hasMarketVehicles && (
+                                    <MenuItem value="Market">
+                                        <Label variant="soft" color="secondary">Market</Label>
+                                    </MenuItem>
+                                )}
+                                <MenuItem value="Own">
+                                    <Label variant="soft" color="primary">Own</Label>
+                                </MenuItem>
                             </Select>
                         </FormControl>
 
@@ -268,10 +273,12 @@ export default function SubtripFiltersDrawer({
                                     labelId="subtrip-transporter-payment-select-label"
                                     MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
                                 >
-                                    <MenuItem value="">All</MenuItem>
-                                    <Divider sx={{ borderStyle: 'dashed' }} />
-                                    <MenuItem value="yes">Yes</MenuItem>
-                                    <MenuItem value="no">No</MenuItem>
+                                    <MenuItem value="yes">
+                                        <Label variant="soft" color="success">Yes</Label>
+                                    </MenuItem>
+                                    <MenuItem value="no">
+                                        <Label variant="soft" color="error">No</Label>
+                                    </MenuItem>
                                 </Select>
                             </FormControl>
                         )}
@@ -285,10 +292,12 @@ export default function SubtripFiltersDrawer({
                                 labelId="subtrip-epod-signed-select-label"
                                 MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
                             >
-                                <MenuItem value="">All</MenuItem>
-                                <Divider sx={{ borderStyle: 'dashed' }} />
-                                <MenuItem value="yes">Yes</MenuItem>
-                                <MenuItem value="no">No</MenuItem>
+                                <MenuItem value="yes">
+                                    <Label variant="soft" color="success">Yes</Label>
+                                </MenuItem>
+                                <MenuItem value="no">
+                                    <Label variant="soft" color="error">No</Label>
+                                </MenuItem>
                             </Select>
                         </FormControl>
 
@@ -301,10 +310,13 @@ export default function SubtripFiltersDrawer({
                                 labelId="subtrip-shortage-select-label"
                                 MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
                             >
-                                <MenuItem value="">All</MenuItem>
-                                <Divider sx={{ borderStyle: 'dashed' }} />
-                                <MenuItem value="yes">Has Shortage</MenuItem>
-                                <MenuItem value="no">No shortage</MenuItem>
+                                <MenuItem value="no">
+                                    <Label variant="soft" color="success">No shortage</Label>
+                                </MenuItem>
+                                <MenuItem value="yes">
+                                    <Label variant="soft" color="error">Has Shortage</Label>
+                                </MenuItem>
+
                             </Select>
                         </FormControl>
 

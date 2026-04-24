@@ -16,6 +16,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -148,14 +149,17 @@ export default function VehicleTableToolbar({
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
           <InputLabel id="is-active-select-label">Status</InputLabel>
           <Select
-            value={filters.isActive || 'all'}
+            value={filters.isActive || ''}
             onChange={handleFilterIsActive}
             input={<OutlinedInput label="Status" />}
             labelId="is-active-select-label"
           >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
+            <MenuItem value="true">
+              <Label variant="soft" color="success">Active</Label>
+            </MenuItem>
+            <MenuItem value="false">
+              <Label variant="soft" color="error">In Active</Label>
+            </MenuItem>
           </Select>
         </FormControl>
 
