@@ -120,6 +120,8 @@ export const WorkOrderSchema = zod.object({
     zod.number().nonnegative().optional()
   ),
   description: zod.string().optional(),
+  workshopName: zod.string().optional(),
+  billNo: zod.string().optional(),
   issues: zod.array(WorkOrderIssueSchema).min(1, { message: 'At least 1 issue is required' }),
   parts: zod.array(WorkOrderLineSchema).optional(),
 });
@@ -166,6 +168,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           ? currentWorkOrder.labourCharge
           : 0,
       description: currentWorkOrder?.description || '',
+      workshopName: currentWorkOrder?.workshopName || '',
+      billNo: currentWorkOrder?.billNo || '',
       issues: (() => {
         if (!currentWorkOrder?.issues) return [];
         return currentWorkOrder.issues.map((issue) => {
@@ -660,6 +664,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             </MenuItem>
           ))}
         </Field.Select>
+
+        {isExternalWorkshop && (
+          <>
+            <Field.Text name="workshopName" label="Workshop Name" placeholder="Optional" fullWidth />
+            <Field.Text name="billNo" label="Bill No." placeholder="Optional" fullWidth />
+          </>
+        )}
       </Stack>
     </Card>
   );

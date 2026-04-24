@@ -85,6 +85,8 @@ export function WorkOrderDetailView({ workOrder }) {
     createdAt,
     issues = [],
     expenseAdded,
+    workshopName,
+    billNo,
   } = workOrder || {};
 
   const statusLabel = WORK_ORDER_STATUS_LABELS[status] || status || 'Unknown';
@@ -350,6 +352,23 @@ export function WorkOrderDetailView({ workOrder }) {
               <Typography variant="subtitle2">{priorityLabel}</Typography>
             </Stack>
           </Stack>
+
+          {category === 'External Workshop' && (
+            <>
+              <Stack sx={{ width: 1 }}>
+                <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                  Workshop Name
+                </Typography>
+                <Typography variant="subtitle2">{workshopName || '-'}</Typography>
+              </Stack>
+              <Stack sx={{ width: 1 }}>
+                <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                  Bill No.
+                </Typography>
+                <Typography variant="subtitle2">{billNo || '-'}</Typography>
+              </Stack>
+            </>
+          )}
         </Stack>
 
         <Box sx={{ mt: 4 }}>
