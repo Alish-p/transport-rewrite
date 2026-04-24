@@ -554,7 +554,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   total={incomeTotal}
                   description={incomeDescription}
                   badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
-                  badgeColor={isMarketVehicle ? 'warning' : 'success'}
+                  badgeColor={isMarketVehicle ? 'secondary' : 'primary'}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
@@ -567,7 +567,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   total={-totalExpenses || 0}
                   description={expenseDescription}
                   badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
-                  badgeColor={isMarketVehicle ? 'warning' : 'success'}
+                  badgeColor={isMarketVehicle ? 'secondary' : 'primary'}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}

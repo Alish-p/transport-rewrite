@@ -172,7 +172,9 @@ export const TABLE_COLUMNS = [
 
       return (
         <Tooltip title={routeText} arrow placement="top">
-          <div>{wrapText(routeText, 40)}</div>
+          <Typography variant="body2" noWrap sx={{ maxWidth: 230, display: 'inline-block' }}>
+            {wrapText(routeText, 40)}
+          </Typography>
         </Tooltip>
       );
     },

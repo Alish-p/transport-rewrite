@@ -10,10 +10,13 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
@@ -47,6 +50,7 @@ export default function SubtripTableToolbar({
   const columnsPopover = usePopover();
   const filtersDrawer = useBoolean();
 
+  const startRange = useBoolean();
   const transporterDialog = useBoolean();
   const customerDialog = useBoolean();
   const vehicleDialog = useBoolean();
@@ -99,20 +103,6 @@ export default function SubtripTableToolbar({
     [onFilters]
   );
 
-  const handleFilterReferenceSubtripNo = useCallback(
-    (event) => {
-      onFilters('referenceSubtripNo', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterEwayBill = useCallback(
-    (event) => {
-      onFilters('ewayBill', event.target.value);
-    },
-    [onFilters]
-  );
-
   return (
     <>
       <Stack
@@ -126,34 +116,6 @@ export default function SubtripTableToolbar({
           value={filters.subtripNo}
           onChange={handleFilterSubtripId}
           placeholder="Job ID"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.referenceSubtripNo}
-          onChange={handleFilterReferenceSubtripNo}
-          placeholder="Reference Job No"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.ewayBill || ''}
-          onChange={handleFilterEwayBill}
-          placeholder="E-way Bill No"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -177,6 +139,24 @@ export default function SubtripTableToolbar({
           selected={selectedCustomer?.customerName}
           placeholder="Customer"
           iconName="mdi:office-building"
+        />
+
+        <DialogSelectButton
+          onClick={vehicleDialog.onTrue}
+          selected={selectedVehicle?.vehicleNo}
+          placeholder="Vehicle"
+          iconName="mdi:truck"
+        />
+
+        <DialogSelectButton
+          onClick={startRange.onTrue}
+          selected={
+            filters.fromDate && filters.toDate
+              ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+              : undefined
+          }
+          placeholder="Dispatch Date Range"
+          iconName="mdi:calendar"
         />
 
         <Button
@@ -261,6 +241,16 @@ export default function SubtripTableToolbar({
         onClose={driverDialog.onFalse}
         selectedDriver={selectedDriver}
         onDriverChange={handleSelectDriver}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={startRange.value}
+        onClose={startRange.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.toDate}
+        onChangeStartDate={(date) => onFilters('fromDate', date)}
+        onChangeEndDate={(date) => onFilters('toDate', date)}
       />
     </>
   );
