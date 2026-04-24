@@ -133,7 +133,7 @@ export default function PurchaseOrderTableToolbar({
         <DialogSelectButton
           onClick={vendorDialog.onTrue}
           selected={selectedVendor?.name}
-          placeholder="Filter by vendor"
+          placeholder="Vendor"
           iconName="mdi:office-building"
           sx={{ maxWidth: 260 }}
         />
@@ -141,7 +141,7 @@ export default function PurchaseOrderTableToolbar({
         <DialogSelectButton
           onClick={partDialog.onOpen}
           selected={selectedPart?.name}
-          placeholder="Filter by part"
+          placeholder="Part"
           iconName="mdi:cube"
           sx={{ maxWidth: 260 }}
         />
@@ -168,7 +168,7 @@ export default function PurchaseOrderTableToolbar({
               ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
               : undefined
           }
-          placeholder="Filter by date range"
+          placeholder="Date Range"
           iconName="mdi:calendar"
           sx={{ maxWidth: 260 }}
         />
