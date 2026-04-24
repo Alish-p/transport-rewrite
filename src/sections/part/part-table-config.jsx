@@ -14,6 +14,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
+
 import { Label } from 'src/components/label';
 
 function StockLevelIndicator({ quantity, threshold, unit }) {

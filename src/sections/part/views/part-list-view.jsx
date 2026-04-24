@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -58,7 +58,7 @@ const defaultFilters = {
   search: '',
   category: 'all',
   manufacturer: 'all',
-  status: 'all',
+  status: '',
 };
 
 export function PartListView() {
@@ -90,11 +90,14 @@ export function PartListView() {
     { staleTime: 1000 * 60 * 10 }
   );
 
-  const locations =
-    locationsResponse?.locations ||
-    locationsResponse?.partLocations ||
-    locationsResponse?.results ||
-    [];
+  const locations = useMemo(
+    () =>
+      locationsResponse?.locations ||
+      locationsResponse?.partLocations ||
+      locationsResponse?.results ||
+      [],
+    [locationsResponse]
+  );
 
   const [activeLocationId, setActiveLocationId] = useState('');
 
@@ -110,7 +113,7 @@ export function PartListView() {
     category: filters.category && filters.category !== 'all' ? filters.category : undefined,
     manufacturer:
       filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
-    status: filters.status && filters.status !== 'all' ? filters.status : undefined,
+    status: filters.status || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -340,7 +343,7 @@ export function PartListView() {
                               category: filters.category && filters.category !== 'all' ? filters.category : undefined,
                               manufacturer:
                                 filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
-                              status: filters.status && filters.status !== 'all' ? filters.status : undefined,
+                              status: filters.status || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

@@ -12,8 +12,6 @@ export default function PartTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
-  selectedLocationName,
-  onRemoveLocation,
   ...other
 }) {
   const handleRemoveSearch = () => {
@@ -29,7 +27,7 @@ export default function PartTableFiltersResult({
   };
 
   const handleRemoveStatus = () => {
-    onFilters('status', 'all');
+    onFilters('status', '');
   };
 
   return (
@@ -60,12 +58,12 @@ export default function PartTableFiltersResult({
           </Block>
         )}
 
-        {filters.status && filters.status !== 'all' && (
+        {filters.status && (
           <Block label="Stock Status:">
-            <Chip 
-              size="small" 
-              label={filters.status === 'inStock' ? 'In stock' : filters.status === 'lowStock' ? 'Low stock' : 'Out Of Stock'} 
-              onDelete={handleRemoveStatus} 
+            <Chip
+              size="small"
+              label={filters.status === 'inStock' ? 'In stock' : filters.status === 'lowStock' ? 'Low stock' : 'Out Of Stock'}
+              onDelete={handleRemoveStatus}
             />
           </Block>
         )}

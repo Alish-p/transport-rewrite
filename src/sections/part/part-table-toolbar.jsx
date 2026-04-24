@@ -4,11 +4,12 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -17,10 +18,9 @@ import { TABLE_COLUMNS } from './part-table-config';
 import { PART_CATEGORIES, PART_MANUFACTURERS } from './part-constant';
 
 const STOCK_STATUS_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'inStock', label: 'In stock' },
-  { value: 'lowStock', label: 'Low stock' },
-  { value: 'outOfStock', label: 'Out Of Stock' },
+  { value: 'inStock', label: 'In stock', color: 'success' },
+  { value: 'lowStock', label: 'Low stock', color: 'warning' },
+  { value: 'outOfStock', label: 'Out Of Stock', color: 'error' },
 ];
 
 export default function PartTableToolbar({
@@ -113,7 +113,7 @@ export default function PartTableToolbar({
         <TextField
           select
           label="Stock Status"
-          value={filters.status || 'all'}
+          value={filters.status || ''}
           onChange={(event) => {
             onFilters('status', event.target.value);
           }}
@@ -121,7 +121,9 @@ export default function PartTableToolbar({
         >
           {STOCK_STATUS_OPTIONS.map((option) => (
             <MenuItem key={option.value} value={option.value}>
-              {option.label}
+              <Label variant="soft" color={option.color}>
+                {option.label}
+              </Label>
             </MenuItem>
           ))}
         </TextField>
