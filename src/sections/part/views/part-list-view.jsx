@@ -58,6 +58,7 @@ const defaultFilters = {
   search: '',
   category: 'all',
   manufacturer: 'all',
+  status: 'all',
 };
 
 export function PartListView() {
@@ -109,6 +110,7 @@ export function PartListView() {
     category: filters.category && filters.category !== 'all' ? filters.category : undefined,
     manufacturer:
       filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
+    status: filters.status && filters.status !== 'all' ? filters.status : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -338,6 +340,7 @@ export function PartListView() {
                               category: filters.category && filters.category !== 'all' ? filters.category : undefined,
                               manufacturer:
                                 filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
+                              status: filters.status && filters.status !== 'all' ? filters.status : undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

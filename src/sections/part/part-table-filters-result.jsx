@@ -28,6 +28,10 @@ export default function PartTableFiltersResult({
     onFilters('manufacturer', 'all');
   };
 
+  const handleRemoveStatus = () => {
+    onFilters('status', 'all');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -53,6 +57,16 @@ export default function PartTableFiltersResult({
         {filters.manufacturer && filters.manufacturer !== 'all' && (
           <Block label="Manufacturer:">
             <Chip size="small" label={filters.manufacturer} onDelete={handleRemoveManufacturer} />
+          </Block>
+        )}
+
+        {filters.status && filters.status !== 'all' && (
+          <Block label="Stock Status:">
+            <Chip 
+              size="small" 
+              label={filters.status === 'inStock' ? 'In stock' : filters.status === 'lowStock' ? 'Low stock' : 'Out Of Stock'} 
+              onDelete={handleRemoveStatus} 
+            />
           </Block>
         )}
 

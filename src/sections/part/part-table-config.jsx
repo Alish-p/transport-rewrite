@@ -1,15 +1,60 @@
 import React from 'react';
 
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
+import { alpha, useTheme } from '@mui/material/styles';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
+import { Label } from 'src/components/label';
+
+function StockLevelIndicator({ quantity, threshold, unit }) {
+  const theme = useTheme();
+
+  const percentage = threshold > 0 ? Math.min((quantity / threshold) * 100, 100) : 100;
+  const isLow = quantity < threshold && quantity > 0;
+  const isOut = quantity === 0;
+
+  let color = theme.palette.success.main;
+  if (isOut) color = theme.palette.error.main;
+  else if (isLow) color = theme.palette.warning.main;
+
+  return (
+    <Tooltip title={`${quantity} ${unit} / Threshold: ${threshold} ${unit}`} arrow placement="top">
+      <Box sx={{ width: '100%', maxWidth: 140 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+            {quantity}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {unit}
+          </Typography>
+        </Stack>
+        <LinearProgress
+          variant="determinate"
+          value={percentage}
+          sx={{
+            height: 6,
+            borderRadius: 1,
+            bgcolor: alpha(color, 0.16),
+            '& .MuiLinearProgress-bar': {
+              borderRadius: 1,
+              bgcolor: color,
+            },
+          }}
+        />
+      </Box>
+    </Tooltip>
+  );
+}
 
 export const TABLE_COLUMNS = [
   {
@@ -66,10 +111,41 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'quantity',
-    label: 'Quantity',
+    label: 'Stock Level',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.totalQuantity,
+    render: (row) => (
+      <StockLevelIndicator
+        quantity={row.totalQuantity || 0}
+        threshold={row.threshold || 0}
+        unit={row.measurementUnit || 'units'}
+      />
+    ),
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => {
+      const isLowStock = row.totalQuantity < row.threshold;
+      const isOutOfStock = row.totalQuantity === 0;
+      return isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock';
+    },
+    render: (row) => {
+      const isLowStock = row.totalQuantity < row.threshold;
+      const isOutOfStock = row.totalQuantity === 0;
+      return (
+        <Label
+          variant="soft"
+          color={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'}
+        >
+          {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
+        </Label>
+      );
+    },
   },
   {
     id: 'measurementUnit',
