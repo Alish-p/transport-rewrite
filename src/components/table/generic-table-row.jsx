@@ -26,6 +26,7 @@ export function GenericTableRow({
   onViewRow,
   onEditRow,
   onDeleteRow,
+  customActions = [],
   visibleColumns = {},
   disabledColumns = {},
   columnOrder = [],
@@ -34,7 +35,7 @@ export function GenericTableRow({
   const confirm = useBoolean();
   const popover = usePopover();
 
-  const hasActions = !!(onViewRow || onEditRow || onDeleteRow);
+  const hasActions = !!(onViewRow || onEditRow || onDeleteRow || customActions.length > 0);
 
   const orderedColumns =
     columnOrder.length > 0
@@ -113,6 +114,22 @@ export function GenericTableRow({
                 Edit
               </MenuItem>
             )}
+
+            {customActions.length > 0 && <Divider sx={{ borderStyle: 'dashed' }} />}
+
+            {customActions.map((action, index) => (
+              <MenuItem
+                key={action.label || index}
+                onClick={() => {
+                  action.onClick(row);
+                  popover.onClose();
+                }}
+                sx={{ color: action.color || 'inherit' }}
+              >
+                {action.icon && <Iconify icon={action.icon} />}
+                {action.label}
+              </MenuItem>
+            ))}
 
             {onDeleteRow && <Divider sx={{ borderStyle: 'dashed' }} />}
 

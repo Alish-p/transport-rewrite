@@ -36,7 +36,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { ICONS } from 'src/assets/data/icons';
 import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
+import { useDeleteVehicle, useUpdateVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -78,6 +78,7 @@ export function VehicleListView() {
   const router = useRouter();
   const navigate = useNavigate();
   const deleteVehicle = useDeleteVehicle();
+  const updateVehicle = useUpdateVehicle();
   const table = useTable({ syncToUrl: true });
   const cleanupDialog = useBoolean();
   const learn = useBoolean();
@@ -508,6 +509,9 @@ export function VehicleListView() {
                       onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
                       onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
                       onDeleteRow={() => deleteVehicle(row._id)}
+                      onToggleActive={(id, newStatus) =>
+                        updateVehicle({ id, data: { isActive: newStatus } })
+                      }
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}
                       columnOrder={columnOrder}
