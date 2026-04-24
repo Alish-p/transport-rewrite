@@ -28,14 +28,6 @@ export default function PartTableFiltersResult({
     onFilters('manufacturer', 'all');
   };
 
-  const handleRemoveLocation = () => {
-    if (onRemoveLocation) {
-      onRemoveLocation();
-    } else {
-      onFilters('inventoryLocation', 'all');
-    }
-  };
-
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -61,16 +53,6 @@ export default function PartTableFiltersResult({
         {filters.manufacturer && filters.manufacturer !== 'all' && (
           <Block label="Manufacturer:">
             <Chip size="small" label={filters.manufacturer} onDelete={handleRemoveManufacturer} />
-          </Block>
-        )}
-
-        {filters.inventoryLocation && filters.inventoryLocation !== 'all' && (
-          <Block label="Inventory Location:">
-            <Chip
-              size="small"
-              label={selectedLocationName || filters.inventoryLocation}
-              onDelete={handleRemoveLocation}
-            />
           </Block>
         )}
 

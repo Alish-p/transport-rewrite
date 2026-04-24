@@ -56,7 +56,6 @@ const STORAGE_KEY = 'part-table-columns';
 
 const defaultFilters = {
   search: '',
-  inventoryLocation: 'all',
   category: 'all',
   manufacturer: 'all',
 };
@@ -85,19 +84,6 @@ export function PartListView() {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const { data, isLoading } = usePaginatedParts({
-    search: filters.search || undefined,
-    inventoryLocation:
-      filters.inventoryLocation && filters.inventoryLocation !== 'all'
-        ? filters.inventoryLocation
-        : undefined,
-    category: filters.category && filters.category !== 'all' ? filters.category : undefined,
-    manufacturer:
-      filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
-    page: table.page + 1,
-    rowsPerPage: table.rowsPerPage,
-  });
-
   const { data: locationsResponse, isLoading: isLoadingLocations } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
@@ -108,6 +94,24 @@ export function PartListView() {
     locationsResponse?.partLocations ||
     locationsResponse?.results ||
     [];
+
+  const [activeLocationId, setActiveLocationId] = useState('');
+
+  useEffect(() => {
+    if (locations.length > 0 && !activeLocationId) {
+      setActiveLocationId(locations[0]._id);
+    }
+  }, [locations, activeLocationId]);
+
+  const { data, isLoading } = usePaginatedParts({
+    search: filters.search || undefined,
+    inventoryLocation: activeLocationId || undefined,
+    category: filters.category && filters.category !== 'all' ? filters.category : undefined,
+    manufacturer:
+      filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+  });
 
   const [tableData, setTableData] = useState([]);
   const [selectAllMode, setSelectAllMode] = useState(false);
@@ -125,10 +129,6 @@ export function PartListView() {
   const totalInventoryValue = data?.totalInventoryValue || 0;
   const totalQuantityItems = data?.totalQuantityItems || 0;
   const outOfStockItems = data?.outOfStockItems || 0;
-  const selectedLocationName =
-    filters.inventoryLocation && filters.inventoryLocation !== 'all'
-      ? locations.find((loc) => loc._id === filters.inventoryLocation)?.name
-      : '';
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -159,18 +159,11 @@ export function PartListView() {
 
   const handleFilterLocation = useCallback(
     (event, newValue) => {
-      handleFilters('inventoryLocation', newValue);
+      setActiveLocationId(newValue);
+      table.onResetPage();
     },
-    [handleFilters]
+    [table]
   );
-
-  const locationTabs = [
-    { value: 'all', label: 'All' },
-    ...locations.map((loc) => ({
-      value: loc._id,
-      label: loc.name,
-    })),
-  ];
 
   return (
     <DashboardContent>
@@ -242,20 +235,32 @@ export function PartListView() {
 
       <Card>
         {/* Location Tabs */}
-        <Tabs
-          value={filters.inventoryLocation}
-          onChange={handleFilterLocation}
-          sx={{
-            px: 2.5,
-            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-          }}
-          variant="scrollable"
-          scrollButtons="auto"
-        >
-          {locationTabs.map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} disabled={isLoadingLocations} />
-          ))}
-        </Tabs>
+        {isLoadingLocations ? (
+          <Stack direction="row" justifyContent="center" sx={{ py: 3 }}>
+            <CircularProgress size={24} />
+          </Stack>
+        ) : locations.length > 0 ? (
+          <Tabs
+            value={activeLocationId}
+            onChange={handleFilterLocation}
+            sx={{
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+            variant="scrollable"
+            scrollButtons="auto"
+          >
+            {locations.map((loc) => (
+              <Tab key={loc._id} value={loc._id} label={loc.name} />
+            ))}
+          </Tabs>
+        ) : (
+          <Stack sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="subtitle1" color="text.secondary">
+              No part locations found. Please create a location first.
+            </Typography>
+          </Stack>
+        )}
 
         <PartTableToolbar
           filters={filters}
@@ -273,7 +278,6 @@ export function PartListView() {
             filters={filters}
             onFilters={handleFilters}
             onResetFilters={handleResetFilters}
-            selectedLocationName={selectedLocationName}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -330,10 +334,7 @@ export function PartListView() {
                           const response = await axios.get('/api/maintenance/parts/export', {
                             params: {
                               search: filters.search || undefined,
-                              inventoryLocation:
-                                filters.inventoryLocation && filters.inventoryLocation !== 'all'
-                                  ? filters.inventoryLocation
-                                  : undefined,
+                              inventoryLocation: activeLocationId || undefined,
                               category: filters.category && filters.category !== 'all' ? filters.category : undefined,
                               manufacturer:
                                 filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
