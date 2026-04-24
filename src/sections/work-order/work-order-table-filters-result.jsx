@@ -58,7 +58,7 @@ export default function WorkOrderTableFiltersResult({
   };
 
   const handleRemoveExpenseAdded = () => {
-    onFilters('expenseAdded', 'all');
+    onFilters('expenseAdded', '');
   };
 
   const handleRemoveStartDate = () => {
@@ -157,7 +157,7 @@ export default function WorkOrderTableFiltersResult({
           </Block>
         )}
 
-        {filters.expenseAdded && filters.expenseAdded !== 'all' && (
+        {filters.expenseAdded && (
           <Block label="Expense Status :">
             <Chip
               size="small"

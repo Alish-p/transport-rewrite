@@ -4,11 +4,13 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -123,27 +125,26 @@ export default function WorkOrderTableToolbar({
           flexWrap: 'wrap',
         }}
       >
-        <Autocomplete
-          fullWidth
-          options={[
-            { value: 'all', label: 'All Expenses' },
-            { value: 'true', label: 'Added' },
-            { value: 'false', label: 'Not Added' },
-          ]}
-          getOptionLabel={(option) => option.label}
-          value={
-            [
-              { value: 'all', label: 'All Expenses' },
-              { value: 'true', label: 'Added' },
-              { value: 'false', label: 'Not Added' },
-            ].find((opt) => opt.value === filters.expenseAdded) || { value: 'all', label: 'All Expenses' }
-          }
-          onChange={(event, newValue) => {
-            onFilters('expenseAdded', newValue?.value || 'all');
+        <TextField
+          select
+          label="Expense Status"
+          value={filters.expenseAdded || ''}
+          onChange={(event) => {
+            onFilters('expenseAdded', event.target.value);
           }}
-          renderInput={(params) => <TextField {...params} label="Expense Status" />}
           sx={{ width: { xs: 1, md: 170 } }}
-        />
+        >
+          {[
+            { value: 'true', label: 'Added', color: 'success' },
+            { value: 'false', label: 'Not Added', color: 'error' },
+          ].map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              <Label variant="soft" color={option.color}>
+                {option.label}
+              </Label>
+            </MenuItem>
+          ))}
+        </TextField>
 
         <Autocomplete
           fullWidth

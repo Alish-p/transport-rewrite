@@ -74,15 +74,17 @@ export const TABLE_COLUMNS = [
           <ListItemText
             disableTypography
             primary={
-              <Link
-                component={RouterLink}
-                to={paths.dashboard.part.details(row._id)}
-                variant="body2"
-                noWrap
-                sx={{ color: 'primary.main' }}
-              >
-                {value}
-              </Link>
+              <Tooltip title={value} placement="top" arrow>
+                <Link
+                  component={RouterLink}
+                  to={paths.dashboard.part.details(row._id)}
+                  variant="body2"
+                  noWrap
+                  sx={{ color: 'primary.main' }}
+                >
+                  {wrapText(value, 40)}
+                </Link>
+              </Tooltip>
             }
           />
         </div>
