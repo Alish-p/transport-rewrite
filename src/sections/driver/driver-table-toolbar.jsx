@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -82,24 +83,30 @@ export default function DriverTableToolbar({
             fullWidth
             select
             label="Driver Type"
-            value={filters.driverType}
+            value={filters.driverType || ''}
             onChange={handleFilterDriverType}
           >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="Own">Own</MenuItem>
-            <MenuItem value="Market">Market</MenuItem>
+            <MenuItem value="Own">
+              <Label variant="soft" color="primary">Own</Label>
+            </MenuItem>
+            <MenuItem value="Market">
+              <Label variant="soft" color="secondary">Market</Label>
+            </MenuItem>
           </TextField>
 
           <TextField
             fullWidth
             select
             label="Active"
-            value={filters.isActive || 'all'}
+            value={filters.isActive || ''}
             onChange={handleFilterIsActive}
           >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
+            <MenuItem value="true">
+              <Label variant="soft" color="success">Active</Label>
+            </MenuItem>
+            <MenuItem value="false">
+              <Label variant="soft" color="error">In Active</Label>
+            </MenuItem>
           </TextField>
         </Box>
 

@@ -51,7 +51,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.type,
     render: ({ type }) =>
       type ? (
-        <Label variant="soft" color="info">
+        <Label variant="soft" color={type.toLowerCase() === 'own' ? 'primary' : 'secondary'}>
           {type}
         </Label>
       ) : (

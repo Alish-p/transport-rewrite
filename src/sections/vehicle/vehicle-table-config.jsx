@@ -118,7 +118,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'manufacturingYear',
     label: 'Manufacturing Year',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row.manufacturingYear || '-',
@@ -126,7 +126,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'loadingCapacity',
     label: 'Loading Capacity',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row.loadingCapacity,

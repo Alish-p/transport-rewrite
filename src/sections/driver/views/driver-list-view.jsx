@@ -61,8 +61,8 @@ const STORAGE_KEY = 'driver-table-columns';
 const defaultFilters = {
   search: '',
   status: 'all',
-  driverType: 'all',
-  isActive: 'all',
+  driverType: '',
+  isActive: '',
 };
 
 export function DriverListView() {
@@ -97,8 +97,8 @@ export function DriverListView() {
   const { data, isLoading } = usePaginatedDrivers({
     search: filters.search || undefined,
     status: filters.status,
-    driverType: filters.driverType !== 'all' ? filters.driverType : undefined,
-    isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
+    driverType: filters.driverType || undefined,
+    isActive: filters.isActive || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });
@@ -321,8 +321,8 @@ export function DriverListView() {
                             params: {
                               search: filters.search || undefined,
                               status: filters.status,
-                              driverType: filters.driverType !== 'all' ? filters.driverType : undefined,
-                              isActive: filters.isActive === 'all' ? undefined : filters.isActive === 'active',
+                              driverType: filters.driverType || undefined,
+                              isActive: filters.isActive || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
