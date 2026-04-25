@@ -38,6 +38,7 @@ import {
     TablePaginationCustom,
 } from 'src/components/table';
 
+import { KanbanPartsDialog } from 'src/sections/kanban/components/kanban-parts-dialog';
 import { KanbanContactsDialog } from 'src/sections/kanban/components/kanban-contacts-dialog';
 
 import { useTenantContext } from 'src/auth/tenant';
@@ -58,6 +59,7 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
             toDate: null,
             type: '',
             performedBy: '',
+            part: '',
         }),
         []
     );
@@ -90,10 +92,12 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
 
     const dateDialog = useBoolean();
     const contactsDialog = useBoolean();
+    const partsDialog = useBoolean();
 
     const [performedByAssignees, setPerformedByAssignees] = useState([]);
     const [selectAllMode, setSelectAllMode] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [selectedPart, setSelectedPart] = useState(null);
 
     const { data, isLoading } = usePaginatedInventoryActivities({
         inventoryLocation: locationId,
@@ -101,6 +105,7 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
         toDate: filters.toDate ? filters.toDate.toISOString() : undefined,
         type: filters.type || undefined,
         performedBy: filters.performedBy || undefined,
+        part: filters.part || undefined,
         limit: table.rowsPerPage,
         skip: table.page * table.rowsPerPage,
     });
@@ -122,6 +127,7 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
     const handleResetAllFilters = () => {
         handleResetFilters();
         setPerformedByAssignees([]);
+        setSelectedPart(null);
     };
 
     const performedByLabel =
@@ -157,6 +163,8 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
                     onOpenDateDialog={dateDialog.onTrue}
                     performedByLabel={performedByLabel}
                     onOpenContactsDialog={contactsDialog.onTrue}
+                    onOpenPartsDialog={partsDialog.onTrue}
+                    selectedPart={selectedPart}
                     onResetFilters={handleResetAllFilters}
                     canReset={canReset}
                     visibleColumns={visibleColumns}
@@ -174,6 +182,8 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
                         onResetFilters={handleResetAllFilters}
                         selectedPerformedByLabel={selectedPerformedByLabel}
                         onClearPerformedBy={() => setPerformedByAssignees([])}
+                        selectedPart={selectedPart}
+                        onClearPart={() => setSelectedPart(null)}
                         results={totalCount}
                         sx={{ p: 2.5, pt: 0 }}
                     />
@@ -232,6 +242,7 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
                                                             toDate: filters.toDate ? filters.toDate.toISOString() : undefined,
                                                             type: filters.type || undefined,
                                                             performedBy: filters.performedBy || undefined,
+                                                            part: filters.part || undefined,
                                                             columns: orderedIds.join(','),
                                                         },
                                                         responseType: 'blob',
@@ -359,6 +370,7 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
 
                 <CustomDateRangePicker
                     open={dateDialog.value}
+                    variant='calendar'
                     onClose={dateDialog.onFalse}
                     startDate={filters.fromDate}
                     endDate={filters.toDate}
@@ -379,6 +391,18 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
                         }
                     }}
                     single
+                />
+
+                <KanbanPartsDialog
+                    open={partsDialog.value}
+                    onClose={partsDialog.onFalse}
+                    selectedPart={selectedPart}
+                    onPartChange={(part) => {
+                        setSelectedPart(part);
+                        handleFilters('part', part?._id || '');
+                    }}
+                    hideQuantity
+                    hideCustomItem
                 />
             </Box>
         </Card>

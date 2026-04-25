@@ -22,7 +22,7 @@ import { LoadingSpinner } from 'src/components/loading-spinner';
 
 const ITEM_HEIGHT = 64;
 
-export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartChange }) {
+export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartChange, hideQuantity = false, hideCustomItem = false }) {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 400);
 
@@ -66,7 +66,7 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
   */
 
   const renderCustomOption = () => {
-    if (!debouncedSearch) return null;
+    if (!debouncedSearch || hideCustomItem) return null;
     return (
       <Box
         component="li"
@@ -150,7 +150,7 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
               {parts.length === 0 && !debouncedSearch && (
                 <Box sx={{ textAlign: 'center', mt: 3, mb: 3 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Start typing to search for a part or create a custom item.
+                    Start typing to search for a part{hideCustomItem ? '.' : ' or create a custom item.'}
                   </Typography>
                 </Box>
               )}
@@ -214,9 +214,11 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
                         </Typography>
                       </Box>
                     </Stack>
-                    <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                      {unit ? `${quantity} ${unit}` : quantity}
-                    </Typography>
+                    {!hideQuantity && (
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        {unit ? `${quantity} ${unit}` : quantity}
+                      </Typography>
+                    )}
                   </Box>
                 );
               })}

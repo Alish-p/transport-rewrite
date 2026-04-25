@@ -26,8 +26,8 @@ export default function PartLocationInventoryActivityTableToolbar({
     onOpenDateDialog,
     performedByLabel,
     onOpenContactsDialog,
-    onResetFilters,
-    canReset,
+    onOpenPartsDialog,
+    selectedPart,
     visibleColumns,
     disabledColumns = {},
     onToggleColumn,
@@ -55,7 +55,7 @@ export default function PartLocationInventoryActivityTableToolbar({
                     gap: 2,
                 }}
             >
-                <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} size="small">
+                <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} >
                     <InputLabel id="type-select-label">Type</InputLabel>
                     <Select
                         value={filters.type || ''}
@@ -81,26 +81,23 @@ export default function PartLocationInventoryActivityTableToolbar({
                     sx={{ maxWidth: 200 }}
                 />
 
+                <DialogSelectButton
+                    onClick={onOpenPartsDialog}
+                    placeholder="Part"
+                    selected={selectedPart?.name || null}
+                    iconName="solar:box-minimalistic-bold"
+                    sx={{ maxWidth: 200 }}
+                />
+
                 <Button
                     variant="outlined"
                     startIcon={<Iconify icon="mdi:calendar" />}
                     onClick={onOpenDateDialog}
                     sx={{ px: 2 }}
+                    size='large'
                 >
                     {dateRangeLabel}
                 </Button>
-
-                {canReset && (
-                    <Button
-                        variant="text"
-                        color="secondary"
-                        size="small"
-                        onClick={onResetFilters}
-                        startIcon={<Iconify icon="solar:restart-bold" />}
-                    >
-                        Reset filters
-                    </Button>
-                )}
 
                 <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
                     <Button

@@ -126,18 +126,40 @@ export const PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => row.part?.name || row.partName || '',
-        render: (row) => (
-            <ListItemText
-                primary={row.part?.name || row.partName}
-                secondary={row.part?.partNumber || row.partNumber}
-                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-                secondaryTypographyProps={{
-                    mt: 0.5,
-                    component: 'span',
-                    typography: 'caption',
-                }}
-            />
-        ),
+        render: (row) => {
+            const partId = row.part?._id || row.partId;
+            const partName = row.part?.name || row.partName;
+            const partNumber = row.part?.partNumber || row.partNumber;
+
+            return (
+                <ListItemText
+                    primary={
+                        partId ? (
+                            <Link
+                                component={RouterLink}
+                                href={paths.dashboard.part.details(partId)}
+                                color="primary"
+                                sx={{
+                                    transition: (theme) => theme.transitions.create('all'),
+                                    '&:hover': { textDecoration: 'underline' }
+                                }}
+                            >
+                                {partName}
+                            </Link>
+                        ) : (
+                            partName
+                        )
+                    }
+                    secondary={partNumber}
+                    primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+                    secondaryTypographyProps={{
+                        mt: 0.5,
+                        component: 'span',
+                        typography: 'caption',
+                    }}
+                />
+            );
+        },
     },
     {
         id: 'type',

@@ -18,6 +18,8 @@ export default function PartLocationInventoryActivityTableFiltersResult({
     results,
     selectedPerformedByLabel,
     onClearPerformedBy,
+    selectedPart,
+    onClearPart,
     ...other
 }) {
     const handleRemoveType = () => {
@@ -29,6 +31,13 @@ export default function PartLocationInventoryActivityTableFiltersResult({
             onClearPerformedBy();
         }
         onFilters('performedBy', '');
+    };
+
+    const handleRemovePart = () => {
+        if (onClearPart) {
+            onClearPart();
+        }
+        onFilters('part', '');
     };
 
     const handleRemoveDateRange = () => {
@@ -68,6 +77,16 @@ export default function PartLocationInventoryActivityTableFiltersResult({
                             size="small"
                             label={selectedPerformedByLabel || filters.performedBy}
                             onDelete={handleRemovePerformedBy}
+                        />
+                    </Block>
+                )}
+
+                {filters.part && (
+                    <Block label="Part:">
+                        <Chip
+                            size="small"
+                            label={selectedPart?.name || selectedPart?.partNumber || filters.part}
+                            onDelete={handleRemovePart}
                         />
                     </Block>
                 )}
