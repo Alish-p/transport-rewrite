@@ -1,20 +1,25 @@
+import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
+import axios from 'src/utils/axios';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
@@ -87,6 +92,8 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
     const contactsDialog = useBoolean();
 
     const [performedByAssignees, setPerformedByAssignees] = useState([]);
+    const [selectAllMode, setSelectAllMode] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const { data, isLoading } = usePaginatedInventoryActivities({
         inventoryLocation: locationId,
@@ -177,67 +184,129 @@ export function PartLocationInventoryActivityTab({ locationId, locationName }) {
                         dense={table.dense}
                         numSelected={table.selected.length}
                         rowCount={tableData.length}
-                        onSelectAllRows={(checked) =>
+                        onSelectAllRows={(checked) => {
+                            if (!checked) {
+                                setSelectAllMode(false);
+                            }
                             table.onSelectAllRows(
                                 checked,
                                 tableData.map((row) => row._id)
-                            )
+                            );
+                        }}
+                        label={
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                                <Typography variant="subtitle2">
+                                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                                </Typography>
+
+                                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                                    <Link
+                                        component="button"
+                                        variant="subtitle2"
+                                        onClick={() => {
+                                            setSelectAllMode(true);
+                                        }}
+                                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                                    >
+                                        Select all {totalCount} activities
+                                    </Link>
+                                )}
+                            </Stack>
                         }
                         action={
                             <Stack direction="row">
                                 <Tooltip title="Download Excel">
                                     <IconButton
                                         color="primary"
-                                        onClick={() => {
-                                            const selectedRows = tableData.filter((r) =>
-                                                table.selected.includes(r._id)
-                                            );
-                                            const visibleCols = getVisibleColumnsForExport();
+                                        onClick={async () => {
+                                            if (selectAllMode) {
+                                                try {
+                                                    setIsDownloading(true);
+                                                    toast.info('Export started... Please wait.');
+                                                    const orderedIds = getVisibleColumnsForExport();
 
-                                            exportToExcel(
-                                                prepareDataForExport(
-                                                    selectedRows,
-                                                    PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS,
-                                                    visibleCols,
-                                                    columnOrder
-                                                ),
-                                                'part-location-inventory-activity-list'
-                                            );
+                                                    const response = await axios.get('/api/maintenance/part-stock/export', {
+                                                        params: {
+                                                            inventoryLocation: locationId,
+                                                            fromDate: filters.fromDate ? filters.fromDate.toISOString() : undefined,
+                                                            toDate: filters.toDate ? filters.toDate.toISOString() : undefined,
+                                                            type: filters.type || undefined,
+                                                            performedBy: filters.performedBy || undefined,
+                                                            columns: orderedIds.join(','),
+                                                        },
+                                                        responseType: 'blob',
+                                                    });
+                                                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                                                    const link = document.createElement('a');
+                                                    link.href = url;
+                                                    link.setAttribute('download', 'InventoryActivities.xlsx');
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    link.remove();
+                                                    setIsDownloading(false);
+                                                    toast.success('Export completed!');
+                                                } catch (error) {
+                                                    console.error('Failed to download excel', error);
+                                                    setIsDownloading(false);
+                                                    toast.error('Failed to export inventory activities.');
+                                                }
+                                            } else {
+                                                const selectedRows = tableData.filter((r) =>
+                                                    table.selected.includes(r._id)
+                                                );
+                                                const visibleCols = getVisibleColumnsForExport();
+
+                                                exportToExcel(
+                                                    prepareDataForExport(
+                                                        selectedRows,
+                                                        PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS,
+                                                        visibleCols,
+                                                        columnOrder
+                                                    ),
+                                                    'part-location-inventory-activity-list'
+                                                );
+                                            }
                                         }}
                                     >
-                                        <Iconify icon="file-icons:microsoft-excel" />
+                                        {isDownloading ? (
+                                            <CircularProgress size={24} color="inherit" />
+                                        ) : (
+                                            <Iconify icon="file-icons:microsoft-excel" />
+                                        )}
                                     </IconButton>
                                 </Tooltip>
 
-                                <Tooltip title="Download PDF">
-                                    <PDFDownloadLink
-                                        document={(() => {
-                                            const selectedRows = tableData.filter((r) =>
-                                                table.selected.includes(r._id)
-                                            );
-                                            const visibleCols = getVisibleColumnsForExport();
-                                            return (
-                                                <PartInventoryActivityListPdf
-                                                    activities={selectedRows}
-                                                    visibleColumns={visibleCols}
-                                                    tenant={tenant}
-                                                />
-                                            );
-                                        })()}
-                                        fileName="part-location-inventory-activity-list.pdf"
-                                        style={{ textDecoration: 'none', color: 'inherit' }}
-                                    >
-                                        {({ loading }) => (
-                                            <IconButton color="primary">
-                                                <Iconify
-                                                    icon={
-                                                        loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'
-                                                    }
-                                                />
-                                            </IconButton>
-                                        )}
-                                    </PDFDownloadLink>
-                                </Tooltip>
+                                {!selectAllMode && (
+                                    <Tooltip title="Download PDF">
+                                        <PDFDownloadLink
+                                            document={(() => {
+                                                const selectedRows = tableData.filter((r) =>
+                                                    table.selected.includes(r._id)
+                                                );
+                                                const visibleCols = getVisibleColumnsForExport();
+                                                return (
+                                                    <PartInventoryActivityListPdf
+                                                        activities={selectedRows}
+                                                        visibleColumns={visibleCols}
+                                                        tenant={tenant}
+                                                    />
+                                                );
+                                            })()}
+                                            fileName="part-location-inventory-activity-list.pdf"
+                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                        >
+                                            {({ loading }) => (
+                                                <IconButton color="primary">
+                                                    <Iconify
+                                                        icon={
+                                                            loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'
+                                                        }
+                                                    />
+                                                </IconButton>
+                                            )}
+                                        </PDFDownloadLink>
+                                    </Tooltip>
+                                )}
                             </Stack>
                         }
                     />
