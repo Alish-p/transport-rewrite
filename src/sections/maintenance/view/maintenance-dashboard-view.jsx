@@ -1,11 +1,16 @@
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
+import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,6 +19,7 @@ import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -111,6 +117,43 @@ function BarWidget({
   );
 }
 
+function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter }) {
+  const chartOptions = useChart({
+    colors,
+    xaxis: { categories },
+    yaxis: yAxisFormatter ? { labels: { formatter: yAxisFormatter } } : undefined,
+    tooltip: yAxisFormatter ? { y: { formatter: yAxisFormatter } } : undefined,
+    plotOptions: { bar: { borderRadius: 4, horizontal: true, barHeight: '60%' } },
+  });
+
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardHeader title={title} subheader={subheader} />
+      <Box sx={{ p: 3, pb: 1 }}>
+        <Chart dir="ltr" type="bar" series={series} options={chartOptions} height={height} />
+      </Box>
+    </Card>
+  );
+}
+
+function LineWidget({ title, subheader, categories, series, colors, height = 320 }) {
+  const chartOptions = useChart({
+    colors,
+    xaxis: { categories },
+    stroke: { width: 3, curve: 'smooth' },
+    plotOptions: {},
+  });
+
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardHeader title={title} subheader={subheader} />
+      <Box sx={{ p: 3, pb: 1 }}>
+        <Chart dir="ltr" type="line" series={series} options={chartOptions} height={height} />
+      </Box>
+    </Card>
+  );
+}
+
 function StatCard({ title, value, icon, color, subtext }) {
   const theme = useTheme();
 
@@ -171,11 +214,13 @@ const WO_STATUS_COLOR = {
 
 export default function MaintenanceDashboardView() {
   const theme = useTheme();
-  const { data, isLoading } = useMaintenanceDashboard();
+  const [months, setMonths] = useState(6);
+  const [slowMovingDays, setSlowMovingDays] = useState(90);
+  const { data, isLoading } = useMaintenanceDashboard({ months, slowMovingDays });
 
   if (isLoading || !data) return <LoadingScreen />;
 
-  const { parts, locations, purchaseOrders, workOrders, vendors, recentActivity } = data;
+  const { parts, locations, purchaseOrders, workOrders, vendors, recentActivity, analytics } = data;
 
   // PO donut
   const poLabels = ['Pending', 'Approved', 'Purchased', 'Partial', 'Received', 'Rejected'];
@@ -570,6 +615,294 @@ export default function MaintenanceDashboardView() {
           </Card>
         </Grid>
       </Grid>
+
+      {/* ════════════════════════════════════════════════════════════════════
+          ANALYTICS & INSIGHTS SECTION
+          ════════════════════════════════════════════════════════════════════ */}
+      {analytics && (
+        <>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 6, mb: 3 }}>
+            <Typography variant="h4">Analytics &amp; Insights</Typography>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <TextField
+                size="small"
+                type="number"
+                label="Idle Days"
+                value={slowMovingDays}
+                onChange={(e) => setSlowMovingDays(Number(e.target.value) || 90)}
+                sx={{ width: 120 }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><Iconify icon="mdi:calendar-clock" width={18} /></InputAdornment>,
+                }}
+              />
+              <Select size="small" value={months} onChange={(e) => setMonths(e.target.value)} sx={{ minWidth: 140 }}>
+                <MenuItem value={3}>Last 3 Months</MenuItem>
+                <MenuItem value={6}>Last 6 Months</MenuItem>
+                <MenuItem value={12}>Last 12 Months</MenuItem>
+              </Select>
+            </Stack>
+          </Stack>
+
+          <Grid container spacing={3}>
+            {/* ---- Resolution Time Stats ---- */}
+            <Grid xs={12} md={8}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Work Order Resolution Time" subheader={`Based on ${analytics.resolutionTime.completedCount} completed WOs`} />
+                <Divider sx={{ borderStyle: 'dashed', my: 1 }} />
+                <Stack direction="row" spacing={2} sx={{ p: 3 }}>
+                  <Box sx={{ flex: 1 }}>
+                    <StatCard title="Avg Resolution" value={`${analytics.resolutionTime.avgHours}h`} icon="mdi:timer-sand" color="primary" />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <StatCard title="Fastest" value={`${analytics.resolutionTime.minHours}h`} icon="mdi:flash" color="success" />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <StatCard title="Slowest" value={`${analytics.resolutionTime.maxHours}h`} icon="mdi:clock-alert-outline" color="error" />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <StatCard title="Completed" value={analytics.resolutionTime.completedCount} icon="mdi:check-circle-outline" color="info" />
+                  </Box>
+                </Stack>
+              </Card>
+            </Grid>
+
+            {/* ---- Priority Distribution Donut ---- */}
+            <Grid xs={12} md={4}>
+              <DonutWidget
+                title="WO Priority Split"
+                subheader={`Last ${months} months`}
+                labels={Object.keys(analytics.priorityDistribution).map((k) => k.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))}
+                data={Object.values(analytics.priorityDistribution)}
+                colors={[theme.palette.info.main, theme.palette.warning.main, theme.palette.error.main]}
+              />
+            </Grid>
+
+            {/* ---- Top Parts Used ---- */}
+            <Grid xs={12} md={6}>
+              <HorizontalBarWidget
+                title="Top Parts Used"
+                subheader="Most frequently consumed parts"
+                categories={analytics.topPartsUsed.map((p) => p.partName)}
+                series={[{ name: 'Qty Used', data: analytics.topPartsUsed.map((p) => p.totalQuantity) }]}
+                colors={[theme.palette.primary.main]}
+              />
+            </Grid>
+
+            {/* ---- Top Parts by Cost ---- */}
+            <Grid xs={12} md={6}>
+              <HorizontalBarWidget
+                title="Top Parts by Cost"
+                subheader="Highest maintenance cost contributors"
+                categories={analytics.topPartsByCost.map((p) => p.partName)}
+                series={[{ name: 'Cost', data: analytics.topPartsByCost.map((p) => p.totalCost) }]}
+                colors={[theme.palette.error.main]}
+                yAxisFormatter={(v) => fCurrency(v)}
+              />
+            </Grid>
+
+            {/* ---- Vehicles with Most WOs ---- */}
+            <Grid xs={12} md={6}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Vehicles — Highest Work Orders" subheader="Fleet maintenance hotspots" />
+                <TableContainer sx={{ p: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>#</TableCell>
+                        <TableCell>Vehicle</TableCell>
+                        <TableCell align="right">Work Orders</TableCell>
+                        <TableCell align="right">Total Cost</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {analytics.vehiclesWithMostWOs.map((v, i) => (
+                        <TableRow key={v.vehicleId} hover sx={{ cursor: 'pointer' }}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell>
+                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(v.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                              {v.vehicleNo}
+                            </Link>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Chip label={v.workOrderCount} size="small" color="error" variant="soft" />
+                          </TableCell>
+                          <TableCell align="right">{fCurrency(v.totalCost)}</TableCell>
+                        </TableRow>
+                      ))}
+                      {analytics.vehiclesWithMostWOs.length === 0 && (
+                        <TableRow><TableCell colSpan={4} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Grid>
+
+            {/* ---- Vehicles Consuming Most Parts ---- */}
+            <Grid xs={12} md={6}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Vehicles — Parts Usage Intensity" subheader="Highest parts consumption" />
+                <TableContainer sx={{ p: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>#</TableCell>
+                        <TableCell>Vehicle</TableCell>
+                        <TableCell align="right">Parts Qty</TableCell>
+                        <TableCell align="right">Unique Parts</TableCell>
+                        <TableCell align="right">Parts Cost</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {analytics.vehiclesConsumingMostParts.map((v, i) => (
+                        <TableRow key={v.vehicleId} hover sx={{ cursor: 'pointer' }}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell>
+                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(v.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                              {v.vehicleNo}
+                            </Link>
+                          </TableCell>
+                          <TableCell align="right">{fShortenNumber(v.totalPartsQty)}</TableCell>
+                          <TableCell align="right">{v.uniqueParts}</TableCell>
+                          <TableCell align="right">{fCurrency(v.totalPartsCost)}</TableCell>
+                        </TableRow>
+                      ))}
+                      {analytics.vehiclesConsumingMostParts.length === 0 && (
+                        <TableRow><TableCell colSpan={5} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Grid>
+
+            {/* ---- Parts Consumption Trend ---- */}
+            <Grid xs={12} md={6}>
+              <LineWidget
+                title="Parts Consumption Trend"
+                subheader="Monthly parts issued via Work Orders"
+                categories={analytics.partsConsumptionTrend.map((t) => t.month)}
+                series={[
+                  { name: 'Qty Issued', data: analytics.partsConsumptionTrend.map((t) => t.totalQty) },
+                  { name: 'Transactions', data: analytics.partsConsumptionTrend.map((t) => t.transactionCount) },
+                ]}
+                colors={[theme.palette.primary.main, theme.palette.info.main]}
+              />
+            </Grid>
+
+            {/* ---- Completion Rate ---- */}
+            <Grid xs={12} md={6}>
+              <BarWidget
+                title="WO Completion Rate"
+                subheader="Monthly opened vs completed"
+                categories={analytics.completionRate.map((m) => m.month)}
+                series={[
+                  { name: 'Opened', data: analytics.completionRate.map((m) => m.opened) },
+                  { name: 'Completed', data: analytics.completionRate.map((m) => m.completed) },
+                ]}
+                colors={[theme.palette.warning.main, theme.palette.success.main]}
+              />
+            </Grid>
+
+            {/* ---- Repeat Failures ---- */}
+            <Grid xs={12} md={6}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader
+                  title="Repeat Part Failures"
+                  subheader="Same part replaced on same vehicle 2+ times"
+                  avatar={<Iconify icon="mdi:alert-decagram" width={28} sx={{ color: 'error.main' }} />}
+                />
+                <TableContainer sx={{ p: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Vehicle</TableCell>
+                        <TableCell>Part</TableCell>
+                        <TableCell align="right">Occurrences</TableCell>
+                        <TableCell align="right">Total Qty</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {analytics.repeatFailures.map((r, i) => (
+                        <TableRow key={i} hover>
+                          <TableCell>
+                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(r.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                              {r.vehicleNo}
+                            </Link>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">{r.partName}</Typography>
+                            <Typography variant="caption" color="text.disabled">{r.partNumber}</Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Chip label={r.occurrences} size="small" color="error" variant="soft" />
+                          </TableCell>
+                          <TableCell align="right">{r.totalQty}</TableCell>
+                        </TableRow>
+                      ))}
+                      {analytics.repeatFailures.length === 0 && (
+                        <TableRow><TableCell colSpan={4} align="center">
+                          <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>No repeat failures detected</Typography>
+                        </TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Grid>
+
+            {/* ---- Slow-Moving / Dead Inventory ---- */}
+            <Grid xs={12} md={6}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader
+                  title="Slow-Moving Inventory"
+                  subheader={`Parts idle for ${slowMovingDays}+ days — capital tied up`}
+                  avatar={<Iconify icon="mdi:package-variant-closed-remove" width={28} sx={{ color: 'warning.main' }} />}
+                />
+                <TableContainer sx={{ p: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Part</TableCell>
+                        <TableCell align="right">In Stock</TableCell>
+                        <TableCell align="right">Capital Tied</TableCell>
+                        <TableCell align="right">Days Idle</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {analytics.slowMovingParts.map((p) => (
+                        <TableRow key={p.partId} hover sx={{ cursor: 'pointer' }}>
+                          <TableCell>
+                            <Link component={RouterLink} to={paths.dashboard.part.details(p.partId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                              {p.partName}
+                            </Link>
+                            <Typography variant="caption" display="block" color="text.disabled">{p.partNumber}</Typography>
+                          </TableCell>
+                          <TableCell align="right">{p.totalQuantity}</TableCell>
+                          <TableCell align="right">{fCurrency(p.capitalTiedUp)}</TableCell>
+                          <TableCell align="right">
+                            <Chip
+                              label={p.daysSinceLastIssue >= 9999 ? 'Never used' : `${p.daysSinceLastIssue}d`}
+                              size="small"
+                              color={p.daysSinceLastIssue >= 9999 ? 'error' : p.daysSinceLastIssue >= 180 ? 'warning' : 'default'}
+                              variant="soft"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {analytics.slowMovingParts.length === 0 && (
+                        <TableRow><TableCell colSpan={4} align="center">
+                          <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>No slow-moving inventory found</Typography>
+                        </TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
     </DashboardContent>
   );
 }

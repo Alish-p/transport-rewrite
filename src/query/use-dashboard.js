@@ -328,15 +328,18 @@ export function useWorkOrderDashboardSummary(enabled = true) {
 // ----------------------------------------------------------------------
 // Maintenance & Inventory Detailed Dashboard
 
-const getMaintenanceDashboard = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/maintenance-dashboard`);
+const getMaintenanceDashboard = async ({ months, slowMovingDays } = {}) => {
+  const params = {};
+  if (months) params.months = months;
+  if (slowMovingDays) params.slowMovingDays = slowMovingDays;
+  const { data } = await axios.get(`${ENDPOINT}/maintenance-dashboard`, { params });
   return data;
 };
 
-export function useMaintenanceDashboard(enabled = true) {
+export function useMaintenanceDashboard({ enabled = true, months = 6, slowMovingDays = 90 } = {}) {
   return useQuery({
-    queryKey: ['maintenanceDashboard'],
-    queryFn: getMaintenanceDashboard,
+    queryKey: ['maintenanceDashboard', months, slowMovingDays],
+    queryFn: () => getMaintenanceDashboard({ months, slowMovingDays }),
     enabled,
   });
 }
