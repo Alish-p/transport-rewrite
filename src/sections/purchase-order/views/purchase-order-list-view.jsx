@@ -116,6 +116,8 @@ export function PurchaseOrderListView() {
     purchasedBy: filters.purchasedBy || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -399,6 +401,8 @@ export function PurchaseOrderListView() {
                               approvedBy: filters.approvedBy || undefined,
                               purchasedBy: filters.purchasedBy || undefined,
                               columns: orderedIds.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
                             },
                             responseType: 'blob',
                           });
@@ -453,6 +457,7 @@ export function PurchaseOrderListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) => {
                   if (!checked) {
                     setSelectAllMode(false);

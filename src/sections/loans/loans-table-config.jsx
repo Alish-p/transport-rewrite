@@ -31,6 +31,7 @@ export const TABLE_COLUMNS = [
     id: 'loanNo',
     label: 'Loan No',
     defaultVisible: true,
+    sortable: true,
     disabled: true,
     getter: (row) => row.loanNo,
     render: (row) => (
@@ -104,6 +105,7 @@ export const TABLE_COLUMNS = [
     id: 'principalAmount',
     label: 'Loan Amount',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     align: 'right',
     showTotal: true,
@@ -119,6 +121,7 @@ export const TABLE_COLUMNS = [
     id: 'outstandingBalance',
     label: 'Outstanding',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     align: 'right',
     showTotal: true,
@@ -154,6 +157,7 @@ export const TABLE_COLUMNS = [
     id: 'createdAt',
     label: 'Created',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     getter: (row) => row.createdAt,
     render: (row) => (

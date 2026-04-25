@@ -112,6 +112,8 @@ export function LoansListView() {
     endDate: filters.endDate || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const getVisibleColumnsForExport = () => {
@@ -357,6 +359,8 @@ export function LoansListView() {
                                 fromDate: filters.fromDate || undefined,
                                 endDate: filters.endDate || undefined,
                                 columns: orderedIds.join(','),
+                                order: table.order,
+                                orderBy: table.orderBy,
                               },
                               responseType: 'blob',
                             });
@@ -417,6 +421,7 @@ export function LoansListView() {
                   rowCount={filteredData.length}
                   numSelected={table.selected.length}
                   onOrderChange={moveColumn}
+                  onSort={table.onSort}
                   onSelectAllRows={(checked) => {
                     if (!checked) {
                       setSelectAllMode(false);

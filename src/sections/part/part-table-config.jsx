@@ -116,6 +116,7 @@ export const TABLE_COLUMNS = [
     id: 'quantity',
     label: 'Stock Level',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     getter: (row) => row.totalQuantity,
     render: (row) => (
@@ -161,6 +162,7 @@ export const TABLE_COLUMNS = [
     id: 'unitCost',
     label: 'Unit Cost',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     getter: (row) => row.unitCost,
     render: (row) => `₹ ${row.unitCost?.toFixed(2)}`,
@@ -169,6 +171,7 @@ export const TABLE_COLUMNS = [
     id: 'totalCost',
     label: 'Total Cost',
     defaultVisible: true,
+    sortable: true,
     disabled: false,
     getter: (row) => {
       const cost = row.averageUnitCost || row.unitCost || 0;

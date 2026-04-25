@@ -116,6 +116,8 @@ export function PartListView() {
     status: filters.status || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -345,6 +347,8 @@ export function PartListView() {
                                 filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
                               status: filters.status || undefined,
                               columns: orderedIds.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
                             },
                             responseType: 'blob',
                           });
@@ -399,6 +403,7 @@ export function PartListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) => {
                   if (!checked) {
                     setSelectAllMode(false);
