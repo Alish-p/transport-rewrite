@@ -103,6 +103,8 @@ export function TransporterPaymentListView() {
     issueToDate: filters.issueToDate || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -297,6 +299,8 @@ export function TransporterPaymentListView() {
                               issueFromDate: filters.issueFromDate || undefined,
                               issueToDate: filters.issueToDate || undefined,
                               columns: visibleCols.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
                             },
                             responseType: 'blob',
                           });
@@ -384,6 +388,7 @@ export function TransporterPaymentListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) => {
                   table.onSelectAllRows(
                     checked,
