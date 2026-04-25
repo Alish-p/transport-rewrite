@@ -26,6 +26,7 @@ export const TABLE_COLUMNS = [
     label: 'WO No.',
     defaultVisible: true,
     disabled: true,
+    sortable: true,
     getter: (row) => row.workOrderNo,
     render: (row) => {
       const value = row.workOrderNo || '-';
@@ -52,6 +53,7 @@ export const TABLE_COLUMNS = [
     label: 'Vehicle',
     defaultVisible: true,
     disabled: true,
+    sortable: true,
     getter: (row) => row.vehicle?.vehicleNo,
     render: (row) => {
       const value = row.vehicle?.vehicleNo || '';
@@ -245,6 +247,7 @@ export const TABLE_COLUMNS = [
     label: 'Created Date',
     defaultVisible: false,
     disabled: false,
+    sortable: true,
     getter: (row) => fDate(row.createdAt),
     render: (row) => {
       const value = row.createdAt;
