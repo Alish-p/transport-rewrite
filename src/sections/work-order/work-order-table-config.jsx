@@ -126,6 +126,7 @@ export const TABLE_COLUMNS = [
     label: 'Time Taken',
     defaultVisible: true,
     disabled: false,
+    sortable: true,
     getter: (row) => {
       if (!row.actualStartDate || !row.completedDate) return '-';
       return fDateTimeDuration(row.actualStartDate, row.completedDate);
@@ -181,6 +182,7 @@ export const TABLE_COLUMNS = [
     label: 'Scheduled Start',
     defaultVisible: true,
     disabled: false,
+    sortable: true,
     getter: (row) => row.scheduledStartDate,
     render: (row) => {
       const value = row.scheduledStartDate;
@@ -199,6 +201,7 @@ export const TABLE_COLUMNS = [
     label: 'Completed On',
     defaultVisible: true,
     disabled: false,
+    sortable: true,
     getter: (row) => row.completedDate,
     render: (row) => {
       const value = row.completedDate;
@@ -232,6 +235,7 @@ export const TABLE_COLUMNS = [
     label: 'Total Cost',
     defaultVisible: true,
     disabled: false,
+    sortable: true,
     align: 'right',
     getter: (row) => row.totalCost,
     render: (row) => fCurrency(row.totalCost || 0),
@@ -259,6 +263,7 @@ export const TABLE_COLUMNS = [
     label: 'Actual Start Date',
     defaultVisible: false,
     disabled: false,
+    sortable: true,
     getter: (row) => fDate(row.actualStartDate),
     render: (row) => {
       const value = row.actualStartDate;
@@ -284,6 +289,7 @@ export const TABLE_COLUMNS = [
     label: 'Labour Cost',
     defaultVisible: false,
     disabled: false,
+    sortable: true,
     align: 'right',
     getter: (row) => row.labourCharge,
     render: (row) => fCurrency(row.labourCharge || 0),
@@ -293,6 +299,7 @@ export const TABLE_COLUMNS = [
     label: 'Parts Cost',
     defaultVisible: false,
     disabled: false,
+    sortable: true,
     align: 'right',
     getter: (row) => row.partsCost,
     render: (row) => fCurrency(row.partsCost || 0),

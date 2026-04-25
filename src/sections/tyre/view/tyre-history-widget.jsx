@@ -145,7 +145,16 @@ function HistoryItem({ item, lastItem, onEdit }) {
             case 'MOUNT':
                 return `Mounted on ${vehicleId?.vehicleNo || 'Unknown Vehicle'} at position ${position}. Odometer: ${odometer} km`;
             case 'UNMOUNT':
-                return `Unmounted. Odometer: ${odometer} km. Distance Covered: ${distanceCovered} km`;
+                return (
+                    <>
+                        Unmounted. Odometer: {odometer} km.
+                        {distanceCovered != null && (
+                            <Box component="span" sx={{ color: 'success.main', fontWeight: 'bold', ml: 0.5 }}>
+                                Distance Covered: +{distanceCovered} km
+                            </Box>
+                        )}
+                    </>
+                );
             case 'THREAD_UPDATE': {
                 let threadUpdateText = `Thread depth updated from ${previousThreadDepth}mm to ${newThreadDepth}mm`;
                 if (odometer) {
@@ -157,7 +166,16 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return `Tyre details updated`;
             case 'SCRAP':
                 if (vehicleId) {
-                    return `Moved to Scrap from ${vehicleId?.vehicleNo || 'Unknown Vehicle'} at position ${position}. Odometer: ${odometer} km. Distance Covered: ${distanceCovered} km`;
+                    return (
+                        <>
+                            Moved to Scrap from {vehicleId?.vehicleNo || 'Unknown Vehicle'} at position {position}. Odometer: {odometer} km.
+                            {distanceCovered != null && (
+                                <Box component="span" sx={{ color: 'success.main', fontWeight: 'bold', ml: 0.5 }}>
+                                    Distance Covered: +{distanceCovered} km
+                                </Box>
+                            )}
+                        </>
+                    );
                 }
                 return `Moved to Scrap`;
             case 'REMOLD':

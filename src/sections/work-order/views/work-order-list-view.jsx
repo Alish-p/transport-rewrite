@@ -131,6 +131,8 @@ export function WorkOrderListView() {
     endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -464,6 +466,7 @@ export function WorkOrderListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) => {
                   if (!checked) {
                     setSelectAllMode(false);
