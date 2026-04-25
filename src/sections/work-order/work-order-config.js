@@ -54,10 +54,12 @@ export const WORK_ORDER_CATEGORY_OPTIONS = [
   "Accidental Vehicle",
   "On Route Maintenance",
   "Preventive Maintenance",
-  "Others",
+  "Oil & Lubrication",
   "Breakdown",
   "Damage",
-  "External Workshop"
+  "External Workshop",
+  "Others",
+
 ];
 
 export const WORK_ORDER_ISSUE_OPTIONS = [
