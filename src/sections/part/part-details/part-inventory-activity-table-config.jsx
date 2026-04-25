@@ -166,7 +166,7 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
       return (
         <Stack spacing={0} alignItems="flex-start">
           <Label variant="soft" color={color}>
-            {type || '-'}
+            {activityType ? activityType.label : (type || '-')}
           </Label>
           {docLink}
         </Stack>

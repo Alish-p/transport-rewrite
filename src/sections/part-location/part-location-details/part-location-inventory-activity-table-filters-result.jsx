@@ -9,6 +9,8 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
+import { ACTIVITY_TYPES } from '../../part/part-constant';
+
 export default function PartLocationInventoryActivityTableFiltersResult({
     filters,
     onFilters,
@@ -40,6 +42,10 @@ export default function PartLocationInventoryActivityTableFiltersResult({
         ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
         : '';
 
+    const selectedTypeLabel = filters.type
+        ? ACTIVITY_TYPES.find((opt) => opt.value === filters.type)?.label || filters.type
+        : '';
+
     return (
         <Stack spacing={1.5} {...other}>
             <Box sx={{ typography: 'body2' }}>
@@ -52,7 +58,7 @@ export default function PartLocationInventoryActivityTableFiltersResult({
             <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
                 {filters.type && (
                     <Block label="Type:">
-                        <Chip size="small" label={filters.type} onDelete={handleRemoveType} />
+                        <Chip size="small" label={selectedTypeLabel} onDelete={handleRemoveType} />
                     </Block>
                 )}
 

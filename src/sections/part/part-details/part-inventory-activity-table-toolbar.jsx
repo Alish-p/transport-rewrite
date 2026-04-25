@@ -15,6 +15,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { ACTIVITY_TYPES } from '../part-constant';
 import { INVENTORY_ACTIVITY_TABLE_COLUMNS } from './part-inventory-activity-table-config';
@@ -63,7 +64,7 @@ export default function PartInventoryActivityTableToolbar({
           gap: 2,
         }}
       >
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} size="small">
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} >
           <InputLabel id="type-select-label">Type</InputLabel>
           <Select
             value={filters.type || ''}
@@ -82,8 +83,6 @@ export default function PartInventoryActivityTableToolbar({
         </FormControl>
 
         <TextField
-          select
-          size="small"
           label="Location"
           value={filters.inventoryLocation}
           onChange={handleFilterLocation}
@@ -97,15 +96,12 @@ export default function PartInventoryActivityTableToolbar({
           ))}
         </TextField>
 
-        <TextField
-          size="small"
-          label="Performed By"
-          value={performedByLabel}
+        <DialogSelectButton
           onClick={onOpenContactsDialog}
-          sx={{ minWidth: 200 }}
-          InputProps={{
-            readOnly: true,
-          }}
+          placeholder="Performed By"
+          selected={performedByLabel !== 'All users' ? performedByLabel : null}
+          iconName="solar:users-group-rounded-bold"
+          sx={{ maxWidth: 200 }}
         />
 
         <Button

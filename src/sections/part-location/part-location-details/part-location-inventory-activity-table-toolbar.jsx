@@ -6,7 +6,6 @@ import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -15,6 +14,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { ACTIVITY_TYPES } from '../../part/part-constant';
 import { PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS } from './part-location-inventory-activity-table-config';
@@ -73,15 +73,12 @@ export default function PartLocationInventoryActivityTableToolbar({
                     </Select>
                 </FormControl>
 
-                <TextField
-                    size="small"
-                    label="Performed By"
-                    value={performedByLabel}
+                <DialogSelectButton
                     onClick={onOpenContactsDialog}
-                    sx={{ minWidth: 200 }}
-                    InputProps={{
-                        readOnly: true,
-                    }}
+                    placeholder="Performed By"
+                    selected={performedByLabel !== 'All users' ? performedByLabel : null}
+                    iconName="solar:users-group-rounded-bold"
+                    sx={{ maxWidth: 200 }}
                 />
 
                 <Button
