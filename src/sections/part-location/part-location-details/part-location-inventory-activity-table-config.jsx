@@ -144,7 +144,13 @@ export const PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS = [
         label: 'Adjustment Type',
         defaultVisible: true,
         disabled: false,
-        getter: (row) => row.type || '',
+        getter: (row) => {
+            const type = row.type || '';
+            const activityType = ACTIVITY_TYPES.find((t) => t.value === type);
+            const label = activityType ? activityType.label : type;
+            const docNum = row.sourceDocumentNumber || row.meta?.sourceDocumentNumber;
+            return docNum ? `${label} (${docNum})` : label;
+        },
         render: (row) => {
             const { type, sourceDocumentType, sourceDocumentId, sourceDocumentNumber } = row;
 
