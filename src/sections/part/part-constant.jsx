@@ -49,3 +49,12 @@ export const MEASUREMENT_UNIT_GROUPS = [
 export const ALLOWED_MEASUREMENT_UNITS = [
     "Piece", "Set", "Kilogram", "Gram", "Litre", "Millilitre", "Meter", "Centimeter"
 ];
+
+export const ACTIVITY_TYPES = [
+    { value: 'INITIAL', label: 'Initial', color: 'info' },
+    { value: 'MANUAL_ADJUSTMENT', label: 'Adjustment', color: 'warning' },
+    { value: 'TRANSFER_IN', label: 'Transfer IN', color: 'success' },
+    { value: 'TRANSFER_OUT', label: 'Transfer Out', color: 'error' },
+    { value: 'WORK_ORDER_ISSUE', label: 'Work Order Issue', color: 'secondary' },
+    { value: 'PURCHASE_RECEIPT', label: 'Purchase Receipt', color: 'primary' },
+];

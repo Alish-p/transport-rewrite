@@ -4,23 +4,20 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 
+import { ACTIVITY_TYPES } from '../../part/part-constant';
 import { PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS } from './part-location-inventory-activity-table-config';
-
-const ACTIVITY_TYPES = [
-    { value: 'all', label: 'All types' },
-    { value: 'INITIAL', label: 'Initial' },
-    { value: 'PURCHASE_RECEIPT', label: 'Purchase Receipt' },
-    { value: 'ADJUSTMENT', label: 'Adjustment' },
-    { value: 'TRANSFER', label: 'Transfer' },
-    { value: 'WORK_ORDER_ISSUE', label: 'Work Order Issue' },
-];
 
 export default function PartLocationInventoryActivityTableToolbar({
     filters,
@@ -58,20 +55,23 @@ export default function PartLocationInventoryActivityTableToolbar({
                     gap: 2,
                 }}
             >
-                <TextField
-                    select
-                    size="small"
-                    label="Type"
-                    value={filters.type}
-                    onChange={handleFilterType}
-                    sx={{ minWidth: 160 }}
-                >
-                    {ACTIVITY_TYPES.map((opt) => (
-                        <MenuItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} size="small">
+                    <InputLabel id="type-select-label">Type</InputLabel>
+                    <Select
+                        value={filters.type || ''}
+                        onChange={handleFilterType}
+                        input={<OutlinedInput label="Type" />}
+                        labelId="type-select-label"
+                    >
+                        {ACTIVITY_TYPES.map((opt) => (
+                            <MenuItem key={opt.value} value={opt.value}>
+                                <Label variant="soft" color={opt.color}>
+                                    {opt.label}
+                                </Label>
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
                 <TextField
                     size="small"

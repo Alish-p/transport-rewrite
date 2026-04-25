@@ -11,7 +11,11 @@ import { RouterLink } from 'src/routes/components';
 
 import { fDate, fTime } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+
+import { ACTIVITY_TYPES } from '../part-constant';
+
 
 const getDateValue = (activity) =>
   activity.activityDate || activity.date || activity.createdAt;
@@ -133,6 +137,9 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
     render: (row) => {
       const { type, sourceDocumentType, sourceDocumentId, sourceDocumentNumber } = row;
 
+      const activityType = ACTIVITY_TYPES.find((t) => t.value === type);
+      const color = activityType ? activityType.color : 'default';
+
       let docLink = null;
       if (sourceDocumentType === 'PURCHASE_ORDER' && sourceDocumentId && sourceDocumentNumber) {
         docLink = (
@@ -157,8 +164,10 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
       }
 
       return (
-        <Stack spacing={0}>
-          <Typography variant="body2">{type || '-'}</Typography>
+        <Stack spacing={0} alignItems="flex-start">
+          <Label variant="soft" color={color}>
+            {type || '-'}
+          </Label>
           {docLink}
         </Stack>
       );

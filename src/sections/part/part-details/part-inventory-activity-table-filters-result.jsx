@@ -20,7 +20,7 @@ export default function PartInventoryActivityTableFiltersResult({
   ...other
 }) {
   const handleRemoveType = () => {
-    onFilters('type', 'all');
+    onFilters('type', '');
   };
 
   const handleRemoveLocation = () => {
@@ -55,7 +55,7 @@ export default function PartInventoryActivityTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.type && filters.type !== 'all' && (
+        {filters.type && (
           <Block label="Type:">
             <Chip size="small" label={filters.type} onDelete={handleRemoveType} />
           </Block>

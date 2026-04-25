@@ -52,7 +52,7 @@ export function PartInventoryActivityTab({ partId }) {
     () => ({
       fromDate: null,
       toDate: null,
-      type: 'all',
+      type: '',
       inventoryLocation: '',
       performedBy: '',
     }),
@@ -105,7 +105,7 @@ export function PartInventoryActivityTab({ partId }) {
     part: partId,
     fromDate: filters.fromDate ? filters.fromDate.toISOString() : undefined,
     toDate: filters.toDate ? filters.toDate.toISOString() : undefined,
-    type: filters.type === 'all' ? undefined : filters.type,
+    type: filters.type || undefined,
     inventoryLocation: filters.inventoryLocation || undefined,
     performedBy: filters.performedBy || undefined,
     limit: table.rowsPerPage,
