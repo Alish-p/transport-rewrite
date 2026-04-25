@@ -81,7 +81,7 @@ export function ExpenseListView() {
   const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'date', syncToUrl: true });
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
   const subtripExpenseTypes = useSubtripExpenseTypes();
@@ -129,6 +129,8 @@ export function ExpenseListView() {
     endDate: filters.endDate || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const [tableData, setTableData] = useState([]);
@@ -461,6 +463,8 @@ export function ExpenseListView() {
                               startDate: filters.fromDate || undefined,
                               endDate: filters.endDate || undefined,
                               columns: orderedIds.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
                             },
                             responseType: 'blob',
                           });
@@ -532,10 +536,13 @@ export function ExpenseListView() {
           <Scrollbar>
             <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
               <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
                 headLabel={visibleHeaders}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,

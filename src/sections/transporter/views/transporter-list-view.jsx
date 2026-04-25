@@ -141,6 +141,8 @@ export function TransporterListView() {
     vehicleId: filters.vehicleId || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   useEffect(() => {
@@ -334,6 +336,8 @@ export function TransporterListView() {
                               panNo: filters.panNo || undefined,
                               vehicleId: filters.vehicleId || undefined,
                               columns: visibleCols.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
                             },
                             responseType: 'blob',
                           });
@@ -407,6 +411,7 @@ export function TransporterListView() {
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}
+                onSort={table.onSort}
                 onSelectAllRows={(checked) => {
                   if (!checked) {
                     setSelectAllMode(false);

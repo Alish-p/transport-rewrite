@@ -124,6 +124,8 @@ export function InvoiceListView() {
     invoiceNo: filters.invoiceNo || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
   const getVisibleColumnsForExport = () => {
@@ -460,6 +462,8 @@ export function InvoiceListView() {
                                 issueToDate: filters.endDate || undefined,
                                 invoiceNo: filters.invoiceNo || undefined,
                                 columns: orderedIds.join(','),
+                                order: table.order,
+                                orderBy: table.orderBy,
                               },
                               responseType: 'blob',
                             });
@@ -585,6 +589,7 @@ export function InvoiceListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onOrderChange={moveColumn}
+                  onSort={table.onSort}
                   onSelectAllRows={(checked) => {
                     if (!checked) {
                       setSelectAllMode(false);
