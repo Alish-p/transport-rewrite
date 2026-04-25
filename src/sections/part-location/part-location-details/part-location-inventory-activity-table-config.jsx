@@ -193,7 +193,7 @@ export const PART_LOCATION_INVENTORY_ACTIVITY_TABLE_COLUMNS = [
     },
     {
         id: 'qtyChange',
-        label: 'Qty',
+        label: 'Qty Changed',
         defaultVisible: true,
         disabled: false,
         align: 'right',
