@@ -19,6 +19,7 @@ import TyreScrapDialog from './components/tyre-scrap-dialog';
 import TyreRemoldDialog from './components/tyre-remold-dialog';
 import TyreUnmountDialog from './components/tyre-unmount-dialog';
 import TyreThreadUpdateDialog from './components/tyre-thread-update-dialog';
+import TyreOdometerUpdateDialog from './components/tyre-odometer-update-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +40,7 @@ export default function TyreTableRow({
     const [openScrapDialog, setOpenScrapDialog] = useState(false);
     const [openSellDialog, setOpenSellDialog] = useState(false);
     const [openRemoldDialog, setOpenRemoldDialog] = useState(false);
+    const [openOdometerDialog, setOpenOdometerDialog] = useState(false);
     const rejectConfirm = useBoolean();
 
     const { mutateAsync: mountTyre } = useMountTyre();
@@ -143,6 +145,15 @@ export default function TyreTableRow({
                 label: 'Unmount',
                 icon: ICONS.tyre.remove,
                 onClick: () => setOpenUnmountDialog(true),
+            });
+        }
+
+        // Update Odometer — only when mounted
+        if (status === TYRE_STATUS.MOUNTED) {
+            actions.push({
+                label: 'Update Odometer',
+                icon: ICONS.common.edit,
+                onClick: () => setOpenOdometerDialog(true),
             });
         }
 
@@ -256,6 +267,16 @@ export default function TyreTableRow({
                     onClose={() => setOpenRemoldDialog(false)}
                     tyreId={row._id}
                     currentDepth={row?.threadDepth?.current}
+                />
+            )}
+
+            {/* Odometer Update Dialog */}
+            {status === TYRE_STATUS.MOUNTED && (
+                <TyreOdometerUpdateDialog
+                    open={openOdometerDialog}
+                    onClose={() => setOpenOdometerDialog(false)}
+                    vehicleId={row.currentVehicleId?._id || row.currentVehicleId}
+                    vehicleNo={row.currentVehicleId?.vehicleNo}
                 />
             )}
 

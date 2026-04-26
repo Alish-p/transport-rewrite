@@ -120,8 +120,10 @@ function BarWidget({
 function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter }) {
   const chartOptions = useChart({
     colors,
-    xaxis: { categories },
-    yaxis: yAxisFormatter ? { labels: { formatter: yAxisFormatter } } : undefined,
+    xaxis: { 
+      categories,
+      ...(yAxisFormatter && { labels: { formatter: yAxisFormatter } })
+    },
     tooltip: yAxisFormatter ? { y: { formatter: yAxisFormatter } } : undefined,
     plotOptions: { bar: { borderRadius: 4, horizontal: true, barHeight: '60%' } },
   });
