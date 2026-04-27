@@ -120,7 +120,7 @@ function BarWidget({
 function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter }) {
   const chartOptions = useChart({
     colors,
-    xaxis: { 
+    xaxis: {
       categories,
       ...(yAxisFormatter && { labels: { formatter: yAxisFormatter } })
     },
@@ -287,14 +287,6 @@ export default function MaintenanceDashboardView() {
             total={parts.totalParts}
             color="primary"
             icon={<Iconify icon="mdi:cog-box" width={36} />}
-          />
-        </Grid>
-        <Grid xs={6} sm={4} md={2}>
-          <DashboardTotalWidget
-            title="Total Stock"
-            total={parts.totalStock}
-            color="info"
-            icon={<Iconify icon="mdi:warehouse" width={36} />}
           />
         </Grid>
         <Grid xs={6} sm={4} md={2}>

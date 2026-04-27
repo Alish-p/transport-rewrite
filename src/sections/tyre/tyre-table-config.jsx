@@ -127,15 +127,14 @@ export const TYRE_TABLE_COLUMNS = [
                 const updatedAt = row.currentVehicleId.currentOdometerUpdatedAt;
 
                 let subtitleColor = 'text.disabled';
-                let isStale = false;
                 if (updatedAt) {
                     const daysOld = fDaysDuration(updatedAt, new Date());
                     if (daysOld < 3) subtitleColor = 'success.light';
                     else if (daysOld <= 10) subtitleColor = 'warning.light';
-                    else { subtitleColor = 'error.light'; isStale = true; }
-                } else {
-                    isStale = true;
+                    else subtitleColor = 'error.light';
                 }
+
+                const isMountAnomaly = row.mountOdometer > row.currentVehicleId.currentOdometer;
 
                 return (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -145,9 +144,19 @@ export const TYRE_TABLE_COLUMNS = [
                             primaryTypographyProps={{ typography: 'body2' }}
                             secondaryTypographyProps={{ component: 'span', typography: 'caption', color: subtitleColor }}
                         />
-                        {isStale && (
-                            <Tooltip title="Odometer reading is stale (> 10 days) or unknown" placement="top">
-                                <Box component="span" sx={{ color: 'error.main', ml: 1, display: 'flex' }}>
+                        {isMountAnomaly && (
+                            <Tooltip
+                                title={
+                                    <Box>
+                                        <Box sx={{ fontWeight: 700, mb: 0.5 }}>⚠ Data Issue: Invalid Mount Odometer</Box>
+                                        <Box>{`Mounted at ${row.mountOdometer} km, but vehicle's current odometer is ${row.currentVehicleId.currentOdometer} km.`}</Box>
+                                        <Box sx={{ mt: 0.5, opacity: 0.8 }}>Mount point cannot be ahead of the vehicle&apos;s current reading.</Box>
+                                    </Box>
+                                }
+                                placement="top"
+                                arrow
+                            >
+                                <Box component="span" sx={{ color: 'error.main', ml: 1, display: 'flex', cursor: 'help' }}>
                                     <Iconify icon="mdi:alert-circle" width={16} />
                                 </Box>
                             </Tooltip>

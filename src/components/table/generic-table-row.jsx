@@ -31,6 +31,7 @@ export function GenericTableRow({
   disabledColumns = {},
   columnOrder = [],
   hideSelection = false,
+  rowProps = {},
 }) {
   const confirm = useBoolean();
   const popover = usePopover();
@@ -60,7 +61,7 @@ export function GenericTableRow({
 
   return (
     <>
-      <TableRow hover selected={selected}>
+      <TableRow hover selected={selected} {...rowProps}>
         {!hideSelection && (
           <TableCell padding="checkbox">
             <Checkbox checked={selected} onClick={onSelectRow} />

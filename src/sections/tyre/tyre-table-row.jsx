@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 import React, { useMemo, useState, useCallback } from 'react';
 
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -50,6 +50,15 @@ export default function TyreTableRow({
     const { mutateAsync: updateTyre } = useUpdateTyre();
 
     const { status, type: tyreType } = row;
+
+    // Flag rows where the mount odometer exceeds the vehicle's current odometer — physically impossible,
+    // meaning the tyre was recorded as mounted at a higher km than the vehicle currently shows.
+    const vehicleCurrentOdometer = row.currentVehicleId?.currentOdometer;
+    const hasMountKmAnomaly =
+        row.status === TYRE_STATUS.MOUNTED &&
+        row.mountOdometer != null &&
+        vehicleCurrentOdometer != null &&
+        row.mountOdometer > vehicleCurrentOdometer;
 
     const handleMount = useCallback(async ({ vehicleId, position, odometer }) => {
         try {
@@ -115,7 +124,7 @@ export default function TyreTableRow({
             console.error(e);
             toast.error(e?.message || 'Failed to mark tyre as rejected');
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateTyre, row._id]);
 
     const customActions = useMemo(() => {
@@ -197,8 +206,21 @@ export default function TyreTableRow({
         }
 
         return actions;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, tyreType]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [status, tyreType, hasMountKmAnomaly]);
+
+    const anomalyRowProps = hasMountKmAnomaly
+        ? {
+            sx: {
+                bgcolor: (theme) =>
+                    theme.palette.mode === 'dark'
+                        ? 'rgba(255, 86, 48, 0.08)'
+                        : 'rgba(255, 86, 48, 0.06)',
+                borderLeft: '3px solid',
+                borderColor: 'error.main',
+            },
+        }
+        : {};
 
     return (
         <>
@@ -214,7 +236,9 @@ export default function TyreTableRow({
                 visibleColumns={visibleColumns}
                 disabledColumns={disabledColumns}
                 columnOrder={columnOrder}
+                rowProps={anomalyRowProps}
             />
+
 
             {/* Change Thread Dialog */}
             <TyreThreadUpdateDialog
