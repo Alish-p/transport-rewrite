@@ -3,11 +3,15 @@ import { useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fCurrency, fShortenNumber } from 'src/utils/format-number';
 
@@ -106,16 +110,24 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
     legend: { show: false },
   });
 
+  // Build year-scoped date range for audit links
+  const yearFromDate = dayjs(`${selectedYear}-01-01`).startOf('year').toISOString();
+  const yearToDate = dayjs(`${selectedYear}-12-31`).endOf('year').toISOString();
+
+  const jobsLink = `${paths.dashboard.subtrip.list}?vehicleNo=${vehicleId}&fromDate=${yearFromDate}&toDate=${yearToDate}`;
+  const expenseLink = `${paths.dashboard.expense.list}?vehicleId=${vehicleId}&startDate=${yearFromDate}&endDate=${yearToDate}`;
+
   // Summary cards data
   const summaryItems = [
-    { label: 'Jobs', value: totals.jobs, color: 'primary.main', isCurrency: false },
-    { label: 'Income', value: totals.income, color: 'primary.main', isCurrency: true },
-    { label: 'Expense', value: totals.expense, color: 'error.main', isCurrency: true },
+    { label: 'Jobs', value: totals.jobs, color: 'primary.main', isCurrency: false, link: jobsLink },
+    { label: 'Income', value: totals.income, color: 'primary.main', isCurrency: true, link: null },
+    { label: 'Expense', value: totals.expense, color: 'error.main', isCurrency: true, link: expenseLink },
     {
       label: 'Profit',
       value: totals.profit,
       color: totals.profit >= 0 ? 'success.main' : 'error.main',
       isCurrency: true,
+      link: null,
     },
   ];
 
@@ -162,6 +174,21 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
             </Typography>
             {isLoading ? (
               <Skeleton variant="text" width={80} />
+            ) : item.link ? (
+              <Link
+                component={RouterLink}
+                to={item.link}
+                underline="hover"
+                sx={{
+                  color: item.color,
+                  typography: 'subtitle1',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  '&:hover': { opacity: 0.8 },
+                }}
+              >
+                {item.isCurrency ? fCurrency(item.value) : item.value}
+              </Link>
             ) : (
               <Typography variant="subtitle1" sx={{ color: item.color }}>
                 {item.isCurrency ? fCurrency(item.value) : item.value}

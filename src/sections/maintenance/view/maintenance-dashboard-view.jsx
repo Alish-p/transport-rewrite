@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
@@ -15,6 +16,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import { alpha, useTheme } from '@mui/material/styles';
@@ -117,7 +119,7 @@ function BarWidget({
   );
 }
 
-function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter }) {
+function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter, action }) {
   const chartOptions = useChart({
     colors,
     xaxis: {
@@ -130,7 +132,7 @@ function HorizontalBarWidget({ title, subheader, categories, series, colors, hei
 
   return (
     <Card sx={{ height: '100%' }}>
-      <CardHeader title={title} subheader={subheader} />
+      <CardHeader title={title} subheader={subheader} action={action} />
       <Box sx={{ p: 3, pb: 1 }}>
         <Chart dir="ltr" type="bar" series={series} options={chartOptions} height={height} />
       </Box>
@@ -676,6 +678,13 @@ export default function MaintenanceDashboardView() {
               <HorizontalBarWidget
                 title="Top Parts Used"
                 subheader="Most frequently consumed parts"
+                action={
+                  <Tooltip title="Fluids and small generic items are not considered as used and part failures">
+                    <IconButton color="default">
+                      <Iconify icon="eva:info-outline" />
+                    </IconButton>
+                  </Tooltip>
+                }
                 categories={analytics.topPartsUsed.map((p) => p.partName)}
                 series={[{ name: 'Qty Used', data: analytics.topPartsUsed.map((p) => p.totalQuantity) }]}
                 colors={[theme.palette.primary.main]}
@@ -718,7 +727,9 @@ export default function MaintenanceDashboardView() {
                             </Link>
                           </TableCell>
                           <TableCell align="right">
-                            <Chip label={v.workOrderCount} size="small" color="error" variant="soft" />
+                            <Link component={RouterLink} to={`${paths.dashboard.workOrder.root}?vehicleId=${v.vehicleId}`} sx={{ textDecoration: 'none' }}>
+                              <Chip label={v.workOrderCount} size="small" color="error" variant="soft" sx={{ cursor: 'pointer' }} />
+                            </Link>
                           </TableCell>
                           <TableCell align="right">{fCurrency(v.totalCost)}</TableCell>
                         </TableRow>
@@ -805,6 +816,13 @@ export default function MaintenanceDashboardView() {
                   title="Repeat Part Failures"
                   subheader="Same part replaced on same vehicle 2+ times"
                   avatar={<Iconify icon="mdi:alert-decagram" width={28} sx={{ color: 'error.main' }} />}
+                  action={
+                    <Tooltip title="Fluids and small generic items are not considered as used and part failures">
+                      <IconButton color="default">
+                        <Iconify icon="eva:info-outline" />
+                      </IconButton>
+                    </Tooltip>
+                  }
                 />
                 <TableContainer sx={{ p: 2 }}>
                   <Table size="small">
