@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router';
-import { useState, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import { Tab, Tabs, Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+import { useSearchParams } from 'src/routes/hooks';
 
 import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -22,12 +23,16 @@ import { VehicleBillingSummary } from '../widgets/vehicle-billing-summary';
 import { VehicleOdometerWidget } from '../widgets/vehicle-odometer-widget';
 import { VehicleSubtripsWidget } from '../widgets/vehicle-subtrips-widget';
 import { VehicleDocumentsWidget } from '../widgets/vehicle-documents-widget';
+import { VehicleWorkOrdersWidget } from '../widgets/vehicle-work-orders-widget';
 import { VehicleMonthlyAnalyticsWidget } from '../widgets/vehicle-monthly-analytics-widget';
 
 // ----------------------------------------------------------------------
 
+const VALID_TABS = ['overview', 'tyres', 'workOrders'];
+
 export function VehicleDetailView({ vehicle }) {
   const navigate = useNavigate();
+  const searchParams = useSearchParams();
   const { tenant } = useAuthContext();
   const {
     vehicleNo,
@@ -45,15 +50,29 @@ export function VehicleDetailView({ vehicle }) {
     trackingLink,
   } = vehicle;
 
-  const [currentTab, setCurrentTab] = useState('overview');
+  // Read tab from URL, fallback to 'overview'
+  const currentTab = useMemo(() => {
+    const tabParam = searchParams.get('tab');
+    return VALID_TABS.includes(tabParam) ? tabParam : 'overview';
+  }, [searchParams]);
 
-  const handleChangeTab = useCallback((event, newValue) => {
-    setCurrentTab(newValue);
-  }, []);
+  const handleChangeTab = useCallback((_event, newValue) => {
+    const next = new URLSearchParams(searchParams);
+    if (newValue === 'overview') {
+      next.delete('tab');
+    } else {
+      next.set('tab', newValue);
+    }
+    const qs = next.toString();
+    navigate(qs ? `?${qs}` : '.', { replace: true });
+  }, [searchParams, navigate]);
 
   const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
   const odometer = gpsData?.totalOdometer || 0;
   const fuelValue = Math.round(parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, ''))) || 0;
+
+  // Show Work Orders tab for own vehicles OR when maintenance & inventory is enabled
+  const showWorkOrdersTab = vehicle.isOwn || tenant?.integrations?.maintenanceAndInventory?.enabled;
 
   const renderDetails = (
     <Card>
@@ -233,6 +252,9 @@ export function VehicleDetailView({ vehicle }) {
       >
         <Tab value="overview" label="Overview" icon={<Iconify icon="mdi:eye" width={20} />} />
         <Tab value="tyres" label="Tyres" icon={<Iconify icon="mingcute:wheel-line" width={20} />} />
+        {showWorkOrdersTab && (
+          <Tab value="workOrders" label="Work Orders" icon={<Iconify icon="mdi:wrench" width={20} />} />
+        )}
       </Tabs>
 
       {currentTab === 'overview' && (
@@ -279,6 +301,11 @@ export function VehicleDetailView({ vehicle }) {
       )}
 
       {currentTab === 'tyres' && <VehicleTyreLayoutView vehicle={vehicle} />}
+
+      {currentTab === 'workOrders' && showWorkOrdersTab && (
+        <VehicleWorkOrdersWidget vehicleId={vehicle._id} vehicleNo={vehicleNo} />
+      )}
     </DashboardContent>
   );
 }
+

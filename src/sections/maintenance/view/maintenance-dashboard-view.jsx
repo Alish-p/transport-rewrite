@@ -271,10 +271,6 @@ export default function MaintenanceDashboardView() {
   const partCatLabels = parts.categoryBreakdown.map((c) => c.category);
   const partCatSeries = [{ name: 'Parts', data: parts.categoryBreakdown.map((c) => c.count) }];
 
-  // Location stock bar chart
-  const locLabels = locations.stockByLocation.map((l) => l.locationName);
-  const locSeries = [{ name: 'Quantity', data: locations.stockByLocation.map((l) => l.totalQuantity) }];
-
   return (
     <DashboardContent>
       <Box sx={{ mb: { xs: 3, md: 5 } }}>
@@ -391,17 +387,6 @@ export default function MaintenanceDashboardView() {
           />
         </Grid>
 
-        {/* ---- LOCATION STOCK ---- */}
-        <Grid xs={12} md={6}>
-          <BarWidget
-            title="Stock by Location"
-            subheader="Quantity across warehouse locations"
-            categories={locLabels}
-            series={locSeries}
-            colors={[theme.palette.info.main]}
-          />
-        </Grid>
-
         {/* ---- WO MONTHLY TREND ---- */}
         <Grid xs={12} md={6}>
           <BarWidget
@@ -423,6 +408,7 @@ export default function MaintenanceDashboardView() {
             categories={woCatLabels}
             series={woCatSeries}
             colors={[theme.palette.error.main]}
+            yAxisFormatter={(value) => Math.round(value)}
           />
         </Grid>
 
