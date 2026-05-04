@@ -16,14 +16,14 @@ import {
 } from '../widgets';
 
 export function TransporterDetailView({ transporter }) {
-  const { transportName, ownerName, cellNo, status } = transporter || {};
+  const { transportName, ownerName, cellNo, isActive } = transporter || {};
 
   return (
     <DashboardContent>
       <HeroHeader
         offsetTop={70}
         title={transportName}
-        status={status || 'Active'}
+        status={isActive ? 'Active' : 'In Active'}
         icon="mdi:truck"
         meta={[
           { icon: 'mdi:account', label: ownerName },
