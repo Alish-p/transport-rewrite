@@ -10,14 +10,16 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
+import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fDateTimeDuration } from 'src/utils/format-time';
+import { fDate, fTime } from 'src/utils/format-time';
 
-import { usePaginatedWorkOrders } from 'src/query/use-work-order';
+import { usePaginatedPurchaseOrders } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -30,45 +32,54 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { WorkOrderPartsPopoverCell } from 'src/sections/work-order/work-order-parts-popover-cell';
-import {
-  WORK_ORDER_STATUS_LABELS,
-  WORK_ORDER_STATUS_COLORS,
-  WORK_ORDER_STATUS_OPTIONS,
-  WORK_ORDER_PRIORITY_LABELS,
-  WORK_ORDER_PRIORITY_COLORS,
-} from 'src/sections/work-order/work-order-config';
-
 // ----------------------------------------------------------------------
+
+const STATUS_CONFIG = {
+  'pending-approval': { label: 'Pending Approval', color: 'warning' },
+  approved: { label: 'Approved', color: 'info' },
+  purchased: { label: 'Purchased', color: 'primary' },
+  'partial-received': { label: 'Partially Received', color: 'warning' },
+  rejected: { label: 'Rejected', color: 'error' },
+  received: { label: 'Received', color: 'success' },
+};
 
 const STATUS_TABS = [
   { value: 'all', label: 'All', color: 'default' },
-  ...WORK_ORDER_STATUS_OPTIONS.map((s) => ({
-    value: s.value,
-    label: s.label,
-    color: s.color,
-  })),
+  { value: 'pending-approval', label: 'Pending', color: 'warning' },
+  { value: 'approved', label: 'Approved', color: 'info' },
+  { value: 'purchased', label: 'Purchased', color: 'primary' },
+  { value: 'partial-received', label: 'Partial', color: 'warning' },
+  { value: 'received', label: 'Received', color: 'success' },
+  { value: 'rejected', label: 'Rejected', color: 'error' },
 ];
 
 const TABLE_HEAD = [
-  { id: 'workOrderNo', label: 'WO#' },
-  { id: 'category', label: 'Category' },
+  { id: 'purchaseOrderNo', label: 'PO#' },
   { id: 'status', label: 'Status' },
-  { id: 'priority', label: 'Priority' },
-  { id: 'timeTaken', label: 'Time Taken' },
-  { id: 'parts', label: 'Parts', align: 'center' },
-  { id: 'scheduledStartDate', label: 'Scheduled' },
-  { id: 'totalCost', label: 'Cost', align: 'right' },
+  { id: 'total', label: 'Total', align: 'right' },
+  { id: 'createdAt', label: 'Created', sortable: true },
+  { id: 'partLocation', label: 'Location' },
+  { id: 'createdBy', label: 'Created By' },
 ];
+
+const STATUS_TOTALS_KEY_MAP = {
+  all: 'all',
+  'pending-approval': 'pendingApproval',
+  approved: 'approved',
+  purchased: 'purchased',
+  'partial-received': 'partialReceived',
+  received: 'received',
+  rejected: 'rejected',
+};
 
 // ----------------------------------------------------------------------
 
-export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
-  const table = useTable({ defaultOrderBy: 'createdAt', defaultRowsPerPage: 10 });
+export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultRowsPerPage: maxRows || 10 });
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const { data, isLoading } = usePaginatedWorkOrders({
-    vehicle: vehicleId,
+  const { data, isLoading } = usePaginatedPurchaseOrders({
+    vendor: vendorId,
     status: statusFilter === 'all' ? undefined : statusFilter,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
@@ -79,8 +90,8 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (data?.workOrders) {
-      setTableData(data.workOrders);
+    if (data?.purchaseOrders) {
+      setTableData(data.purchaseOrders);
     } else {
       setTableData([]);
     }
@@ -88,7 +99,11 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
 
   const totals = data?.totals || {};
   const totalCount = totals.all?.count || data?.total || 0;
-  const getCount = (status) => totals[status]?.count || 0;
+
+  const getCount = (status) => {
+    const key = STATUS_TOTALS_KEY_MAP[status];
+    return totals[key]?.count || 0;
+  };
 
   const handleFilterStatus = useCallback(
     (_event, newValue) => {
@@ -103,17 +118,17 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
   return (
     <Card>
       <CardHeader
-        title="Work Orders"
-        subheader="Maintenance history for this vehicle"
+        title="Purchase Orders"
+        subheader="All purchase orders from this vendor"
         action={
           <Button
             component={RouterLink}
-            href={`${paths.dashboard.workOrder.new}?vehicle=${vehicleId}&vehicleNo=${vehicleNo || ''}`}
+            href={`${paths.dashboard.purchaseOrder.new}?vendor=${vendorId}`}
             variant="contained"
             size="small"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New Work Order
+            New Purchase Order
           </Button>
         }
       />
@@ -121,7 +136,7 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
       <Tabs
         value={statusFilter}
         onChange={handleFilterStatus}
-        sx={{ p: 2.5 }}
+        sx={{ p: 2 }}
       >
         {STATUS_TABS.map((tab) => {
           const count = tab.value === 'all' ? totalCount : getCount(tab.value);
@@ -160,54 +175,65 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
                 <TableSkeleton key={i} />
               ))
             ) : tableData.length ? (
-              tableData.map((wo) => (
-                <TableRow key={wo._id} hover sx={{ cursor: 'pointer' }}>
+              tableData.map((po) => (
+                <TableRow key={po._id} hover sx={{ cursor: 'pointer' }}>
                   <TableCell>
-                    <Link
-                      component={RouterLink}
-                      to={paths.dashboard.workOrder.details(wo._id)}
-                      variant="subtitle2"
-                      noWrap
-                      sx={{ color: 'primary.main' }}
+                    <ListItemText
+                      disableTypography
+                      primary={
+                        <Link
+                          component={RouterLink}
+                          to={paths.dashboard.purchaseOrder.details(po._id)}
+                          variant="subtitle2"
+                          noWrap
+                          sx={{ color: 'primary.main' }}
+                        >
+                          {po.purchaseOrderNo}
+                        </Link>
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Label
+                      variant="soft"
+                      color={STATUS_CONFIG[po.status]?.color || 'default'}
                     >
-                      {wo.workOrderNo}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Label variant="soft" color="default">
-                      {wo.category || '-'}
+                      {STATUS_CONFIG[po.status]?.label || po.status}
                     </Label>
                   </TableCell>
-                  <TableCell>
-                    <Label variant="soft" color={WORK_ORDER_STATUS_COLORS[wo.status] || 'default'}>
-                      {WORK_ORDER_STATUS_LABELS[wo.status] || wo.status}
-                    </Label>
+                  <TableCell align="right">
+                    <Typography variant="subtitle2">
+                      {fCurrency(po.total || 0)}
+                    </Typography>
                   </TableCell>
                   <TableCell>
-                    <Label variant="soft" color={WORK_ORDER_PRIORITY_COLORS[wo.priority] || 'default'}>
-                      {WORK_ORDER_PRIORITY_LABELS[wo.priority] || wo.priority || '-'}
-                    </Label>
+                    {po.createdAt ? (
+                      <>
+                        <Typography variant="body2" noWrap>
+                          {fDate(po.createdAt)}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary' }}
+                          noWrap
+                        >
+                          {fTime(po.createdAt)}
+                        </Typography>
+                      </>
+                    ) : (
+                      '-'
+                    )}
                   </TableCell>
                   <TableCell>
-                    {wo.actualStartDate && wo.completedDate
-                      ? fDateTimeDuration(wo.actualStartDate, wo.completedDate)
-                      : '-'}
+                    {po.partLocationSnapshot?.name || po.partLocation?.name || '-'}
                   </TableCell>
-                  <TableCell align="center">
-                    <WorkOrderPartsPopoverCell row={wo} />
-                  </TableCell>
-                  <TableCell>
-                    {wo.scheduledStartDate ? fDate(wo.scheduledStartDate) : '-'}
-                  </TableCell>
-                  <TableCell align="right">{fCurrency(wo.totalCost || 0)}</TableCell>
+                  <TableCell>{po.createdBy?.name || '-'}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableNoData
                 notFound={notFound}
-                sx={{
-                  py: 10,
-                }}
+                sx={{ py: 10 }}
               />
             )}
           </TableBody>

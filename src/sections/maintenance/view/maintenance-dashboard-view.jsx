@@ -444,7 +444,16 @@ export default function MaintenanceDashboardView() {
                           >
                             <Iconify icon="mdi:store-outline" width={16} />
                           </Box>
-                          <Typography variant="body2">{v.vendor}</Typography>
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.vendor.details(v.vendorId)}
+                            variant="body2"
+                            noWrap
+                            underline="hover"
+                            sx={{ color: 'primary.main' }}
+                          >
+                            {v.vendor}
+                          </Link>
                         </Stack>
                       </TableCell>
                       <TableCell align="right">{v.orders}</TableCell>

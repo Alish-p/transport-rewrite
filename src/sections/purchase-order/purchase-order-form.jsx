@@ -112,6 +112,15 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     formState: { isSubmitting },
   } = methods;
 
+  // Sync vendor when currentPurchaseOrder updates (e.g. async fetch from URL vendor param)
+  useEffect(() => {
+    const vendor = currentPurchaseOrder?.vendor;
+    if (vendor?._id && vendor?.name) {
+      setSelectedVendor(vendor);
+      setValue('vendorId', vendor._id, { shouldValidate: true });
+    }
+  }, [currentPurchaseOrder, setValue]);
+
   const { fields, append, remove } = useFieldArray({ name: 'lines', control });
 
   const values = watch();
