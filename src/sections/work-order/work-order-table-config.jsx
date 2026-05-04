@@ -13,6 +13,7 @@ import { fDate, fDateTimeDuration } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
+import { WorkOrderPartsPopoverCell } from './work-order-parts-popover-cell';
 import {
   WORK_ORDER_STATUS_LABELS,
   WORK_ORDER_STATUS_COLORS,
@@ -137,6 +138,23 @@ export const TABLE_COLUMNS = [
       if (!row.actualStartDate || !row.completedDate) return '-';
       return fDateTimeDuration(row.actualStartDate, row.completedDate);
     },
+  },
+  {
+    id: 'parts',
+    label: 'Parts',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => {
+      if (!row.parts || row.parts.length === 0) return '-';
+      return row.parts.map((p) => {
+        const name = p.partSnapshot?.name ?? p.part?.name ?? 'Unknown Part';
+        const qty = p.quantity || 0;
+        const unit = p.partSnapshot?.measurementUnit ?? p.part?.measurementUnit ?? '';
+        return `${name}(${qty}${unit ? ` ${unit}` : ''})`;
+      }).join(', ');
+    },
+    render: (row) => <WorkOrderPartsPopoverCell row={row} />,
   },
   {
     id: 'issues',
