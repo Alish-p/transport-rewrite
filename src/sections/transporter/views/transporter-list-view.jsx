@@ -156,9 +156,19 @@ export function TransporterListView() {
   const totalCount = data?.total || 0;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default' },
-    { value: 'active', label: 'Active', color: 'success' },
-    { value: 'inactive', label: 'Inactive', color: 'error' },
+    { value: 'all', label: 'All', color: 'default', count: data?.totals?.all?.count || totalCount },
+    {
+      value: 'active',
+      label: 'Active',
+      color: 'success',
+      count: data?.totals?.active?.count || tableData.filter((i) => i.isActive === true).length,
+    },
+    {
+      value: 'inactive',
+      label: 'Inactive',
+      color: 'error',
+      count: data?.totals?.inactive?.count || tableData.filter((i) => i.isActive === false).length,
+    },
   ];
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
@@ -240,15 +250,16 @@ export function TransporterListView() {
               label={tab.label}
               iconPosition="end"
               icon={
-                filters.status === tab.value ? (
-                  isLoading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <Label variant="filled" color={tab.color}>
-                      {totalCount}
-                    </Label>
-                  )
-                ) : null
+                isLoading ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <Label
+                    variant={tab.value === filters.status ? 'filled' : 'soft'}
+                    color={tab.color}
+                  >
+                    {tab.count}
+                  </Label>
+                )
               }
             />
           ))}

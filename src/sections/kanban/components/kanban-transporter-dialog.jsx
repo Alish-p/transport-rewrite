@@ -2,6 +2,7 @@ import { useInView } from 'react-intersection-observer';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -15,6 +16,7 @@ import { useDebounce } from 'src/hooks/use-debounce';
 
 import { useInfiniteTransporters } from 'src/query/use-transporter';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
@@ -45,7 +47,7 @@ export function KanbanTransporterDialog({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useInfiniteTransporters(
-      { search: debouncedSearch || undefined, rowsPerPage: 50 },
+      { search: debouncedSearch || undefined, rowsPerPage: 50, status: 'all' },
       {
         enabled: open,
         keepPreviousData: false,
@@ -128,7 +130,18 @@ export function KanbanTransporterDialog({
                     <ListItemText
                       primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
                       secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={transporter.transportName}
+                      primary={
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Typography variant="subtitle2">{transporter.transportName}</Typography>
+                          <Label
+                            variant="soft"
+                            color={transporter.isActive ? 'success' : 'error'}
+                            size="small"
+                          >
+                            {transporter.isActive ? 'Active' : 'Inactive'}
+                          </Label>
+                        </Stack>
+                      }
                       secondary={
                         <>
                           {transporter.place} • {transporter.cellNo}
