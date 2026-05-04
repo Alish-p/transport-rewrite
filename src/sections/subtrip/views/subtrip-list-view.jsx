@@ -77,6 +77,8 @@ const defaultFilters = {
   transporterPaymentGenerated: '',
   epodSigned: '',
   shortage: '',
+  commissionRateMin: '',
+  commissionRateMax: '',
 };
 
 // ----------------------------------------------------------------------
@@ -141,6 +143,8 @@ export function SubtripListView() {
     transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
     epodSigned: filters.epodSigned || undefined,
     shortage: filters.shortage || undefined,
+    commissionRateMin: filters.commissionRateMin || undefined,
+    commissionRateMax: filters.commissionRateMax || undefined,
   });
 
   useEffect(() => {
@@ -498,6 +502,8 @@ export function SubtripListView() {
                               transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
                               epodSigned: filters.epodSigned || undefined,
                               shortage: filters.shortage || undefined,
+                              commissionRateMin: filters.commissionRateMin || undefined,
+                              commissionRateMax: filters.commissionRateMax || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

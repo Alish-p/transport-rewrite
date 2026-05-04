@@ -96,6 +96,14 @@ export default function SubtripTableFiltersResult({
     onFilters('shortage', '');
   };
 
+  const handleRemoveCommissionRateMin = () => {
+    onFilters('commissionRateMin', '');
+  };
+
+  const handleRemoveCommissionRateMax = () => {
+    onFilters('commissionRateMax', '');
+  };
+
   const handleRemoveLoadingPoint = () => {
     onFilters('loadingPoint', '');
   };
@@ -278,6 +286,25 @@ export default function SubtripTableFiltersResult({
               label={filters.shortage === 'yes' ? 'Has Shortage' : 'No shortage'}
               onDelete={handleRemoveShortage}
             />
+          </Block>
+        )}
+
+        {(filters.commissionRateMin || filters.commissionRateMax) && (
+          <Block label="Commission Rate:">
+            {filters.commissionRateMin && (
+              <Chip
+                size="small"
+                label={`> ${filters.commissionRateMin}`}
+                onDelete={handleRemoveCommissionRateMin}
+              />
+            )}
+            {filters.commissionRateMax && (
+              <Chip
+                size="small"
+                label={`≤ ${filters.commissionRateMax}`}
+                onDelete={handleRemoveCommissionRateMax}
+              />
+            )}
           </Block>
         )}
 

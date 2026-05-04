@@ -320,6 +320,23 @@ export default function SubtripFiltersDrawer({
                             </Select>
                         </FormControl>
 
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Min Commission"
+                                value={filters.commissionRateMin || ''}
+                                onChange={(event) => onFilters('commissionRateMin', event.target.value)}
+                            />
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Max Commission"
+                                value={filters.commissionRateMax || ''}
+                                onChange={(event) => onFilters('commissionRateMax', event.target.value)}
+                            />
+                        </Stack>
+
                         <FormControl fullWidth>
                             <InputLabel id="subtrip-type-select-label">Subtrip Type</InputLabel>
                             <Select
