@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
+import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
+import { alpha } from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
@@ -34,6 +37,8 @@ import {
   TableSkeleton,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { vehicleTypes } from 'src/sections/vehicle/vehicle-config';
 
 // ─── Deviation Label ──────────────────────────────────────────────────────────
 function DeviationLabel({ value, invertColor = false, avgValue, currentValue, formatParams = {} }) {
@@ -369,10 +374,20 @@ function RouteRow({ route, index }) {
 // ─── Main View ───────────────────────────────────────────────────────────────
 export function RouteAnalyzerView() {
   const table = useTable({ defaultRowsPerPage: 10, syncToUrl: true });
+  const [vehicleTypeFilter, setVehicleTypeFilter] = useState('');
+
+  const handleFilterVehicleType = useCallback(
+    (event, newValue) => {
+      setVehicleTypeFilter(newValue);
+      table.onResetPage();
+    },
+    [table]
+  );
 
   const { data, isLoading } = useRouteAnalytics({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
+    ...(vehicleTypeFilter && { vehicleType: vehicleTypeFilter }),
   });
 
   const routes = data?.routes || [];
@@ -390,6 +405,8 @@ export function RouteAnalyzerView() {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
+
+
 
       {/* Stats summary */}
       <Stack
@@ -438,6 +455,20 @@ export function RouteAnalyzerView() {
 
       {/* Route Table */}
       <Card>
+        <Tabs
+          value={vehicleTypeFilter}
+          onChange={handleFilterVehicleType}
+          sx={{
+            px: 2.5,
+            boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+          }}
+        >
+          <Tab key="all" value="" label="All Types" />
+          {vehicleTypes.map((tab) => (
+            <Tab key={tab.key} value={tab.key} label={tab.value} />
+          ))}
+        </Tabs>
+
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <Scrollbar>
             <Table size="medium" sx={{ minWidth: 960 }}>
