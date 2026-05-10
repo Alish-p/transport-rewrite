@@ -51,8 +51,6 @@ const ICONS = {
 export function OverviewAppView({
   counts,
   invoiceStatusSummary,
-  invoiceAmountSummary,
-  transporterPaymentSummary,
   vehicleDocsSummary,
 }) {
   const { user, tenant } = useAuthContext();
@@ -142,15 +140,13 @@ export function OverviewAppView({
           </Grid>
         </>
 
-        {invoiceAmountSummary && (
-          <Grid xs={12} sm={6}>
-            <AppInvoiceAmountSummary summary={invoiceAmountSummary} />
-          </Grid>
-        )}
+        <Grid xs={12} sm={6}>
+          <AppInvoiceAmountSummary />
+        </Grid>
 
-        {managesMarketVehicles && transporterPaymentSummary && (
+        {managesMarketVehicles && (
           <Grid xs={12} sm={6}>
-            <AppTransporterPaymentSummary summary={transporterPaymentSummary} />
+            <AppTransporterPaymentSummary />
           </Grid>
         )}
 

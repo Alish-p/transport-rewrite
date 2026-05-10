@@ -150,27 +150,31 @@ export function useFinancialMonthlyData() {
 // ----------------------------------------------------------------------
 // Invoice amount summary
 
-const getInvoiceAmountSummary = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/invoice-amount-summary`);
+const getInvoiceAmountSummary = async (year) => {
+  const { data } = await axios.get(`${ENDPOINT}/invoice-amount-summary`, {
+    params: { year }
+  });
   return data;
 };
 
-export function useInvoiceAmountSummary() {
-  return useQuery({ queryKey: ['invoiceAmountSummary'], queryFn: getInvoiceAmountSummary });
+export function useInvoiceAmountSummary(year) {
+  return useQuery({ queryKey: ['invoiceAmountSummary', year], queryFn: () => getInvoiceAmountSummary(year) });
 }
 
 // ----------------------------------------------------------------------
 // Transporter payment summary
 
-const getTransporterPaymentSummary = async () => {
-  const { data } = await axios.get(`${ENDPOINT}/transporter-payment-summary`);
+const getTransporterPaymentSummary = async (year) => {
+  const { data } = await axios.get(`${ENDPOINT}/transporter-payment-summary`, {
+    params: { year }
+  });
   return data;
 };
 
-export function useTransporterPaymentSummary() {
+export function useTransporterPaymentSummary(year) {
   return useQuery({
-    queryKey: ['transporterPaymentSummary'],
-    queryFn: getTransporterPaymentSummary,
+    queryKey: ['transporterPaymentSummary', year],
+    queryFn: () => getTransporterPaymentSummary(year),
   });
 }
 

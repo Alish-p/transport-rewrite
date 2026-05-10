@@ -1,8 +1,12 @@
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -11,11 +15,23 @@ import { alpha, useTheme } from '@mui/material/styles';
 import { fShortenNumber } from 'src/utils/format-number';
 import { exportTransporterPaymentSummaryToExcel } from 'src/utils/export-transporter-payment-summary-to-excel';
 
+import { useTransporterPaymentSummary } from 'src/query/use-dashboard';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
-export function AppTransporterPaymentSummary({ summary, ...other }) {
+export function AppTransporterPaymentSummary({ ...other }) {
   const theme = useTheme();
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const startYear = currentMonth >= 3 ? currentYear : currentYear - 1;
+
+  const [selectedYear, setSelectedYear] = useState(startYear);
+
+  const yearOptions = Array.from({ length: 3 }, (_, i) => startYear - i);
+
+  const { data: summary } = useTransporterPaymentSummary(selectedYear);
 
   if (!summary) {
     return null;
@@ -53,7 +69,19 @@ export function AppTransporterPaymentSummary({ summary, ...other }) {
         title="Transporter Payment Summary"
         sx={{ mb: 2 }}
         action={
-          <Stack direction="row" spacing={0.5}>
+          <Stack direction="row" spacing={0.5} alignItems="center">
+            <Select
+              size="small"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              sx={{ minWidth: 120, mr: 1 }}
+            >
+              {yearOptions.map((year) => (
+                <MenuItem key={year} value={year}>
+                  FY {year}–{String(year + 1).slice(-2)}
+                </MenuItem>
+              ))}
+            </Select>
             <Tooltip title="Download Excel">
               <IconButton onClick={() => exportTransporterPaymentSummaryToExcel(summary)}>
                 <Iconify icon="file-icons:microsoft-excel" />

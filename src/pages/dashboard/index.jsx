@@ -5,9 +5,7 @@ import {
   useDashboardCounts,
   useSubtripStatusSummary,
   useInvoiceStatusSummary,
-  useInvoiceAmountSummary,
   useVehicleDocumentsSummary,
-  useTransporterPaymentSummary,
 } from 'src/query/use-dashboard';
 
 import { EmptyContent } from 'src/components/empty-content';
@@ -34,18 +32,6 @@ export default function OverviewAppPage() {
     isError: invoiceStatusError,
   } = useInvoiceStatusSummary();
 
-  const {
-    data: invoiceAmountSummary,
-    isLoading: invoiceAmountLoading,
-    isError: invoiceAmountError,
-  } = useInvoiceAmountSummary();
-
-  const {
-    data: transporterPaymentSummary,
-    isLoading: transporterPaymentLoading,
-    isError: transporterPaymentError,
-  } = useTransporterPaymentSummary();
-
   // Vehicle documents summary (default 30 days)
   const {
     data: vehicleDocsSummary,
@@ -57,8 +43,6 @@ export default function OverviewAppPage() {
     countsLoading ||
     statusSummaryLoading ||
     invoiceStatusLoading ||
-    invoiceAmountLoading ||
-    transporterPaymentLoading ||
     vehicleDocsLoading
   ) {
     return <LoadingScreen />;
@@ -68,8 +52,6 @@ export default function OverviewAppPage() {
     countsError ||
     statusSummaryError ||
     invoiceStatusError ||
-    invoiceAmountError ||
-    transporterPaymentError ||
     vehicleDocsError
   ) {
     return (
@@ -90,8 +72,6 @@ export default function OverviewAppPage() {
         counts={counts}
         subtripStatusSummary={subtripStatusSummary}
         invoiceStatusSummary={invoiceStatusSummary}
-        invoiceAmountSummary={invoiceAmountSummary}
-        transporterPaymentSummary={transporterPaymentSummary}
         vehicleDocsSummary={vehicleDocsSummary}
       />
     </>
