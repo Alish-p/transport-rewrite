@@ -68,9 +68,9 @@ export function HomeHero({ sx, ...other }) {
         }}
       >
         <Box component="span" sx={{ width: 1, opacity: 0.24 }}>
-          Simplify Your
+          Logistics Management
         </Box>
-        Logistics with
+        Software for
         <Box
           component={m.span}
           animate={{ backgroundPosition: '200% center' }}
@@ -105,8 +105,8 @@ export function HomeHero({ sx, ...other }) {
           [theme.breakpoints.up(lgKey)]: { fontSize: 20, lineHeight: '36px' },
         }}
       >
-        The driving force behind your logistics. Seamless operations and easy customization for
-        faster, smarter transport management.
+        Tranzit helps transporters run fleet management, trip planning, fuel tracking,
+        maintenance, invoicing, and driver payments from one logistics platform.
       </Typography>
     </MInview>
   );
@@ -159,7 +159,7 @@ export function HomeHero({ sx, ...other }) {
             underline="always"
             sx={{ gap: 0.5, alignItems: 'center', display: 'inline-flex' }}
           >
-            Contact US
+            Contact Us
             <Iconify width={16} icon="eva:external-link-fill" />
           </Link>
         </Stack>

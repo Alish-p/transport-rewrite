@@ -49,7 +49,11 @@ export function HomeHighlightFeatures({ sx, ...other }) {
             alignItems={{ xs: 'center', md: 'flex-start' }}
             sx={{ textAlign: { xs: 'center', md: 'left' } }}
           >
-            <SectionTitle caption="App Features" title="Highlight" txtGradient="features" />
+            <SectionTitle
+              caption="Transport Management System"
+              title="Operational"
+              txtGradient="features"
+            />
 
             <SvgIcon
               component={m.svg}
@@ -223,14 +227,14 @@ function Item({ item, sx, ...other }) {
 
 const ITEMS = [
   {
-    title: 'Dashboard',
-    subtitle: 'A dark theme that feels easier on the eyes.',
+    title: 'Logistics Dashboard',
+    subtitle: 'Monitor trips, vehicles, expenses, and payments from one transport dashboard.',
     icon: 'solar:cloudy-moon-bold-duotone',
     imgUrl: [`${CONFIG.site.basePath}/assets/images/home/dashboard-1.png`],
   },
   {
-    title: 'Details Page for Each Entity',
-    subtitle: 'Express your own style with just one click.',
+    title: 'Detailed Fleet Records',
+    subtitle: 'Keep vehicle, driver, customer, vendor, tyre, and maintenance data organized.',
     icon: 'solar:pallete-2-bold-duotone',
     imgUrl: [
       `${CONFIG.site.basePath}/assets/images/home/1.svg`,

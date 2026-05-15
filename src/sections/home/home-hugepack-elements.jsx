@@ -44,10 +44,10 @@ export function HomeHugePackElements({ sx, ...other }) {
             columnSpacing={{ xs: 0, md: 8 }}
           >
             <Grid xs={12} md={6} lg={7}>
-              <SectionCaption title="Transport Management System" />
+              <SectionCaption title="Fleet Management Software" />
               <SectionTitle
-                title="Efficient tracking of"
-                txtGradient="vehicles and trips"
+                title="Efficient tracking for"
+                txtGradient="vehicles, trips, and payments"
                 sx={{ mt: 3 }}
               />
             </Grid>
@@ -62,10 +62,11 @@ export function HomeHugePackElements({ sx, ...other }) {
                   }}
                 >
                   <Box component="span" sx={{ color: 'text.primary' }}>
-                    Manage your transport operations seamlessly
+                    Manage logistics operations with Tranzit
                   </Box>
                   <br />
-                  with features like route planning, fuel tracking, salary management, and more.
+                  using route planning, fleet tracking, fuel monitoring, salary management,
+                  invoices, and transporter payment tools.
                 </Typography>
               </m.div>
             </Grid>

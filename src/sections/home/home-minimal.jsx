@@ -31,9 +31,9 @@ export function HomeMinimal({ sx, ...other }) {
   const renderDescription = (
     <>
       <SectionTitle
-        caption="Visualizing Success"
-        title="What's in"
-        txtGradient="Transport + ?"
+        caption="Logistics Management Software"
+        title="What Tranzit"
+        txtGradient="helps you manage"
         sx={{ mb: { xs: 5, md: 8 }, textAlign: { xs: 'center', md: 'left' } }}
       />
 
@@ -90,7 +90,7 @@ export function HomeMinimal({ sx, ...other }) {
       >
         <Box
           component="img"
-          alt="Home Chart"
+          alt="Tranzit logistics management dashboard"
           src={`${CONFIG.site.basePath}/assets/images/home/home-chart.png`}
           sx={{ width: 720 }}
         />
@@ -137,24 +137,24 @@ const ITEMS = [
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-make-brand.svg`,
     title: 'Fleet Management',
     description:
-      'Streamline your fleet operations with real-time tracking, maintenance scheduling, and fuel monitoring.',
+      'Run fleet management with vehicle records, real-time trip visibility, maintenance scheduling, and fuel monitoring.',
   },
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-design.svg`,
     title: 'Invoice Generation',
     description:
-      'Generate accurate invoices instantly and automate your billing processes for faster payments.',
+      'Generate transport invoices, automate billing workflows, and keep customer payments connected to every trip.',
   },
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-development.svg`,
     title: 'Salary Management',
     description:
-      'Efficiently manage driver and employee salaries with automated payroll and reporting features.',
+      'Manage driver salaries, advances, deductions, and payroll reports without manual spreadsheet work.',
   },
   {
     icon: `${CONFIG.site.basePath}/assets/icons/home/ic-design.svg`,
-    title: 'Tire Management',
+    title: 'Tyre Management',
     description:
-      'Keep track of tire usage, performance, and replacement cycles to reduce costs and improve safety.',
+      'Track tyre usage, performance, and replacement cycles to reduce fleet costs and improve vehicle safety.',
   },
 ];
