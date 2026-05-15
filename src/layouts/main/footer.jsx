@@ -37,7 +37,7 @@ const LINKS = [
   {
     headline: 'Contact',
     children: [
-      { name: 'palasaraalis@gmail.com', href: 'mailto:palasaraalis@gmail.com' },
+      { name: 'support@tranzitsolutions.com', href: 'mailto:support@tranzitsolutions.com' },
       { name: '+91 7575049646', href: 'tel:+917575049646' },
     ],
   },

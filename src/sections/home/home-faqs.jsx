@@ -183,7 +183,7 @@ export function HomeFAQs({ sx, ...other }) {
         <Button
           color="inherit"
           variant="contained"
-          href="mailto:palasaraalis@gmail.com?subject=[Feedback] from Customer"
+          href="mailto:support@tranzitsolutions.com?subject=[Feedback] from Customer"
           startIcon={<Iconify icon="fluent:mail-24-filled" />}
         >
           Contact us
