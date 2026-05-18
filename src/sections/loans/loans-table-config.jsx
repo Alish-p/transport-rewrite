@@ -59,21 +59,45 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: true,
     getter: (row) => getBorrowerName(row),
-    render: (row) => (
-      <ListItemText
-        disableTypography
-        primary={
-          <Typography variant="body2" noWrap>
-            {getBorrowerName(row)}
-          </Typography>
+    render: (row) => {
+      const getBorrowerLink = () => {
+        if (row.borrowerType === 'Driver') {
+          return paths.dashboard.driver.details(row.borrowerId?._id);
         }
-        secondary={
-          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-            {getBorrowerCell(row)}
-          </Typography>
+        if (row.borrowerType === 'Transporter') {
+          return paths.dashboard.transporter.details(row.borrowerId?._id);
         }
-      />
-    ),
+        return '#';
+      };
+
+      return (
+        <ListItemText
+          disableTypography
+          primary={
+            row.borrowerId?._id ? (
+              <Link
+                component={RouterLink}
+                href={getBorrowerLink()}
+                variant="body2"
+                noWrap
+                sx={{ color: 'primary.main', cursor: 'pointer' }}
+              >
+                {getBorrowerName(row)}
+              </Link>
+            ) : (
+              <Typography variant="body2" noWrap>
+                {getBorrowerName(row)}
+              </Typography>
+            )
+          }
+          secondary={
+            <Typography variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
+              {getBorrowerCell(row)}
+            </Typography>
+          }
+        />
+      );
+    },
   },
   {
     id: 'borrowerType',

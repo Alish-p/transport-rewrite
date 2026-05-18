@@ -47,20 +47,33 @@ export const TABLE_COLUMNS = [
     label: 'Transporter',
     defaultVisible: true,
     disabled: false,
-    align: 'center',
+    align: 'left',
+    width: 160,
     getter: (row) => row.transporterId?.transportName || '-',
     render: (row) => (
       <ListItemText
         disableTypography
         primary={
-          <Typography variant="body2" noWrap>
-            {row.transporterId?.transportName}
-          </Typography>
+          row.transporterId?._id ? (
+            <Link
+              component={RouterLink}
+              href={paths.dashboard.transporter.details(row.transporterId._id)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main', cursor: 'pointer' }}
+            >
+              {row.transporterId?.transportName}
+            </Link>
+          ) : (
+            <Typography variant="body2" noWrap>
+              {row.transporterId?.transportName || '-'}
+            </Typography>
+          )
         }
         secondary={
-          <Link noWrap variant="body2" sx={{ color: 'text.disabled', cursor: 'pointer' }}>
+          <Typography variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
             {row.transporterId?.cellNo}
-          </Link>
+          </Typography>
         }
       />
     ),
