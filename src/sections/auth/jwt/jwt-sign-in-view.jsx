@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -18,7 +19,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Iconify } from 'src/components/iconify';
+import { Iconify, SocialIcon } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
@@ -29,8 +30,7 @@ import { signInWithPassword } from 'src/auth/context/jwt';
 export const SignInSchema = zod.object({
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    .min(1, { message: 'Email or Mobile Number is required!' }),
   password: zod
     .string()
     .min(1, { message: 'Password is required!' })
@@ -95,7 +95,7 @@ export function JwtSignInView() {
 
   const renderForm = (
     <Stack spacing={3}>
-      <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
+      <Field.Text name="email" label="Email or Mobile Number" InputLabelProps={{ shrink: true }} />
 
       <Stack spacing={1.5}>
         <Link
@@ -153,6 +153,23 @@ export function JwtSignInView() {
       <Form methods={methods} onSubmit={onSubmit}>
         {renderForm}
       </Form>
+
+      <Divider
+        sx={{
+          my: 3,
+          typography: 'overline',
+          color: 'text.disabled',
+          '&::before, :after': { borderTopStyle: 'dashed' },
+        }}
+      >
+        OR
+      </Divider>
+
+      <Stack direction="row" justifyContent="center" spacing={1}>
+        <IconButton>
+          <SocialIcon icon="google" width={22} />
+        </IconButton>
+      </Stack>
     </>
   );
 }
