@@ -68,9 +68,9 @@ export function HomeHero({ sx, ...other }) {
         }}
       >
         <Box component="span" sx={{ width: 1, opacity: 0.24 }}>
-          Logistics Management
+          Simplify Logistics
         </Box>
-        Software for
+        Business with
         <Box
           component={m.span}
           animate={{ backgroundPosition: '200% center' }}
