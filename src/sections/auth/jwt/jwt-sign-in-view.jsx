@@ -100,7 +100,7 @@ export function JwtSignInView() {
       <Stack spacing={1.5}>
         <Link
           component={RouterLink}
-          href="#"
+          href={paths.authDemo.split.resetPassword}
           variant="body2"
           color="inherit"
           sx={{ alignSelf: 'flex-end' }}

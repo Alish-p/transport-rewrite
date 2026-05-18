@@ -8,10 +8,14 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { PasswordIcon } from 'src/assets/icons';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
@@ -27,6 +31,8 @@ export const ResetPasswordSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function SplitResetPasswordView() {
+  const router = useRouter();
+
   const defaultValues = { email: '' };
 
   const methods = useForm({
@@ -41,10 +47,14 @@ export function SplitResetPasswordView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
+      await axios.post(endpoints.auth.forgotPassword, { email: data.email });
+      toast.success("Code sent to email!");
+      
+      const searchParams = new URLSearchParams({ email: data.email }).toString();
+      router.push(`${paths.authDemo.split.updatePassword}?${searchParams}`);
     } catch (error) {
       console.error(error);
+      toast.error(error.message || "Failed to send code");
     }
   });
 
@@ -85,7 +95,7 @@ export function SplitResetPasswordView() {
 
       <Link
         component={RouterLink}
-        href={paths.authDemo.split.signIn}
+        href={paths.auth.jwt.signIn}
         color="inherit"
         variant="subtitle2"
         sx={{ mx: 'auto', alignItems: 'center', display: 'inline-flex' }}

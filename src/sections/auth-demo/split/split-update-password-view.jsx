@@ -1,5 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
@@ -11,11 +12,15 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { SentIcon } from 'src/assets/icons';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
@@ -43,11 +48,25 @@ export const UpdatePasswordSchema = zod
 // ----------------------------------------------------------------------
 
 export function SplitUpdatePasswordView() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get('email') || '';
+
+  const [countdown, setCountdown] = useState(60);
+
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+  
   const password = useBoolean();
 
   const defaultValues = {
     code: '',
-    email: '',
+    email: emailParam,
     password: '',
     confirmPassword: '',
   };
@@ -64,12 +83,34 @@ export function SplitUpdatePasswordView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
+      await axios.post(endpoints.auth.resetPassword, {
+        email: data.email,
+        code: data.code,
+        password: data.password,
+      });
+      toast.success("Password updated successfully!");
+      router.push(paths.auth.jwt.signIn);
     } catch (error) {
       console.error(error);
+      toast.error(error.message || "Failed to update password");
     }
   });
+
+  const handleResendCode = async () => {
+    const email = methods.getValues('email');
+    if (!email) {
+      toast.error("Please enter an email address first.");
+      return;
+    }
+    try {
+      await axios.post(endpoints.auth.forgotPassword, { email });
+      toast.success("Code resent to email!");
+      setCountdown(60);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to resend code");
+    }
+  };
 
   const renderHead = (
     <>
@@ -142,14 +183,20 @@ export function SplitUpdatePasswordView() {
 
       <Typography variant="body2" sx={{ mx: 'auto' }}>
         {`Don’t have a code? `}
-        <Link variant="subtitle2" sx={{ cursor: 'pointer' }}>
-          Resend code
-        </Link>
+        {countdown > 0 ? (
+          <Typography component="span" variant="subtitle2" sx={{ color: 'text.disabled' }}>
+            Resend code in {countdown}s
+          </Typography>
+        ) : (
+          <Link variant="subtitle2" sx={{ cursor: 'pointer' }} onClick={handleResendCode}>
+            Resend code
+          </Link>
+        )}
       </Typography>
 
       <Link
         component={RouterLink}
-        href={paths.authDemo.split.signIn}
+        href={paths.auth.jwt.signIn}
         color="inherit"
         variant="subtitle2"
         sx={{ mx: 'auto', alignItems: 'center', display: 'inline-flex' }}

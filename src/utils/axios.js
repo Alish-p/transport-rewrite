@@ -23,5 +23,7 @@ export const endpoints = {
     me: '/api/account/my-account',
     signIn: '/api/account/login',
     signUp: '/api/account/sign-up',
+    forgotPassword: '/api/account/forgot-password',
+    resetPassword: '/api/account/reset-password',
   },
 };
