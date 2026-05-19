@@ -57,6 +57,10 @@ export default function WorkOrderTableFiltersResult({
     onFilters('issue', '');
   };
 
+  const handleRemoveWorkOrderNo = () => {
+    onFilters('workOrderNo', '');
+  };
+
   const handleRemoveExpenseAdded = () => {
     onFilters('expenseAdded', '');
   };
@@ -82,6 +86,12 @@ export default function WorkOrderTableFiltersResult({
         {filters.status && filters.status !== 'all' && (
           <Block label="Status :">
             <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+          </Block>
+        )}
+
+        {filters.workOrderNo && (
+          <Block label="WO No. :">
+            <Chip size="small" label={filters.workOrderNo} onDelete={handleRemoveWorkOrderNo} />
           </Block>
         )}
 

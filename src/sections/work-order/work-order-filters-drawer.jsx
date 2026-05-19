@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
+import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { Iconify } from 'src/components/iconify';
@@ -60,6 +61,21 @@ export default function WorkOrderFiltersDrawer({
 
       <Scrollbar>
         <Stack spacing={3} sx={{ p: 2.5 }}>
+          <TextField
+            fullWidth
+            value={filters.workOrderNo || ''}
+            onChange={(event) => onFilters('workOrderNo', event.target.value)}
+            placeholder="WO No."
+            label="WO No."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
           <Autocomplete
             freeSolo
             options={WORK_ORDER_ISSUE_OPTIONS}

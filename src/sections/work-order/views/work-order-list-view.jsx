@@ -67,6 +67,7 @@ const defaultFilters = {
   issueAssignee: '',
   issue: '',
   expenseAdded: '',
+  workOrderNo: '',
   startDate: null,
   endDate: null,
 };
@@ -127,6 +128,7 @@ export function WorkOrderListView() {
     issueAssignee: filters.issueAssignee || undefined,
     issue: filters.issue || undefined,
     expenseAdded: filters.expenseAdded || undefined,
+    workOrderNo: filters.workOrderNo || undefined,
     startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
     endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
     page: table.page + 1,
@@ -409,6 +411,7 @@ export function WorkOrderListView() {
                               issueAssignee: filters.issueAssignee || undefined,
                               issue: filters.issue || undefined,
                               expenseAdded: filters.expenseAdded || undefined,
+                              workOrderNo: filters.workOrderNo || undefined,
                               startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
                               endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
                               columns: orderedIds.join(','),

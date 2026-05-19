@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -55,6 +56,13 @@ export default function WorkOrderTableToolbar({
   const handleFilterCategory = useCallback(
     (event, newValue) => {
       onFilters('category', newValue || 'all');
+    },
+    [onFilters]
+  );
+
+  const handleFilterWorkOrderNo = useCallback(
+    (event) => {
+      onFilters('workOrderNo', event.target.value);
     },
     [onFilters]
   );
@@ -125,6 +133,21 @@ export default function WorkOrderTableToolbar({
           flexWrap: 'wrap',
         }}
       >
+        <TextField
+          fullWidth
+          value={filters.workOrderNo}
+          onChange={handleFilterWorkOrderNo}
+          placeholder="WO No."
+          sx={{ width: { xs: 1, md: 170 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
         <TextField
           select
           label="Expense Status"
