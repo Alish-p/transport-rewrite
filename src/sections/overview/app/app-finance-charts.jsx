@@ -13,7 +13,11 @@ import { useFinancialMonthlyData } from 'src/query/use-dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartSelect } from 'src/components/chart';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Only show months up to and including the current month to avoid future zero-value dips
+const CURRENT_MONTH_INDEX = new Date().getMonth(); // 0-based
+const MONTHS = ALL_MONTHS.slice(0, CURRENT_MONTH_INDEX + 1);
 
 const CANCELLED_EXCLUSION_NOTE =
   'Cancelled records are excluded from all figures (invoices, transporter payments & driver salaries).';
@@ -45,7 +49,9 @@ export function FinancialMonthlyChart({ title, ...other }) {
   const currentOption = categoryOptions.find((c) => c.label === selected);
 
   const chartSeries =
-    data && currentOption ? [{ name: currentOption.label, data: data[currentOption.key] }] : [];
+    data && currentOption
+      ? [{ name: currentOption.label, data: (data[currentOption.key] ?? []).slice(0, CURRENT_MONTH_INDEX + 1) }]
+      : [];
 
   const chartOptions = useChart({
     xaxis: { categories: MONTHS },
