@@ -95,7 +95,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'priority',
     label: 'Priority',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     getter: (row) => row.priority,
     render: (row) => {
