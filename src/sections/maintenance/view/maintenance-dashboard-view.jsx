@@ -764,7 +764,6 @@ export default function MaintenanceDashboardView() {
                       <TableRow>
                         <TableCell>#</TableCell>
                         <TableCell>Vehicle</TableCell>
-                        <TableCell align="right">Parts Qty</TableCell>
                         <TableCell align="right">Unique Parts</TableCell>
                         <TableCell align="right">Parts Cost</TableCell>
                       </TableRow>
@@ -778,13 +777,12 @@ export default function MaintenanceDashboardView() {
                               {v.vehicleNo}
                             </Link>
                           </TableCell>
-                          <TableCell align="right">{fShortenNumber(v.totalPartsQty)}</TableCell>
                           <TableCell align="right">{v.uniqueParts}</TableCell>
                           <TableCell align="right">{fCurrency(v.totalPartsCost)}</TableCell>
                         </TableRow>
                       ))}
                       {analytics.vehiclesConsumingMostParts.length === 0 && (
-                        <TableRow><TableCell colSpan={5} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
+                        <TableRow><TableCell colSpan={4} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
