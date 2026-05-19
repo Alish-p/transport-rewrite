@@ -28,8 +28,7 @@ export default function InvoiceTableRow({
   const { invoiceStatus } = row;
   const canRecordPayment =
     invoiceStatus === INVOICE_STATUS.PENDING ||
-    invoiceStatus === INVOICE_STATUS.PARTIAL_RECEIVED ||
-    invoiceStatus === INVOICE_STATUS.OVERDUE;
+    invoiceStatus === INVOICE_STATUS.PARTIAL_RECEIVED;
 
   const customActions = useMemo(() => {
     if (!canRecordPayment) return [];

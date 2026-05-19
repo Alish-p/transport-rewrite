@@ -169,12 +169,7 @@ export function InvoiceListView() {
       color: INVOICE_STATUS_COLOR[INVOICE_STATUS.PARTIAL_RECEIVED],
       count: getInvoiceLength(INVOICE_STATUS.PARTIAL_RECEIVED),
     },
-    {
-      value: INVOICE_STATUS.OVERDUE,
-      label: INVOICE_STATUS.OVERDUE,
-      color: INVOICE_STATUS_COLOR[INVOICE_STATUS.OVERDUE],
-      count: getInvoiceLength(INVOICE_STATUS.OVERDUE),
-    },
+
     {
       value: INVOICE_STATUS.CANCELLED,
       label: INVOICE_STATUS.CANCELLED,
@@ -308,12 +303,22 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title={INVOICE_STATUS.OVERDUE}
-                total={getInvoiceLength(INVOICE_STATUS.OVERDUE)}
-                percent={getPercentByInvoiceStatus(INVOICE_STATUS.OVERDUE)}
-                price={getTotalAmount(INVOICE_STATUS.OVERDUE)}
-                icon="mdi:alert-circle-outline"
-                color={getStatusThemeColor(INVOICE_STATUS.OVERDUE)}
+                title={INVOICE_STATUS.PARTIAL_RECEIVED}
+                total={getInvoiceLength(INVOICE_STATUS.PARTIAL_RECEIVED)}
+                percent={getPercentByInvoiceStatus(INVOICE_STATUS.PARTIAL_RECEIVED)}
+                price={getTotalAmount(INVOICE_STATUS.PARTIAL_RECEIVED)}
+                icon="mdi:clock-check-outline"
+                color={getStatusThemeColor(INVOICE_STATUS.PARTIAL_RECEIVED)}
+              />
+
+
+              <InvoiceAnalytic
+                title={INVOICE_STATUS.CANCELLED}
+                total={getInvoiceLength(INVOICE_STATUS.CANCELLED)}
+                percent={getPercentByInvoiceStatus(INVOICE_STATUS.CANCELLED)}
+                price={getTotalAmount(INVOICE_STATUS.CANCELLED)}
+                icon="mdi:close-circle-outline"
+                color={getStatusThemeColor(INVOICE_STATUS.CANCELLED)}
               />
 
               <InvoiceAnalytic

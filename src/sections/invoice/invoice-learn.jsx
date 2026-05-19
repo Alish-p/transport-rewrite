@@ -130,17 +130,7 @@ export default function InvoiceLearn({ open, onClose }) {
                     </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 1.5 }}>
-                    <Iconify icon="solar:danger-circle-bold" color={theme.palette.error.main} width={20} mt={0.3} />
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
-                            Overdue
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-                            The current date has passed the payment Due Date defined by the customer&apos;s &quot;Pay Within&quot; setting terms.
-                        </Typography>
-                    </Box>
-                </Box>
+
 
                 <Box sx={{ display: 'flex', gap: 1.5 }}>
                     <Iconify icon="solar:close-circle-bold" color={theme.palette.text.secondary} width={20} mt={0.3} />

@@ -8,7 +8,7 @@ import { _addressBooks } from './_others';
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
+
   { value: 'draft', label: 'Draft' },
 ];
 
@@ -44,7 +44,7 @@ export const _invoices = [...Array(20)].map((_, index) => {
   const totalAmount = subtotal - shipping - discount + taxes;
 
   const status =
-    (index % 2 && 'paid') || (index % 3 && 'pending') || (index % 4 && 'overdue') || 'draft';
+    (index % 2 && 'paid') || (index % 3 && 'pending') || 'draft';
 
   return {
     id: _mock.id(index),
