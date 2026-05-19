@@ -1,6 +1,8 @@
 import { useMemo, useState, useCallback } from 'react';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 
@@ -8,9 +10,13 @@ import { fShortenNumber } from 'src/utils/format-number';
 
 import { useFinancialMonthlyData } from 'src/query/use-dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartSelect } from 'src/components/chart';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const CANCELLED_EXCLUSION_NOTE =
+  'Cancelled records are excluded from all figures (invoices, transporter payments & driver salaries).';
 
 export function FinancialMonthlyChart({ title, ...other }) {
   const theme = useTheme();
@@ -48,10 +54,21 @@ export function FinancialMonthlyChart({ title, ...other }) {
     tooltip: { y: { formatter: (value) => fShortenNumber(value) } },
   });
 
+  const titleWithInfo = (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+      {title}
+      <Tooltip title={CANCELLED_EXCLUSION_NOTE} arrow placement="top">
+        <Box component="span" sx={{ display: 'flex', color: 'text.disabled', cursor: 'help' }}>
+          <Iconify icon="eva:info-outline" width={16} />
+        </Box>
+      </Tooltip>
+    </Box>
+  );
+
   return (
     <Card {...other}>
       <CardHeader
-        title={title}
+        title={titleWithInfo}
         subheader={data ? `Year ${data.year}` : ''}
         action={
           <ChartSelect
