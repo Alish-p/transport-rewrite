@@ -119,14 +119,18 @@ function BarWidget({
   );
 }
 
-function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter, action }) {
+function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter, tooltipYFormatter, action }) {
   const chartOptions = useChart({
     colors,
     xaxis: {
       categories,
       ...(yAxisFormatter && { labels: { formatter: yAxisFormatter } })
     },
-    tooltip: yAxisFormatter ? { y: { formatter: yAxisFormatter } } : undefined,
+    tooltip: {
+      y: {
+        formatter: tooltipYFormatter || (yAxisFormatter || undefined),
+      },
+    },
     plotOptions: { bar: { borderRadius: 4, horizontal: true, barHeight: '60%' } },
   });
 
@@ -670,20 +674,32 @@ export default function MaintenanceDashboardView() {
 
             {/* ---- Top Parts Used ---- */}
             <Grid xs={12} md={6}>
-              <HorizontalBarWidget
-                title="Top Parts Used"
-                subheader="Most frequently consumed parts"
-                action={
-                  <Tooltip title="Fluids and small generic items are not considered as used and part failures">
-                    <IconButton color="default">
-                      <Iconify icon="eva:info-outline" />
-                    </IconButton>
-                  </Tooltip>
-                }
-                categories={analytics.topPartsUsed.map((p) => p.partName)}
-                series={[{ name: 'Qty Used', data: analytics.topPartsUsed.map((p) => p.totalQuantity) }]}
-                colors={[theme.palette.primary.main]}
-              />
+              {(() => {
+                const unitByName = Object.fromEntries(
+                  analytics.topPartsUsed.map((p) => [p.partName, p.measurementUnit])
+                );
+                return (
+                  <HorizontalBarWidget
+                    title="Top Parts Used"
+                    subheader="Most frequently consumed parts"
+                    action={
+                      <Tooltip title="Fluids and small generic items are not considered as used and part failures">
+                        <IconButton color="default">
+                          <Iconify icon="eva:info-outline" />
+                        </IconButton>
+                      </Tooltip>
+                    }
+                    categories={analytics.topPartsUsed.map((p) => p.partName)}
+                    series={[{ name: 'Qty Used', data: analytics.topPartsUsed.map((p) => p.totalQuantity) }]}
+                    colors={[theme.palette.primary.main]}
+                    tooltipYFormatter={(value, { dataPointIndex, w }) => {
+                      const name = w?.globals?.labels?.[dataPointIndex];
+                      const unit = name ? unitByName[name] : '';
+                      return unit ? `${value} ${unit}` : `${value}`;
+                    }}
+                  />
+                );
+              })()}
             </Grid>
 
             {/* ---- Top Parts by Cost ---- */}
