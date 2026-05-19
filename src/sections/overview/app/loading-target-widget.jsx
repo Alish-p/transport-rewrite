@@ -14,7 +14,6 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import CardHeader from '@mui/material/CardHeader';
 import InputLabel from '@mui/material/InputLabel';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
@@ -407,64 +406,91 @@ export function LoadingTargetWidget({ sx, ...other }) {
 
     return (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', ...sx }} {...other}>
-            <CardHeader
-                title={
+            {/* Responsive header */}
+            <Box
+                sx={{
+                    px: 3,
+                    pt: 3,
+                    pb: 1,
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    justifyContent: 'space-between',
+                    gap: 1.5,
+                }}
+            >
+                {/* Title + Subheader */}
+                <Box sx={{ minWidth: 0 }}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <Iconify icon="mdi:target" width={24} color="primary.main" />
-                        <Typography variant="h6">Monthly Loading Targets</Typography>
+                        <Typography variant="h6" noWrap>
+                            Monthly Loading Targets
+                        </Typography>
                     </Stack>
-                }
-                subheader={`Track your loading progress for ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`}
-                action={
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <Select
-                            value={MONTHS[selectedDate.getMonth()]}
-                            onChange={handleMonthChange}
+                    <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary', mt: 0.25 }}
+                        noWrap
+                    >
+                        {`Track your loading progress for ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`}
+                    </Typography>
+                </Box>
+
+                {/* Controls */}
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ flexShrink: 0, flexWrap: 'wrap', gap: 1 }}
+                >
+                    <Select
+                        value={MONTHS[selectedDate.getMonth()]}
+                        onChange={handleMonthChange}
+                        size="small"
+                        sx={{
+                            minWidth: 110,
+                            '& .MuiSelect-select': { py: 0.75 },
+                        }}
+                    >
+                        {MONTHS.map((month) => (
+                            <MenuItem key={month} value={month}>
+                                {month}
+                            </MenuItem>
+                        ))}
+                    </Select>
+
+                    <Select
+                        value={selectedDate.getFullYear()}
+                        onChange={handleYearChange}
+                        size="small"
+                        sx={{
+                            minWidth: 80,
+                            '& .MuiSelect-select': { py: 0.75 },
+                        }}
+                    >
+                        {years.map((year) => (
+                            <MenuItem key={year} value={year}>
+                                {year}
+                            </MenuItem>
+                        ))}
+                    </Select>
+
+                    <Tooltip title="Add new target">
+                        <Button
                             size="small"
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={handleOpenCreate}
                             sx={{
-                                minWidth: 110,
-                                '& .MuiSelect-select': { py: 0.75 },
+                                boxShadow: 'none',
+                                '&:hover': { boxShadow: 'none' },
                             }}
                         >
-                            {MONTHS.map((month) => (
-                                <MenuItem key={month} value={month}>
-                                    {month}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Select
-                            value={selectedDate.getFullYear()}
-                            onChange={handleYearChange}
-                            size="small"
-                            sx={{
-                                minWidth: 80,
-                                '& .MuiSelect-select': { py: 0.75 },
-                            }}
-                        >
-                            {years.map((year) => (
-                                <MenuItem key={year} value={year}>
-                                    {year}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Tooltip title="Add new target">
-                            <Button
-                                size="small"
-                                variant="contained"
-                                startIcon={<Iconify icon="mingcute:add-line" />}
-                                onClick={handleOpenCreate}
-                                sx={{
-                                    boxShadow: 'none',
-                                    '&:hover': { boxShadow: 'none' },
-                                }}
-                            >
-                                Set Target
-                            </Button>
-                        </Tooltip>
-                    </Stack>
-                }
-                sx={{ pb: 1 }}
-            />
+                            Set Target
+                        </Button>
+                    </Tooltip>
+                </Stack>
+            </Box>
 
             {renderList}
 
