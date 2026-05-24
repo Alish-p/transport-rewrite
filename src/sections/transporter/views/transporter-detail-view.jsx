@@ -12,6 +12,7 @@ import {
   TransporterPaymentsWidget,
   TransporterSubtripsWidget,
   TransporterVehiclesWidget,
+  TransporterDocumentsWidget,
   TransporterAdditionalWidget,
 } from '../widgets';
 
@@ -53,6 +54,9 @@ export function TransporterDetailView({ transporter }) {
           </Grid>
           <Grid xs={12}>
             <TransporterExpensesWidget transporterId={transporter._id} />
+          </Grid>
+          <Grid xs={12}>
+            <TransporterDocumentsWidget transporter={transporter} />
           </Grid>
         </Grid>
       </Box>

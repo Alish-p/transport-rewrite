@@ -168,3 +168,8 @@ export function useCleanupTransporters() {
     },
   });
 }
+
+export const getTransporterDocumentUploadUrl = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/upload-url`, { params });
+  return data;
+};
