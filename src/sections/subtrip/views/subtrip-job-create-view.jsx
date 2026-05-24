@@ -34,7 +34,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import axios from 'src/utils/axios';
-import { fDate } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time';
 // Route expenses logic removed
 
 import { useSystemFeatures } from 'src/hooks/use-system-features';
@@ -1119,7 +1119,7 @@ export function SubtripJobCreateView() {
                                               <Stack direction="row" alignItems="center" spacing={0.5}>
                                                 <Iconify icon="mdi:calendar-outline" width={13} sx={{ color: 'text.disabled' }} />
                                                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                                  {st.startDate ? fDate(new Date(st.startDate)) : '-'}
+                                                  {st.startDate ? fDateTime(new Date(st.startDate)) : '-'}
                                                 </Typography>
                                               </Stack>
                                               <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -1281,7 +1281,7 @@ export function SubtripJobCreateView() {
                     />
                   )}
 
-                  <Field.DatePicker name="startDate" label="Start Date *" maxDate={dayjs()} />
+                  <Field.MobileDateTimePicker name="startDate" label="Start Date *" maxDate={dayjs()} />
 
                   {/* DI/DO moved to Step 4 as last field for loaded jobs */}
 

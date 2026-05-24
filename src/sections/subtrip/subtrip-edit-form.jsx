@@ -230,7 +230,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 sx={{ mb: 2 }}
               />
               <Field.Text name="diNumber" label="DI/DO No" />
-              <Field.DatePicker name="startDate" label="Job Start Date" />
+              <Field.MobileDateTimePicker name="startDate" label="Job Start Date" />
             </Box>
           </Box>
         </Card>
@@ -404,7 +404,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       }}
                     />
                   )}
-                  <Field.DatePicker name="endDate" label="LR Receive Date *" />
+                  <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
                 </Box>
 
                 <Divider sx={{ my: 4 }} />

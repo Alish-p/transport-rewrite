@@ -136,7 +136,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               />
             )}
 
-            <Field.DatePicker name="endDate" label="LR Receive Date *" />
+            <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
           </>
         )}
       </Box>
