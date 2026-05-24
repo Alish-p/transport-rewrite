@@ -30,6 +30,7 @@ import ProfitExpenseChart from '../widgets/SubtripColumnChart';
 import { TripExpensesWidget } from '../widgets/trip-expenses-widget';
 import { TripRouteMapWidget } from '../widgets/trip-route-map-widget';
 import AnalyticsWidgetSummary from '../../subtrip/widgets/summary-widget';
+import { TripGpsTimelineWidget } from '../widgets/trip-gps-timeline-widget';
 
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
@@ -330,6 +331,18 @@ export function TripDetailView({ trip }) {
         <Grid item xs={12}>
           <TripRouteMapWidget subtrips={subtrips} />
         </Grid>
+
+        {/* GPS Journey Timeline — Own vehicles only */}
+        {isOwnVehicle && (
+          <Grid item xs={12}>
+            <TripGpsTimelineWidget
+              vehicleNo={vehicleId?.vehicleNo}
+              fromDate={trip?.fromDate}
+              toDate={trip?.toDate}
+              tripStatus={tripStatus}
+            />
+          </Grid>
+        )}
 
         {/* Expenses + Profit/Loss side-by-side on md+, stacked on xs/sm */}
         <Grid item container spacing={2} xs={12}>
