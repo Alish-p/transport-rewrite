@@ -172,13 +172,15 @@ export default function TyreDetailsView() {
         }
     };
 
-    const handleSell = async ({ sellAmount, sellDate }) => {
+    const handleSell = async ({ sellAmount, sellDate, transporterId, soldToTransporterName }) => {
         try {
             await sellTyre({
                 id: tyre._id,
                 data: {
                     sellAmount,
-                    sellDate
+                    sellDate,
+                    transporterId,
+                    soldToTransporterName
                 }
             });
             setOpenSellDialog(false);
@@ -318,7 +320,7 @@ export default function TyreDetailsView() {
                                     label: 'Sell',
                                     icon: ICONS.tyre.bill,
                                     onClick: () => setOpenSellDialog(true),
-                                    disabled: tyre.status !== TYRE_STATUS.SCRAPPED,
+                                    disabled: tyre.status !== TYRE_STATUS.SCRAPPED && tyre.status !== TYRE_STATUS.IN_STOCK,
                                     sx: { color: 'success.main' },
                                 },
                                 {
@@ -552,6 +554,8 @@ export default function TyreDetailsView() {
                     open={openSellDialog}
                     onClose={() => setOpenSellDialog(false)}
                     onSell={handleSell}
+                    tyreStatus={tyre.status}
+                    tyreCost={tyre.cost}
                 />
 
                 <TyreRemoldDialog

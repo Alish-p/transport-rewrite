@@ -102,11 +102,11 @@ export default function TyreTableRow({
         }
     }, [scrapTyre, row._id]);
 
-    const handleSell = useCallback(async ({ sellAmount, sellDate }) => {
+    const handleSell = useCallback(async ({ sellAmount, sellDate, transporterId, soldToTransporterName }) => {
         try {
             await sellTyre({
                 id: row._id,
-                data: { sellAmount, sellDate },
+                data: { sellAmount, sellDate, transporterId, soldToTransporterName },
             });
             setOpenSellDialog(false);
         } catch (e) {
@@ -176,8 +176,8 @@ export default function TyreTableRow({
             });
         }
 
-        // Sell — only when scrapped
-        if (status === TYRE_STATUS.SCRAPPED) {
+        // Sell — only when scrapped or in stock
+        if (status === TYRE_STATUS.SCRAPPED || status === TYRE_STATUS.IN_STOCK) {
             actions.push({
                 label: 'Sell',
                 icon: ICONS.tyre.bill,
@@ -276,11 +276,13 @@ export default function TyreTableRow({
             />
 
             {/* Sell Dialog */}
-            {status === TYRE_STATUS.SCRAPPED && (
+            {(status === TYRE_STATUS.SCRAPPED || status === TYRE_STATUS.IN_STOCK) && (
                 <TyreSellDialog
                     open={openSellDialog}
                     onClose={() => setOpenSellDialog(false)}
                     onSell={handleSell}
+                    tyreStatus={status}
+                    tyreCost={row.cost}
                 />
             )}
 

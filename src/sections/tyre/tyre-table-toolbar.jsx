@@ -37,6 +37,7 @@ export default function TyreTableToolbar({
     onResetColumns,
     canResetColumns,
     vehicleData,
+    transporterData,
     onResetFilters, // Added prop
 }) {
     const columnsPopover = usePopover();
@@ -206,6 +207,7 @@ export default function TyreTableToolbar({
                 onFilters={onFilters}
                 onResetFilters={onResetFilters} // Ensure this prop is passed from parent or handled
                 vehicleData={vehicleData}
+                transporterData={transporterData}
             />
         </>
     );

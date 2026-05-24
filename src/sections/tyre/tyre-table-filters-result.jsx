@@ -18,10 +18,15 @@ export default function TyreTableFiltersResult({
     onResetFilters,
     results,
     selectedVehicleName,
+    selectedTransporterName,
     ...other
 }) {
     const handleRemoveSerialNumber = () => {
         onFilters('serialNumber', '');
+    };
+
+    const handleRemoveSoldTo = () => {
+        onFilters('soldTo', '');
     };
 
     const handleRemoveBrand = () => {
@@ -73,6 +78,12 @@ export default function TyreTableFiltersResult({
                 {filters.serialNumber && (
                     <Block label="Tyre Number:">
                         <Chip size="small" label={filters.serialNumber} onDelete={handleRemoveSerialNumber} />
+                    </Block>
+                )}
+
+                {filters.soldTo && (
+                    <Block label="Sold To:">
+                        <Chip size="small" label={selectedTransporterName || 'Loading...'} onDelete={handleRemoveSoldTo} />
                     </Block>
                 )}
 

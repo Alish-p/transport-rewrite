@@ -31,6 +31,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { ICONS } from 'src/assets/data/icons';
 import { useVehicle } from 'src/query/use-vehicle';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useTransporter } from 'src/query/use-transporter';
 import { useGetTyres, useDeleteTyre } from 'src/query/use-tyre';
 
 import { Label } from 'src/components/label';
@@ -60,6 +61,7 @@ const STORAGE_KEY = 'tyre-table-columns';
 
 const defaultFilters = {
     serialNumber: '',
+    soldTo: '',
     brand: '',
     status: 'all',
     vehicle: null,
@@ -107,6 +109,7 @@ export default function TyreListView() {
         page: table.page + 1,
         limit: table.rowsPerPage,
         serialNumber: filters.serialNumber || undefined,
+        soldTo: filters.soldTo || undefined,
         brand: filters.brand || undefined,
         vehicleId: filters.vehicle || undefined,
         status: filters.status !== 'all' ? filters.status : undefined,
@@ -126,6 +129,7 @@ export default function TyreListView() {
     });
 
     const { data: vehicleData } = useVehicle(filters.vehicle);
+    const { data: transporterData } = useTransporter(filters.soldTo);
 
     const tableData = data?.tyres || data?.data || [];
     const totalCount = data?.total || 0;
@@ -324,6 +328,7 @@ export default function TyreListView() {
                     onResetColumns={resetColumns}
                     canResetColumns={canResetColumns}
                     vehicleData={vehicleData}
+                    transporterData={transporterData}
                     onResetFilters={handleResetFilters}
                 />
 
@@ -336,6 +341,7 @@ export default function TyreListView() {
                         //
                         results={totalCount}
                         selectedVehicleName={vehicleData?.vehicleNo}
+                        selectedTransporterName={transporterData?.transportName}
                         sx={{ p: 2.5, pt: 0 }}
                     />
                 )}
@@ -391,6 +397,7 @@ export default function TyreListView() {
                                                     const response = await axios.get('/api/tyre/export', {
                                                         params: {
                                                             serialNumber: filters.serialNumber || undefined,
+                                                            soldTo: filters.soldTo || undefined,
                                                             brand: filters.brand || undefined,
                                                             vehicleId: filters.vehicle || undefined,
                                                             status: filters.status !== 'all' ? filters.status : undefined,

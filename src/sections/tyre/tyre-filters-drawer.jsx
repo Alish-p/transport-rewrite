@@ -23,6 +23,7 @@ import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-select-button';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
+import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
 import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_CATEGORIES, TYRE_BRAND_MODELS } from './tyre-constants';
 
@@ -40,6 +41,7 @@ export default function TyreFiltersDrawer({
 }) {
     // Vehicle related hooks
     const vehiclePopover = usePopover();
+    const transporterPopover = usePopover();
 
     const handleFilterTyreNumber = (event) => {
         onFilters('serialNumber', event.target.value);
@@ -95,6 +97,8 @@ export default function TyreFiltersDrawer({
     // We need to render the new inputs
     const renderFilters = (
         <Stack spacing={3}>
+
+
             <TextField
                 fullWidth
                 value={filters.serialNumber}
@@ -225,6 +229,15 @@ export default function TyreFiltersDrawer({
                 placeholder="Filter by Vehicle"
                 selected={props.vehicleData?.vehicleNo}
                 onClear={() => handleFilterVehicle(null)}
+            />
+
+            <DialogSelectButton
+                fullWidth
+                onClick={transporterPopover.onOpen}
+                startIcon={NAV_ICONS.transporter}
+                placeholder="Filter by Sold To"
+                selected={props.transporterData?.transportName || filters.soldTo}
+                onClear={() => onFilters('soldTo', '')}
             />
 
             <FormControl fullWidth>
@@ -401,6 +414,11 @@ export default function TyreFiltersDrawer({
                 onClose={vehiclePopover.onClose}
                 onVehicleChange={handleFilterVehicle}
                 onlyOwn
+            />
+            <KanbanTransporterDialog
+                open={transporterPopover.open}
+                onClose={transporterPopover.onClose}
+                onTransporterChange={(transporter) => onFilters('soldTo', transporter?._id || '')}
             />
         </>
     );

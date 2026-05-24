@@ -36,6 +36,7 @@ export const TYRE_HISTORY_ACTION = {
     SCRAP: 'SCRAP',
     REMOLD: 'REMOLD',
     REJECT: 'REJECT',
+    SELL: 'SELL',
 };
 
 export default function TyreHistory({ tyreId, ...other }) {
@@ -182,6 +183,15 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return `Tyre remolded. Thread depth reset to ${newThreadDepth}mm from ${previousThreadDepth}mm`;
             case 'REJECT':
                 return `Tyre marked as Rejected`;
+            case 'SELL': {
+                const price = item.metadata?.sellPrice || 0;
+                let soldText = `Sold at ₹${price}`;
+                const soldToName = item.metadata?.soldToTransporterName || item.metadata?.soldTo;
+                if (soldToName) {
+                    soldText = `Sold to ${soldToName} at ₹${price}`;
+                }
+                return soldText;
+            }
             default:
                 return action;
         }
@@ -201,6 +211,8 @@ function HistoryItem({ item, lastItem, onEdit }) {
                 return 'error';
             case 'REMOLD':
                 return 'warning'; // or 'success' or 'info'
+            case 'SELL':
+                return 'success';
             default:
                 return 'primary';
         }
