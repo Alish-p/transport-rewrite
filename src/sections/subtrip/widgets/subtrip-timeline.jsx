@@ -33,8 +33,30 @@ const EVENT_ICONS = {
   INVOICE_DELETED: 'mdi:file-document-remove',
   INVOICE_PAID: 'mdi:file-document-check',
   DRIVER_SALARY_GENERATED: 'mdi:cash-check',
+  DRIVER_SALARY_CANCELLED: 'mdi:cash-remove',
   TRANSPORTER_PAYMENT_GENERATED: 'mdi:bank-transfer',
+  TRANSPORTER_PAYMENT_PAID: 'mdi:bank-check',
+  TRANSPORTER_PAYMENT_CANCELLED: 'mdi:bank-remove',
   UPDATED: 'mdi:refresh',
+};
+
+const EVENT_COLORS = {
+  CREATED: 'primary',
+  MATERIAL_ADDED: 'info',
+  EXPENSE_ADDED: 'info',
+  EXPENSE_DELETED: 'error',
+  RECEIVED: 'success',
+  ERROR_REPORTED: 'warning',
+  ERROR_RESOLVED: 'success',
+  INVOICE_GENERATED: 'info',
+  INVOICE_DELETED: 'error',
+  INVOICE_PAID: 'success',
+  DRIVER_SALARY_GENERATED: 'success',
+  DRIVER_SALARY_CANCELLED: 'error',
+  TRANSPORTER_PAYMENT_GENERATED: 'success',
+  TRANSPORTER_PAYMENT_PAID: 'success',
+  TRANSPORTER_PAYMENT_CANCELLED: 'error',
+  UPDATED: 'grey',
 };
 
 function getExpenseLabel(expenseTypes, value) {
@@ -123,11 +145,57 @@ function formatEventMessage(event, subtripExpenseTypes) {
     );
   }
 
+  if (eventType === 'DRIVER_SALARY_CANCELLED' && details.paymentId) {
+    return (
+      <span>
+        {userPrefix}Cancelled driver salary{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.driverSalary.details(details.salaryId)}
+          color="primary"
+        >
+          {details.paymentId}
+        </Link>
+      </span>
+    );
+  }
+
   // Transporter payment events
   if (eventType === 'TRANSPORTER_PAYMENT_GENERATED' && details.paymentId) {
     return (
       <span>
         {userPrefix}Processed transporter payment{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
+          color="primary"
+        >
+          {details.paymentId}
+        </Link>
+      </span>
+    );
+  }
+
+  if (eventType === 'TRANSPORTER_PAYMENT_PAID' && details.paymentId) {
+    return (
+      <span>
+        {userPrefix}Marked transporter payment{' '}
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
+          color="primary"
+        >
+          {details.paymentId}
+        </Link>{' '}
+        as paid
+      </span>
+    );
+  }
+
+  if (eventType === 'TRANSPORTER_PAYMENT_CANCELLED' && details.paymentId) {
+    return (
+      <span>
+        {userPrefix}Cancelled transporter payment{' '}
         <Link
           component={RouterLink}
           href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
@@ -182,37 +250,42 @@ export function SubtripTimeline({ events = [] }) {
             [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 },
           }}
         >
-          {events.map((event, index) => (
-            <TimelineItem key={event._id}>
-              <TimelineSeparator>
-                <TimelineDot color="primary">
-                  <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
-                </TimelineDot>
-                {index === events.length - 1 ? null : <TimelineConnector />}
-              </TimelineSeparator>
-              <TimelineContent>
-                <Typography variant="subtitle2" color="primary">
-                  {event.eventType}
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                  {fDateTime(event.timestamp)}
-                </Typography>
-                {formatEventMessage(event, subtripExpenseTypes) && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      whiteSpace: 'pre-line',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {formatEventMessage(event, subtripExpenseTypes)}
+          {events.map((event, index) => {
+            const eventColor = EVENT_COLORS[event.eventType] || 'primary';
+            const titleColor = eventColor === 'grey' ? 'text.secondary' : eventColor;
+
+            return (
+              <TimelineItem key={event._id}>
+                <TimelineSeparator>
+                  <TimelineDot color={eventColor}>
+                    <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
+                  </TimelineDot>
+                  {index === events.length - 1 ? null : <TimelineConnector />}
+                </TimelineSeparator>
+                <TimelineContent>
+                  <Typography variant="subtitle2" color={titleColor}>
+                    {event.eventType}
                   </Typography>
-                )}
+                  <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                    {fDateTime(event.timestamp)}
+                  </Typography>
+                  {formatEventMessage(event, subtripExpenseTypes) && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        whiteSpace: 'pre-line',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {formatEventMessage(event, subtripExpenseTypes)}
+                    </Typography>
+                  )}
               </TimelineContent>
             </TimelineItem>
-          ))}
-        </Timeline>
+          );
+        })}
+      </Timeline>
       </Scrollbar>
     </Card>
   );

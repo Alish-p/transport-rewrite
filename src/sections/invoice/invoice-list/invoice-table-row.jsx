@@ -31,18 +31,28 @@ export default function InvoiceTableRow({
     invoiceStatus === INVOICE_STATUS.PARTIAL_RECEIVED;
 
   const customActions = useMemo(() => {
-    if (!canRecordPayment) return [];
-
-    return [
-      {
+    const actions = [];
+    if (canRecordPayment) {
+      actions.push({
         label: 'Record Payment',
         icon: 'mdi:cash-check',
         color: 'success.main',
         onClick: () => payDialog.onTrue(),
-      },
-    ];
+      });
+    }
+
+    if (invoiceStatus !== INVOICE_STATUS.CANCELLED && onDeleteRow) {
+      actions.push({
+        label: 'Cancel',
+        icon: 'mdi:close-circle',
+        color: 'error.main',
+        onClick: handleDelete,
+      });
+    }
+
+    return actions;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canRecordPayment]);
+  }, [canRecordPayment, invoiceStatus, onDeleteRow]);
 
   return (
     <>
@@ -53,7 +63,6 @@ export default function InvoiceTableRow({
         onSelectRow={onSelectRow}
         onViewRow={handleView}
         onEditRow={handleEdit}
-        onDeleteRow={handleDelete}
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}

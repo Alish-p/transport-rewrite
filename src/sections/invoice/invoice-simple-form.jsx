@@ -10,6 +10,7 @@ import { LoadingButton } from '@mui/lab';
 import { styled } from '@mui/material/styles';
 import {
   Card,
+  Link,
   Stack,
   Table,
   Button,
@@ -25,6 +26,7 @@ import {
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -378,7 +380,16 @@ export default function SimplerNewInvoiceForm() {
                       <TableCell>{st.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.consignee}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
-                      <TableCell>{st.subtripNo}</TableCell>
+                      <TableCell>
+                        <Link
+                          component={RouterLink}
+                          to={paths.dashboard.subtrip.details(st._id)}
+                          variant="body2"
+                          sx={{ color: 'primary.main', fontWeight: 'medium' }}
+                        >
+                          {st.subtripNo}
+                        </Link>
+                      </TableCell>
                       <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>{fCurrency(st.rate)}</TableCell>
                       <TableCell>

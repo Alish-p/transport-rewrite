@@ -23,23 +23,34 @@ export default function TransporterPaymentTableRow({
   columnOrder,
 }) {
   const markPaidConfirm = useBoolean();
+  const cancelConfirm = useBoolean();
   const updateStatus = useUpdateTransporterPaymentStatus();
 
-  const canMarkPaid = row?.status !== 'paid';
+  const canMarkPaid = row?.status === 'generated';
 
   const customActions = useMemo(() => {
-    if (!canMarkPaid) return [];
-
-    return [
-      {
+    const actions = [];
+    if (canMarkPaid) {
+      actions.push({
         label: 'Mark as Paid',
         icon: 'mdi:cash-check',
         color: 'success.main',
         onClick: () => markPaidConfirm.onTrue(),
-      },
-    ];
+      });
+    }
+
+    if (row?.status !== 'cancelled' && onDeleteRow) {
+      actions.push({
+        label: 'Cancel',
+        icon: 'mdi:close-circle',
+        color: 'error.main',
+        onClick: () => cancelConfirm.onTrue(),
+      });
+    }
+
+    return actions;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canMarkPaid]);
+  }, [canMarkPaid, row?.status, onDeleteRow]);
 
   return (
     <>
@@ -50,7 +61,6 @@ export default function TransporterPaymentTableRow({
         onSelectRow={onSelectRow}
         onViewRow={onViewRow}
         onEditRow={onEditRow}
-        onDeleteRow={onDeleteRow}
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
@@ -73,6 +83,27 @@ export default function TransporterPaymentTableRow({
               }}
             >
               Mark as Paid
+            </Button>
+          }
+        />
+      )}
+
+      {onDeleteRow && row?.status !== 'cancelled' && (
+        <ConfirmDialog
+          open={cancelConfirm.value}
+          onClose={cancelConfirm.onFalse}
+          title="Cancel Transporter Payment"
+          content={`Are you sure you want to cancel the transporter payment "${row.paymentId}"?`}
+          action={
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => {
+                onDeleteRow();
+                cancelConfirm.onFalse();
+              }}
+            >
+              Cancel
             </Button>
           }
         />

@@ -122,13 +122,9 @@ export function TransporterPaymentListView() {
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
+    { value: 'generated', label: 'Generated', color: 'info', count: totals.generated?.count || 0 },
     { value: 'paid', label: 'Paid', color: 'success', count: totals.paid?.count || 0 },
-    {
-      value: 'generated',
-      label: 'Generated',
-      color: 'error',
-      count: totals.generated?.count || 0,
-    },
+    { value: 'cancelled', label: 'Cancelled', color: 'error', count: totals.cancelled?.count || 0 },
   ];
 
   const notFound = !isLoading && !tableData.length;
