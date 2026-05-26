@@ -1,17 +1,15 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
-
-import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
@@ -20,6 +18,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './purchase-order-table-config';
+import PurchaseOrderFiltersDrawer from './purchase-order-filters-drawer';
 import { KanbanPartsDialog } from '../kanban/components/kanban-parts-dialog';
 import { KanbanVendorDialog } from '../kanban/components/kanban-vendor-dialog';
 import { KanbanContactsDialog } from '../kanban/components/kanban-contacts-dialog';
@@ -45,26 +44,13 @@ export default function PurchaseOrderTableToolbar({
   onSelectPurchasedBy,
 }) {
   const columnsPopover = usePopover();
+  const filtersDrawer = useBoolean();
   const partDialog = usePopover();
   const vendorDialog = useBoolean();
   const dateRange = useBoolean();
   const createdByDialog = useBoolean();
   const approvedByDialog = useBoolean();
   const purchasedByDialog = useBoolean();
-
-  const { data: locationsResponse } = usePaginatedPartLocations(
-    { page: 1, rowsPerPage: 1000 },
-    { staleTime: 1000 * 60 * 10 }
-  );
-
-  const locations = useMemo(
-    () =>
-      locationsResponse?.locations ||
-      locationsResponse?.partLocations ||
-      locationsResponse?.results ||
-      [],
-    [locationsResponse]
-  );
 
   const handleSelectPart = useCallback(
     (part) => {
@@ -116,6 +102,13 @@ export default function PurchaseOrderTableToolbar({
     [onFilters, onSelectPurchasedBy, purchasedByDialog]
   );
 
+  const handleFilterPurchaseOrderNo = useCallback(
+    (event) => {
+      onFilters('purchaseOrderNo', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -130,6 +123,20 @@ export default function PurchaseOrderTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
+        <TextField
+          fullWidth
+          value={filters.purchaseOrderNo || ''}
+          onChange={handleFilterPurchaseOrderNo}
+          placeholder="Purchase Order No."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
         <DialogSelectButton
           onClick={vendorDialog.onTrue}
           selected={selectedVendor?.name}
@@ -146,21 +153,6 @@ export default function PurchaseOrderTableToolbar({
           sx={{ maxWidth: 260 }}
         />
 
-        <TextField
-          select
-          label="Part Location"
-          value={filters.partLocationId || ''}
-          onChange={(event) => onFilters('partLocationId', event.target.value || '')}
-          sx={{ minWidth: 200 }}
-        >
-          <MenuItem value="">All Locations</MenuItem>
-          {locations.map((loc) => (
-            <MenuItem key={loc._id} value={loc._id}>
-              {loc.name}
-            </MenuItem>
-          ))}
-        </TextField>
-
         <DialogSelectButton
           onClick={dateRange.onTrue}
           selected={
@@ -173,29 +165,15 @@ export default function PurchaseOrderTableToolbar({
           sx={{ maxWidth: 260 }}
         />
 
-        <DialogSelectButton
-          onClick={createdByDialog.onTrue}
-          selected={selectedCreatedBy?.name}
-          placeholder="Created By"
-          iconName="mdi:account"
-          sx={{ maxWidth: 260 }}
-        />
-
-        <DialogSelectButton
-          onClick={approvedByDialog.onTrue}
-          selected={selectedApprovedBy?.name}
-          placeholder="Approved By"
-          iconName="mdi:account-check"
-          sx={{ maxWidth: 260 }}
-        />
-
-        <DialogSelectButton
-          onClick={purchasedByDialog.onTrue}
-          selected={selectedPurchasedBy?.name}
-          placeholder="Purchased By"
-          iconName="mdi:cart"
-          sx={{ maxWidth: 260 }}
-        />
+        <Button
+          color="inherit"
+          variant="outlined"
+          startIcon={<Iconify icon="solar:filter-bold" />}
+          onClick={filtersDrawer.onTrue}
+          sx={{ flexShrink: 0 }}
+        >
+          Filters
+        </Button>
 
         <Stack direction="row" spacing={1}>
           <Button
@@ -272,6 +250,24 @@ export default function PurchaseOrderTableToolbar({
         onClose={purchasedByDialog.onFalse}
         onAssigneeChange={handleSelectPurchasedBy}
         single
+      />
+
+      <PurchaseOrderFiltersDrawer
+        open={filtersDrawer.value}
+        onClose={filtersDrawer.onFalse}
+        filters={filters}
+        onFilters={onFilters}
+        vendorDialog={vendorDialog}
+        partDialog={partDialog}
+        dateRange={dateRange}
+        createdByDialog={createdByDialog}
+        approvedByDialog={approvedByDialog}
+        purchasedByDialog={purchasedByDialog}
+        selectedVendor={selectedVendor}
+        selectedPart={selectedPart}
+        selectedCreatedBy={selectedCreatedBy}
+        selectedApprovedBy={selectedApprovedBy}
+        selectedPurchasedBy={selectedPurchasedBy}
       />
     </>
   );

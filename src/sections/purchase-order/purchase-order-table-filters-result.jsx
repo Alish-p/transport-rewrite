@@ -56,6 +56,10 @@ export default function PurchaseOrderTableFiltersResult({
     onFilters('purchasedBy', '');
   };
 
+  const handleRemovePurchaseOrderNo = () => {
+    onFilters('purchaseOrderNo', '');
+  };
+
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
@@ -87,6 +91,12 @@ export default function PurchaseOrderTableFiltersResult({
         {filters.status && filters.status !== 'all' && (
           <Block label="Status :">
             <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+          </Block>
+        )}
+
+        {filters.purchaseOrderNo && (
+          <Block label="Purchase Order No :">
+            <Chip size="small" label={filters.purchaseOrderNo} onDelete={handleRemovePurchaseOrderNo} />
           </Block>
         )}
 

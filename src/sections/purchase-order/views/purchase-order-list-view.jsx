@@ -63,6 +63,7 @@ const defaultFilters = {
   createdBy: '',
   approvedBy: '',
   purchasedBy: '',
+  purchaseOrderNo: '',
 };
 
 const STATUS_TABS = [
@@ -114,6 +115,7 @@ export function PurchaseOrderListView() {
     createdBy: filters.createdBy || undefined,
     approvedBy: filters.approvedBy || undefined,
     purchasedBy: filters.purchasedBy || undefined,
+    purchaseOrderNo: filters.purchaseOrderNo || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     order: table.order,
@@ -389,7 +391,7 @@ export function PurchaseOrderListView() {
                             columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
                           ).filter((id) => visibleColumns[id]);
 
-                          const response = await axios.get('/api/maintenance/purchase-orders/export', {
+                           const response = await axios.get('/api/maintenance/purchase-orders/export', {
                             params: {
                               status: filters.status === 'all' ? undefined : filters.status,
                               vendor: filters.vendorId || undefined,
@@ -400,6 +402,7 @@ export function PurchaseOrderListView() {
                               createdBy: filters.createdBy || undefined,
                               approvedBy: filters.approvedBy || undefined,
                               purchasedBy: filters.purchasedBy || undefined,
+                              purchaseOrderNo: filters.purchaseOrderNo || undefined,
                               columns: orderedIds.join(','),
                               order: table.order,
                               orderBy: table.orderBy,
