@@ -36,6 +36,10 @@ export default function DriverPayrollTableToolbar({
   onToggleAllColumns,
   onResetColumns,
   canResetColumns,
+  selectedDriver,
+  onSelectDriver,
+  selectedSubtrip,
+  onSelectSubtrip,
 }) {
   const columnsPopover = usePopover();
   const driverDialogOpen = useBoolean();
@@ -51,16 +55,18 @@ export default function DriverPayrollTableToolbar({
 
   const handleFilterDriverName = useCallback(
     (driver) => {
-      onFilters('driver', driver);
+      if (onSelectDriver) onSelectDriver(driver);
+      onFilters('driverId', driver ? driver._id : '');
     },
-    [onFilters]
+    [onFilters, onSelectDriver]
   );
 
   const handleFilterSubtrip = useCallback(
     (subtrip) => {
-      onFilters('subtrip', subtrip);
+      if (onSelectSubtrip) onSelectSubtrip(subtrip);
+      onFilters('subtripId', subtrip ? subtrip._id : '');
     },
-    [onFilters]
+    [onFilters, onSelectSubtrip]
   );
 
   const handleFilterFromDate = useCallback(
@@ -107,14 +113,14 @@ export default function DriverPayrollTableToolbar({
         <DialogSelectButton
           onClick={driverDialogOpen.onTrue}
           placeholder="Driver"
-          selected={filters.driver?.driverName}
+          selected={selectedDriver?.driverName}
           iconName="mdi:steering"
         />
 
         <DialogSelectButton
           onClick={subtripDialogOpen.onTrue}
           placeholder="Job"
-          selected={filters.subtrip?.subtripNo}
+          selected={selectedSubtrip?.subtripNo}
           iconName="mdi:bookmark"
         />
 
@@ -163,7 +169,7 @@ export default function DriverPayrollTableToolbar({
           open={driverDialogOpen.value}
           onClose={driverDialogOpen.onFalse}
           onDriverChange={handleFilterDriverName}
-          selectedDriver={filters.driver}
+          selectedDriver={selectedDriver}
         />
       )}
 
@@ -172,7 +178,7 @@ export default function DriverPayrollTableToolbar({
           open={subtripDialogOpen.value}
           onClose={subtripDialogOpen.onFalse}
           onSubtripChange={handleFilterSubtrip}
-          selectedSubtrip={filters.subtrip}
+          selectedSubtrip={selectedSubtrip}
           statusList={Object.values(SUBTRIP_STATUS)}
           excludeIsMarket
         />

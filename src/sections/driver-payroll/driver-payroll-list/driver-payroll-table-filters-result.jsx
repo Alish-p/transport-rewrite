@@ -16,14 +16,20 @@ export default function DriverPayrollTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  selectedDriverName,
+  selectedSubtripNo,
   ...other
 }) {
   const handleRemoveDriver = () => {
-    onFilters('driver', null);
+    onFilters('driverId', '');
   };
 
   const handleRemoveSubtrip = () => {
-    onFilters('subtrip', null);
+    onFilters('subtripId', '');
+  };
+
+  const handleRemovePaymentId = () => {
+    onFilters('paymentId', '');
   };
 
   const handleRemoveDate = () => {
@@ -43,15 +49,21 @@ export default function DriverPayrollTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.driver && (
+        {filters.driverId && (
           <Block label="Driver">
-            <Chip size="small" label={filters.driver.driverName} onDelete={handleRemoveDriver} />
+            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
           </Block>
         )}
 
-        {filters.subtrip && (
+        {filters.subtripId && (
           <Block label="Job:">
-            <Chip size="small" label={filters.subtrip.subtripNo} onDelete={handleRemoveSubtrip} />
+            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+          </Block>
+        )}
+
+        {filters.paymentId && (
+          <Block label="Driver Salary No:">
+            <Chip size="small" label={filters.paymentId} onDelete={handleRemovePaymentId} />
           </Block>
         )}
 

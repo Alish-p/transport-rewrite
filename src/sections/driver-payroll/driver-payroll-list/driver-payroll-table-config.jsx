@@ -107,7 +107,7 @@ export const TABLE_COLUMNS = [
         label: 'Billing Period',
         defaultVisible: true,
         disabled: false,
-        getter: (row) => row.billingPeriod,
+        getter: ({ billingPeriod }) => fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end),
         render: ({ billingPeriod }) => (
             <ListItemText
                 primary={fDateRangeShortLabel(billingPeriod?.start, billingPeriod?.end)}

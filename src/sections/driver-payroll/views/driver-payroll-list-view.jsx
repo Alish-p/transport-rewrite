@@ -80,6 +80,22 @@ export function DriverPayrollListView() {
     onResetPage: table.onResetPage,
   });
 
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedSubtrip, setSelectedSubtrip] = useState(null);
+
+  // Clear local selected driver/subtrip when filter is removed via chips/reset
+  useEffect(() => {
+    if (!filters.driverId) {
+      setSelectedDriver(null);
+    }
+  }, [filters.driverId]);
+
+  useEffect(() => {
+    if (!filters.subtripId) {
+      setSelectedSubtrip(null);
+    }
+  }, [filters.subtripId]);
+
   const {
     visibleColumns,
     visibleHeaders,
@@ -96,8 +112,8 @@ export function DriverPayrollListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
 
   const { data, isLoading } = usePaginatedDriverPayrolls({
-    driverId: filters.driverId?.driverName ? filters.driverId._id : (filters.driverId || undefined), // Handle old state if populated temporarily
-    subtripId: filters.subtripId?.subtripNo ? filters.subtripId._id : (filters.subtripId || undefined),
+    driverId: filters.driverId || undefined,
+    subtripId: filters.subtripId || undefined,
     paymentId: filters.paymentId || undefined,
     status: filters.status !== 'all' ? filters.status : undefined,
     issueFromDate: filters.fromDate || undefined,
@@ -247,6 +263,10 @@ export function DriverPayrollListView() {
             onToggleAllColumns={toggleAllColumnsVisibility}
             onResetColumns={resetColumns}
             canResetColumns={canResetColumns}
+            selectedDriver={selectedDriver}
+            onSelectDriver={setSelectedDriver}
+            selectedSubtrip={selectedSubtrip}
+            onSelectSubtrip={setSelectedSubtrip}
           />
 
           {canReset && (
@@ -255,6 +275,8 @@ export function DriverPayrollListView() {
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={totalCount}
+              selectedDriverName={selectedDriver?.driverName}
+              selectedSubtripNo={selectedSubtrip?.subtripNo}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
