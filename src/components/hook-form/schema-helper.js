@@ -87,6 +87,20 @@ export const schemaHelper = {
         message: props?.message?.invalid_error ?? 'Account number must be between 9 and 18 digits',
       }),
 
+  accountNumberOptional: (props) =>
+    zod
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (val === undefined || val === '') return true;
+          return ACCOUNT_NUMBER_REGEX.test(val);
+        },
+        {
+          message: props?.message?.invalid_error ?? 'Account number must be between 9 and 18 digits',
+        }
+      ),
+
   // =========================================================================
   // 4. PAN NUMBER VALIDATORS
   //    - panNumber: required, must follow PAN format

@@ -50,7 +50,7 @@ export const TenantSchema = zod
         branch: zod.string().optional(),
         ifsc: zod.string().optional(),
         place: zod.string().optional(),
-        accNo: schemaHelper.accountNumber({}).optional(),
+        accNo: schemaHelper.accountNumberOptional({}),
       })
       .optional(),
     config: zod
