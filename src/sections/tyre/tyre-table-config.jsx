@@ -14,6 +14,8 @@ import { Iconify } from 'src/components/iconify';
 
 import MiniTyreLayout from 'src/sections/vehicle/components/mini-tyre-layout';
 
+import { TYRE_STATUS } from './tyre-constants';
+
 // ----------------------------------------------------------------------
 
 export const TYRE_TABLE_COLUMNS = [
@@ -214,6 +216,38 @@ export const TYRE_TABLE_COLUMNS = [
         defaultVisible: true,
         disabled: false,
         getter: (row) => row.type,
+    },
+    {
+        id: 'status',
+        label: 'Status',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.status,
+        render: (row) => {
+            let label = row.status || '-';
+            let color = 'default';
+
+            if (row.status === TYRE_STATUS.IN_STOCK) {
+                label = 'In Stock';
+                color = 'success';
+            } else if (row.status === TYRE_STATUS.MOUNTED) {
+                label = 'Mounted';
+                color = 'warning';
+            } else if (row.status === TYRE_STATUS.SCRAPPED) {
+                label = 'Scrapped';
+                color = 'error';
+            } else if (row.status === TYRE_STATUS.SOLD) {
+                label = 'Sold';
+                color = 'info';
+            }
+
+            return (
+                <Label variant="soft" color={color}>
+                    {label}
+                </Label>
+            );
+        },
+        sortable: true,
     },
     {
         id: 'category',
