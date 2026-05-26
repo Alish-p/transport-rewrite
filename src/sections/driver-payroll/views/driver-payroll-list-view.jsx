@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
@@ -14,6 +15,9 @@ import Typography from '@mui/material/Typography';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
+
+import axios from 'src/utils/axios';
 
 // _mock
 
@@ -110,6 +114,7 @@ export function DriverPayrollListView() {
 
   const [tableData, setTableData] = useState([]);
   const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data, isLoading } = usePaginatedDriverPayrolls({
     driverId: filters.driverId || undefined,
@@ -320,20 +325,59 @@ export function DriverPayrollListView() {
                   <Tooltip title="Download Excel">
                     <IconButton
                       color="primary"
-                      onClick={() => {
-                        // Keep simple export for selected rows for now
-                        const selectedRows = tableData.filter(({ _id }) =>
-                          table.selected.includes(_id)
-                        );
-                        const visibleCols = getVisibleColumnsForExport();
+                      onClick={async () => {
+                        if (selectAllMode) {
+                          try {
+                            setIsDownloading(true);
+                            toast.info('Export started... Please wait.');
+                            const orderedIds = getVisibleColumnsForExport();
 
-                        exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                          'Driver-Payroll-selected-list'
-                        );
+                            const response = await axios.get('/api/driverPayroll/export', {
+                              params: {
+                                driverId: filters.driverId || undefined,
+                                subtripId: filters.subtripId || undefined,
+                                paymentId: filters.paymentId || undefined,
+                                status: filters.status !== 'all' ? filters.status : undefined,
+                                issueFromDate: filters.fromDate || undefined,
+                                issueToDate: filters.endDate || undefined,
+                                columns: orderedIds.join(','),
+                                order: table.order,
+                                orderBy: table.orderBy,
+                              },
+                              responseType: 'blob',
+                            });
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', 'Driver-Payrolls.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            setIsDownloading(false);
+                            toast.success('Export completed!');
+                          } catch (error) {
+                            console.error('Failed to download excel', error);
+                            setIsDownloading(false);
+                            toast.error('Failed to export payrolls.');
+                          }
+                        } else {
+                          const selectedRows = tableData.filter(({ _id }) =>
+                            table.selected.includes(_id)
+                          );
+                          const visibleCols = getVisibleColumnsForExport();
+
+                          exportToExcel(
+                            prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                            'Driver-Payroll-selected-list'
+                          );
+                        }
                       }}
                     >
-                      <Iconify icon="file-icons:microsoft-excel" />
+                      {isDownloading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        <Iconify icon="file-icons:microsoft-excel" />
+                      )}
                     </IconButton>
                   </Tooltip>
                 </Stack>
