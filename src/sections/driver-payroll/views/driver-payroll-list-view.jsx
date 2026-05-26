@@ -3,12 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -21,27 +23,23 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
+import { useFilters } from 'src/hooks/use-filters';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { paramCase } from 'src/utils/change-case';
-import { fIsAfter, fTimestamp } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteDriverPayroll } from 'src/query/use-driver-payroll';
+import { useDeleteDriverPayroll, usePaginatedDriverPayrolls } from 'src/query/use-driver-payroll';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -58,8 +56,9 @@ import DriverPayrollTableFiltersResult from '../driver-payroll-list/driver-payro
 const STORAGE_KEY = 'driver-payroll-table-columns';
 
 const defaultFilters = {
-  driver: null,
-  subtrip: null,
+  driverId: '',
+  subtripId: '',
+  paymentId: '',
   status: 'all',
   fromDate: null,
   endDate: null,
@@ -67,18 +66,19 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function DriverPayrollListView({ driversPayrolls }) {
+export function DriverPayrollListView() {
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
-  const confirm = useBoolean();
+  const table = useTable({ defaultOrderBy: 'issueDate', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
   const navigate = useNavigate();
 
   const deleteDriverPayroll = useDeleteDriverPayroll();
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const {
     visibleColumns,
@@ -92,40 +92,36 @@ export function DriverPayrollListView({ driversPayrolls }) {
     canReset: canResetColumns,
   } = useColumnVisibility(TABLE_COLUMNS, STORAGE_KEY);
 
-  const dateError = fIsAfter(filters.fromDate, filters.endDate);
-
-  useEffect(() => {
-    if (driversPayrolls.length) {
-      setTableData(driversPayrolls);
-    }
-  }, [driversPayrolls]);
-
   const [tableData, setTableData] = useState([]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError,
+  const { data, isLoading } = usePaginatedDriverPayrolls({
+    driverId: filters.driverId?.driverName ? filters.driverId._id : (filters.driverId || undefined), // Handle old state if populated temporarily
+    subtripId: filters.subtripId?.subtripNo ? filters.subtripId._id : (filters.subtripId || undefined),
+    paymentId: filters.paymentId || undefined,
+    status: filters.status !== 'all' ? filters.status : undefined,
+    issueFromDate: filters.fromDate || undefined,
+    issueToDate: filters.endDate || undefined,
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+    order: table.order,
+    orderBy: table.orderBy,
   });
 
-  const denseHeight = table.dense ? 56 : 76;
+  useEffect(() => {
+    // If we have selected filter objects from kanban dialogs, use their IDs for the API request.
+    // The query object is handled above, but here we update tableData.
+    if (data?.driverPayrolls) {
+      setTableData(data.driverPayrolls);
+    }
+  }, [data]);
 
-  const canReset =
-    !!filters.driver || !!filters.subtrip || (!!filters.fromDate && !!filters.endDate);
+  const notFound = !isLoading && !tableData.length;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const totals = data?.totals || {};
+  const totalCount = totals.all?.count || 0;
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
+  const getStatusLength = (status) => totals[status]?.count || 0;
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.driverSalary.edit(paramCase(id)));
@@ -138,10 +134,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
     [router]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
   const getVisibleColumnsForExport = () => {
     const orderedIds = (
       columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
@@ -150,10 +142,10 @@ export function DriverPayrollListView({ driversPayrolls }) {
   };
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'generated', label: 'Generated', color: 'info', count: tableData.filter((item) => item.status === 'generated').length },
-    { value: 'paid', label: 'Paid', color: 'success', count: tableData.filter((item) => item.status === 'paid').length },
-    { value: 'cancelled', label: 'Cancelled', color: 'error', count: tableData.filter((item) => item.status === 'cancelled').length },
+    { value: 'all', label: 'All', color: 'default', count: totalCount },
+    { value: 'generated', label: 'Generated', color: 'info', count: getStatusLength('generated') },
+    { value: 'paid', label: 'Paid', color: 'success', count: getStatusLength('paid') },
+    { value: 'cancelled', label: 'Cancelled', color: 'error', count: getStatusLength('cancelled') },
   ];
 
   const handleFilterStatus = useCallback(
@@ -164,8 +156,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
   );
 
   return (
-    <>
-      <DashboardContent>
+    <DashboardContent>
         <DriverSalaryLearn open={learn.value} onClose={learn.onFalse} />
 
         <CustomBreadcrumbs
@@ -250,7 +241,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
           <DriverPayrollTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            tableData={dataFiltered}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
@@ -264,7 +254,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={totalCount}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -273,12 +263,35 @@ export function DriverPayrollListView({ driversPayrolls }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
+              rowCount={tableData.length}
+              onSelectAllRows={(checked) => {
+                if (!checked) {
+                  setSelectAllMode(false);
+                }
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
-                )
+                  tableData.map((row) => row._id)
+                );
+              }}
+              label={
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="subtitle2">
+                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  </Typography>
+
+                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} payrolls
+                    </Link>
+                  )}
+                </Stack>
               }
               action={
                 <Stack direction="row">
@@ -286,6 +299,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
                     <IconButton
                       color="primary"
                       onClick={() => {
+                        // Keep simple export for selected rows for now
                         const selectedRows = tableData.filter(({ _id }) =>
                           table.selected.includes(_id)
                         );
@@ -300,12 +314,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
                       <Iconify icon="file-icons:microsoft-excel" />
                     </IconButton>
                   </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
                 </Stack>
               }
             />
@@ -316,23 +324,22 @@ export function DriverPayrollListView({ driversPayrolls }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={visibleHeaders}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onOrderChange={moveColumn}
-                  onSelectAllRows={(checked) =>
+                  onSort={table.onSort}
+                  onSelectAllRows={(checked) => {
+                    if (!checked) {
+                      setSelectAllMode(false);
+                    }
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id)
-                    )
-                  }
+                      tableData.map((row) => row._id)
+                    );
+                  }}
                 />
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  {tableData.map((row) => (
                       <DriverPayrollTableRow
                         key={row._id}
                         row={row}
@@ -347,11 +354,6 @@ export function DriverPayrollListView({ driversPayrolls }) {
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
@@ -359,7 +361,7 @@ export function DriverPayrollListView({ driversPayrolls }) {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -370,74 +372,5 @@ export function DriverPayrollListView({ driversPayrolls }) {
           />
         </Card>
       </DashboardContent>
-
-      {/* Delete Confirmations dialogue */}
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              // handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-// filtering logic
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { driver, subtrip, status, fromDate, endDate } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (driver && driver._id) {
-    inputData = inputData.filter(
-      (record) => record.driverId && record.driverId._id === driver._id
-    );
-  }
-  if (subtrip && subtrip._id) {
-    inputData = inputData.filter(
-      (record) => record.associatedSubtrips && record.associatedSubtrips.some((st) => st === subtrip._id)
-    );
-  }
-
-  if (status && status !== 'all') {
-    inputData = inputData.filter((record) => record.status === status);
-  }
-
-  if (!dateError) {
-    if (fromDate && endDate) {
-      inputData = inputData.filter(
-        (record) =>
-          fTimestamp(record.date) >= fTimestamp(fromDate) &&
-          fTimestamp(record.date) <= fTimestamp(endDate)
-      );
-    }
-  }
-
-  return inputData;
 }

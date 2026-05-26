@@ -2,8 +2,8 @@
 import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
-// @mui
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -11,10 +11,13 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 
+import { fDateRangeShortLabel } from 'src/utils/format-time';
+
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
@@ -37,6 +40,14 @@ export default function DriverPayrollTableToolbar({
   const columnsPopover = usePopover();
   const driverDialogOpen = useBoolean();
   const subtripDialogOpen = useBoolean();
+  const dateDialog = useBoolean();
+
+  const handleFilterPaymentId = useCallback(
+    (event) => {
+      onFilters('paymentId', event.target.value);
+    },
+    [onFilters]
+  );
 
   const handleFilterDriverName = useCallback(
     (driver) => {
@@ -80,6 +91,19 @@ export default function DriverPayrollTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
+        <TextField
+          fullWidth
+          value={filters.paymentId || ''}
+          onChange={handleFilterPaymentId}
+          placeholder="Driver Salary No"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
         <DialogSelectButton
           onClick={driverDialogOpen.onTrue}
           placeholder="Driver"
@@ -94,24 +118,15 @@ export default function DriverPayrollTableToolbar({
           iconName="mdi:bookmark"
         />
 
-        <DatePicker
-          label="Start date"
-          value={filters.fromDate}
-          onChange={handleFilterFromDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
-        />
-
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 },
-          }}
+        <DialogSelectButton
+          onClick={dateDialog.onTrue}
+          placeholder="Issue date range"
+          selected={
+            filters.fromDate && filters.endDate
+              ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
+              : undefined
+          }
+          iconName="mdi:calendar"
         />
 
         <Stack direction="row" spacing={1}>
@@ -162,6 +177,16 @@ export default function DriverPayrollTableToolbar({
           excludeIsMarket
         />
       )}
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={dateDialog.value}
+        onClose={dateDialog.onFalse}
+        startDate={filters.fromDate}
+        endDate={filters.endDate}
+        onChangeStartDate={handleFilterFromDate}
+        onChangeEndDate={handleFilterEndDate}
+      />
     </>
   );
 }

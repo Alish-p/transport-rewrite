@@ -12,6 +12,11 @@ const getDriverPayrolls = async () => {
   return data;
 };
 
+const getPaginatedDriverPayrolls = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/paginated`, { params });
+  return data;
+};
+
 const getDriverPayroll = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;
@@ -35,6 +40,16 @@ const deleteDriverPayroll = async (id) => {
 // Queries & Mutations
 export function useDriverPayrolls() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getDriverPayrolls });
+}
+
+export function usePaginatedDriverPayrolls(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedDriverPayrolls(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useDriverPayroll(id) {

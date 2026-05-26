@@ -138,32 +138,50 @@ export const TABLE_COLUMNS = [
         ),
     },
     {
-        id: 'bankDetails',
-        label: 'Bank Details',
+        id: 'bankName',
+        label: 'Bank Name',
         defaultVisible: true,
         disabled: false,
-        getter: (row) => {
-            const { name, accNo, ifsc } = row.driverId?.bankDetails || {};
-            return `${name || ''} ${accNo || ''} ${ifsc || ''}`.trim();
-        },
+        getter: (row) => row.driverId?.bankDetails?.name,
         render: ({ driverId }) => {
             const bankDetails = driverId?.bankDetails;
             if (!bankDetails || !bankDetails.name) return '-';
             return (
-                <ListItemText
-                    disableTypography
-                    primary={
-                        <Typography variant="body2" sx={{ color: 'text.primary', noWrap: true }}>
-                            {bankDetails.name}
-                        </Typography>
-                    }
-                    secondary={
-                        <Typography variant="caption" sx={{ color: 'text.disabled', display: 'block', noWrap: true }}>
-                            {bankDetails.accNo ? `A/C: ${bankDetails.accNo} ` : ''}
-                            {bankDetails.ifsc ? `IFSC: ${bankDetails.ifsc}` : ''}
-                        </Typography>
-                    }
-                />
+                <Typography variant="body2" sx={{ color: 'text.primary', noWrap: true }}>
+                    {bankDetails.name}
+                </Typography>
+            );
+        },
+    },
+    {
+        id: 'bankAccNo',
+        label: 'Account Number',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.driverId?.bankDetails?.accNo,
+        render: ({ driverId }) => {
+            const bankDetails = driverId?.bankDetails;
+            if (!bankDetails || !bankDetails.accNo) return '-';
+            return (
+                <Typography variant="body2" sx={{ color: 'text.primary', noWrap: true }}>
+                    {bankDetails.accNo}
+                </Typography>
+            );
+        },
+    },
+    {
+        id: 'bankIfsc',
+        label: 'IFSC Code',
+        defaultVisible: true,
+        disabled: false,
+        getter: (row) => row.driverId?.bankDetails?.ifsc,
+        render: ({ driverId }) => {
+            const bankDetails = driverId?.bankDetails;
+            if (!bankDetails || !bankDetails.ifsc) return '-';
+            return (
+                <Typography variant="body2" sx={{ color: 'text.primary', noWrap: true }}>
+                    {bankDetails.ifsc}
+                </Typography>
             );
         },
     },
