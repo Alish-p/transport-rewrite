@@ -17,6 +17,11 @@ export const receiveSchema = zod
     shortageAmount: zod.number().optional(),
     hasShortage: zod.boolean().optional(),
     docs: zod.array(zod.any()).max(5, { message: 'Maximum 5 documents allowed' }).optional(),
+    freightDetails: zod.object({
+      actualDistance: zod.number().optional(),
+      actualTime: zod.number().optional(),
+      calculatedFreightAmount: zod.number().optional(),
+    }).optional(),
 
     // Required for validation [not the actual fields]
   })

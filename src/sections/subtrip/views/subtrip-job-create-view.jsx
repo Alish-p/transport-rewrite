@@ -114,6 +114,13 @@ const formSchema = z
     unloadingPoint: z.string().optional(),
     loadingWeight: loadingWeightSchema,
     rate: numericInputSchema,
+    freightDetails: z.object({
+      modelType: z.enum(['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid']),
+      baseRate: numericInputSchema,
+      fixedAmount: numericInputSchema,
+      baseValue: numericInputSchema,
+      extraRate: numericInputSchema,
+    }).optional(),
     invoiceNo: z.string().optional(),
     ewayBill: z.string().optional(),
     // Optional because empty subtrips won't have it
@@ -159,6 +166,13 @@ const createDefaultValues = () => ({
   unloadingPoint: '',
   loadingWeight: '',
   rate: '',
+  freightDetails: {
+    modelType: 'per_ton',
+    baseRate: '',
+    fixedAmount: '',
+    baseValue: '',
+    extraRate: '',
+  },
   invoiceNo: '',
   ewayBill: '',
   ewayExpiryDate: null,
@@ -177,12 +191,12 @@ const createDefaultValues = () => ({
 
 // driverAdvanceGivenBy uses enum values strictly: 'Self' | 'Fuel Pump'
 
-// Stepper
 const STEPS = [
   { label: 'Vehicle Details' },
   { label: 'Job Details' },
   { label: 'Route Details' },
   { label: 'Material Details' }, // Only for loaded jobs
+  { label: 'Billing Details' }, // Only for loaded jobs
   { label: 'Driver Advance' }, // Only for loaded jobs
 ];
 
@@ -651,22 +665,10 @@ export function SubtripJobCreateView() {
       const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
       if (!isLoaded) return null;
 
-      // Eway Expiry Date should be optional; require only if Eway Bill is present
-      if (
-        !form.loadingWeight ||
-        !form.rate ||
-        !form.invoiceNo ||
-        !form.materialType ||
-        (form.ewayBill && !form.ewayExpiryDate)
-      ) {
-        return 'Please fill required material fields';
-      }
+      const isWeightMissing = !form.loadingWeight;
 
-      const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;
-      const now = new Date();
-      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      if (!eway || eway < startOfToday) {
-        return 'Eway Expiry Date must be today or later';
+      if (isWeightMissing || !form.materialType) {
+        return 'Please fill required material fields';
       }
 
       return null;
@@ -674,10 +676,41 @@ export function SubtripJobCreateView() {
     [getRouteStepError, selectedVehicle]
   );
 
-  const getAdvanceStepError = useCallback(
+  const getBillingStepError = useCallback(
     (form) => {
       const materialStageError = getMaterialStepError(form);
       if (materialStageError) return materialStageError;
+
+      const isOwnVehicle = !!selectedVehicle?.isOwn;
+      const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
+      if (!isLoaded) return null;
+
+      const isRateMissing = !form.rate && (!form.freightDetails || !form.freightDetails.modelType);
+
+      if (
+        isRateMissing ||
+        !form.invoiceNo ||
+        (form.ewayBill && !form.ewayExpiryDate)
+      ) {
+        return 'Please fill required billing fields';
+      }
+
+      const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (eway && eway < startOfToday) {
+        return 'Eway Expiry Date must be today or later';
+      }
+
+      return null;
+    },
+    [getMaterialStepError, selectedVehicle]
+  );
+
+  const getAdvanceStepError = useCallback(
+    (form) => {
+      const billingStageError = getBillingStepError(form);
+      if (billingStageError) return billingStageError;
 
       const isOwnVehicle = !!selectedVehicle?.isOwn;
       const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
@@ -733,6 +766,13 @@ export function SubtripJobCreateView() {
         unloadingPoint: form.unloadingPoint,
         loadingWeight: toNumber(form.loadingWeight),
         rate: toNumber(form.rate),
+        freightDetails: {
+          modelType: form.freightDetails?.modelType,
+          baseRate: toNumber(form.freightDetails?.baseRate),
+          fixedAmount: toNumber(form.freightDetails?.fixedAmount),
+          baseValue: toNumber(form.freightDetails?.baseValue),
+          extraRate: toNumber(form.freightDetails?.extraRate),
+        },
         invoiceNo: form.invoiceNo,
         shipmentNo: form.shipmentNo || undefined,
         orderNo: form.orderNo || undefined,
@@ -797,10 +837,12 @@ export function SubtripJobCreateView() {
 
   const canGoMaterialStep = isLoadedJob ? !getRouteStepError(watchedForm) : false;
 
-  const canGoAdvanceStep = isLoadedJob ? !getMaterialStepError(watchedForm) : false;
+  const canGoBillingStep = isLoadedJob ? !getMaterialStepError(watchedForm) : false;
+
+  const canGoAdvanceStep = isLoadedJob ? !getBillingStepError(watchedForm) : false;
 
   const canSubmit = isLoadedJob
-    ? activeStep === 4
+    ? activeStep === 5
       ? !getAdvanceStepError(watchedForm)
       : false
     : activeStep === 2
@@ -1360,7 +1402,7 @@ export function SubtripJobCreateView() {
                     <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
                       <Field.Text
                         name="loadingWeight"
-                        label="Loading Weight *"
+                        label={`Loading Weight ${(!watchedForm.freightDetails || watchedForm.freightDetails.modelType === 'per_ton') ? '*' : ''}`}
                         type="number"
                         InputProps={{
                           endAdornment: (
@@ -1383,22 +1425,6 @@ export function SubtripJobCreateView() {
                         }}
                       />
 
-                      <Field.Text
-                        name="rate"
-                        label="Rate *"
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                        }}
-                      />
-
-                      {!isEwayIntegrationEnabled && <Field.Text name="ewayBill" label="Eway Bill" />}
-                      <Field.DatePicker
-                        name="ewayExpiryDate"
-                        label="Eway Expiry Date *"
-                        minDate={dayjs()}
-                      />
-                      <Field.Text name="invoiceNo" label="Invoice No *" />
                       <Field.Text name="shipmentNo" label="Shipment No" />
                       <Field.Text name="orderNo" label="Order No" />
                       <Field.Text
@@ -1427,7 +1453,7 @@ export function SubtripJobCreateView() {
                       <Button
                         variant="contained"
                         onClick={() => setActiveStep(4)}
-                        disabled={!canGoAdvanceStep}
+                        disabled={!canGoBillingStep}
                       >
                         Continue
                       </Button>
@@ -1439,10 +1465,110 @@ export function SubtripJobCreateView() {
               </StepContent>
             </Step>
 
-            {/* Step 5 - Driver Advance (Loaded only) */}
+            {/* Step 5 - Billing Details (Loaded only) */}
+            <Step>
+              <StepLabel>{STEPS[4].label}</StepLabel>
+              <StepContent>
+                {isLoadedJob ? (
+                  <>
+                    <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
+                      <Field.Select name="freightDetails.modelType" label="Freight Model">
+                        <MenuItem value="per_ton">Per Ton</MenuItem>
+                        <MenuItem value="fixed">Fixed Freight</MenuItem>
+                        <MenuItem value="per_km">Per KM</MenuItem>
+                        <MenuItem value="time_based">Time Based</MenuItem>
+                        <MenuItem value="hybrid">Hybrid (Base + Extra)</MenuItem>
+                      </Field.Select>
+
+                      {(!watchedForm.freightDetails || watchedForm.freightDetails.modelType === 'per_ton') && (
+                        <Field.Text
+                          name="freightDetails.baseRate"
+                          label="Rate per Ton *"
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      )}
+
+                      {watchedForm.freightDetails?.modelType === 'fixed' && (
+                        <Field.Text
+                          name="freightDetails.fixedAmount"
+                          label="Fixed Amount *"
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      )}
+
+                      {watchedForm.freightDetails?.modelType === 'per_km' && (
+                        <Field.Text
+                          name="freightDetails.baseRate"
+                          label="Rate per KM *"
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      )}
+
+                      {watchedForm.freightDetails?.modelType === 'time_based' && (
+                        <Field.Text
+                          name="freightDetails.baseRate"
+                          label="Rate per Day *"
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      )}
+
+                      {watchedForm.freightDetails?.modelType === 'hybrid' && (
+                        <>
+                          <Field.Text
+                            name="freightDetails.fixedAmount"
+                            label="Base Amount *"
+                            type="number"
+                            InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                          />
+                          <Field.Text
+                            name="freightDetails.baseValue"
+                            label="Base KM Limit *"
+                            type="number"
+                            InputProps={{ endAdornment: <InputAdornment position="end">KM</InputAdornment> }}
+                          />
+                          <Field.Text
+                            name="freightDetails.extraRate"
+                            label="Extra Rate per KM *"
+                            type="number"
+                            InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                          />
+                        </>
+                      )}
+
+                      {!isEwayIntegrationEnabled && <Field.Text name="ewayBill" label="Eway Bill" />}
+                      <Field.DatePicker
+                        name="ewayExpiryDate"
+                        label="Eway Expiry Date *"
+                        minDate={dayjs()}
+                      />
+                      <Field.Text name="invoiceNo" label="Invoice No *" />
+                    </Box>
+
+                    <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                      <Button onClick={() => setActiveStep(3)}>Back</Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => setActiveStep(5)}
+                        disabled={!canGoAdvanceStep}
+                      >
+                        Continue
+                      </Button>
+                    </Stack>
+                  </>
+                ) : (
+                  <Alert severity="info">Billing details are only for loaded jobs.</Alert>
+                )}
+              </StepContent>
+            </Step>
+
+            {/* Step 6 - Driver Advance (Loaded only) */}
             {isLoadedJob && (
               <Step>
-                <StepLabel>{STEPS[4].label}</StepLabel>
+                <StepLabel>{STEPS[5].label}</StepLabel>
                 <StepContent>
                   <Stack spacing={2.5}>
                     <Box
@@ -1543,7 +1669,7 @@ export function SubtripJobCreateView() {
                   </Stack>
 
                   <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
-                    <Button onClick={() => setActiveStep(3)}>Back</Button>
+                    <Button onClick={() => setActiveStep(4)}>Back</Button>
                     <LoadingButton
                       type="submit"
                       variant="contained"

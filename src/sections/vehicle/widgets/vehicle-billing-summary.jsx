@@ -24,6 +24,7 @@ import { RouterLink } from 'src/routes/components';
 import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
+import { getFreightAmount } from 'src/utils/freight-calculations';
 import { exportToExcel } from 'src/utils/export-multi-sheet-to-excel';
 
 import { usePaginatedSubtrips } from 'src/query/use-subtrip';
@@ -69,10 +70,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const subtripsRaw = data?.results || [];
   const subtrips = subtripsRaw.map((row) => {
     const totalExpense = (row?.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
-    const amount =
-      typeof row?.freightAmount === 'number'
-        ? row.freightAmount
-        : (row?.rate || 0) * (row?.loadingWeight || 0);
+    const amount = getFreightAmount(row);
     return {
       ...row,
       customerName: row?.customerId?.customerName,

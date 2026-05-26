@@ -13,6 +13,7 @@ import {
   Alert,
   Button,
   Divider,
+  MenuItem,
   Typography,
   LinearProgress,
   InputAdornment,
@@ -44,11 +45,14 @@ const defaultValues = {
   shortageAmount: 0,
   remarks: '',
   docs: [],
+  commissionDetails: {
+    modelType: 'per_ton',
+  },
 };
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch, setValue } = methods;
-  const { hasError, hasShortage, unloadingWeight, commissionRate } = watch();
+  const { hasError, hasShortage, unloadingWeight, commissionRate, commissionDetails } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
 
   const handleDropMultiFile = useCallback(
@@ -121,22 +125,97 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             />
 
             {isOwn ? null : (
+              <>
+                <Field.Select
+                  name="commissionDetails.modelType"
+                  label="Commission Model *"
+                >
+                  <MenuItem value="per_ton">Per Ton (Weight Based)</MenuItem>
+                  <MenuItem value="fixed">Fixed Commission</MenuItem>
+                  <MenuItem value="per_km">Per KM</MenuItem>
+                  <MenuItem value="time_based">Time Based (Per Day/Hour)</MenuItem>
+                  <MenuItem value="hybrid">Hybrid (Base + Extra)</MenuItem>
+                </Field.Select>
+
+                {commissionDetails?.modelType === 'per_ton' && (
+                  <Field.Text
+                    name="commissionDetails.baseRate"
+                    label="Commission per Ton *"
+                    type="number"
+                    InputProps={{ endAdornment: <InputAdornment position="end"><Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} /></InputAdornment> }}
+                  />
+                )}
+                {commissionDetails?.modelType === 'fixed' && (
+                  <Field.Text
+                    name="commissionDetails.fixedAmount"
+                    label="Fixed Commission Amount *"
+                    type="number"
+                    InputProps={{ endAdornment: <InputAdornment position="end"><Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} /></InputAdornment> }}
+                  />
+                )}
+                {commissionDetails?.modelType === 'per_km' && (
+                  <Field.Text
+                    name="commissionDetails.baseRate"
+                    label="Commission per KM *"
+                    type="number"
+                    InputProps={{ endAdornment: <InputAdornment position="end"><Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} /></InputAdornment> }}
+                  />
+                )}
+                {commissionDetails?.modelType === 'time_based' && (
+                  <Field.Text
+                    name="commissionDetails.baseRate"
+                    label="Commission per Day/Hour *"
+                    type="number"
+                    InputProps={{ endAdornment: <InputAdornment position="end"><Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} /></InputAdornment> }}
+                  />
+                )}
+                {commissionDetails?.modelType === 'hybrid' && (
+                  <>
+                    <Field.Text
+                      name="commissionDetails.fixedAmount"
+                      label="Base Commission Amount *"
+                      type="number"
+                    />
+                    <Field.Text
+                      name="commissionDetails.baseValue"
+                      label="Base KM Limit *"
+                      type="number"
+                    />
+                    <Field.Text
+                      name="commissionDetails.extraRate"
+                      label="Extra Rate per KM *"
+                      type="number"
+                    />
+                  </>
+                )}
+              </>
+            )}
+
+            <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
+
+            {(selectedSubtrip.freightDetails?.modelType === 'per_km' || selectedSubtrip.freightDetails?.modelType === 'hybrid') && (
               <Field.Text
-                name="commissionRate"
-                label="Transporter Commission Rate"
+                name="freightDetails.actualDistance"
+                label="Actual Distance *"
                 type="number"
                 required
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
-                    </InputAdornment>
-                  ),
+                  endAdornment: <InputAdornment position="end">KM</InputAdornment>,
                 }}
               />
             )}
 
-            <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
+            {selectedSubtrip.freightDetails?.modelType === 'time_based' && (
+              <Field.Text
+                name="freightDetails.actualTime"
+                label="Actual Time *"
+                type="number"
+                required
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+                }}
+              />
+            )}
           </>
         )}
       </Box>
@@ -288,8 +367,53 @@ export function SubtripReceiveForm() {
           })
         );
       }
+      let calculatedFreightAmount = 0;
+      if (selectedSubtripData?.freightDetails) {
+        const { modelType, baseRate, fixedAmount, baseValue, extraRate } = selectedSubtripData.freightDetails;
+        if (modelType === 'per_ton') {
+          calculatedFreightAmount = data.unloadingWeight * (baseRate || selectedSubtripData.rate || 0);
+        } else if (modelType === 'fixed') {
+          calculatedFreightAmount = fixedAmount || 0;
+        } else if (modelType === 'per_km') {
+          calculatedFreightAmount = (data.freightDetails?.actualDistance || 0) * (baseRate || 0);
+        } else if (modelType === 'time_based') {
+          calculatedFreightAmount = (data.freightDetails?.actualTime || 0) * (baseRate || 0);
+        } else if (modelType === 'hybrid') {
+          const actualDist = data.freightDetails?.actualDistance || 0;
+          const extraDist = Math.max(0, actualDist - (baseValue || 0));
+          calculatedFreightAmount = (fixedAmount || 0) + (extraDist * (extraRate || 0));
+        }
+      } else {
+        // Legacy fallback
+        calculatedFreightAmount = data.unloadingWeight * (selectedSubtripData?.rate || 0);
+      }
       
       const submissionData = { ...data, docs: uploadedDocs };
+      if (!submissionData.freightDetails) submissionData.freightDetails = {};
+      submissionData.freightDetails.calculatedFreightAmount = calculatedFreightAmount;
+
+      let calculatedCommissionAmount = 0;
+      if (data.commissionDetails) {
+        const { modelType, baseRate, fixedAmount, baseValue, extraRate } = data.commissionDetails;
+        if (modelType === 'per_ton') {
+          calculatedCommissionAmount = data.unloadingWeight * (baseRate || data.commissionRate || 0);
+        } else if (modelType === 'fixed') {
+          calculatedCommissionAmount = fixedAmount || 0;
+        } else if (modelType === 'per_km') {
+          calculatedCommissionAmount = (data.freightDetails?.actualDistance || 0) * (baseRate || 0);
+        } else if (modelType === 'time_based') {
+          calculatedCommissionAmount = (data.freightDetails?.actualTime || 0) * (baseRate || 0);
+        } else if (modelType === 'hybrid') {
+          const actualDist = data.freightDetails?.actualDistance || 0;
+          const extraDist = Math.max(0, actualDist - (baseValue || 0));
+          calculatedCommissionAmount = (fixedAmount || 0) + (extraDist * (extraRate || 0));
+        }
+      } else {
+        calculatedCommissionAmount = data.unloadingWeight * (data.commissionRate || 0);
+      }
+      
+      if (!submissionData.commissionDetails) submissionData.commissionDetails = {};
+      submissionData.commissionDetails.calculatedCommissionAmount = calculatedCommissionAmount;
 
       await receiveSubtrip({ id: selectedSubtripData._id, data: submissionData });
       reset(defaultValues);
@@ -343,7 +467,7 @@ export function SubtripReceiveForm() {
                   isSubmitting ||
                   // local errors
                   unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  (!isOwn && commissionRate > selectedSubtripData?.rate)
+                  (!isOwn && (commissionDetails?.baseRate || commissionRate) > selectedSubtripData?.rate)
                 }
               >
                 Save Changes

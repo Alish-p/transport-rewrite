@@ -1,6 +1,7 @@
 import { fDateTime } from 'src/utils/format-time';
 import { fNumber } from 'src/utils/format-number';
 
+import { getFreightAmount } from './freight-calculations';
 import { exportToExcel } from './export-multi-sheet-to-excel';
 
 export const exportBillingSummaryToExcel = async (
@@ -44,7 +45,7 @@ export const exportBillingSummaryToExcel = async (
       'Unloading Point': st.unloadingPoint,
       'Loading Weight': st.loadingWeight,
       Rate: st.rate,
-      'Freight Amount': (st.rate || 0) * (st.loadingWeight || 0),
+      'Freight Amount': getFreightAmount(st),
     }));
 
   const pendingInvoices = mapInvoices(summary?.pendingInvoices);
@@ -80,7 +81,7 @@ export const exportBillingSummaryToExcel = async (
     const totals = (subtrips || []).reduce(
       (acc, st) => ({
         loadingWeight: acc.loadingWeight + (st.loadingWeight || 0),
-        freightAmount: acc.freightAmount + (st.rate || 0) * (st.loadingWeight || 0),
+        freightAmount: acc.freightAmount + getFreightAmount(st),
       }),
       { loadingWeight: 0, freightAmount: 0 }
     );

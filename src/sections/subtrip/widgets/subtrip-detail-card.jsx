@@ -20,6 +20,7 @@ import { paths } from 'src/routes/paths';
 import { wrapText } from 'src/utils/change-case';
 import { fCurrency } from 'src/utils/format-number';
 import { calculateDriverSalaryPerSubtrip } from 'src/utils/utils';
+import { getFreightAmount, getCommissionAmount } from 'src/utils/freight-calculations';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -46,9 +47,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         expenses: 0,
         driverSalary: 0,
       };
-
-    // Calculate freightAmount (rate * loadingWeight)
-    const freightAmount = (rate || 0) * (loadingWeight || 0);
+    // Calculate freightAmount
+    const freightAmount = getFreightAmount(selectedSubtrip);
 
     // Calculate total expenses
     const expenses =
@@ -93,16 +93,16 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2">Freight Rate</Typography>
+                <Typography variant="body2">Freight Amount</Typography>
                 <Typography variant="body2" fontWeight="bold" color="primary">
-                  {fCurrency(rate || 0)}
+                  {fCurrency(freightAmount)}
                 </Typography>
               </Box>
               {!isOwn && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Effective Rate</Typography>
+                  <Typography variant="body2">Commission Amount</Typography>
                   <Typography variant="body2" fontWeight="bold" color="error">
-                    {fCurrency(rate - commissionRate || 0)}
+                    {fCurrency(getCommissionAmount(selectedSubtrip))}
                   </Typography>
                 </Box>
               )}
@@ -284,7 +284,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             {fCurrency(freightAmount)}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Rate: ₹{rate || 0} × Weight: {loadingWeight || 0} Ton
+            Total Freight Amount: {fCurrency(freightAmount)}
           </Typography>
         </Paper>
       </Grid>

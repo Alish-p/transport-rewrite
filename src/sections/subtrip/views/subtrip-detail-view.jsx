@@ -13,6 +13,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fNumber, fCurrency } from 'src/utils/format-number';
 import { generateStaticMapImage } from 'src/utils/generate-static-map';
+import { getFreightAmount, getCommissionAmount } from 'src/utils/freight-calculations';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -45,6 +46,7 @@ import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { FinancialLinksWidget } from '../widgets/financial-links-widget';
 import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
+import { wrapText } from '../../../utils/change-case';
 
 // ----------------------------------------------------------------------
 
@@ -84,14 +86,24 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
     0
   );
 
-  // Income calculation: own vehicle = freight (rate × loadingWeight), market = commission (commissionRate × loadingWeight)
-  const ownIncomeTotal = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
-  const marketIncomeTotal = (subtrip.commissionRate || 0) * (subtrip.loadingWeight || 0);
+  const ownIncomeTotal = getFreightAmount(subtrip);
+  const marketIncomeTotal = getCommissionAmount(subtrip);
   const incomeTotal = isMarketVehicle ? marketIncomeTotal : ownIncomeTotal;
 
-  const incomeDescription = isMarketVehicle
-    ? `Commission: ${fCurrency(subtrip.commissionRate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`
-    : `Freight: ${fCurrency(subtrip.rate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+  const getIncomeDescription = () => {
+    if (isMarketVehicle) {
+      if (subtrip.commissionDetails?.modelType) {
+        return `Commission Model: ${wrapText(subtrip.commissionDetails.modelType, 20)}`;
+      }
+      return `Commission: ${fCurrency(subtrip.commissionRate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+    }
+    if (subtrip.freightDetails?.modelType) {
+      return `Freight Model: ${wrapText(subtrip.freightDetails.modelType, 20)}`;
+    }
+    return `Freight: ${fCurrency(subtrip.rate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+  };
+
+  const incomeDescription = getIncomeDescription();
 
   const expenseDescription = isMarketVehicle
     ? `Total advances paid to transporter`

@@ -28,7 +28,7 @@ export const calculateTaxBreakup = (customer) => {
 };
 
 export const calculateInvoicePerSubtrip = (subtrip) => {
-  const freightAmount = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
+  const freightAmount = subtrip.freightDetails?.calculatedFreightAmount ?? ((subtrip.rate || 0) * (subtrip.loadingWeight || 0));
   const shortageAmount = subtrip.shortageAmount || 0;
   const totalAmount = freightAmount; // we just show the shortage amount separately net total is just freight amount
 

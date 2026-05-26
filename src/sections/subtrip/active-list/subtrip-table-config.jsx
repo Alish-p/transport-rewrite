@@ -6,6 +6,7 @@ import { RouterLink } from 'src/routes/components';
 import { wrapText } from 'src/utils/change-case';
 import { fNumber } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
+import { getFreightAmount, getCommissionAmount } from 'src/utils/freight-calculations';
 
 import { Label } from 'src/components/label';
 
@@ -378,15 +379,7 @@ export const TABLE_COLUMNS = [
     label: 'Freight Amount',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => {
-      if (typeof row?.freightAmount === 'number') {
-        return fNumber(row.freightAmount);
-      }
-      if (row?.rate && row?.loadingWeight) {
-        return fNumber(row.rate * row.loadingWeight);
-      }
-      return '-';
-    },
+    getter: (row) => fNumber(getFreightAmount(row)),
     align: 'center',
     showTotal: true,
   },
@@ -464,17 +457,10 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => {
       if (row?.vehicleId?.isOwn === false) {
-        const commissionRate = row?.commissionRate || 0;
-        const loadingWeight = row?.loadingWeight || 0;
-        return fNumber(commissionRate * loadingWeight);
+        return fNumber(getCommissionAmount(row));
       }
 
-      let freight = 0;
-      if (typeof row?.freightAmount === 'number') {
-        freight = row.freightAmount;
-      } else if (row?.rate && row?.loadingWeight) {
-        freight = row.rate * row.loadingWeight;
-      }
+      const freight = getFreightAmount(row);
 
       const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
       return fNumber(freight - expenses);
@@ -482,16 +468,9 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       let pnl = 0;
       if (row?.vehicleId?.isOwn === false) {
-        const commissionRate = row?.commissionRate || 0;
-        const loadingWeight = row?.loadingWeight || 0;
-        pnl = commissionRate * loadingWeight;
+        pnl = getCommissionAmount(row);
       } else {
-        let freight = 0;
-        if (typeof row?.freightAmount === 'number') {
-          freight = row.freightAmount;
-        } else if (row?.rate && row?.loadingWeight) {
-          freight = row.rate * row.loadingWeight;
-        }
+        const freight = getFreightAmount(row);
 
         const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
         pnl = freight - expenses;
