@@ -125,6 +125,7 @@ export const navData = [
         icon: ICONS.subtrip,
         resource: 'subtrip',
         children: [
+          { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
           {
             title: 'Create Job',
             path: paths.dashboard.subtrip.jobCreate,
@@ -138,7 +139,6 @@ export const navData = [
             info: <Iconify icon="material-symbols:call-received" />,
           },
 
-          { title: 'List', path: paths.dashboard.subtrip.root, action: 'view' },
         ],
       },
       {
