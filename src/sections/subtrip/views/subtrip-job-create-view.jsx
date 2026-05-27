@@ -1243,7 +1243,7 @@ export function SubtripJobCreateView() {
                     onClick={driverDialog.onTrue}
                     placeholder="Select Driver *"
                     selected={selectedDriver?.driverName}
-                    iconName="mdi:account"
+                    iconName="healthicons:truck-driver"
                   />
 
                   {selectedVehicle?._id && recentDrivers.length > 0 && (

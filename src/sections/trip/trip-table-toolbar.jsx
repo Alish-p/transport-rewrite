@@ -125,7 +125,7 @@ export default function TripTableToolbar({
           onClick={driverDialog.onTrue}
           placeholder="Driver"
           selected={selectedDriver?.driverName}
-          iconName="mdi:account"
+          iconName="healthicons:truck-driver"
           sx={{ maxWidth: { md: 200 } }}
         />
 

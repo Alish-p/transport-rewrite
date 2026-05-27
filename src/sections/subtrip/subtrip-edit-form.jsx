@@ -226,7 +226,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 placeholder="Select Driver"
                 selected={selectedDriver?.driverName}
                 onClick={driverDialog.onTrue}
-                iconName="mdi:account"
+                iconName="healthicons:truck-driver"
                 sx={{ mb: 2 }}
               />
               <Field.Text name="diNumber" label="DI/DO No" />

@@ -129,7 +129,7 @@ export default function DriverPayrollTableToolbar({
           onClick={driverDialogOpen.onTrue}
           placeholder="Driver"
           selected={selectedDriver?.driverName}
-          iconName="mdi:steering"
+          iconName="healthicons:truck-driver"
         />
 
         <DialogSelectButton

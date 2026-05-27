@@ -95,7 +95,7 @@ export default function TripFiltersDrawer({
                             onClick={driverDialog.onTrue}
                             placeholder="Driver"
                             selected={selectedDriver?.driverName}
-                            iconName="mdi:account"
+                            iconName="healthicons:truck-driver"
                         />
 
                         <DialogSelectButton

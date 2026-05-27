@@ -216,7 +216,7 @@ export default function SubtripFiltersDrawer({
                             onClick={driverDialog.onTrue}
                             selected={selectedDriver?.driverName}
                             placeholder="Driver"
-                            iconName="mdi:account"
+                            iconName="healthicons:truck-driver"
                         />
 
                         <DialogSelectButton

@@ -112,7 +112,7 @@ export default function LoansTableToolbar({
             onClick={driverDialog.onTrue}
             placeholder="Select Driver"
             selected={filters.driverName || undefined}
-            iconName="mdi:account"
+            iconName="healthicons:truck-driver"
             sx={{ width: '100%', mt: 0 }}
           />
         </Box>
