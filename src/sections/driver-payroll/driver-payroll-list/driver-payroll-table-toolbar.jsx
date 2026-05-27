@@ -45,6 +45,7 @@ export default function DriverPayrollTableToolbar({
   const driverDialogOpen = useBoolean();
   const subtripDialogOpen = useBoolean();
   const dateDialog = useBoolean();
+  const billingDateDialog = useBoolean();
 
   const handleFilterPaymentId = useCallback(
     (event) => {
@@ -79,6 +80,20 @@ export default function DriverPayrollTableToolbar({
   const handleFilterEndDate = useCallback(
     (newValue) => {
       onFilters('endDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterBillingFromDate = useCallback(
+    (newValue) => {
+      onFilters('billingFromDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterBillingEndDate = useCallback(
+    (newValue) => {
+      onFilters('billingToDate', newValue);
     },
     [onFilters]
   );
@@ -133,6 +148,17 @@ export default function DriverPayrollTableToolbar({
               : undefined
           }
           iconName="mdi:calendar"
+        />
+
+        <DialogSelectButton
+          onClick={billingDateDialog.onTrue}
+          placeholder="Billing period"
+          selected={
+            filters.billingFromDate && filters.billingToDate
+              ? `${fDateRangeShortLabel(filters.billingFromDate, filters.billingToDate)}`
+              : undefined
+          }
+          iconName="mdi:calendar-clock"
         />
 
         <Stack direction="row" spacing={1}>
@@ -192,6 +218,16 @@ export default function DriverPayrollTableToolbar({
         endDate={filters.endDate}
         onChangeStartDate={handleFilterFromDate}
         onChangeEndDate={handleFilterEndDate}
+      />
+
+      <CustomDateRangePicker
+        variant="calendar"
+        open={billingDateDialog.value}
+        onClose={billingDateDialog.onFalse}
+        startDate={filters.billingFromDate}
+        endDate={filters.billingToDate}
+        onChangeStartDate={handleFilterBillingFromDate}
+        onChangeEndDate={handleFilterBillingEndDate}
       />
     </>
   );

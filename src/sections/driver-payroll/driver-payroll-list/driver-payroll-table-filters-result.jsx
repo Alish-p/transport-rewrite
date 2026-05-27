@@ -37,7 +37,13 @@ export default function DriverPayrollTableFiltersResult({
     onFilters('endDate', null);
   };
 
+  const handleRemoveBillingDate = () => {
+    onFilters('billingFromDate', null);
+    onFilters('billingToDate', null);
+  };
+
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);
+  const billingShortLabel = fDateRangeShortLabel(filters.billingFromDate, filters.billingToDate);
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -70,6 +76,12 @@ export default function DriverPayrollTableFiltersResult({
         {filters.fromDate && filters.endDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+          </Block>
+        )}
+
+        {filters.billingFromDate && filters.billingToDate && (
+          <Block label="Billing period:">
+            <Chip size="small" label={billingShortLabel} onDelete={handleRemoveBillingDate} />
           </Block>
         )}
 

@@ -66,6 +66,8 @@ const defaultFilters = {
   status: 'all',
   fromDate: null,
   endDate: null,
+  billingFromDate: null,
+  billingToDate: null,
 };
 
 // ----------------------------------------------------------------------
@@ -123,6 +125,8 @@ export function DriverPayrollListView() {
     status: filters.status !== 'all' ? filters.status : undefined,
     issueFromDate: filters.fromDate || undefined,
     issueToDate: filters.endDate || undefined,
+    billingFromDate: filters.billingFromDate || undefined,
+    billingToDate: filters.billingToDate || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     order: table.order,
@@ -340,6 +344,8 @@ export function DriverPayrollListView() {
                                 status: filters.status !== 'all' ? filters.status : undefined,
                                 issueFromDate: filters.fromDate || undefined,
                                 issueToDate: filters.endDate || undefined,
+                                billingFromDate: filters.billingFromDate || undefined,
+                                billingToDate: filters.billingToDate || undefined,
                                 columns: orderedIds.join(','),
                                 order: table.order,
                                 orderBy: table.orderBy,
