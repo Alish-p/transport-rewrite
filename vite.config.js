@@ -49,5 +49,19 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router', 'react-router-dom'],
+          'vendor-mui': ['@mui/material', '@mui/lab', '@mui/x-data-grid', '@mui/x-date-pickers', '@mui/x-tree-view', '@emotion/react', '@emotion/styled', '@emotion/cache'],
+          'vendor-charts': ['apexcharts', 'react-apexcharts'],
+          'vendor-pdf': ['@react-pdf/renderer'],
+          'vendor-excel': ['exceljs'],
+          'vendor-map': ['leaflet', 'react-leaflet'],
+        },
+      },
+    },
+  },
   preview: { port: PORT, host: true },
 });

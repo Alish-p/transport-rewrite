@@ -8,9 +8,6 @@ import {
   useVehicleDocumentsSummary,
 } from 'src/query/use-dashboard';
 
-import { EmptyContent } from 'src/components/empty-content';
-import { LoadingScreen } from 'src/components/loading-screen';
-
 import { OverviewAppView } from 'src/sections/overview/app/view';
 
 // ----------------------------------------------------------------------
@@ -39,40 +36,28 @@ export default function OverviewAppPage() {
     isError: vehicleDocsError,
   } = useVehicleDocumentsSummary(30);
 
-  if (
-    countsLoading ||
-    statusSummaryLoading ||
-    invoiceStatusLoading ||
-    vehicleDocsLoading
-  ) {
-    return <LoadingScreen />;
-  }
-
-  if (
-    countsError ||
-    statusSummaryError ||
-    invoiceStatusError ||
-    vehicleDocsError
-  ) {
-    return (
-      <EmptyContent
-        filled
-        title="Something went wrong!"
-        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
-      />
-    );
-  }
-
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
       <OverviewAppView
-        counts={counts}
-        subtripStatusSummary={subtripStatusSummary}
-        invoiceStatusSummary={invoiceStatusSummary}
-        vehicleDocsSummary={vehicleDocsSummary}
+        counts={counts || {}}
+        subtripStatusSummary={subtripStatusSummary || {}}
+        invoiceStatusSummary={invoiceStatusSummary || {}}
+        vehicleDocsSummary={vehicleDocsSummary || {}}
+        loading={{
+          counts: countsLoading,
+          statusSummary: statusSummaryLoading,
+          invoiceStatus: invoiceStatusLoading,
+          vehicleDocs: vehicleDocsLoading,
+        }}
+        error={{
+          counts: countsError,
+          statusSummary: statusSummaryError,
+          invoiceStatus: invoiceStatusError,
+          vehicleDocs: vehicleDocsError,
+        }}
       />
     </>
   );
