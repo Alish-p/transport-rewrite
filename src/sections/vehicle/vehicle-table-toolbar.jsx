@@ -18,6 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -168,7 +169,7 @@ export default function VehicleTableToolbar({
             onClick={transporterDialog.onTrue}
             placeholder="Search transporter"
             selected={selectedTransporter?.transportName}
-            iconName="mdi:truck"
+            iconName={APP_ICONS.vehicle}
           />
         )}
 

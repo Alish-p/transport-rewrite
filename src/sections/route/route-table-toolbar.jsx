@@ -11,6 +11,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -119,7 +120,7 @@ export default function RouteTableToolbar({
           onClick={customerDialog.onTrue}
           placeholder="Search customer"
           selected={selectedCustomer?.customerName}
-          iconName="mdi:office-building"
+          iconName={APP_ICONS.customer}
         />
 
         <Stack direction="row" spacing={1}>

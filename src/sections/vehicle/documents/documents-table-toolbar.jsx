@@ -18,6 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -162,7 +163,7 @@ export default function DocumentsTableToolbar({
           onClick={vehicleDialog.onTrue}
           placeholder="Search vehicle"
           selected={selectedVehicle?.vehicleNo}
-          iconName="mdi:truck"
+          iconName={APP_ICONS.vehicle}
         />
 
         <DialogSelectButton
@@ -173,7 +174,7 @@ export default function DocumentsTableToolbar({
               ? `${fDateRangeShortLabel(filters.issueFrom, filters.issueTo)}`
               : undefined
           }
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <DialogSelectButton
@@ -184,7 +185,7 @@ export default function DocumentsTableToolbar({
               ? `${fDateRangeShortLabel(filters.expiryFrom, filters.expiryTo)}`
               : undefined
           }
-          iconName="mdi:calendar-clock"
+          iconName={APP_ICONS.calendar}
         />
 
         <Stack direction="row" spacing={1}>

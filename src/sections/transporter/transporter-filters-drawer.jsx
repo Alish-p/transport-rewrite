@@ -15,6 +15,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { STATES } from '../customer/config';
@@ -93,7 +94,7 @@ export default function TransporterFiltersDrawer({
                         onClick={vehicleDialog.onTrue}
                         selected={selectedVehicle?.vehicleNo}
                         placeholder="Vehicle"
-                        iconName="mdi:truck"
+                        iconName={APP_ICONS.vehicle}
                     />
 
                     <TextField

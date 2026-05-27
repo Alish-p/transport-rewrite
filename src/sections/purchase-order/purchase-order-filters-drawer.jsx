@@ -16,6 +16,7 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 // ----------------------------------------------------------------------
@@ -106,7 +107,7 @@ export default function PurchaseOrderFiltersDrawer({
             onClick={vendorDialog.onTrue}
             selected={selectedVendor?.name}
             placeholder="Vendor"
-            iconName="mdi:office-building"
+            iconName={APP_ICONS.customer}
           />
 
           {/* 3. Part */}
@@ -114,7 +115,7 @@ export default function PurchaseOrderFiltersDrawer({
             onClick={partDialog.onOpen}
             selected={selectedPart?.name}
             placeholder="Part"
-            iconName="mdi:cube"
+            iconName={APP_ICONS.part}
           />
 
           {/* 4. Date Range */}
@@ -126,7 +127,7 @@ export default function PurchaseOrderFiltersDrawer({
                 : undefined
             }
             placeholder="Date Range"
-            iconName="mdi:calendar"
+            iconName={APP_ICONS.calendar}
           />
 
           {/* 5. Part Location */}
@@ -150,7 +151,7 @@ export default function PurchaseOrderFiltersDrawer({
             onClick={createdByDialog.onTrue}
             selected={selectedCreatedBy?.name}
             placeholder="Created By"
-            iconName="mdi:account"
+            iconName={APP_ICONS.user}
           />
 
           {/* 7. Approved By */}
@@ -158,7 +159,7 @@ export default function PurchaseOrderFiltersDrawer({
             onClick={approvedByDialog.onTrue}
             selected={selectedApprovedBy?.name}
             placeholder="Approved By"
-            iconName="mdi:account-check"
+            iconName={APP_ICONS.user}
           />
 
           {/* 8. Purchased By */}
@@ -166,7 +167,7 @@ export default function PurchaseOrderFiltersDrawer({
             onClick={purchasedByDialog.onTrue}
             selected={selectedPurchasedBy?.name}
             placeholder="Purchased By"
-            iconName="mdi:cart"
+            iconName={APP_ICONS.cart}
           />
         </Stack>
       </Scrollbar>

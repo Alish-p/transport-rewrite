@@ -25,6 +25,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 // components
 import { Form, Field } from 'src/components/hook-form';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
@@ -287,7 +288,7 @@ export default function VehicleForm({ currentVehicle }) {
                 placeholder="Select Transport Company"
                 selected={selectedTransporter?.transportName}
                 error={!!errors.transporter?.message}
-                iconName="mdi:truck"
+                iconName={APP_ICONS.vehicle}
               />
             )}
           </Stack>

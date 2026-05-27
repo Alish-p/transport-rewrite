@@ -20,6 +20,7 @@ import { useTransporter } from 'src/query/use-transporter';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -135,7 +136,7 @@ export default function TransporterPaymentTableToolbar({
           onClick={subtripDialog.onTrue}
           placeholder="Search job"
           selected={selectedSubtrip?.subtripNo}
-          iconName="mdi:bookmark"
+          iconName={APP_ICONS.job}
         />
 
         <DialogSelectButton
@@ -155,7 +156,7 @@ export default function TransporterPaymentTableToolbar({
               ? `${fDateRangeShortLabel(filters.issueFromDate, filters.issueToDate)}`
               : undefined
           }
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <FormControlLabel

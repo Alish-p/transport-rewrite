@@ -13,6 +13,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -130,7 +131,7 @@ export default function SubtripTableToolbar({
             onClick={transporterDialog.onTrue}
             selected={selectedTransporter?.transportName}
             placeholder="Transporter"
-            iconName="mdi:truck-delivery"
+            iconName={APP_ICONS.transporter}
           />
         )}
 
@@ -138,14 +139,14 @@ export default function SubtripTableToolbar({
           onClick={customerDialog.onTrue}
           selected={selectedCustomer?.customerName}
           placeholder="Customer"
-          iconName="mdi:office-building"
+          iconName={APP_ICONS.customer}
         />
 
         <DialogSelectButton
           onClick={vehicleDialog.onTrue}
           selected={selectedVehicle?.vehicleNo}
           placeholder="Vehicle"
-          iconName="mdi:truck"
+          iconName={APP_ICONS.vehicle}
         />
 
         <DialogSelectButton
@@ -156,7 +157,7 @@ export default function SubtripTableToolbar({
               : undefined
           }
           placeholder="Dispatch Date Range"
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <Button

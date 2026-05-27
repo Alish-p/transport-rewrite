@@ -13,6 +13,7 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 // ----------------------------------------------------------------------
@@ -95,21 +96,21 @@ export default function TripFiltersDrawer({
                             onClick={driverDialog.onTrue}
                             placeholder="Driver"
                             selected={selectedDriver?.driverName}
-                            iconName="healthicons:truck-driver"
+                            iconName={APP_ICONS.driver}
                         />
 
                         <DialogSelectButton
                             onClick={vehicleDialog.onTrue}
                             placeholder="Vehicle"
                             selected={selectedVehicle?.vehicleNo}
-                            iconName="mdi:truck"
+                            iconName={APP_ICONS.vehicle}
                         />
 
                         <DialogSelectButton
                             onClick={subtripDialog.onTrue}
                             placeholder="Job"
                             selected={selectedSubtrip?.subtripNo}
-                            iconName="mdi:bookmark"
+                            iconName={APP_ICONS.job}
                         />
 
                         <DialogSelectButton
@@ -120,7 +121,7 @@ export default function TripFiltersDrawer({
                                     ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
                                     : undefined
                             }
-                            iconName="mdi:calendar"
+                            iconName={APP_ICONS.calendar}
                         />
 
                         <Stack spacing={1}>

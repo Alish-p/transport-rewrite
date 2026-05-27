@@ -14,6 +14,7 @@ import Button from '@mui/material/Button';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -129,14 +130,14 @@ export default function DriverPayrollTableToolbar({
           onClick={driverDialogOpen.onTrue}
           placeholder="Driver"
           selected={selectedDriver?.driverName}
-          iconName="healthicons:truck-driver"
+          iconName={APP_ICONS.driver}
         />
 
         <DialogSelectButton
           onClick={subtripDialogOpen.onTrue}
           placeholder="Job"
           selected={selectedSubtrip?.subtripNo}
-          iconName="mdi:bookmark"
+          iconName={APP_ICONS.job}
         />
 
         <DialogSelectButton
@@ -147,7 +148,7 @@ export default function DriverPayrollTableToolbar({
               ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
               : undefined
           }
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <DialogSelectButton
@@ -158,7 +159,7 @@ export default function DriverPayrollTableToolbar({
               ? `${fDateRangeShortLabel(filters.billingFromDate, filters.billingToDate)}`
               : undefined
           }
-          iconName="mdi:calendar-clock"
+          iconName={APP_ICONS.calendar}
         />
 
         <Stack direction="row" spacing={1}>

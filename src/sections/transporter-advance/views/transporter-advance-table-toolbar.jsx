@@ -12,6 +12,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -121,7 +122,7 @@ export default function TransporterAdvanceTableToolbar({
           onClick={transporterDialog.onTrue}
           selected={selectedTransporter?.transportName}
           placeholder="Transporter"
-          iconName="mdi:truck-delivery"
+          iconName={APP_ICONS.transporter}
           sx={{ maxWidth: { md: 240 } }}
         />
 
@@ -129,7 +130,7 @@ export default function TransporterAdvanceTableToolbar({
           onClick={vehicleDialog.onTrue}
           selected={selectedVehicle?.vehicleNo}
           placeholder="Vehicle"
-          iconName="mdi:truck"
+          iconName={APP_ICONS.vehicle}
           sx={{ maxWidth: { md: 220 } }}
         />
 
@@ -137,7 +138,7 @@ export default function TransporterAdvanceTableToolbar({
           onClick={subtripDialog.onTrue}
           selected={selectedSubtrip?.subtripNo}
           placeholder="Job"
-          iconName="mdi:bookmark"
+          iconName={APP_ICONS.job}
           sx={{ maxWidth: { md: 220 } }}
         />
 
@@ -145,7 +146,7 @@ export default function TransporterAdvanceTableToolbar({
           onClick={pumpDialog.onTrue}
           selected={selectedPump?.name}
           placeholder="Pump"
-          iconName="mdi:gas-station"
+          iconName={APP_ICONS.pump}
           sx={{ maxWidth: { md: 220 } }}
         />
 
@@ -174,7 +175,7 @@ export default function TransporterAdvanceTableToolbar({
               : undefined
           }
           onClick={dateDialog.onTrue}
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <Stack direction="row" spacing={1}>

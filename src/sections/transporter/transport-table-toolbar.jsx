@@ -18,6 +18,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify/';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
@@ -95,7 +96,7 @@ export default function TransporterTableToolbar({
               onClick={vehicleDialog.onTrue}
               selected={selectedVehicle?.vehicleNo}
               placeholder="Vehicle"
-              iconName="mdi:truck"
+              iconName={APP_ICONS.vehicle}
             />
           </Box>
 

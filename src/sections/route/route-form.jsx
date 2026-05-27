@@ -36,6 +36,7 @@ import { useCreateRoute, useUpdateRoute } from 'src/query/use-route';
 // components
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import RouteConfigDialogue from './components/route-config-dialogue';
@@ -248,7 +249,7 @@ export default function RouteForm({ currentRoute }) {
                 placeholder="Select Customer *"
                 selected={selectedCustomer?.customerName}
                 error={!!errors.customer?.message}
-                iconName="mdi:office-building"
+                iconName={APP_ICONS.customer}
               />
             </Box>
           )}

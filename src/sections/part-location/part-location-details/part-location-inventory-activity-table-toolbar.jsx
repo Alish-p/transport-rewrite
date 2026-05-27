@@ -12,6 +12,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -77,7 +78,7 @@ export default function PartLocationInventoryActivityTableToolbar({
                     onClick={onOpenContactsDialog}
                     placeholder="Performed By"
                     selected={performedByLabel !== 'All users' ? performedByLabel : null}
-                    iconName="solar:users-group-rounded-bold"
+                    iconName={APP_ICONS.users}
                     sx={{ maxWidth: 200 }}
                 />
 
@@ -85,7 +86,7 @@ export default function PartLocationInventoryActivityTableToolbar({
                     onClick={onOpenPartsDialog}
                     placeholder="Part"
                     selected={selectedPart?.name || null}
-                    iconName="solar:box-minimalistic-bold"
+                    iconName={APP_ICONS.part}
                     sx={{ maxWidth: 200 }}
                 />
 

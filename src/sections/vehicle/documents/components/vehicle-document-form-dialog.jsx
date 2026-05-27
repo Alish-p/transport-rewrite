@@ -26,6 +26,7 @@ import {
 } from 'src/query/use-documents';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -245,7 +246,7 @@ export default function VehicleDocumentFormDialog({
               onClick={vehicleDialog.onTrue}
               placeholder="Choose vehicle"
               selected={selectedVehicleLabel}
-              iconName="mdi:truck"
+              iconName={APP_ICONS.vehicle}
               disabled={isEdit || disableVehicleSelection}
             />
 

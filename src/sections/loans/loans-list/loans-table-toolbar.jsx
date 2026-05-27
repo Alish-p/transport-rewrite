@@ -14,6 +14,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -112,7 +113,7 @@ export default function LoansTableToolbar({
             onClick={driverDialog.onTrue}
             placeholder="Select Driver"
             selected={filters.driverName || undefined}
-            iconName="healthicons:truck-driver"
+            iconName={APP_ICONS.driver}
             sx={{ width: '100%', mt: 0 }}
           />
         </Box>
@@ -123,7 +124,7 @@ export default function LoansTableToolbar({
               onClick={transporterDialog.onTrue}
               placeholder="Select Transporter"
               selected={filters.transporterName || undefined}
-              iconName="mdi:truck-delivery"
+              iconName={APP_ICONS.transporter}
               sx={{ width: '100%', mt: 0 }}
             />
           </Box>
@@ -171,7 +172,7 @@ export default function LoansTableToolbar({
               ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
               : undefined
           }
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <Stack direction="row" spacing={1}>

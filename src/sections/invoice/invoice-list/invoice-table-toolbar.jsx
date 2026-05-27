@@ -14,6 +14,7 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -116,14 +117,14 @@ export default function InvoiceTableToolbar({
           onClick={customerDialog.onTrue}
           placeholder="Search customer"
           selected={selectedCustomer?.customerName}
-          iconName="mdi:office-building"
+          iconName={APP_ICONS.customer}
         />
 
         <DialogSelectButton
           onClick={subtripDialog.onTrue}
           placeholder="Search job"
           selected={selectedSubtrip?.subtripNo}
-          iconName="mdi:bookmark"
+          iconName={APP_ICONS.job}
         />
 
         <DialogSelectButton
@@ -134,7 +135,7 @@ export default function InvoiceTableToolbar({
               ? `${fDateRangeShortLabel(filters.fromDate, filters.endDate)}`
               : undefined
           }
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
         />
 
         <Stack direction="row" spacing={1}>

@@ -13,6 +13,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -197,7 +198,7 @@ export default function WorkOrderTableToolbar({
           onClick={vehicleDialog.onOpen}
           selected={selectedVehicle?.vehicleNo}
           placeholder="Vehicle"
-          iconName="mdi:truck"
+          iconName={APP_ICONS.vehicle}
           sx={{ width: { xs: 1, md: 150 } }}
         />
 
@@ -205,7 +206,7 @@ export default function WorkOrderTableToolbar({
           onClick={partDialog.onOpen}
           selected={selectedPart?.name}
           placeholder="Part"
-          iconName="mdi:cube"
+          iconName={APP_ICONS.part}
           sx={{ width: { xs: 1, md: 150 } }}
         />
 

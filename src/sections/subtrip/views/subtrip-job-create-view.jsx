@@ -48,6 +48,7 @@ import { useCreateJob, usePaginatedSubtrips } from 'src/query/use-subtrip';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -936,7 +937,7 @@ export function SubtripJobCreateView() {
                         ? `${selectedVehicle.vehicleNo} • ${selectedVehicle.isOwn ? 'Own' : 'Market'}`
                         : undefined
                     }
-                    iconName="mdi:truck"
+                    iconName={APP_ICONS.vehicle}
                   />
 
                   {selectedVehicle?.isOwn && (
@@ -1243,7 +1244,7 @@ export function SubtripJobCreateView() {
                     onClick={driverDialog.onTrue}
                     placeholder="Select Driver *"
                     selected={selectedDriver?.driverName}
-                    iconName="healthicons:truck-driver"
+                    iconName={APP_ICONS.driver}
                   />
 
                   {selectedVehicle?._id && recentDrivers.length > 0 && (
@@ -1277,7 +1278,7 @@ export function SubtripJobCreateView() {
                       onClick={customerDialog.onTrue}
                       placeholder="Select Customer *"
                       selected={selectedCustomer?.customerName}
-                      iconName="mdi:office-building"
+                      iconName={APP_ICONS.customer}
                     />
                   )}
 
@@ -1515,7 +1516,7 @@ export function SubtripJobCreateView() {
                               onClick={pumpDialog.onTrue}
                               placeholder={`Select Pump${requiresPumpSelection ? ' *' : ''}`}
                               selected={selectedPump?.name}
-                              iconName="mdi:gas-station"
+                              iconName={APP_ICONS.pump}
                               error={Boolean(errors.pumpCd)}
                             />
                             {errors.pumpCd && (

@@ -24,6 +24,7 @@ import { useSubtrip, useUpdateSubtripReceiveInfo, getSubtripDocumentUploadUrl } 
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { SUBTRIP_STATUS } from './constants';
@@ -92,7 +93,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         </Box>
       )}
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <Iconify icon="mdi:truck-outline" sx={{ color: 'primary.main' }} />
+        <Iconify icon={APP_ICONS.job} sx={{ color: 'primary.main' }} />
         <Typography variant="h6">Job Receive Details</Typography>
       </Stack>
 
@@ -102,7 +103,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           placeholder="Select Job *"
           selected={selectedSubtrip?.subtripNo}
           error={!!errors.subtripId?.message}
-          iconName="mdi:truck-fast"
+          iconName={APP_ICONS.job}
           sx={{ gridColumn: '1 / -1' }}
         />
 

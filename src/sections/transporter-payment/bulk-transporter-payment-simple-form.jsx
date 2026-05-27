@@ -34,6 +34,7 @@ import { useCreateBulkTransporterPayment } from 'src/query/use-transporter-payme
 
 import { Iconify } from 'src/components/iconify';
 import { TableSkeleton } from 'src/components/table';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
@@ -435,7 +436,7 @@ export default function BulkTransporterPaymentSimpleForm() {
                 : 'Select Date Range'
             }
             onClick={dateRangeDialog.onTrue}
-            iconName="mdi:calendar"
+            iconName={APP_ICONS.calendar}
             disabled={isLoading}
           />
           <CustomDateRangePicker

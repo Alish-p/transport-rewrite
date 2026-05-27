@@ -45,6 +45,7 @@ import { useCreateWorkOrder, useUpdateWorkOrder } from 'src/query/use-work-order
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -754,7 +755,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                           }}
                           selected={assigneeLabel || ''}
                           placeholder="Assign to..."
-                          iconName="mdi:account-multiple"
+                          iconName={APP_ICONS.users}
                           iconNameSelected="mdi:account-multiple-check"
                         />
                       </TableCell>
@@ -884,7 +885,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                                 }}
                                 selected={label}
                                 placeholder="Select Part / Custom Item"
-                                iconName="mdi:cube"
+                                iconName={APP_ICONS.part}
                                 iconNameSelected="mdi:cube-send"
                               />
                             </Box>

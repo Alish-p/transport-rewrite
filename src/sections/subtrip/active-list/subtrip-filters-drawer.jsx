@@ -21,6 +21,7 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
@@ -127,7 +128,7 @@ export default function SubtripFiltersDrawer({
                                 onClick={transporterDialog.onTrue}
                                 selected={selectedTransporter?.transportName}
                                 placeholder="Transporter"
-                                iconName="mdi:truck-delivery"
+                                iconName={APP_ICONS.transporter}
                             />
                         )}
 
@@ -135,14 +136,14 @@ export default function SubtripFiltersDrawer({
                             onClick={customerDialog.onTrue}
                             selected={selectedCustomer?.customerName}
                             placeholder="Customer"
-                            iconName="mdi:office-building"
+                            iconName={APP_ICONS.customer}
                         />
 
                         <DialogSelectButton
                             onClick={vehicleDialog.onTrue}
                             selected={selectedVehicle?.vehicleNo}
                             placeholder="Vehicle"
-                            iconName="mdi:truck"
+                            iconName={APP_ICONS.vehicle}
                         />
 
                         <DialogSelectButton
@@ -153,7 +154,7 @@ export default function SubtripFiltersDrawer({
                                     : undefined
                             }
                             placeholder="Dispatch Date Range"
-                            iconName="mdi:calendar"
+                            iconName={APP_ICONS.calendar}
                         />
 
                         <TextField
@@ -216,7 +217,7 @@ export default function SubtripFiltersDrawer({
                             onClick={driverDialog.onTrue}
                             selected={selectedDriver?.driverName}
                             placeholder="Driver"
-                            iconName="healthicons:truck-driver"
+                            iconName={APP_ICONS.driver}
                         />
 
                         <DialogSelectButton
@@ -227,7 +228,7 @@ export default function SubtripFiltersDrawer({
                                     : undefined
                             }
                             placeholder="Receive Date Range"
-                            iconName="mdi:calendar"
+                            iconName={APP_ICONS.calendar}
                         />
 
                         <DialogSelectButton

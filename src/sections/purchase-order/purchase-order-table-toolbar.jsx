@@ -12,6 +12,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -141,7 +142,7 @@ export default function PurchaseOrderTableToolbar({
           onClick={vendorDialog.onTrue}
           selected={selectedVendor?.name}
           placeholder="Vendor"
-          iconName="mdi:office-building"
+          iconName={APP_ICONS.customer}
           sx={{ maxWidth: 260 }}
         />
 
@@ -149,7 +150,7 @@ export default function PurchaseOrderTableToolbar({
           onClick={partDialog.onOpen}
           selected={selectedPart?.name}
           placeholder="Part"
-          iconName="mdi:cube"
+          iconName={APP_ICONS.part}
           sx={{ maxWidth: 260 }}
         />
 
@@ -161,7 +162,7 @@ export default function PurchaseOrderTableToolbar({
               : undefined
           }
           placeholder="Date Range"
-          iconName="mdi:calendar"
+          iconName={APP_ICONS.calendar}
           sx={{ maxWidth: 260 }}
         />
 

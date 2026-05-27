@@ -14,6 +14,7 @@ import { useCreateTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -191,7 +192,7 @@ function TransporterAdvanceCoreForm({ currentSubtrip }) {
                 placeholder="Select Job"
                 selected={subtripData?.subtripNo}
                 error={!!errors.subtripId?.message}
-                iconName="mdi:truck-fast"
+                iconName={APP_ICONS.job}
               />
             </Box>
 
@@ -215,7 +216,7 @@ function TransporterAdvanceCoreForm({ currentSubtrip }) {
                   placeholder="Select Pump (Optional)"
                   selected={selectedPump?.name}
                   error={!!errors.pumpCd?.message}
-                  iconName="mdi:gas-station"
+                  iconName={APP_ICONS.pump}
                 />
               </Box>
             )}

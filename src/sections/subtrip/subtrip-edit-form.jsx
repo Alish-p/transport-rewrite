@@ -29,6 +29,7 @@ import { paramCase } from 'src/utils/change-case';
 
 import { useUpdateSubtrip } from 'src/query/use-subtrip';
 
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -216,7 +217,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   placeholder="Select Customer"
                   selected={selectedCustomer?.customerName}
                   onClick={customerDialog.onTrue}
-                  iconName="mdi:office-building"
+                  iconName={APP_ICONS.customer}
                   sx={{ mb: 2 }}
                   disabled
                 />
@@ -226,7 +227,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 placeholder="Select Driver"
                 selected={selectedDriver?.driverName}
                 onClick={driverDialog.onTrue}
-                iconName="healthicons:truck-driver"
+                iconName={APP_ICONS.driver}
                 sx={{ mb: 2 }}
               />
               <Field.Text name="diNumber" label="DI/DO No" />
@@ -363,7 +364,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       placeholder="Select Pump"
                       selected={selectedPump?.name}
                       onClick={pumpDialog.onTrue}
-                      iconName="mdi:gas-station"
+                      iconName={APP_ICONS.pump}
                     />
                   )}
                 </Box>

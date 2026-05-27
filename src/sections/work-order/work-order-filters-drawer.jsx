@@ -15,6 +15,7 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
@@ -140,14 +141,14 @@ export default function WorkOrderFiltersDrawer({
               onClick={vehicleDialog.onOpen}
               selected={selectedVehicle?.vehicleNo}
               placeholder="Vehicle"
-              iconName="mdi:truck"
+              iconName={APP_ICONS.vehicle}
             />
 
             <DialogSelectButton
               onClick={partDialog.onOpen}
               selected={selectedPart?.name}
               placeholder="Part"
-              iconName="mdi:cube"
+              iconName={APP_ICONS.part}
             />
 
             <Autocomplete
@@ -171,7 +172,7 @@ export default function WorkOrderFiltersDrawer({
                   : undefined
               }
               placeholder="Work Order Start Date Range"
-              iconName="mdi:calendar"
+              iconName={APP_ICONS.calendar}
             />
 
             <DialogSelectButton
@@ -182,28 +183,28 @@ export default function WorkOrderFiltersDrawer({
                   : undefined
               }
               placeholder="Work Order End Date Range"
-              iconName="mdi:calendar"
+              iconName={APP_ICONS.calendar}
             />
 
             <DialogSelectButton
               onClick={createdByDialog.onTrue}
               selected={selectedCreatedBy?.name}
               placeholder="Created By"
-              iconName="mdi:account"
+              iconName={APP_ICONS.user}
             />
 
             <DialogSelectButton
               onClick={closedByDialog.onTrue}
               selected={selectedClosedBy?.name}
               placeholder="Closed By"
-              iconName="mdi:account-check"
+              iconName={APP_ICONS.user}
             />
 
             <DialogSelectButton
               onClick={issueAssigneeDialog.onTrue}
               selected={selectedIssueAssignee?.name}
               placeholder="Issue Assignee"
-              iconName="mdi:account-hard-hat"
+              iconName={APP_ICONS.mechanic}
             />
           </Stack>
         </Scrollbar>

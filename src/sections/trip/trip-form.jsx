@@ -15,6 +15,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useUpdateTrip } from 'src/query/use-trip';
 
 import { toast } from 'src/components/snackbar';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -236,7 +237,7 @@ export default function TripForm({ currentTrip }) {
                   placeholder="Select Vehicle"
                   selected={selectedVehicle?.vehicleNo}
                   error={!!errors.vehicleId?.message}
-                  iconName="mdi:truck"
+                  iconName={APP_ICONS.vehicle}
                   disabled={!!currentTrip} // disable if in edit mode
                 />
               </Box>
@@ -278,7 +279,7 @@ export default function TripForm({ currentTrip }) {
                     placeholder="Select Customer *"
                     selected={selectedCustomer?.customerName}
                     error={!!errors.customerId?.message}
-                    iconName="mdi:office-building"
+                    iconName={APP_ICONS.customer}
                   />
                 </Box>
                 <Field.Text name="diNumber" label="DI/DO No" required />

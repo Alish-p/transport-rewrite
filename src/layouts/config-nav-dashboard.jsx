@@ -3,6 +3,7 @@ import { paths } from 'src/routes/paths';
 import { CONFIG } from 'src/config-global';
 
 import { SvgColor } from 'src/components/svg-color';
+import { APP_ICONS } from 'src/components/iconify/icons';
 
 import { Iconify } from '../components/iconify';
 
@@ -11,11 +12,11 @@ import { Iconify } from '../components/iconify';
 const icon = (name) => <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />;
 
 const ICONS = {
-  job: icon('ic-job'),
+  job: <Iconify icon={APP_ICONS.job} />,
   blog: icon('ic-blog'),
   chat: icon('ic-chat'),
   mail: icon('ic-mail'),
-  user: icon('ic-user'),
+  user: <Iconify icon={APP_ICONS.user} />,
   file: icon('ic-file'),
   lock: icon('ic-lock'),
   tour: icon('ic-tour'),
@@ -27,36 +28,36 @@ const ICONS = {
   course: icon('ic-course'),
   banking: icon('ic-banking'),
   booking: icon('ic-booking'),
-  invoice: icon('ic-invoice'),
-  product: icon('ic-product'),
-  calendar: icon('ic-calendar'),
+  invoice: <Iconify icon={APP_ICONS.invoice} />,
+  product: <Iconify icon={APP_ICONS.part} />,
+  calendar: <Iconify icon={APP_ICONS.calendar} />,
   disabled: icon('ic-disabled'),
   external: icon('ic-external'),
   menuItem: icon('ic-menu-item'),
   ecommerce: icon('ic-ecommerce'),
   analytics: icon('ic-analytics'),
-  dashboard: icon('ic-dashboard'),
+  dashboard: <Iconify icon={APP_ICONS.dashboard} />,
   parameter: icon('ic-parameter'),
-  vehicle: icon('ic_vehicle'),
-  driver: icon('ic-user'),
-  pump: icon('ic_pump'),
-  customer: icon('ic_customer'),
-  transporter: icon('ic_transporter'),
+  vehicle: <Iconify icon={APP_ICONS.vehicle} />,
+  driver: <Iconify icon={APP_ICONS.driver} />,
+  pump: <Iconify icon={APP_ICONS.pump} />,
+  customer: <Iconify icon={APP_ICONS.customer} />,
+  transporter: <Iconify icon={APP_ICONS.transporter} />,
   route: icon('ic_map'),
   bank: icon('ic_bank'),
-  expense: icon('ic_expense'),
-  subtrip: icon('ic_subtrip'),
-  trip: icon('ic_trip'),
+  expense: <Iconify icon={APP_ICONS.expense} />,
+  subtrip: <Iconify icon={APP_ICONS.job} />,
+  trip: <Iconify icon={APP_ICONS.trip} />,
   loan: icon('ic_driver_deductions'),
   driverSalary: icon('ic_driver_salary'),
-  driverFinance: <Iconify icon="healthicons:truck-driver" />,
+  driverFinance: <Iconify icon={APP_ICONS.driver} />,
   transporterPayment: <Iconify icon="ri:money-rupee-circle-line" />,
-  parts: icon('ic-product'),
+  parts: <Iconify icon={APP_ICONS.part} />,
   partLocation: icon('ic-folder'),
-  vendor: icon('ic_customer'),
-  purchaseOrder: icon('ic-order'),
-  workOrder: <Iconify icon="map:car-repair" />,
-  tyre: <Iconify icon="mingcute:tyre-line" />,
+  vendor: <Iconify icon={APP_ICONS.vendor} />,
+  purchaseOrder: <Iconify icon={APP_ICONS.purchaseOrder} />,
+  workOrder: <Iconify icon={APP_ICONS.workOrder} />,
+  tyre: <Iconify icon={APP_ICONS.tyre} />,
 };
 // ----------------------------------------------------------------------
 

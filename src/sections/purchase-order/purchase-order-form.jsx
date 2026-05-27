@@ -36,6 +36,7 @@ import { usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
@@ -457,7 +458,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                               }}
                               placeholder="Select a part to attach price"
                               selected={label}
-                              iconName="mdi:cube"
+                              iconName={APP_ICONS.part}
                               disabled={!!snapshot}
                             />
                           );
