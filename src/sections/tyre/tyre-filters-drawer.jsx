@@ -6,6 +6,7 @@ import Drawer from '@mui/material/Drawer';
 import Select from '@mui/material/Select';
 // import Slider from '@mui/material/Slider';
 import Divider from '@mui/material/Divider';
+import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -25,7 +26,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button/dialog-s
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_CATEGORIES, TYRE_BRAND_MODELS } from './tyre-constants';
+import { TYRE_TYPE, TYRE_SIZES, TYRE_BRANDS, TYRE_MODELS, TYRE_POSITIONS, TYRE_CATEGORIES, TYRE_BRAND_MODELS } from './tyre-constants';
 
 // ----------------------------------------------------------------------
 
@@ -62,6 +63,10 @@ export default function TyreFiltersDrawer({
     // const handleFilterSize = (event) => {
     //     onFilters('size', event.target.value);
     // };
+
+    const handleFilterType = (event, newValue) => {
+        onFilters('type', newValue);
+    };
 
     const handleFilterPosition = (event) => {
         onFilters('position', event.target.value);
@@ -138,6 +143,33 @@ export default function TyreFiltersDrawer({
                         }}
                     />
                 )}
+            />
+
+            <Autocomplete
+                fullWidth
+                multiple
+                disableCloseOnSelect
+                options={Object.values(TYRE_TYPE)}
+                getOptionLabel={(option) => option}
+                value={filters.type || []}
+                onChange={handleFilterType}
+                renderInput={(params) => <TextField {...params} placeholder="Type" />}
+                renderOption={(other, option, { selected }) => (
+                    <li {...other} key={option}>
+                        <Checkbox key={option} size="small" disableRipple checked={selected} />
+                        {option}
+                    </li>
+                )}
+            />
+
+            <DialogSelectButton
+                fullWidth
+                onClick={vehiclePopover.onOpen}
+                disabled={false}
+                startIcon={NAV_ICONS.vehicle}
+                placeholder="Filter by Vehicle"
+                selected={props.vehicleData?.vehicleNo}
+                onClear={() => handleFilterVehicle(null)}
             />
 
             <Autocomplete
@@ -219,16 +251,6 @@ export default function TyreFiltersDrawer({
                         }}
                     />
                 )}
-            />
-
-            <DialogSelectButton
-                fullWidth
-                onClick={vehiclePopover.onOpen}
-                disabled={false}
-                startIcon={NAV_ICONS.vehicle}
-                placeholder="Filter by Vehicle"
-                selected={props.vehicleData?.vehicleNo}
-                onClear={() => handleFilterVehicle(null)}
             />
 
             <DialogSelectButton

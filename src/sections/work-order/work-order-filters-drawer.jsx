@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -11,12 +12,13 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { WORK_ORDER_ISSUE_OPTIONS } from './work-order-config';
+import { WORK_ORDER_ISSUE_OPTIONS, WORK_ORDER_PRIORITY_OPTIONS, WORK_ORDER_CATEGORY_OPTIONS } from './work-order-config';
 
 export default function WorkOrderFiltersDrawer({
   open,
@@ -31,6 +33,11 @@ export default function WorkOrderFiltersDrawer({
   selectedCreatedBy,
   selectedClosedBy,
   selectedIssueAssignee,
+  //
+  vehicleDialog,
+  partDialog,
+  selectedVehicle,
+  selectedPart,
 }) {
   const startDateRange = useBoolean();
   const endDateRange = useBoolean();
@@ -81,6 +88,66 @@ export default function WorkOrderFiltersDrawer({
                   </InputAdornment>
                 ),
               }}
+            />
+
+            <TextField
+              select
+              fullWidth
+              label="Expense Status"
+              value={filters.expenseAdded || ''}
+              onChange={(event) => {
+                onFilters('expenseAdded', event.target.value);
+              }}
+            >
+              {[
+                { value: 'true', label: 'Added', color: 'success' },
+                { value: 'false', label: 'Not Added', color: 'error' },
+              ].map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <Label variant="soft" color={option.color}>
+                    {option.label}
+                  </Label>
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <Autocomplete
+              fullWidth
+              options={WORK_ORDER_PRIORITY_OPTIONS}
+              getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+              value={WORK_ORDER_PRIORITY_OPTIONS.find((opt) => opt.value === filters.priority) || null}
+              onChange={(event, newValue) => {
+                onFilters('priority', newValue?.value || 'all');
+              }}
+              renderInput={(params) => <TextField {...params} label="Priority" />}
+            />
+
+            <Autocomplete
+              fullWidth
+              freeSolo
+              options={WORK_ORDER_CATEGORY_OPTIONS}
+              value={filters.category === 'all' ? '' : filters.category}
+              onChange={(event, newValue) => {
+                onFilters('category', newValue || 'all');
+              }}
+              onInputChange={(event, newInputValue) => {
+                onFilters('category', newInputValue || 'all');
+              }}
+              renderInput={(params) => <TextField {...params} label="Category" />}
+            />
+
+            <DialogSelectButton
+              onClick={vehicleDialog.onOpen}
+              selected={selectedVehicle?.vehicleNo}
+              placeholder="Vehicle"
+              iconName="mdi:truck"
+            />
+
+            <DialogSelectButton
+              onClick={partDialog.onOpen}
+              selected={selectedPart?.name}
+              placeholder="Part"
+              iconName="mdi:cube"
             />
 
             <Autocomplete

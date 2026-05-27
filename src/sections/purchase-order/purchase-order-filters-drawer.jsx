@@ -117,7 +117,19 @@ export default function PurchaseOrderFiltersDrawer({
             iconName="mdi:cube"
           />
 
-          {/* 4. Part Location */}
+          {/* 4. Date Range */}
+          <DialogSelectButton
+            onClick={dateRange.onTrue}
+            selected={
+              filters.fromDate && filters.toDate
+                ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+                : undefined
+            }
+            placeholder="Date Range"
+            iconName="mdi:calendar"
+          />
+
+          {/* 5. Part Location */}
           <TextField
             select
             fullWidth
@@ -132,18 +144,6 @@ export default function PurchaseOrderFiltersDrawer({
               </MenuItem>
             ))}
           </TextField>
-
-          {/* 5. Date Range */}
-          <DialogSelectButton
-            onClick={dateRange.onTrue}
-            selected={
-              filters.fromDate && filters.toDate
-                ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
-                : undefined
-            }
-            placeholder="Date Range"
-            iconName="mdi:calendar"
-          />
 
           {/* 6. Created By */}
           <DialogSelectButton

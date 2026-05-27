@@ -122,6 +122,40 @@ export default function SubtripFiltersDrawer({
                             }}
                         />
 
+                        {hasMarketVehicles && (
+                            <DialogSelectButton
+                                onClick={transporterDialog.onTrue}
+                                selected={selectedTransporter?.transportName}
+                                placeholder="Transporter"
+                                iconName="mdi:truck-delivery"
+                            />
+                        )}
+
+                        <DialogSelectButton
+                            onClick={customerDialog.onTrue}
+                            selected={selectedCustomer?.customerName}
+                            placeholder="Customer"
+                            iconName="mdi:office-building"
+                        />
+
+                        <DialogSelectButton
+                            onClick={vehicleDialog.onTrue}
+                            selected={selectedVehicle?.vehicleNo}
+                            placeholder="Vehicle"
+                            iconName="mdi:truck"
+                        />
+
+                        <DialogSelectButton
+                            onClick={startRange.onTrue}
+                            selected={
+                                filters.fromDate && filters.toDate
+                                    ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
+                                    : undefined
+                            }
+                            placeholder="Dispatch Date Range"
+                            iconName="mdi:calendar"
+                        />
+
                         <TextField
                             fullWidth
                             value={filters.referenceSubtripNo}
@@ -178,45 +212,11 @@ export default function SubtripFiltersDrawer({
                             }}
                         />
 
-                        {hasMarketVehicles && (
-                            <DialogSelectButton
-                                onClick={transporterDialog.onTrue}
-                                selected={selectedTransporter?.transportName}
-                                placeholder="Transporter"
-                                iconName="mdi:truck-delivery"
-                            />
-                        )}
-
-                        <DialogSelectButton
-                            onClick={customerDialog.onTrue}
-                            selected={selectedCustomer?.customerName}
-                            placeholder="Customer"
-                            iconName="mdi:office-building"
-                        />
-
-                        <DialogSelectButton
-                            onClick={vehicleDialog.onTrue}
-                            selected={selectedVehicle?.vehicleNo}
-                            placeholder="Vehicle"
-                            iconName="mdi:truck"
-                        />
-
                         <DialogSelectButton
                             onClick={driverDialog.onTrue}
                             selected={selectedDriver?.driverName}
                             placeholder="Driver"
                             iconName="mdi:account"
-                        />
-
-                        <DialogSelectButton
-                            onClick={startRange.onTrue}
-                            selected={
-                                filters.fromDate && filters.toDate
-                                    ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
-                                    : undefined
-                            }
-                            placeholder="Dispatch Date Range"
-                            iconName="mdi:calendar"
                         />
 
                         <DialogSelectButton

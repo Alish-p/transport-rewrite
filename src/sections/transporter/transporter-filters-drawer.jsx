@@ -89,6 +89,43 @@ export default function TransporterFiltersDrawer({
                         }}
                     />
 
+                    <DialogSelectButton
+                        onClick={vehicleDialog.onTrue}
+                        selected={selectedVehicle?.vehicleNo}
+                        placeholder="Vehicle"
+                        iconName="mdi:truck"
+                    />
+
+                    <TextField
+                        fullWidth
+                        value={filters.gstNo}
+                        onChange={(e) => onFilters('gstNo', e.target.value)}
+                        placeholder="GST Number"
+                    />
+
+                    <TextField
+                        fullWidth
+                        value={filters.panNo}
+                        onChange={(e) => onFilters('panNo', e.target.value)}
+                        placeholder="PAN Number"
+                    />
+
+                    <FormControl fullWidth>
+                        <InputLabel id="transporter-gst-status-label">GST Status</InputLabel>
+                        <Select
+                            value={filters.gstEnabled}
+                            onChange={handleFilterGstEnabled}
+                            input={<OutlinedInput label="GST Status" />}
+                            labelId="transporter-gst-status-label"
+                            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                        >
+                            <MenuItem value="all">All</MenuItem>
+                            <Divider sx={{ borderStyle: 'dashed' }} />
+                            <MenuItem value="true">Yes</MenuItem>
+                            <MenuItem value="false">No</MenuItem>
+                        </Select>
+                    </FormControl>
+
                     <Box sx={{ px: 1 }}>
                         <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
                             <Iconify icon="mdi:truck" sx={{ color: 'text.disabled', width: 18, height: 18 }} />
@@ -113,27 +150,6 @@ export default function TransporterFiltersDrawer({
                             disableSwap
                         />
                     </Box>
-
-                    <DialogSelectButton
-                        onClick={vehicleDialog.onTrue}
-                        selected={selectedVehicle?.vehicleNo}
-                        placeholder="Vehicle"
-                        iconName="mdi:truck"
-                    />
-
-                    <TextField
-                        fullWidth
-                        value={filters.gstNo}
-                        onChange={(e) => onFilters('gstNo', e.target.value)}
-                        placeholder="GST Number"
-                    />
-
-                    <TextField
-                        fullWidth
-                        value={filters.panNo}
-                        onChange={(e) => onFilters('panNo', e.target.value)}
-                        placeholder="PAN Number"
-                    />
 
                     <FormControl fullWidth>
                         <InputLabel id="transporter-state-select-label">State</InputLabel>
@@ -161,22 +177,6 @@ export default function TransporterFiltersDrawer({
                         value={filters.paymentMode}
                         onChange={handleFilterPaymentMode}
                     />
-
-                    <FormControl fullWidth>
-                        <InputLabel id="transporter-gst-status-label">GST Status</InputLabel>
-                        <Select
-                            value={filters.gstEnabled}
-                            onChange={handleFilterGstEnabled}
-                            input={<OutlinedInput label="GST Status" />}
-                            labelId="transporter-gst-status-label"
-                            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
-                        >
-                            <MenuItem value="all">All</MenuItem>
-                            <Divider sx={{ borderStyle: 'dashed' }} />
-                            <MenuItem value="true">Yes</MenuItem>
-                            <MenuItem value="false">No</MenuItem>
-                        </Select>
-                    </FormControl>
 
                 </Stack>
             </Scrollbar>

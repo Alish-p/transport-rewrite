@@ -257,6 +257,10 @@ export default function WorkOrderTableToolbar({
         selectedCreatedBy={selectedCreatedBy}
         selectedClosedBy={selectedClosedBy}
         selectedIssueAssignee={selectedIssueAssignee}
+        vehicleDialog={vehicleDialog}
+        partDialog={partDialog}
+        selectedVehicle={selectedVehicle}
+        selectedPart={selectedPart}
       />
 
       <KanbanVehicleDialog
