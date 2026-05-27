@@ -107,6 +107,21 @@ export default function TransporterPaymentTableToolbar({
         direction={{ xs: 'column', md: 'row' }}
         sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
+
+        <TextField
+          fullWidth
+          value={filters.paymentId}
+          onChange={handlePaymentId}
+          placeholder="Payment ID"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
         <DialogSelectButton
           onClick={transporterDialog.onTrue}
           placeholder="Search transporter"
@@ -130,20 +145,6 @@ export default function TransporterPaymentTableToolbar({
           startIcon={icon('ic_vehicle', {
             color: selectedVehicle ? 'primary.main' : 'text.disabled',
           })}
-        />
-
-        <TextField
-          fullWidth
-          value={filters.paymentId}
-          onChange={handlePaymentId}
-          placeholder="Payment ID"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
         />
 
         <DialogSelectButton
