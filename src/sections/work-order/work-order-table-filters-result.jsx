@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
-import { fDate } from 'src/utils/format-time';
+import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -66,11 +66,13 @@ export default function WorkOrderTableFiltersResult({
   };
 
   const handleRemoveStartDate = () => {
-    onFilters('startDate', null);
+    onFilters('startDateStart', null);
+    onFilters('startDateEnd', null);
   };
 
   const handleRemoveEndDate = () => {
-    onFilters('endDate', null);
+    onFilters('endDateStart', null);
+    onFilters('endDateEnd', null);
   };
 
   return (
@@ -177,21 +179,21 @@ export default function WorkOrderTableFiltersResult({
           </Block>
         )}
 
-        {filters.startDate && (
+        {filters.startDateStart && filters.startDateEnd && (
           <Block label="Work order start date :">
             <Chip
               size="small"
-              label={fDate(filters.startDate)}
+              label={fDateRangeShortLabel(filters.startDateStart, filters.startDateEnd)}
               onDelete={handleRemoveStartDate}
             />
           </Block>
         )}
 
-        {filters.endDate && (
+        {filters.endDateStart && filters.endDateEnd && (
           <Block label="Work order end date :">
             <Chip
               size="small"
-              label={fDate(filters.endDate)}
+              label={fDateRangeShortLabel(filters.endDateStart, filters.endDateEnd)}
               onDelete={handleRemoveEndDate}
             />
           </Block>
