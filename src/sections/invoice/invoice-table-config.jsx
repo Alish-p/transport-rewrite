@@ -48,6 +48,22 @@ export const TABLE_COLUMNS = [
     disabled: true,
     align: 'center',
     getter: (row) => row.customerId?.customerName,
+    render: (row) => {
+      const customerId = row.customerId?._id;
+      const customerName = row.customerId?.customerName;
+      if (!customerId) return customerName || '-';
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.customer.details(customerId)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {customerName}
+        </Link>
+      );
+    },
   },
   {
     id: 'customerGSTNo',
