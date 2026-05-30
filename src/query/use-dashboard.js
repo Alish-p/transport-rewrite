@@ -157,8 +157,12 @@ const getInvoiceAmountSummary = async (year) => {
   return data;
 };
 
-export function useInvoiceAmountSummary(year) {
-  return useQuery({ queryKey: ['invoiceAmountSummary', year], queryFn: () => getInvoiceAmountSummary(year) });
+export function useInvoiceAmountSummary(year, options = {}) {
+  return useQuery({
+    queryKey: ['invoiceAmountSummary', year],
+    queryFn: () => getInvoiceAmountSummary(year),
+    ...options,
+  });
 }
 
 // ----------------------------------------------------------------------

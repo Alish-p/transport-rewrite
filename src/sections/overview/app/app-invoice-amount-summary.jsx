@@ -16,11 +16,12 @@ import { fShortenNumber } from 'src/utils/format-number';
 import { exportBillingSummaryToExcel } from 'src/utils/export-billing-summary-to-excel';
 
 import { useInvoiceAmountSummary } from 'src/query/use-dashboard';
+import { useCustomerInvoiceAmountSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
-export function AppInvoiceAmountSummary({ ...other }) {
+export function AppInvoiceAmountSummary({ customerId, ...other }) {
   const theme = useTheme();
 
   const currentYear = new Date().getFullYear();
@@ -31,7 +32,15 @@ export function AppInvoiceAmountSummary({ ...other }) {
 
   const yearOptions = Array.from({ length: 3 }, (_, i) => startYear - i);
 
-  const { data: summary } = useInvoiceAmountSummary(selectedYear);
+  const { data: globalSummary } = useInvoiceAmountSummary(selectedYear, {
+    enabled: !customerId,
+  });
+
+  const { data: customerSummary } = useCustomerInvoiceAmountSummary(customerId, selectedYear, {
+    enabled: !!customerId,
+  });
+
+  const summary = customerId ? customerSummary : globalSummary;
 
   if (!summary) {
     return null;
