@@ -18,6 +18,10 @@ export default function LoansTableFiltersResult({
   results,
   ...other
 }) {
+  const handleRemoveLoanStatus = () => {
+    onFilters('loanStatus', 'all');
+  };
+
   const handleRemoveDriver = () => {
     onFilters('driverId', '');
     onFilters('driverName', '');
@@ -53,6 +57,12 @@ export default function LoansTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.loanStatus !== 'all' && (
+          <Block label="Status:">
+            <Chip size="small" label={filters.loanStatus} onDelete={handleRemoveLoanStatus} />
+          </Block>
+        )}
+
         {filters.loanNo && (
           <Block label="Loan No:">
             <Chip size="small" label={filters.loanNo} onDelete={handleRemoveLoanNo} />
