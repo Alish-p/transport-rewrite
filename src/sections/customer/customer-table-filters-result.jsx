@@ -19,6 +19,7 @@ export default function CustomerTableFiltersResult({
   const handleRemoveCustomerName = () => onFilters('customerName', '');
   const handleRemoveCellNo = () => onFilters('cellNo', '');
   const handleRemoveGstIn = () => onFilters('gstIn', '');
+  const handleRemoveGstEnabled = () => onFilters('gstEnabled', '');
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -43,6 +44,15 @@ export default function CustomerTableFiltersResult({
         {filters.gstIn && (
           <Block label="GSTIN:">
             <Chip size="small" label={filters.gstIn} onDelete={handleRemoveGstIn} />
+          </Block>
+        )}
+        {filters.gstEnabled && (
+          <Block label="GST Enabled:">
+            <Chip
+              size="small"
+              label={filters.gstEnabled === 'true' ? 'Yes' : 'No'}
+              onDelete={handleRemoveGstEnabled}
+            />
           </Block>
         )}
 

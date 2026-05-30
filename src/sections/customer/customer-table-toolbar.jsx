@@ -4,9 +4,15 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
@@ -97,6 +103,29 @@ export default function CustomerTableToolbar({
             ),
           }}
         />
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 200 },
+          }}
+        >
+          <InputLabel id="customer-gst-enabled-select-label">GST Enabled</InputLabel>
+          <Select
+            value={filters.gstEnabled || ''}
+            onChange={(event) => onFilters('gstEnabled', event.target.value)}
+            input={<OutlinedInput label="GST Enabled" />}
+            labelId="customer-gst-enabled-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="true">
+              <Label variant="soft" color="success">Yes</Label>
+            </MenuItem>
+            <MenuItem value="false">
+              <Label variant="soft" color="error">No</Label>
+            </MenuItem>
+          </Select>
+        </FormControl>
 
         <Stack direction="row" spacing={1}>
           <Button

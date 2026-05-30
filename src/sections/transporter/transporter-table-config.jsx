@@ -11,7 +11,6 @@ import { RouterLink } from 'src/routes/components';
 import { wrapText } from 'src/utils/change-case';
 
 import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 
 export const TABLE_COLUMNS = [
   {
@@ -124,14 +123,12 @@ export const TABLE_COLUMNS = [
     label: 'GST Enabled',
     defaultVisible: true,
     disabled: false,
-    getter: (row) => row.gstEnabled,
+    align: 'center',
+    getter: (row) => (row.gstEnabled ? 'Yes' : 'No'),
     render: (row) => (
-      <Iconify
-        icon={row.gstEnabled ? 'eva:checkmark-circle-2-fill' : 'eva:close-circle-fill'}
-        sx={{
-          color: row.gstEnabled ? 'success.main' : 'error.main',
-        }}
-      />
+      <Label variant="soft" color={row.gstEnabled ? 'success' : 'error'}>
+        {row.gstEnabled ? 'Yes' : 'No'}
+      </Label>
     ),
   },
   {

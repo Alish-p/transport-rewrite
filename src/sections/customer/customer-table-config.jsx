@@ -10,6 +10,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
 
+import { Label } from 'src/components/label';
+
 export const TABLE_COLUMNS = [
   {
     id: 'customerName',
@@ -85,6 +87,11 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => (row.gstEnabled ? 'Yes' : 'No'),
+    render: (row) => (
+      <Label variant="soft" color={row.gstEnabled ? 'success' : 'error'}>
+        {row.gstEnabled ? 'Yes' : 'No'}
+      </Label>
+    ),
   },
   {
     id: 'state',

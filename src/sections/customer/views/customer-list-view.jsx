@@ -55,6 +55,7 @@ const defaultFilters = {
   customerName: '',
   cellNo: '',
   gstIn: '',
+  gstEnabled: '',
 };
 
 // ----------------------------------------------------------------------
@@ -88,6 +89,7 @@ export function CustomerListView() {
     customerName: filters.customerName || undefined,
     cellNo: filters.cellNo || undefined,
     gstIn: filters.gstIn || undefined,
+    gstEnabled: filters.gstEnabled ? filters.gstEnabled === 'true' : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
   });

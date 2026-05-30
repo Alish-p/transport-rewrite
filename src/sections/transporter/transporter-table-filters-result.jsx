@@ -94,12 +94,12 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
-        {filters.gstEnabled !== 'all' && (
-          <Block label="GST Status:">
+        {filters.gstEnabled && (
+          <Block label="GST Enabled:">
             <Chip
               size="small"
               label={filters.gstEnabled === 'true' ? 'Yes' : 'No'}
-              onDelete={() => onFilters('gstEnabled', 'all')}
+              onDelete={() => onFilters('gstEnabled', '')}
             />
           </Block>
         )}

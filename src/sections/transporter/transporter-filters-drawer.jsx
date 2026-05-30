@@ -13,6 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { APP_ICONS } from 'src/components/iconify/icons';
@@ -112,18 +113,20 @@ export default function TransporterFiltersDrawer({
                     />
 
                     <FormControl fullWidth>
-                        <InputLabel id="transporter-gst-status-label">GST Status</InputLabel>
+                        <InputLabel id="transporter-gst-enabled-select-label">GST Enabled</InputLabel>
                         <Select
-                            value={filters.gstEnabled}
+                            value={filters.gstEnabled || ''}
                             onChange={handleFilterGstEnabled}
-                            input={<OutlinedInput label="GST Status" />}
-                            labelId="transporter-gst-status-label"
+                            input={<OutlinedInput label="GST Enabled" />}
+                            labelId="transporter-gst-enabled-select-label"
                             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
                         >
-                            <MenuItem value="all">All</MenuItem>
-                            <Divider sx={{ borderStyle: 'dashed' }} />
-                            <MenuItem value="true">Yes</MenuItem>
-                            <MenuItem value="false">No</MenuItem>
+                            <MenuItem value="true">
+                                <Label variant="soft" color="success">Yes</Label>
+                            </MenuItem>
+                            <MenuItem value="false">
+                                <Label variant="soft" color="error">No</Label>
+                            </MenuItem>
                         </Select>
                     </FormControl>
 

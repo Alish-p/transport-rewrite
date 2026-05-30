@@ -6,7 +6,6 @@ import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -17,6 +16,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify/';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
@@ -115,18 +115,20 @@ export default function TransporterTableToolbar({
           />
 
           <FormControl sx={{ width: { xs: 1, md: 170 } }}>
-            <InputLabel id="toolbar-gst-status-label">GST Status</InputLabel>
+            <InputLabel id="toolbar-gst-enabled-select-label">GST Enabled</InputLabel>
             <Select
-              value={filters.gstEnabled}
+              value={filters.gstEnabled || ''}
               onChange={(e) => onFilters('gstEnabled', e.target.value)}
-              input={<OutlinedInput label="GST Status" />}
-              labelId="toolbar-gst-status-label"
+              input={<OutlinedInput label="GST Enabled" />}
+              labelId="toolbar-gst-enabled-select-label"
               MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
             >
-              <MenuItem value="all">All</MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
-              <MenuItem value="true">Yes</MenuItem>
-              <MenuItem value="false">No</MenuItem>
+              <MenuItem value="true">
+                <Label variant="soft" color="success">Yes</Label>
+              </MenuItem>
+              <MenuItem value="false">
+                <Label variant="soft" color="error">No</Label>
+              </MenuItem>
             </Select>
           </FormControl>
         </Stack>
