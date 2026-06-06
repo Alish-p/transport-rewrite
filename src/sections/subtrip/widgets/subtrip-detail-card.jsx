@@ -28,7 +28,6 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
 
   const {
     loadingWeight,
-    rate,
     invoiceNo,
     shipmentNo,
     consignee,
@@ -37,6 +36,57 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
     grade,
     diNumber,
   } = selectedSubtrip;
+
+  const { freightModel = 'per_ton', rate: freightDetailsRate, freightAmount: serverFreightAmount } = selectedSubtrip?.freightDetails || {};
+  const rate = freightDetailsRate ?? selectedSubtrip.rate ?? 0;
+
+  const formatRateValue = (value) => {
+    const formatted = fCurrency(value || 0);
+    switch (freightModel) {
+      case 'per_ton':
+        return `${formatted} / Ton`;
+      case 'per_km':
+        return `${formatted} / KM`;
+      case 'time_based':
+        return `${formatted} / Hr`;
+      case 'fixed':
+        return `${formatted} (Fixed)`;
+      case 'hybrid':
+        return `${formatted} (Hybrid)`;
+      default:
+        return formatted;
+    }
+  };
+
+  const getFreightAmountCaption = () => {
+    switch (freightModel) {
+      case 'per_ton':
+        return `Rate: ₹${rate || 0} × Weight: ${loadingWeight || 0} Ton`;
+      case 'per_km': {
+        const startKm = selectedSubtrip.freightDetails?.startKm || 0;
+        const endKm = selectedSubtrip.freightDetails?.endKm || 0;
+        const diff = endKm > startKm ? endKm - startKm : 0;
+        return `Rate: ₹${rate || 0} × Distance: ${diff} KM`;
+      }
+      case 'time_based': {
+        const startTime = selectedSubtrip.freightDetails?.startTime;
+        const endTime = selectedSubtrip.freightDetails?.endTime;
+        let diffInHours = 0;
+        if (startTime && endTime) {
+          const start = new Date(startTime).getTime();
+          const end = new Date(endTime).getTime();
+          diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
+        }
+        return `Rate: ₹${rate || 0} × Time: ${diffInHours} Hour(s)`;
+      }
+      case 'fixed':
+        return 'Fixed Freight';
+      case 'hybrid':
+        return 'Hybrid Billing';
+      default:
+        return `Rate: ₹${rate || 0} × Weight: ${loadingWeight || 0} Ton`;
+    }
+  };
 
   // Calculate financial metrics
   const calculateFinancials = () => {
@@ -47,8 +97,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         driverSalary: 0,
       };
 
-    // Calculate freightAmount (rate * loadingWeight)
-    const freightAmount = (rate || 0) * (loadingWeight || 0);
+    // Calculate freightAmount (server calculated amount or rate * loadingWeight)
+    const freightAmount = serverFreightAmount ?? (rate || 0) * (loadingWeight || 0);
 
     // Calculate total expenses
     const expenses =
@@ -95,14 +145,14 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Freight Rate</Typography>
                 <Typography variant="body2" fontWeight="bold" color="primary">
-                  {fCurrency(rate || 0)}
+                  {formatRateValue(rate)}
                 </Typography>
               </Box>
               {!isOwn && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2">Effective Rate</Typography>
                   <Typography variant="body2" fontWeight="bold" color="error">
-                    {fCurrency(rate - commissionRate || 0)}
+                    {formatRateValue(rate - commissionRate)}
                   </Typography>
                 </Box>
               )}
@@ -284,7 +334,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             {fCurrency(freightAmount)}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Rate: ₹{rate || 0} × Weight: {loadingWeight || 0} Ton
+            {getFreightAmountCaption()}
           </Typography>
         </Paper>
       </Grid>

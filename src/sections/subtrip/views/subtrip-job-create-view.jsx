@@ -61,6 +61,9 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
 import { useTenantContext } from 'src/auth/tenant';
+import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
+
+import { useFormFieldHelpers } from 'src/hooks/use-form-config';
 
 import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
@@ -114,7 +117,14 @@ const formSchema = z
     loadingPoint: z.string().optional(),
     unloadingPoint: z.string().optional(),
     loadingWeight: loadingWeightSchema,
+    freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid']).optional(),
+    freightAmount: numericInputSchema,
+    baseKm: numericInputSchema,
     rate: numericInputSchema,
+    freightStartKm: numericInputSchema,
+    freightStartTime: schemaHelper.dateOptional({
+      message: { invalid_type_error: 'Invalid Start Time!' },
+    }),
     invoiceNo: z.string().optional(),
     ewayBill: z.string().optional(),
     // Optional because empty subtrips won't have it
@@ -159,7 +169,12 @@ const createDefaultValues = () => ({
   loadingPoint: '',
   unloadingPoint: '',
   loadingWeight: '',
+  freightModel: 'per_ton',
+  freightAmount: '',
+  baseKm: '',
   rate: '',
+  freightStartKm: '',
+  freightStartTime: null,
   invoiceNo: '',
   ewayBill: '',
   ewayExpiryDate: null,
@@ -191,6 +206,7 @@ export function SubtripJobCreateView() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const tenant = useTenantContext();
+
   const isEwayIntegrationEnabled = Boolean(tenant?.integrations?.ewayBill?.enabled);
   const { pumps: managesPumps } = useSystemFeatures();
   // Step state
@@ -201,6 +217,7 @@ export function SubtripJobCreateView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
+  const { getLabel, fields, freightConfig } = useFormFieldHelpers('job_create', selectedCustomer?._id);
   const [ewayFetchLoading, setEwayFetchLoading] = useState(false);
   const [ewayFetchError, setEwayFetchError] = useState('');
   const [searchCustomerParams, setSearchCustomerParams] = useState(null);
@@ -266,6 +283,13 @@ export function SubtripJobCreateView() {
     () => /^\d{12}$/.test(String(ewayValue || '').trim()),
     [ewayValue]
   );
+
+  // Set default freight model from config
+  useEffect(() => {
+    if (freightConfig?.defaultModel && !getValues('freightModel')) {
+      setValue('freightModel', freightConfig.defaultModel);
+    }
+  }, [freightConfig, setValue, getValues]);
 
   // Pre-populate eWay Bill from URL query or navigation state
   useEffect(() => {
@@ -478,6 +502,9 @@ export function SubtripJobCreateView() {
       setSelectedDriver(null);
       // reset material fields
       setValue('loadingWeight', '');
+      setValue('freightModel', freightConfig?.defaultModel || 'per_ton');
+      setValue('freightAmount', '');
+      setValue('baseKm', '');
       setValue('rate', '');
       setValue('invoiceNo', '');
       setValue('ewayBill', '');
@@ -501,6 +528,7 @@ export function SubtripJobCreateView() {
       setSelectedDriver,
       setSelectedPump,
       setValue,
+      freightConfig?.defaultModel,
     ]
   );
 
@@ -631,17 +659,39 @@ export function SubtripJobCreateView() {
       const hasLoading = Boolean((form.loadingPoint || '').trim());
       const hasUnloading = Boolean((form.unloadingPoint || '').trim());
 
+      const isFieldRequired = (name) => {
+        const visibility = fields[name]?.visibility;
+        if (visibility === 'required') return true;
+        if (visibility === 'optional' || visibility === 'hidden') return false;
+        // Fallback to defaults
+        if (name === 'loadingPoint' || name === 'unloadingPoint' || name === 'consignee') {
+          return true;
+        }
+        return false;
+      };
+
       if (isLoaded) {
-        const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
         if (!selectedCustomer) return 'Please select a customer';
-        if (!hasConsignee) return 'Please select a consignee';
-        if (!hasLoading || !hasUnloading) return 'Enter loading and unloading points';
-      } else if (!hasLoading || !hasUnloading) return 'Enter loading and unloading points';
+
+        if (isFieldRequired('consignee')) {
+          const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
+          if (!hasConsignee) return 'Please select a consignee';
+        }
+      }
+
+      if (isFieldRequired('loadingPoint') && !hasLoading) {
+        return 'Enter loading point';
+      }
+
+      if (isFieldRequired('unloadingPoint') && !hasUnloading) {
+        return 'Enter unloading point';
+      }
 
       return null;
     },
-    [getJobStepError, selectedVehicle, selectedCustomer]
+    [getJobStepError, selectedVehicle, selectedCustomer, fields]
   );
+
 
   const getMaterialStepError = useCallback(
     (form) => {
@@ -652,12 +702,34 @@ export function SubtripJobCreateView() {
       const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
       if (!isLoaded) return null;
 
+      // Config-aware required check
+      const isFieldRequired = (name) => {
+        const visibility = fields[name]?.visibility;
+        if (visibility === 'required') return true;
+        if (visibility === 'optional' || visibility === 'hidden') return false;
+        // Fallback to defaults
+        if (name === 'invoiceNo' || name === 'loadingWeight' || name === 'materialType') {
+          return true;
+        }
+        return false;
+      };
+
       // Eway Expiry Date should be optional; require only if Eway Bill is present
+      let isFreightValid = true;
+      if (form.freightModel === 'fixed') {
+        if (!form.freightAmount) isFreightValid = false;
+      } else if (form.freightModel === 'hybrid') {
+        if (!form.freightAmount || !form.baseKm || !form.rate) isFreightValid = false;
+      } else if (!form.rate) {
+        // per_ton, per_km, time_based
+        isFreightValid = false;
+      }
+
       if (
-        !form.loadingWeight ||
-        !form.rate ||
-        !form.invoiceNo ||
-        !form.materialType ||
+        (isFieldRequired('loadingWeight') && !form.loadingWeight) ||
+        !isFreightValid ||
+        (isFieldRequired('invoiceNo') && !form.invoiceNo) ||
+        (isFieldRequired('materialType') && !form.materialType) ||
         (form.ewayBill && !form.ewayExpiryDate)
       ) {
         return 'Please fill required material fields';
@@ -672,7 +744,7 @@ export function SubtripJobCreateView() {
 
       return null;
     },
-    [getRouteStepError, selectedVehicle]
+    [getRouteStepError, selectedVehicle, fields]
   );
 
   const getAdvanceStepError = useCallback(
@@ -733,7 +805,14 @@ export function SubtripJobCreateView() {
         loadingPoint: form.loadingPoint,
         unloadingPoint: form.unloadingPoint,
         loadingWeight: toNumber(form.loadingWeight),
-        rate: toNumber(form.rate),
+        freightDetails: {
+          freightModel: form.freightModel,
+          freightAmount: toNumber(form.freightAmount),
+          baseKm: toNumber(form.baseKm),
+          rate: toNumber(form.rate),
+          startKm: toNumber(form.freightStartKm),
+          startTime: form.freightStartTime,
+        },
         invoiceNo: form.invoiceNo,
         shipmentNo: form.shipmentNo || undefined,
         orderNo: form.orderNo || undefined,
@@ -1186,17 +1265,19 @@ export function SubtripJobCreateView() {
 
                       {selectedVehicle?.isOwn &&
                         (tripDecision === 'new' || (!activeTrip && !fromTripId)) && (
-                          <Field.Text
-                            name="startKm"
-                            label="Start Km"
-                            type="number"
-                            helperText="Previous trip will be closed with this starting km of current trip"
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">km</InputAdornment>,
-                            }}
-                            inputProps={{ min: 0 }}
-                            sx={{ mt: 1 }}
-                          />
+                          <Field.Configurable formType="job_create" name="startKm" customerId={selectedCustomer?._id}>
+                            <Field.Text
+                              name="startKm"
+                              label={getLabel('startKm', 'Start Km')}
+                              type="number"
+                              helperText="Previous trip will be closed with this starting km of current trip"
+                              InputProps={{
+                                endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                              }}
+                              inputProps={{ min: 0 }}
+                              sx={{ mt: 1 }}
+                            />
+                          </Field.Configurable>
                         )}
 
                       <Field.Select name="loadType" label="Load Type" sx={{ mt: 1 }}>
@@ -1286,7 +1367,9 @@ export function SubtripJobCreateView() {
 
                   {/* DI/DO moved to Step 4 as last field for loaded jobs */}
 
-                  <Field.Text name="remarks" label="Remarks" />
+                  <Field.Configurable formType="job_create" name="remarks" customerId={selectedCustomer?._id}>
+                    <Field.Text name="remarks" label={getLabel('remarks', 'Remarks')} />
+                  </Field.Configurable>
                 </Box>
 
                 <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
@@ -1309,22 +1392,28 @@ export function SubtripJobCreateView() {
                 <>
                   <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
                     {isLoadedJob && (
-                      <Field.AutocompleteFreeSolo
-                        name="consignee"
-                        label="Consignee *"
-                        options={consignees.map(({ name }) => ({ label: name, value: name }))}
-                        disabled={!selectedCustomer}
-                      />
+                      <Field.Configurable formType="job_create" name="consignee" customerId={selectedCustomer?._id}>
+                        <Field.AutocompleteFreeSolo
+                          name="consignee"
+                          label={getLabel('consignee', 'Consignee')}
+                          options={consignees.map(({ name }) => ({ label: name, value: name }))}
+                          disabled={!selectedCustomer}
+                        />
+                      </Field.Configurable>
                     )}
-                    <Field.Text
-                      name="loadingPoint"
-                      label="Loading Point *"
-                    />
-                    <Field.Text
-                      name="unloadingPoint"
-                      label="Unloading Point *"
-                      helperText={isLoadedJob ? "Consignee's Address" : undefined}
-                    />
+                    <Field.Configurable formType="job_create" name="loadingPoint" customerId={selectedCustomer?._id}>
+                      <Field.Text
+                        name="loadingPoint"
+                        label={getLabel('loadingPoint', 'Loading Point')}
+                      />
+                    </Field.Configurable>
+                    <Field.Configurable formType="job_create" name="unloadingPoint" customerId={selectedCustomer?._id}>
+                      <Field.Text
+                        name="unloadingPoint"
+                        label={getLabel('unloadingPoint', 'Unloading Point')}
+                        helperText={isLoadedJob ? "Consignee's Address" : undefined}
+                      />
+                    </Field.Configurable>
                   </Box>
 
                   <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
@@ -1359,68 +1448,162 @@ export function SubtripJobCreateView() {
                 {isLoadedJob ? (
                   <>
                     <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
-                      <Field.Text
-                        name="loadingWeight"
-                        label="Loading Weight *"
-                        type="number"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              {loadingWeightUnit[
-                                (selectedVehicle?.vehicleType || '').toLowerCase()
-                              ] || 'Units'}
-                            </InputAdornment>
-                          ),
-                        }}
-                        inputProps={{ min: 0, max: 60 }}
-                      />
-
-                      <Field.Text
-                        name="quantity"
-                        label="Quantity"
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
-                        }}
-                      />
-
-                      <Field.Text
-                        name="rate"
-                        label="Rate *"
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                        }}
-                      />
-
-                      {!isEwayIntegrationEnabled && <Field.Text name="ewayBill" label="Eway Bill" />}
-                      <Field.DatePicker
-                        name="ewayExpiryDate"
-                        label="Eway Expiry Date *"
-                        minDate={dayjs()}
-                      />
-                      <Field.Text name="invoiceNo" label="Invoice No *" />
-                      <Field.Text name="shipmentNo" label="Shipment No" />
-                      <Field.Text name="orderNo" label="Order No" />
-                      <Field.Text
-                        name="referenceSubtripNo"
-                        label="Reference Job No"
-                        placeholder="Enter original job no (if created by another transporter)"
-                      />
-
-                      <Field.Select name="materialType" label="Material Type *">
-                        <MenuItem value="">None</MenuItem>
-                        <Divider sx={{ borderStyle: 'dashed' }} />
-                        {materialOptions.map(({ label, value }) => (
-                          <MenuItem key={value} value={value}>
-                            {label}
-                          </MenuItem>
-                        ))}
+                      <Field.Select name="freightModel" label="Freight Model *">
+                        {FREIGHT_MODELS
+                          .filter((fm) => !freightConfig?.allowedModels?.length || freightConfig.allowedModels.includes(fm.value))
+                          .map((fm) => (
+                            <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
+                          ))}
                       </Field.Select>
-                      <Field.Text name="grade" label="Grade" />
+
+                      {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'time_based') && (
+                        <>
+                          <Field.Text
+                            name="rate"
+                            label={watchedForm.freightModel === 'per_km' ? 'Rate (Per KM) *' : watchedForm.freightModel === 'time_based' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                            type="number"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                            }}
+                          />
+                          {watchedForm.freightModel === 'per_km' && (
+                            <Field.Text
+                              name="freightStartKm"
+                              label="Billing Start KM"
+                              type="number"
+                              InputProps={{
+                                endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                              }}
+                            />
+                          )}
+                        </>
+                      )}
+
+                      {watchedForm.freightModel === 'hybrid' && (
+                        <>
+                          <Field.Text
+                            name="freightAmount"
+                            label="Base Freight Amount *"
+                            type="number"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                            }}
+                          />
+                          <Field.Text
+                            name="baseKm"
+                            label="Base KM *"
+                            type="number"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                            }}
+                          />
+                          <Field.Text
+                            name="rate"
+                            label="Extra Rate (Per KM) *"
+                            type="number"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                            }}
+                          />
+                          <Field.Text
+                            name="freightStartKm"
+                            label="Billing Start KM"
+                            type="number"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {watchedForm.freightModel === 'fixed' && (
+                        <Field.Text
+                          name="freightAmount"
+                          label="Freight Amount *"
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      )}
+
+                      <Field.Configurable formType="job_create" name="loadingWeight" customerId={selectedCustomer?._id}>
+                        <Field.Text
+                          name="loadingWeight"
+                          label={getLabel('loadingWeight', 'Loading Weight')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {loadingWeightUnit[
+                                  (selectedVehicle?.vehicleType || '').toLowerCase()
+                                ] || 'Units'}
+                              </InputAdornment>
+                            ),
+                          }}
+                          inputProps={{ min: 0, max: 60 }}
+                        />
+                      </Field.Configurable>
+
+                      <Field.Configurable formType="job_create" name="quantity" customerId={selectedCustomer?._id}>
+                        <Field.Text
+                          name="quantity"
+                          label={getLabel('quantity', 'Quantity')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
+
+                      {!isEwayIntegrationEnabled && (
+                        <Field.Configurable formType="job_create" name="ewayBill" customerId={selectedCustomer?._id}>
+                          <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
+                        </Field.Configurable>
+                      )}
+                      <Field.Configurable formType="job_create" name="ewayExpiryDate" customerId={selectedCustomer?._id}>
+                        <Field.DatePicker
+                          name="ewayExpiryDate"
+                          label={getLabel('ewayExpiryDate', 'Eway Expiry Date')}
+                          minDate={dayjs()}
+                        />
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_create" name="invoiceNo" customerId={selectedCustomer?._id}>
+                        <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_create" name="shipmentNo" customerId={selectedCustomer?._id}>
+                        <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_create" name="orderNo" customerId={selectedCustomer?._id}>
+                        <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_create" name="referenceSubtripNo" customerId={selectedCustomer?._id}>
+                        <Field.Text
+                          name="referenceSubtripNo"
+                          label={getLabel('referenceSubtripNo', 'Reference Job No')}
+                          placeholder="Enter original job no (if created by another transporter)"
+                        />
+                      </Field.Configurable>
+
+                      <Field.Configurable formType="job_create" name="materialType" customerId={selectedCustomer?._id}>
+                        <Field.Select name="materialType" label={getLabel('materialType', 'Material Type')}>
+                          <MenuItem value="">None</MenuItem>
+                          <Divider sx={{ borderStyle: 'dashed' }} />
+                          {materialOptions.map(({ label, value }) => (
+                            <MenuItem key={value} value={value}>
+                              {label}
+                            </MenuItem>
+                          ))}
+                        </Field.Select>
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_create" name="grade" customerId={selectedCustomer?._id}>
+                        <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
+                      </Field.Configurable>
 
                       {/* DI/DO No as the last field in Step 4 */}
-                      <Field.Text name="diNumber" label="DI/DO No" />
+                      <Field.Configurable formType="job_create" name="diNumber" customerId={selectedCustomer?._id}>
+                        <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
+                      </Field.Configurable>
                     </Box>
 
                     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>

@@ -350,15 +350,18 @@ export default function SimplerNewInvoiceForm() {
               <TableRow>
                 <StyledTableCell>Select</StyledTableCell>
                 <StyledTableCell>#</StyledTableCell>
-                <StyledTableCell>Vehicle No</StyledTableCell>
                 <StyledTableCell>Consignee</StyledTableCell>
                 <StyledTableCell>Destination</StyledTableCell>
-                <StyledTableCell>LR No</StyledTableCell>
+                <StyledTableCell>Invoice No</StyledTableCell>
                 <StyledTableCell>Dispatch Date</StyledTableCell>
+                <StyledTableCell>LR No</StyledTableCell>
+                <StyledTableCell>DI/DC No</StyledTableCell>
+                <StyledTableCell>Vehicle No</StyledTableCell>
+                <StyledTableCell>Material</StyledTableCell>
                 <StyledTableCell>Freight Rate</StyledTableCell>
-                <StyledTableCell>Quantity</StyledTableCell>
-                <StyledTableCell>Shortage Weight</StyledTableCell>
+                <StyledTableCell>Weight</StyledTableCell>
                 <StyledTableCell>Total Amount</StyledTableCell>
+                <StyledTableCell>Shortage Weight</StyledTableCell>
               </TableRow>
             </TableHead>
 
@@ -368,6 +371,7 @@ export default function SimplerNewInvoiceForm() {
               <TableBody>
                 {subtrips.map((st, idx) => {
                   const { totalAmount } = calculateInvoicePerSubtrip(st);
+                  const vehicleType = st.vehicleType || st.vehicleId?.vehicleType;
                   return (
                     <TableRow key={st._id}>
                       <TableCell width={40}>
@@ -377,9 +381,10 @@ export default function SimplerNewInvoiceForm() {
                         />
                       </TableCell>
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{st.vehicleId?.vehicleNo}</TableCell>
                       <TableCell>{st.consignee}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
+                      <TableCell>{st.invoiceNo || '-'}</TableCell>
+                      <TableCell>{fDate(st.startDate)}</TableCell>
                       <TableCell>
                         <Link
                           component={RouterLink}
@@ -390,61 +395,81 @@ export default function SimplerNewInvoiceForm() {
                           {st.subtripNo}
                         </Link>
                       </TableCell>
-                      <TableCell>{fDate(st.startDate)}</TableCell>
-                      <TableCell>{fCurrency(st.rate)}</TableCell>
+                      <TableCell>{st.diNumber || '-'}</TableCell>
+                      <TableCell>{st.vehicleNo || st.vehicleId?.vehicleNo || '-'}</TableCell>
+                      <TableCell>{st.materialType || '-'}</TableCell>
                       <TableCell>
-                        {st.loadingWeight} {loadingWeightUnit[st.vehicleId?.vehicleType]}
+                        {st.freightDetails?.freightModel === 'fixed'
+                          ? `Fixed (${fNumber(st.freightDetails?.freightAmount || 0)} ₹)`
+                          : st.freightDetails?.freightModel === 'hybrid'
+                          ? 'Hybrid'
+                          : st.freightDetails?.freightModel === 'per_km'
+                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / KM`
+                          : st.freightDetails?.freightModel === 'time_based'
+                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / Hr`
+                          : st.freightDetails?.freightModel === 'per_ton'
+                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / Ton`
+                          : fNumber(st.freightDetails?.rate || st.rate || 0)}
                       </TableCell>
-                      <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
-                        {fNumber(st.shortageWeight)} Kg
+                      <TableCell>
+                        {st.loadingWeight
+                          ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[vehicleType] || ''}`
+                          : '-'}
                       </TableCell>
                       <TableCell>{fCurrency(totalAmount)}</TableCell>
+                      <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
+                        {st.shortageWeight ? `${fNumber(st.shortageWeight)} Kg` : '-'}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={8} />
-                  <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
+                  <TableCell colSpan={11} />
+                  <StyledTableCell colSpan={1} sx={{ color: 'text.secondary' }} align="center">
                     Subtotal
                   </StyledTableCell>
                   <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
+                  <TableCell colSpan={1} />
                 </StyledTableRow>
 
                 {cgst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={8} />
-                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                    <TableCell colSpan={11} />
+                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={1} align="center">
                       CGST ({cgst}%)
                     </StyledTableCell>
                     <TableCell> {fCurrency((summary.totalAmountBeforeTax * cgst) / 100)}</TableCell>
+                    <TableCell colSpan={1} />
                   </StyledTableRow>
                 )}
 
                 {sgst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={8} />
-                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                    <TableCell colSpan={11} />
+                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={1} align="center">
                       SGST ({sgst}%)
                     </StyledTableCell>
                     <TableCell>{fCurrency((summary.totalAmountBeforeTax * sgst) / 100)}</TableCell>
+                    <TableCell colSpan={1} />
                   </StyledTableRow>
                 )}
 
                 {igst > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={8} />
-                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={2} align="center">
+                    <TableCell colSpan={11} />
+                    <StyledTableCell sx={{ color: 'text.secondary' }} colSpan={1} align="center">
                       IGST ({igst}%)
                     </StyledTableCell>
                     <TableCell>{fCurrency((summary.totalAmountBeforeTax * igst) / 100)}</TableCell>
+                    <TableCell colSpan={1} />
                   </StyledTableRow>
                 )}
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={8} />
-                    <TableCell colSpan={2} align="center">
+                    <TableCell colSpan={11} />
+                    <TableCell colSpan={1} align="center">
                       <Field.Text
                         size="small"
                         name={`additionalItems[${idx}].label`}
@@ -476,8 +501,7 @@ export default function SimplerNewInvoiceForm() {
                 ))}
 
                 <StyledTableRow>
-                  {/* <TableCell colSpan={7} /> */}
-                  <TableCell colSpan={9}>
+                  <TableCell colSpan={14}>
                     <Button
                       size="small"
                       color="primary"
@@ -491,13 +515,14 @@ export default function SimplerNewInvoiceForm() {
                 </StyledTableRow>
 
                 <StyledTableRow>
-                  <TableCell colSpan={8} />
-                  <StyledTableCell colSpan={2} sx={{ color: 'text.secondary' }} align="center">
+                  <TableCell colSpan={11} />
+                  <StyledTableCell colSpan={1} sx={{ color: 'text.secondary' }} align="center">
                     Net Total
                   </StyledTableCell>
                   <TableCell sx={{ color: 'error.main' }}>
                     {fCurrency(summary.totalAfterTax)}
                   </TableCell>
+                  <TableCell colSpan={1} />
                 </StyledTableRow>
               </TableBody>
             )}

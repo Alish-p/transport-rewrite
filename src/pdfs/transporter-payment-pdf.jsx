@@ -31,79 +31,51 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
 
   const renderSubtripTable = () => {
     const columns = [
-      { header: 'S.No', accessor: 'sno', width: '4%' },
-      { header: 'Dispatch Date', accessor: 'dispatchDate', width: '8%' },
+      { header: 'S.No', accessor: 'sno', width: '3%' },
+      { header: 'Disp. Date', accessor: 'dispatchDate', width: '7%' },
       { header: 'LR No.', accessor: 'lrNo', width: '7%' },
-      { header: 'Vehicle No', accessor: 'vehicleNo', width: '8%' },
-      { header: 'From', accessor: 'from', width: '10%' },
-      { header: 'Destination', accessor: 'destination', width: '10%' },
-      { header: 'Invoice No', accessor: 'invoiceNo', width: '8%' },
-      { header: 'Load QTY', accessor: 'loadQty', width: '7%', align: 'right', showTotal: true },
-      {
-        header: 'Shortage QTY',
-        accessor: 'shortageQty',
-        width: '7%',
-        align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
-      },
-      {
-        header: 'Shortage Amt',
-        accessor: 'shortageAmt',
-        width: '8%',
-        align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
-      },
-      {
-        header: 'FRT-RATE',
-        accessor: 'frtRate',
-        width: '7%',
-        align: 'right',
-        formatter: (v) => fNumber(v),
-      },
-      {
-        header: 'FRT-AMT',
-        accessor: 'frtAmt',
-        width: '8%',
-        align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
-      },
-      {
-        header: 'Advances',
-        accessor: 'expense',
-        width: '8%',
-        align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
-      },
-      {
-        header: 'Total Payable',
-        accessor: 'totalPayable',
-        width: '10%',
-        align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
-      },
+      { header: 'Vehicle', accessor: 'vehicleNo', width: '8%' },
+      { header: 'From', accessor: 'from', width: '9%' },
+      { header: 'Dest.', accessor: 'destination', width: '9%' },
+      { header: 'Invoice', accessor: 'invoiceNo', width: '7%' },
+      { header: 'Basis', accessor: 'basis', width: '6%', align: 'right' },
+      { header: 'Short.', accessor: 'shortageQty', width: '6%', align: 'right' },
+      { header: 'ShortAmt', accessor: 'shortageAmt', width: '7%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Rate/Model', accessor: 'rateModel', width: '7%', align: 'right' },
+      { header: 'FRT-AMT', accessor: 'frtAmt', width: '7%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Comm.', accessor: 'commission', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Advances', accessor: 'expense', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Payable', accessor: 'totalPayable', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
     ];
 
-    const tableData = subtripSnapshot.map((st, idx) => ({
-      sno: idx + 1,
-      dispatchDate: fDate(st.startDate),
-      lrNo: st.subtripNo,
-      vehicleNo: st.vehicleNo,
-      from: st.loadingPoint,
-      destination: st.unloadingPoint,
-      invoiceNo: st.invoiceNo,
-      loadQty: st.loadingWeight,
-      shortageQty: st.shortageWeight,
-      shortageAmt: st.shortageAmount,
-      frtRate: st.effectiveFreightRate,
-      frtAmt: st.freightAmount,
-      expense: st.totalExpense,
-      totalPayable: st.freightAmount - st.totalExpense - st.shortageAmount,
-    }));
+    const tableData = subtripSnapshot.map((st, idx) => {
+      let basis = '-';
+      if (st.freightDetails?.freightModel === 'per_km') basis = `${st.freightDetails?.baseKm || 0} KM`;
+      else if (st.freightDetails?.freightModel !== 'fixed' && st.freightDetails?.freightModel !== 'hybrid') basis = fNumber(st.loadingWeight || 0);
+
+      let rateModel = '-';
+      if (st.freightDetails?.freightModel === 'fixed') rateModel = 'Fixed';
+      else if (st.freightDetails?.freightModel === 'hybrid') rateModel = 'Hybrid';
+      else rateModel = fNumber(st.effectiveFreightRate || st.freightDetails?.rate || 0);
+
+      return {
+        sno: idx + 1,
+        dispatchDate: fDate(st.startDate),
+        lrNo: st.subtripNo,
+        vehicleNo: st.vehicleNo,
+        from: st.loadingPoint,
+        destination: st.unloadingPoint,
+        invoiceNo: st.invoiceNo,
+        basis,
+        shortageQty: st.shortageWeight,
+        shortageAmt: st.shortageAmount,
+        rateModel,
+        frtAmt: st.freightDetails?.freightAmount,
+        commission: st.commissionDetails?.commissionAmount || 0,
+        expense: st.totalExpense,
+        totalPayable: (st.freightDetails?.freightAmount || 0) - (st.totalExpense || 0) - (st.shortageAmount || 0) - (st.commissionDetails?.commissionAmount || 0),
+      };
+    });
 
     // Create extra rows for tax breakdown and additional charges
     const createExtraRows = () => {

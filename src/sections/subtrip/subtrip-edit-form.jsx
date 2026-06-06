@@ -23,6 +23,7 @@ import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
+import { useFormFieldHelpers } from 'src/hooks/use-form-config';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { paramCase } from 'src/utils/change-case';
@@ -101,6 +102,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
   const materialOptions = useMaterialOptions();
+  const { getLabel } = useFormFieldHelpers('job_edit', currentSubtrip?.customerId?._id);
   const { pumps: hasPumps } = useSystemFeatures();
 
   const searchParams = useSearchParams();
@@ -230,7 +232,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 iconName={APP_ICONS.driver}
                 sx={{ mb: 2 }}
               />
-              <Field.Text name="diNumber" label="DI/DO No" />
+              <Field.Configurable formType="job_edit" name="diNumber" customerId={currentSubtrip?.customerId?._id}>
+                <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
+              </Field.Configurable>
               <Field.MobileDateTimePicker name="startDate" label="Job Start Date" />
             </Box>
           </Box>
@@ -249,13 +253,19 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   Route Details
                 </Typography>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text name="consignee" label="Consignee" />
-                  <Field.Text name="loadingPoint" label="Loading Point" />
-                  <Field.Text
-                    name="unloadingPoint"
-                    label="Unloading Point"
-                    helperText="Consignee's address"
-                  />
+                  <Field.Configurable formType="job_edit" name="consignee" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="consignee" label={getLabel('consignee', 'Consignee')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="loadingPoint" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="loadingPoint" label={getLabel('loadingPoint', 'Loading Point')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="unloadingPoint" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text
+                      name="unloadingPoint"
+                      label={getLabel('unloadingPoint', 'Unloading Point')}
+                      helperText="Consignee's address"
+                    />
+                  </Field.Configurable>
                 </Box>
 
                 <Divider sx={{ my: 4 }} />
@@ -264,58 +274,80 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   Weight Details
                 </Typography>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text
-                    name="loadingWeight"
-                    label="Loading Weight *"
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
+                  <Field.Configurable formType="job_edit" name="loadingWeight" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text
-                      name="quantity"
-                      label="Quantity"
+                      name="loadingWeight"
+                      label={getLabel('loadingWeight', 'Loading Weight')}
                       type="number"
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
+                          </InputAdornment>
+                        ),
                       }}
                     />
+                  </Field.Configurable>
+
+                  {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
+                    <Field.Configurable formType="job_edit" name="quantity" customerId={currentSubtrip?.customerId?._id}>
+                      <Field.Text
+                        name="quantity"
+                        label={getLabel('quantity', 'Quantity')}
+                        type="number"
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                        }}
+                      />
+                    </Field.Configurable>
                   )}
 
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
-                  <Field.Text
-                    name="rate"
-                    label="Rate *"
-                    type="number"
-                    InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
-                  />
+                  <Field.Configurable formType="job_edit" name="rate" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text
+                      name="rate"
+                      label={getLabel('rate', 'Rate')}
+                      type="number"
+                      InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                    />
+                  </Field.Configurable>
 
-                  <Field.Text name="ewayBill" label="Eway Bill" />
-                  <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" />
+                  <Field.Configurable formType="job_edit" name="ewayBill" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="ewayExpiryDate" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.DatePicker name="ewayExpiryDate" label={getLabel('ewayExpiryDate', 'Eway Expiry Date')} />
+                  </Field.Configurable>
 
-                  <Field.Text name="invoiceNo" label="Invoice No *" />
-                  <Field.Text name="shipmentNo" label="Shipment No" />
-                  <Field.Text name="orderNo" label="Order No" />
-                  <Field.Text name="referenceSubtripNo" label="Reference Job No" />
+                  <Field.Configurable formType="job_edit" name="invoiceNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="shipmentNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="orderNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
+                  </Field.Configurable>
+                  <Field.Configurable formType="job_edit" name="referenceSubtripNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="referenceSubtripNo" label={getLabel('referenceSubtripNo', 'Reference Job No')} />
+                  </Field.Configurable>
 
-                  <Field.Select name="materialType" label="Material Type">
-                    <MenuItem value="">None</MenuItem>
-                    <Divider sx={{ borderStyle: 'dashed' }} />
-                    {materialOptions.map(({ label, value }) => (
-                      <MenuItem key={value} value={value}>
-                        {label}
-                      </MenuItem>
-                    ))}
-                  </Field.Select>
+                  <Field.Configurable formType="job_edit" name="materialType" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Select name="materialType" label={getLabel('materialType', 'Material Type')}>
+                      <MenuItem value="">None</MenuItem>
+                      <Divider sx={{ borderStyle: 'dashed' }} />
+                      {materialOptions.map(({ label, value }) => (
+                        <MenuItem key={value} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Field.Select>
+                  </Field.Configurable>
 
-                  <Field.Text name="grade" label="Grade" />
+                  <Field.Configurable formType="job_edit" name="grade" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
+                  </Field.Configurable>
                 </Box>
 
                 <Divider sx={{ my: 4 }} />
@@ -382,28 +414,32 @@ export default function SubtripEditForm({ currentSubtrip }) {
             <Card sx={{ p: 3 }}>
               <Box sx={{ mb: 3 }}>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text
-                    name="unloadingWeight"
-                    label="Unloading Weight"
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <>{loadingWeightUnit[vehicleType]}</>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {/* End Km moved to Trip; removed from Subtrip edit */}
-                  {!isOwn && (
+                  <Field.Configurable formType="job_edit" name="unloadingWeight" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text
-                      name="commissionRate"
-                      label="Transporter Commission Rate"
+                      name="unloadingWeight"
+                      label={getLabel('unloadingWeight', 'Unloading Weight')}
                       type="number"
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <>{loadingWeightUnit[vehicleType]}</>
+                          </InputAdornment>
+                        ),
                       }}
                     />
+                  </Field.Configurable>
+                  {/* End Km moved to Trip; removed from Subtrip edit */}
+                  {!isOwn && (
+                    <Field.Configurable formType="job_edit" name="commissionRate" customerId={currentSubtrip?.customerId?._id}>
+                      <Field.Text
+                        name="commissionRate"
+                        label={getLabel('commissionRate', 'Transporter Commission Rate')}
+                        type="number"
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                        }}
+                      />
+                    </Field.Configurable>
                   )}
                   <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
                 </Box>
@@ -417,26 +453,30 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
                   {values.hasShortage && (
                     <>
-                      <Field.Text
-                        name="shortageWeight"
-                        label="Shortage Weight"
-                        type="number"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <>{loadingWeightUnit[vehicleType]}</>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <Field.Text
-                        name="shortageAmount"
-                        label="Shortage Amount"
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                        }}
-                      />
+                      <Field.Configurable formType="job_edit" name="shortageWeight" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="shortageWeight"
+                          label={getLabel('shortageWeight', 'Shortage Weight')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <>{loadingWeightUnit[vehicleType]}</>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Field.Configurable>
+                      <Field.Configurable formType="job_edit" name="shortageAmount" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="shortageAmount"
+                          label={getLabel('shortageAmount', 'Shortage Amount')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
                     </>
                   )}
 

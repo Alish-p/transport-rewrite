@@ -120,11 +120,12 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>InvoiceNo</StyledTableCell>
-            <StyledTableCell align="right">Load QTY(MT)</StyledTableCell>
+            <StyledTableCell align="right">Basis (Qty/Km)</StyledTableCell>
             <StyledTableCell align="right">Shortage Qty(MT)</StyledTableCell>
             <StyledTableCell align="right">Shortage Amt</StyledTableCell>
-            <StyledTableCell align="right">FRT-RATE</StyledTableCell>
+            <StyledTableCell align="right">Rate/Model</StyledTableCell>
             <StyledTableCell align="right">FRT-Amt</StyledTableCell>
+            <StyledTableCell align="right">Commission</StyledTableCell>
             <StyledTableCell align="right">Deductions</StyledTableCell>
             <StyledTableCell align="right">Total Payable</StyledTableCell>
           </TableRow>
@@ -144,20 +145,25 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
-              <TableCell align="right">{st.loadingWeight}</TableCell>
+              <TableCell align="right">
+                {st.freightDetails?.freightModel === 'fixed' || st.freightDetails?.freightModel === 'hybrid' ? '-' : st.freightDetails?.freightModel === 'per_km' ? `${st.freightDetails?.baseKm || 0} KM` : st.loadingWeight}
+              </TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
-              <TableCell align="right">{fCurrency(st.effectiveFreightRate)}</TableCell>
-              <TableCell align="right">{fCurrency(st.freightAmount)}</TableCell>
+              <TableCell align="right">
+                {st.freightDetails?.freightModel === 'fixed' ? 'Fixed' : st.freightDetails?.freightModel === 'hybrid' ? 'Hybrid' : fCurrency(st.effectiveFreightRate || st.freightDetails?.rate || 0)}
+              </TableCell>
+              <TableCell align="right">{fCurrency(st.freightDetails?.freightAmount)}</TableCell>
+              <TableCell align="right" sx={{ color: 'error.main' }}>{fCurrency(st.commissionDetails?.commissionAmount || 0)}</TableCell>
               <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
               <TableCell align="right">
-                {fCurrency(st.freightAmount - st.totalExpense - st.shortageAmount)}
+                {fCurrency((st.freightDetails?.freightAmount || 0) - (st.totalExpense || 0) - (st.shortageAmount || 0) - (st.commissionDetails?.commissionAmount || 0))}
               </TableCell>
             </TableRow>
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={8} />
+            <TableCell colSpan={9} />
             <StyledTableCell align="right" sx={{ color: 'info.main' }}>
               Total
             </StyledTableCell>
@@ -178,7 +184,7 @@ function RenderTable({ transporterPayment }) {
 
           {tds?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11} />
+              <TableCell colSpan={12} />
               <StyledTableCell colSpan={2} align="right">
                 TDS({tds?.rate || 0}%)
               </StyledTableCell>
@@ -190,7 +196,7 @@ function RenderTable({ transporterPayment }) {
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11}>
+              <TableCell colSpan={12}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
@@ -203,7 +209,7 @@ function RenderTable({ transporterPayment }) {
 
           {sgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11} />
+              <TableCell colSpan={12} />
               <StyledTableCell colSpan={2} align="right">
                 SGST {sgst.rate}%
               </StyledTableCell>
@@ -213,7 +219,7 @@ function RenderTable({ transporterPayment }) {
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11}>
+              <TableCell colSpan={12}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
@@ -229,7 +235,7 @@ function RenderTable({ transporterPayment }) {
           {additionalCharges?.length > 0 &&
             additionalCharges.map(({ label, amount }) => (
               <StyledTableRow>
-                <TableCell colSpan={11} />
+                <TableCell colSpan={12} />
                 <StyledTableCell colSpan={2} align="right">
                   {label}
                 </StyledTableCell>
@@ -240,7 +246,7 @@ function RenderTable({ transporterPayment }) {
             ))}
 
           <StyledTableRow>
-            <TableCell colSpan={11} />
+            <TableCell colSpan={12} />
             <StyledTableCell colSpan={2} align="right">
               Net-Payable
             </StyledTableCell>

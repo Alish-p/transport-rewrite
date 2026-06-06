@@ -3,6 +3,7 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
@@ -39,19 +40,16 @@ export default function InvoicePdf({ invoice, tenant }) {
       { header: 'Vehicle', accessor: 'vehicle', width: '7%' },
       { header: 'Material', accessor: 'material', width: '7%' },
       {
-        header: 'Freight Rate ( ₹ )',
-        accessor: 'freightRate',
+        header: 'Rate / Model',
+        accessor: 'rateModel',
         width: '8%',
         align: 'right',
-        formatter: (v) => fNumber(v),
       },
       {
-        header: 'Dispatch Weight',
-        accessor: 'dispatchWeight',
+        header: 'Weight',
+        accessor: 'weight',
         width: '8%',
         align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
       },
       {
         header: 'Freight Amount ( ₹ )',
@@ -71,21 +69,38 @@ export default function InvoicePdf({ invoice, tenant }) {
       },
     ];
 
-    const tableData = subtripSnapshot.map((subtrip, index) => ({
-      sno: index + 1,
-      consignee: subtrip.consignee,
-      destination: subtrip.unloadingPoint,
-      invoiceNo: subtrip.invoiceNo,
-      dispDate: fDate(subtrip.startDate),
-      lrNo: subtrip.subtripNo,
-      diNumber: subtrip.diNumber || '-',
-      vehicle: subtrip.vehicleNo,
-      material: subtrip.materialType || '-',
-      freightRate: subtrip.rate,
-      dispatchWeight: subtrip.loadingWeight,
-      freightAmount: subtrip.freightAmount,
-      shortageWeight: subtrip.shortageWeight,
-    }));
+    const tableData = subtripSnapshot.map((subtrip, index) => {
+      const weight = subtrip.loadingWeight
+        ? `${fNumber(subtrip.loadingWeight)} ${loadingWeightUnit[subtrip.vehicleType] || ''}`
+        : '-';
+
+      let rateModel = '-';
+      const fm = subtrip.freightDetails?.freightModel;
+      const rateStr = fNumber(subtrip.freightDetails?.rate || 0);
+
+      if (fm === 'fixed') rateModel = `Fixed (${fNumber(subtrip.freightDetails?.freightAmount || 0)} ₹)`;
+      else if (fm === 'hybrid') rateModel = 'Hybrid';
+      else if (fm === 'per_km') rateModel = `${rateStr} ₹ / KM`;
+      else if (fm === 'time_based') rateModel = `${rateStr} ₹ / Hr`;
+      else if (fm === 'per_ton') rateModel = `${rateStr} ₹ / Ton`;
+      else if (subtrip.freightDetails?.rate) rateModel = rateStr;
+
+      return {
+        sno: index + 1,
+        consignee: subtrip.consignee,
+        destination: subtrip.unloadingPoint,
+        invoiceNo: subtrip.invoiceNo,
+        dispDate: fDate(subtrip.startDate),
+        lrNo: subtrip.subtripNo,
+        diNumber: subtrip.diNumber || '-',
+        vehicle: subtrip.vehicleNo,
+        material: subtrip.materialType || '-',
+        rateModel,
+        weight,
+        freightAmount: subtrip.freightDetails?.freightAmount || (subtrip.freightDetails?.rate && subtrip.loadingWeight ? subtrip.freightDetails.rate * subtrip.loadingWeight : 0),
+        shortageWeight: subtrip.shortageWeight,
+      };
+    });
 
     // Create extra rows for tax breakdown
     const createExtraRows = () => {

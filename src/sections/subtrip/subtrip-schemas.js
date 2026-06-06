@@ -7,9 +7,18 @@ export const receiveSchema = zod
     subtripId: zod.string().min(1, { message: 'Job is required' }),
     unloadingWeight: zod.number({ required_error: 'Unloading weight is required' }),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
-    commissionRate: zod
-      .number()
-      .min(0, { message: 'Commission rate cannot be negative' })
+    commissionDetails: zod
+      .object({
+        commissionRate: zod.number().min(0, { message: 'Commission rate cannot be negative' }).optional(),
+        commissionAmount: zod.number().min(0, { message: 'Commission amount cannot be negative' }).optional(),
+      })
+      .optional(),
+    freightDetails: zod
+      .object({
+        freightAmount: zod.number().optional(),
+        endKm: zod.number().optional(),
+        endTime: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid End Time!' } }),
+      })
       .optional(),
     hasError: zod.boolean().optional(),
     remarks: zod.string().optional(),
