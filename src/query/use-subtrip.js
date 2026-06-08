@@ -66,11 +66,6 @@ const updateSubtripResolveInfo = async (id, subtripData) => {
   return data;
 };
 
-const updateSubtripCloseInfo = async (id) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/close`);
-  return data;
-};
-
 const deleteSubtrip = async (id) => {
   const { data } = await axios.delete(`${ENDPOINT}/${id}`);
   return data;
@@ -280,25 +275,6 @@ export function useUpdateSubtripResolveInfo() {
       queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
 
       toast.success('Job Resolve Info added successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutateAsync;
-}
-
-export function useUpdateSubtripCloseInfo() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: (id) => updateSubtripCloseInfo(id),
-    onSuccess: (updatedSubtrip) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedSubtrip._id], updatedSubtrip);
-
-      toast.success('Job Close Info added successfully!');
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';

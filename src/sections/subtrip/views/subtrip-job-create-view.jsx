@@ -123,9 +123,6 @@ const formSchema = z
     baseKm: numericInputSchema,
     rate: numericInputSchema,
     freightStartKm: numericInputSchema,
-    freightStartTime: schemaHelper.dateOptional({
-      message: { invalid_type_error: 'Invalid Start Time!' },
-    }),
     invoiceNo: z.string().optional(),
     ewayBill: z.string().optional(),
     // Optional because empty subtrips won't have it
@@ -175,7 +172,6 @@ const createDefaultValues = () => ({
   baseKm: '',
   rate: '',
   freightStartKm: '',
-  freightStartTime: null,
   invoiceNo: '',
   ewayBill: '',
   ewayExpiryDate: null,
@@ -854,7 +850,6 @@ export function SubtripJobCreateView() {
           baseKm: toNumber(form.baseKm),
           rate: toNumber(form.rate),
           startKm: toNumber(form.freightStartKm),
-          startTime: form.freightStartTime,
         },
         invoiceNo: form.invoiceNo,
         shipmentNo: form.shipmentNo || undefined,

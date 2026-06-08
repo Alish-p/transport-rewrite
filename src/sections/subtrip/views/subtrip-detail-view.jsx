@@ -91,9 +91,9 @@ const getFreightDisplay = (subtrip) => {
     description = `Freight: ${formattedRate} × ${fNumber(diffKm)} KM (KM: ${startKm} to ${endKm || startKm})`;
   } else if (freightModel === 'time_based') {
     let diffInHours = 0;
-    if (startTime && endTime) {
-      const start = new Date(startTime).getTime();
-      const end = new Date(endTime).getTime();
+    if (subtrip.startDate && subtrip.endDate) {
+      const start = new Date(subtrip.startDate).getTime();
+      const end = new Date(subtrip.endDate).getTime();
       diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
     }
     description = `Freight: ${formattedRate} × ${fNumber(diffInHours)} Hr (Duration: ${diffInHours} hours)`;

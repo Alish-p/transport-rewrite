@@ -31,7 +31,7 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
   let freightAmount = 0;
 
   if (subtrip.freightDetails) {
-    const { freightModel, rate, freightAmount: fAmount, startTime, endTime, endKm, startKm } = subtrip.freightDetails;
+    const { freightModel, rate, freightAmount: fAmount, endKm, startKm } = subtrip.freightDetails;
 
     if (fAmount !== undefined && fAmount !== null) {
       freightAmount = fAmount;
@@ -42,9 +42,9 @@ export const calculateInvoicePerSubtrip = (subtrip) => {
           freightAmount = (endKm - startKm) * (rate || 0);
         }
       } else if (freightModel === 'time_based') {
-        if (endTime && startTime) {
-          const start = new Date(startTime).getTime();
-          const end = new Date(endTime).getTime();
+        if (subtrip.startDate && subtrip.endDate) {
+          const start = new Date(subtrip.startDate).getTime();
+          const end = new Date(subtrip.endDate).getTime();
           const diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
           if (diffInHours > 0) {
             freightAmount = diffInHours * (rate || 0);

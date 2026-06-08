@@ -69,12 +69,10 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         return `Rate: ₹${rate || 0} × Distance: ${diff} KM`;
       }
       case 'time_based': {
-        const startTime = selectedSubtrip.freightDetails?.startTime;
-        const endTime = selectedSubtrip.freightDetails?.endTime;
         let diffInHours = 0;
-        if (startTime && endTime) {
-          const start = new Date(startTime).getTime();
-          const end = new Date(endTime).getTime();
+        if (selectedSubtrip.startDate && selectedSubtrip.endDate) {
+          const start = new Date(selectedSubtrip.startDate).getTime();
+          const end = new Date(selectedSubtrip.endDate).getTime();
           diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
         }
         return `Rate: ₹${rate || 0} × Time: ${diffInHours} Hour(s)`;
