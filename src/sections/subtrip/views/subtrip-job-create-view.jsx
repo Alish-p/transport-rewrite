@@ -34,6 +34,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import axios from 'src/utils/axios';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDateTime } from 'src/utils/format-time';
 // Route expenses logic removed
 
@@ -270,6 +271,48 @@ export function SubtripJobCreateView() {
     getValues,
   } = methods;
   const watchedForm = watch();
+
+  const freightAmountBanner = useMemo(() => {
+    const { freightModel, rate, loadingWeight, freightAmount, baseKm } = watchedForm;
+    const model = freightModel || 'per_ton';
+    const rateVal = Number(rate || 0);
+    const weightVal = Number(loadingWeight || 0);
+    const amountVal = Number(freightAmount || 0);
+    const baseKmVal = Number(baseKm || 0);
+
+    const isPendingModel = ['time_based', 'per_km', 'hybrid'].includes(model);
+
+    if (isPendingModel) {
+      let formula = '';
+      if (model === 'time_based') {
+        formula = `calculated at ${fCurrency(rateVal)}/hour once job duration is known during receive stage`;
+      } else if (model === 'per_km') {
+        formula = `calculated at ${fCurrency(rateVal)}/KM once total distance is known during receive stage`;
+      } else if (model === 'hybrid') {
+        formula = `calculated using base freight of ${fCurrency(amountVal)} (${baseKmVal} km) + extra distance at ${fCurrency(rateVal)}/km once received`;
+      }
+      return {
+        amount: 'TBD (Calculated on Receive)',
+        detail: formula,
+      };
+    }
+
+    // Known beforehand
+    let calculatedAmount = 0;
+    let detail = '';
+    if (model === 'per_ton') {
+      calculatedAmount = rateVal * weightVal;
+      detail = `calculated for loading weight of ${fNumber(weightVal)} MT at ${fCurrency(rateVal)}/ton`;
+    } else if (model === 'fixed') {
+      calculatedAmount = amountVal;
+      detail = `fixed freight amount of ${fCurrency(amountVal)}`;
+    }
+
+    return {
+      amount: typeof calculatedAmount === 'number' && !Number.isNaN(calculatedAmount) ? fCurrency(calculatedAmount) : fCurrency(0),
+      detail,
+    };
+  }, [watchedForm]);
   const {
     tripDecision,
     loadType,
@@ -1605,6 +1648,19 @@ export function SubtripJobCreateView() {
                         <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
                       </Field.Configurable>
                     </Box>
+
+                    {freightAmountBanner && (
+                      <Alert severity="info" variant="outlined" sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="subtitle2" component="div">
+                          Calculated Freight Amount: <strong>{freightAmountBanner.amount}</strong>
+                        </Typography>
+                        {freightAmountBanner.detail && (
+                          <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+                            ({freightAmountBanner.detail})
+                          </Typography>
+                        )}
+                      </Alert>
+                    )}
 
                     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                       <Button onClick={() => setActiveStep(2)}>Back</Button>

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { useMemo, useState } from 'react';
@@ -9,6 +10,7 @@ import {
   Box,
   Card,
   Grid,
+  Alert,
   Button,
   Divider,
   Tooltip,
@@ -25,6 +27,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useFormFieldHelpers } from 'src/hooks/use-form-config';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
+
+import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
 
 import { paramCase } from 'src/utils/change-case';
 
@@ -49,40 +53,74 @@ const baseSchema = z.object({
   startDate: schemaHelper.date(),
 });
 
+const numericInputSchema = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  const n = typeof val === 'number' ? val : Number(val);
+  return Number.isFinite(n) ? n : undefined;
+}, z.number().optional());
+
+const freightDetailsSchema = z.object({
+  freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid']).optional(),
+  freightAmount: numericInputSchema,
+  baseKm: numericInputSchema,
+  rate: numericInputSchema,
+  startKm: numericInputSchema,
+});
+
 // Schema for Loaded status
-const loadedSchema = baseSchema.extend({
-  consignee: z.string().max(100),
-  loadingPoint: z.string().max(100),
-  unloadingPoint: z.string().max(100),
-  loadingWeight: z.number().nonnegative('Loading weight must be positive'),
-  quantity: z.number().nonnegative('Quantity must be positive').optional(),
-  rate: z.number().min(0, 'Rate must be at least 0'),
+const loadedSchemaBase = baseSchema.extend({
+  consignee: z.string().max(100).optional(),
+  loadingPoint: z.string().max(100).optional(),
+  unloadingPoint: z.string().max(100).optional(),
+  loadingWeight: numericInputSchema,
+  quantity: numericInputSchema,
+  freightDetails: freightDetailsSchema.optional(),
   ewayBill: z.string().max(100).optional(),
-  ewayExpiryDate: z.string(),
-  invoiceNo: z.string().max(100),
+  ewayExpiryDate: z.string().optional(),
+  invoiceNo: z.string().max(100).optional(),
   shipmentNo: z.string().max(100).optional(),
   orderNo: z.string().max(100).optional(),
   referenceSubtripNo: z.string().max(100).optional(),
-  materialType: z.string().max(100),
+  materialType: z.string().max(100).optional(),
   grade: z.string().max(100).optional(),
-  driverAdvance: z.number().min(0, 'Advance must be non-negative').optional(),
-  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']),
-  initialAdvanceDiesel: z.number().min(0, 'Diesel value must be non-negative').optional(),
+  driverAdvance: numericInputSchema,
+  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']).optional(),
+  initialAdvanceDiesel: numericInputSchema,
   intentFuelPump: z.string().optional(),
 });
 
 // Schema for Received status (extends loaded)
-const receivedSchema = loadedSchema.extend({
-  unloadingWeight: z.number().nonnegative('Unloading weight must be positive'),
-  endDate: z.string(),
+const receivedSchemaBase = loadedSchemaBase.extend({
+  unloadingWeight: numericInputSchema,
+  endDate: z.string().optional(),
   hasShortage: z.boolean().optional(),
-  shortageWeight: z.number().nonnegative('Shortage weight must be non-negative').optional(),
-  shortageAmount: z.number().nonnegative('Shortage amount must be non-negative').optional(),
+  shortageWeight: numericInputSchema,
+  shortageAmount: numericInputSchema,
   hasError: z.boolean().optional(),
   errorRemarks: z.string().max(500).optional(),
   remarks: z.string().max(500).optional(),
-  commissionRate: z.number().min(0, 'Commission rate must be non-negative').optional(),
+  commissionRate: numericInputSchema,
 });
+
+const freightSuperRefine = (data, ctx) => {
+  const fm = data.freightDetails?.freightModel;
+  const rate = data.freightDetails?.rate;
+  const baseKm = data.freightDetails?.baseKm;
+  const freightAmount = data.freightDetails?.freightAmount;
+  
+  if (fm === 'fixed' && !freightAmount) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
+  } else if (fm === 'hybrid' && (!freightAmount || !baseKm || !rate)) {
+    if (!freightAmount) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
+    if (!baseKm) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base KM is required", path: ['freightDetails', 'baseKm'] });
+    if (!rate) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Extra Rate is required", path: ['freightDetails', 'rate'] });
+  } else if ((fm === 'per_ton' || fm === 'per_km' || fm === 'time_based') && !rate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Rate is required", path: ['freightDetails', 'rate'] });
+  }
+};
+
+const loadedSchema = loadedSchemaBase.superRefine(freightSuperRefine);
+const receivedSchema = receivedSchemaBase.superRefine(freightSuperRefine);
 
 // Get the appropriate schema based on status
 const getSchemaForStatus = (status) => {
@@ -125,7 +163,10 @@ export default function SubtripEditForm({ currentSubtrip }) {
       customerId: currentSubtrip?.customerId?._id,
       driverId: currentSubtrip?.driverId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
-      
+      freightDetails: currentSubtrip?.freightDetails || {
+        freightModel: 'per_ton',
+        rate: currentSubtrip?.rate || 0,
+      },
     }),
     [currentSubtrip]
   );
@@ -176,11 +217,15 @@ export default function SubtripEditForm({ currentSubtrip }) {
     try {
       // only send the data that has changed, excluding trip-only fields (startKm/endKm)
       const changedFields = Object.keys(dirtyFields)
-        .filter((key) => key !== 'startKm' && key !== 'endKm')
+        .filter((key) => key !== 'startKm' && key !== 'endKm' && key !== 'freightDetails')
         .reduce((acc, key) => {
           acc[key] = data[key];
           return acc;
         }, {});
+
+      if (dirtyFields.freightDetails) {
+        changedFields.freightDetails = data.freightDetails;
+      }
 
       await updateSubtrip({
         id: currentSubtrip._id,
@@ -203,6 +248,71 @@ export default function SubtripEditForm({ currentSubtrip }) {
   // Render fields based on status
   const renderFields = () => {
     const status = currentSubtrip.subtripStatus;
+    const freightModel = values?.freightDetails?.freightModel || 'per_ton';
+    const rate = values?.freightDetails?.rate || 0;
+    const endDate = values?.endDate;
+    
+    // Auto-calculate expected freight amount like receive form
+    let displayFreightAmount = values?.freightDetails?.freightAmount || 0;
+    if (freightModel === 'per_km' && values?.freightDetails?.endKm) {
+      const startKm = values?.freightDetails?.startKm || 0;
+      const endKm = Number(values.freightDetails.endKm);
+      if (endKm > startKm) displayFreightAmount = (endKm - startKm) * rate;
+    } else if (freightModel === 'hybrid' && values?.freightDetails?.endKm) {
+      const startKm = values?.freightDetails?.startKm || 0;
+      const endKm = Number(values.freightDetails.endKm);
+      const baseKm = values?.freightDetails?.baseKm || 0;
+      const baseFreight = values?.freightDetails?.freightAmount || 0;
+      const totalKm = endKm > startKm ? endKm - startKm : 0;
+      if (totalKm > baseKm && rate > 0) {
+        displayFreightAmount = baseFreight + ((totalKm - baseKm) * rate);
+      } else {
+        displayFreightAmount = baseFreight;
+      }
+    } else if (freightModel === 'time_based' && endDate && values?.startDate) {
+      const start = dayjs(values.startDate);
+      const end = dayjs(endDate);
+      const diffInHours = Math.ceil(end.diff(start, 'hour', true));
+      if (diffInHours > 0) displayFreightAmount = diffInHours * rate;
+    } else if (freightModel === 'per_ton') {
+      const weight = values?.loadingWeight || 0;
+      displayFreightAmount = weight * rate;
+    }
+    
+    const getFreightExplanation = () => {
+      if (freightModel === 'time_based' && endDate && values?.startDate) {
+        const start = dayjs(values.startDate);
+        const end = dayjs(endDate);
+        const diffInHours = Math.ceil(end.diff(start, 'hour', true));
+        return `calculated for ${diffInHours} hour${diffInHours !== 1 ? 's' : ''} at ₹${rate}/hour (job dates: ${dayjs(values.startDate).format('DD MMM YYYY, hh:mm A')} to ${dayjs(endDate).format('DD MMM YYYY, hh:mm A')})`;
+      }
+      if (freightModel === 'per_km') {
+        const startKm = values?.freightDetails?.startKm || 0;
+        const endKm = Number(values?.freightDetails?.endKm || startKm);
+        const diffKm = endKm > startKm ? endKm - startKm : 0;
+        if (diffKm > 0) return `calculated for ${diffKm} km at ₹${rate}/km (KM: ${startKm} to ${endKm})`;
+        return `calculated at ₹${rate}/km`;
+      }
+      if (freightModel === 'hybrid') {
+        const startKm = values?.freightDetails?.startKm || 0;
+        const endKm = Number(values?.freightDetails?.endKm || startKm);
+        const totalKm = endKm > startKm ? endKm - startKm : 0;
+        const baseKm = values?.freightDetails?.baseKm || 0;
+        const baseFreight = values?.freightDetails?.freightAmount || 0;
+        const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
+        if (extraKm > 0) return `calculated using base freight of ₹${baseFreight} (${baseKm} km) + extra ${extraKm} km at ₹${rate}/km`;
+        return `calculated using base freight of ₹${baseFreight} (${baseKm} km)`;
+      }
+      if (freightModel === 'per_ton') {
+        const weight = values?.loadingWeight || 0;
+        return `calculated for loading weight of ${weight} ${loadingWeightUnit[vehicleType] || 'tons'} at ₹${rate}/ton`;
+      }
+      if (freightModel === 'fixed') {
+        const baseFreight = values?.freightDetails?.freightAmount || 0;
+        return `fixed freight amount of ₹${baseFreight}`;
+      }
+      return 'rate model';
+    };
 
     return (
       <>
@@ -304,14 +414,72 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
-                  <Field.Configurable formType="job_edit" name="rate" customerId={currentSubtrip?.customerId?._id}>
+                  <Field.Select name="freightDetails.freightModel" label="Freight Model *">
+                    {FREIGHT_MODELS.map((fm) => (
+                      <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
+                    ))}
+                  </Field.Select>
+
+                  {(freightModel === 'per_ton' || freightModel === 'per_km' || freightModel === 'time_based') && (
+                    <>
+                      <Field.Configurable formType="job_edit" name="rate" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="freightDetails.rate"
+                          label={freightModel === 'per_km' ? 'Rate (Per KM) *' : freightModel === 'time_based' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      </Field.Configurable>
+                      {freightModel === 'per_km' && (
+                        <Field.Text
+                          name="freightDetails.startKm"
+                          label="Billing Start KM"
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {freightModel === 'hybrid' && (
+                    <>
+                      <Field.Text
+                        name="freightDetails.freightAmount"
+                        label="Base Freight Amount *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.baseKm"
+                        label="Base KM *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.rate"
+                        label="Extra Rate (Per KM) *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.startKm"
+                        label="Billing Start KM"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+                      />
+                    </>
+                  )}
+
+                  {freightModel === 'fixed' && (
                     <Field.Text
-                      name="rate"
-                      label={getLabel('rate', 'Rate')}
+                      name="freightDetails.freightAmount"
+                      label="Freight Amount *"
                       type="number"
                       InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
                     />
-                  </Field.Configurable>
+                  )}
 
                   <Field.Configurable formType="job_edit" name="ewayBill" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
@@ -348,6 +516,17 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   <Field.Configurable formType="job_edit" name="grade" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
                   </Field.Configurable>
+
+                  {displayFreightAmount > 0 && (
+                    <Alert severity="info" variant="outlined" sx={{ gridColumn: '1 / -1', mt: 1, display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="subtitle2" component="div">
+                        Calculated Freight Amount: <strong>₹{displayFreightAmount}</strong>
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+                        ({getFreightExplanation()})
+                      </Typography>
+                    </Alert>
+                  )}
                 </Box>
 
                 <Divider sx={{ my: 4 }} />

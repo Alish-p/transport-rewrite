@@ -100,7 +100,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
     if (selectedSubtrip && !freightDetails?.freightAmount && selectedSubtrip.freightDetails) {
       setValue('freightDetails', {
         freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
-        endKm: selectedSubtrip.freightDetails.endKm || '',
+        endKm: (selectedSubtrip.freightDetails.endKm !== undefined && selectedSubtrip.freightDetails.endKm !== null)
+          ? selectedSubtrip.freightDetails.endKm
+          : undefined,
         endTime: selectedSubtrip.freightDetails.endTime || null,
       }, { shouldValidate: true });
     }
@@ -127,7 +129,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
   // Auto-calculate freight amount based on endKm / endDate for specific models
   useEffect(() => {
-    if (!selectedSubtrip || isOwn) return;
+    if (!selectedSubtrip) return;
     
     const rate = selectedSubtrip.freightDetails?.rate || 0;
     
@@ -268,7 +270,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
             <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
 
-            {!isOwn && (freightModel === 'per_km' || freightModel === 'hybrid') && (
+            {(freightModel === 'per_km' || freightModel === 'hybrid') && (
               <Field.Configurable formType="job_receive" name="endKm" customerId={customerId}>
                 <Field.Text
                   name="freightDetails.endKm"
@@ -281,7 +283,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               </Field.Configurable>
             )}
             
-            {!isOwn && freightDetails?.freightAmount !== undefined && (
+            {freightDetails?.freightAmount !== undefined && (
               <Alert severity="info" variant="outlined" sx={{ gridColumn: '1 / -1', mt: 1, display: 'flex', alignItems: 'center' }}>
                 <Typography variant="subtitle2" component="div">
                   Calculated Freight Amount: <strong>₹{freightDetails.freightAmount}</strong>

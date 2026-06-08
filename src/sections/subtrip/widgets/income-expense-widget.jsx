@@ -105,7 +105,9 @@ export default function IncomeWidgetSummary({
           )}
         </Stack>
 
-        <Typography variant="h3">{fCurrency(total) || 0}</Typography>
+        <Typography variant="h3">
+          {typeof total === 'number' ? fCurrency(total) : (total || 0)}
+        </Typography>
 
         {description && (
           <Typography variant="caption" sx={{ opacity: 0.72, fontStyle: 'italic' }}>
