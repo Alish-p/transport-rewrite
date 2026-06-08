@@ -11,13 +11,13 @@ import { RHFCountrySelect } from './rhf-country-select';
 import { RHFInputWithUnit } from './rhf-input-with-unit';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
 import { RHFSelect, RHFMultiSelect } from './rhf-select';
+import { ConfigurableField } from './configurable-field';
 import { RHFCheckbox, RHFMultiCheckbox } from './rhf-checkbox';
 import { RHFFreeSoloAutocomplete } from './rhf-autocomplete-freesolo';
 import { RHFUpload, RHFUploadBox, RHFUploadAvatar } from './rhf-upload';
 import { RHFAutocompleteCreatable } from './rhf-autocomplete-creatable';
 import { RHFDatePicker, RHFMobileDateTimePicker } from './rhf-date-picker';
 import { RHFMultiAutocompleteFreeSolo } from './rhf-autocomplete-multiple-freesolo';
-import { ConfigurableField } from './configurable-field';
 
 // ----------------------------------------------------------------------
 

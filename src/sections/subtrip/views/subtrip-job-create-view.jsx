@@ -34,10 +34,11 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import axios from 'src/utils/axios';
-import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDateTime } from 'src/utils/format-time';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 // Route expenses logic removed
 
+import { useFormFieldHelpers } from 'src/hooks/use-form-config';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { useGps } from 'src/query/use-gps';
@@ -63,8 +64,6 @@ import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-cust
 
 import { useTenantContext } from 'src/auth/tenant';
 import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
-
-import { useFormFieldHelpers } from 'src/hooks/use-form-config';
 
 import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 

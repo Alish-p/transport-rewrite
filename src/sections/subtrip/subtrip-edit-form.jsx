@@ -24,11 +24,9 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useFormFieldHelpers } from 'src/hooks/use-form-config';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
-
-import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
 
 import { paramCase } from 'src/utils/change-case';
 
@@ -37,6 +35,8 @@ import { useUpdateSubtrip } from 'src/query/use-subtrip';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+
+import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';

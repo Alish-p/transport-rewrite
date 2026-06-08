@@ -3,9 +3,10 @@ import { Page, Font, Document } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
-import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
+
+import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';
