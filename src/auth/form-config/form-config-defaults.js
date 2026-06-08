@@ -1,8 +1,8 @@
 export const FREIGHT_MODELS = [
   { value: 'per_ton', label: 'Per Ton' },
-  { value: 'fixed', label: 'Fixed' },
   { value: 'per_km', label: 'Per KM' },
   { value: 'per_hour', label: 'Per Hour' },
+  { value: 'fixed', label: 'Fixed' },
   { value: 'hybrid', label: 'Hybrid' },
 ];
 

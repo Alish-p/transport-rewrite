@@ -58,8 +58,6 @@ const getFreightDisplay = (subtrip) => {
     freightAmount: serverFreightAmount,
     startKm = 0,
     endKm,
-    startTime,
-    endTime,
     baseKm = 0,
   } = subtrip?.freightDetails || {};
 
