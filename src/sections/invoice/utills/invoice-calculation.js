@@ -28,35 +28,7 @@ export const calculateTaxBreakup = (customer) => {
 };
 
 export const calculateInvoicePerSubtrip = (subtrip) => {
-  let freightAmount = 0;
-
-  if (subtrip.freightDetails) {
-    const { freightModel, rate, freightAmount: fAmount, endKm, startKm } = subtrip.freightDetails;
-
-    if (fAmount !== undefined && fAmount !== null) {
-      freightAmount = fAmount;
-    } else if (freightModel === 'per_ton') {
-        freightAmount = (rate || 0) * (subtrip.loadingWeight || 0);
-      } else if (freightModel === 'per_km') {
-        if (endKm && startKm && endKm > startKm) {
-          freightAmount = (endKm - startKm) * (rate || 0);
-        }
-      } else if (freightModel === 'time_based') {
-        if (subtrip.startDate && subtrip.endDate) {
-          const start = new Date(subtrip.startDate).getTime();
-          const end = new Date(subtrip.endDate).getTime();
-          const diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
-          if (diffInHours > 0) {
-            freightAmount = diffInHours * (rate || 0);
-          }
-        }
-      } else if (!freightModel) {
-        freightAmount = (rate || subtrip.rate || 0) * (subtrip.loadingWeight || 0);
-      }
-  } else {
-    freightAmount = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
-  }
-
+  const freightAmount = subtrip.freightDetails?.freightAmount || 0;
   const shortageAmount = subtrip.shortageAmount || 0;
   const totalAmount = freightAmount; // we just show the shortage amount separately net total is just freight amount
 
