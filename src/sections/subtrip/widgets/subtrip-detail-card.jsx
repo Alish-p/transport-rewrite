@@ -47,7 +47,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         return `${formatted} / Ton`;
       case 'per_km':
         return `${formatted} / KM`;
-      case 'time_based':
+      case 'per_hour':
         return `${formatted} / Hr`;
       case 'fixed':
         return `${formatted} (Fixed)`;
@@ -68,7 +68,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         const diff = endKm > startKm ? endKm - startKm : 0;
         return `Rate: ₹${rate || 0} × Distance: ${diff} KM`;
       }
-      case 'time_based': {
+      case 'per_hour': {
         let diffInHours = 0;
         if (selectedSubtrip.startDate && selectedSubtrip.endDate) {
           const start = new Date(selectedSubtrip.startDate).getTime();

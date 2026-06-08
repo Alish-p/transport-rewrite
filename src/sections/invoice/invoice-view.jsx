@@ -167,7 +167,7 @@ function RenderTable({ invoice }) {
                   ? 'Hybrid'
                   : st.freightDetails?.freightModel === 'per_km'
                   ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / KM`
-                  : st.freightDetails?.freightModel === 'time_based'
+                  : st.freightDetails?.freightModel === 'per_hour'
                   ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / Hr`
                   : st.freightDetails?.freightModel === 'per_ton'
                   ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / Ton`

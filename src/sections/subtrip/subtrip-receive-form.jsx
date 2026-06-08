@@ -63,7 +63,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
   const getFreightExplanation = () => {
     const rate = selectedSubtrip?.freightDetails?.rate || 0;
-    if (freightModel === 'time_based' && endDate && selectedSubtrip?.startDate) {
+    if (freightModel === 'per_hour' && endDate && selectedSubtrip?.startDate) {
       const start = dayjs(selectedSubtrip.startDate);
       const end = dayjs(endDate);
       const diffInHours = Math.ceil(end.diff(start, 'hour', true));
@@ -150,7 +150,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         const extraKm = totalKm - baseKm;
         setValue('freightDetails.freightAmount', baseFreight + (extraKm * rate), { shouldValidate: true });
       }
-    } else if (freightModel === 'time_based' && endDate) {
+    } else if (freightModel === 'per_hour' && endDate) {
       const startTime = selectedSubtrip.startDate;
       if (startTime) {
         const start = dayjs(startTime);

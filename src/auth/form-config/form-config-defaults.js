@@ -2,7 +2,7 @@ export const FREIGHT_MODELS = [
   { value: 'per_ton', label: 'Per Ton' },
   { value: 'fixed', label: 'Fixed' },
   { value: 'per_km', label: 'Per KM' },
-  { value: 'time_based', label: 'Time Based' },
+  { value: 'per_hour', label: 'Per Hour' },
   { value: 'hybrid', label: 'Hybrid' },
 ];
 
@@ -10,7 +10,7 @@ export const FORM_CONFIG_DEFAULTS = {
   job_create: {
     freightConfig: {
       defaultModel: 'per_ton',
-      allowedModels: ['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid'],
+      allowedModels: ['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid'],
     },
     fields: {
       invoiceNo: { visibility: 'required', label: 'Invoice No' },
@@ -34,7 +34,7 @@ export const FORM_CONFIG_DEFAULTS = {
   job_edit: {
     freightConfig: {
       defaultModel: 'per_ton',
-      allowedModels: ['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid'],
+      allowedModels: ['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid'],
     },
     fields: {
       invoiceNo: { visibility: 'required', label: 'Invoice No' },
@@ -67,7 +67,7 @@ export const FORM_CONFIG_DEFAULTS = {
   job_receive: {
     freightConfig: {
       defaultModel: 'per_ton',
-      allowedModels: ['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid'],
+      allowedModels: ['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid'],
     },
     fields: {
       unloadingWeight: { visibility: 'required', label: 'Unloading Weight' },

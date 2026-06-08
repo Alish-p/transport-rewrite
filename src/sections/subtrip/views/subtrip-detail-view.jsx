@@ -64,12 +64,12 @@ const getFreightDisplay = (subtrip) => {
   } = subtrip?.freightDetails || {};
 
   const isPending =
-    ['time_based', 'per_km', 'hybrid'].includes(freightModel) &&
+    ['per_hour', 'per_km', 'hybrid'].includes(freightModel) &&
     !['received', 'billed'].includes(subtrip?.subtripStatus);
 
   if (isPending) {
     let formula = '';
-    if (freightModel === 'time_based') formula = `${fCurrency(rate)}/hour`;
+    if (freightModel === 'per_hour') formula = `${fCurrency(rate)}/hour`;
     else if (freightModel === 'per_km') formula = `${fCurrency(rate)}/KM`;
     else if (freightModel === 'hybrid') formula = `Hybrid (Base + Extra KM)`;
 
@@ -90,7 +90,7 @@ const getFreightDisplay = (subtrip) => {
   } else if (freightModel === 'per_km') {
     const diffKm = endKm && startKm && endKm > startKm ? endKm - startKm : 0;
     description = `Freight: ${formattedRate} × ${fNumber(diffKm)} KM (KM: ${startKm} to ${endKm || startKm})`;
-  } else if (freightModel === 'time_based') {
+  } else if (freightModel === 'per_hour') {
     let diffInHours = 0;
     if (subtrip.startDate && subtrip.endDate) {
       const start = new Date(subtrip.startDate).getTime();

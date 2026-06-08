@@ -60,7 +60,7 @@ const numericInputSchema = z.preprocess((val) => {
 }, z.number().optional());
 
 const freightDetailsSchema = z.object({
-  freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid']).optional(),
+  freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
   freightAmount: numericInputSchema,
   baseKm: numericInputSchema,
   rate: numericInputSchema,
@@ -114,7 +114,7 @@ const freightSuperRefine = (data, ctx) => {
     if (!freightAmount) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
     if (!baseKm) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base KM is required", path: ['freightDetails', 'baseKm'] });
     if (!rate) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Extra Rate is required", path: ['freightDetails', 'rate'] });
-  } else if ((fm === 'per_ton' || fm === 'per_km' || fm === 'time_based') && !rate) {
+  } else if ((fm === 'per_ton' || fm === 'per_km' || fm === 'per_hour') && !rate) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Rate is required", path: ['freightDetails', 'rate'] });
   }
 };
@@ -269,7 +269,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       } else {
         displayFreightAmount = baseFreight;
       }
-    } else if (freightModel === 'time_based' && endDate && values?.startDate) {
+    } else if (freightModel === 'per_hour' && endDate && values?.startDate) {
       const start = dayjs(values.startDate);
       const end = dayjs(endDate);
       const diffInHours = Math.ceil(end.diff(start, 'hour', true));
@@ -280,7 +280,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
     }
     
     const getFreightExplanation = () => {
-      if (freightModel === 'time_based' && endDate && values?.startDate) {
+      if (freightModel === 'per_hour' && endDate && values?.startDate) {
         const start = dayjs(values.startDate);
         const end = dayjs(endDate);
         const diffInHours = Math.ceil(end.diff(start, 'hour', true));
@@ -420,12 +420,12 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     ))}
                   </Field.Select>
 
-                  {(freightModel === 'per_ton' || freightModel === 'per_km' || freightModel === 'time_based') && (
+                  {(freightModel === 'per_ton' || freightModel === 'per_km' || freightModel === 'per_hour') && (
                     <>
                       <Field.Configurable formType="job_edit" name="rate" customerId={currentSubtrip?.customerId?._id}>
                         <Field.Text
                           name="freightDetails.rate"
-                          label={freightModel === 'per_km' ? 'Rate (Per KM) *' : freightModel === 'time_based' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                          label={freightModel === 'per_km' ? 'Rate (Per KM) *' : freightModel === 'per_hour' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
                           type="number"
                           InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
                         />

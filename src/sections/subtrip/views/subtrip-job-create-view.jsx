@@ -117,7 +117,7 @@ const formSchema = z
     loadingPoint: z.string().optional(),
     unloadingPoint: z.string().optional(),
     loadingWeight: loadingWeightSchema,
-    freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'time_based', 'hybrid']).optional(),
+    freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
     freightAmount: numericInputSchema,
     baseKm: numericInputSchema,
     rate: numericInputSchema,
@@ -275,11 +275,11 @@ export function SubtripJobCreateView() {
     const amountVal = Number(freightAmount || 0);
     const baseKmVal = Number(baseKm || 0);
 
-    const isPendingModel = ['time_based', 'per_km', 'hybrid'].includes(model);
+    const isPendingModel = ['per_hour', 'per_km', 'hybrid'].includes(model);
 
     if (isPendingModel) {
       let formula = '';
-      if (model === 'time_based') {
+      if (model === 'per_hour') {
         formula = `calculated at ${fCurrency(rateVal)}/hour once job duration is known during receive stage`;
       } else if (model === 'per_km') {
         formula = `calculated at ${fCurrency(rateVal)}/KM once total distance is known during receive stage`;
@@ -759,7 +759,7 @@ export function SubtripJobCreateView() {
       } else if (form.freightModel === 'hybrid') {
         if (!form.freightAmount || !form.baseKm || !form.rate) isFreightValid = false;
       } else if (!form.rate) {
-        // per_ton, per_km, time_based
+        // per_ton, per_km, per_hour
         isFreightValid = false;
       }
 
@@ -1493,11 +1493,11 @@ export function SubtripJobCreateView() {
                           ))}
                       </Field.Select>
 
-                      {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'time_based') && (
+                      {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'per_hour') && (
                         <>
                           <Field.Text
                             name="rate"
-                            label={watchedForm.freightModel === 'per_km' ? 'Rate (Per KM) *' : watchedForm.freightModel === 'time_based' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                            label={watchedForm.freightModel === 'per_km' ? 'Rate (Per KM) *' : watchedForm.freightModel === 'per_hour' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
                             type="number"
                             InputProps={{
                               endAdornment: <InputAdornment position="end">₹</InputAdornment>,

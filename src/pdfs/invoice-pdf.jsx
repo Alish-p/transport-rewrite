@@ -82,7 +82,7 @@ export default function InvoicePdf({ invoice, tenant }) {
       if (fm === 'fixed') rateModel = `Fixed (${fNumber(subtrip.freightDetails?.freightAmount || 0)} ₹)`;
       else if (fm === 'hybrid') rateModel = 'Hybrid';
       else if (fm === 'per_km') rateModel = `${rateStr} ₹ / KM`;
-      else if (fm === 'time_based') rateModel = `${rateStr} ₹ / Hr`;
+      else if (fm === 'per_hour') rateModel = `${rateStr} ₹ / Hr`;
       else if (fm === 'per_ton') rateModel = `${rateStr} ₹ / Ton`;
       else if (subtrip.freightDetails?.rate) rateModel = rateStr;
 
