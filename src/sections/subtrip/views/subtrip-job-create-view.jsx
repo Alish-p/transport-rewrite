@@ -38,7 +38,7 @@ import { fDateTime } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 // Route expenses logic removed
 
-import { useFormFieldHelpers } from 'src/hooks/use-form-config';
+import { useFieldHelpers } from 'src/hooks/use-form-config';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { useGps } from 'src/query/use-gps';
@@ -63,7 +63,7 @@ import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehic
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
 import { useTenantContext } from 'src/auth/tenant';
-import { FREIGHT_MODELS } from 'src/auth/form-config/form-config-defaults';
+import { FREIGHT_MODELS } from 'src/auth/field-config/field-config-defaults';
 
 import { loadingWeightUnit } from '../../vehicle/vehicle-config';
 
@@ -213,7 +213,7 @@ export function SubtripJobCreateView() {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
-  const { getLabel, fields, freightConfig } = useFormFieldHelpers('job_create', selectedCustomer?._id);
+  const { getLabel, fields, freightConfig } = useFieldHelpers('subtrip', selectedCustomer?._id);
   const [ewayFetchLoading, setEwayFetchLoading] = useState(false);
   const [ewayFetchError, setEwayFetchError] = useState('');
   const [searchCustomerParams, setSearchCustomerParams] = useState(null);
@@ -1302,7 +1302,7 @@ export function SubtripJobCreateView() {
 
                       {selectedVehicle?.isOwn &&
                         (tripDecision === 'new' || (!activeTrip && !fromTripId)) && (
-                          <Field.Configurable formType="job_create" name="startKm" customerId={selectedCustomer?._id}>
+                          <Field.Configurable entity="subtrip" name="startKm" customerId={selectedCustomer?._id}>
                             <Field.Text
                               name="startKm"
                               label={getLabel('startKm', 'Start Km')}
@@ -1404,7 +1404,7 @@ export function SubtripJobCreateView() {
 
                   {/* DI/DO moved to Step 4 as last field for loaded jobs */}
 
-                  <Field.Configurable formType="job_create" name="remarks" customerId={selectedCustomer?._id}>
+                  <Field.Configurable entity="subtrip" name="remarks" customerId={selectedCustomer?._id}>
                     <Field.Text name="remarks" label={getLabel('remarks', 'Remarks')} />
                   </Field.Configurable>
                 </Box>
@@ -1429,7 +1429,7 @@ export function SubtripJobCreateView() {
                 <>
                   <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
                     {isLoadedJob && (
-                      <Field.Configurable formType="job_create" name="consignee" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="consignee" customerId={selectedCustomer?._id}>
                         <Field.AutocompleteFreeSolo
                           name="consignee"
                           label={getLabel('consignee', 'Consignee')}
@@ -1438,13 +1438,13 @@ export function SubtripJobCreateView() {
                         />
                       </Field.Configurable>
                     )}
-                    <Field.Configurable formType="job_create" name="loadingPoint" customerId={selectedCustomer?._id}>
+                    <Field.Configurable entity="subtrip" name="loadingPoint" customerId={selectedCustomer?._id}>
                       <Field.Text
                         name="loadingPoint"
                         label={getLabel('loadingPoint', 'Loading Point')}
                       />
                     </Field.Configurable>
-                    <Field.Configurable formType="job_create" name="unloadingPoint" customerId={selectedCustomer?._id}>
+                    <Field.Configurable entity="subtrip" name="unloadingPoint" customerId={selectedCustomer?._id}>
                       <Field.Text
                         name="unloadingPoint"
                         label={getLabel('unloadingPoint', 'Unloading Point')}
@@ -1564,7 +1564,7 @@ export function SubtripJobCreateView() {
                         />
                       )}
 
-                      <Field.Configurable formType="job_create" name="loadingWeight" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="loadingWeight" customerId={selectedCustomer?._id}>
                         <Field.Text
                           name="loadingWeight"
                           label={getLabel('loadingWeight', 'Loading Weight')}
@@ -1582,7 +1582,7 @@ export function SubtripJobCreateView() {
                         />
                       </Field.Configurable>
 
-                      <Field.Configurable formType="job_create" name="quantity" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="quantity" customerId={selectedCustomer?._id}>
                         <Field.Text
                           name="quantity"
                           label={getLabel('quantity', 'Quantity')}
@@ -1594,27 +1594,27 @@ export function SubtripJobCreateView() {
                       </Field.Configurable>
 
                       {!isEwayIntegrationEnabled && (
-                        <Field.Configurable formType="job_create" name="ewayBill" customerId={selectedCustomer?._id}>
+                        <Field.Configurable entity="subtrip" name="ewayBill" customerId={selectedCustomer?._id}>
                           <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
                         </Field.Configurable>
                       )}
-                      <Field.Configurable formType="job_create" name="ewayExpiryDate" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="ewayExpiryDate" customerId={selectedCustomer?._id}>
                         <Field.DatePicker
                           name="ewayExpiryDate"
                           label={getLabel('ewayExpiryDate', 'Eway Expiry Date')}
                           minDate={dayjs()}
                         />
                       </Field.Configurable>
-                      <Field.Configurable formType="job_create" name="invoiceNo" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="invoiceNo" customerId={selectedCustomer?._id}>
                         <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
                       </Field.Configurable>
-                      <Field.Configurable formType="job_create" name="shipmentNo" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="shipmentNo" customerId={selectedCustomer?._id}>
                         <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
                       </Field.Configurable>
-                      <Field.Configurable formType="job_create" name="orderNo" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="orderNo" customerId={selectedCustomer?._id}>
                         <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
                       </Field.Configurable>
-                      <Field.Configurable formType="job_create" name="referenceSubtripNo" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="referenceSubtripNo" customerId={selectedCustomer?._id}>
                         <Field.Text
                           name="referenceSubtripNo"
                           label={getLabel('referenceSubtripNo', 'Reference Job No')}
@@ -1622,7 +1622,7 @@ export function SubtripJobCreateView() {
                         />
                       </Field.Configurable>
 
-                      <Field.Configurable formType="job_create" name="materialType" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="materialType" customerId={selectedCustomer?._id}>
                         <Field.Select name="materialType" label={getLabel('materialType', 'Material Type')}>
                           <MenuItem value="">None</MenuItem>
                           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -1633,12 +1633,12 @@ export function SubtripJobCreateView() {
                           ))}
                         </Field.Select>
                       </Field.Configurable>
-                      <Field.Configurable formType="job_create" name="grade" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="grade" customerId={selectedCustomer?._id}>
                         <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
                       </Field.Configurable>
 
                       {/* DI/DO No as the last field in Step 4 */}
-                      <Field.Configurable formType="job_create" name="diNumber" customerId={selectedCustomer?._id}>
+                      <Field.Configurable entity="subtrip" name="diNumber" customerId={selectedCustomer?._id}>
                         <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
                       </Field.Configurable>
                     </Box>
@@ -1706,10 +1706,10 @@ export function SubtripJobCreateView() {
                           {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
                             .filter(option => managesPumps || option !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP)
                             .map((option) => (
-                            <MenuItem key={option} value={option}>
-                              {option}
-                            </MenuItem>
-                          ))}
+                              <MenuItem key={option} value={option}>
+                                {option}
+                              </MenuItem>
+                            ))}
                         </Field.Select>
                       </Box>
                       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>

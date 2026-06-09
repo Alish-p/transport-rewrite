@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 
-import { useFormConfigContext } from 'src/auth/form-config';
-import { FORM_CONFIG_DEFAULTS } from 'src/auth/form-config/form-config-defaults';
+import { useFieldConfigContext } from 'src/auth/field-config';
+import { FIELD_CONFIG_DEFAULTS } from 'src/auth/field-config/field-config-defaults';
 
 /**
  * Merge base fields with customer override fields.
@@ -19,16 +19,16 @@ function mergeFieldConfigs(baseFields, overrideFields) {
 }
 
 /**
- * Get the merged form config for a specific form type and optional customer.
- * @param {string} formType - 'job_create' | 'job_edit' | 'job_receive'
+ * Get the merged field config for a specific entity and optional customer.
+ * @param {string} entity - 'subtrip' | 'vehicle' | 'driver'
  * @param {string|null} customerId - Optional customer ID for overrides
- * @returns {{ fields: Object, freightConfig: Object, getLabel: Function, isVisible: Function, isRequired: Function }}
+ * @returns {{ fields: Object, freightConfig: Object }}
  */
-export function useFormConfig(formType, customerId = null) {
-  const { formConfigs } = useFormConfigContext();
+export function useFieldConfig(entity, customerId = null) {
+  const { fieldConfigs } = useFieldConfigContext();
 
   return useMemo(() => {
-    const config = formConfigs?.[formType] || FORM_CONFIG_DEFAULTS[formType];
+    const config = fieldConfigs?.[entity] || FIELD_CONFIG_DEFAULTS[entity];
     if (!config) return { fields: {}, freightConfig: {} };
 
     let fields = config.fields || {};
@@ -54,33 +54,33 @@ export function useFormConfig(formType, customerId = null) {
 
     return {
       fields,
-      freightConfig: config.freightConfig || FORM_CONFIG_DEFAULTS[formType]?.freightConfig || {},
+      freightConfig: config.freightConfig || FIELD_CONFIG_DEFAULTS[entity]?.freightConfig || {},
     };
-  }, [formConfigs, formType, customerId]);
+  }, [fieldConfigs, entity, customerId]);
 }
 
 /**
  * Get visibility for a specific field.
  * @returns 'required' | 'optional' | 'hidden'
  */
-export function useFieldVisibility(formType, fieldName, customerId = null) {
-  const { fields } = useFormConfig(formType, customerId);
+export function useFieldVisibility(entity, fieldName, customerId = null) {
+  const { fields } = useFieldConfig(entity, customerId);
   return fields[fieldName]?.visibility || 'optional';
 }
 
 /**
  * Get the label for a specific field with fallback.
  */
-export function useFieldLabel(formType, fieldName, customerId = null, fallback = '') {
-  const { fields } = useFormConfig(formType, customerId);
+export function useFieldLabel(entity, fieldName, customerId = null, fallback = '') {
+  const { fields } = useFieldConfig(entity, customerId);
   return fields[fieldName]?.label || fallback;
 }
 
 /**
- * Get all visible fields (not hidden) for a form type.
+ * Get all visible fields (not hidden) for an entity.
  */
-export function useVisibleFields(formType, customerId = null) {
-  const { fields } = useFormConfig(formType, customerId);
+export function useVisibleFields(entity, customerId = null) {
+  const { fields } = useFieldConfig(entity, customerId);
   return useMemo(
     () => Object.entries(fields)
       .filter(([, config]) => config.visibility !== 'hidden')
@@ -90,10 +90,10 @@ export function useVisibleFields(formType, customerId = null) {
 }
 
 /**
- * Get all required fields for a form type.
+ * Get all required fields for an entity.
  */
-export function useRequiredFields(formType, customerId = null) {
-  const { fields } = useFormConfig(formType, customerId);
+export function useRequiredFields(entity, customerId = null) {
+  const { fields } = useFieldConfig(entity, customerId);
   return useMemo(
     () => Object.entries(fields)
       .filter(([, config]) => config.visibility === 'required')
@@ -105,8 +105,8 @@ export function useRequiredFields(formType, customerId = null) {
 /**
  * Get freight config (default model + allowed models).
  */
-export function useFreightConfig(formType = 'job_create', customerId = null) {
-  const { freightConfig } = useFormConfig(formType, customerId);
+export function useFreightConfig(entity = 'subtrip', customerId = null) {
+  const { freightConfig } = useFieldConfig(entity, customerId);
   return freightConfig;
 }
 
@@ -114,8 +114,8 @@ export function useFreightConfig(formType = 'job_create', customerId = null) {
  * Helper hook that returns utility functions for field config.
  * Use this in form components for cleaner code.
  */
-export function useFormFieldHelpers(formType, customerId = null) {
-  const { fields, freightConfig } = useFormConfig(formType, customerId);
+export function useFieldHelpers(entity, customerId = null) {
+  const { fields, freightConfig } = useFieldConfig(entity, customerId);
 
   const isVisible = useCallback(
     (fieldName) => {

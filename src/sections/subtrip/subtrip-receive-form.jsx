@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useFormFieldHelpers } from 'src/hooks/use-form-config';
+import { useFieldHelpers } from 'src/hooks/use-form-config';
 
 import { useSubtrip, useUpdateSubtripReceiveInfo, getSubtripDocumentUploadUrl } from 'src/query/use-subtrip';
 
@@ -59,7 +59,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
 
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
-  const { getLabel } = useFormFieldHelpers('job_receive', customerId);
+  const { getLabel } = useFieldHelpers('subtrip', customerId);
 
   const getFreightExplanation = () => {
     const rate = selectedSubtrip?.freightDetails?.rate || 0;
@@ -220,7 +220,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
         {selectedSubtrip && (
           <>
-            <Field.Configurable formType="job_receive" name="unloadingWeight" customerId={customerId}>
+            <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={customerId}>
               <Field.Text
                 name="unloadingWeight"
                 label={getLabel('unloadingWeight', 'Unloading Weight')}
@@ -235,7 +235,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             </Field.Configurable>
 
             {isOwn ? null : freightModel === 'per_ton' ? (
-              <Field.Configurable formType="job_receive" name="commissionRate" customerId={customerId}>
+              <Field.Configurable entity="subtrip" name="commissionRate" customerId={customerId}>
                 <Field.Text
                   name="commissionDetails.commissionRate"
                   label={getLabel('commissionRate', 'Transporter Commission Rate')}
@@ -251,7 +251,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 />
               </Field.Configurable>
             ) : (
-              <Field.Configurable formType="job_receive" name="commissionAmount" customerId={customerId}>
+              <Field.Configurable entity="subtrip" name="commissionAmount" customerId={customerId}>
                 <Field.Text
                   name="commissionDetails.commissionAmount"
                   label={getLabel('commissionAmount', 'Transporter Commission Amount')}
@@ -271,7 +271,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
 
             {(freightModel === 'per_km' || freightModel === 'hybrid') && (
-              <Field.Configurable formType="job_receive" name="endKm" customerId={customerId}>
+              <Field.Configurable entity="subtrip" name="endKm" customerId={customerId}>
                 <Field.Text
                   name="freightDetails.endKm"
                   label={getLabel('endKm', 'Billing End KM')}
@@ -312,7 +312,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 Shortage Details
               </Typography>
               <Stack direction="row" spacing={2}>
-                <Field.Configurable formType="job_receive" name="shortageWeight" customerId={customerId}>
+                <Field.Configurable entity="subtrip" name="shortageWeight" customerId={customerId}>
                   <Field.Number
                     name="shortageWeight"
                     label={getLabel('shortageWeight', 'Shortage Weight')}
@@ -327,7 +327,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                     }}
                   />
                 </Field.Configurable>
-                <Field.Configurable formType="job_receive" name="shortageAmount" customerId={customerId}>
+                <Field.Configurable entity="subtrip" name="shortageAmount" customerId={customerId}>
                   <Field.Text
                     name="shortageAmount"
                     label={getLabel('shortageAmount', 'Shortage Amount')}
@@ -350,7 +350,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               <Typography variant="subtitle2" color="error.main" gutterBottom>
                 Error Details
               </Typography>
-              <Field.Configurable formType="job_receive" name="remarks" customerId={customerId}>
+              <Field.Configurable entity="subtrip" name="remarks" customerId={customerId}>
                 <Field.Text name="remarks" label={getLabel('remarks', 'Error Remarks')} type="text" multiline rows={3} />
               </Field.Configurable>
             </Box>

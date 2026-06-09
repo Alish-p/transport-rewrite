@@ -20,7 +20,7 @@ import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/component
 
 import { TenantProvider } from 'src/auth/tenant';
 import { AuthProvider } from 'src/auth/context/jwt';
-import { FormConfigProvider } from 'src/auth/form-config';
+import { FieldConfigProvider } from 'src/auth/field-config';
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ export default function App() {
       <LocalizationProvider>
         <AuthProvider>
           <TenantProvider>
-            <FormConfigProvider>
+            <FieldConfigProvider>
               <ReactQueryProvider>
                 <SettingsProvider settings={defaultSettings}>
                   <ThemeProvider>
@@ -45,7 +45,7 @@ export default function App() {
                   </ThemeProvider>
                 </SettingsProvider>
               </ReactQueryProvider>
-            </FormConfigProvider>
+            </FieldConfigProvider>
           </TenantProvider>
         </AuthProvider>
       </LocalizationProvider>
