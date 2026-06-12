@@ -35,6 +35,7 @@ import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
+import { SubtripReceiveSettlementSummary } from './widgets/subtrip-receive-settlement-summary';
 
 const defaultValues = {
   subtripId: '',
@@ -54,46 +55,21 @@ const defaultValues = {
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch, setValue } = methods;
-  const { hasError, hasShortage, unloadingWeight, commissionDetails, freightDetails, endDate } = watch();
+  const {
+    hasError,
+    hasShortage,
+    unloadingWeight,
+    commissionDetails,
+    freightDetails,
+    endDate,
+    shortageAmount,
+    shortageWeight,
+  } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
   const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
 
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
   const { getLabel } = useFieldHelpers('subtrip', customerId);
-
-  const getFreightExplanation = () => {
-    const rate = selectedSubtrip?.freightDetails?.rate || 0;
-    if (freightModel === 'per_hour' && endDate && selectedSubtrip?.startDate) {
-      const start = dayjs(selectedSubtrip.startDate);
-      const end = dayjs(endDate);
-      const diffInHours = Math.ceil(end.diff(start, 'hour', true));
-      return `calculated for ${diffInHours} hour${diffInHours !== 1 ? 's' : ''} at ₹${rate}/hour (job dates: ${dayjs(selectedSubtrip.startDate).format('DD MMM YYYY, hh:mm A')} to ${dayjs(endDate).format('DD MMM YYYY, hh:mm A')})`;
-    }
-    if (freightModel === 'per_km') {
-      const startKm = selectedSubtrip?.freightDetails?.startKm || 0;
-      const endKm = Number(freightDetails?.endKm || startKm);
-      const diffKm = endKm > startKm ? endKm - startKm : 0;
-      return `calculated for ${diffKm} km at ₹${rate}/km (KM: ${startKm} to ${endKm})`;
-    }
-    if (freightModel === 'hybrid') {
-      const startKm = selectedSubtrip?.freightDetails?.startKm || 0;
-      const endKm = Number(freightDetails?.endKm || startKm);
-      const totalKm = endKm > startKm ? endKm - startKm : 0;
-      const baseKm = selectedSubtrip?.freightDetails?.baseKm || 0;
-      const baseFreight = selectedSubtrip?.freightDetails?.freightAmount || 0;
-      const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
-      return `calculated using base freight of ₹${baseFreight} (${baseKm} km) + extra ${extraKm} km at ₹${rate}/km`;
-    }
-    if (freightModel === 'per_ton') {
-      const weight = selectedSubtrip?.loadingWeight || 0;
-      return `calculated for loading weight of ${weight} ${loadingWeightUnit[vehicleType] || 'tons'} at ₹${rate}/ton`;
-    }
-    if (freightModel === 'fixed') {
-      const baseFreight = selectedSubtrip?.freightDetails?.freightAmount || 0;
-      return `fixed freight amount of ₹${baseFreight}`;
-    }
-    return 'rate model';
-  };
   
   // Initialize default freight details if empty
   useEffect(() => {
@@ -115,6 +91,16 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         commissionRate: selectedSubtrip.commissionDetails.commissionRate || 0,
         commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
       }, { shouldValidate: true });
+    }
+  }, [selectedSubtrip, setValue]);
+
+  // Initialize helper context fields for zod dynamic schema validation
+  useEffect(() => {
+    if (selectedSubtrip) {
+      setValue('freightModel', selectedSubtrip.freightDetails?.freightModel || 'per_ton');
+      setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
+      setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
+      setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
     }
   }, [selectedSubtrip, setValue]);
 
@@ -283,16 +269,15 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               </Field.Configurable>
             )}
             
-            {freightDetails?.freightAmount !== undefined && (
-              <Alert severity="info" variant="outlined" sx={{ gridColumn: '1 / -1', mt: 1, display: 'flex', alignItems: 'center' }}>
-                <Typography variant="subtitle2" component="div">
-                  Calculated Freight Amount: <strong>₹{freightDetails.freightAmount}</strong>
-                </Typography>
-                <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
-                  ({getFreightExplanation()})
-                </Typography>
-              </Alert>
-            )}
+            <SubtripReceiveSettlementSummary
+              selectedSubtrip={selectedSubtrip}
+              freightDetails={freightDetails}
+              commissionDetails={commissionDetails}
+              hasShortage={hasShortage}
+              shortageAmount={shortageAmount}
+              shortageWeight={shortageWeight}
+              endDate={endDate}
+            />
           </>
         )}
       </Box>

@@ -40,35 +40,50 @@ export const receiveSchema = zod
     docs: zod.array(zod.any()).max(5, { message: 'Maximum 5 documents allowed' }).optional(),
 
     // Required for validation [not the actual fields]
+    freightModel: zod.string().optional(),
+    startKm: zod.number().optional(),
+    loadingWeight: zod.number().optional(),
+    isOwn: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
-    // if (values.loadingWeight && values.unloadingWeight > values.loadingWeight) {
-    //   ctx.addIssue({
-    //     code: zod.ZodIssueCode.custom,
-    //     message: 'Unloading weight must be ≤ loading weight',
-    //     path: ['unloadingWeight'],
-    //   });
-    // }
+    if (values.freightModel === 'per_km' || values.freightModel === 'hybrid') {
+      const endKm = values.freightDetails?.endKm;
+      if (endKm === undefined || endKm === null) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'End KM is required',
+          path: ['freightDetails', 'endKm'],
+        });
+      } else if (values.startKm !== undefined && endKm < values.startKm) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: `End KM must be ≥ Start KM (${values.startKm})`,
+          path: ['freightDetails', 'endKm'],
+        });
+      }
+    }
 
-    // if (values.startKm && values.endKm && values.endKm < values.startKm) {
-    //   ctx.addIssue({
-    //     code: zod.ZodIssueCode.custom,
-    //     message: 'End Km must be ≥ Start Km',
-    //     path: ['endKm'],
-    //   });
-    // }
-
-    // if (
-    //   values.commissionRate !== undefined &&
-    //   values.rate !== undefined &&
-    //   values.commissionRate > values.rate
-    // ) {
-    //   ctx.addIssue({
-    //     code: zod.ZodIssueCode.custom,
-    //     message: 'Commission rate cannot be more than the rate',
-    //     path: ['commissionRate'],
-    //   });
-    // }
+    if (values.isOwn === false) {
+      if (values.freightModel === 'per_ton') {
+        const commRate = values.commissionDetails?.commissionRate;
+        if (commRate === undefined || commRate === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Commission rate is required',
+            path: ['commissionDetails', 'commissionRate'],
+          });
+        }
+      } else {
+        const commAmount = values.commissionDetails?.commissionAmount;
+        if (commAmount === undefined || commAmount === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Commission amount is required',
+            path: ['commissionDetails', 'commissionAmount'],
+          });
+        }
+      }
+    }
 
     if (values.hasShortage && (!values.shortageWeight || !values.shortageAmount)) {
       ctx.addIssue({
@@ -173,6 +188,57 @@ export const jobCreateSchema = zod
         message: 'Pump selection is required when advance or diesel is provided by the pump',
         path: ['pumpCd'],
       });
+    }
+
+    if (data.loadType === 'loaded') {
+      if (data.freightModel === 'per_ton') {
+        if (data.loadingWeight === undefined || data.loadingWeight === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Loading weight is required for Per Ton model',
+            path: ['loadingWeight'],
+          });
+        }
+      }
+
+      if (data.freightModel === 'fixed') {
+        if (data.freightAmount === undefined || data.freightAmount === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Freight amount is required',
+            path: ['freightAmount'],
+          });
+        }
+      } else if (data.freightModel === 'hybrid') {
+        if (data.freightAmount === undefined || data.freightAmount === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Base freight amount is required',
+            path: ['freightAmount'],
+          });
+        }
+        if (data.baseKm === undefined || data.baseKm === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Base KM is required',
+            path: ['baseKm'],
+          });
+        }
+        if (data.rate === undefined || data.rate === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Extra rate per KM is required',
+            path: ['rate'],
+          });
+        }
+      } else if (data.rate === undefined || data.rate === null) {
+        // per_ton, per_km, per_hour
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Rate is required',
+          path: ['rate'],
+        });
+      }
     }
   });
 
