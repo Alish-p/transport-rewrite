@@ -15,7 +15,6 @@ import { useFieldHelpers } from 'src/hooks/use-form-config';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
-import axios from 'src/utils/axios';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { useGps } from 'src/query/use-gps';

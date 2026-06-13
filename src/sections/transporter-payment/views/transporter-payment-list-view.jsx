@@ -52,6 +52,7 @@ import { useTenantContext } from 'src/auth/tenant';
 
 import TransporterPaymentLearn from '../transporter-payment-learn';
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
+import { getTransporterPaymentStatusColor } from '../utils/constant';
 import TransporterPaymentTableRow from '../transporter-payment-list/transporter-payment-table-row';
 import TransporterPaymentTableToolbar from '../transporter-payment-list/transporter-payment-table-toolbar';
 import TransporterPaymentTableFiltersResult from '../transporter-payment-list/transporter-payment-table-filters-result';
@@ -121,10 +122,10 @@ export function TransporterPaymentListView() {
   const totalCount = totals.all?.count || 0;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: totalCount },
-    { value: 'generated', label: 'Generated', color: 'info', count: totals.generated?.count || 0 },
-    { value: 'paid', label: 'Paid', color: 'success', count: totals.paid?.count || 0 },
-    { value: 'cancelled', label: 'Cancelled', color: 'error', count: totals.cancelled?.count || 0 },
+    { value: 'all', label: 'All', color: getTransporterPaymentStatusColor('all'), count: totalCount },
+    { value: 'generated', label: 'Generated', color: getTransporterPaymentStatusColor('generated'), count: totals.generated?.count || 0 },
+    { value: 'paid', label: 'Paid', color: getTransporterPaymentStatusColor('paid'), count: totals.paid?.count || 0 },
+    { value: 'cancelled', label: 'Cancelled', color: getTransporterPaymentStatusColor('cancelled'), count: totals.cancelled?.count || 0 },
   ];
 
   const notFound = !isLoading && !tableData.length;

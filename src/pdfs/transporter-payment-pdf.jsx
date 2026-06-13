@@ -31,53 +31,35 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
 
   const renderSubtripTable = () => {
     const columns = [
-      { header: 'S.No', accessor: 'sno', width: '3%' },
-      { header: 'Disp. Date', accessor: 'dispatchDate', width: '7%' },
-      { header: 'LR No.', accessor: 'lrNo', width: '7%' },
-      { header: 'Vehicle', accessor: 'vehicleNo', width: '8%' },
-      { header: 'From', accessor: 'from', width: '9%' },
-      { header: 'Dest.', accessor: 'destination', width: '9%' },
-      { header: 'Invoice', accessor: 'invoiceNo', width: '7%' },
-      { header: 'Basis', accessor: 'basis', width: '6%', align: 'right' },
-      { header: 'Short.', accessor: 'shortageQty', width: '6%', align: 'right' },
-      { header: 'ShortAmt', accessor: 'shortageAmt', width: '7%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Rate/Model', accessor: 'rateModel', width: '7%', align: 'right' },
-      { header: 'FRT-AMT', accessor: 'frtAmt', width: '7%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Comm.', accessor: 'commission', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Advances', accessor: 'expense', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Payable', accessor: 'totalPayable', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'S.No', accessor: 'sno', width: '4%' },
+      { header: 'Disp Date', accessor: 'dispatchDate', width: '8%' },
+      { header: 'LR No', accessor: 'lrNo', width: '10%' },
+      { header: 'Vehicle', accessor: 'vehicleNo', width: '11%' },
+      { header: 'From', accessor: 'from', width: '11%' },
+      { header: 'Dest.', accessor: 'destination', width: '11%' },
+      { header: 'Invoice', accessor: 'invoiceNo', width: '9%' },
+      { header: 'Short.', accessor: 'shortageQty', width: '7%', align: 'right' },
+      { header: 'ShortAmt', accessor: 'shortageAmt', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'FRT-AMT', accessor: 'frtAmt', width: '9%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Advances', accessor: 'expense', width: '9%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Payable', accessor: 'totalPayable', width: '10%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
     ];
 
-    const tableData = subtripSnapshot.map((st, idx) => {
-      let basis = '-';
-      if (st.freightDetails?.freightModel === 'per_km') basis = `${st.freightDetails?.baseKm || 0} KM`;
-      else if (st.freightDetails?.freightModel !== 'fixed' && st.freightDetails?.freightModel !== 'hybrid') basis = fNumber(st.loadingWeight || 0);
+    const tableData = subtripSnapshot.map((st, idx) => ({
+      sno: idx + 1,
+      dispatchDate: fDate(st.startDate),
+      lrNo: st.subtripNo,
+      vehicleNo: st.vehicleNo,
+      from: st.loadingPoint,
+      destination: st.unloadingPoint,
+      invoiceNo: st.invoiceNo,
+      shortageQty: st.shortageWeight,
+      shortageAmt: st.shortageAmount,
+      frtAmt: st.freightAmount || 0,
+      expense: st.totalExpense || 0,
+      totalPayable: st.totalTransporterPayment || 0,
+    }));
 
-      let rateModel = '-';
-      if (st.freightDetails?.freightModel === 'fixed') rateModel = 'Fixed';
-      else if (st.freightDetails?.freightModel === 'hybrid') rateModel = 'Hybrid';
-      else rateModel = fNumber(st.effectiveFreightRate || st.freightDetails?.rate || 0);
-
-      return {
-        sno: idx + 1,
-        dispatchDate: fDate(st.startDate),
-        lrNo: st.subtripNo,
-        vehicleNo: st.vehicleNo,
-        from: st.loadingPoint,
-        destination: st.unloadingPoint,
-        invoiceNo: st.invoiceNo,
-        basis,
-        shortageQty: st.shortageWeight,
-        shortageAmt: st.shortageAmount,
-        rateModel,
-        frtAmt: st.freightDetails?.freightAmount,
-        commission: st.commissionDetails?.commissionAmount || 0,
-        expense: st.totalExpense,
-        totalPayable: (st.freightDetails?.freightAmount || 0) - (st.totalExpense || 0) - (st.shortageAmount || 0) - (st.commissionDetails?.commissionAmount || 0),
-      };
-    });
-
-    // Create extra rows for tax breakdown and additional charges
     const createExtraRows = () => {
       const extraRows = [];
 
@@ -85,9 +67,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       if (taxBreakup?.tds?.rate > 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 12, value: '', align: 'left' },
-            { startIndex: 12, colspan: 1, value: `TDS-${taxBreakup.tds.rate}%`, align: 'right' },
-            { startIndex: 13, colspan: 1, value: fCurrency(taxBreakup.tds.amount), align: 'right' },
+            { startIndex: 0, colspan: 10, value: '', align: 'left' },
+            { startIndex: 10, colspan: 1, value: `TDS-${taxBreakup.tds.rate}%`, align: 'right' },
+            { startIndex: 11, colspan: 1, value: fCurrency(taxBreakup.tds.amount), align: 'right' },
           ],
           highlight: false,
         });
@@ -98,9 +80,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
         additionalCharges.forEach(({ label, amount }) => {
           extraRows.push({
             cells: [
-              { startIndex: 0, colspan: 12, value: '', align: 'left' },
-              { startIndex: 12, colspan: 1, value: label, align: 'right' },
-              { startIndex: 13, colspan: 1, value: fCurrency(amount), align: 'right' },
+              { startIndex: 0, colspan: 10, value: '', align: 'left' },
+              { startIndex: 10, colspan: 1, value: label, align: 'right' },
+              { startIndex: 11, colspan: 1, value: fCurrency(amount), align: 'right' },
             ],
             highlight: false,
           });
@@ -113,14 +95,14 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
           cells: [
             {
               startIndex: 0,
-              colspan: 12,
+              colspan: 10,
               value:
                 'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us.',
               align: 'left',
             },
-            { startIndex: 12, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
+            { startIndex: 10, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
             {
-              startIndex: 13,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.cgst.amount),
               align: 'right',
@@ -134,10 +116,10 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       if (taxBreakup?.sgst?.rate > 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 12, value: '', align: 'left' },
-            { startIndex: 12, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
+            { startIndex: 0, colspan: 10, value: '', align: 'left' },
+            { startIndex: 10, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
             {
-              startIndex: 13,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.sgst.amount),
               align: 'right',
@@ -153,14 +135,14 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
           cells: [
             {
               startIndex: 0,
-              colspan: 12,
+              colspan: 10,
               value:
                 'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us.',
               align: 'left',
             },
-            { startIndex: 12, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
+            { startIndex: 10, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
             {
-              startIndex: 13,
+              startIndex: 11,
               colspan: 1,
               value: fCurrency(taxBreakup.igst.amount),
               align: 'right',
@@ -173,9 +155,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       // Add Net Total row
       extraRows.push({
         cells: [
-          { startIndex: 0, colspan: 12, value: '', align: 'left' },
-          { startIndex: 12, colspan: 1, value: 'Net Total', align: 'right' },
-          { startIndex: 13, colspan: 1, value: fCurrency(summary.netIncome), align: 'right' },
+          { startIndex: 0, colspan: 10, value: '', align: 'left' },
+          { startIndex: 10, colspan: 1, value: 'Net Total', align: 'right' },
+          { startIndex: 11, colspan: 1, value: fCurrency(summary.netIncome), align: 'right' },
         ],
         highlight: true,
       });

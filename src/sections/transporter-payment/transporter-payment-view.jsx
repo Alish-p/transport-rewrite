@@ -24,6 +24,8 @@ import { Label } from 'src/components/label';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { getTransporterPaymentStatusColor } from './utils/constant';
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
     borderBottom: 'none',
@@ -60,15 +62,7 @@ function RenderHeader({ transporterPayment }) {
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
         <Label
           variant="soft"
-          color={
-            status === 'paid'
-              ? 'success'
-              : status === 'pending'
-                ? 'warning'
-                : status === 'overdue'
-                  ? 'error'
-                  : 'default'
-          }
+          color={getTransporterPaymentStatusColor(status)}
         >
           {status || 'Draft'}
         </Label>
@@ -120,12 +114,9 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>InvoiceNo</StyledTableCell>
-            <StyledTableCell align="right">Basis (Qty/Km)</StyledTableCell>
             <StyledTableCell align="right">Shortage Qty(MT)</StyledTableCell>
             <StyledTableCell align="right">Shortage Amt</StyledTableCell>
-            <StyledTableCell align="right">Rate/Model</StyledTableCell>
             <StyledTableCell align="right">FRT-Amt</StyledTableCell>
-            <StyledTableCell align="right">Commission</StyledTableCell>
             <StyledTableCell align="right">Deductions</StyledTableCell>
             <StyledTableCell align="right">Total Payable</StyledTableCell>
           </TableRow>
@@ -145,32 +136,22 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
-              <TableCell align="right">
-                {st.freightDetails?.freightModel === 'fixed' || st.freightDetails?.freightModel === 'hybrid' ? '-' : st.freightDetails?.freightModel === 'per_km' ? `${st.freightDetails?.baseKm || 0} KM` : st.loadingWeight}
-              </TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
-              <TableCell align="right">
-                {st.freightDetails?.freightModel === 'fixed' ? 'Fixed' : st.freightDetails?.freightModel === 'hybrid' ? 'Hybrid' : fCurrency(st.effectiveFreightRate || st.freightDetails?.rate || 0)}
-              </TableCell>
-              <TableCell align="right">{fCurrency(st.freightDetails?.freightAmount)}</TableCell>
-              <TableCell align="right" sx={{ color: 'error.main' }}>{fCurrency(st.commissionDetails?.commissionAmount || 0)}</TableCell>
+              <TableCell align="right">{fCurrency(st.freightAmount)}</TableCell>
               <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
-              <TableCell align="right">
-                {fCurrency((st.freightDetails?.freightAmount || 0) - (st.totalExpense || 0) - (st.shortageAmount || 0) - (st.commissionDetails?.commissionAmount || 0))}
-              </TableCell>
+              <TableCell align="right">{fCurrency(st.totalTransporterPayment)}</TableCell>
             </TableRow>
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={9} />
+            <TableCell colSpan={7} />
             <StyledTableCell align="right" sx={{ color: 'info.main' }}>
               Total
             </StyledTableCell>
             <TableCell sx={{ color: 'info.main' }} align="right">
               {fCurrency(totalShortageAmount)}
             </TableCell>
-            <TableCell align="right">-</TableCell>
             <TableCell sx={{ color: 'info.main' }} align="right">
               {fCurrency(totalFreightAmount)}
             </TableCell>
@@ -184,7 +165,7 @@ function RenderTable({ transporterPayment }) {
 
           {tds?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12} />
+              <TableCell colSpan={9} />
               <StyledTableCell colSpan={2} align="right">
                 TDS({tds?.rate || 0}%)
               </StyledTableCell>
@@ -196,46 +177,46 @@ function RenderTable({ transporterPayment }) {
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12}>
+              <TableCell colSpan={9}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
               <StyledTableCell colSpan={2} align="right">
                 CGST {cgst.rate}%
               </StyledTableCell>
-              <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
+              <StyledTableCell align="right">{fCurrency(cgst.amount)}</StyledTableCell>
             </StyledTableRow>
           )}
 
           {sgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12} />
+              <TableCell colSpan={9} />
               <StyledTableCell colSpan={2} align="right">
                 SGST {sgst.rate}%
               </StyledTableCell>
-              <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
+              <StyledTableCell align="right">{fCurrency(sgst.amount)}</StyledTableCell>
             </StyledTableRow>
           )}
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={12}>
+              <TableCell colSpan={9}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
               <StyledTableCell colSpan={2} align="right">
                 IGST {igst.rate}%
               </StyledTableCell>
-              <TableCell align="right" title="GST under RCM Mechnism">
+              <StyledTableCell align="right" title="GST under RCM Mechnism">
                 {fCurrency(igst.amount)}
-              </TableCell>
+              </StyledTableCell>
             </StyledTableRow>
           )}
 
           {additionalCharges?.length > 0 &&
             additionalCharges.map(({ label, amount }) => (
-              <StyledTableRow>
-                <TableCell colSpan={12} />
+              <StyledTableRow key={label}>
+                <TableCell colSpan={9} />
                 <StyledTableCell colSpan={2} align="right">
                   {label}
                 </StyledTableCell>
@@ -246,7 +227,7 @@ function RenderTable({ transporterPayment }) {
             ))}
 
           <StyledTableRow>
-            <TableCell colSpan={12} />
+            <TableCell colSpan={9} />
             <StyledTableCell colSpan={2} align="right">
               Net-Payable
             </StyledTableCell>

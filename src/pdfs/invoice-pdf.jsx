@@ -6,6 +6,7 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { fFreightRate } from 'src/sections/subtrip/utils';
 import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 import PDFBillToSection from './common/PDFBillTo';
@@ -75,16 +76,11 @@ export default function InvoicePdf({ invoice, tenant }) {
         ? `${fNumber(subtrip.loadingWeight)} ${loadingWeightUnit[subtrip.vehicleType] || ''}`
         : '-';
 
-      let rateModel = '-';
-      const fm = subtrip.freightDetails?.freightModel;
-      const rateStr = fNumber(subtrip.freightDetails?.rate || 0);
-
-      if (fm === 'fixed') rateModel = `Fixed (${fNumber(subtrip.freightDetails?.freightAmount || 0)} ₹)`;
-      else if (fm === 'hybrid') rateModel = 'Hybrid';
-      else if (fm === 'per_km') rateModel = `${rateStr} ₹ / KM`;
-      else if (fm === 'per_hour') rateModel = `${rateStr} ₹ / Hr`;
-      else if (fm === 'per_ton') rateModel = `${rateStr} ₹ / Ton`;
-      else if (subtrip.freightDetails?.rate) rateModel = rateStr;
+      const rateModel = fFreightRate(
+        subtrip.freightDetails?.rate || 0,
+        subtrip.freightDetails?.freightModel,
+        subtrip.freightDetails?.freightAmount
+      );
 
       return {
         sno: index + 1,

@@ -23,6 +23,8 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { Label } from 'src/components/label';
 
+import { fFreightRate } from 'src/sections/subtrip/utils';
+
 import { useTenantContext } from 'src/auth/tenant';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
@@ -161,17 +163,11 @@ function RenderTable({ invoice }) {
               <TableCell>{st.vehicleNo || '-'}</TableCell>
               <TableCell>{st.materialType || '-'}</TableCell>
               <TableCell>
-                {st.freightDetails?.freightModel === 'fixed'
-                  ? `Fixed (${fNumber(st.freightDetails?.freightAmount || 0)} ₹)`
-                  : st.freightDetails?.freightModel === 'hybrid'
-                  ? 'Hybrid'
-                  : st.freightDetails?.freightModel === 'per_km'
-                  ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / KM`
-                  : st.freightDetails?.freightModel === 'per_hour'
-                  ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / Hr`
-                  : st.freightDetails?.freightModel === 'per_ton'
-                  ? `${fNumber(st.freightDetails?.rate || 0)} ₹ / Ton`
-                  : fNumber(st.freightDetails?.rate || 0)}
+                {fFreightRate(
+                  st.freightDetails?.rate || 0,
+                  st.freightDetails?.freightModel,
+                  st.freightDetails?.freightAmount
+                )}
               </TableCell>
               <TableCell>
                 {st.loadingWeight

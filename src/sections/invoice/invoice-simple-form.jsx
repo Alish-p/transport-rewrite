@@ -40,6 +40,8 @@ import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+import { fFreightRate } from 'src/sections/subtrip/utils';
+
 import { useTenantContext } from 'src/auth/tenant';
 
 import { TableSkeleton } from '../../components/table';
@@ -399,17 +401,11 @@ export default function SimplerNewInvoiceForm() {
                       <TableCell>{st.vehicleNo || st.vehicleId?.vehicleNo || '-'}</TableCell>
                       <TableCell>{st.materialType || '-'}</TableCell>
                       <TableCell>
-                        {st.freightDetails?.freightModel === 'fixed'
-                          ? `Fixed (${fNumber(st.freightDetails?.freightAmount || 0)} ₹)`
-                          : st.freightDetails?.freightModel === 'hybrid'
-                          ? 'Hybrid'
-                          : st.freightDetails?.freightModel === 'per_km'
-                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / KM`
-                          : st.freightDetails?.freightModel === 'per_hour'
-                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / Hr`
-                          : st.freightDetails?.freightModel === 'per_ton'
-                          ? `${fNumber(st.freightDetails?.rate || st.rate || 0)} ₹ / Ton`
-                          : fNumber(st.freightDetails?.rate || st.rate || 0)}
+                        {fFreightRate(
+                          st.freightDetails?.rate || st.rate,
+                          st.freightDetails?.freightModel,
+                          st.freightDetails?.freightAmount
+                        )}
                       </TableCell>
                       <TableCell>
                         {st.loadingWeight

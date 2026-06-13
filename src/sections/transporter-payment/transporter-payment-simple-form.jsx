@@ -394,10 +394,8 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                   'From',
                   'Destination',
                   'InvoiceNo',
-                  'Load Qty',
                   'Shortage Qty',
                   'Shortage Amt',
-                  'FRT-RATE',
                   'FRT-AMT',
                   'Advances',
                   'Total Payable',
@@ -414,7 +412,6 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
               <TableBody>
                 {subtrips.map((st, idx) => {
                   const {
-                    effectiveFreightRate,
                     totalFreightAmount: freightAmount,
                     totalExpense: expense,
                     totalTransporterPayment,
@@ -445,10 +442,8 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                       <TableCell>{st.loadingPoint}</TableCell>
                       <TableCell>{st.unloadingPoint}</TableCell>
                       <TableCell>{st.invoiceNo}</TableCell>
-                      <TableCell align="right">{st.loadingWeight}</TableCell>
                       <TableCell align="right">{st.shortageWeight}</TableCell>
                       <TableCell align="right">{fCurrency(shortageAmount)}</TableCell>
-                      <TableCell align="right">{fCurrency(effectiveFreightRate)}</TableCell>
                       <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
                       <TableCell align="right">{fCurrency(expense)}</TableCell>
                       <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
@@ -457,12 +452,11 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={9} />
+                  <TableCell colSpan={8} />
                   <StyledTableCell sx={{ color: 'info.main' }}>Total</StyledTableCell>
                   <TableCell align="right" sx={{ color: 'info.main' }}>
                     {fCurrency(totalShortageAmount)}
                   </TableCell>
-                  <TableCell align="right">-</TableCell>
                   <TableCell align="right" sx={{ color: 'info.main' }}>
                     {fCurrency(totalFreightAmount)}
                   </TableCell>
@@ -472,12 +466,11 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                   <TableCell align="right" sx={{ color: 'info.main' }}>
                     {fCurrency(totalTripWiseIncome)}
                   </TableCell>
-                  <TableCell />
                 </StyledTableRow>
 
                 {taxBreakup?.tds?.rate > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={14} align="right">
+                    <TableCell colSpan={11} align="right">
                       TDS ({taxBreakup.tds.rate}%)
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
@@ -490,7 +483,7 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                 {[taxBreakup.cgst, taxBreakup.sgst, taxBreakup.igst].map(({ rate, amount }, idx) =>
                   rate > 0 ? (
                     <StyledTableRow key={idx}>
-                      <TableCell colSpan={14} align="right">
+                      <TableCell colSpan={11} align="right">
                         {['CGST', 'SGST', 'IGST'][idx]} ({rate}%)
                       </TableCell>
                       <TableCell align="right">{fCurrency(amount)}</TableCell>
@@ -501,7 +494,7 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
 
                 {podCharge > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={14} align="right">
+                    <TableCell colSpan={11} align="right">
                       POD Charges
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
@@ -513,7 +506,7 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={14} align="right">
+                    <TableCell colSpan={11} align="right">
                       <Field.Text
                         size="small"
                         name={`additionalCharges[${idx}].label`}
@@ -533,47 +526,47 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                         placeholder="100, -50"
                         sx={{ width: 100 }}
                         variant="filled"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton color="error" onClick={() => handleRemoveCharge(idx)}>
-                        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                      </IconButton>
-                    </TableCell>
-                  </StyledTableRow>
-                ))}
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton color="error" onClick={() => handleRemoveCharge(idx)}>
+                    <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                  </IconButton>
+                </TableCell>
+              </StyledTableRow>
+            ))}
 
-                <StyledTableRow>
-                  <TableCell colSpan={15}>
-                    <Button
-                      size="small"
-                      color="primary"
-                      startIcon={<Iconify icon="mingcute:add-line" />}
-                      onClick={handleAddCharge}
-                      sx={{ width: { sm: 'auto', xs: 1 } }}
-                    >
-                      Add Extra Charge
-                    </Button>
-                  </TableCell>
-                </StyledTableRow>
+            <StyledTableRow>
+              <TableCell colSpan={13}>
+                <Button
+                  size="small"
+                  color="primary"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                  onClick={handleAddCharge}
+                  sx={{ width: { sm: 'auto', xs: 1 } }}
+                >
+                  Add Extra Charge
+                </Button>
+              </TableCell>
+            </StyledTableRow>
 
-                {loanDeductions.map((ld, idx) => (
-                  <StyledTableRow key={`loan-${idx}`}>
-                    <TableCell colSpan={14} align="right">
-                      Loan Repayment (LN-{ld.loanNo})
-                    </TableCell>
-                    <TableCell sx={{ color: 'error.main' }} align="right">
-                      -{fCurrency(ld.amount)}
-                    </TableCell>
-                    <TableCell />
-                  </StyledTableRow>
-                ))}
+            {loanDeductions.map((ld, idx) => (
+              <StyledTableRow key={`loan-${idx}`}>
+                <TableCell colSpan={11} align="right">
+                  Loan Repayment (LN-{ld.loanNo})
+                </TableCell>
+                <TableCell sx={{ color: 'error.main' }} align="right">
+                  -{fCurrency(ld.amount)}
+                </TableCell>
+                <TableCell />
+              </StyledTableRow>
+            ))}
 
-                <StyledTableRow>
-                  <TableCell colSpan={14} align="right">
-                    <strong>Net Total</strong>
-                  </TableCell>
-                  <TableCell align="right" sx={{ color: 'success.main' }}>
+            <StyledTableRow>
+              <TableCell colSpan={11} align="right">
+                <strong>Net Total</strong>
+              </TableCell>
+              <TableCell align="right" sx={{ color: 'success.main' }}>
                     {fCurrency(netIncome)}
                   </TableCell>
                   <TableCell />

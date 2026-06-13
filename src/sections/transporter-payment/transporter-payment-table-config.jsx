@@ -15,6 +15,7 @@ import { Label } from 'src/components/label';
 
 import { wrapText } from '../../utils/change-case';
 import { SUBTRIP_EXPENSE_TYPES } from '../expense/expense-config';
+import { getTransporterPaymentStatusColor } from './utils/constant';
 
 export const TABLE_COLUMNS = [
   {
@@ -120,7 +121,7 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => row.status,
     render: (row) => (
-      <Label variant="soft" color={row.status === 'paid' ? 'success' : 'error'}>
+      <Label variant="soft" color={getTransporterPaymentStatusColor(row.status)}>
         {row.status}
       </Label>
     ),
