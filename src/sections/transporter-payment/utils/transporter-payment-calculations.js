@@ -62,11 +62,13 @@ export const calculateTransporterPayment = (subtrip) => {
     const rate = subtrip.rate || 0;
     const commissionRate = subtrip.commissionRate || 0;
     effectiveFreightRate = rate - commissionRate;
-  } else {
-    effectiveFreightRate = subtrip.freightDetails?.rate
-      ? subtrip.freightDetails.rate - (subtrip.commissionDetails?.commissionRate || 0)
-      : 0;
-  }
+  } else if (subtrip.freightDetails.freightModel === 'fixed') {
+      effectiveFreightRate = (subtrip.freightDetails.freightAmount || 0) - (subtrip.commissionDetails?.commissionAmount || 0);
+    } else {
+      effectiveFreightRate = subtrip.freightDetails?.rate
+        ? subtrip.freightDetails.rate - (subtrip.commissionDetails?.commissionRate || 0)
+        : 0;
+    }
 
   // ⛽ Total Deductions (advances for market vehicles, expenses for own)
   const deductionSource =

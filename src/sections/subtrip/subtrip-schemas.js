@@ -17,7 +17,7 @@ const preprocessOptionalNumber = (schema) =>
 export const receiveSchema = zod
   .object({
     subtripId: zod.string().min(1, { message: 'Job is required' }),
-    unloadingWeight: preprocessOptionalNumber(zod.number({ required_error: 'Unloading weight is required' })),
+    unloadingWeight: preprocessOptionalNumber(zod.number().optional()),
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionDetails: zod
       .object({
@@ -44,8 +44,20 @@ export const receiveSchema = zod
     startKm: zod.number().optional(),
     loadingWeight: zod.number().optional(),
     isOwn: zod.boolean().optional(),
+    unloadingWeightRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
+    const isUnloadingWeightRequired = values.freightModel === 'per_ton' || values.unloadingWeightRequired === true;
+    if (isUnloadingWeightRequired) {
+      if (values.unloadingWeight === undefined || values.unloadingWeight === null || values.unloadingWeight <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Unloading weight is required',
+          path: ['unloadingWeight'],
+        });
+      }
+    }
+
     if (values.freightModel === 'per_km' || values.freightModel === 'hybrid') {
       const endKm = values.freightDetails?.endKm;
       if (endKm === undefined || endKm === null) {
@@ -60,28 +72,6 @@ export const receiveSchema = zod
           message: `End KM must be ≥ Start KM (${values.startKm})`,
           path: ['freightDetails', 'endKm'],
         });
-      }
-    }
-
-    if (values.isOwn === false) {
-      if (values.freightModel === 'per_ton') {
-        const commRate = values.commissionDetails?.commissionRate;
-        if (commRate === undefined || commRate === null) {
-          ctx.addIssue({
-            code: zod.ZodIssueCode.custom,
-            message: 'Commission rate is required',
-            path: ['commissionDetails', 'commissionRate'],
-          });
-        }
-      } else {
-        const commAmount = values.commissionDetails?.commissionAmount;
-        if (commAmount === undefined || commAmount === null) {
-          ctx.addIssue({
-            code: zod.ZodIssueCode.custom,
-            message: 'Commission amount is required',
-            path: ['commissionDetails', 'commissionAmount'],
-          });
-        }
       }
     }
 
@@ -191,6 +181,16 @@ export const jobCreateSchema = zod
     }
 
     if (data.loadType === 'loaded') {
+      if (data.freightModel === 'per_km' || data.freightModel === 'hybrid') {
+        if (data.freightStartKm === undefined || data.freightStartKm === null) {
+          ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            message: 'Billing Start KM is required',
+            path: ['freightStartKm'],
+          });
+        }
+      }
+
       if (data.freightModel === 'per_ton') {
         if (data.loadingWeight === undefined || data.loadingWeight === null) {
           ctx.addIssue({

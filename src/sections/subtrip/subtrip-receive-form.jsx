@@ -45,6 +45,11 @@ const defaultValues = {
     commissionRate: 0,
     commissionAmount: 0,
   },
+  freightDetails: {
+    freightAmount: 0,
+    endKm: '',
+    endTime: null,
+  },
   hasShortage: false,
   hasError: false,
   shortageWeight: 0,
@@ -69,11 +74,11 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
 
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
-  const { getLabel } = useFieldHelpers('subtrip', customerId);
-  
-  // Initialize default freight details if empty
+  const { getLabel, isRequired } = useFieldHelpers('subtrip', customerId);
+
+  // Initialize default freight details when selectedSubtrip loads/changes
   useEffect(() => {
-    if (selectedSubtrip && !freightDetails?.freightAmount && selectedSubtrip.freightDetails) {
+    if (selectedSubtrip && selectedSubtrip.freightDetails) {
       setValue('freightDetails', {
         freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
         endKm: (selectedSubtrip.freightDetails.endKm !== undefined && selectedSubtrip.freightDetails.endKm !== null)
@@ -82,9 +87,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         endTime: selectedSubtrip.freightDetails.endTime || null,
       }, { shouldValidate: true });
     }
-  }, [selectedSubtrip, setValue, freightDetails?.freightAmount]);
+  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
-  // Initialize default commission details
+  // Initialize default commission details when selectedSubtrip loads/changes
   useEffect(() => {
     if (selectedSubtrip && selectedSubtrip.commissionDetails) {
       setValue('commissionDetails', {
@@ -92,7 +97,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
       }, { shouldValidate: true });
     }
-  }, [selectedSubtrip, setValue]);
+  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
   // Initialize helper context fields for zod dynamic schema validation
   useEffect(() => {
@@ -101,8 +106,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
       setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
       setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
+      setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
     }
-  }, [selectedSubtrip, setValue]);
+  }, [selectedSubtrip, setValue, isRequired]);
 
   // Auto-calculate commission amount based on commissionRate and loadingWeight for per_ton model
   useEffect(() => {
@@ -116,9 +122,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   // Auto-calculate freight amount based on endKm / endDate for specific models
   useEffect(() => {
     if (!selectedSubtrip) return;
-    
+
     const rate = selectedSubtrip.freightDetails?.rate || 0;
-    
+
     if (freightModel === 'per_km' && freightDetails?.endKm) {
       const startKm = selectedSubtrip.freightDetails?.startKm || 0;
       const endKm = Number(freightDetails.endKm);
@@ -131,7 +137,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       const baseKm = selectedSubtrip.freightDetails?.baseKm || 0;
       const baseFreight = selectedSubtrip.freightDetails?.freightAmount || 0;
       const totalKm = endKm > startKm ? endKm - startKm : 0;
-      
+
       if (totalKm > baseKm && rate > 0) {
         const extraKm = totalKm - baseKm;
         setValue('freightDetails.freightAmount', baseFreight + (extraKm * rate), { shouldValidate: true });
@@ -157,7 +163,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           preview: URL.createObjectURL(file),
         })
       );
-      
+
       const totalFiles = [...currentDocs, ...newFiles];
       if (totalFiles.length > 5) {
         // We can just slice it to 5, or leave it to show the zod validation error
@@ -211,7 +217,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 name="unloadingWeight"
                 label={getLabel('unloadingWeight', 'Unloading Weight')}
                 type="number"
-                required
+                required={freightModel === 'per_ton' || isRequired('unloadingWeight')}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
@@ -226,7 +232,6 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                   name="commissionDetails.commissionRate"
                   label={getLabel('commissionRate', 'Transporter Commission Rate')}
                   type="number"
-                  required
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -242,7 +247,6 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                   name="commissionDetails.commissionAmount"
                   label={getLabel('commissionAmount', 'Transporter Commission Amount')}
                   type="number"
-                  required
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -268,7 +272,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 />
               </Field.Configurable>
             )}
-            
+
             <SubtripReceiveSettlementSummary
               selectedSubtrip={selectedSubtrip}
               freightDetails={freightDetails}
@@ -440,7 +444,7 @@ export function SubtripReceiveForm() {
           })
         );
       }
-      
+
       const submissionData = { ...data, docs: uploadedDocs };
 
       await receiveSubtrip({ id: selectedSubtripData._id, data: submissionData });
