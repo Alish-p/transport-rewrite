@@ -1,4 +1,7 @@
+import { fNumber } from 'src/utils/format-number';
+
 import { CONFIG } from 'src/config-global';
+
 
 export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
   const taxRate = CONFIG.transporterInvoiceTax || 9;
@@ -132,3 +135,23 @@ export const calculateTransporterPaymentSummary = (
     taxBreakup,
   };
 };
+
+export const fEffectiveTransporterRate = (st) => {
+  const freightDetails = st.freightDetails || {};
+  const freightModel = freightDetails.freightModel || 'per_ton';
+  const rate = freightDetails.rate || st.rate || 0;
+  const commissionDetails = st.commissionDetails || {};
+  const commissionRate = commissionDetails.commissionRate || st.commissionRate || 0;
+
+  if (freightModel === 'per_ton') {
+    const effRate = rate - commissionRate;
+    return `${fNumber(effRate)} ₹ / Ton`;
+  }
+
+  // For rest, show freight amount - commission amount (fixed)
+  const freightAmount = st.freightAmount || freightDetails.freightAmount || 0;
+  const commissionAmount = commissionDetails.commissionAmount || st.commissionAmount || 0;
+  const netFreightAmount = freightAmount - commissionAmount;
+  return `Fixed (${fNumber(netFreightAmount)} ₹)`;
+};
+

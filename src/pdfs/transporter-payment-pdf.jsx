@@ -7,7 +7,10 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { fEffectiveTransporterRate } from 'src/sections/transporter-payment/utils/transporter-payment-calculations';
+
 import PDFBillToSection from './common/PDFBillTo';
+
 
 Font.register({
   family: 'Roboto',
@@ -31,16 +34,25 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
 
   const renderSubtripTable = () => {
     const columns = [
-      { header: 'S.No', accessor: 'sno', width: '4%' },
-      { header: 'Disp Date', accessor: 'dispatchDate', width: '8%' },
-      { header: 'LR No', accessor: 'lrNo', width: '10%' },
-      { header: 'Vehicle', accessor: 'vehicleNo', width: '11%' },
-      { header: 'From', accessor: 'from', width: '11%' },
-      { header: 'Dest.', accessor: 'destination', width: '11%' },
-      { header: 'Invoice', accessor: 'invoiceNo', width: '9%' },
-      { header: 'Short.', accessor: 'shortageQty', width: '7%', align: 'right' },
-      { header: 'ShortAmt', accessor: 'shortageAmt', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'FRT-AMT', accessor: 'frtAmt', width: '9%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'S.No', accessor: 'sno', width: '3%' },
+      { header: 'Dispatch Date', accessor: 'dispatchDate', width: '7%' },
+      { header: 'LR No', accessor: 'lrNo', width: '7%' },
+      { header: 'Vehicle', accessor: 'vehicleNo', width: '8%' },
+      { header: 'Loading Place', accessor: 'from', width: '7%' },
+      { header: 'Unloading Place', accessor: 'destination', width: '7%' },
+      { header: 'Invoice No', accessor: 'invoiceNo', width: '7%' },
+      {
+        header: 'Loading Weight',
+        accessor: 'loadingWeight',
+        width: '7%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      { header: 'Shortage Qty', accessor: 'shortageQty', width: '6%', align: 'right' },
+      { header: 'Shortage Amt.', accessor: 'shortageAmt', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Freight Rate', accessor: 'freightRate', width: '8%', align: 'right' },
+      { header: 'Freight Amt.', accessor: 'frtAmt', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
       { header: 'Advances', accessor: 'expense', width: '9%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
       { header: 'Payable', accessor: 'totalPayable', width: '10%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
     ];
@@ -53,8 +65,10 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       from: st.loadingPoint,
       destination: st.unloadingPoint,
       invoiceNo: st.invoiceNo,
+      loadingWeight: st.loadingWeight,
       shortageQty: st.shortageWeight,
       shortageAmt: st.shortageAmount,
+      freightRate: fEffectiveTransporterRate(st),
       frtAmt: st.freightAmount || 0,
       expense: st.totalExpense || 0,
       totalPayable: st.totalTransporterPayment || 0,
@@ -67,9 +81,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       if (taxBreakup?.tds?.rate > 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 10, value: '', align: 'left' },
-            { startIndex: 10, colspan: 1, value: `TDS-${taxBreakup.tds.rate}%`, align: 'right' },
-            { startIndex: 11, colspan: 1, value: fCurrency(taxBreakup.tds.amount), align: 'right' },
+            { startIndex: 0, colspan: 12, value: '', align: 'left' },
+            { startIndex: 12, colspan: 1, value: `TDS-${taxBreakup.tds.rate}%`, align: 'right' },
+            { startIndex: 13, colspan: 1, value: fCurrency(taxBreakup.tds.amount), align: 'right' },
           ],
           highlight: false,
         });
@@ -80,9 +94,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
         additionalCharges.forEach(({ label, amount }) => {
           extraRows.push({
             cells: [
-              { startIndex: 0, colspan: 10, value: '', align: 'left' },
-              { startIndex: 10, colspan: 1, value: label, align: 'right' },
-              { startIndex: 11, colspan: 1, value: fCurrency(amount), align: 'right' },
+              { startIndex: 0, colspan: 12, value: '', align: 'left' },
+              { startIndex: 12, colspan: 1, value: label, align: 'right' },
+              { startIndex: 13, colspan: 1, value: fCurrency(amount), align: 'right' },
             ],
             highlight: false,
           });
@@ -95,14 +109,14 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
           cells: [
             {
               startIndex: 0,
-              colspan: 10,
+              colspan: 12,
               value:
                 'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us.',
               align: 'left',
             },
-            { startIndex: 10, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
+            { startIndex: 12, colspan: 1, value: `CGST-${taxBreakup.cgst.rate}%`, align: 'right' },
             {
-              startIndex: 11,
+              startIndex: 13,
               colspan: 1,
               value: fCurrency(taxBreakup.cgst.amount),
               align: 'right',
@@ -116,10 +130,10 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       if (taxBreakup?.sgst?.rate > 0) {
         extraRows.push({
           cells: [
-            { startIndex: 0, colspan: 10, value: '', align: 'left' },
-            { startIndex: 10, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
+            { startIndex: 0, colspan: 12, value: '', align: 'left' },
+            { startIndex: 12, colspan: 1, value: `SGST-${taxBreakup.sgst.rate}%`, align: 'right' },
             {
-              startIndex: 11,
+              startIndex: 13,
               colspan: 1,
               value: fCurrency(taxBreakup.sgst.amount),
               align: 'right',
@@ -135,14 +149,14 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
           cells: [
             {
               startIndex: 0,
-              colspan: 10,
+              colspan: 12,
               value:
                 'Note: I/we have taken registration under the CGST Act, 2017 and have exercised the option to pay tax on services of GTA in relation to transport of goods supplied by us.',
               align: 'left',
             },
-            { startIndex: 10, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
+            { startIndex: 12, colspan: 1, value: `IGST-${taxBreakup.igst.rate}%`, align: 'right' },
             {
-              startIndex: 11,
+              startIndex: 13,
               colspan: 1,
               value: fCurrency(taxBreakup.igst.amount),
               align: 'right',
@@ -155,9 +169,9 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       // Add Net Total row
       extraRows.push({
         cells: [
-          { startIndex: 0, colspan: 10, value: '', align: 'left' },
-          { startIndex: 10, colspan: 1, value: 'Net Total', align: 'right' },
-          { startIndex: 11, colspan: 1, value: fCurrency(summary.netIncome), align: 'right' },
+          { startIndex: 0, colspan: 12, value: '', align: 'left' },
+          { startIndex: 12, colspan: 1, value: 'Net Total', align: 'right' },
+          { startIndex: 13, colspan: 1, value: fCurrency(summary.netIncome), align: 'right' },
         ],
         highlight: true,
       });
