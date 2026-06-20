@@ -43,11 +43,13 @@ export function PurchaseOrderToolbar({ purchaseOrder, actions = [] }) {
         sx={{ mb: { xs: 2, md: 3 } }}
       >
         <Stack direction="row" spacing={1} flexGrow={1} sx={{ width: 1 }}>
-          <Tooltip title="Edit">
-            <IconButton onClick={handleEdit}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
+          {purchaseOrder?.status === 'pending-approval' && (
+            <Tooltip title="Edit">
+              <IconButton onClick={handleEdit}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title="View">
             <IconButton onClick={view.onTrue}>

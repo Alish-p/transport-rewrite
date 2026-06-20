@@ -483,7 +483,7 @@ export function PurchaseOrderListView() {
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
+                      onEditRow={row.status === 'pending-approval' ? () => handleEditRow(row._id) : undefined}
                       onDeleteRow={() => handleDeleteRow(row._id)}
                       visibleColumns={visibleColumns}
                       disabledColumns={disabledColumns}

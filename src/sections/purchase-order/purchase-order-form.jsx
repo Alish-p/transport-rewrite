@@ -31,8 +31,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { usePaginatedParts } from 'src/query/use-part';
-import { useCreatePurchaseOrder } from 'src/query/use-purchase-order';
 import { usePaginatedPartLocations } from 'src/query/use-part-location';
+import { useCreatePurchaseOrder, useUpdatePurchaseOrder } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -75,6 +75,24 @@ export const PurchaseOrderSchema = zod.object({
   lines: zod.array(PurchaseOrderLineSchema).min(1, { message: 'Add at least one line item' }),
 });
 
+const STATUS_LABELS = {
+  'pending-approval': 'Pending Approval',
+  approved: 'Approved',
+  purchased: 'Purchased',
+  'partial-received': 'Partially Received',
+  rejected: 'Rejected',
+  received: 'Received',
+};
+
+const STATUS_COLORS = {
+  'pending-approval': 'warning',
+  approved: 'info',
+  purchased: 'primary',
+  'partial-received': 'warning',
+  rejected: 'error',
+  received: 'success',
+};
+
 export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   const navigate = useNavigate();
   const tenant = useTenantContext();
@@ -82,15 +100,22 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   const defaultValues = useMemo(
     () => ({
       vendorId: currentPurchaseOrder?.vendor?._id || currentPurchaseOrder?.vendor || '',
-      partLocationId: '',
-      orderDate: new Date(),
-      description: '',
-      discountType: 'percentage',
-      discount: 0,
-      shipping: 0,
-      taxType: 'percentage',
-      tax: 0,
-      lines: [],
+      partLocationId: currentPurchaseOrder?.partLocation?._id || currentPurchaseOrder?.partLocation || '',
+      orderDate: currentPurchaseOrder?.orderDate ? new Date(currentPurchaseOrder.orderDate) : new Date(),
+      description: currentPurchaseOrder?.description || '',
+      discountType: currentPurchaseOrder?.discountType || 'percentage',
+      discount: currentPurchaseOrder?.discount || 0,
+      shipping: currentPurchaseOrder?.shipping || 0,
+      taxType: currentPurchaseOrder?.taxType || 'percentage',
+      tax: currentPurchaseOrder?.tax || 0,
+      lines: currentPurchaseOrder?.lines
+        ? currentPurchaseOrder.lines.map((line) => ({
+            partId: line.part?._id || line.part || '',
+            quantityOrdered: line.quantityOrdered || 1,
+            unitCost: line.unitCost || 0,
+            partSnapshot: line.partSnapshot || undefined,
+          }))
+        : [],
     }),
     [currentPurchaseOrder]
   );
@@ -110,17 +135,23 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     setValue,
     handleSubmit,
     control,
+    reset,
     formState: { isSubmitting },
   } = methods;
 
-  // Sync vendor when currentPurchaseOrder updates (e.g. async fetch from URL vendor param)
+  // Sync vendor and reset form when currentPurchaseOrder updates (e.g. async fetch or load for edit)
   useEffect(() => {
-    const vendor = currentPurchaseOrder?.vendor;
-    if (vendor?._id && vendor?.name) {
-      setSelectedVendor(vendor);
-      setValue('vendorId', vendor._id, { shouldValidate: true });
+    if (currentPurchaseOrder) {
+      if (currentPurchaseOrder._id) {
+        reset(defaultValues);
+      }
+      const {vendor} = currentPurchaseOrder;
+      if (vendor?._id && vendor?.name) {
+        setSelectedVendor(vendor);
+        setValue('vendorId', vendor._id, { shouldValidate: true });
+      }
     }
-  }, [currentPurchaseOrder, setValue]);
+  }, [currentPurchaseOrder, defaultValues, reset, setValue]);
 
   const { fields, append, remove } = useFieldArray({ name: 'lines', control });
 
@@ -145,6 +176,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   );
 
   const createPurchaseOrder = useCreatePurchaseOrder();
+  const updatePurchaseOrder = useUpdatePurchaseOrder();
 
   useEffect(() => {
     setLineParts((prev) => {
@@ -182,6 +214,9 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     });
     setValue(`lines.${activeLineIndex}.unitCost`, part.unitCost ?? 0, {
       shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue(`lines.${activeLineIndex}.partSnapshot`, undefined, {
       shouldDirty: true,
     });
     setLineParts((prev) => ({
@@ -238,8 +273,12 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     };
   }, [values]);
 
-  const headerStatusLabel = 'Draft';
-  const headerStatusColor = 'warning';
+  const headerStatusLabel = currentPurchaseOrder?._id
+    ? (STATUS_LABELS[currentPurchaseOrder.status] || currentPurchaseOrder.status)
+    : 'Draft';
+  const headerStatusColor = currentPurchaseOrder?._id
+    ? (STATUS_COLORS[currentPurchaseOrder.status] || 'warning')
+    : 'warning';
 
   const onSubmit = async (formData) => {
     try {
@@ -260,8 +299,16 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
         tax: formData.tax || 0,
       };
 
-      const po = await createPurchaseOrder(payload);
-      navigate(paths.dashboard.purchaseOrder.details(po._id));
+      if (currentPurchaseOrder?._id) {
+        if (currentPurchaseOrder.status !== 'pending-approval') {
+          throw new Error('Only purchase orders in Pending Approval status can be edited');
+        }
+        await updatePurchaseOrder({ id: currentPurchaseOrder._id, data: payload });
+        navigate(paths.dashboard.purchaseOrder.details(currentPurchaseOrder._id));
+      } else {
+        const po = await createPurchaseOrder(payload);
+        navigate(paths.dashboard.purchaseOrder.details(po._id));
+      }
     } catch (error) {
       console.error(error);
     }
@@ -452,14 +499,12 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                           return (
                             <DialogSelectButton
                               onClick={() => {
-                                if (snapshot) return; // Prevent changing if snapshot exists
                                 setActiveLineId(field.id);
                                 partDialog.onTrue();
                               }}
                               placeholder="Select a part to attach price"
                               selected={label}
                               iconName={APP_ICONS.part}
-                              disabled={!!snapshot}
                             />
                           );
                         })()}
@@ -705,7 +750,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
           Cancel
         </Button>
         <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
-          Create Purchase Order
+          {currentPurchaseOrder?._id ? 'Save Changes' : 'Create Purchase Order'}
         </Button>
       </Stack>
 
