@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
@@ -21,6 +22,9 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+
+import { getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -138,7 +142,16 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.invoiceNo}</TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
-              <TableCell align="right">{fCurrency(st.freightAmount)}</TableCell>
+              <TableCell align="right">
+                <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                  <span>{fCurrency(st.freightAmount)}</span>
+                  <Tooltip title={getFreightExplanation(st, true)} arrow placement="top">
+                    <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                    </Box>
+                  </Tooltip>
+                </Stack>
+              </TableCell>
               <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
               <TableCell align="right">{fCurrency(st.totalTransporterPayment)}</TableCell>
             </TableRow>

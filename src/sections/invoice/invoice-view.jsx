@@ -22,8 +22,9 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
-import { fFreightRate } from 'src/sections/subtrip/utils';
+import { fFreightRate, getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -174,7 +175,16 @@ function RenderTable({ invoice }) {
                   ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[st.vehicleType] || ''}`
                   : '-'}
               </TableCell>
-              <TableCell>{fCurrency(st.freightDetails?.freightAmount || st.totalAmount || 0)}</TableCell>
+              <TableCell>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <span>{fCurrency(st.freightDetails?.freightAmount || st.totalAmount || 0)}</span>
+                  <Tooltip title={getFreightExplanation(st, false)} arrow placement="top">
+                    <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                    </Box>
+                  </Tooltip>
+                </Stack>
+              </TableCell>
               <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
                 {st.shortageWeight ? `${fNumber(st.shortageWeight)} Kg` : '-'}
               </TableCell>

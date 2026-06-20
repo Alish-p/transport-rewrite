@@ -15,6 +15,7 @@ import {
   Table,
   Button,
   Divider,
+  Tooltip,
   Checkbox,
   TableRow,
   TableBody,
@@ -40,7 +41,7 @@ import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { fFreightRate } from 'src/sections/subtrip/utils';
+import { fFreightRate, getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -412,7 +413,16 @@ export default function SimplerNewInvoiceForm() {
                           ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[vehicleType] || ''}`
                           : '-'}
                       </TableCell>
-                      <TableCell>{fCurrency(totalAmount)}</TableCell>
+                      <TableCell>
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <span>{fCurrency(totalAmount)}</span>
+                          <Tooltip title={getFreightExplanation(st, false)} arrow placement="top">
+                            <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                              <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                            </Box>
+                          </Tooltip>
+                        </Stack>
+                      </TableCell>
                       <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
                         {st.shortageWeight ? `${fNumber(st.shortageWeight)} Kg` : '-'}
                       </TableCell>

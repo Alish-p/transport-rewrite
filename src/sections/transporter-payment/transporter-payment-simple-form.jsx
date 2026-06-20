@@ -15,6 +15,7 @@ import {
   Table,
   Button,
   Divider,
+  Tooltip,
   TableRow,
   Checkbox,
   TableHead,
@@ -40,6 +41,8 @@ import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+
+import { getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -444,7 +447,16 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                       <TableCell>{st.invoiceNo}</TableCell>
                       <TableCell align="right">{st.shortageWeight}</TableCell>
                       <TableCell align="right">{fCurrency(shortageAmount)}</TableCell>
-                      <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
+                      <TableCell align="right">
+                        <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                          <span>{fCurrency(freightAmount)}</span>
+                          <Tooltip title={getFreightExplanation(st, true)} arrow placement="top">
+                            <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                              <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                            </Box>
+                          </Tooltip>
+                        </Stack>
+                      </TableCell>
                       <TableCell align="right">{fCurrency(expense)}</TableCell>
                       <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
                     </TableRow>
