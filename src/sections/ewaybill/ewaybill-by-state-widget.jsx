@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -27,13 +28,31 @@ export function EwaybillByStateWidget({
   ...other
 }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [forceRefresh, setForceRefresh] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const params = useMemo(
-    () => ({ generated_date: selectedDate.format('DD/MM/YYYY') }),
-    [selectedDate]
+    () => ({
+      generated_date: selectedDate.format('DD/MM/YYYY'),
+      ...(forceRefresh && { force: true }),
+    }),
+    [selectedDate, forceRefresh]
   );
 
-  const { data, isLoading } = useTransporterEwaybills(params);
+  const { data, isLoading, isFetching } = useTransporterEwaybills(params);
+
+  useEffect(() => {
+    if (!isFetching && forceRefresh && data) {
+      const normalParams = { generated_date: selectedDate.format('DD/MM/YYYY') };
+      queryClient.setQueryData(['ewaybill', 'transporter', normalParams], data);
+      setForceRefresh(false);
+    }
+  }, [isFetching, forceRefresh, data, selectedDate, queryClient]);
+
+  const handleSync = () => {
+    setForceRefresh(true);
+  };
 
   const list = data?.results?.message || [];
   const total = list.length || 0;
@@ -78,13 +97,33 @@ export function EwaybillByStateWidget({
           <Box sx={{ typography: 'h4' }}>{total}</Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <DatePicker
             label="Select date"
             value={selectedDate}
             onChange={(val) => val && setSelectedDate(val)}
             disableFuture
           />
+          <Tooltip title="Sync from portal" arrow>
+            <IconButton
+              onClick={handleSync}
+              disabled={isLoading || isFetching}
+              color="primary"
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 1,
+                border: (theme) => `solid 1px ${theme.palette.divider}`,
+                animation: (isLoading || isFetching) ? 'spin 1.5s linear infinite' : 'none',
+                '@keyframes spin': {
+                  '0%': { transform: 'rotate(0deg)' },
+                  '100%': { transform: 'rotate(360deg)' },
+                },
+              }}
+            >
+              <Iconify icon="eva:sync-outline" />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 

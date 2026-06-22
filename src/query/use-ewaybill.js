@@ -31,6 +31,8 @@ export function useTransporterEwaybills(params, options = {}) {
     queryKey: ['ewaybill', 'transporter', params],
     queryFn: () => getTransporterEwaybills(params),
     enabled: Boolean(params?.generated_date),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
     ...options,
   });
 }
