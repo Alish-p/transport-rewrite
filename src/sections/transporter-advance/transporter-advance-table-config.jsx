@@ -175,7 +175,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'left',
-    getter: (row) => row?.pumpCd?.pumpName || '-',
+    getter: (row) => row?.pumpCd?.name || '-',
   },
   {
     id: 'paymentReceiptId',
