@@ -4,10 +4,10 @@ import axios from 'src/utils/axios';
 
 const ENDPOINT = '/api/ewaybill';
 
-// Fetcher: transporter e-waybills by state and date
-// params: { generated_date: 'DD/MM/YYYY', state_code: 'NN' }
-const getTransporterByState = async (params) => {
-  const { data } = await axios.get(`${ENDPOINT}/transporter-by-state`, { params });
+// Fetcher: transporter e-waybills by date
+// params: { generated_date: 'DD/MM/YYYY' }
+const getTransporterEwaybills = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/transporter`, { params });
   // Normalize to a common shape used by the widget
   // Supports either an array response or { results: { message: [...] } }
   if (Array.isArray(data)) {
@@ -26,11 +26,11 @@ const getTransporterByState = async (params) => {
   return { results: { message: [] } };
 };
 
-export function useTransporterEwaybillsByState(params, options = {}) {
+export function useTransporterEwaybills(params, options = {}) {
   return useQuery({
-    queryKey: ['ewaybill', 'transporter-by-state', params],
-    queryFn: () => getTransporterByState(params),
-    enabled: Boolean(params?.generated_date && params?.state_code),
+    queryKey: ['ewaybill', 'transporter', params],
+    queryFn: () => getTransporterEwaybills(params),
+    enabled: Boolean(params?.generated_date),
     ...options,
   });
 }

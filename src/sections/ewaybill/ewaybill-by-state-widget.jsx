@@ -5,56 +5,38 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
-import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import FormControl from '@mui/material/FormControl';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useTransporterEwaybillsByState } from 'src/query/use-ewaybill';
+import { useTransporterEwaybills } from 'src/query/use-ewaybill';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-import { useAuthContext } from 'src/auth/hooks';
-
-import { STATE_OPTIONS, STATE_CODE_MAP } from './constants';
-
 export function EwaybillByStateWidget({
   title = 'E-Waybills',
   ...other
 }) {
-  const { tenant } = useAuthContext();
-
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [stateCode, setStateCode] = useState(() => {
-    const addressState = tenant?.address?.state || '';
-    const entry = Object.entries(STATE_CODE_MAP).find(
-      ([_, val]) => val.toLowerCase().trim() === addressState.toLowerCase().trim()
-    );
-    return entry ? entry[0] : '29';
-  });
 
   const params = useMemo(
-    () => ({ generated_date: selectedDate.format('DD/MM/YYYY'), state_code: stateCode }),
-    [selectedDate, stateCode]
+    () => ({ generated_date: selectedDate.format('DD/MM/YYYY') }),
+    [selectedDate]
   );
 
-  const { data, isLoading } = useTransporterEwaybillsByState(params);
+  const { data, isLoading } = useTransporterEwaybills(params);
 
   const list = data?.results?.message || [];
   const total = list.length || 0;
-
-  const stateOptions = STATE_OPTIONS;
 
   const headLabel = [
     { id: 'index', label: 'No.' },
@@ -103,24 +85,6 @@ export function EwaybillByStateWidget({
             onChange={(val) => val && setSelectedDate(val)}
             disableFuture
           />
-          <FormControl size="small" sx={{ minWidth: 220 }}>
-            <Select
-              value={stateCode}
-              onChange={(e) => setStateCode(e.target.value)}
-              size='large'
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 320, overflowY: 'auto' },
-                },
-              }}
-            >
-              {stateOptions.map((opt) => (
-                <MenuItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Box>
       </Box>
 
