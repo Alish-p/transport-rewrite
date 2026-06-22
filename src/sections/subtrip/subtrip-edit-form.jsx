@@ -2,7 +2,7 @@ import { z } from 'zod';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
@@ -99,7 +99,10 @@ const receivedSchemaBase = loadedSchemaBase.extend({
   hasError: z.boolean().optional(),
   errorRemarks: z.string().max(500).optional(),
   remarks: z.string().max(500).optional(),
-  commissionRate: numericInputSchema,
+  commissionDetails: z.object({
+    commissionRate: numericInputSchema,
+    commissionAmount: numericInputSchema,
+  }).optional(),
 });
 
 const freightSuperRefine = (data, ctx) => {
@@ -167,6 +170,10 @@ export default function SubtripEditForm({ currentSubtrip }) {
         freightModel: 'per_ton',
         rate: currentSubtrip?.rate || 0,
       },
+      commissionDetails: currentSubtrip?.commissionDetails || {
+        commissionRate: currentSubtrip?.commissionRate || 0,
+        commissionAmount: 0,
+      },
     }),
     [currentSubtrip]
   );
@@ -196,6 +203,17 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const { vehicleType, isOwn } = currentSubtrip?.vehicleId || {};
 
+  const commissionRateInput = watch('commissionDetails.commissionRate');
+  const loadingWeightInput = watch('loadingWeight');
+  const freightModel = values?.freightDetails?.freightModel || 'per_ton';
+
+  useEffect(() => {
+    if (isOwn || freightModel !== 'per_ton') return;
+    const rate = Number(commissionRateInput || 0);
+    const weight = Number(loadingWeightInput || 0);
+    setValue('commissionDetails.commissionAmount', rate * weight, { shouldDirty: true });
+  }, [commissionRateInput, loadingWeightInput, freightModel, isOwn, setValue]);
+
   const handleDriverChange = (driver) => {
     setSelectedDriver(driver);
     setValue('driverId', driver._id, { shouldDirty: true });
@@ -217,7 +235,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
     try {
       // only send the data that has changed, excluding trip-only fields (startKm/endKm)
       const changedFields = Object.keys(dirtyFields)
-        .filter((key) => key !== 'startKm' && key !== 'endKm' && key !== 'freightDetails')
+        .filter((key) => key !== 'startKm' && key !== 'endKm' && key !== 'freightDetails' && key !== 'commissionDetails')
         .reduce((acc, key) => {
           acc[key] = data[key];
           return acc;
@@ -225,6 +243,10 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
       if (dirtyFields.freightDetails) {
         changedFields.freightDetails = data.freightDetails;
+      }
+
+      if (dirtyFields.commissionDetails) {
+        changedFields.commissionDetails = data.commissionDetails;
       }
 
       await updateSubtrip({
@@ -248,7 +270,6 @@ export default function SubtripEditForm({ currentSubtrip }) {
   // Render fields based on status
   const renderFields = () => {
     const status = currentSubtrip.subtripStatus;
-    const freightModel = values?.freightDetails?.freightModel || 'per_ton';
     const rate = values?.freightDetails?.rate || 0;
     const endDate = values?.endDate;
 
@@ -609,16 +630,29 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   </Field.Configurable>
                   {/* End Km moved to Trip; removed from Subtrip edit */}
                   {!isOwn && (
-                    <Field.Configurable entity="subtrip" name="commissionRate" customerId={currentSubtrip?.customerId?._id}>
-                      <Field.Text
-                        name="commissionRate"
-                        label={getLabel('commissionRate', 'Transporter Commission Rate')}
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                        }}
-                      />
-                    </Field.Configurable>
+                    freightModel === 'per_ton' ? (
+                      <Field.Configurable entity="subtrip" name="commissionRate" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="commissionDetails.commissionRate"
+                          label={getLabel('commissionRate', 'Transporter Commission Rate')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
+                    ) : (
+                      <Field.Configurable entity="subtrip" name="commissionAmount" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="commissionDetails.commissionAmount"
+                          label={getLabel('commissionAmount', 'Transporter Commission Amount')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
+                    )
                   )}
                   <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
                 </Box>

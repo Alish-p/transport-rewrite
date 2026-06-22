@@ -32,8 +32,6 @@ export default function LRInfoCard({ subtrip }) {
     driverId,
     startDate,
     endDate,
-    rate = '-',
-    commissionRate = '-',
     loadingWeight = '-',
     unloadingWeight = '-',
     shortageWeight = '-',
@@ -44,7 +42,12 @@ export default function LRInfoCard({ subtrip }) {
     diNumber = '-',
     consignee = '-',
     referenceSubtripNo = '-',
+    freightDetails,
+    commissionDetails,
   } = subtrip;
+
+  const rate = freightDetails?.rate ?? subtrip.rate ?? '-';
+  const commissionRate = commissionDetails?.commissionRate ?? subtrip.commissionRate ?? '-';
 
   const customerName = customerId?.customerName || '-';
   const customerId_ = customerId?._id;
