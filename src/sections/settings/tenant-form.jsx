@@ -90,6 +90,8 @@ export const TenantSchema = zod
         ewayBill: zod
           .object({
             enabled: zod.boolean().optional(),
+            username: zod.string().optional(),
+            password: zod.string().optional(),
           })
           .optional(),
         vehicleApi: zod
@@ -271,6 +273,8 @@ export default function TenantForm({ currentTenant }) {
         },
         ewayBill: {
           enabled: currentTenant?.integrations?.ewayBill?.enabled || false,
+          username: currentTenant?.integrations?.ewayBill?.username || '',
+          password: currentTenant?.integrations?.ewayBill?.password || '',
         },
         vehicleApi: {
           enabled: currentTenant?.integrations?.vehicleApi?.enabled || false,
@@ -596,10 +600,10 @@ export default function TenantForm({ currentTenant }) {
 
   const renderSystemConfigs = () => (
     <Card>
-      <CardHeader 
-        title="System Configurations" 
-        sx={{ mb: 3 }} 
-        subheader="Enable or disable core system features to simplify the application for different operating models. In the future there will be more such configs." 
+      <CardHeader
+        title="System Configurations"
+        sx={{ mb: 3 }}
+        subheader="Enable or disable core system features to simplify the application for different operating models. In the future there will be more such configs."
       />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
@@ -674,6 +678,21 @@ export default function TenantForm({ currentTenant }) {
             }
             sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
           />
+          {values.integrations?.ewayBill?.enabled && (
+            <Stack spacing={2} sx={{ mt: 1, pl: 4 }}>
+              <Field.Text
+                name="integrations.ewayBill.username"
+                label="API Username"
+                placeholder="Enter E-Waybill API username from EwayBill portal."
+              />
+              <Field.Text
+                name="integrations.ewayBill.password"
+                label="API Password"
+                type="password"
+                placeholder="Enter E-Waybill API password from EwayBill portal."
+              />
+            </Stack>
+          )}
         </Stack>
 
         <Stack spacing={1}>

@@ -58,7 +58,13 @@ export const TenantAdminSchema = zod
     integrations: zod
       .object({
         whatsapp: zod.object({ enabled: zod.boolean().optional() }).optional(),
-        ewayBill: zod.object({ enabled: zod.boolean().optional() }).optional(),
+        ewayBill: zod
+          .object({
+            enabled: zod.boolean().optional(),
+            username: zod.string().optional(),
+            password: zod.string().optional(),
+          })
+          .optional(),
         vehicleApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
         challanApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
         gstApi: zod.object({ enabled: zod.boolean().optional() }).optional(),
@@ -132,7 +138,11 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       },
       integrations: {
         whatsapp: { enabled: currentTenant?.integrations?.whatsapp?.enabled || false },
-        ewayBill: { enabled: currentTenant?.integrations?.ewayBill?.enabled || false },
+        ewayBill: {
+          enabled: currentTenant?.integrations?.ewayBill?.enabled || false,
+          username: currentTenant?.integrations?.ewayBill?.username || '',
+          password: currentTenant?.integrations?.ewayBill?.password || '',
+        },
         vehicleApi: { enabled: currentTenant?.integrations?.vehicleApi?.enabled || false },
         challanApi: { enabled: currentTenant?.integrations?.challanApi?.enabled || false },
         gstApi: { enabled: currentTenant?.integrations?.gstApi?.enabled || false },
@@ -214,7 +224,13 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       integrations: data.integrations
         ? {
           whatsapp: data.integrations?.whatsapp?.enabled ? { enabled: true } : { enabled: false },
-          ewayBill: data.integrations?.ewayBill?.enabled ? { enabled: true } : { enabled: false },
+          ewayBill: data.integrations?.ewayBill?.enabled
+            ? {
+                enabled: true,
+                username: data.integrations.ewayBill.username || '',
+                password: data.integrations.ewayBill.password || '',
+              }
+            : { enabled: false },
           vehicleApi: data.integrations?.vehicleApi?.enabled ? { enabled: true } : { enabled: false },
           challanApi: data.integrations?.challanApi?.enabled ? { enabled: true } : { enabled: false },
           gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
@@ -409,6 +425,21 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
                 }
                 sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
               />
+              {values.integrations?.ewayBill?.enabled && (
+                <Stack spacing={2} sx={{ mt: 1, pl: 4 }}>
+                  <Field.Text
+                    name="integrations.ewayBill.username"
+                    label="API Username"
+                    placeholder="Enter E-Waybill API username"
+                  />
+                  <Field.Text
+                    name="integrations.ewayBill.password"
+                    label="API Password"
+                    type="password"
+                    placeholder="Enter E-Waybill API password"
+                  />
+                </Stack>
+              )}
             </Stack>
 
             <Stack spacing={1}>

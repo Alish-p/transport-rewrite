@@ -69,19 +69,26 @@ export default function TransporterTableToolbar({
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
-          sm: 'column',
+          xs: 'column',
           md: 'row',
         }}
         sx={{
           p: 2.5,
+          pr: { xs: 2.5, md: 1 },
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} >
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={2}
+          flexGrow={1}
+          sx={{ width: 1 }}
+        >
           <TextField
             value={filters.search}
             onChange={handleFilterSearch}
             placeholder="Name or Mobile No."
-            sx={{ width: { xs: 1, md: 170 } }}
+            sx={{ width: { xs: 1, md: 180 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -91,7 +98,7 @@ export default function TransporterTableToolbar({
             }}
           />
 
-          <Box sx={{ width: { xs: 1, md: 170 } }}>
+          <Box sx={{ display: { xs: 'none', md: 'block' }, width: 170 }}>
             <DialogSelectButton
               onClick={vehicleDialog.onTrue}
               selected={selectedVehicle?.vehicleNo}
@@ -104,17 +111,17 @@ export default function TransporterTableToolbar({
             value={filters.gstNo}
             onChange={(e) => onFilters('gstNo', e.target.value)}
             placeholder="GST Number"
-            sx={{ width: { xs: 1, md: 170 } }}
+            sx={{ display: { xs: 'none', md: 'inline-flex' }, width: 170 }}
           />
 
           <TextField
             value={filters.panNo}
             onChange={(e) => onFilters('panNo', e.target.value)}
             placeholder="PAN Number"
-            sx={{ width: { xs: 1, md: 170 } }}
+            sx={{ display: { xs: 'none', md: 'inline-flex' }, width: 170 }}
           />
 
-          <FormControl sx={{ width: { xs: 1, md: 170 } }}>
+          <FormControl sx={{ display: { xs: 'none', md: 'inline-flex' }, width: 170 }}>
             <InputLabel id="toolbar-gst-enabled-select-label">GST Enabled</InputLabel>
             <Select
               value={filters.gstEnabled || ''}
@@ -133,13 +140,18 @@ export default function TransporterTableToolbar({
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={1}>
+        <Stack
+          direction="row"
+          spacing={1}
+          flexShrink={0}
+          sx={{ width: { xs: 1, md: 'auto' } }}
+        >
           <Button
             color="inherit"
             variant="outlined"
             startIcon={<Iconify icon="solar:filter-bold" />}
             onClick={filtersDrawer.onTrue}
-            sx={{ flexShrink: 0, width: 140 }}
+            sx={{ flexGrow: { xs: 1, md: 0 }, width: { xs: 1, md: 140 } }}
           >
             More Filters
           </Button>
@@ -153,7 +165,7 @@ export default function TransporterTableToolbar({
                 <Iconify icon="solar:settings-bold" />
               </Badge>
             }
-            sx={{ flexShrink: 0, width: 140 }}
+            sx={{ flexGrow: { xs: 1, md: 0 }, width: { xs: 1, md: 140 } }}
           >
             Columns
           </Button>
