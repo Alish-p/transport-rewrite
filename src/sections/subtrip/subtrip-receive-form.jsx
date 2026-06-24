@@ -119,7 +119,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
     setValue('commissionDetails.commissionAmount', rate * weight, { shouldValidate: true });
   }, [commissionDetails?.commissionRate, selectedSubtrip, freightModel, isOwn, setValue]);
 
-  // Auto-calculate freight amount based on endKm / endDate for specific models
+  // Auto-calculate freight amount based on endKm / endDate / loadingWeight for specific models
   useEffect(() => {
     if (!selectedSubtrip) return;
 
@@ -152,6 +152,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           setValue('freightDetails.freightAmount', diffInHours * rate, { shouldValidate: true });
         }
       }
+    } else if (freightModel === 'per_ton') {
+      const weight = selectedSubtrip.loadingWeight || 0;
+      setValue('freightDetails.freightAmount', weight * rate, { shouldValidate: true });
     }
   }, [freightDetails?.endKm, endDate, selectedSubtrip, freightModel, isOwn, setValue]);
 
