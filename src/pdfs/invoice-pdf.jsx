@@ -6,6 +6,9 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { fFreightRate } from 'src/sections/subtrip/utils';
+import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
+
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';
 
@@ -39,19 +42,16 @@ export default function InvoicePdf({ invoice, tenant }) {
       { header: 'Vehicle', accessor: 'vehicle', width: '7%' },
       { header: 'Material', accessor: 'material', width: '7%' },
       {
-        header: 'Freight Rate ( ₹ )',
-        accessor: 'freightRate',
+        header: 'Rate / Model',
+        accessor: 'rateModel',
         width: '8%',
         align: 'right',
-        formatter: (v) => fNumber(v),
       },
       {
-        header: 'Dispatch Weight',
-        accessor: 'dispatchWeight',
+        header: 'Weight',
+        accessor: 'weight',
         width: '8%',
         align: 'right',
-        showTotal: true,
-        formatter: (v) => fNumber(v),
       },
       {
         header: 'Freight Amount ( ₹ )',
@@ -71,21 +71,33 @@ export default function InvoicePdf({ invoice, tenant }) {
       },
     ];
 
-    const tableData = subtripSnapshot.map((subtrip, index) => ({
-      sno: index + 1,
-      consignee: subtrip.consignee,
-      destination: subtrip.unloadingPoint,
-      invoiceNo: subtrip.invoiceNo,
-      dispDate: fDate(subtrip.startDate),
-      lrNo: subtrip.subtripNo,
-      diNumber: subtrip.diNumber || '-',
-      vehicle: subtrip.vehicleNo,
-      material: subtrip.materialType || '-',
-      freightRate: subtrip.rate,
-      dispatchWeight: subtrip.loadingWeight,
-      freightAmount: subtrip.freightAmount,
-      shortageWeight: subtrip.shortageWeight,
-    }));
+    const tableData = subtripSnapshot.map((subtrip, index) => {
+      const weight = subtrip.loadingWeight
+        ? `${fNumber(subtrip.loadingWeight)} ${loadingWeightUnit[subtrip.vehicleType] || ''}`
+        : '-';
+
+      const rateModel = fFreightRate(
+        subtrip.freightDetails?.rate || 0,
+        subtrip.freightDetails?.freightModel,
+        subtrip.freightDetails?.freightAmount
+      );
+
+      return {
+        sno: index + 1,
+        consignee: subtrip.consignee,
+        destination: subtrip.unloadingPoint,
+        invoiceNo: subtrip.invoiceNo,
+        dispDate: fDate(subtrip.startDate),
+        lrNo: subtrip.subtripNo,
+        diNumber: subtrip.diNumber || '-',
+        vehicle: subtrip.vehicleNo,
+        material: subtrip.materialType || '-',
+        rateModel,
+        weight,
+        freightAmount: subtrip.freightDetails?.freightAmount || (subtrip.freightDetails?.rate && subtrip.loadingWeight ? subtrip.freightDetails.rate * subtrip.loadingWeight : 0),
+        shortageWeight: subtrip.shortageWeight,
+      };
+    });
 
     // Create extra rows for tax breakdown
     const createExtraRows = () => {

@@ -1,4 +1,7 @@
+import { fNumber } from 'src/utils/format-number';
+
 import { CONFIG } from 'src/config-global';
+
 
 export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
   const taxRate = CONFIG.transporterInvoiceTax || 9;
@@ -41,18 +44,35 @@ export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
 export const calculateTransporterPayment = (subtrip) => {
   if (!subtrip) return null;
 
-  const rate = subtrip.rate || 0;
-  const commissionRate = subtrip.commissionRate || 0;
-  const effectiveFreightRate = rate - commissionRate;
-  const loadingWeight = subtrip.loadingWeight || 0;
+  const freightDetails = subtrip.freightDetails || {};
+  const commissionDetails = subtrip.commissionDetails || {};
 
-  // 🚛 Total Freight
-  const totalFreightAmount = effectiveFreightRate * loadingWeight;
+  const grossFreightAmount =
+    freightDetails.freightAmount !== undefined && freightDetails.freightAmount !== null
+      ? freightDetails.freightAmount
+      : (freightDetails.rate || 0) * (subtrip.loadingWeight || 0);
+
+  const commissionAmount = commissionDetails.commissionAmount || 0;
+
+  // 🚛 Total Freight (gross freight - transporter commission)
+  const totalFreightAmount = grossFreightAmount - commissionAmount;
+
+  let effectiveFreightRate = 0;
+  if (freightDetails.freightModel === 'fixed') {
+    effectiveFreightRate = (freightDetails.freightAmount || 0) - commissionAmount;
+  } else {
+    effectiveFreightRate = freightDetails.rate
+      ? freightDetails.rate - (commissionDetails.commissionRate || 0)
+      : 0;
+  }
 
   // ⛽ Total Deductions (advances for market vehicles, expenses for own)
-  const deductionSource = Array.isArray(subtrip.advances) && subtrip.advances.length > 0
-    ? subtrip.advances
-    : (Array.isArray(subtrip.expenses) ? subtrip.expenses : []);
+  const deductionSource =
+    Array.isArray(subtrip.advances) && subtrip.advances.length > 0
+      ? subtrip.advances
+      : Array.isArray(subtrip.expenses)
+      ? subtrip.expenses
+      : [];
   const totalExpense = deductionSource.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   // 📉 Shortage Deduction
@@ -108,3 +128,23 @@ export const calculateTransporterPaymentSummary = (
     taxBreakup,
   };
 };
+
+export const fEffectiveTransporterRate = (st) => {
+  const freightDetails = st.freightDetails || {};
+  const freightModel = freightDetails.freightModel || 'per_ton';
+  const rate = freightDetails.rate || 0;
+  const commissionDetails = st.commissionDetails || {};
+  const commissionRate = commissionDetails.commissionRate || 0;
+
+  if (freightModel === 'per_ton') {
+    const effRate = rate - commissionRate;
+    return `${fNumber(effRate)} ₹ / Ton`;
+  }
+
+  // For rest, show freight amount - commission amount (fixed)
+  const freightAmount = freightDetails.freightAmount || st.freightAmount || 0;
+  const commissionAmount = commissionDetails.commissionAmount || 0;
+  const netFreightAmount = freightAmount - commissionAmount;
+  return `Fixed (${fNumber(netFreightAmount)} ₹)`;
+};
+

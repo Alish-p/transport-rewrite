@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
@@ -9,6 +10,7 @@ import {
   Box,
   Card,
   Grid,
+  Alert,
   Button,
   Divider,
   Tooltip,
@@ -22,6 +24,7 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFieldHelpers } from 'src/hooks/use-form-config';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { useMaterialOptions } from 'src/hooks/use-material-options';
 
@@ -32,6 +35,8 @@ import { useUpdateSubtrip } from 'src/query/use-subtrip';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
+
+import { FREIGHT_MODELS } from 'src/auth/field-config/field-config-defaults';
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
@@ -48,40 +53,77 @@ const baseSchema = z.object({
   startDate: schemaHelper.date(),
 });
 
+const numericInputSchema = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  const n = typeof val === 'number' ? val : Number(val);
+  return Number.isFinite(n) ? n : undefined;
+}, z.number().optional());
+
+const freightDetailsSchema = z.object({
+  freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
+  freightAmount: numericInputSchema,
+  baseKm: numericInputSchema,
+  rate: numericInputSchema,
+  startKm: numericInputSchema,
+});
+
 // Schema for Loaded status
-const loadedSchema = baseSchema.extend({
-  consignee: z.string().max(100),
-  loadingPoint: z.string().max(100),
-  unloadingPoint: z.string().max(100),
-  loadingWeight: z.number().nonnegative('Loading weight must be positive'),
-  quantity: z.number().nonnegative('Quantity must be positive').optional(),
-  rate: z.number().min(0, 'Rate must be at least 0'),
+const loadedSchemaBase = baseSchema.extend({
+  consignee: z.string().max(100).optional(),
+  loadingPoint: z.string().max(100).optional(),
+  unloadingPoint: z.string().max(100).optional(),
+  loadingWeight: numericInputSchema,
+  quantity: numericInputSchema,
+  freightDetails: freightDetailsSchema.optional(),
   ewayBill: z.string().max(100).optional(),
-  ewayExpiryDate: z.string(),
-  invoiceNo: z.string().max(100),
+  ewayExpiryDate: z.string().optional(),
+  invoiceNo: z.string().max(100).optional(),
   shipmentNo: z.string().max(100).optional(),
   orderNo: z.string().max(100).optional(),
   referenceSubtripNo: z.string().max(100).optional(),
-  materialType: z.string().max(100),
+  materialType: z.string().max(100).optional(),
   grade: z.string().max(100).optional(),
-  driverAdvance: z.number().min(0, 'Advance must be non-negative').optional(),
-  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']),
-  initialAdvanceDiesel: z.number().min(0, 'Diesel value must be non-negative').optional(),
+  driverAdvance: numericInputSchema,
+  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']).optional(),
+  initialAdvanceDiesel: numericInputSchema,
   intentFuelPump: z.string().optional(),
 });
 
 // Schema for Received status (extends loaded)
-const receivedSchema = loadedSchema.extend({
-  unloadingWeight: z.number().nonnegative('Unloading weight must be positive'),
-  endDate: z.string(),
+const receivedSchemaBase = loadedSchemaBase.extend({
+  unloadingWeight: numericInputSchema,
+  endDate: z.string().optional(),
   hasShortage: z.boolean().optional(),
-  shortageWeight: z.number().nonnegative('Shortage weight must be non-negative').optional(),
-  shortageAmount: z.number().nonnegative('Shortage amount must be non-negative').optional(),
+  shortageWeight: numericInputSchema,
+  shortageAmount: numericInputSchema,
   hasError: z.boolean().optional(),
   errorRemarks: z.string().max(500).optional(),
   remarks: z.string().max(500).optional(),
-  commissionRate: z.number().min(0, 'Commission rate must be non-negative').optional(),
+  commissionDetails: z.object({
+    commissionRate: numericInputSchema,
+    commissionAmount: numericInputSchema,
+  }).optional(),
 });
+
+const freightSuperRefine = (data, ctx) => {
+  const fm = data.freightDetails?.freightModel;
+  const rate = data.freightDetails?.rate;
+  const baseKm = data.freightDetails?.baseKm;
+  const freightAmount = data.freightDetails?.freightAmount;
+
+  if (fm === 'fixed' && !freightAmount) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
+  } else if (fm === 'hybrid' && (!freightAmount || !baseKm || !rate)) {
+    if (!freightAmount) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
+    if (!baseKm) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base KM is required", path: ['freightDetails', 'baseKm'] });
+    if (!rate) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Extra Rate is required", path: ['freightDetails', 'rate'] });
+  } else if ((fm === 'per_ton' || fm === 'per_km' || fm === 'per_hour') && !rate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Rate is required", path: ['freightDetails', 'rate'] });
+  }
+};
+
+const loadedSchema = loadedSchemaBase.superRefine(freightSuperRefine);
+const receivedSchema = receivedSchemaBase.superRefine(freightSuperRefine);
 
 // Get the appropriate schema based on status
 const getSchemaForStatus = (status) => {
@@ -101,6 +143,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
   const materialOptions = useMaterialOptions();
+  const { getLabel } = useFieldHelpers('subtrip', currentSubtrip?.customerId?._id);
   const { pumps: hasPumps } = useSystemFeatures();
 
   const searchParams = useSearchParams();
@@ -123,7 +166,14 @@ export default function SubtripEditForm({ currentSubtrip }) {
       customerId: currentSubtrip?.customerId?._id,
       driverId: currentSubtrip?.driverId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
-      
+      freightDetails: currentSubtrip?.freightDetails || {
+        freightModel: 'per_ton',
+        rate: currentSubtrip?.rate || 0,
+      },
+      commissionDetails: currentSubtrip?.commissionDetails || {
+        commissionRate: currentSubtrip?.commissionRate || 0,
+        commissionAmount: 0,
+      },
     }),
     [currentSubtrip]
   );
@@ -153,6 +203,17 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const { vehicleType, isOwn } = currentSubtrip?.vehicleId || {};
 
+  const commissionRateInput = watch('commissionDetails.commissionRate');
+  const loadingWeightInput = watch('loadingWeight');
+  const freightModel = values?.freightDetails?.freightModel || 'per_ton';
+
+  useEffect(() => {
+    if (isOwn || freightModel !== 'per_ton') return;
+    const rate = Number(commissionRateInput || 0);
+    const weight = Number(loadingWeightInput || 0);
+    setValue('commissionDetails.commissionAmount', rate * weight, { shouldDirty: true });
+  }, [commissionRateInput, loadingWeightInput, freightModel, isOwn, setValue]);
+
   const handleDriverChange = (driver) => {
     setSelectedDriver(driver);
     setValue('driverId', driver._id, { shouldDirty: true });
@@ -174,11 +235,19 @@ export default function SubtripEditForm({ currentSubtrip }) {
     try {
       // only send the data that has changed, excluding trip-only fields (startKm/endKm)
       const changedFields = Object.keys(dirtyFields)
-        .filter((key) => key !== 'startKm' && key !== 'endKm')
+        .filter((key) => key !== 'startKm' && key !== 'endKm' && key !== 'freightDetails' && key !== 'commissionDetails')
         .reduce((acc, key) => {
           acc[key] = data[key];
           return acc;
         }, {});
+
+      if (dirtyFields.freightDetails) {
+        changedFields.freightDetails = data.freightDetails;
+      }
+
+      if (dirtyFields.commissionDetails) {
+        changedFields.commissionDetails = data.commissionDetails;
+      }
 
       await updateSubtrip({
         id: currentSubtrip._id,
@@ -201,6 +270,70 @@ export default function SubtripEditForm({ currentSubtrip }) {
   // Render fields based on status
   const renderFields = () => {
     const status = currentSubtrip.subtripStatus;
+    const rate = values?.freightDetails?.rate || 0;
+    const endDate = values?.endDate;
+
+    // Auto-calculate expected freight amount like receive form
+    let displayFreightAmount = values?.freightDetails?.freightAmount || 0;
+    if (freightModel === 'per_km' && values?.freightDetails?.endKm) {
+      const startKm = values?.freightDetails?.startKm || 0;
+      const endKm = Number(values.freightDetails.endKm);
+      if (endKm > startKm) displayFreightAmount = (endKm - startKm) * rate;
+    } else if (freightModel === 'hybrid' && values?.freightDetails?.endKm) {
+      const startKm = values?.freightDetails?.startKm || 0;
+      const endKm = Number(values.freightDetails.endKm);
+      const baseKm = values?.freightDetails?.baseKm || 0;
+      const baseFreight = values?.freightDetails?.freightAmount || 0;
+      const totalKm = endKm > startKm ? endKm - startKm : 0;
+      if (totalKm > baseKm && rate > 0) {
+        displayFreightAmount = baseFreight + ((totalKm - baseKm) * rate);
+      } else {
+        displayFreightAmount = baseFreight;
+      }
+    } else if (freightModel === 'per_hour' && endDate && values?.startDate) {
+      const start = dayjs(values.startDate);
+      const end = dayjs(endDate);
+      const diffInHours = Math.ceil(end.diff(start, 'hour', true));
+      if (diffInHours > 0) displayFreightAmount = diffInHours * rate;
+    } else if (freightModel === 'per_ton') {
+      const weight = values?.loadingWeight || 0;
+      displayFreightAmount = weight * rate;
+    }
+
+    const getFreightExplanation = () => {
+      if (freightModel === 'per_hour' && endDate && values?.startDate) {
+        const start = dayjs(values.startDate);
+        const end = dayjs(endDate);
+        const diffInHours = Math.ceil(end.diff(start, 'hour', true));
+        return `calculated for ${diffInHours} hour${diffInHours !== 1 ? 's' : ''} at ₹${rate}/hour (job dates: ${dayjs(values.startDate).format('DD MMM YYYY, hh:mm A')} to ${dayjs(endDate).format('DD MMM YYYY, hh:mm A')})`;
+      }
+      if (freightModel === 'per_km') {
+        const startKm = values?.freightDetails?.startKm || 0;
+        const endKm = Number(values?.freightDetails?.endKm || startKm);
+        const diffKm = endKm > startKm ? endKm - startKm : 0;
+        if (diffKm > 0) return `calculated for ${diffKm} km at ₹${rate}/km (KM: ${startKm} to ${endKm})`;
+        return `calculated at ₹${rate}/km`;
+      }
+      if (freightModel === 'hybrid') {
+        const startKm = values?.freightDetails?.startKm || 0;
+        const endKm = Number(values?.freightDetails?.endKm || startKm);
+        const totalKm = endKm > startKm ? endKm - startKm : 0;
+        const baseKm = values?.freightDetails?.baseKm || 0;
+        const baseFreight = values?.freightDetails?.freightAmount || 0;
+        const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
+        if (extraKm > 0) return `calculated using base freight of ₹${baseFreight} (${baseKm} km) + extra ${extraKm} km at ₹${rate}/km`;
+        return `calculated using base freight of ₹${baseFreight} (${baseKm} km)`;
+      }
+      if (freightModel === 'per_ton') {
+        const weight = values?.loadingWeight || 0;
+        return `calculated for loading weight of ${weight} ${loadingWeightUnit[vehicleType] || 'tons'} at ₹${rate}/ton`;
+      }
+      if (freightModel === 'fixed') {
+        const baseFreight = values?.freightDetails?.freightAmount || 0;
+        return `fixed freight amount of ₹${baseFreight}`;
+      }
+      return 'rate model';
+    };
 
     return (
       <>
@@ -230,7 +363,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 iconName={APP_ICONS.driver}
                 sx={{ mb: 2 }}
               />
-              <Field.Text name="diNumber" label="DI/DO No" />
+              <Field.Configurable entity="subtrip" name="diNumber" customerId={currentSubtrip?.customerId?._id}>
+                <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
+              </Field.Configurable>
               <Field.MobileDateTimePicker name="startDate" label="Job Start Date" />
             </Box>
           </Box>
@@ -249,13 +384,19 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   Route Details
                 </Typography>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text name="consignee" label="Consignee" />
-                  <Field.Text name="loadingPoint" label="Loading Point" />
-                  <Field.Text
-                    name="unloadingPoint"
-                    label="Unloading Point"
-                    helperText="Consignee's address"
-                  />
+                  <Field.Configurable entity="subtrip" name="consignee" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="consignee" label={getLabel('consignee', 'Consignee')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="loadingPoint" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="loadingPoint" label={getLabel('loadingPoint', 'Loading Point')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="unloadingPoint" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text
+                      name="unloadingPoint"
+                      label={getLabel('unloadingPoint', 'Unloading Point')}
+                      helperText="Consignee's address"
+                    />
+                  </Field.Configurable>
                 </Box>
 
                 <Divider sx={{ my: 4 }} />
@@ -264,58 +405,149 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   Weight Details
                 </Typography>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text
-                    name="loadingWeight"
-                    label="Loading Weight *"
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
+                  <Field.Configurable entity="subtrip" name="loadingWeight" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text
-                      name="quantity"
-                      label="Quantity"
+                      name="loadingWeight"
+                      label={getLabel('loadingWeight', 'Loading Weight')}
                       type="number"
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
+                          </InputAdornment>
+                        ),
                       }}
                     />
+                  </Field.Configurable>
+
+                  {vehicleType !== 'tanker' && vehicleType !== 'bulker' && (
+                    <Field.Configurable entity="subtrip" name="quantity" customerId={currentSubtrip?.customerId?._id}>
+                      <Field.Text
+                        name="quantity"
+                        label={getLabel('quantity', 'Quantity')}
+                        type="number"
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
+                        }}
+                      />
+                    </Field.Configurable>
                   )}
 
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
-                  <Field.Text
-                    name="rate"
-                    label="Rate *"
-                    type="number"
-                    InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
-                  />
-
-                  <Field.Text name="ewayBill" label="Eway Bill" />
-                  <Field.DatePicker name="ewayExpiryDate" label="Eway Expiry Date *" />
-
-                  <Field.Text name="invoiceNo" label="Invoice No *" />
-                  <Field.Text name="shipmentNo" label="Shipment No" />
-                  <Field.Text name="orderNo" label="Order No" />
-                  <Field.Text name="referenceSubtripNo" label="Reference Job No" />
-
-                  <Field.Select name="materialType" label="Material Type">
-                    <MenuItem value="">None</MenuItem>
-                    <Divider sx={{ borderStyle: 'dashed' }} />
-                    {materialOptions.map(({ label, value }) => (
-                      <MenuItem key={value} value={value}>
-                        {label}
-                      </MenuItem>
+                  <Field.Select name="freightDetails.freightModel" label="Freight Model *">
+                    {FREIGHT_MODELS.map((fm) => (
+                      <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
                     ))}
                   </Field.Select>
 
-                  <Field.Text name="grade" label="Grade" />
+                  {(freightModel === 'per_ton' || freightModel === 'per_km' || freightModel === 'per_hour') && (
+                    <>
+                      <Field.Configurable entity="subtrip" name="rate" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="freightDetails.rate"
+                          label={freightModel === 'per_km' ? 'Rate (Per KM) *' : freightModel === 'per_hour' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                          type="number"
+                          InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                        />
+                      </Field.Configurable>
+                      {freightModel === 'per_km' && (
+                        <Field.Text
+                          name="freightDetails.startKm"
+                          label="Billing Start KM"
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {freightModel === 'hybrid' && (
+                    <>
+                      <Field.Text
+                        name="freightDetails.freightAmount"
+                        label="Base Freight Amount *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.baseKm"
+                        label="Base KM *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.rate"
+                        label="Extra Rate (Per KM) *"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                      />
+                      <Field.Text
+                        name="freightDetails.startKm"
+                        label="Billing Start KM"
+                        type="number"
+                        InputProps={{ endAdornment: <InputAdornment position="end">km</InputAdornment> }}
+                      />
+                    </>
+                  )}
+
+                  {freightModel === 'fixed' && (
+                    <Field.Text
+                      name="freightDetails.freightAmount"
+                      label="Freight Amount *"
+                      type="number"
+                      InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
+                    />
+                  )}
+
+                  <Field.Configurable entity="subtrip" name="ewayBill" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="ewayExpiryDate" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.DatePicker name="ewayExpiryDate" label={getLabel('ewayExpiryDate', 'Eway Expiry Date')} />
+                  </Field.Configurable>
+
+                  <Field.Configurable entity="subtrip" name="invoiceNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="shipmentNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="orderNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
+                  </Field.Configurable>
+                  <Field.Configurable entity="subtrip" name="referenceSubtripNo" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="referenceSubtripNo" label={getLabel('referenceSubtripNo', 'Reference Job No')} />
+                  </Field.Configurable>
+
+                  <Field.Configurable entity="subtrip" name="materialType" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Select name="materialType" label={getLabel('materialType', 'Material Type')}>
+                      <MenuItem value="">None</MenuItem>
+                      <Divider sx={{ borderStyle: 'dashed' }} />
+                      {materialOptions.map(({ label, value }) => (
+                        <MenuItem key={value} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Field.Select>
+                  </Field.Configurable>
+
+                  <Field.Configurable entity="subtrip" name="grade" customerId={currentSubtrip?.customerId?._id}>
+                    <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
+                  </Field.Configurable>
+
+                  {displayFreightAmount > 0 && (
+                    <Alert severity="info" variant="outlined" sx={{ gridColumn: '1 / -1', mt: 1, display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="subtitle2" component="div">
+                        Calculated Freight Amount: <strong>₹{displayFreightAmount}</strong>
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+                        ({getFreightExplanation()})
+                      </Typography>
+                    </Alert>
+                  )}
                 </Box>
 
                 <Divider sx={{ my: 4 }} />
@@ -382,28 +614,45 @@ export default function SubtripEditForm({ currentSubtrip }) {
             <Card sx={{ p: 3 }}>
               <Box sx={{ mb: 3 }}>
                 <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-                  <Field.Text
-                    name="unloadingWeight"
-                    label="Unloading Weight"
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <>{loadingWeightUnit[vehicleType]}</>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {/* End Km moved to Trip; removed from Subtrip edit */}
-                  {!isOwn && (
+                  <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={currentSubtrip?.customerId?._id}>
                     <Field.Text
-                      name="commissionRate"
-                      label="Transporter Commission Rate"
+                      name="unloadingWeight"
+                      label={getLabel('unloadingWeight', 'Unloading Weight')}
                       type="number"
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <>{loadingWeightUnit[vehicleType]}</>
+                          </InputAdornment>
+                        ),
                       }}
                     />
+                  </Field.Configurable>
+                  {/* End Km moved to Trip; removed from Subtrip edit */}
+                  {!isOwn && (
+                    freightModel === 'per_ton' ? (
+                      <Field.Configurable entity="subtrip" name="commissionRate" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="commissionDetails.commissionRate"
+                          label={getLabel('commissionRate', 'Transporter Commission Rate')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
+                    ) : (
+                      <Field.Configurable entity="subtrip" name="commissionAmount" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="commissionDetails.commissionAmount"
+                          label={getLabel('commissionAmount', 'Transporter Commission Amount')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
+                    )
                   )}
                   <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
                 </Box>
@@ -417,26 +666,30 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
                   {values.hasShortage && (
                     <>
-                      <Field.Text
-                        name="shortageWeight"
-                        label="Shortage Weight"
-                        type="number"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <>{loadingWeightUnit[vehicleType]}</>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <Field.Text
-                        name="shortageAmount"
-                        label="Shortage Amount"
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                        }}
-                      />
+                      <Field.Configurable entity="subtrip" name="shortageWeight" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="shortageWeight"
+                          label={getLabel('shortageWeight', 'Shortage Weight')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <>{loadingWeightUnit[vehicleType]}</>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Field.Configurable>
+                      <Field.Configurable entity="subtrip" name="shortageAmount" customerId={currentSubtrip?.customerId?._id}>
+                        <Field.Text
+                          name="shortageAmount"
+                          label={getLabel('shortageAmount', 'Shortage Amount')}
+                          type="number"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                          }}
+                        />
+                      </Field.Configurable>
                     </>
                   )}
 
@@ -509,7 +762,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
           onPumpChange={handlePumpChange}
         />
       )}
-      
+
       <KanbanDriverDialog
         open={driverDialog.value}
         onClose={driverDialog.onFalse}

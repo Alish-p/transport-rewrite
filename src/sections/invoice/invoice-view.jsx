@@ -18,10 +18,13 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 
 import { fDate } from 'src/utils/format-time';
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+
+import { fFreightRate, getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -131,12 +134,16 @@ function RenderTable({ invoice }) {
             <StyledTableCell width={40}>#</StyledTableCell>
             <StyledTableCell>Consignee</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
-            <StyledTableCell>Vehicle No</StyledTableCell>
-            <StyledTableCell>LR No</StyledTableCell>
+            <StyledTableCell>Invoice No</StyledTableCell>
             <StyledTableCell>Disp Date</StyledTableCell>
-            <StyledTableCell>QTY</StyledTableCell>
-            <StyledTableCell>Freight Rate</StyledTableCell>
-            <StyledTableCell>Total Amount</StyledTableCell>
+            <StyledTableCell>LR No</StyledTableCell>
+            <StyledTableCell>DI/DC No</StyledTableCell>
+            <StyledTableCell>Vehicle No</StyledTableCell>
+            <StyledTableCell>Material</StyledTableCell>
+            <StyledTableCell>Rate / Model</StyledTableCell>
+            <StyledTableCell>Weight</StyledTableCell>
+            <StyledTableCell>Freight Amount</StyledTableCell>
+            <StyledTableCell>Shortage Weight</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -145,66 +152,95 @@ function RenderTable({ invoice }) {
               <TableCell>{index + 1}</TableCell>
               <TableCell>{st.consignee}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
-              <TableCell>{st.vehicleNo}</TableCell>
+              <TableCell>{st.invoiceNo || '-'}</TableCell>
+              <TableCell>{fDate(st.startDate)}</TableCell>
               <TableCell
                 sx={{ color: 'success.main', cursor: 'pointer' }}
                 onClick={() => navigate(paths.dashboard.subtrip.details(st.subtripId))}
               >
                 {st.subtripNo}
               </TableCell>
-              <TableCell>{fDate(st.startDate)}</TableCell>
+              <TableCell>{st.diNumber || '-'}</TableCell>
+              <TableCell>{st.vehicleNo || '-'}</TableCell>
+              <TableCell>{st.materialType || '-'}</TableCell>
               <TableCell>
-                {st.loadingWeight || 0} {loadingWeightUnit[st.vehicleType]}
+                {fFreightRate(
+                  st.freightDetails?.rate || 0,
+                  st.freightDetails?.freightModel,
+                  st.freightDetails?.freightAmount
+                )}
               </TableCell>
-              <TableCell>{fCurrency(st.rate || 0)}</TableCell>
-              <TableCell>{fCurrency(st.totalAmount || 0)}</TableCell>
+              <TableCell>
+                {st.loadingWeight
+                  ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[st.vehicleType] || ''}`
+                  : '-'}
+              </TableCell>
+              <TableCell>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <span>{fCurrency(st.freightDetails?.freightAmount || st.totalAmount || 0)}</span>
+                  <Tooltip title={getFreightExplanation(st, false)} arrow placement="top">
+                    <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                    </Box>
+                  </Tooltip>
+                </Stack>
+              </TableCell>
+              <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
+                {st.shortageWeight ? `${fNumber(st.shortageWeight)} Kg` : '-'}
+              </TableCell>
             </TableRow>
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={7} />
+            <TableCell colSpan={10} />
             <StyledTableCell>Total</StyledTableCell>
             <TableCell>{fCurrency(totalAmountBeforeTax)}</TableCell>
+            <TableCell />
           </StyledTableRow>
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={7} />
+              <TableCell colSpan={10} />
               <StyledTableCell>CGST {cgst.rate}%</StyledTableCell>
               <TableCell>{fCurrency(cgst.amount)}</TableCell>
+              <TableCell />
             </StyledTableRow>
           )}
 
           {sgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={7} />
+              <TableCell colSpan={10} />
               <StyledTableCell>SGST {sgst.rate}%</StyledTableCell>
               <TableCell>{fCurrency(sgst.amount)}</TableCell>
+              <TableCell />
             </StyledTableRow>
           )}
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={7} />
+              <TableCell colSpan={10} />
               <StyledTableCell>IGST {igst.rate}%</StyledTableCell>
               <TableCell>{fCurrency(igst.amount)}</TableCell>
+              <TableCell />
             </StyledTableRow>
           )}
 
           {additionalCharges?.map(({ label, amount }, index) => (
             <StyledTableRow key={index}>
-              <TableCell colSpan={7} />
+              <TableCell colSpan={10} />
               <StyledTableCell>{label}</StyledTableCell>
               <TableCell sx={{ color: amount < 0 ? 'error.main' : 'default' }}>
                 {fCurrency(amount)}
               </TableCell>
+              <TableCell />
             </StyledTableRow>
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={7} />
+            <TableCell colSpan={10} />
             <StyledTableCell>Net Total</StyledTableCell>
             <TableCell sx={{ color: 'error.main' }}>{fCurrency(netTotal)}</TableCell>
+            <TableCell />
           </StyledTableRow>
         </TableBody>
       </Table>

@@ -22,6 +22,8 @@ import { useSubtripEvents } from 'src/query/use-subtrip-events';
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 
+import { calculateInvoicePerSubtrip } from 'src/sections/invoice/utills/invoice-calculation';
+
 import { useTenantContext } from 'src/auth/tenant';
 
 import { SUBTRIP_STATUS } from '../constants';
@@ -47,6 +49,97 @@ import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
+
+// Helper to get freight amount display and explanation description
+const getFreightDisplay = (subtrip) => {
+  const {
+    freightModel = 'per_ton',
+    rate = 0,
+    freightAmount: serverFreightAmount,
+    startKm = 0,
+    endKm,
+    baseKm = 0,
+  } = subtrip?.freightDetails || {};
+
+  const isPending =
+    ['per_hour', 'per_km', 'hybrid'].includes(freightModel) &&
+    !['received', 'billed'].includes(subtrip?.subtripStatus);
+
+  if (isPending) {
+    let formula = '';
+    if (freightModel === 'per_hour') formula = `${fCurrency(rate)}/hour`;
+    else if (freightModel === 'per_km') formula = `${fCurrency(rate)}/KM`;
+    else if (freightModel === 'hybrid') formula = `Hybrid (Base + Extra KM)`;
+
+    return {
+      value: 'Pending Receive',
+      description: `Rate: ${formula} (calculated at receive stage)`,
+    };
+  }
+
+  const { freightAmount } = calculateInvoicePerSubtrip(subtrip);
+
+  let description = '';
+  const formattedRate = fCurrency(rate || subtrip.rate || 0);
+  const loadingWt = subtrip.loadingWeight || 0;
+
+  if (freightModel === 'per_ton') {
+    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} MT`;
+  } else if (freightModel === 'per_km') {
+    const diffKm = endKm && startKm && endKm > startKm ? endKm - startKm : 0;
+    description = `Freight: ${formattedRate} × ${fNumber(diffKm)} KM (KM: ${startKm} to ${endKm || startKm})`;
+  } else if (freightModel === 'per_hour') {
+    let diffInHours = 0;
+    if (subtrip.startDate && subtrip.endDate) {
+      const start = new Date(subtrip.startDate).getTime();
+      const end = new Date(subtrip.endDate).getTime();
+      diffInHours = Math.ceil((end - start) / (1000 * 60 * 60));
+    }
+    description = `Freight: ${formattedRate} × ${fNumber(diffInHours)} Hr (Duration: ${diffInHours} hours)`;
+  } else if (freightModel === 'hybrid') {
+    const totalKm = endKm && startKm && endKm > startKm ? endKm - startKm : 0;
+    const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
+    const baseFreight = serverFreightAmount || 0;
+    description = `Freight: Base ₹${fNumber(baseFreight)} (${baseKm} km) + Extra ${extraKm} km × ${formattedRate}/km`;
+  } else if (freightModel === 'fixed') {
+    description = `Fixed Freight Amount`;
+  } else {
+    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} MT`;
+  }
+
+  return {
+    value: freightAmount, // will be formatted to currency by widget
+    description,
+  };
+};
+
+// Helper to get commission display and explanation description
+const getCommissionDisplay = (subtrip) => {
+  const { commissionRate = 0, commissionAmount = 0 } = subtrip?.commissionDetails || {};
+  const { freightDetails } = subtrip || {};
+  const freightModel = freightDetails?.freightModel || 'per_ton';
+
+  const isPending = !['received', 'billed'].includes(subtrip?.subtripStatus);
+
+  if (isPending) {
+    return {
+      value: 'Pending Receive',
+      description: 'Transporter commission calculated at receive stage',
+    };
+  }
+
+  let description = '';
+  if (freightModel === 'per_ton' && commissionRate > 0) {
+    description = `Commission: ${fCurrency(commissionRate)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+  } else {
+    description = `Fixed Transporter Commission`;
+  }
+
+  return {
+    value: commissionAmount, // will be formatted to currency by widget
+    description,
+  };
+};
 
 export function SubtripDetailView({ subtrip, publicMode = false }) {
   const navigate = useNavigate();
@@ -84,14 +177,8 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
     0
   );
 
-  // Income calculation: own vehicle = freight (rate × loadingWeight), market = commission (commissionRate × loadingWeight)
-  const ownIncomeTotal = (subtrip.rate || 0) * (subtrip.loadingWeight || 0);
-  const marketIncomeTotal = (subtrip.commissionRate || 0) * (subtrip.loadingWeight || 0);
-  const incomeTotal = isMarketVehicle ? marketIncomeTotal : ownIncomeTotal;
-
-  const incomeDescription = isMarketVehicle
-    ? `Commission: ${fCurrency(subtrip.commissionRate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`
-    : `Freight: ${fCurrency(subtrip.rate || 0)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+  const freightDisplay = getFreightDisplay(subtrip);
+  const commissionDisplay = isMarketVehicle ? getCommissionDisplay(subtrip) : null;
 
   const expenseDescription = isMarketVehicle
     ? `Total advances paid to transporter`
@@ -545,20 +632,35 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
               {/* Insights removed as route-based analysis is deprecated */}
 
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                 <IncomeWidgetSummary
-                  title={isMarketVehicle ? 'Commission Income' : 'Freight Income'}
+                  title="Freight Amount"
                   type="income"
                   color="primary"
                   icon="eva:diagonal-arrow-right-up-fill"
-                  total={incomeTotal}
-                  description={incomeDescription}
+                  total={freightDisplay.value}
+                  description={freightDisplay.description}
                   badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
                   badgeColor={isMarketVehicle ? 'secondary' : 'primary'}
                   chart={{
                     series: [7, 208, 76, 48, 74, 54, 157, 84],
                   }}
                 />
+                {isMarketVehicle && (
+                  <IncomeWidgetSummary
+                    title="Commission Income"
+                    type="income"
+                    color="success"
+                    icon="eva:diagonal-arrow-right-up-fill"
+                    total={commissionDisplay.value}
+                    description={commissionDisplay.description}
+                    badge="Market Vehicle"
+                    badgeColor="secondary"
+                    chart={{
+                      series: [7, 208, 76, 48, 74, 54, 157, 84],
+                    }}
+                  />
+                )}
                 <IncomeWidgetSummary
                   title={isMarketVehicle ? 'Advances' : 'Expenses'}
                   type="expense"

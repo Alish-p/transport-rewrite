@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
@@ -21,8 +22,13 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+
+import { getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
+
+import { getTransporterPaymentStatusColor } from './utils/constant';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '& td': {
@@ -60,15 +66,7 @@ function RenderHeader({ transporterPayment }) {
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
         <Label
           variant="soft"
-          color={
-            status === 'paid'
-              ? 'success'
-              : status === 'pending'
-                ? 'warning'
-                : status === 'overdue'
-                  ? 'error'
-                  : 'default'
-          }
+          color={getTransporterPaymentStatusColor(status)}
         >
           {status || 'Draft'}
         </Label>
@@ -120,10 +118,8 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>InvoiceNo</StyledTableCell>
-            <StyledTableCell align="right">Load QTY(MT)</StyledTableCell>
             <StyledTableCell align="right">Shortage Qty(MT)</StyledTableCell>
             <StyledTableCell align="right">Shortage Amt</StyledTableCell>
-            <StyledTableCell align="right">FRT-RATE</StyledTableCell>
             <StyledTableCell align="right">FRT-Amt</StyledTableCell>
             <StyledTableCell align="right">Deductions</StyledTableCell>
             <StyledTableCell align="right">Total Payable</StyledTableCell>
@@ -144,27 +140,31 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
-              <TableCell align="right">{st.loadingWeight}</TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
-              <TableCell align="right">{fCurrency(st.effectiveFreightRate)}</TableCell>
-              <TableCell align="right">{fCurrency(st.freightAmount)}</TableCell>
-              <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
               <TableCell align="right">
-                {fCurrency(st.freightAmount - st.totalExpense - st.shortageAmount)}
+                <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                  <span>{fCurrency(st.freightAmount)}</span>
+                  <Tooltip title={getFreightExplanation(st, true)} arrow placement="top">
+                    <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                    </Box>
+                  </Tooltip>
+                </Stack>
               </TableCell>
+              <TableCell align="right">{fCurrency(st.totalExpense)}</TableCell>
+              <TableCell align="right">{fCurrency(st.totalTransporterPayment)}</TableCell>
             </TableRow>
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={8} />
+            <TableCell colSpan={7} />
             <StyledTableCell align="right" sx={{ color: 'info.main' }}>
               Total
             </StyledTableCell>
             <TableCell sx={{ color: 'info.main' }} align="right">
               {fCurrency(totalShortageAmount)}
             </TableCell>
-            <TableCell align="right">-</TableCell>
             <TableCell sx={{ color: 'info.main' }} align="right">
               {fCurrency(totalFreightAmount)}
             </TableCell>
@@ -178,7 +178,7 @@ function RenderTable({ transporterPayment }) {
 
           {tds?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11} />
+              <TableCell colSpan={9} />
               <StyledTableCell colSpan={2} align="right">
                 TDS({tds?.rate || 0}%)
               </StyledTableCell>
@@ -190,46 +190,46 @@ function RenderTable({ transporterPayment }) {
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11}>
+              <TableCell colSpan={9}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
               <StyledTableCell colSpan={2} align="right">
                 CGST {cgst.rate}%
               </StyledTableCell>
-              <TableCell align="right">{fCurrency(cgst.amount)}</TableCell>
+              <StyledTableCell align="right">{fCurrency(cgst.amount)}</StyledTableCell>
             </StyledTableRow>
           )}
 
           {sgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11} />
+              <TableCell colSpan={9} />
               <StyledTableCell colSpan={2} align="right">
                 SGST {sgst.rate}%
               </StyledTableCell>
-              <TableCell align="right">{fCurrency(sgst.amount)}</TableCell>
+              <StyledTableCell align="right">{fCurrency(sgst.amount)}</StyledTableCell>
             </StyledTableRow>
           )}
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={11}>
+              <TableCell colSpan={9}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
               <StyledTableCell colSpan={2} align="right">
                 IGST {igst.rate}%
               </StyledTableCell>
-              <TableCell align="right" title="GST under RCM Mechnism">
+              <StyledTableCell align="right" title="GST under RCM Mechnism">
                 {fCurrency(igst.amount)}
-              </TableCell>
+              </StyledTableCell>
             </StyledTableRow>
           )}
 
           {additionalCharges?.length > 0 &&
             additionalCharges.map(({ label, amount }) => (
-              <StyledTableRow>
-                <TableCell colSpan={11} />
+              <StyledTableRow key={label}>
+                <TableCell colSpan={9} />
                 <StyledTableCell colSpan={2} align="right">
                   {label}
                 </StyledTableCell>
@@ -240,7 +240,7 @@ function RenderTable({ transporterPayment }) {
             ))}
 
           <StyledTableRow>
-            <TableCell colSpan={11} />
+            <TableCell colSpan={9} />
             <StyledTableCell colSpan={2} align="right">
               Net-Payable
             </StyledTableCell>

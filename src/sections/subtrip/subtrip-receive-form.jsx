@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect, useCallback } from 'react';
@@ -19,6 +20,7 @@ import {
 } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFieldHelpers } from 'src/hooks/use-form-config';
 
 import { useSubtrip, useUpdateSubtripReceiveInfo, getSubtripDocumentUploadUrl } from 'src/query/use-subtrip';
 
@@ -33,12 +35,21 @@ import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
+import { SubtripReceiveSettlementSummary } from './widgets/subtrip-receive-settlement-summary';
 
 const defaultValues = {
   subtripId: '',
   endDate: new Date(),
   unloadingWeight: 0,
-  commissionRate: 0,
+  commissionDetails: {
+    commissionRate: 0,
+    commissionAmount: 0,
+  },
+  freightDetails: {
+    freightAmount: 0,
+    endKm: '',
+    endTime: null,
+  },
   hasShortage: false,
   hasError: false,
   shortageWeight: 0,
@@ -49,8 +60,100 @@ const defaultValues = {
 
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch, setValue } = methods;
-  const { hasError, hasShortage, unloadingWeight, commissionRate } = watch();
+  const {
+    hasError,
+    hasShortage,
+    unloadingWeight,
+    commissionDetails,
+    freightDetails,
+    endDate,
+    shortageAmount,
+    shortageWeight,
+  } = watch();
   const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
+  const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
+
+  const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
+  const { getLabel, isRequired } = useFieldHelpers('subtrip', customerId);
+
+  // Initialize default freight details when selectedSubtrip loads/changes
+  useEffect(() => {
+    if (selectedSubtrip && selectedSubtrip.freightDetails) {
+      setValue('freightDetails', {
+        freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
+        endKm: (selectedSubtrip.freightDetails.endKm !== undefined && selectedSubtrip.freightDetails.endKm !== null)
+          ? selectedSubtrip.freightDetails.endKm
+          : undefined,
+        endTime: selectedSubtrip.freightDetails.endTime || null,
+      }, { shouldValidate: true });
+    }
+  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
+
+  // Initialize default commission details when selectedSubtrip loads/changes
+  useEffect(() => {
+    if (selectedSubtrip && selectedSubtrip.commissionDetails) {
+      setValue('commissionDetails', {
+        commissionRate: selectedSubtrip.commissionDetails.commissionRate || 0,
+        commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
+      }, { shouldValidate: true });
+    }
+  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
+
+  // Initialize helper context fields for zod dynamic schema validation
+  useEffect(() => {
+    if (selectedSubtrip) {
+      setValue('freightModel', selectedSubtrip.freightDetails?.freightModel || 'per_ton');
+      setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
+      setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
+      setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
+      setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
+    }
+  }, [selectedSubtrip, setValue, isRequired]);
+
+  // Auto-calculate commission amount based on commissionRate and loadingWeight for per_ton model
+  useEffect(() => {
+    if (!selectedSubtrip || isOwn || freightModel !== 'per_ton') return;
+
+    const rate = Number(commissionDetails?.commissionRate || 0);
+    const weight = Number(selectedSubtrip.loadingWeight || 0);
+    setValue('commissionDetails.commissionAmount', rate * weight, { shouldValidate: true });
+  }, [commissionDetails?.commissionRate, selectedSubtrip, freightModel, isOwn, setValue]);
+
+  // Auto-calculate freight amount based on endKm / endDate for specific models
+  useEffect(() => {
+    if (!selectedSubtrip) return;
+
+    const rate = selectedSubtrip.freightDetails?.rate || 0;
+
+    if (freightModel === 'per_km' && freightDetails?.endKm) {
+      const startKm = selectedSubtrip.freightDetails?.startKm || 0;
+      const endKm = Number(freightDetails.endKm);
+      if (endKm > startKm) {
+        setValue('freightDetails.freightAmount', (endKm - startKm) * rate, { shouldValidate: true });
+      }
+    } else if (freightModel === 'hybrid' && freightDetails?.endKm) {
+      const startKm = selectedSubtrip.freightDetails?.startKm || 0;
+      const endKm = Number(freightDetails.endKm);
+      const baseKm = selectedSubtrip.freightDetails?.baseKm || 0;
+      const baseFreight = selectedSubtrip.freightDetails?.freightAmount || 0;
+      const totalKm = endKm > startKm ? endKm - startKm : 0;
+
+      if (totalKm > baseKm && rate > 0) {
+        const extraKm = totalKm - baseKm;
+        setValue('freightDetails.freightAmount', baseFreight + (extraKm * rate), { shouldValidate: true });
+      }
+    } else if (freightModel === 'per_hour' && endDate) {
+      const startTime = selectedSubtrip.startDate;
+      if (startTime) {
+        const start = dayjs(startTime);
+        const end = dayjs(endDate);
+        const diffInHours = Math.ceil(end.diff(start, 'hour', true));
+        if (diffInHours > 0) {
+          setValue('freightDetails.freightAmount', diffInHours * rate, { shouldValidate: true });
+        }
+      }
+    }
+  }, [freightDetails?.endKm, endDate, selectedSubtrip, freightModel, isOwn, setValue]);
 
   const handleDropMultiFile = useCallback(
     (acceptedFiles) => {
@@ -60,7 +163,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           preview: URL.createObjectURL(file),
         })
       );
-      
+
       const totalFiles = [...currentDocs, ...newFiles];
       if (totalFiles.length > 5) {
         // We can just slice it to 5, or leave it to show the zod validation error
@@ -109,35 +212,76 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
         {selectedSubtrip && (
           <>
-            <Field.Text
-              name="unloadingWeight"
-              label="Unloading Weight"
-              type="number"
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
-                ),
-              }}
-            />
-
-            {isOwn ? null : (
+            <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={customerId}>
               <Field.Text
-                name="commissionRate"
-                label="Transporter Commission Rate"
+                name="unloadingWeight"
+                label={getLabel('unloadingWeight', 'Unloading Weight')}
                 type="number"
-                required
+                required={freightModel === 'per_ton' || isRequired('unloadingWeight')}
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">
-                      <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
-                    </InputAdornment>
+                    <InputAdornment position="end">{loadingWeightUnit[vehicleType]}</InputAdornment>
                   ),
                 }}
               />
+            </Field.Configurable>
+
+            {isOwn ? null : freightModel === 'per_ton' ? (
+              <Field.Configurable entity="subtrip" name="commissionRate" customerId={customerId}>
+                <Field.Text
+                  name="commissionDetails.commissionRate"
+                  label={getLabel('commissionRate', 'Transporter Commission Rate')}
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Field.Configurable>
+            ) : (
+              <Field.Configurable entity="subtrip" name="commissionAmount" customerId={customerId}>
+                <Field.Text
+                  name="commissionDetails.commissionAmount"
+                  label={getLabel('commissionAmount', 'Transporter Commission Amount')}
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Field.Configurable>
             )}
 
             <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
+
+            {(freightModel === 'per_km' || freightModel === 'hybrid') && (
+              <Field.Configurable entity="subtrip" name="endKm" customerId={customerId}>
+                <Field.Text
+                  name="freightDetails.endKm"
+                  label={getLabel('endKm', 'Billing End KM')}
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                  }}
+                />
+              </Field.Configurable>
+            )}
+
+            <SubtripReceiveSettlementSummary
+              selectedSubtrip={selectedSubtrip}
+              freightDetails={freightDetails}
+              commissionDetails={commissionDetails}
+              hasShortage={hasShortage}
+              shortageAmount={shortageAmount}
+              shortageWeight={shortageWeight}
+              endDate={endDate}
+            />
           </>
         )}
       </Box>
@@ -157,31 +301,35 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 Shortage Details
               </Typography>
               <Stack direction="row" spacing={2}>
-                <Field.Number
-                  name="shortageWeight"
-                  label="Shortage Weight"
-                  helperText=""
-                  placeholder="0"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {loadingWeightUnit[vehicleType]}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <Field.Text
-                  name="shortageAmount"
-                  label="Shortage Amount"
-                  type="number"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <Field.Configurable entity="subtrip" name="shortageWeight" customerId={customerId}>
+                  <Field.Number
+                    name="shortageWeight"
+                    label={getLabel('shortageWeight', 'Shortage Weight')}
+                    helperText=""
+                    placeholder="0"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {loadingWeightUnit[vehicleType]}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Field.Configurable>
+                <Field.Configurable entity="subtrip" name="shortageAmount" customerId={customerId}>
+                  <Field.Text
+                    name="shortageAmount"
+                    label={getLabel('shortageAmount', 'Shortage Amount')}
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Field.Configurable>
               </Stack>
             </Box>
           )}
@@ -191,7 +339,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               <Typography variant="subtitle2" color="error.main" gutterBottom>
                 Error Details
               </Typography>
-              <Field.Text name="remarks" label="Error Remarks" type="text" multiline rows={3} />
+              <Field.Configurable entity="subtrip" name="remarks" customerId={customerId}>
+                <Field.Text name="remarks" label={getLabel('remarks', 'Error Remarks')} type="text" multiline rows={3} />
+              </Field.Configurable>
             </Box>
           )}
 
@@ -218,9 +368,14 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             Unloading weight cannot be more than loading weight
           </Alert>
         )}
-        {commissionRate > selectedSubtrip?.rate && (
+        {(!isOwn && freightModel === 'per_ton' && commissionDetails?.commissionRate > selectedSubtrip?.freightDetails?.rate) && (
           <Alert severity="error" variant="outlined">
             Commission rate cannot be more than the freight rate
+          </Alert>
+        )}
+        {(!isOwn && freightModel !== 'per_ton' && commissionDetails?.commissionAmount > selectedSubtrip?.freightDetails?.freightAmount) && (
+          <Alert severity="error" variant="outlined">
+            Commission amount cannot be more than the freight amount
           </Alert>
         )}
       </Stack>
@@ -255,7 +410,7 @@ export function SubtripReceiveForm() {
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
-  const { unloadingWeight, commissionRate } = watch();
+  const { unloadingWeight, commissionDetails } = watch();
   const { isOwn } = selectedSubtripData?.vehicleId || {};
   const handleSubtripChange = useCallback(
     (subtrip) => {
@@ -289,7 +444,7 @@ export function SubtripReceiveForm() {
           })
         );
       }
-      
+
       const submissionData = { ...data, docs: uploadedDocs };
 
       await receiveSubtrip({ id: selectedSubtripData._id, data: submissionData });
@@ -344,7 +499,8 @@ export function SubtripReceiveForm() {
                   isSubmitting ||
                   // local errors
                   unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  (!isOwn && commissionRate > selectedSubtripData?.rate)
+                  (!isOwn && selectedSubtripData?.freightDetails?.freightModel === 'per_ton' && commissionDetails?.commissionRate > selectedSubtripData?.freightDetails?.rate) ||
+                  (!isOwn && selectedSubtripData?.freightDetails?.freightModel !== 'per_ton' && commissionDetails?.commissionAmount > selectedSubtripData?.freightDetails?.freightAmount)
                 }
               >
                 Save Changes
@@ -358,7 +514,8 @@ export function SubtripReceiveForm() {
               <Stack spacing={2}>
                 <SubtripDetailCard
                   selectedSubtrip={selectedSubtripData}
-                  commissionRate={watch('commissionRate')}
+                  commissionRate={watch('commissionDetails.commissionRate')}
+                  commissionAmount={watch('commissionDetails.commissionAmount')}
                 />
                 <BasicExpenseTable selectedSubtrip={selectedSubtripData} />
               </Stack>

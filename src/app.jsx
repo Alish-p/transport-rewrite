@@ -20,6 +20,7 @@ import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/component
 
 import { TenantProvider } from 'src/auth/tenant';
 import { AuthProvider } from 'src/auth/context/jwt';
+import { FieldConfigProvider } from 'src/auth/field-config';
 
 // ----------------------------------------------------------------------
 
@@ -31,18 +32,20 @@ export default function App() {
       <LocalizationProvider>
         <AuthProvider>
           <TenantProvider>
-            <ReactQueryProvider>
-              <SettingsProvider settings={defaultSettings}>
-                <ThemeProvider>
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer />
-                    <Router />
-                  </MotionLazy>
-                </ThemeProvider>
-              </SettingsProvider>
-            </ReactQueryProvider>
+            <FieldConfigProvider>
+              <ReactQueryProvider>
+                <SettingsProvider settings={defaultSettings}>
+                  <ThemeProvider>
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer />
+                      <Router />
+                    </MotionLazy>
+                  </ThemeProvider>
+                </SettingsProvider>
+              </ReactQueryProvider>
+            </FieldConfigProvider>
           </TenantProvider>
         </AuthProvider>
       </LocalizationProvider>

@@ -11,6 +11,7 @@ import { RHFCountrySelect } from './rhf-country-select';
 import { RHFInputWithUnit } from './rhf-input-with-unit';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
 import { RHFSelect, RHFMultiSelect } from './rhf-select';
+import { ConfigurableField } from './configurable-field';
 import { RHFCheckbox, RHFMultiCheckbox } from './rhf-checkbox';
 import { RHFFreeSoloAutocomplete } from './rhf-autocomplete-freesolo';
 import { RHFUpload, RHFUploadBox, RHFUploadAvatar } from './rhf-upload';
@@ -46,4 +47,5 @@ export const Field = {
   MultiAutocompleteFreeSolo: RHFMultiAutocompleteFreeSolo,
   InputWithUnit: RHFInputWithUnit,
   AutocompleteCreatable: RHFAutocompleteCreatable,
+  Configurable: ConfigurableField,
 };

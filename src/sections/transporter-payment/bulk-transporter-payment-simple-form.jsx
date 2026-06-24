@@ -150,10 +150,8 @@ function BulkTransporterPaymentIndividualCard({
                 'From',
                 'Destination',
                 'InvoiceNo',
-                'Load Qty',
                 'Shortage Qty',
                 'Shortage Amt',
-                'FRT-RATE',
                 'FRT-AMT',
                 'Expense',
                 'Total Payable',
@@ -168,7 +166,6 @@ function BulkTransporterPaymentIndividualCard({
           <TableBody>
             {subtrips.map((st, si) => {
               const {
-                effectiveFreightRate,
                 totalFreightAmount: freightAmount,
                 totalExpense: expense,
                 totalTransporterPayment,
@@ -183,10 +180,8 @@ function BulkTransporterPaymentIndividualCard({
                   <TableCell>{st.loadingPoint}</TableCell>
                   <TableCell>{st.unloadingPoint}</TableCell>
                   <TableCell>{st.invoiceNo}</TableCell>
-                  <TableCell align="right">{st.loadingWeight}</TableCell>
                   <TableCell align="right">{st.shortageWeight}</TableCell>
                   <TableCell align="right">{fCurrency(shortageAmount)}</TableCell>
-                  <TableCell align="right">{fCurrency(effectiveFreightRate)}</TableCell>
                   <TableCell align="right">{fCurrency(freightAmount)}</TableCell>
                   <TableCell align="right">{fCurrency(expense)}</TableCell>
                   <TableCell align="right">{fCurrency(totalTransporterPayment)}</TableCell>
@@ -200,12 +195,11 @@ function BulkTransporterPaymentIndividualCard({
             })}
 
             <StyledTableRow>
-              <TableCell colSpan={8} />
+              <TableCell colSpan={7} />
               <StyledTableCell sx={{ color: 'info.main' }}>Total</StyledTableCell>
               <TableCell align="right" sx={{ color: 'info.main' }}>
                 {fCurrency(totalShortageAmount)}
               </TableCell>
-              <TableCell align="right">-</TableCell>
               <TableCell align="right" sx={{ color: 'info.main' }}>
                 {fCurrency(totalFreightAmount)}
               </TableCell>
@@ -220,7 +214,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {taxBreakup?.tds?.rate > 0 && (
               <StyledTableRow>
-                <TableCell colSpan={13} align="right">
+                <TableCell colSpan={10} align="right">
                   TDS ({taxBreakup.tds.rate}%)
                 </TableCell>
                 <TableCell sx={{ color: 'error.main' }} align="right">
@@ -234,7 +228,7 @@ function BulkTransporterPaymentIndividualCard({
               const item = taxBreakup[k];
               return item?.rate > 0 ? (
                 <StyledTableRow key={k}>
-                  <TableCell colSpan={13} align="right">
+                  <TableCell colSpan={10} align="right">
                     {k.toUpperCase()} ({item.rate}%)
                   </TableCell>
                   <TableCell align="right">{fCurrency(item.amount)}</TableCell>
@@ -245,7 +239,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {podCharge > 0 && (
               <StyledTableRow>
-                <TableCell colSpan={13} align="right">
+                <TableCell colSpan={10} align="right">
                   POD Charges
                 </TableCell>
                 <TableCell sx={{ color: 'error.main' }} align="right">
@@ -257,7 +251,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {additionalCharges.map((ch, ci) => (
               <StyledTableRow key={ci}>
-                <TableCell colSpan={13} align="right">
+                <TableCell colSpan={10} align="right">
                   <TextField
                     style={{ width: 150 }}
                     value={ch.label}
@@ -286,7 +280,7 @@ function BulkTransporterPaymentIndividualCard({
             ))}
 
             <StyledTableRow>
-              <TableCell colSpan={15}>
+              <TableCell colSpan={13}>
                 <Button size="small" onClick={() => onAddCharge(index)}>
                   Add Extra Charge
                 </Button>
@@ -294,7 +288,7 @@ function BulkTransporterPaymentIndividualCard({
             </StyledTableRow>
 
             <StyledTableRow>
-              <TableCell colSpan={13} align="right">
+              <TableCell colSpan={10} align="right">
                 <strong>Net Total</strong>
               </TableCell>
               <TableCell align="right" sx={{ color: 'success.main' }}>
