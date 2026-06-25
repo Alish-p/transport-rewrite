@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Slider from '@mui/material/Slider';
@@ -30,7 +32,19 @@ export default function TransporterFiltersDrawer({
     onFilters,
     vehicleDialog,
     selectedVehicle,
+    setFilters,
 }) {
+    const [vehicleCount, setVehicleCount] = useState([
+        filters.vehicleCountMin ? Number(filters.vehicleCountMin) : 0,
+        filters.vehicleCountMax ? Number(filters.vehicleCountMax) : 50,
+    ]);
+
+    useEffect(() => {
+        setVehicleCount([
+            filters.vehicleCountMin ? Number(filters.vehicleCountMin) : 0,
+            filters.vehicleCountMax ? Number(filters.vehicleCountMax) : 50,
+        ]);
+    }, [filters.vehicleCountMin, filters.vehicleCountMax]);
 
     const handleFilterState = (event) => {
         onFilters('state', event.target.value);
@@ -138,13 +152,16 @@ export default function TransporterFiltersDrawer({
                             </Typography>
                         </Stack>
                         <Slider
-                            value={[
-                                filters.vehicleCountMin ? Number(filters.vehicleCountMin) : 0,
-                                filters.vehicleCountMax ? Number(filters.vehicleCountMax) : 50,
-                            ]}
+                            value={vehicleCount}
                             onChange={(event, newValue) => {
-                                onFilters('vehicleCountMin', newValue[0] === 0 ? '' : String(newValue[0]));
-                                onFilters('vehicleCountMax', newValue[1] === 50 ? '' : String(newValue[1]));
+                                setVehicleCount(newValue);
+                            }}
+                            onChangeCommitted={(event, newValue) => {
+                                setFilters({
+                                    ...filters,
+                                    vehicleCountMin: newValue[0] === 0 ? '' : String(newValue[0]),
+                                    vehicleCountMax: newValue[1] === 50 ? '' : String(newValue[1]),
+                                });
                             }}
                             valueLabelDisplay="auto"
                             valueLabelFormat={(value) => (value === 50 ? '50+' : value)}

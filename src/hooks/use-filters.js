@@ -107,6 +107,7 @@ export function useFilters(initialFilters, options = {}) {
 
   const setFilters = useCallback(
     (update) => {
+      if (onResetPage) onResetPage();
       setState(update);
       setSearchParams(
         (prev) => {
@@ -125,7 +126,7 @@ export function useFilters(initialFilters, options = {}) {
         { replace: true }
       );
     },
-    [setState, setSearchParams, serializeForQuery, initialFilters]
+    [onResetPage, setState, setSearchParams, serializeForQuery, initialFilters]
   );
 
   return {

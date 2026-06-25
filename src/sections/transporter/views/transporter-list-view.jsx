@@ -94,7 +94,7 @@ export function TransporterListView() {
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
 
-  const { filters, handleFilters, handleResetFilters: baseHandleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, handleFilters, handleResetFilters: baseHandleResetFilters, canReset, setFilters } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -269,6 +269,7 @@ export function TransporterListView() {
         <TransporterTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          setFilters={setFilters}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}

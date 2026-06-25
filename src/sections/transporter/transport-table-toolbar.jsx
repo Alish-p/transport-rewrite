@@ -33,6 +33,7 @@ import TransporterFiltersDrawer from './transporter-filters-drawer';
 export default function TransporterTableToolbar({
   filters,
   onFilters,
+  setFilters,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -191,6 +192,7 @@ export default function TransporterTableToolbar({
         onClose={filtersDrawer.onFalse}
         filters={filters}
         onFilters={onFilters}
+        setFilters={setFilters}
         vehicleDialog={vehicleDialog}
         selectedVehicle={selectedVehicle}
       />
