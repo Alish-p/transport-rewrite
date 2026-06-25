@@ -153,8 +153,19 @@ export default function PurchaseOrderLearn({ open, onClose }) {
                             Received
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-                            All ordered quantities have been fully received into your inventory. The PO is now
-                            complete and locked.
+                            All ordered quantities have been fully received into your inventory.
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                    <Iconify icon="solar:lock-password-bold" color={theme.palette.text.secondary} width={20} mt={0.3} />
+                    <Box>
+                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                            Closed
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
+                            The PO has been manually closed. It is locked and no further items can be received or edits made, even if some items are pending.
                         </Typography>
                     </Box>
                 </Box>
@@ -268,6 +279,40 @@ export default function PurchaseOrderLearn({ open, onClose }) {
                         <br />
                         If all lines are fully received, the PO moves to <b>Received</b>. If only some lines are
                         done, it moves to <b>Partially Received</b>.
+                    </Typography>
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion
+                variant="outlined"
+                sx={{
+                    mb: 1,
+                    '&:before': { display: 'none' },
+                    borderRadius: 1.5,
+                    overflow: 'hidden',
+                }}
+            >
+                <AccordionSummary
+                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    sx={{
+                        bgcolor: alpha(theme.palette.grey[500], 0.04),
+                        '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Iconify icon="solar:document-text-bold" width={20} color={theme.palette.info.main} />
+                        <Typography variant="subtitle2">What is a Goods Receipt Note (GRN)?</Typography>
+                    </Box>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 2 }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                        A <b>Goods Receipt Note (GRN)</b> is generated each time you receive items. It records exactly what was received, when, and by whom.
+                        <br />
+                        <br />
+                        <b>Price Variances:</b> When receiving, you can override the original PO cost with the actual unit cost paid. The GRN captures this actual cost and calculates the variance (difference). Your inventory valuation (Moving Average Price) will update using the <b>Actual Cost</b>, not the PO cost.
+                        <br />
+                        <br />
+                        <b>Over-Receiving:</b> You are allowed to receive more quantity than originally ordered if needed (e.g., vendor sent extra items). A warning will be displayed, but the system will accept the items and generate the GRN correctly.
                     </Typography>
                 </AccordionDetails>
             </Accordion>

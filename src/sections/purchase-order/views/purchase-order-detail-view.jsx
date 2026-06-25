@@ -6,6 +6,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import Collapse from '@mui/material/Collapse';
@@ -16,6 +17,7 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -29,12 +31,15 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { DashboardContent } from 'src/layouts/dashboard';
 import {
   usePayPurchaseOrder,
+  useClosePurchaseOrder,
   useRejectPurchaseOrder,
   useApprovePurchaseOrder,
   useReceivePurchaseOrder,
 } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -50,6 +55,7 @@ const STATUS_LABELS = {
   'partial-received': 'Partially Received',
   rejected: 'Rejected',
   received: 'Received',
+  closed: 'Closed',
 };
 
 const STATUS_COLORS = {
@@ -59,6 +65,7 @@ const STATUS_COLORS = {
   'partial-received': 'warning',
   rejected: 'error',
   received: 'success',
+  closed: 'default',
 };
 
 export function PurchaseOrderDetailView({ purchaseOrder }) {
@@ -83,6 +90,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     total,
     createdAt,
     orderDate,
+    receipts = [],
   } = purchaseOrder || {};
 
   const displayVendor = vendorSnapshot || vendor;
@@ -99,10 +107,16 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   const rejectDialog = useBoolean();
   const payDialog = useBoolean();
   const receiveDialog = useBoolean();
+  const closeDialog = useBoolean();
+  const grnDrawer = useBoolean();
 
   const [rejectReason, setRejectReason] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [receiveLines, setReceiveLines] = useState([]);
+  const [receiveNotes, setReceiveNotes] = useState('');
+  const [closeReason, setCloseReason] = useState('');
+
+  const closePo = useClosePurchaseOrder();
 
   const handleCloseRejectDialog = useCallback(() => {
     rejectDialog.onFalse();
@@ -147,9 +161,26 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     !allFullyReceived
   ) {
     actions.push({
-      label: 'Receive All',
+      label: 'Receive Items',
       icon: 'material-symbols:inventory-2-outline',
       onClick: receiveDialog.onTrue,
+    });
+  }
+
+  if (status === 'partial-received' || status === 'received') {
+    actions.push({
+      label: 'Close PO',
+      icon: 'mdi:lock-outline',
+      onClick: closeDialog.onTrue,
+    });
+  }
+
+  if (receipts && receipts.length > 0) {
+    actions.push({
+      label: 'GRN History',
+      icon: 'material-symbols:history',
+      onClick: grnDrawer.onTrue,
+      color: 'inherit',
     });
   }
 
@@ -182,11 +213,15 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               }))
             : null;
 
+          const poUnitCost = line.unitCost || 0;
+
           return {
             lineId: line._id || String(index),
             partName,
             totalOrdered,
             totalReceived,
+            poUnitCost,
+            actualUnitCost: poUnitCost,
             unit,
             receiveQty: remaining,
             checked: remaining > 0,
@@ -196,6 +231,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           };
         })
       );
+      setReceiveNotes('');
     }
   }, [receiveDialog.value, lines]);
 
@@ -212,8 +248,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
       prev.map((line) => {
         if (line.lineId !== lineId) return line;
         const raw = Number(value);
-        const remaining = Math.max(line.totalOrdered - line.totalReceived, 0);
-        const safeValue = Number.isNaN(raw) ? 0 : Math.min(Math.max(raw, 0), remaining);
+        const safeValue = Number.isNaN(raw) ? 0 : Math.max(raw, 0);
 
         // For tyre lines, resize the tyreDetails array to match new qty
         let { tyreDetails } = line;
@@ -237,6 +272,16 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         }
 
         return { ...line, receiveQty: safeValue, tyreDetails };
+      })
+    );
+  }, []);
+
+  const handleChangeActualCost = useCallback((lineId, value) => {
+    setReceiveLines((prev) =>
+      prev.map((line) => {
+        if (line.lineId !== lineId) return line;
+        const raw = Number(value);
+        return { ...line, actualUnitCost: Number.isNaN(raw) ? 0 : Math.max(raw, 0) };
       })
     );
   }, []);
@@ -294,10 +339,12 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         lines: selectedLines.map((line) => ({
           lineId: line.lineId,
           quantityToReceive: line.receiveQty,
+          actualUnitCost: line.actualUnitCost,
           ...(line.isTyre && line.tyreDetails
             ? { tyreDetails: line.tyreDetails.slice(0, line.receiveQty) }
             : {}),
         })),
+        notes: receiveNotes || undefined,
       };
 
       await receivePo({ id: _id, ...payload });
@@ -305,7 +352,19 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     } catch (error) {
       console.error(error);
     }
-  }, [receivePo, _id, receiveLines, receiveDialog]);
+  }, [receivePo, _id, receiveLines, receiveNotes, receiveDialog]);
+
+  const handleClosePo = useCallback(async () => {
+    console.log('handleClosePo triggered! _id:', _id, 'closeReason:', closeReason);
+    try {
+      console.log('Calling closePo mutation...');
+      const result = await closePo({ id: _id, closeReason: closeReason || '' });
+      console.log('Mutation success:', result);
+      closeDialog.onFalse();
+    } catch (error) {
+      console.error('Mutation error:', error);
+    }
+  }, [closePo, _id, closeReason, closeDialog]);
 
   return (
     <DashboardContent>
@@ -433,8 +492,14 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   <TableCell>Part No.</TableCell>
                   <TableCell align="right">Qty Ordered</TableCell>
                   <TableCell align="right">Qty Received</TableCell>
-                  <TableCell align="right">Unit Cost</TableCell>
-                  <TableCell align="right">Amount</TableCell>
+                  <TableCell align="right">PO Cost</TableCell>
+                  <TableCell align="right">PO Amount</TableCell>
+                  {receipts.length > 0 && (
+                    <>
+                      <TableCell align="right">Actual Avg Cost</TableCell>
+                      <TableCell align="right">Actual Amount</TableCell>
+                    </>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -445,6 +510,32 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                     line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
                   const displayUnit =
                     line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+
+                  // Compute weighted avg actual cost for this line from GRN receipts
+                  let avgActualCost = null;
+                  let actualAmount = null;
+                  if (receipts.length > 0) {
+                    let totalCost = 0;
+                    let totalQty = 0;
+                    receipts.forEach((grn) => {
+                      const grnLine = grn.lines?.find(
+                        (l) => l.lineId?.toString() === line._id?.toString()
+                      );
+                      if (grnLine && grnLine.quantityReceived > 0) {
+                        totalCost += (grnLine.actualUnitCost || 0) * grnLine.quantityReceived;
+                        totalQty += grnLine.quantityReceived;
+                      }
+                    });
+                    if (totalQty > 0) {
+                      avgActualCost = totalCost / totalQty;
+                      actualAmount = totalCost;
+                    }
+                  }
+
+                  const poCost = line.unitCost || 0;
+                  const hasVariance = avgActualCost !== null && Math.abs(avgActualCost - poCost) > 0.001;
+                  const variancePct = hasVariance ? ((avgActualCost - poCost) / poCost) * 100 : 0;
+                  const varianceColor = variancePct > 5 ? 'warning.main' : variancePct > 0 ? 'text.secondary' : 'success.main';
 
                   return (
                     <TableRow key={line._id || idx}>
@@ -473,8 +564,29 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                         {line.quantityReceived || 0}
                         {displayUnit !== '-' ? ` ${displayUnit}` : ''}
                       </TableCell>
-                      <TableCell align="right">{fCurrency(line.unitCost || 0)}</TableCell>
+                      <TableCell align="right">{fCurrency(poCost)}</TableCell>
                       <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
+                      {receipts.length > 0 && (
+                        <>
+                          <TableCell align="right">
+                            {avgActualCost !== null ? (
+                              <Box>
+                                <Typography variant="body2">{fCurrency(avgActualCost)}</Typography>
+                                {hasVariance && (
+                                  <Typography variant="caption" sx={{ color: varianceColor }}>
+                                    {variancePct > 0 ? '+' : ''}{variancePct.toFixed(1)}%
+                                  </Typography>
+                                )}
+                              </Box>
+                            ) : (
+                              <Typography variant="body2" sx={{ color: 'text.disabled' }}>—</Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="right">
+                            {actualAmount !== null ? fCurrency(actualAmount) : <Typography variant="body2" sx={{ color: 'text.disabled' }}>—</Typography>}
+                          </TableCell>
+                        </>
+                      )}
                     </TableRow>
                   );
                 })}
@@ -561,11 +673,30 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   )}
                   <Divider sx={{ my: 0.5 }} />
                   <SummaryRow
-                    label="Total Amount"
+                    label="PO Total"
                     value={fCurrency(total || 0)}
                     bold
                     highlight
                   />
+                  {receipts.length > 0 && (() => {
+                    const actualReceivedTotal = receipts.reduce((sum, grn) => sum + (grn.totalAmount || 0), 0);
+                    const totalVariance = actualReceivedTotal - (total || 0);
+                    return (
+                      <>
+                        <SummaryRow
+                          label="Actual Received Total"
+                          value={fCurrency(actualReceivedTotal)}
+                          bold
+                          color="info.main"
+                        />
+                        <SummaryRow
+                          label="Variance"
+                          value={`${totalVariance > 0 ? '+' : ''}${fCurrency(totalVariance)}`}
+                          color={totalVariance > 0 ? 'warning.main' : totalVariance < 0 ? 'success.main' : 'text.secondary'}
+                        />
+                      </>
+                    );
+                  })()}
                 </Stack>
               </Stack>
             </Card>
@@ -650,6 +781,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   <TableCell>Item</TableCell>
                   <TableCell align="right">Total Received</TableCell>
                   <TableCell align="right">Total Ordered</TableCell>
+                  <TableCell align="right">PO Cost</TableCell>
+                  <TableCell align="right">Actual Cost</TableCell>
                   <TableCell align="right">Receive</TableCell>
                 </TableRow>
               </TableHead>
@@ -685,6 +818,41 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                           {line.unit !== '-' ? ` ${line.unit}` : ''}
                         </TableCell>
                         <TableCell align="right">
+                          {fCurrency(line.poUnitCost)}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Stack spacing={0.5} alignItems="flex-end">
+                            <TextField
+                              type="number"
+                              size="small"
+                              value={line.actualUnitCost}
+                              onChange={(event) =>
+                                handleChangeActualCost(
+                                  line.lineId,
+                                  event.target.value
+                                )
+                              }
+                              inputProps={{
+                                min: 0,
+                                step: 0.01,
+                              }}
+                              sx={{ width: 100 }}
+                            />
+                            {line.poUnitCost > 0 && line.actualUnitCost !== line.poUnitCost && (
+                              <Label
+                                variant="soft"
+                                color={
+                                  Math.abs(line.actualUnitCost - line.poUnitCost) / line.poUnitCost > 0.05
+                                    ? 'warning'
+                                    : 'default'
+                                }
+                              >
+                                {((line.actualUnitCost - line.poUnitCost) / line.poUnitCost * 100).toFixed(1)}%
+                              </Label>
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell align="right">
                           <TextField
                             type="number"
                             size="small"
@@ -697,10 +865,12 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                             }
                             inputProps={{
                               min: 0,
-                              max: remaining,
                               step: 1,
                             }}
                             sx={{ width: 100 }}
+                            color={line.receiveQty > remaining ? "warning" : "primary"}
+                            helperText={line.receiveQty > remaining ? "Over-receiving" : ""}
+                            FormHelperTextProps={{ sx: { mx: 0, textAlign: 'right' } }}
                           />
                         </TableCell>
                       </TableRow>
@@ -708,7 +878,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                       {/* Tyre details rows — shown when line is checked and isTyre */}
                       {line.isTyre && line.checked && line.receiveQty > 0 && (
                         <TableRow>
-                          <TableCell colSpan={5} sx={{ py: 0 }}>
+                          <TableCell colSpan={7} sx={{ py: 0 }}>
                             <Collapse in timeout="auto" unmountOnExit>
                               <Box sx={{ py: 2 }}>
                                 <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'text.secondary' }}>
@@ -805,19 +975,146 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                 })}
               </TableBody>
             </Table>
+
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              label="Receiving Notes (optional)"
+              value={receiveNotes}
+              onChange={(event) => setReceiveNotes(event.target.value)}
+              sx={{ mt: 3 }}
+            />
           </>
         }
         action={
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleReceiveAll}
-          >
-            Receive
+          <Button variant="contained" color="primary" onClick={handleReceiveAll}>
+            Confirm Receive
           </Button>
         }
       />
-    </DashboardContent >
+
+      <ConfirmDialog
+        open={closeDialog.value}
+        onClose={closeDialog.onFalse}
+        title="Close purchase order"
+        content={
+          <>
+            <Typography sx={{ mb: 2 }}>
+              Are you sure you want to close this purchase order? You will not be able to receive any more items or make further changes.
+            </Typography>
+            <TextField
+              autoFocus
+              fullWidth
+              multiline
+              minRows={2}
+              label="Close Reason (optional)"
+              value={closeReason}
+              onChange={(event) => setCloseReason(event.target.value)}
+            />
+          </>
+        }
+        action={
+          <Button variant="contained" color="primary" onClick={() => { console.log('Button clicked!'); handleClosePo(); }}>
+            Close PO
+          </Button>
+        }
+      />
+
+      <Drawer
+        open={grnDrawer.value}
+        onClose={grnDrawer.onFalse}
+        anchor="right"
+        PaperProps={{
+          sx: { width: { xs: 1, sm: 480 }, p: 0, display: 'flex', flexDirection: 'column' },
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5, pb: 1 }}>
+          <Typography variant="h6">Goods Receipt Notes (GRN)</Typography>
+          <IconButton onClick={grnDrawer.onFalse}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </Stack>
+
+        <Divider />
+
+        <Scrollbar sx={{ p: 3 }}>
+          {(!receipts || receipts.length === 0) ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', mt: 5 }}>
+              No items have been received yet.
+            </Typography>
+          ) : (
+            <Stack spacing={4}>
+              {receipts.map((grn) => (
+                <Card key={grn._id} sx={{ p: 2, border: (theme) => `1px solid ${theme.palette.divider}` }} elevation={0}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2">
+                      GRN #{grn.grnNumber}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {fDate(grn.receivedAt)}
+                    </Typography>
+                  </Stack>
+                  
+                  {grn.receivedBy?.name && (
+                    <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'text.secondary' }}>
+                      Received by: {grn.receivedBy.name}
+                    </Typography>
+                  )}
+
+                  <Stack spacing={1} sx={{ mt: 2 }}>
+                    {grn.lines?.map((line, idx) => (
+                      <Stack key={idx} direction="row" justifyContent="space-between" sx={{ p: 1, bgcolor: 'background.neutral', borderRadius: 1 }}>
+                        <Stack>
+                          <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+                            {line.partSnapshot?.name || 'Unknown Item'}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                            Qty: {line.quantityReceived} {line.partSnapshot?.measurementUnit !== '-' ? line.partSnapshot?.measurementUnit : ''}
+                          </Typography>
+                        </Stack>
+                        <Stack alignItems="flex-end">
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {fCurrency(line.amount || (line.actualUnitCost * line.quantityReceived))}
+                          </Typography>
+                          {(line.priceVariance !== 0) && (
+                            <Label size="small" color={line.priceVariance > 0 ? 'error' : 'success'} sx={{ mt: 0.5 }}>
+                              {line.priceVariance > 0 ? '+' : ''}{fCurrency(line.priceVariance)} ({(line.priceVariancePercent || 0).toFixed(1)}%)
+                            </Label>
+                          )}
+                        </Stack>
+                      </Stack>
+                    ))}
+                  </Stack>
+
+                  <Divider sx={{ my: 2, borderStyle: 'dashed' }} />
+                  
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography variant="subtitle2">Total Value</Typography>
+                    <Typography variant="subtitle2">{fCurrency(grn.totalAmount)}</Typography>
+                  </Stack>
+                  
+                  {(grn.totalVariance !== 0) && (
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 0.5 }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>Total Variance</Typography>
+                      <Typography variant="body2" color={grn.totalVariance > 0 ? 'error' : 'success'} sx={{ fontWeight: 600 }}>
+                        {grn.totalVariance > 0 ? '+' : ''}{fCurrency(grn.totalVariance)}
+                      </Typography>
+                    </Stack>
+                  )}
+
+                  {grn.notes && (
+                    <Typography variant="body2" sx={{ mt: 2, p: 1, bgcolor: 'warning.lighter', color: 'warning.darker', borderRadius: 1 }}>
+                      <strong>Notes:</strong> {grn.notes}
+                    </Typography>
+                  )}
+                </Card>
+              ))}
+            </Stack>
+          )}
+        </Scrollbar>
+      </Drawer>
+    </DashboardContent>
   );
 }
 

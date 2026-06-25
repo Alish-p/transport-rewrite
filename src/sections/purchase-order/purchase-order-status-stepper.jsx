@@ -4,7 +4,7 @@ import { Iconify } from 'src/components/iconify';
 
 import { SimpleStepper } from 'src/sections/subtrip/widgets/subtrip-completion-stepper';
 
-const STATUS_ORDER = ['pending-approval', 'rejected', 'approved', 'purchased', 'received'];
+const STATUS_ORDER = ['pending-approval', 'rejected', 'approved', 'purchased', 'received', 'closed'];
 
 const STATUS_DESCRIPTIONS = {
   'pending-approval': 'Purchase order has been created and is awaiting approval',
@@ -12,11 +12,13 @@ const STATUS_DESCRIPTIONS = {
   purchased: 'Items have been purchased / ordered from the vendor',
   received: 'Ordered items have been received into inventory',
   rejected: 'Purchase order was rejected and will not be processed',
+  closed: 'Purchase order has been closed. No further actions can be taken.',
 };
 
 export function PurchaseOrderStatusStepper({ status }) {
   const isPartialReceived = status === 'partial-received';
-  const normalizedStatus = isPartialReceived ? 'received' : status;
+  const isClosed = status === 'closed';
+  const normalizedStatus = isClosed ? 'closed' : isPartialReceived ? 'received' : status;
 
   const statusToStepIndex = STATUS_ORDER.reduce(
     (acc, key, index) => ({ ...acc, [key]: index }),
@@ -31,7 +33,9 @@ export function PurchaseOrderStatusStepper({ status }) {
         ? 'Pending Approval'
         : statusKey === 'received' && isPartialReceived
           ? 'Partially Received'
-          : statusKey.charAt(0).toUpperCase() + statusKey.slice(1);
+          : statusKey === 'closed'
+            ? 'Closed'
+            : statusKey.charAt(0).toUpperCase() + statusKey.slice(1);
 
     const description =
       statusKey === 'received' && isPartialReceived
@@ -56,6 +60,7 @@ export function PurchaseOrderStatusStepper({ status }) {
         : 'material-symbols:inventory-2-outline';
     }
     if (statusKey === 'rejected') iconName = 'eva:close-circle-outline';
+    if (statusKey === 'closed') iconName = 'mdi:lock-outline';
 
     const description =
       statusKey === 'received' && isPartialReceived

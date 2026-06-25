@@ -1,8 +1,11 @@
 import React from 'react';
 
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -19,6 +22,7 @@ const STATUS_CONFIG = {
   'partial-received': { label: 'Partially Received', color: 'warning' },
   rejected: { label: 'Rejected', color: 'error' },
   received: { label: 'Received', color: 'success' },
+  closed: { label: 'Closed', color: 'default' },
 };
 
 export const TABLE_COLUMNS = [
@@ -99,12 +103,76 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'total',
-    label: 'Total',
+    label: 'PO Total',
     defaultVisible: true,
     sortable: true,
     disabled: false,
     getter: (row) => row.total,
     render: (row) => fCurrency(row.total || 0),
+  },
+  {
+    id: 'actualReceivedValue',
+    label: 'Actual Value',
+    defaultVisible: true,
+    sortable: false,
+    disabled: false,
+    getter: (row) => row.actualReceivedValue,
+    render: (row) => {
+      const val = row.actualReceivedValue || 0;
+      if (val === 0) return <Typography variant="body2" sx={{ color: 'text.disabled' }}>-</Typography>;
+      const poTotal = row.total || 0;
+      const variance = val - poTotal;
+      const color = variance > 0 ? 'error.main' : variance < 0 ? 'success.main' : 'text.primary';
+      return (
+        <Tooltip title={variance !== 0 ? `Variance: ${variance > 0 ? '+' : ''}${fCurrency(variance)}` : 'No variance'}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>{fCurrency(val)}</Typography>
+            {variance !== 0 && (
+              <Typography variant="caption" sx={{ color }}>
+                {variance > 0 ? '+' : ''}{fCurrency(variance)}
+              </Typography>
+            )}
+          </Box>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    id: 'receiptProgress',
+    label: 'Receipt Progress',
+    defaultVisible: true,
+    sortable: false,
+    disabled: false,
+    getter: (row) => {
+      const ordered = row.totalQtyOrdered || 0;
+      return ordered > 0 ? ((row.totalQtyReceived || 0) / ordered) * 100 : 0;
+    },
+    render: (row) => {
+      const ordered = row.totalQtyOrdered || 0;
+      const received = row.totalQtyReceived || 0;
+      if (ordered === 0) return <Typography variant="body2" sx={{ color: 'text.disabled' }}>-</Typography>;
+      const pct = Math.min((received / ordered) * 100, 100);
+      const isOver = received > ordered;
+      const color = isOver ? 'warning' : pct === 100 ? 'success' : 'primary';
+      return (
+        <Box sx={{ minWidth: 120 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {received} / {ordered}
+            </Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: `${color}.main` }}>
+              {isOver ? 'Over' : `${Math.round(pct)}%`}
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={Math.min(pct, 100)}
+            color={color}
+            sx={{ height: 6, borderRadius: 3 }}
+          />
+        </Box>
+      );
+    },
   },
   {
     id: 'createdAt',
@@ -257,6 +325,29 @@ export const TABLE_COLUMNS = [
     getter: (row) => fDate(row.receivedAt),
     render: (row) => {
       const value = row.receivedAt;
+      if (!value) return '-';
+      return (
+        <>
+          <Typography variant="body2" noWrap>
+            {fDate(value)}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
+            {fTime(value)}
+          </Typography>
+        </>
+      );
+    },
+  },
+
+  {
+    id: 'closedAt',
+    label: 'Closed Date',
+    defaultVisible: false,
+    sortable: false,
+    disabled: false,
+    getter: (row) => fDate(row.closedAt),
+    render: (row) => {
+      const value = row.closedAt;
       if (!value) return '-';
       return (
         <>

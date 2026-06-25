@@ -49,6 +49,11 @@ const receivePurchaseOrderApi = async (id, payload) => {
   return data;
 };
 
+const closePurchaseOrderApi = async (id, payload) => {
+  const { data } = await axios.put(`${ENDPOINT}/${id}/close`, payload);
+  return data;
+};
+
 // Queries
 export function usePaginatedPurchaseOrders(params, options = {}) {
   return useQuery({
@@ -177,6 +182,25 @@ export function useReceivePurchaseOrder() {
     onError: (error) => {
       const errorMessage =
         error?.response?.data?.message || error?.message || 'Failed to receive purchase order';
+      toast.error(errorMessage);
+    },
+  });
+
+  return mutateAsync;
+}
+
+export function useClosePurchaseOrder() {
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, ...payload }) => closePurchaseOrderApi(id, payload),
+    onSuccess: (updatedPo) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.setQueryData([QUERY_KEY, updatedPo._id], updatedPo);
+      toast.success('Purchase order closed');
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || 'Failed to close purchase order';
       toast.error(errorMessage);
     },
   });

@@ -73,6 +73,7 @@ const STATUS_TABS = [
   { value: 'purchased', label: 'Purchased', color: 'primary' },
   { value: 'partial-received', label: 'Partially Received', color: 'warning' },
   { value: 'received', label: 'Received', color: 'success' },
+  { value: 'closed', label: 'Closed', color: 'default' },
   { value: 'rejected', label: 'Rejected', color: 'error' },
 ];
 
