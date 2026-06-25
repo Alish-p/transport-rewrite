@@ -47,7 +47,7 @@ export function KanbanTransporterDialog({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useInfiniteTransporters(
-      { search: debouncedSearch || undefined, rowsPerPage: 50, status: 'all' },
+      { search: debouncedSearch || undefined, rowsPerPage: 50, status: 'all', includeLastSubtrip: false },
       {
         enabled: open,
         keepPreviousData: false,
