@@ -134,6 +134,16 @@ export default function TransportTableFiltersResult({
           </Block>
         )}
 
+        {filters.inactiveDays && (
+          <Block label="No trips in:">
+            <Chip
+              size="small"
+              label={`${filters.inactiveDays} days`}
+              onDelete={() => onFilters('inactiveDays', '')}
+            />
+          </Block>
+        )}
+
         <Button
           color="error"
           onClick={onResetFilters}

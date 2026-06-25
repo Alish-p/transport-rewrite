@@ -75,6 +75,7 @@ const defaultFilters = {
   gstNo: '',
   panNo: '',
   vehicleId: '',
+  inactiveDays: '',
 };
 
 // ----------------------------------------------------------------------
@@ -139,6 +140,7 @@ export function TransporterListView() {
     gstNo: filters.gstNo || undefined,
     panNo: filters.panNo || undefined,
     vehicleId: filters.vehicleId || undefined,
+    inactiveDays: filters.inactiveDays || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     order: table.order,
@@ -346,6 +348,7 @@ export function TransporterListView() {
                               gstNo: filters.gstNo || undefined,
                               panNo: filters.panNo || undefined,
                               vehicleId: filters.vehicleId || undefined,
+                              inactiveDays: filters.inactiveDays || undefined,
                               columns: visibleCols.join(','),
                               order: table.order,
                               orderBy: table.orderBy,

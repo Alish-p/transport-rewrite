@@ -9,6 +9,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
+import { fDate, fToNow } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -53,6 +54,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row.vehicleCount,
   },
+
   {
     id: 'address',
     label: 'Address',
@@ -130,6 +132,26 @@ export const TABLE_COLUMNS = [
         {row.gstEnabled ? 'Yes' : 'No'}
       </Label>
     ),
+  },
+  {
+    id: 'lastSubtripDate',
+    label: 'Last Subtrip',
+    defaultVisible: false,
+    sortable: true,
+    disabled: false,
+    getter: (row) => (row.lastSubtripDate ? new Date(row.lastSubtripDate).toLocaleDateString() : 'Never'),
+    render: (row) => {
+      const value = row.lastSubtripDate;
+      if (!value) return 'Never';
+      return (
+        <ListItemText
+          primary={fDate(value)}
+          secondary={fToNow(value)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{ typography: 'caption', noWrap: true }}
+        />
+      );
+    },
   },
   {
     id: 'gstNo',

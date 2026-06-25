@@ -182,6 +182,18 @@ export default function TransporterFiltersDrawer({
                         onChange={handleFilterPaymentMode}
                     />
 
+                    <TextField
+                        fullWidth
+                        type="number"
+                        label="No trips in last (days)"
+                        placeholder="e.g. 30"
+                        value={filters.inactiveDays}
+                        onChange={(e) => onFilters('inactiveDays', e.target.value)}
+                        InputProps={{
+                            inputProps: { min: 1 },
+                        }}
+                    />
+
                 </Stack>
             </Scrollbar>
         </Drawer>
