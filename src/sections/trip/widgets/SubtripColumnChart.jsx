@@ -11,7 +11,7 @@ export default function ProfitExpenseChart({ subtrips, title, subheader }) {
   const series = [
     {
       name: 'Profit',
-      data: subtrips?.map((subtrip) => subtrip.loadingWeight * subtrip.rate),
+      data: subtrips?.map((subtrip) => (subtrip.loadingWeight || 0) * (subtrip.freightDetails?.rate || 0)),
     },
     {
       name: 'Expenses',

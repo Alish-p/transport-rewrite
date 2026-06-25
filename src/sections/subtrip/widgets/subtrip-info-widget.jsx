@@ -46,8 +46,8 @@ export default function LRInfoCard({ subtrip }) {
     commissionDetails,
   } = subtrip;
 
-  const rate = freightDetails?.rate ?? subtrip.rate ?? '-';
-  const commissionRate = commissionDetails?.commissionRate ?? subtrip.commissionRate ?? '-';
+  const rate = freightDetails?.rate ?? '-';
+  const commissionRate = commissionDetails?.commissionRate ?? '-';
 
   const customerName = customerId?.customerName || '-';
   const customerId_ = customerId?._id;

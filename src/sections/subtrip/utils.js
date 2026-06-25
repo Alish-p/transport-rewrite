@@ -44,7 +44,7 @@ export const getFreightExplanation = (st, isTransporter = false) => {
 
   const freightDetails = st.freightDetails || {};
   const freightModel = freightDetails.freightModel || 'per_ton';
-  const rate = freightDetails.rate !== undefined ? freightDetails.rate : (st.rate || 0);
+  const rate = freightDetails.rate || 0;
   const loadingWeight = st.loadingWeight || 0;
   const vehicleType = st.vehicleType || st.vehicleId?.vehicleType || '';
   const unit = loadingWeightUnit[vehicleType] || 'Ton';

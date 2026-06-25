@@ -387,7 +387,7 @@ export function AppDailySummaryWidget({ sx, ...other }) {
                         />
                       </TableCell>
                       <TableCell>{row?.loadingWeight ?? '-'}</TableCell>
-                      <TableCell>{row?.rate ? fCurrency(row.rate) : '-'}</TableCell>
+                      <TableCell>{row?.freightDetails?.rate ? fCurrency(row.freightDetails.rate) : '-'}</TableCell>
                     </TableRow>
                   );
                 }

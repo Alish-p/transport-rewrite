@@ -80,7 +80,7 @@ const getFreightDisplay = (subtrip) => {
   const { freightAmount } = calculateInvoicePerSubtrip(subtrip);
 
   let description = '';
-  const formattedRate = fCurrency(rate || subtrip.rate || 0);
+  const formattedRate = fCurrency(rate || 0);
   const loadingWt = subtrip.loadingWeight || 0;
 
   if (freightModel === 'per_ton') {

@@ -65,7 +65,7 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
         : '-') || '-',
     date: fDateRangeShortLabel(st.startDate, st.endDate),
     weight: st.loadingWeight,
-    rate: st.rate,
+    rate: st.freightDetails?.rate || 0,
     amount: st.amt || 0,
     expense: st.totalExpense || 0,
     netProfit: (st.amt || 0) - (st.totalExpense || 0),

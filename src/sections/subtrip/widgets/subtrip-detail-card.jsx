@@ -38,7 +38,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
   } = selectedSubtrip;
 
   const { freightModel = 'per_ton', rate: freightDetailsRate, freightAmount: serverFreightAmount } = selectedSubtrip?.freightDetails || {};
-  const rate = freightDetailsRate ?? selectedSubtrip.rate ?? 0;
+  const rate = freightDetailsRate ?? 0;
 
   const formatRateValue = (value) => {
     const formatted = fCurrency(value || 0);

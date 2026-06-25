@@ -46,7 +46,7 @@ function getTripDashboardData(trip) {
     }, 0) || 0;
 
   const totalIncome =
-    trip?.subtrips?.reduce((sum, subtrip) => sum + subtrip.rate * subtrip.loadingWeight, 0) || 0;
+    trip?.subtrips?.reduce((sum, subtrip) => sum + (subtrip.freightDetails?.rate || 0) * (subtrip.loadingWeight || 0), 0) || 0;
 
   const totalDieselAmt =
     trip?.subtrips?.reduce((sum, subtrip) => {

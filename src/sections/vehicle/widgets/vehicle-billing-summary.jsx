@@ -70,9 +70,9 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const subtrips = subtripsRaw.map((row) => {
     const totalExpense = (row?.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
     const amount =
-      typeof row?.freightAmount === 'number'
-        ? row.freightAmount
-        : (row?.rate || 0) * (row?.loadingWeight || 0);
+      typeof row?.freightDetails?.freightAmount === 'number'
+        ? row.freightDetails.freightAmount
+        : (row?.freightDetails?.rate || 0) * (row?.loadingWeight || 0);
     return {
       ...row,
       customerName: row?.customerId?.customerName,
@@ -164,7 +164,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
                   Route: st.route || '-',
                   Date: fDateRangeShortLabel(st.startDate, st.endDate),
                   Weight: st.loadingWeight || 0,
-                  Rate: st.rate || 0,
+                  Rate: st.freightDetails?.rate || 0,
                   Amount: st.amt || 0,
                   Expense: st.totalExpense || 0,
                   'Net Profit': (st.amt || 0) - (st.totalExpense || 0),
@@ -313,7 +313,7 @@ function ProfitsTable({ subtrips, isLoading }) {
                     </TableCell>
                     <TableCell>{fDateRangeShortLabel(row.startDate, row.endDate)}</TableCell>
                     <TableCell>{row.loadingWeight}</TableCell>
-                    <TableCell>{row.rate}</TableCell>
+                    <TableCell>{row.freightDetails?.rate || '-'}</TableCell>
                     <TableCell>{fCurrency(row.amt)}</TableCell>
                     <TableCell>{fCurrency(row.totalExpense)}</TableCell>
                     <TableCell sx={{ color: netProfit > 0 ? 'success.main' : 'error.main' }}>

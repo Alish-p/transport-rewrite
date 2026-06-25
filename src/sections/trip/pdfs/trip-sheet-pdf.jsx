@@ -94,7 +94,8 @@ export default function TripSheetPdf({ trip, tenant }) {
   ];
 
   const subtripData = subtrips.map((st, idx) => {
-    const income = st.rate * st.loadingWeight;
+    const rate = st.freightDetails?.rate || 0;
+    const income = rate * (st.loadingWeight || 0);
     const expenseTotal = Array.isArray(st.expenses)
       ? st.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
       : 0;
@@ -113,7 +114,7 @@ export default function TripSheetPdf({ trip, tenant }) {
       timeTaken: fDateTimeDuration(st.startDate, st.endDate) || '-',
       material: st.materialType || '-',
       weight: st.loadingWeight || 0,
-      rate: st.rate || 0,
+      rate,
       income,
       expense: expenseTotal,
       net,
@@ -181,12 +182,12 @@ export default function TripSheetPdf({ trip, tenant }) {
   // Exclude subtrips that don't have positive weight, distance, or rate
   const validForRate = subtrips.filter((st) => {
     const weight = Number(st?.loadingWeight) || 0;
-    const rate = Number(st?.rate) || 0;
+    const rate = Number(st?.freightDetails?.rate) || 0;
     return weight > 0 && rate > 0;
   });
 
   const totalFreightAmount = validForRate.reduce(
-    (sum, st) => sum + (Number(st?.rate) || 0) * (Number(st?.loadingWeight) || 0),
+    (sum, st) => sum + (Number(st?.freightDetails?.rate) || 0) * (Number(st?.loadingWeight) || 0),
     0
   );
   const totalWeight = validForRate.reduce((sum, st) => sum + (Number(st?.loadingWeight) || 0), 0);

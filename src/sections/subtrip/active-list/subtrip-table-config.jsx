@@ -370,7 +370,7 @@ export const TABLE_COLUMNS = [
     label: 'Rate',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.rate || '-',
+    getter: (row) => row?.freightDetails?.rate || '-',
     align: 'center',
   },
   {
@@ -379,11 +379,11 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     getter: (row) => {
-      const freightAmount = row?.freightDetails?.freightAmount ?? row?.freightAmount;
+      const freightAmount = row?.freightDetails?.freightAmount;
       if (typeof freightAmount === 'number') {
         return fNumber(freightAmount);
       }
-      const rate = row?.freightDetails?.rate ?? row?.rate;
+      const rate = row?.freightDetails?.rate;
       if (rate && row?.loadingWeight) {
         return fNumber(rate * row.loadingWeight);
       }
@@ -397,7 +397,7 @@ export const TABLE_COLUMNS = [
     label: 'Commission Rate',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.commissionDetails?.commissionRate ?? row?.commissionRate ?? '-',
+    getter: (row) => row?.commissionDetails?.commissionRate ?? '-',
     align: 'center',
   },
   {
@@ -468,17 +468,17 @@ export const TABLE_COLUMNS = [
       if (row?.vehicleId?.isOwn === false) {
         const commissionAmount = row?.commissionDetails?.commissionAmount;
         if (typeof commissionAmount === 'number') return fNumber(commissionAmount);
-        const commissionRate = row?.commissionDetails?.commissionRate ?? row?.commissionRate ?? 0;
+        const commissionRate = row?.commissionDetails?.commissionRate ?? 0;
         const loadingWeight = row?.loadingWeight || 0;
         return fNumber(commissionRate * loadingWeight);
       }
 
       let freight = 0;
-      const freightAmount = row?.freightDetails?.freightAmount ?? row?.freightAmount;
+      const freightAmount = row?.freightDetails?.freightAmount;
       if (typeof freightAmount === 'number') {
         freight = freightAmount;
       } else {
-        const rate = row?.freightDetails?.rate ?? row?.rate;
+        const rate = row?.freightDetails?.rate;
         if (rate && row?.loadingWeight) {
           freight = rate * row.loadingWeight;
         }
@@ -494,17 +494,17 @@ export const TABLE_COLUMNS = [
         if (typeof commissionAmount === 'number') {
           pnl = commissionAmount;
         } else {
-          const commissionRate = row?.commissionDetails?.commissionRate ?? row?.commissionRate ?? 0;
+          const commissionRate = row?.commissionDetails?.commissionRate ?? 0;
           const loadingWeight = row?.loadingWeight || 0;
           pnl = commissionRate * loadingWeight;
         }
       } else {
         let freight = 0;
-        const freightAmount = row?.freightDetails?.freightAmount ?? row?.freightAmount;
+        const freightAmount = row?.freightDetails?.freightAmount;
         if (typeof freightAmount === 'number') {
           freight = freightAmount;
         } else {
-          const rate = row?.freightDetails?.rate ?? row?.rate;
+          const rate = row?.freightDetails?.rate;
           if (rate && row?.loadingWeight) {
             freight = rate * row.loadingWeight;
           }

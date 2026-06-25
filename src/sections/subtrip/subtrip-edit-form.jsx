@@ -168,10 +168,10 @@ export default function SubtripEditForm({ currentSubtrip }) {
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
       freightDetails: currentSubtrip?.freightDetails || {
         freightModel: 'per_ton',
-        rate: currentSubtrip?.rate || 0,
+        rate: currentSubtrip?.freightDetails?.rate || 0,
       },
       commissionDetails: currentSubtrip?.commissionDetails || {
-        commissionRate: currentSubtrip?.commissionRate || 0,
+        commissionRate: currentSubtrip?.commissionDetails?.commissionRate || 0,
         commissionAmount: 0,
       },
     }),
