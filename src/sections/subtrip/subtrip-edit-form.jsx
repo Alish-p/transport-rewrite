@@ -60,7 +60,7 @@ const numericInputSchema = z.preprocess((val) => {
 }, z.number().optional());
 
 const freightDetailsSchema = z.object({
-  freightModel: z.enum(['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
+  freightModel: z.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
   freightAmount: numericInputSchema,
   baseKm: numericInputSchema,
   rate: numericInputSchema,
@@ -117,7 +117,7 @@ const freightSuperRefine = (data, ctx) => {
     if (!freightAmount) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base Freight Amount is required", path: ['freightDetails', 'freightAmount'] });
     if (!baseKm) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Base KM is required", path: ['freightDetails', 'baseKm'] });
     if (!rate) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Extra Rate is required", path: ['freightDetails', 'rate'] });
-  } else if ((fm === 'per_ton' || fm === 'per_km' || fm === 'per_hour') && !rate) {
+  } else if ((fm === 'per_ton' || fm === 'per_kl' || fm === 'per_km' || fm === 'per_hour') && !rate) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Rate is required", path: ['freightDetails', 'rate'] });
   }
 };
@@ -295,7 +295,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       const end = dayjs(endDate);
       const diffInHours = Math.ceil(end.diff(start, 'hour', true));
       if (diffInHours > 0) displayFreightAmount = diffInHours * rate;
-    } else if (freightModel === 'per_ton') {
+    } else if (freightModel === 'per_ton' || freightModel === 'per_kl') {
       const weight = values?.loadingWeight || 0;
       displayFreightAmount = weight * rate;
     }
@@ -324,9 +324,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
         if (extraKm > 0) return `calculated using base freight of ₹${baseFreight} (${baseKm} km) + extra ${extraKm} km at ₹${rate}/km`;
         return `calculated using base freight of ₹${baseFreight} (${baseKm} km)`;
       }
-      if (freightModel === 'per_ton') {
+      if (freightModel === 'per_ton' || freightModel === 'per_kl') {
         const weight = values?.loadingWeight || 0;
-        return `calculated for loading weight of ${weight} ${loadingWeightUnit[vehicleType] || 'tons'} at ₹${rate}/ton`;
+        const unit = freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'tons');
+        const rateLabel = freightModel === 'per_kl' ? 'KL' : 'ton';
+        return `calculated for loading weight of ${weight} ${unit} at ₹${rate}/${rateLabel}`;
       }
       if (freightModel === 'fixed') {
         const baseFreight = values?.freightDetails?.freightAmount || 0;
@@ -441,12 +443,20 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     ))}
                   </Field.Select>
 
-                  {(freightModel === 'per_ton' || freightModel === 'per_km' || freightModel === 'per_hour') && (
+                  {(freightModel === 'per_ton' || freightModel === 'per_kl' || freightModel === 'per_km' || freightModel === 'per_hour') && (
                     <>
                       <Field.Configurable entity="subtrip" name="rate" customerId={currentSubtrip?.customerId?._id}>
                         <Field.Text
                           name="freightDetails.rate"
-                          label={freightModel === 'per_km' ? 'Rate (Per KM) *' : freightModel === 'per_hour' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+                          label={
+                            freightModel === 'per_km'
+                              ? 'Rate (Per KM) *'
+                              : freightModel === 'per_hour'
+                              ? 'Rate (Per Hour) *'
+                              : freightModel === 'per_kl'
+                              ? 'Rate (Per KL) *'
+                              : 'Rate (Per Ton) *'
+                          }
                           type="number"
                           InputProps={{ endAdornment: <InputAdornment position="end">₹</InputAdornment> }}
                         />
@@ -630,7 +640,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   </Field.Configurable>
                   {/* End Km moved to Trip; removed from Subtrip edit */}
                   {!isOwn && (
-                    freightModel === 'per_ton' ? (
+                    freightModel === 'per_ton' || freightModel === 'per_kl' ? (
                       <Field.Configurable entity="subtrip" name="commissionRate" customerId={currentSubtrip?.customerId?._id}>
                         <Field.Text
                           name="commissionDetails.commissionRate"

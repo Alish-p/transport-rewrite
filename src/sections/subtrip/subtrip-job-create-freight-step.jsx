@@ -45,11 +45,19 @@ export function SubtripJobCreateFreightStep({
             ))}
         </Field.Select>
 
-        {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'per_hour') && (
+        {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_kl' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'per_hour') && (
           <>
             <Field.Text
               name="rate"
-              label={watchedForm.freightModel === 'per_km' ? 'Rate (Per KM) *' : watchedForm.freightModel === 'per_hour' ? 'Rate (Per Hour) *' : 'Rate (Per Ton) *'}
+              label={
+                watchedForm.freightModel === 'per_km'
+                  ? 'Rate (Per KM) *'
+                  : watchedForm.freightModel === 'per_hour'
+                  ? 'Rate (Per Hour) *'
+                  : watchedForm.freightModel === 'per_kl'
+                  ? 'Rate (Per KL) *'
+                  : 'Rate (Per Ton) *'
+              }
               type="number"
               InputProps={{
                 endAdornment: <InputAdornment position="end">₹</InputAdornment>,
@@ -116,21 +124,23 @@ export function SubtripJobCreateFreightStep({
           />
         )}
 
-        {watchedForm.freightModel === 'per_ton' ? (
+        {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_kl') ? (
           <Field.Text
             name="loadingWeight"
-            label={getLabel('loadingWeight', 'Loading Weight')}
+            label={getLabel('loadingWeight', watchedForm.freightModel === 'per_kl' ? 'Volume (KL)' : 'Loading Weight')}
             type="number"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  {loadingWeightUnit[
-                    (selectedVehicle?.vehicleType || '').toLowerCase()
-                  ] || 'Units'}
+                  {watchedForm.freightModel === 'per_kl'
+                    ? 'KL'
+                    : loadingWeightUnit[
+                        (selectedVehicle?.vehicleType || '').toLowerCase()
+                      ] || 'Units'}
                 </InputAdornment>
               ),
             }}
-            inputProps={{ min: 0, max: 60 }}
+            inputProps={{ min: 0 }}
           />
         ) : (
           <Field.Configurable entity="subtrip" name="loadingWeight" customerId={selectedCustomer?._id}>
@@ -147,7 +157,7 @@ export function SubtripJobCreateFreightStep({
                   </InputAdornment>
                 ),
               }}
-              inputProps={{ min: 0, max: 60 }}
+              inputProps={{ min: 0 }}
             />
           </Field.Configurable>
         )}
@@ -211,7 +221,7 @@ export function getFreightStepError(form, { selectedVehicle, fetchingActiveTrip,
     return false;
   };
 
-  const requiresLoadingWeight = form.freightModel === 'per_ton' || isFieldRequired('loadingWeight');
+  const requiresLoadingWeight = form.freightModel === 'per_ton' || form.freightModel === 'per_kl' || isFieldRequired('loadingWeight');
 
   if (requiresLoadingWeight && !form.loadingWeight) {
     return 'Please enter loading weight';

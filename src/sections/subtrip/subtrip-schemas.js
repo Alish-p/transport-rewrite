@@ -47,7 +47,7 @@ export const receiveSchema = zod
     unloadingWeightRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
-    const isUnloadingWeightRequired = values.freightModel === 'per_ton' || values.unloadingWeightRequired === true;
+    const isUnloadingWeightRequired = values.freightModel === 'per_ton' || values.freightModel === 'per_kl' || values.unloadingWeightRequired === true;
     if (isUnloadingWeightRequired) {
       if (values.unloadingWeight === undefined || values.unloadingWeight === null || values.unloadingWeight <= 0) {
         ctx.addIssue({
@@ -109,7 +109,7 @@ const numericInputSchema = zod.preprocess((val) => {
   return Number.isFinite(n) ? n : undefined;
 }, zod.number().optional());
 
-// Loading weight: 0 to 60 inclusive
+// Loading weight: 0 or more
 const loadingWeightSchema = zod.preprocess((val) => {
   if (val === '' || val === null || val === undefined) return undefined;
   const n = typeof val === 'number' ? val : Number(val);
@@ -117,7 +117,6 @@ const loadingWeightSchema = zod.preprocess((val) => {
 }, zod
   .number()
   .min(0, { message: 'Loading weight must be at least 0' })
-  .max(60, { message: 'Loading weight must be at most 60' })
   .optional());
 
 const consigneeOptionSchema = zod
@@ -143,7 +142,7 @@ export const jobCreateSchema = zod
     loadingPoint: zod.string().optional(),
     unloadingPoint: zod.string().optional(),
     loadingWeight: loadingWeightSchema,
-    freightModel: zod.enum(['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
+    freightModel: zod.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
     freightAmount: numericInputSchema,
     baseKm: numericInputSchema,
     rate: numericInputSchema,
@@ -191,11 +190,11 @@ export const jobCreateSchema = zod
         }
       }
 
-      if (data.freightModel === 'per_ton') {
+      if (data.freightModel === 'per_ton' || data.freightModel === 'per_kl') {
         if (data.loadingWeight === undefined || data.loadingWeight === null) {
           ctx.addIssue({
             code: zod.ZodIssueCode.custom,
-            message: 'Loading weight is required for Per Ton model',
+            message: 'Loading weight is required for Per Ton / Per KL model',
             path: ['loadingWeight'],
           });
         }

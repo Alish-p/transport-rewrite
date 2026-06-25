@@ -151,9 +151,11 @@ export function SubtripJobCreateForm() {
     // Known beforehand
     let calculatedAmount = 0;
     let detail = '';
-    if (model === 'per_ton') {
+    if (model === 'per_ton' || model === 'per_kl') {
       calculatedAmount = rateVal * weightVal;
-      detail = `calculated for loading weight of ${fNumber(weightVal)} MT at ${fCurrency(rateVal)}/ton`;
+      detail = model === 'per_kl'
+        ? `calculated for loading volume of ${fNumber(weightVal)} KL at ${fCurrency(rateVal)}/KL`
+        : `calculated for loading weight of ${fNumber(weightVal)} MT at ${fCurrency(rateVal)}/ton`;
     } else if (model === 'fixed') {
       calculatedAmount = amountVal;
       detail = `fixed freight amount of ${fCurrency(amountVal)}`;

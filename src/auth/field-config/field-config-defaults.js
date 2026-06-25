@@ -1,5 +1,6 @@
 export const FREIGHT_MODELS = [
   { value: 'per_ton', label: 'Per Ton' },
+  { value: 'per_kl', label: 'Per KL' },
   { value: 'per_km', label: 'Per KM' },
   { value: 'per_hour', label: 'Per Hour' },
   { value: 'fixed', label: 'Fixed' },
@@ -10,7 +11,7 @@ export const FIELD_CONFIG_DEFAULTS = {
   subtrip: {
     freightConfig: {
       defaultModel: 'per_ton',
-      allowedModels: ['per_ton', 'fixed', 'per_km', 'per_hour', 'hybrid'],
+      allowedModels: ['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid'],
     },
     fields: {
       // Job creation fields

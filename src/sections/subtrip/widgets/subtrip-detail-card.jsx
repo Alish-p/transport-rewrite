@@ -45,6 +45,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
     switch (freightModel) {
       case 'per_ton':
         return `${formatted} / Ton`;
+      case 'per_kl':
+        return `${formatted} / KL`;
       case 'per_km':
         return `${formatted} / KM`;
       case 'per_hour':
@@ -62,6 +64,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
     switch (freightModel) {
       case 'per_ton':
         return `Rate: ₹${rate || 0} × Weight: ${loadingWeight || 0} Ton`;
+      case 'per_kl':
+        return `Rate: ₹${rate || 0} × Volume: ${loadingWeight || 0} KL`;
       case 'per_km': {
         const startKm = selectedSubtrip.freightDetails?.startKm || 0;
         const endKm = selectedSubtrip.freightDetails?.endKm || 0;
@@ -135,9 +139,9 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             </Typography>
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2">Loading Weight</Typography>
+                <Typography variant="body2">{freightModel === 'per_kl' ? 'Loading Volume' : 'Loading Weight'}</Typography>
                 <Typography variant="body2" fontWeight="bold" color="primary">
-                  {loadingWeight || 0} Ton
+                  {loadingWeight || 0} {freightModel === 'per_kl' ? 'KL' : 'Ton'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

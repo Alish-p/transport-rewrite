@@ -83,8 +83,9 @@ const getFreightDisplay = (subtrip) => {
   const formattedRate = fCurrency(rate || 0);
   const loadingWt = subtrip.loadingWeight || 0;
 
-  if (freightModel === 'per_ton') {
-    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} MT`;
+  if (freightModel === 'per_ton' || freightModel === 'per_kl') {
+    const unit = freightModel === 'per_kl' ? 'KL' : 'MT';
+    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} ${unit}`;
   } else if (freightModel === 'per_km') {
     const diffKm = endKm && startKm && endKm > startKm ? endKm - startKm : 0;
     description = `Freight: ${formattedRate} × ${fNumber(diffKm)} KM (KM: ${startKm} to ${endKm || startKm})`;
@@ -104,7 +105,8 @@ const getFreightDisplay = (subtrip) => {
   } else if (freightModel === 'fixed') {
     description = `Fixed Freight Amount`;
   } else {
-    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} MT`;
+    const unit = freightModel === 'per_kl' ? 'KL' : 'MT';
+    description = `Freight: ${formattedRate} × ${fNumber(loadingWt)} ${unit}`;
   }
 
   return {
@@ -129,8 +131,9 @@ const getCommissionDisplay = (subtrip) => {
   }
 
   let description = '';
-  if (freightModel === 'per_ton' && commissionRate > 0) {
-    description = `Commission: ${fCurrency(commissionRate)} × ${fNumber(subtrip.loadingWeight || 0)} MT`;
+  if ((freightModel === 'per_ton' || freightModel === 'per_kl') && commissionRate > 0) {
+    const unit = freightModel === 'per_kl' ? 'KL' : 'MT';
+    description = `Commission: ${fCurrency(commissionRate)} × ${fNumber(subtrip.loadingWeight || 0)} ${unit}`;
   } else {
     description = `Fixed Transporter Commission`;
   }
