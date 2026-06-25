@@ -16,6 +16,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fToNow } from 'src/utils/format-time';
+
 import { useTransporterEwaybills } from 'src/query/use-ewaybill';
 
 import { Label } from 'src/components/label';
@@ -95,6 +97,11 @@ export function EwaybillByStateWidget({
             {title}
           </Box>
           <Box sx={{ typography: 'h4' }}>{total}</Box>
+          {data?.fetchedAt && (
+            <Box sx={{ typography: 'caption', color: 'text.disabled', mt: 0.5 }}>
+              Last fetched: {fToNow(data.fetchedAt)} ago
+            </Box>
+          )}
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
