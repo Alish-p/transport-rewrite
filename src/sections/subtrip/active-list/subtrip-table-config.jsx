@@ -466,50 +466,19 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => {
       if (row?.vehicleId?.isOwn === false) {
-        const commissionAmount = row?.commissionDetails?.commissionAmount;
-        if (typeof commissionAmount === 'number') return fNumber(commissionAmount);
-        const commissionRate = row?.commissionDetails?.commissionRate ?? 0;
-        const loadingWeight = row?.loadingWeight || 0;
-        return fNumber(commissionRate * loadingWeight);
+        return fNumber(row?.commissionDetails?.commissionAmount || 0);
       }
 
-      let freight = 0;
-      const freightAmount = row?.freightDetails?.freightAmount;
-      if (typeof freightAmount === 'number') {
-        freight = freightAmount;
-      } else {
-        const rate = row?.freightDetails?.rate;
-        if (rate && row?.loadingWeight) {
-          freight = rate * row.loadingWeight;
-        }
-      }
-
+      const freight = row?.freightDetails?.freightAmount || 0;
       const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
       return fNumber(freight - expenses);
     },
     render: (row) => {
       let pnl = 0;
       if (row?.vehicleId?.isOwn === false) {
-        const commissionAmount = row?.commissionDetails?.commissionAmount;
-        if (typeof commissionAmount === 'number') {
-          pnl = commissionAmount;
-        } else {
-          const commissionRate = row?.commissionDetails?.commissionRate ?? 0;
-          const loadingWeight = row?.loadingWeight || 0;
-          pnl = commissionRate * loadingWeight;
-        }
+        pnl = row?.commissionDetails?.commissionAmount || 0;
       } else {
-        let freight = 0;
-        const freightAmount = row?.freightDetails?.freightAmount;
-        if (typeof freightAmount === 'number') {
-          freight = freightAmount;
-        } else {
-          const rate = row?.freightDetails?.rate;
-          if (rate && row?.loadingWeight) {
-            freight = rate * row.loadingWeight;
-          }
-        }
-
+        const freight = row?.freightDetails?.freightAmount || 0;
         const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
         pnl = freight - expenses;
       }

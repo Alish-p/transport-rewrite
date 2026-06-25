@@ -47,10 +47,7 @@ export const calculateTransporterPayment = (subtrip) => {
   const freightDetails = subtrip.freightDetails || {};
   const commissionDetails = subtrip.commissionDetails || {};
 
-  const grossFreightAmount =
-    freightDetails.freightAmount !== undefined && freightDetails.freightAmount !== null
-      ? freightDetails.freightAmount
-      : (freightDetails.rate || 0) * (subtrip.loadingWeight || 0);
+  const grossFreightAmount = freightDetails.freightAmount || 0;
 
   const commissionAmount = commissionDetails.commissionAmount || 0;
 

@@ -69,10 +69,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const subtripsRaw = data?.results || [];
   const subtrips = subtripsRaw.map((row) => {
     const totalExpense = (row?.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
-    const amount =
-      typeof row?.freightDetails?.freightAmount === 'number'
-        ? row.freightDetails.freightAmount
-        : (row?.freightDetails?.rate || 0) * (row?.loadingWeight || 0);
+    const amount = row?.freightDetails?.freightAmount || 0;
     return {
       ...row,
       customerName: row?.customerId?.customerName,

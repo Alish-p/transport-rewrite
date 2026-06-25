@@ -95,7 +95,7 @@ export default function TripSheetPdf({ trip, tenant }) {
 
   const subtripData = subtrips.map((st, idx) => {
     const rate = st.freightDetails?.rate || 0;
-    const income = rate * (st.loadingWeight || 0);
+    const income = st.freightDetails?.freightAmount || 0;
     const expenseTotal = Array.isArray(st.expenses)
       ? st.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
       : 0;
@@ -187,7 +187,7 @@ export default function TripSheetPdf({ trip, tenant }) {
   });
 
   const totalFreightAmount = validForRate.reduce(
-    (sum, st) => sum + (Number(st?.freightDetails?.rate) || 0) * (Number(st?.loadingWeight) || 0),
+    (sum, st) => sum + (st?.freightDetails?.freightAmount || 0),
     0
   );
   const totalWeight = validForRate.reduce((sum, st) => sum + (Number(st?.loadingWeight) || 0), 0);
