@@ -7,7 +7,6 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
 import { fFreightRate } from 'src/sections/subtrip/utils';
-import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';
@@ -52,6 +51,25 @@ export default function InvoicePdf({ invoice, tenant }) {
         accessor: 'weight',
         width: '8%',
         align: 'right',
+        showTotal: true,
+        formatter: (v, row) => (typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-'),
+        totalFormatter: (sum, data) => {
+          let tonSum = 0;
+          let klSum = 0;
+          data.forEach((row) => {
+            const w = Number(row.weight) || 0;
+            const unit = row.weightUnit || 'Ton';
+            if (unit === 'KL') {
+              klSum += w;
+            } else {
+              tonSum += w;
+            }
+          });
+          const parts = [];
+          if (tonSum > 0) parts.push(`${fNumber(tonSum)} Ton`);
+          if (klSum > 0) parts.push(`${fNumber(klSum)} KL`);
+          return parts.join(', ') || '0 Ton';
+        },
       },
       {
         header: 'Freight Amount ( ₹ )',
@@ -71,10 +89,14 @@ export default function InvoicePdf({ invoice, tenant }) {
       },
     ];
 
+    const getWeightUnit = (freightModel) => {
+      if (freightModel === 'per_ton') return 'Ton';
+      if (freightModel === 'per_kl') return 'KL';
+      return 'Ton';
+    };
+
     const tableData = subtripSnapshot.map((subtrip, index) => {
-      const weight = subtrip.loadingWeight
-        ? `${fNumber(subtrip.loadingWeight)} ${loadingWeightUnit[subtrip.vehicleType] || ''}`
-        : '-';
+      const weightUnit = getWeightUnit(subtrip.freightDetails?.freightModel);
 
       const rateModel = fFreightRate(
         subtrip.freightDetails?.rate || 0,
@@ -93,7 +115,8 @@ export default function InvoicePdf({ invoice, tenant }) {
         vehicle: subtrip.vehicleNo,
         material: subtrip.materialType || '-',
         rateModel,
-        weight,
+        weight: subtrip.loadingWeight || 0,
+        weightUnit,
         freightAmount: subtrip.freightDetails?.freightAmount || (subtrip.freightDetails?.rate && subtrip.loadingWeight ? subtrip.freightDetails.rate * subtrip.loadingWeight : 0),
         shortageWeight: subtrip.shortageWeight,
       };

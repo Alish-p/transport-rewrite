@@ -58,7 +58,7 @@ export default function NewPDFTable({
     <View key={rowIndex} style={[PDFStyles.gridContainer, PDFStyles.border, PDFStyles.noBorderTop]}>
       {columns.map((col, colIndex) => {
         const rawValue = row[col.accessor];
-        const displayValue = col.formatter ? col.formatter(rawValue) : rawValue;
+        const displayValue = col.formatter ? col.formatter(rawValue, row) : rawValue;
         const customStyle = getCellStyle(row, col, rowIndex);
         return (
           <View
@@ -85,7 +85,7 @@ export default function NewPDFTable({
       if (idx === 0) return totalRowLabel;
       if (col.showTotal) {
         const sum = totals[col.accessor] || 0;
-        return col.formatter ? col.formatter(sum) : fNumber(sum);
+        return col.totalFormatter ? col.totalFormatter(sum, data) : (col.formatter ? col.formatter(sum) : fNumber(sum));
       }
       return '';
     });
