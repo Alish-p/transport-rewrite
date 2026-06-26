@@ -12,6 +12,8 @@ import { useCustomersSummary } from 'src/query/use-customer';
 
 import { Iconify } from 'src/components/iconify';
 
+import { FREIGHT_MODEL_OPTIONS } from '../constants';
+
 // ----------------------------------------------------------------------
 
 export default function SubtripTableFiltersResult({
@@ -102,6 +104,10 @@ export default function SubtripTableFiltersResult({
 
   const handleRemoveCommissionRateMax = () => {
     onFilters('commissionRateMax', '');
+  };
+
+  const handleRemoveFreightModel = () => {
+    onFilters('freightModel', '');
   };
 
   const handleRemoveLoadingPoint = () => {
@@ -305,6 +311,18 @@ export default function SubtripTableFiltersResult({
                 onDelete={handleRemoveCommissionRateMax}
               />
             )}
+          </Block>
+        )}
+        {filters.freightModel && (
+          <Block label="Freight Model:">
+            <Chip
+              size="small"
+              label={
+                FREIGHT_MODEL_OPTIONS.find((opt) => opt.value === filters.freightModel)?.label ||
+                filters.freightModel
+              }
+              onDelete={handleRemoveFreightModel}
+            />
           </Block>
         )}
 

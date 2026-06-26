@@ -79,6 +79,7 @@ const defaultFilters = {
   shortage: '',
   commissionRateMin: '',
   commissionRateMax: '',
+  freightModel: '',
 };
 
 // ----------------------------------------------------------------------
@@ -145,6 +146,7 @@ export function SubtripListView() {
     shortage: filters.shortage || undefined,
     commissionRateMin: filters.commissionRateMin || undefined,
     commissionRateMax: filters.commissionRateMax || undefined,
+    freightModel: filters.freightModel || undefined,
   });
 
   useEffect(() => {
@@ -504,6 +506,7 @@ export function SubtripListView() {
                               shortage: filters.shortage || undefined,
                               commissionRateMin: filters.commissionRateMin || undefined,
                               commissionRateMax: filters.commissionRateMax || undefined,
+                              freightModel: filters.freightModel || undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',

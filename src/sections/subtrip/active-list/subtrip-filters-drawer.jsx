@@ -26,6 +26,8 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
+import { FREIGHT_MODEL_OPTIONS } from '../constants';
+
 // ----------------------------------------------------------------------
 
 export default function SubtripFiltersDrawer({
@@ -351,6 +353,25 @@ export default function SubtripFiltersDrawer({
                                 <Divider sx={{ borderStyle: 'dashed' }} />
                                 <MenuItem value="Empty">Empty</MenuItem>
                                 <MenuItem value="Loaded">Loaded</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel id="subtrip-freight-model-select-label">Freight Model</InputLabel>
+                            <Select
+                                value={filters.freightModel || ''}
+                                onChange={(event) => onFilters('freightModel', event.target.value)}
+                                input={<OutlinedInput label="Freight Model" />}
+                                labelId="subtrip-freight-model-select-label"
+                                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+                                {FREIGHT_MODEL_OPTIONS.map((opt) => (
+                                    <MenuItem key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
 

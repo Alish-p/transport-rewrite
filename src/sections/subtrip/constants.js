@@ -19,3 +19,12 @@ export const DRIVER_ADVANCE_GIVEN_BY_OPTIONS = {
   SELF: 'Self',
   FUEL_PUMP: 'Fuel Pump',
 };
+
+export const FREIGHT_MODEL_OPTIONS = [
+  { value: 'per_ton', label: 'Per Ton' },
+  { value: 'per_kl', label: 'Per KL' },
+  { value: 'fixed', label: 'Fixed' },
+  { value: 'per_km', label: 'Per KM' },
+  { value: 'per_hour', label: 'Per Hour' },
+  { value: 'hybrid', label: 'Hybrid' },
+];
