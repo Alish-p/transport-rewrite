@@ -30,7 +30,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 // assets
-import { engineType, vehicleTypes, vehicleCompany, vehicleTypeIcon } from './vehicle-config';
+import { useEngineTypes, useVehicleTypes, vehicleTypeIcon, useVehicleCompanies } from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -70,6 +70,9 @@ export const NewVehicleSchema = zod
 
 export default function VehicleForm({ currentVehicle }) {
   const router = useRouter();
+  const vehicleTypes = useVehicleTypes();
+  const vehicleCompany = useVehicleCompanies();
+  const engineType = useEngineTypes();
   const [selectedTransporter, setSelectedTransporter] = useState(
     currentVehicle?.transporter || null
   );

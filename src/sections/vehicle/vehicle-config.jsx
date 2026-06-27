@@ -1,3 +1,5 @@
+import { useTenant } from 'src/query/use-tenant';
+
 export const vehicleTypes = [
   { key: 'body', value: 'Body' },
   { key: 'trailer', value: 'Trailer' },
@@ -47,3 +49,48 @@ export const vehicleTypeIcon = {
   tanker: 'mdi:tanker-truck',
   canter: 'streamline-cyber:delivery-truck-5'
 };
+
+// ----------------------------------------------------------------------
+// Dynamic Hooks for Tenant settings
+// ----------------------------------------------------------------------
+
+export function useVehicleTypes() {
+  const { data: tenant } = useTenant();
+  const dbTypes = tenant?.config?.vehicleTypes;
+
+  if (dbTypes && dbTypes.length > 0) {
+    return dbTypes.map((opt) => ({ key: opt.value, value: opt.label }));
+  }
+  return vehicleTypes;
+}
+
+export function useVehicleCompanies() {
+  const { data: tenant } = useTenant();
+  const dbCompanies = tenant?.config?.vehicleCompanies;
+
+  if (dbCompanies && dbCompanies.length > 0) {
+    return dbCompanies.map((opt) => ({ key: opt.value, value: opt.label }));
+  }
+  return vehicleCompany;
+}
+
+export function useModelTypes() {
+  const { data: tenant } = useTenant();
+  const dbModels = tenant?.config?.vehicleModels;
+
+  if (dbModels && dbModels.length > 0) {
+    return dbModels.map((opt) => ({ key: opt.value, value: opt.label }));
+  }
+  return modelType;
+}
+
+export function useEngineTypes() {
+  const { data: tenant } = useTenant();
+  const dbEngines = tenant?.config?.engineTypes;
+
+  if (dbEngines && dbEngines.length > 0) {
+    return dbEngines.map((opt) => ({ key: opt.value, value: opt.label }));
+  }
+  return engineType;
+}
+

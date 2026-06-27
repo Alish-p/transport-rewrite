@@ -1,3 +1,5 @@
+import { useTenant } from 'src/query/use-tenant';
+
 export const DEFAULT_SUBTRIP_EXPENSE_TYPES = [
   { label: 'Diesel', icon: 'mdi:gas-station' },
   { label: 'Adblue', icon: 'mdi:water' },
@@ -52,11 +54,24 @@ export const DEFAULT_PAYMENT_METHODS = [
   { label: 'Other', value: 'Other' },
 ];
 
+
 export function useSubtripExpenseTypes() {
+  const { data: tenant } = useTenant();
+  const dbTypes = tenant?.config?.subtripExpenseTypes;
+
+  if (dbTypes && dbTypes.length > 0) {
+    return dbTypes;
+  }
   return DEFAULT_SUBTRIP_EXPENSE_TYPES;
 }
 
 export function useVehicleExpenseTypes() {
+  const { data: tenant } = useTenant();
+  const dbTypes = tenant?.config?.vehicleExpenseTypes;
+
+  if (dbTypes && dbTypes.length > 0) {
+    return dbTypes;
+  }
   return DEFAULT_VEHICLE_EXPENSE_TYPES;
 }
 

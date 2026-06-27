@@ -580,16 +580,6 @@ export default function TenantForm({ currentTenant }) {
           label="Material Options"
           options={materialOptions}
         />
-        <Field.MultiAutocompleteFreeSolo
-          name="config.subtripExpenseTypes"
-          label="Job Expense Types"
-          options={subtripExpenseTypes.map((t) => ({ ...t, value: t.label }))}
-        />
-        <Field.MultiAutocompleteFreeSolo
-          name="config.vehicleExpenseTypes"
-          label="Vehicle Expense Types"
-          options={vehicleExpenseTypes.map((t) => ({ ...t, value: t.label }))}
-        />
       </Stack>
     </Card>
   );

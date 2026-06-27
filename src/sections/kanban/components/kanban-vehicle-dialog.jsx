@@ -31,7 +31,7 @@ import { Form, Field } from 'src/components/hook-form';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
-import { vehicleTypes } from 'src/sections/vehicle/vehicle-config';
+import { useVehicleTypes } from 'src/sections/vehicle/vehicle-config';
 
 import { KanbanTransporterDialog } from './kanban-transporter-dialog';
 
@@ -91,6 +91,7 @@ function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = f
 // Form for creating a vehicle quickly
 const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error }) => {
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const vehicleTypes = useVehicleTypes();
   
   const methods = useForm({
     resolver: zodResolver(QuickVehicleSchema),

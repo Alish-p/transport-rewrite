@@ -38,7 +38,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { vehicleTypes } from 'src/sections/vehicle/vehicle-config';
+import { useVehicleTypes } from 'src/sections/vehicle/vehicle-config';
 
 // ─── Deviation Label ──────────────────────────────────────────────────────────
 function DeviationLabel({ value, invertColor = false, avgValue, currentValue, formatParams = {} }) {
@@ -374,6 +374,7 @@ function RouteRow({ route, index }) {
 // ─── Main View ───────────────────────────────────────────────────────────────
 export function RouteAnalyzerView() {
   const table = useTable({ defaultRowsPerPage: 10, syncToUrl: true });
+  const vehicleTypes = useVehicleTypes();
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('');
 
   const handleFilterVehicleType = useCallback(

@@ -25,7 +25,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
 
-import { vehicleTypes } from './vehicle-config';
+import { useVehicleTypes } from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +45,7 @@ export default function VehicleTableToolbar({
 }) {
   const columnsPopover = usePopover();
   const transporterDialog = useBoolean();
+  const vehicleTypes = useVehicleTypes();
 
   const handleSelectTransporter = useCallback(
     (transporter) => {

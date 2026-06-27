@@ -14,6 +14,8 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
+import ExpenseConfigForm from '../expense/expense-config-form';
+import VehicleConfigForm from '../vehicle/vehicle-config-form';
 import SubtripConfigForm from '../subtrip-config/subtrip-config-form';
 
 // ----------------------------------------------------------------------
@@ -28,6 +30,11 @@ const SETTINGS_ITEMS = [
     id: 'subtrip',
     label: 'Subtrip',
     icon: <Iconify icon="mdi:bookmark" />,
+  },
+  {
+    id: 'expense',
+    label: 'Expense',
+    icon: <Iconify icon="solar:bill-list-bold" />,
   },
   {
     id: 'vehicle',
@@ -75,8 +82,10 @@ export function SettingsView({ tenant }) {
         return <TenantForm currentTenant={tenant} />;
       case 'subtrip':
         return <SubtripConfigForm />;
+      case 'expense':
+        return <ExpenseConfigForm currentTenant={tenant} />;
       case 'vehicle':
-        return <Box>Sample Text: Vehicle Configuration</Box>;
+        return <VehicleConfigForm currentTenant={tenant} />;
       case 'driver':
         return <Box>Sample Text: Driver Configuration</Box>;
       case 'transporter':
