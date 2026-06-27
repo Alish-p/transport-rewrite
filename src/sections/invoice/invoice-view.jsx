@@ -24,11 +24,10 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { fFreightRate, getFreightExplanation } from 'src/sections/subtrip/utils';
+import { fFreightRate, getWeightUnit, calculateTotalWeight, getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { INVOICE_STATUS, INVOICE_STATUS_COLOR } from './invoice-config';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -141,7 +140,7 @@ function RenderTable({ invoice }) {
             <StyledTableCell>Vehicle No</StyledTableCell>
             <StyledTableCell>Material</StyledTableCell>
             <StyledTableCell>Rate / Model</StyledTableCell>
-            <StyledTableCell>Weight</StyledTableCell>
+            <StyledTableCell align="right">Weight</StyledTableCell>
             <StyledTableCell>Freight Amount</StyledTableCell>
             <StyledTableCell>Shortage Weight</StyledTableCell>
           </TableRow>
@@ -170,9 +169,9 @@ function RenderTable({ invoice }) {
                   st.freightDetails?.freightAmount
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell align="right">
                 {st.loadingWeight
-                  ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[st.vehicleType] || ''}`
+                  ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}`
                   : '-'}
               </TableCell>
               <TableCell>
@@ -192,8 +191,11 @@ function RenderTable({ invoice }) {
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={10} />
-            <StyledTableCell>Total</StyledTableCell>
+            <TableCell colSpan={9} />
+            <StyledTableCell align="right">Total</StyledTableCell>
+            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              {calculateTotalWeight(subtripSnapshot)}
+            </TableCell>
             <TableCell>{fCurrency(totalAmountBeforeTax)}</TableCell>
             <TableCell />
           </StyledTableRow>

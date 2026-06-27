@@ -113,5 +113,46 @@ export const getFreightExplanation = (st, isTransporter = false) => {
   return grossExplanation;
 };
 
+/**
+ * Resolves the weight/volume unit of a subtrip.
+ * Returns 'KL' if the freight model is per kilolitre ('per_kl'),
+ * otherwise falls back to the unit configured for the vehicle type, defaulting to 'Ton'.
+ * 
+ * @param {object} st - The subtrip object
+ * @returns {string} - The weight or volume unit ('Ton' or 'KL')
+ */
+export const getWeightUnit = (st) => {
+  const model = st.freightDetails?.freightModel || st.freightModel;
+  if (model === 'per_kl') return 'KL';
+  const vehicleType = st.vehicleType || st.vehicleId?.vehicleType;
+  return loadingWeightUnit[vehicleType] || 'Ton';
+};
+
+/**
+ * Aggregates loading weights from multiple subtrips and formats the total grouped by unit.
+ * Outputs a comma-separated string of totals (e.g. "10.00 Ton, 5.00 KL").
+ * Defaults to "0 Ton" if no weights are found.
+ * 
+ * @param {Array} items - Array of subtrip objects
+ * @returns {string} - Formatted total weights by unit
+ */
+export const calculateTotalWeight = (items) => {
+  let tonSum = 0;
+  let klSum = 0;
+  items?.forEach((st) => {
+    const w = Number(st.loadingWeight) || 0;
+    const unit = getWeightUnit(st);
+    if (unit === 'KL') {
+      klSum += w;
+    } else {
+      tonSum += w;
+    }
+  });
+  const parts = [];
+  if (tonSum > 0) parts.push(`${fNumber(tonSum)} Ton`);
+  if (klSum > 0) parts.push(`${fNumber(klSum)} KL`);
+  return parts.join(', ') || '0 Ton';
+};
+
 
 

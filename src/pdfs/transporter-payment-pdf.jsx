@@ -7,6 +7,7 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import PDFInvoiceFooter from 'src/pdfs/common/PDFInvoiceFooter';
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { getWeightUnit, calculateTotalWeight } from 'src/sections/subtrip/utils';
 import { fEffectiveTransporterRate } from 'src/sections/transporter-payment/utils/transporter-payment-calculations';
 
 import PDFBillToSection from './common/PDFBillTo';
@@ -37,24 +38,25 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       { header: 'S.No', accessor: 'sno', width: '3%' },
       { header: 'Dispatch Date', accessor: 'dispatchDate', width: '7%' },
       { header: 'LR No', accessor: 'lrNo', width: '7%' },
-      { header: 'Vehicle', accessor: 'vehicleNo', width: '8%' },
+      { header: 'Vehicle', accessor: 'vehicleNo', width: '7%' },
       { header: 'Loading Place', accessor: 'from', width: '7%' },
       { header: 'Unloading Place', accessor: 'destination', width: '7%' },
       { header: 'Invoice No', accessor: 'invoiceNo', width: '7%' },
       {
         header: 'Loading Weight',
         accessor: 'loadingWeight',
-        width: '7%',
+        width: '10%',
         align: 'right',
         showTotal: true,
-        formatter: (v) => fNumber(v),
+        formatter: (v, row) => (typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-'),
+        totalFormatter: () => calculateTotalWeight(subtripSnapshot),
       },
-      { header: 'Shortage Qty', accessor: 'shortageQty', width: '6%', align: 'right' },
-      { header: 'Shortage Amt.', accessor: 'shortageAmt', width: '6%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Shortage Qty', accessor: 'shortageQty', width: '5%', align: 'right' },
+      { header: 'Shortage Amt.', accessor: 'shortageAmt', width: '5%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
       { header: 'Freight Rate', accessor: 'freightRate', width: '8%', align: 'right' },
       { header: 'Freight Amt.', accessor: 'frtAmt', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Advances', accessor: 'expense', width: '9%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Payable', accessor: 'totalPayable', width: '10%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Advances', accessor: 'expense', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      { header: 'Payable', accessor: 'totalPayable', width: '11%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
     ];
 
     const tableData = subtripSnapshot.map((st, idx) => ({
@@ -66,6 +68,7 @@ export default function TransporterPaymentPdf({ transporterPayment, tenant }) {
       destination: st.unloadingPoint,
       invoiceNo: st.invoiceNo,
       loadingWeight: st.loadingWeight,
+      weightUnit: getWeightUnit(st),
       shortageQty: st.shortageWeight,
       shortageAmt: st.shortageAmount,
       freightRate: fEffectiveTransporterRate(st),

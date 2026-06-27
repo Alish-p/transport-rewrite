@@ -41,12 +41,16 @@ import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { fFreightRate, getFreightExplanation } from 'src/sections/subtrip/utils';
+import {
+  fFreightRate,
+  getWeightUnit,
+  calculateTotalWeight,
+  getFreightExplanation,
+} from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
 import { TableSkeleton } from '../../components/table';
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
@@ -209,6 +213,8 @@ export default function SimplerNewInvoiceForm() {
     customer: selectedCustomer,
     additionalItems,
   });
+
+  const totalWeightLabel = calculateTotalWeight(selectedSubtrips);
 
   const nextInvoiceNumber = selectedCustomer
     ? `${selectedCustomer.invoicePrefix || ''}${
@@ -374,7 +380,6 @@ export default function SimplerNewInvoiceForm() {
               <TableBody>
                 {subtrips.map((st, idx) => {
                   const { totalAmount } = calculateInvoicePerSubtrip(st);
-                  const vehicleType = st.vehicleType || st.vehicleId?.vehicleType;
                   return (
                     <TableRow key={st._id}>
                       <TableCell width={40}>
@@ -408,9 +413,9 @@ export default function SimplerNewInvoiceForm() {
                           st.freightDetails?.freightAmount
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="right">
                         {st.loadingWeight
-                          ? `${fNumber(st.loadingWeight)} ${loadingWeightUnit[vehicleType] || ''}`
+                          ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}`
                           : '-'}
                       </TableCell>
                       <TableCell>
@@ -431,12 +436,15 @@ export default function SimplerNewInvoiceForm() {
                 })}
 
                 <StyledTableRow>
-                  <TableCell colSpan={11} />
-                  <StyledTableCell colSpan={1} sx={{ color: 'text.secondary' }} align="center">
+                  <TableCell colSpan={10} />
+                  <StyledTableCell sx={{ color: 'text.secondary' }} align="right">
                     Subtotal
                   </StyledTableCell>
-                  <TableCell>{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
-                  <TableCell colSpan={1} />
+                  <TableCell align="right" sx={{ color: 'text.secondary' }}>
+                    {totalWeightLabel}
+                  </TableCell>
+                  <TableCell align="right">{fCurrency(summary.totalAmountBeforeTax)}</TableCell>
+                  <TableCell />
                 </StyledTableRow>
 
                 {cgst > 0 && (

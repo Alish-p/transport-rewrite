@@ -17,14 +17,14 @@ import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { getFreightExplanation } from 'src/sections/subtrip/utils';
+import { getWeightUnit, calculateTotalWeight, getFreightExplanation } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -106,6 +106,8 @@ function RenderTable({ transporterPayment }) {
   const { cgst, sgst, igst, tds } = taxBreakup || {};
   const { netIncome, totalExpense, totalShortageAmount, totalFreightAmount, totalTripWiseIncome } =
     summary || {};
+
+  const totalWeightLabel = calculateTotalWeight(subtripSnapshot);
   return (
     <TableContainer>
       <Table sx={{ minWidth: 960, overflowX: 'auto' }}>
@@ -118,6 +120,7 @@ function RenderTable({ transporterPayment }) {
             <StyledTableCell>From</StyledTableCell>
             <StyledTableCell>Destination</StyledTableCell>
             <StyledTableCell>InvoiceNo</StyledTableCell>
+            <StyledTableCell align="right">Loading Weight</StyledTableCell>
             <StyledTableCell align="right">Shortage Qty(MT)</StyledTableCell>
             <StyledTableCell align="right">Shortage Amt</StyledTableCell>
             <StyledTableCell align="right">FRT-Amt</StyledTableCell>
@@ -140,6 +143,11 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.loadingPoint}</TableCell>
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
+              <TableCell align="right">
+                {st.loadingWeight
+                  ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}`
+                  : '-'}
+              </TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>
               <TableCell align="right">
@@ -158,10 +166,14 @@ function RenderTable({ transporterPayment }) {
           ))}
 
           <StyledTableRow>
-            <TableCell colSpan={7} />
+            <TableCell colSpan={6} />
             <StyledTableCell align="right" sx={{ color: 'info.main' }}>
               Total
             </StyledTableCell>
+            <TableCell sx={{ color: 'info.main' }} align="right">
+              {totalWeightLabel}
+            </TableCell>
+            <TableCell />
             <TableCell sx={{ color: 'info.main' }} align="right">
               {fCurrency(totalShortageAmount)}
             </TableCell>
@@ -178,7 +190,7 @@ function RenderTable({ transporterPayment }) {
 
           {tds?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={9} />
+              <TableCell colSpan={10} />
               <StyledTableCell colSpan={2} align="right">
                 TDS({tds?.rate || 0}%)
               </StyledTableCell>
@@ -190,7 +202,7 @@ function RenderTable({ transporterPayment }) {
 
           {cgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={9}>
+              <TableCell colSpan={10}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
@@ -203,7 +215,7 @@ function RenderTable({ transporterPayment }) {
 
           {sgst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={9} />
+              <TableCell colSpan={10} />
               <StyledTableCell colSpan={2} align="right">
                 SGST {sgst.rate}%
               </StyledTableCell>
@@ -213,7 +225,7 @@ function RenderTable({ transporterPayment }) {
 
           {igst?.rate > 0 && (
             <StyledTableRow>
-              <TableCell colSpan={9}>
+              <TableCell colSpan={10}>
                 I/we have taken registration under the CGST Act, 2017 and have exercised the option
                 to pay tax on services of GTA in relation to transport of goods supplied by us.
               </TableCell>
@@ -229,7 +241,7 @@ function RenderTable({ transporterPayment }) {
           {additionalCharges?.length > 0 &&
             additionalCharges.map(({ label, amount }) => (
               <StyledTableRow key={label}>
-                <TableCell colSpan={9} />
+                <TableCell colSpan={10} />
                 <StyledTableCell colSpan={2} align="right">
                   {label}
                 </StyledTableCell>
@@ -240,7 +252,7 @@ function RenderTable({ transporterPayment }) {
             ))}
 
           <StyledTableRow>
-            <TableCell colSpan={9} />
+            <TableCell colSpan={10} />
             <StyledTableCell colSpan={2} align="right">
               Net-Payable
             </StyledTableCell>
