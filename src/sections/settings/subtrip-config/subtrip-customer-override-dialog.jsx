@@ -1,4 +1,5 @@
 import { z as zod } from 'zod';
+import { toast } from 'sonner';
 import { useMemo, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,11 +9,14 @@ import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import { alpha } from '@mui/material/styles';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -23,8 +27,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { useCustomersSummary } from 'src/query/use-customer';
-import { useGetFieldConfig, useUpsertCustomerOverride } from 'src/query/use-field-config';
+import { useGetFieldConfig, useUpsertCustomerOverride, useDeleteCustomerOverride } from 'src/query/use-field-config';
 
+import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
@@ -63,6 +68,7 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
   const { data: globalConfig, isLoading: isLoadingGlobal } = useGetFieldConfig('subtrip');
   const { data: customersData, isLoading: isLoadingCustomers } = useCustomersSummary();
   const { upsertOverride, isUpdatingOverride } = useUpsertCustomerOverride();
+  const { deleteOverride } = useDeleteCustomerOverride();
 
   // Filter customers for dropdown: exclude existing overrides, but keep current customer if editing
   const filteredCustomers = useMemo(() => {
@@ -111,7 +117,11 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
     handleSubmit,
     control,
     reset,
+    watch,
+    setValue,
   } = methods;
+
+  const watchedFields = watch('fields');
 
   useEffect(() => {
     if (open) {
@@ -119,14 +129,62 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
     }
   }, [open, defaultValues, reset]);
 
+  const isFieldCustomized = (key, currentLabel, currentVisibility) => {
+    const globalField = globalConfig?.fields?.[key] || {};
+    const defaultLabel = FIELDS_KEYS.find((f) => f.key === key)?.defaultLabel || '';
+    const globalLabel = globalField.label || defaultLabel;
+    const globalVisibility = globalField.visibility || 'optional';
+
+    return currentLabel !== globalLabel || currentVisibility !== globalVisibility;
+  };
+
+  const handleResetField = (key, defaultLabel) => {
+    const globalField = globalConfig?.fields?.[key] || {};
+    const globalLabel = globalField.label || defaultLabel;
+    const globalVisibility = globalField.visibility || 'optional';
+
+    setValue(`fields.${key}.label`, globalLabel, { shouldDirty: true });
+    setValue(`fields.${key}.visibility`, globalVisibility, { shouldDirty: true });
+  };
+
   const onSubmit = async (formData) => {
     const customerId = formData.customer?._id;
     if (!customerId) return;
 
+    // Filter fields to find only customized ones
+    const customizedFields = {};
+    FIELDS_KEYS.forEach(({ key, defaultLabel }) => {
+      const fieldVal = formData.fields[key];
+      if (fieldVal) {
+        const globalField = globalConfig?.fields?.[key] || {};
+        const globalLabel = globalField.label || defaultLabel;
+        const globalVisibility = globalField.visibility || 'optional';
+
+        if (fieldVal.label !== globalLabel || fieldVal.visibility !== globalVisibility) {
+          customizedFields[key] = {
+            label: fieldVal.label,
+            visibility: fieldVal.visibility,
+          };
+        }
+      }
+    });
+
+    if (Object.keys(customizedFields).length === 0) {
+      if (isEdit) {
+        if (window.confirm('All fields match global settings. Saving will remove this customer override. Do you want to proceed?')) {
+          await deleteOverride({ entity: 'subtrip', customerId });
+          onClose();
+        }
+      } else {
+        toast.error('Please customize at least one field to create an override.');
+      }
+      return;
+    }
+
     await upsertOverride({
       entity: 'subtrip',
       customerId,
-      fields: formData.fields,
+      fields: customizedFields,
     });
     onClose();
   };
@@ -178,58 +236,108 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
                       <TableCell>Field Name</TableCell>
                       <TableCell sx={{ minWidth: 200 }}>Custom Label</TableCell>
                       <TableCell align="right">Visibility</TableCell>
+                      <TableCell align="right" sx={{ width: 60 }} />
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {FIELDS_KEYS.map(({ key, defaultLabel }) => (
-                      <TableRow key={key} hover>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                            {defaultLabel}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {key}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Field.Text
-                            name={`fields.${key}.label`}
-                            size="small"
-                            placeholder={defaultLabel}
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <Controller
-                            name={`fields.${key}.visibility`}
-                            control={control}
-                            render={({ field }) => (
-                              <ToggleButtonGroup
-                                value={field.value}
-                                exclusive
-                                onChange={(event, newValue) => {
-                                  if (newValue) {
-                                    field.onChange(newValue);
-                                  }
-                                }}
-                                size="small"
-                                color="primary"
-                              >
-                                <ToggleButton value="required" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
-                                  Req
-                                </ToggleButton>
-                                <ToggleButton value="optional" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
-                                  Opt
-                                </ToggleButton>
-                                <ToggleButton value="hidden" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
-                                  Hide
-                                </ToggleButton>
-                              </ToggleButtonGroup>
+                    {FIELDS_KEYS.map(({ key, defaultLabel }) => {
+                      const currentLabel = watchedFields?.[key]?.label;
+                      const currentVisibility = watchedFields?.[key]?.visibility;
+                      const isCustomized = isFieldCustomized(key, currentLabel, currentVisibility);
+
+                      return (
+                        <TableRow
+                          key={key}
+                          hover
+                          sx={{
+                            ...(isCustomized && {
+                              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
+                            }),
+                          }}
+                        >
+                          <TableCell>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              {isCustomized && (
+                                <Tooltip title="Customized setting">
+                                  <Box
+                                    sx={{
+                                      width: 6,
+                                      height: 6,
+                                      borderRadius: '50%',
+                                      bgcolor: 'primary.main',
+                                    }}
+                                  />
+                                </Tooltip>
+                              )}
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: isCustomized ? 'bold' : 'medium',
+                                    color: isCustomized ? 'primary.main' : 'text.primary',
+                                  }}
+                                >
+                                  {defaultLabel}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                  {key}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </TableCell>
+                          <TableCell>
+                            <Field.Text
+                              name={`fields.${key}.label`}
+                              size="small"
+                              placeholder={defaultLabel}
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <Controller
+                              name={`fields.${key}.visibility`}
+                              control={control}
+                              render={({ field }) => (
+                                <ToggleButtonGroup
+                                  value={field.value}
+                                  exclusive
+                                  onChange={(event, newValue) => {
+                                    if (newValue) {
+                                      field.onChange(newValue);
+                                    }
+                                  }}
+                                  size="small"
+                                  color="primary"
+                                >
+                                  <ToggleButton value="required" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                    Req
+                                  </ToggleButton>
+                                  <ToggleButton value="optional" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                    Opt
+                                  </ToggleButton>
+                                  <ToggleButton value="hidden" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                    Hide
+                                  </ToggleButton>
+                                </ToggleButtonGroup>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            {isCustomized && (
+                              <Tooltip title="Reset to Global Default">
+                                <IconButton
+                                  size="small"
+                                  color="warning"
+                                  onClick={() => handleResetField(key, defaultLabel)}
+                                >
+                                  <Iconify icon="solar:restart-bold" width={18} />
+                                </IconButton>
+                              </Tooltip>
                             )}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
