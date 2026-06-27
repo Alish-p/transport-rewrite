@@ -7,12 +7,12 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import SubtripGlobalConfigForm from './subtrip-global-config-form';
+import SubtripGlobalSettingForm from './subtrip-global-setting-form';
 import SubtripCustomerOverridesList from './subtrip-customer-overrides-list';
 
 // ----------------------------------------------------------------------
 
-export default function SubtripConfigForm() {
+export default function SubtripSettingForm() {
   const [currentTab, setCurrentTab] = useState('global');
 
   const handleChangeTab = (event, newValue) => {
@@ -47,7 +47,7 @@ export default function SubtripConfigForm() {
       </Card>
 
       <Box>
-        {currentTab === 'global' && <SubtripGlobalConfigForm />}
+        {currentTab === 'global' && <SubtripGlobalSettingForm />}
         {currentTab === 'customer_overrides' && <SubtripCustomerOverridesList />}
       </Box>
     </Stack>

@@ -14,10 +14,10 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import TenantForm from '../tenant-form';
-import PumpConfigForm from '../pump/pump-config-form';
-import ExpenseConfigForm from '../expense/expense-config-form';
-import VehicleConfigForm from '../vehicle/vehicle-config-form';
-import SubtripConfigForm from '../subtrip-config/subtrip-config-form';
+import PumpSettingForm from '../pump/pump-setting-form';
+import ExpenseSettingForm from '../expense/expense-setting-form';
+import VehicleSettingForm from '../vehicle/vehicle-setting-form';
+import SubtripSettingForm from '../subtrip-config/subtrip-setting-form';
 
 // ----------------------------------------------------------------------
 
@@ -87,13 +87,13 @@ export function SettingsView({ tenant }) {
       case 'tenant':
         return <TenantForm currentTenant={tenant} />;
       case 'subtrip':
-        return <SubtripConfigForm />;
+        return <SubtripSettingForm />;
       case 'expense':
-        return <ExpenseConfigForm currentTenant={tenant} />;
+        return <ExpenseSettingForm currentTenant={tenant} />;
       case 'pump':
-        return <PumpConfigForm currentTenant={tenant} />;
+        return <PumpSettingForm currentTenant={tenant} />;
       case 'vehicle':
-        return <VehicleConfigForm currentTenant={tenant} />;
+        return <VehicleSettingForm currentTenant={tenant} />;
       case 'driver':
         return <Box>Sample Text: Driver Configuration</Box>;
       case 'transporter':

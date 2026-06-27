@@ -18,7 +18,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-const VehicleConfigSchema = zod.object({
+const VehicleSettingSchema = zod.object({
   config: zod.object({
     marketVehicles: zod.boolean().optional(),
     vehicleTypes: zod
@@ -36,7 +36,7 @@ const VehicleConfigSchema = zod.object({
   }),
 });
 
-export default function VehicleConfigForm({ currentTenant }) {
+export default function VehicleSettingForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
 
   const defaultValues = useMemo(
@@ -53,7 +53,7 @@ export default function VehicleConfigForm({ currentTenant }) {
   );
 
   const methods = useForm({
-    resolver: zodResolver(VehicleConfigSchema),
+    resolver: zodResolver(VehicleSettingSchema),
     defaultValues,
   });
 

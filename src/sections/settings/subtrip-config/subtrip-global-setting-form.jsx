@@ -47,7 +47,7 @@ const FIELDS_KEYS = [
   { key: 'remarks', defaultLabel: 'Remarks' },
 ];
 
-const SubtripGlobalConfigSchema = zod.object({
+const SubtripGlobalSettingSchema = zod.object({
   freightConfig: zod.object({
     allowedModels: zod.array(zod.string()).min(1, 'At least one freight model must be allowed'),
     defaultModel: zod.string().min(1, 'Default freight model is required'),
@@ -69,7 +69,7 @@ const SubtripGlobalConfigSchema = zod.object({
   ),
 });
 
-export default function SubtripGlobalConfigForm() {
+export default function SubtripGlobalSettingForm() {
   const { data, isLoading } = useGetFieldConfig('subtrip');
   const { upsertConfig, isUpdating } = useUpsertFieldConfig();
 
@@ -93,7 +93,7 @@ export default function SubtripGlobalConfigForm() {
   }, [data]);
 
   const methods = useForm({
-    resolver: zodResolver(SubtripGlobalConfigSchema),
+    resolver: zodResolver(SubtripGlobalSettingSchema),
     defaultValues,
   });
 

@@ -3,56 +3,41 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useUpdateTenant } from 'src/query/use-tenant';
 
+import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-const ExpenseConfigSchema = zod.object({
+const PumpSettingSchema = zod.object({
   config: zod.object({
-    subtripExpenseTypes: zod
-      .array(
-        zod.object({
-          label: zod.string(),
-          value: zod.string(),
-          icon: zod.string().optional(),
-        })
-      )
-      .optional(),
-    vehicleExpenseTypes: zod
-      .array(
-        zod.object({
-          label: zod.string(),
-          value: zod.string(),
-          icon: zod.string().optional(),
-        })
-      )
-      .optional(),
+    pumps: zod.boolean().optional(),
   }),
 });
 
-export default function ExpenseConfigForm({ currentTenant }) {
+export default function PumpSettingForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
 
   const defaultValues = useMemo(
     () => ({
       config: {
-        subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || [],
-        vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || [],
+        pumps: currentTenant?.config?.pumps ?? true,
       },
     }),
     [currentTenant]
   );
 
   const methods = useForm({
-    resolver: zodResolver(ExpenseConfigSchema),
+    resolver: zodResolver(PumpSettingSchema),
     defaultValues,
   });
 
@@ -80,21 +65,24 @@ export default function ExpenseConfigForm({ currentTenant }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         <Card>
-          <CardHeader title="Expense Configurations" subheader="Configure Job/Subtrip expense types and internal vehicle expense types." sx={{ mb: 3 }} />
+          <CardHeader title="Pump Settings" subheader="Configure pump management and fuel logging features." sx={{ mb: 3 }} />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
-            <Field.MultiAutocompleteFreeSolo
-              name="config.subtripExpenseTypes"
-              label="Job Expense Types"
-              placeholder="Add job/subtrip expense categories"
-              options={currentTenant?.config?.subtripExpenseTypes || []}
-            />
-
-            <Field.MultiAutocompleteFreeSolo
-              name="config.vehicleExpenseTypes"
-              label="Vehicle Expense Types"
-              placeholder="Add vehicle maintenance expense categories"
-              options={currentTenant?.config?.vehicleExpenseTypes || []}
+            <Field.Switch
+              name="config.pumps"
+              labelPlacement="start"
+              label={
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Iconify icon="mdi:gas-station" />
+                  Manages Fuel Pumps
+                  <Tooltip title="If disabled, all Pump-related functionality (pump list, fuel indent, pump expense forms, filters) will be hidden, streamlining the interface.">
+                    <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled', ml: 0.5 }} />
+                    </Box>
+                  </Tooltip>
+                </Stack>
+              }
+              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
           </Stack>
         </Card>
