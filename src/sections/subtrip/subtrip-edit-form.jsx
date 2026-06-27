@@ -143,7 +143,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
   const materialOptions = useMaterialOptions();
-  const { getLabel, isRequired } = useFieldHelpers('subtrip', currentSubtrip?.customerId?._id);
+  const { getLabel, isRequired, freightConfig } = useFieldHelpers('subtrip', currentSubtrip?.customerId?._id);
   const { pumps: hasPumps } = useSystemFeatures();
 
   const searchParams = useSearchParams();
@@ -496,9 +496,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
                   <Field.Select name="freightDetails.freightModel" label="Freight Model *">
-                    {FREIGHT_MODELS.map((fm) => (
-                      <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
-                    ))}
+                    {FREIGHT_MODELS
+                      .filter((fm) => !freightConfig?.allowedModels?.length || freightConfig.allowedModels.includes(fm.value))
+                      .map((fm) => (
+                        <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
+                      ))}
                   </Field.Select>
 
                   {(freightModel === 'per_ton' || freightModel === 'per_kl' || freightModel === 'per_km' || freightModel === 'per_hour') && (
