@@ -95,7 +95,7 @@ export function SubtripJobCreateDetailsStep({
   );
 }
 
-export function getJobStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer }) {
+export function getJobStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
   const vehicleStageError = getVehicleStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip });
   if (vehicleStageError) return vehicleStageError;
 
@@ -106,6 +106,12 @@ export function getJobStepError(form, { selectedVehicle, fetchingActiveTrip, act
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
 
   if (isLoaded && !selectedCustomer) return 'Please select a customer';
+
+  const isFieldRequired = (name) => fields?.[name]?.visibility === 'required';
+
+  if (isFieldRequired('remarks') && !form.remarks) {
+    return 'Please enter remarks';
+  }
 
   return null;
 }

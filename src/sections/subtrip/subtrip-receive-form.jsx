@@ -55,6 +55,7 @@ const defaultValues = {
   shortageWeight: 0,
   shortageAmount: 0,
   remarks: '',
+  errorRemarks: '',
   docs: [],
 };
 
@@ -107,6 +108,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
       setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
       setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
+      setValue('remarksRequired', isRequired('remarks'));
     }
   }, [selectedSubtrip, setValue, isRequired]);
 
@@ -340,13 +342,11 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           )}
 
           {hasError && (
-            <Box>
+            <Box sx={{ mb: 2 }}>
               <Typography variant="subtitle2" color="error.main" gutterBottom>
                 Error Details
               </Typography>
-              <Field.Configurable entity="subtrip" name="remarks" customerId={customerId}>
-                <Field.Text name="remarks" label={getLabel('remarks', 'Error Remarks')} type="text" multiline rows={3} />
-              </Field.Configurable>
+              <Field.Text name="errorRemarks" label="Error Remarks *" type="text" multiline rows={3} />
             </Box>
           )}
 

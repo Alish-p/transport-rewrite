@@ -110,7 +110,7 @@ export function SubtripJobCreateMaterialStep({
   );
 }
 
-export function getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
+export function getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, isEwayIntegrationEnabled }) {
   const freightStageError = getFreightStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields });
   if (freightStageError) return freightStageError;
 
@@ -128,12 +128,38 @@ export function getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip
     return false;
   };
 
-  if (
-    (isFieldRequired('invoiceNo') && !form.invoiceNo) ||
-    (isFieldRequired('materialType') && !form.materialType) ||
-    (form.ewayBill && !form.ewayExpiryDate)
-  ) {
-    return 'Please fill required material fields';
+  if (isFieldRequired('invoiceNo') && !form.invoiceNo) {
+    return 'Please enter invoice number';
+  }
+  if (isFieldRequired('materialType') && !form.materialType) {
+    return 'Please select material type';
+  }
+  if (isFieldRequired('quantity') && (form.quantity === undefined || form.quantity === null || form.quantity === '')) {
+    return 'Please enter quantity';
+  }
+  if (!isEwayIntegrationEnabled && isFieldRequired('ewayBill') && !form.ewayBill) {
+    return 'Please enter eway bill';
+  }
+  if (form.ewayBill && !form.ewayExpiryDate) {
+    return 'Please select eway expiry date';
+  }
+  if (isFieldRequired('ewayExpiryDate') && !form.ewayExpiryDate) {
+    return 'Please select eway expiry date';
+  }
+  if (isFieldRequired('grade') && !form.grade) {
+    return 'Please enter grade';
+  }
+  if (isFieldRequired('shipmentNo') && !form.shipmentNo) {
+    return 'Please enter shipment number';
+  }
+  if (isFieldRequired('orderNo') && !form.orderNo) {
+    return 'Please enter order number';
+  }
+  if (isFieldRequired('referenceSubtripNo') && !form.referenceSubtripNo) {
+    return 'Please enter reference job number';
+  }
+  if (isFieldRequired('diNumber') && !form.diNumber) {
+    return 'Please enter DI/DO number';
   }
 
   const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;

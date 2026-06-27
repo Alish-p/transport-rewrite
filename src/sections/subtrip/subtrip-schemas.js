@@ -34,6 +34,7 @@ export const receiveSchema = zod
       .optional(),
     hasError: zod.boolean().optional(),
     remarks: zod.string().optional(),
+    errorRemarks: zod.string().optional(),
     shortageWeight: preprocessOptionalNumber(zod.number().optional()),
     shortageAmount: preprocessOptionalNumber(zod.number().optional()),
     hasShortage: zod.boolean().optional(),
@@ -45,6 +46,7 @@ export const receiveSchema = zod
     loadingWeight: zod.number().optional(),
     isOwn: zod.boolean().optional(),
     unloadingWeightRequired: zod.boolean().optional(),
+    remarksRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
     const isUnloadingWeightRequired = values.freightModel === 'per_ton' || values.freightModel === 'per_kl' || values.unloadingWeightRequired === true;
@@ -83,10 +85,18 @@ export const receiveSchema = zod
       });
     }
 
-    if (values.hasError && !values.remarks) {
+    if (values.hasError && !values.errorRemarks) {
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
-        message: 'Remarks are required when error is reported',
+        message: 'Error Remarks are required when error is reported',
+        path: ['errorRemarks'],
+      });
+    }
+
+    if (values.remarksRequired && !values.remarks) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Remarks are required',
         path: ['remarks'],
       });
     }

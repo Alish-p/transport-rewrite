@@ -349,8 +349,9 @@ export function SubtripJobCreateForm() {
       selectedDriver,
       selectedCustomer,
       fields,
+      isEwayIntegrationEnabled,
     }),
-    [selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields]
+    [selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, isEwayIntegrationEnabled]
   );
 
   // Build API payload consistently

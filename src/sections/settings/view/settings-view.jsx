@@ -26,7 +26,7 @@ const SETTINGS_ITEMS = [
   },
   {
     id: 'subtrip',
-    label: 'Subtrip (Job)',
+    label: 'Subtrip',
     icon: <Iconify icon="mdi:bookmark" />,
   },
   {

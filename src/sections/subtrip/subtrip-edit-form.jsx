@@ -143,7 +143,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const navigate = useNavigate();
   const updateSubtrip = useUpdateSubtrip();
   const materialOptions = useMaterialOptions();
-  const { getLabel } = useFieldHelpers('subtrip', currentSubtrip?.customerId?._id);
+  const { getLabel, isRequired } = useFieldHelpers('subtrip', currentSubtrip?.customerId?._id);
   const { pumps: hasPumps } = useSystemFeatures();
 
   const searchParams = useSearchParams();
@@ -166,6 +166,8 @@ export default function SubtripEditForm({ currentSubtrip }) {
       customerId: currentSubtrip?.customerId?._id,
       driverId: currentSubtrip?.driverId?._id,
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
+      remarks: currentSubtrip?.remarks || '',
+      errorRemarks: currentSubtrip?.errorRemarks || '',
       freightDetails: currentSubtrip?.freightDetails || {
         freightModel: 'per_ton',
         rate: currentSubtrip?.freightDetails?.rate || 0,
@@ -185,9 +187,62 @@ export default function SubtripEditForm({ currentSubtrip }) {
       const schema = getSchemaForStatus(currentSubtrip.subtripStatus);
       try {
         schema.parse(values);
+
+        const errors = {};
+
+        // Map of form fields to their config names
+        const fieldMappings = {
+          consignee: 'consignee',
+          loadingPoint: 'loadingPoint',
+          unloadingPoint: 'unloadingPoint',
+          loadingWeight: 'loadingWeight',
+          quantity: 'quantity',
+          ewayBill: 'ewayBill',
+          ewayExpiryDate: 'ewayExpiryDate',
+          invoiceNo: 'invoiceNo',
+          shipmentNo: 'shipmentNo',
+          orderNo: 'orderNo',
+          referenceSubtripNo: 'referenceSubtripNo',
+          materialType: 'materialType',
+          grade: 'grade',
+          diNumber: 'diNumber',
+          remarks: 'remarks',
+        };
+
+        // Validate other fields based on configuration
+        Object.entries(fieldMappings).forEach(([formField, configField]) => {
+          if (isRequired(configField)) {
+            const val = values[formField];
+            if (val === undefined || val === null || val === '') {
+              errors[formField] = { message: `${getLabel(configField, formField).replace(' *', '')} is required`, type: 'manual' };
+            }
+          }
+        });
+
+        // For received status, unloadingWeight might be required
+        if (currentSubtrip.subtripStatus === SUBTRIP_STATUS.RECEIVED) {
+          const fm = values.freightDetails?.freightModel || 'per_ton';
+          const isUnloadingWeightRequired = fm === 'per_ton' || fm === 'per_kl' || isRequired('unloadingWeight');
+          if (isUnloadingWeightRequired && (values.unloadingWeight === undefined || values.unloadingWeight === null || values.unloadingWeight === '')) {
+            errors.unloadingWeight = { message: 'Unloading weight is required', type: 'manual' };
+          }
+        }
+
+        if (Object.keys(errors).length > 0) {
+          return { values, errors };
+        }
+
         return { values, errors: {} };
       } catch (error) {
-        return { values, errors: error.formErrors.fieldErrors };
+        const formattedErrors = {};
+        if (error.formErrors?.fieldErrors) {
+          Object.entries(error.formErrors.fieldErrors).forEach(([field, msgs]) => {
+            if (msgs && msgs.length > 0) {
+              formattedErrors[field] = { message: msgs[0], type: 'manual' };
+            }
+          });
+        }
+        return { values, errors: formattedErrors };
       }
     },
   });
@@ -369,6 +424,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
               </Field.Configurable>
               <Field.MobileDateTimePicker name="startDate" label="Job Start Date" />
+              <Field.Configurable entity="subtrip" name="remarks" customerId={currentSubtrip?.customerId?._id}>
+                <Field.Text name="remarks" label={getLabel('remarks', 'Remarks')} multiline rows={3} sx={{ gridColumn: '1 / -1' }} />
+              </Field.Configurable>
             </Box>
           </Box>
         </Card>
