@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
-import { fNumber, fCurrencyInWords } from 'src/utils/format-number';
-import { fDate, formatStr } from 'src/utils/format-time';
 import { getStateCode } from 'src/utils/helper';
+import { fDate, formatStr } from 'src/utils/format-time';
+import { fNumber, fCurrencyInWords } from 'src/utils/format-number';
 
 const styles = StyleSheet.create({
   page: {
