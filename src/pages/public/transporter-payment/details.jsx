@@ -30,7 +30,10 @@ export default function PublicTransporterPaymentDetailsPage() {
     setError(null);
     try {
       const doc = (
-        <TransporterPaymentPdf transporterPayment={transporterPayment} tenant={CONFIG.company} />
+        <TransporterPaymentPdf
+          transporterPayment={transporterPayment}
+          tenant={transporterPayment?.tenant || CONFIG.company}
+        />
       );
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
@@ -45,7 +48,7 @@ export default function PublicTransporterPaymentDetailsPage() {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('Failed to download transporter payment PDF', e);
-      setError('Failed to generate the PDF. Please try again.');
+      setError(`${e?.message || 'Unknown error'} | ${e?.stack?.split('\n')[1] || ''}`);
     } finally {
       setGenerating(false);
     }
@@ -71,8 +74,8 @@ export default function PublicTransporterPaymentDetailsPage() {
         </Typography>
         {generating ? <CircularProgress /> : null}
         {error && (
-          <Typography variant="caption" sx={{ color: 'error.main' }}>
-            {error}
+          <Typography variant="caption" sx={{ color: 'error.main', wordBreak: 'break-all', textAlign: 'left', fontFamily: 'monospace', fontSize: 11 }}>
+            ❌ {error}
           </Typography>
         )}
         <Button

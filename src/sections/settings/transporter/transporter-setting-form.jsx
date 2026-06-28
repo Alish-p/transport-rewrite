@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
 import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -20,6 +21,7 @@ const TransporterSettingSchema = zod.object({
   config: zod.object({
     defaultTdsPercentage: zod.number().min(0).max(100),
     defaultPodCharges: zod.number().min(0),
+    transporterPaymentTemplate: zod.string().min(1),
   }),
 });
 
@@ -31,6 +33,7 @@ export default function TransporterSettingForm({ currentTenant }) {
       config: {
         defaultTdsPercentage: currentTenant?.config?.defaultTdsPercentage ?? 2,
         defaultPodCharges: currentTenant?.config?.defaultPodCharges ?? 0,
+        transporterPaymentTemplate: currentTenant?.config?.transporterPaymentTemplate ?? 'standard',
       },
     }),
     [currentTenant]
@@ -92,6 +95,12 @@ export default function TransporterSettingForm({ currentTenant }) {
                     methods.setValue('config.defaultPodCharges', Number(event.target.value))
                   }
                 />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Field.Select name="config.transporterPaymentTemplate" label="Transporter Payment Template">
+                  <MenuItem value="standard">Standard Template</MenuItem>
+                  <MenuItem value="template-1">Template 1</MenuItem>
+                </Field.Select>
               </Grid>
             </Grid>
           </Stack>
