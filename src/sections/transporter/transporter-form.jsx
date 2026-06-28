@@ -104,6 +104,19 @@ export default function TransporterForm({ currentTransporter }) {
   const [gstInput, setGstInput] = useState('');
   const isEditMode = Boolean(currentTransporter);
 
+  const paymentModes = useMemo(() => {
+    if (tenant?.config?.transporterPaymentModes && tenant.config.transporterPaymentModes.length > 0) {
+      return tenant.config.transporterPaymentModes;
+    }
+    return [
+      { label: 'UPI', value: 'UPI' },
+      { label: 'Card', value: 'Card' },
+      { label: 'Bank Transfer', value: 'BankTransfer' },
+      { label: 'Cash', value: 'Cash' },
+      { label: 'Fuel', value: 'Fuel' },
+    ];
+  }, [tenant]);
+
   const defaultValues = useMemo(
     () => ({
       transportName: currentTransporter?.transportName || '',
@@ -126,11 +139,11 @@ export default function TransporterForm({ currentTransporter }) {
       gstEnabled: currentTransporter?.gstEnabled ?? false,
       transportType: currentTransporter?.transportType || '',
       agreementNo: currentTransporter?.agreementNo || '',
-      tdsPercentage: currentTransporter?.tdsPercentage || 0,
-      podCharges: currentTransporter?.podCharges || 0,
+      tdsPercentage: currentTransporter?.tdsPercentage ?? tenant?.config?.defaultTdsPercentage ?? 2,
+      podCharges: currentTransporter?.podCharges ?? tenant?.config?.defaultPodCharges ?? 0,
       isActive: currentTransporter?.isActive ?? true,
     }),
-    [currentTransporter]
+    [currentTransporter, tenant]
   );
 
   const methods = useForm({
@@ -148,6 +161,12 @@ export default function TransporterForm({ currentTransporter }) {
     if (!gstInput && values.gstNo) setGstInput(values.gstNo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values.gstNo]);
+
+  useEffect(() => {
+    if (tenant && !currentTransporter) {
+      reset(defaultValues);
+    }
+  }, [tenant, currentTransporter, reset, defaultValues]);
 
   const onSubmit = async (data) => {
     try {
@@ -265,11 +284,14 @@ export default function TransporterForm({ currentTransporter }) {
       <Divider />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text
-          name="paymentMode"
-          label="Payment Mode (Optional)"
-          placeholder="Cash, UPI, NEFT, Cheque"
-        />
+        <Field.Select name="paymentMode" label="Payment Mode (Optional)">
+          <MenuItem value="">None</MenuItem>
+          {paymentModes.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
         <Field.Text name="panNo" label="PAN No (Optional)" placeholder="ABCDE1234F" />
 
         <Field.Text

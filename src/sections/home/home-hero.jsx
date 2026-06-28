@@ -1,4 +1,3 @@
-import { Icon } from '@iconify/react';
 import { useRef, useState } from 'react';
 import { m, useScroll, useSpring, useTransform, useMotionValueEvent } from 'framer-motion';
 
@@ -88,7 +87,6 @@ export function HomeHero({ sx, ...other }) {
             ml: { xs: 0.75, md: 1, xl: 1.5 },
           }}
         >
-          <Icon icon="mdi:truck" width="24" height="24" />
           Tranzit
         </Box>
       </Box>

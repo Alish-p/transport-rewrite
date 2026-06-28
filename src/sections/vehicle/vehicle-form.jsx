@@ -30,7 +30,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 // assets
-import { useEngineTypes, useVehicleTypes, vehicleTypeIcon, useVehicleCompanies } from './vehicle-config';
+import { useModelTypes, useEngineTypes, useVehicleTypes, vehicleTypeIcon, useVehicleCompanies } from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -73,6 +73,7 @@ export default function VehicleForm({ currentVehicle }) {
   const vehicleTypes = useVehicleTypes();
   const vehicleCompany = useVehicleCompanies();
   const engineType = useEngineTypes();
+  const modelTypes = useModelTypes();
   const [selectedTransporter, setSelectedTransporter] = useState(
     currentVehicle?.transporter || null
   );
@@ -311,7 +312,15 @@ export default function VehicleForm({ currentVehicle }) {
       <Divider />
       <Collapse in={optionalOpen.value} timeout="auto">
         <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Text name="modelType" label="Model Type (Optional)" placeholder="e.g. 4923,3713..." />
+          <Field.Select name="modelType" label="Model Type (Optional)">
+            <MenuItem value="">None</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            {modelTypes.map(({ key, value }) => (
+              <MenuItem key={key} value={key}>
+                {value}
+              </MenuItem>
+            ))}
+          </Field.Select>
           <Field.Select name="vehicleCompany" label="Vehicle Company (Optional)">
             <MenuItem value="">None</MenuItem>
             <Divider sx={{ borderStyle: 'dashed' }} />

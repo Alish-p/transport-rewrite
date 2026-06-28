@@ -17,7 +17,10 @@ import TenantForm from '../tenant-form';
 import PumpSettingForm from '../pump/pump-setting-form';
 import ExpenseSettingForm from '../expense/expense-setting-form';
 import VehicleSettingForm from '../vehicle/vehicle-setting-form';
+import InvoiceSettingForm from '../invoice/invoice-setting-form';
+import CustomerSettingForm from '../customer/customer-setting-form';
 import SubtripSettingForm from '../subtrip-config/subtrip-setting-form';
+import TransporterSettingForm from '../transporter/transporter-setting-form';
 
 // ----------------------------------------------------------------------
 
@@ -95,13 +98,13 @@ export function SettingsView({ tenant }) {
       case 'vehicle':
         return <VehicleSettingForm currentTenant={tenant} />;
       case 'driver':
-        return <Box>Sample Text: Driver Configuration</Box>;
+        return <p>Sample Driver Settings</p>;
       case 'transporter':
-        return <Box>Sample Text: Transporter Configuration</Box>;
+        return <TransporterSettingForm currentTenant={tenant} />;
       case 'customer':
-        return <Box>Sample Text: Customer Configuration</Box>;
+        return <CustomerSettingForm currentTenant={tenant} />;
       case 'invoice':
-        return <Box>Sample Text: Invoice Configuration</Box>;
+        return <InvoiceSettingForm currentTenant={tenant} />;
       default:
         return null;
     }

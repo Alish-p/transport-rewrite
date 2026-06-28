@@ -170,15 +170,15 @@ export default function CustomerNewForm({ currentCustomer }) {
 
       // Additional Details
       transporterCode: currentCustomer?.transporterCode || '',
-      invoiceDueInDays: currentCustomer?.invoiceDueInDays || 10,
+      invoiceDueInDays: currentCustomer?.invoiceDueInDays ?? tenant?.config?.defaultInvoiceDueInDays ?? 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
-      invoiceSuffix: currentCustomer?.invoiceSuffix || '',
+      invoiceSuffix: currentCustomer?.invoiceSuffix ?? tenant?.config?.defaultInvoiceSuffix ?? '',
       currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,
 
       // Consignees
       consignees: currentCustomer?.consignees || [],
     }),
-    [currentCustomer]
+    [currentCustomer, tenant]
   );
 
   // 2.2 Initialize React Hook Form
@@ -204,6 +204,12 @@ export default function CustomerNewForm({ currentCustomer }) {
     if (!gstInput && values.GSTNo) setGstInput(values.GSTNo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values.GSTNo]);
+
+  useEffect(() => {
+    if (tenant && !currentCustomer) {
+      reset(defaultValues);
+    }
+  }, [tenant, currentCustomer, reset, defaultValues]);
 
   // 2.3 FieldArray for consignees
   const { fields, append, remove } = useFieldArray({
@@ -248,9 +254,9 @@ export default function CustomerNewForm({ currentCustomer }) {
     // Remove all spaces, take first 3 chars, uppercase
     const firstThree = nameValue.replace(/\s+/g, '').substring(0, 3).toUpperCase();
 
-    // If there aren’t at least 3 characters yet, just skip setting it
+    // If there aren’t at least 3 characters yet, just set default prefix
     if (firstThree.length < 1) {
-      setValue('invoicePrefix', '');
+      setValue('invoicePrefix', tenant?.config?.defaultInvoicePrefix || '');
       return;
     }
 
@@ -258,9 +264,11 @@ export default function CustomerNewForm({ currentCustomer }) {
     const fy = getCurrentFiscalYearShort();
 
     // Compose: e.g. "JKC/25-26/"
-    const newPrefix = `${firstThree}/${fy}/`;
+    const newPrefix = tenant?.config?.defaultInvoicePrefix 
+      ? `${tenant.config.defaultInvoicePrefix}${firstThree}/${fy}/` 
+      : `${firstThree}/${fy}/`;
     setValue('invoicePrefix', newPrefix);
-  }, [values.customerName, currentCustomer, setValue]);
+  }, [values.customerName, currentCustomer, setValue, tenant]);
 
   // ----------------------
   // 4. Render each section as a Card
