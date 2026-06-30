@@ -139,8 +139,8 @@ export default function TransporterForm({ currentTransporter }) {
       gstEnabled: currentTransporter?.gstEnabled ?? false,
       transportType: currentTransporter?.transportType || '',
       agreementNo: currentTransporter?.agreementNo || '',
-      tdsPercentage: currentTransporter?.tdsPercentage ?? tenant?.config?.defaultTdsPercentage ?? 2,
-      podCharges: currentTransporter?.podCharges ?? tenant?.config?.defaultPodCharges ?? 0,
+      tdsPercentage: currentTransporter?.tdsPercentage ?? tenant?.config?.transporterPayment?.defaultTdsPercentage ?? 2,
+      podCharges: currentTransporter?.podCharges ?? tenant?.config?.transporterPayment?.defaultPodCharges ?? 0,
       isActive: currentTransporter?.isActive ?? true,
     }),
     [currentTransporter, tenant]

@@ -20,7 +20,9 @@ import { Form, Field } from 'src/components/hook-form';
 
 const PumpSettingSchema = zod.object({
   config: zod.object({
-    pumps: zod.boolean().optional(),
+    pump: zod.object({
+      enabled: zod.boolean().optional(),
+    }).optional(),
   }),
 });
 
@@ -30,7 +32,9 @@ export default function PumpSettingForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       config: {
-        pumps: currentTenant?.config?.pumps ?? true,
+        pump: {
+          enabled: currentTenant?.config?.pump?.enabled ?? true,
+        },
       },
     }),
     [currentTenant]
@@ -69,7 +73,7 @@ export default function PumpSettingForm({ currentTenant }) {
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Switch
-              name="config.pumps"
+              name="config.pump.enabled"
               labelPlacement="start"
               label={
                 <Stack direction="row" spacing={1} alignItems="center">

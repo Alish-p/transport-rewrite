@@ -170,7 +170,7 @@ export default function CustomerNewForm({ currentCustomer }) {
 
       // Additional Details
       transporterCode: currentCustomer?.transporterCode || '',
-      invoiceDueInDays: currentCustomer?.invoiceDueInDays ?? tenant?.config?.defaultInvoiceDueInDays ?? 10,
+      invoiceDueInDays: currentCustomer?.invoiceDueInDays ?? tenant?.config?.invoice?.defaultDueInDays ?? 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
       invoiceSuffix: currentCustomer?.invoiceSuffix ?? tenant?.config?.defaultInvoiceSuffix ?? '',
       currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,

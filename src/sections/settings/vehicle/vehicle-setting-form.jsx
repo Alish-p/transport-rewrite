@@ -20,19 +20,21 @@ import { Form, Field } from 'src/components/hook-form';
 
 const VehicleSettingSchema = zod.object({
   config: zod.object({
-    marketVehicles: zod.boolean().optional(),
-    vehicleTypes: zod
-      .array(zod.object({ label: zod.string(), value: zod.string() }))
-      .optional(),
-    vehicleCompanies: zod
-      .array(zod.object({ label: zod.string(), value: zod.string() }))
-      .optional(),
-    vehicleModels: zod
-      .array(zod.object({ label: zod.string(), value: zod.string() }))
-      .optional(),
-    engineTypes: zod
-      .array(zod.object({ label: zod.string(), value: zod.string() }))
-      .optional(),
+    vehicle: zod.object({
+      marketVehicles: zod.boolean().optional(),
+      types: zod
+        .array(zod.object({ label: zod.string(), value: zod.string() }))
+        .optional(),
+      companies: zod
+        .array(zod.object({ label: zod.string(), value: zod.string() }))
+        .optional(),
+      models: zod
+        .array(zod.object({ label: zod.string(), value: zod.string() }))
+        .optional(),
+      engineTypes: zod
+        .array(zod.object({ label: zod.string(), value: zod.string() }))
+        .optional(),
+    }).optional(),
   }),
 });
 
@@ -42,11 +44,13 @@ export default function VehicleSettingForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       config: {
-        marketVehicles: currentTenant?.config?.marketVehicles ?? true,
-        vehicleTypes: currentTenant?.config?.vehicleTypes || [],
-        vehicleCompanies: currentTenant?.config?.vehicleCompanies || [],
-        vehicleModels: currentTenant?.config?.vehicleModels || [],
-        engineTypes: currentTenant?.config?.engineTypes || [],
+        vehicle: {
+          marketVehicles: currentTenant?.config?.vehicle?.marketVehicles ?? true,
+          types: currentTenant?.config?.vehicle?.types || [],
+          companies: currentTenant?.config?.vehicle?.companies || [],
+          models: currentTenant?.config?.vehicle?.models || [],
+          engineTypes: currentTenant?.config?.vehicle?.engineTypes || [],
+        },
       },
     }),
     [currentTenant]
@@ -89,11 +93,11 @@ export default function VehicleSettingForm({ currentTenant }) {
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Switch
-              name="config.marketVehicles"
+              name="config.vehicle.marketVehicles"
               labelPlacement="start"
               label={
                 <Stack direction="row" spacing={1} alignItems="center">
-                  <Iconify icon="mdi:truck-fast" />
+                   <Iconify icon="mdi:truck-fast" />
                   Manages Market & Supplier Vehicles
                   <Tooltip title="If disabled, all transporter-related functionality (advances, payments, tracking, filtering) will be hidden, streamlining the interface for operators who only manage their own vehicles.">
                     <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -112,31 +116,31 @@ export default function VehicleSettingForm({ currentTenant }) {
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.MultiAutocompleteFreeSolo
-              name="config.vehicleTypes"
+              name="config.vehicle.types"
               label="Vehicle Types"
               placeholder="Add vehicle types"
-              options={currentTenant?.config?.vehicleTypes || []}
+              options={currentTenant?.config?.vehicle?.types || []}
             />
 
             <Field.MultiAutocompleteFreeSolo
-              name="config.vehicleCompanies"
+              name="config.vehicle.companies"
               label="Vehicle Companies"
               placeholder="Add vehicle companies"
-              options={currentTenant?.config?.vehicleCompanies || []}
+              options={currentTenant?.config?.vehicle?.companies || []}
             />
 
             <Field.MultiAutocompleteFreeSolo
-              name="config.vehicleModels"
+              name="config.vehicle.models"
               label="Vehicle Models"
               placeholder="Add model numbers"
-              options={currentTenant?.config?.vehicleModels || []}
+              options={currentTenant?.config?.vehicle?.models || []}
             />
 
             <Field.MultiAutocompleteFreeSolo
-              name="config.engineTypes"
+              name="config.vehicle.engineTypes"
               label="Engine Types"
               placeholder="Add engine classes (e.g. BS-6)"
-              options={currentTenant?.config?.engineTypes || []}
+              options={currentTenant?.config?.vehicle?.engineTypes || []}
             />
           </Stack>
         </Card>

@@ -3,7 +3,7 @@ import StandardTransporterPaymentPdf from './templates/standard-transporter-paym
 import Template1TransporterPaymentPdf from './templates/template-1-transporter-payment-pdf';
 
 export default function TransporterPaymentPdf({ transporterPayment, tenant, ...props }) {
-  const template = tenant?.config?.transporterPaymentTemplate || 'standard';
+  const template = tenant?.config?.transporterPayment?.template || 'standard';
 
   if (template === 'template-1') {
     return (

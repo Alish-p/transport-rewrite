@@ -55,28 +55,22 @@ export const TenantSchema = zod
       .optional(),
     config: zod
       .object({
-        marketVehicles: zod.boolean().optional(),
-        pumps: zod.boolean().optional(),
-        materialOptions: zod
-          .array(zod.object({ label: zod.string(), value: zod.string() }))
+        vehicle: zod
+          .object({
+            marketVehicles: zod.boolean().optional(),
+          })
           .optional(),
-        subtripExpenseTypes: zod
-          .array(
-            zod.object({
-              label: zod.string(),
-              value: zod.string(),
-              icon: zod.string().optional(),
-            })
-          )
+        pump: zod
+          .object({
+            enabled: zod.boolean().optional(),
+          })
           .optional(),
-        vehicleExpenseTypes: zod
-          .array(
-            zod.object({
-              label: zod.string(),
-              value: zod.string(),
-              icon: zod.string().optional(),
-            })
-          )
+        subtrip: zod
+          .object({
+            materialOptions: zod
+              .array(zod.object({ label: zod.string(), value: zod.string() }))
+              .optional(),
+          })
           .optional(),
       })
       .optional(),
@@ -261,11 +255,15 @@ export default function TenantForm({ currentTenant }) {
         accNo: currentTenant?.bankDetails?.accNo || '',
       },
       config: {
-        marketVehicles: currentTenant?.config?.marketVehicles ?? true,
-        pumps: currentTenant?.config?.pumps ?? true,
-        materialOptions: currentTenant?.config?.materialOptions || materialOptions,
-        subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || subtripExpenseTypes,
-        vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || vehicleExpenseTypes,
+        vehicle: {
+          marketVehicles: currentTenant?.config?.vehicle?.marketVehicles ?? true,
+        },
+        pump: {
+          enabled: currentTenant?.config?.pump?.enabled ?? true,
+        },
+        subtrip: {
+          materialOptions: currentTenant?.config?.subtrip?.materialOptions || materialOptions,
+        },
       },
       integrations: {
         whatsapp: {
@@ -576,7 +574,7 @@ export default function TenantForm({ currentTenant }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.MultiAutocompleteFreeSolo
-          name="config.materialOptions"
+          name="config.subtrip.materialOptions"
           label="Material Options"
           options={materialOptions}
         />

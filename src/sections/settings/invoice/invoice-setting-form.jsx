@@ -18,12 +18,14 @@ import { Form, Field } from 'src/components/hook-form';
 
 const InvoiceSettingSchema = zod.object({
   config: zod.object({
-    defaultTaxRates: zod.object({
-      cgst: zod.number().min(0).max(100),
-      sgst: zod.number().min(0).max(100),
-      igst: zod.number().min(0).max(100),
-    }),
-    invoiceTermsAndConditions: zod.string().optional(),
+    invoice: zod.object({
+      defaultTaxRates: zod.object({
+        cgst: zod.number().min(0).max(100),
+        sgst: zod.number().min(0).max(100),
+        igst: zod.number().min(0).max(100),
+      }),
+      termsAndConditions: zod.string().optional(),
+    }).optional(),
   }),
 });
 
@@ -33,12 +35,14 @@ export default function InvoiceSettingForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       config: {
-        defaultTaxRates: {
-          cgst: currentTenant?.config?.defaultTaxRates?.cgst ?? 0,
-          sgst: currentTenant?.config?.defaultTaxRates?.sgst ?? 0,
-          igst: currentTenant?.config?.defaultTaxRates?.igst ?? 0,
+        invoice: {
+          defaultTaxRates: {
+            cgst: currentTenant?.config?.invoice?.defaultTaxRates?.cgst ?? 0,
+            sgst: currentTenant?.config?.invoice?.defaultTaxRates?.sgst ?? 0,
+            igst: currentTenant?.config?.invoice?.defaultTaxRates?.igst ?? 0,
+          },
+          termsAndConditions: currentTenant?.config?.invoice?.termsAndConditions ?? '',
         },
-        invoiceTermsAndConditions: currentTenant?.config?.invoiceTermsAndConditions ?? '',
       },
     }),
     [currentTenant]
@@ -83,31 +87,31 @@ export default function InvoiceSettingForm({ currentTenant }) {
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Field.Text
-                  name="config.defaultTaxRates.cgst"
+                  name="config.invoice.defaultTaxRates.cgst"
                   label="Default CGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.defaultTaxRates.cgst', Number(event.target.value))}
+                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.cgst', Number(event.target.value))}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
                 <Field.Text
-                  name="config.defaultTaxRates.sgst"
+                  name="config.invoice.defaultTaxRates.sgst"
                   label="Default SGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.defaultTaxRates.sgst', Number(event.target.value))}
+                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.sgst', Number(event.target.value))}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
                 <Field.Text
-                  name="config.defaultTaxRates.igst"
+                  name="config.invoice.defaultTaxRates.igst"
                   label="Default IGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.defaultTaxRates.igst', Number(event.target.value))}
+                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.igst', Number(event.target.value))}
                 />
               </Grid>
               <Grid item xs={12}>
                 <Field.Text
-                  name="config.invoiceTermsAndConditions"
+                  name="config.invoice.termsAndConditions"
                   label="Invoice Terms & Conditions"
                   placeholder="Enter invoice terms, bank details for payment, or print notes..."
                   multiline

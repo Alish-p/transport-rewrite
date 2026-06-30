@@ -56,7 +56,7 @@ export const vehicleTypeIcon = {
 
 export function useVehicleTypes() {
   const { data: tenant } = useTenant();
-  const dbTypes = tenant?.config?.vehicleTypes;
+  const dbTypes = tenant?.config?.vehicle?.types;
 
   if (dbTypes && dbTypes.length > 0) {
     return dbTypes.map((opt) => ({ key: opt.value, value: opt.label }));
@@ -66,7 +66,7 @@ export function useVehicleTypes() {
 
 export function useVehicleCompanies() {
   const { data: tenant } = useTenant();
-  const dbCompanies = tenant?.config?.vehicleCompanies;
+  const dbCompanies = tenant?.config?.vehicle?.companies;
 
   if (dbCompanies && dbCompanies.length > 0) {
     return dbCompanies.map((opt) => ({ key: opt.value, value: opt.label }));
@@ -76,7 +76,7 @@ export function useVehicleCompanies() {
 
 export function useModelTypes() {
   const { data: tenant } = useTenant();
-  const dbModels = tenant?.config?.vehicleModels;
+  const dbModels = tenant?.config?.vehicle?.models;
 
   if (dbModels && dbModels.length > 0) {
     return dbModels.map((opt) => ({ key: opt.value, value: opt.label }));
@@ -86,7 +86,7 @@ export function useModelTypes() {
 
 export function useEngineTypes() {
   const { data: tenant } = useTenant();
-  const dbEngines = tenant?.config?.engineTypes;
+  const dbEngines = tenant?.config?.vehicle?.engineTypes;
 
   if (dbEngines && dbEngines.length > 0) {
     return dbEngines.map((opt) => ({ key: opt.value, value: opt.label }));

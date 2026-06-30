@@ -18,7 +18,9 @@ import { Form, Field } from 'src/components/hook-form';
 
 const CustomerSettingSchema = zod.object({
   config: zod.object({
-    defaultInvoiceDueInDays: zod.number().min(0),
+    invoice: zod.object({
+      defaultDueInDays: zod.number().min(0),
+    }).optional(),
   }),
 });
 
@@ -28,7 +30,9 @@ export default function CustomerSettingForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       config: {
-        defaultInvoiceDueInDays: currentTenant?.config?.defaultInvoiceDueInDays ?? 10,
+        invoice: {
+          defaultDueInDays: currentTenant?.config?.invoice?.defaultDueInDays ?? 10,
+        },
       },
     }),
     [currentTenant]
@@ -73,10 +77,10 @@ export default function CustomerSettingForm({ currentTenant }) {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Field.Text
-                  name="config.defaultInvoiceDueInDays"
+                  name="config.invoice.defaultDueInDays"
                   label="Default Payment Due Days"
                   type="number"
-                  onChange={(event) => methods.setValue('config.defaultInvoiceDueInDays', Number(event.target.value))}
+                  onChange={(event) => methods.setValue('config.invoice.defaultDueInDays', Number(event.target.value))}
                 />
               </Grid>
             </Grid>

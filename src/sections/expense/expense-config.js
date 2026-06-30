@@ -57,7 +57,7 @@ export const DEFAULT_PAYMENT_METHODS = [
 
 export function useSubtripExpenseTypes() {
   const { data: tenant } = useTenant();
-  const dbTypes = tenant?.config?.subtripExpenseTypes;
+  const dbTypes = tenant?.config?.expense?.['subtrip-expense-types'];
 
   if (dbTypes && dbTypes.length > 0) {
     return dbTypes;
@@ -67,7 +67,7 @@ export function useSubtripExpenseTypes() {
 
 export function useVehicleExpenseTypes() {
   const { data: tenant } = useTenant();
-  const dbTypes = tenant?.config?.vehicleExpenseTypes;
+  const dbTypes = tenant?.config?.expense?.['vehicle-expense-types'];
 
   if (dbTypes && dbTypes.length > 0) {
     return dbTypes;

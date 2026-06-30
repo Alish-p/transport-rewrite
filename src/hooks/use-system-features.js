@@ -4,8 +4,8 @@ export function useSystemFeatures() {
   const tenant = useTenantContext();
   
   return {
-    marketVehicles: tenant?.config?.marketVehicles !== false,
-    pumps: tenant?.config?.pumps !== false,
+    marketVehicles: tenant?.config?.vehicle?.marketVehicles !== false,
+    pumps: tenant?.config?.pump?.enabled !== false,
   };
 }
 

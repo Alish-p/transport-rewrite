@@ -17,24 +17,26 @@ import { Form, Field } from 'src/components/hook-form';
 
 const ExpenseSettingSchema = zod.object({
   config: zod.object({
-    subtripExpenseTypes: zod
-      .array(
-        zod.object({
-          label: zod.string(),
-          value: zod.string(),
-          icon: zod.string().optional(),
-        })
-      )
-      .optional(),
-    vehicleExpenseTypes: zod
-      .array(
-        zod.object({
-          label: zod.string(),
-          value: zod.string(),
-          icon: zod.string().optional(),
-        })
-      )
-      .optional(),
+    expense: zod.object({
+      'subtrip-expense-types': zod
+        .array(
+          zod.object({
+            label: zod.string(),
+            value: zod.string(),
+            icon: zod.string().optional(),
+          })
+        )
+        .optional(),
+      'vehicle-expense-types': zod
+        .array(
+          zod.object({
+            label: zod.string(),
+            value: zod.string(),
+            icon: zod.string().optional(),
+          })
+        )
+        .optional(),
+    }).optional(),
   }),
 });
 
@@ -44,8 +46,10 @@ export default function ExpenseSettingForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       config: {
-        subtripExpenseTypes: currentTenant?.config?.subtripExpenseTypes || [],
-        vehicleExpenseTypes: currentTenant?.config?.vehicleExpenseTypes || [],
+        expense: {
+          'subtrip-expense-types': currentTenant?.config?.expense?.['subtrip-expense-types'] || [],
+          'vehicle-expense-types': currentTenant?.config?.expense?.['vehicle-expense-types'] || [],
+        },
       },
     }),
     [currentTenant]
@@ -84,17 +88,17 @@ export default function ExpenseSettingForm({ currentTenant }) {
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.MultiAutocompleteFreeSolo
-              name="config.subtripExpenseTypes"
+              name="config.expense.subtrip-expense-types"
               label="Job Expense Types"
               placeholder="Add job/subtrip expense categories"
-              options={currentTenant?.config?.subtripExpenseTypes || []}
+              options={currentTenant?.config?.expense?.['subtrip-expense-types'] || []}
             />
 
             <Field.MultiAutocompleteFreeSolo
-              name="config.vehicleExpenseTypes"
+              name="config.expense.vehicle-expense-types"
               label="Vehicle Expense Types"
               placeholder="Add vehicle maintenance expense categories"
-              options={currentTenant?.config?.vehicleExpenseTypes || []}
+              options={currentTenant?.config?.expense?.['vehicle-expense-types'] || []}
             />
           </Stack>
         </Card>
