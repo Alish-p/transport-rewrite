@@ -20,7 +20,6 @@ import { PresetsOptions } from 'src/components/settings/drawer/presets-options';
 
 import { STATES } from '../customer/config';
 import TenantLogoCard from './tenant-logo-card';
-import { useSubtripExpenseTypes, useVehicleExpenseTypes } from '../expense/expense-config';
 
 export const TenantSchema = zod
   .object({
@@ -221,8 +220,6 @@ export const TenantSchema = zod
 export default function TenantForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
   const materialOptions = useMaterialOptions();
-  const subtripExpenseTypes = useSubtripExpenseTypes();
-  const vehicleExpenseTypes = useVehicleExpenseTypes();
   const bankDialog = useBoolean();
 
   const defaultValues = useMemo(
@@ -339,7 +336,7 @@ export default function TenantForm({ currentTenant }) {
         },
       },
     }),
-    [currentTenant, materialOptions, subtripExpenseTypes, vehicleExpenseTypes]
+    [currentTenant, materialOptions]
   );
 
   const methods = useForm({ resolver: zodResolver(TenantSchema), defaultValues });
