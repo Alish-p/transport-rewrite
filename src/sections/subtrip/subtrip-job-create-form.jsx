@@ -371,6 +371,7 @@ export function SubtripJobCreateForm() {
       startDate: form.startDate,
       remarks: form.remarks || undefined,
       diNumber: form.diNumber || undefined,
+      vehicleAssignment: form.vehicleAssignment || undefined,
     };
 
     const tripKm = creatingNewTrip ? toNumber(form.startKm) : undefined;

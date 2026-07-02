@@ -16,6 +16,7 @@ export const FIELD_CONFIG_DEFAULTS = {
     fields: {
       // Job creation fields
       invoiceNo: { visibility: 'required', label: 'Invoice No' },
+      vehicleAssignment: { visibility: 'hidden', label: 'Vehicle Assignment' },
       ewayBill: { visibility: 'optional', label: 'Eway Bill' },
       ewayExpiryDate: { visibility: 'optional', label: 'Eway Expiry Date' },
       shipmentNo: { visibility: 'optional', label: 'Shipment No' },

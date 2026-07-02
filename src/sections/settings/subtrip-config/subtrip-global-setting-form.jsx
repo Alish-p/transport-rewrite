@@ -32,6 +32,7 @@ import { FREIGHT_MODELS } from 'src/auth/field-config/field-config-defaults';
 
 const FIELDS_KEYS = [
   { key: 'invoiceNo', defaultLabel: 'Invoice No' },
+  { key: 'vehicleAssignment', defaultLabel: 'Vehicle Assignment' },
   { key: 'ewayBill', defaultLabel: 'Eway Bill' },
   { key: 'ewayExpiryDate', defaultLabel: 'Eway Expiry Date' },
   { key: 'shipmentNo', defaultLabel: 'Shipment No' },

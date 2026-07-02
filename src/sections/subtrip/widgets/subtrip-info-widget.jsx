@@ -42,6 +42,7 @@ export default function LRInfoCard({ subtrip }) {
     diNumber = '-',
     consignee = '-',
     referenceSubtripNo = '-',
+    vehicleAssignment,
     freightDetails,
     commissionDetails,
   } = subtrip;
@@ -166,6 +167,18 @@ export default function LRInfoCard({ subtrip }) {
               )}
             </Typography>
           </Stack>
+
+          {vehicleAssignment && (
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Iconify icon="mdi:truck-check-outline" width={20} />
+              <Typography>
+                Assignment:{' '}
+                <Box component="span" sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+                  {vehicleAssignment === 'schedule' ? 'Schedule Vehicle' : 'Adhock Vehicle'}
+                </Box>
+              </Typography>
+            </Stack>
+          )}
         </Stack>
       </Stack>
     </>

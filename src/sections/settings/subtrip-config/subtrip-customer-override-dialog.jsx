@@ -36,6 +36,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 const FIELDS_KEYS = [
   { key: 'invoiceNo', defaultLabel: 'Invoice No' },
+  { key: 'vehicleAssignment', defaultLabel: 'Vehicle Assignment' },
   { key: 'ewayBill', defaultLabel: 'Eway Bill' },
   { key: 'ewayExpiryDate', defaultLabel: 'Eway Expiry Date' },
   { key: 'shipmentNo', defaultLabel: 'Shipment No' },

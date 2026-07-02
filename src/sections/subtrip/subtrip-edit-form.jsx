@@ -51,6 +51,7 @@ const baseSchema = z.object({
   driverId: z.string().min(1, 'Driver is required'),
   diNumber: z.string().max(50, 'DI/DO No is too long').optional(),
   startDate: schemaHelper.date(),
+  vehicleAssignment: z.enum(['schedule', 'adhock']).optional(),
 });
 
 const numericInputSchema = z.preprocess((val) => {
@@ -69,40 +70,40 @@ const freightDetailsSchema = z.object({
 
 // Schema for Loaded status
 const loadedSchemaBase = baseSchema.extend({
-  consignee: z.string().max(100).optional(),
-  loadingPoint: z.string().max(100).optional(),
-  unloadingPoint: z.string().max(100).optional(),
+  consignee: z.string().max(100).nullable().optional(),
+  loadingPoint: z.string().max(100).nullable().optional(),
+  unloadingPoint: z.string().max(100).nullable().optional(),
   loadingWeight: numericInputSchema,
   quantity: numericInputSchema,
-  freightDetails: freightDetailsSchema.optional(),
-  ewayBill: z.string().max(100).optional(),
-  ewayExpiryDate: z.string().optional(),
-  invoiceNo: z.string().max(100).optional(),
-  shipmentNo: z.string().max(100).optional(),
-  orderNo: z.string().max(100).optional(),
-  referenceSubtripNo: z.string().max(100).optional(),
-  materialType: z.string().max(100).optional(),
-  grade: z.string().max(100).optional(),
+  freightDetails: freightDetailsSchema.nullable().optional(),
+  ewayBill: z.string().max(100).nullable().optional(),
+  ewayExpiryDate: schemaHelper.dateOptional(),
+  invoiceNo: z.string().max(100).nullable().optional(),
+  shipmentNo: z.string().max(100).nullable().optional(),
+  orderNo: z.string().max(100).nullable().optional(),
+  referenceSubtripNo: z.string().max(100).nullable().optional(),
+  materialType: z.string().max(100).nullable().optional(),
+  grade: z.string().max(100).nullable().optional(),
   driverAdvance: numericInputSchema,
-  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']).optional(),
+  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']).nullable().optional(),
   initialAdvanceDiesel: numericInputSchema,
-  intentFuelPump: z.string().optional(),
+  intentFuelPump: z.string().nullable().optional(),
 });
 
 // Schema for Received status (extends loaded)
 const receivedSchemaBase = loadedSchemaBase.extend({
   unloadingWeight: numericInputSchema,
-  endDate: z.string().optional(),
-  hasShortage: z.boolean().optional(),
+  endDate: schemaHelper.dateOptional(),
+  hasShortage: z.boolean().nullable().optional(),
   shortageWeight: numericInputSchema,
   shortageAmount: numericInputSchema,
-  hasError: z.boolean().optional(),
-  errorRemarks: z.string().max(500).optional(),
-  remarks: z.string().max(500).optional(),
+  hasError: z.boolean().nullable().optional(),
+  errorRemarks: z.string().max(500).nullable().optional(),
+  remarks: z.string().max(500).nullable().optional(),
   commissionDetails: z.object({
     commissionRate: numericInputSchema,
     commissionAmount: numericInputSchema,
-  }).optional(),
+  }).nullable().optional(),
 });
 
 const freightSuperRefine = (data, ctx) => {
@@ -168,6 +169,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
       remarks: currentSubtrip?.remarks || '',
       errorRemarks: currentSubtrip?.errorRemarks || '',
+      vehicleAssignment: currentSubtrip?.vehicleAssignment || 'schedule',
       freightDetails: currentSubtrip?.freightDetails || {
         freightModel: 'per_ton',
         rate: currentSubtrip?.freightDetails?.rate || 0,
@@ -207,6 +209,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
           grade: 'grade',
           diNumber: 'diNumber',
           remarks: 'remarks',
+          vehicleAssignment: 'vehicleAssignment',
         };
 
         // Validate other fields based on configuration
@@ -424,6 +427,12 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
               </Field.Configurable>
               <Field.MobileDateTimePicker name="startDate" label="Job Start Date" />
+              <Field.Configurable entity="subtrip" name="vehicleAssignment" customerId={currentSubtrip?.customerId?._id}>
+                <Field.Select name="vehicleAssignment" label={getLabel('vehicleAssignment', 'Vehicle Assignment')}>
+                  <MenuItem value="schedule">Schedule Vehicle</MenuItem>
+                  <MenuItem value="adhock">Adhock Vehicle</MenuItem>
+                </Field.Select>
+              </Field.Configurable>
               <Field.Configurable entity="subtrip" name="remarks" customerId={currentSubtrip?.customerId?._id}>
                 <Field.Text name="remarks" label={getLabel('remarks', 'Remarks')} multiline rows={3} sx={{ gridColumn: '1 / -1' }} />
               </Field.Configurable>

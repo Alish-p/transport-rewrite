@@ -521,6 +521,15 @@ export function SubtripJobCreateVehicleStep({
             Market vehicle selected. This will create an independent loaded job.
           </Alert>
         )}
+
+        {selectedVehicle && (
+          <Field.Configurable entity="subtrip" name="vehicleAssignment" customerId={selectedCustomer?._id}>
+            <Field.Select name="vehicleAssignment" label={getLabel('vehicleAssignment', 'Vehicle Assignment')} sx={{ mt: 1 }}>
+              <MenuItem value="schedule">Schedule Vehicle</MenuItem>
+              <MenuItem value="adhock">Adhock Vehicle</MenuItem>
+            </Field.Select>
+          </Field.Configurable>
+        )}
       </Box>
 
       <Box sx={{ mt: 2 }}>
