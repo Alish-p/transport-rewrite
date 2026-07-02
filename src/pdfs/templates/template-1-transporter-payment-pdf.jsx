@@ -281,6 +281,17 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     fontWeight: 'bold',
   },
+  tdsRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000000',
+    borderBottomStyle: 'dashed',
+    height: 20,
+    alignItems: 'center',
+  },
+  tdsText: {
+    fontSize: 8,
+  },
   noteRow: {
     paddingLeft: 6,
     paddingVertical: 6,
@@ -293,6 +304,7 @@ const styles = StyleSheet.create({
 
 export default function Template1TransporterPaymentPdf({ transporterPayment, tenant }) {
   const summary = transporterPayment?.summary || {};
+  const taxBreakup = transporterPayment?.taxBreakup || {};
   const transporter = transporterPayment?.transporterId || {};
   const paymentId = transporterPayment?.paymentId || '';
   const issueDate = transporterPayment?.issueDate;
@@ -310,8 +322,9 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
   const gstNo = company.legalInfo?.gstNumber || '';
   const tenantStateCode = getStateCode(state);
 
-  const netIncome = summary?.netIncome || 0;
-  const totalAdditionalCharges = summary?.totalAdditionalCharges || 0;
+  const { totalFreightAmount, totalExpense, totalAdditionalCharges, netIncome } = summary || {};
+
+  const totalDeductions = -totalAdditionalCharges + totalExpense
 
   return (
     <Document>
@@ -360,7 +373,9 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
             </View>
             <View style={styles.splitRightCol}>
               <Text style={styles.placeOfSupplyText}>
-                Place of supply <Text style={styles.boldText}>{transporterState.toUpperCase()}</Text>   State Code <Text style={styles.boldText}>{stateCode}</Text>
+                Place of supply{' '}
+                <Text style={styles.boldText}>{transporterState.toUpperCase()}</Text> State Code{' '}
+                <Text style={styles.boldText}>{stateCode}</Text>
               </Text>
             </View>
           </View>
@@ -378,7 +393,10 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
                 <Text style={styles.customerVal}>{addressLine1}</Text>
                 {(addressLine2 || city || pincode) && (
                   <Text style={[styles.customerVal, { marginTop: 2 }]}>
-                    {addressLine2 ? `${addressLine2}, ` : ''}{city}{city && pincode ? ' - ' : ''}{pincode}
+                    {addressLine2 ? `${addressLine2}, ` : ''}
+                    {city}
+                    {city && pincode ? ' - ' : ''}
+                    {pincode}
                   </Text>
                 )}
               </View>
@@ -401,7 +419,9 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
               <Text style={styles.tableHeaderCellText}>S.No.</Text>
             </View>
             <View style={[styles.tableCell, { width: '37%' }]}>
-              <Text style={[styles.tableHeaderCellText, { textAlign: 'left' }]}>Description of Service</Text>
+              <Text style={[styles.tableHeaderCellText, { textAlign: 'left' }]}>
+                Description of Service
+              </Text>
             </View>
             <View style={[styles.tableCell, { width: '12%' }]}>
               <Text style={styles.tableHeaderCellText}>SAC</Text>
@@ -410,7 +430,9 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
               <Text style={[styles.tableHeaderCellText, { textAlign: 'right' }]}>Total</Text>
             </View>
             <View style={[styles.tableCell, { width: '13%' }]}>
-              <Text style={[styles.tableHeaderCellText, { textAlign: 'right' }]}>Other charges</Text>
+              <Text style={[styles.tableHeaderCellText, { textAlign: 'right' }]}>
+                Other charges
+              </Text>
             </View>
             <View style={[styles.tableCellLast, { width: '15%' }]}>
               <Text style={[styles.tableHeaderCellText, { textAlign: 'right' }]}>Net Value</Text>
@@ -429,15 +451,27 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
               <Text style={styles.tableDataCellText}>996601</Text>
             </View>
             <View style={[styles.tableCell, { width: '15%', alignItems: 'flex-end' }]}>
-              <Text style={styles.tableDataCellText}>{fNumber(netIncome)}</Text>
+              <Text style={styles.tableDataCellText}>{fNumber(totalFreightAmount)}</Text>
             </View>
             <View style={[styles.tableCell, { width: '13%', alignItems: 'flex-end' }]}>
-              <Text style={styles.tableDataCellText}>{fNumber(totalAdditionalCharges)}</Text>
+              <Text style={styles.tableDataCellText}>{fNumber(totalDeductions)}</Text>
             </View>
             <View style={[styles.tableCellLast, { width: '15%', alignItems: 'flex-end' }]}>
-              <Text style={styles.tableDataCellText}>{fNumber(netIncome)}</Text>
+              <Text style={styles.tableDataCellText}>{fNumber(totalFreightAmount - totalDeductions)}</Text>
             </View>
           </View>
+
+          {/* TDS Row */}
+          {taxBreakup?.tds?.rate > 0 && (
+            <View style={styles.tdsRow}>
+              <View style={styles.grandTotalLeftCell}>
+                <Text style={styles.tdsText}>TDS ({taxBreakup.tds.rate}%)</Text>
+              </View>
+              <View style={styles.grandTotalRightCell}>
+                <Text style={styles.tdsText}>-{fNumber(taxBreakup.tds.amount)}</Text>
+              </View>
+            </View>
+          )}
 
           {/* Grand Total Row */}
           <View style={styles.grandTotalRow}>
@@ -472,7 +506,8 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
           {/* Remarks Row */}
           <View style={styles.remarksRow}>
             <Text style={styles.remarksText}>
-              Remarks - Exempted vide Sr. No. 22 of Notification no 12/2017 - Central Tax (Rate) dated. 28th June, 2017 and as notified by State under GST law.
+              Remarks - Exempted vide Sr. No. 22 of Notification no 12/2017 - Central Tax (Rate)
+              dated. 28th June, 2017 and as notified by State under GST law.
             </Text>
           </View>
 
