@@ -39,9 +39,17 @@ export function SubtripJobCreateRouteStep({
           />
         </Field.Configurable>
         <Field.Configurable entity="subtrip" name="unloadingPoint" customerId={selectedCustomer?._id}>
-          <Field.Text
+          <Field.MultiAutocompleteFreeSolo
             name="unloadingPoint"
             label={getLabel('unloadingPoint', 'Unloading Point')}
+            placeholder="Add unloading points..."
+            options={Array.from(
+              new Set(
+                (consignees || [])
+                  .map(({ address }) => address)
+                  .filter(Boolean)
+              )
+            ).map((addr) => ({ label: addr, value: addr }))}
             helperText={isLoadedJob ? "Consignee's Address" : undefined}
           />
         </Field.Configurable>
@@ -80,7 +88,9 @@ export function getRouteStepError(form, { selectedVehicle, fetchingActiveTrip, a
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
 
   const hasLoading = Boolean((form.loadingPoint || '').trim());
-  const hasUnloading = Boolean((form.unloadingPoint || '').trim());
+  const hasUnloading = Array.isArray(form.unloadingPoint)
+    ? form.unloadingPoint.length > 0
+    : Boolean((form.unloadingPoint || '').trim());
 
   const isFieldRequired = (name) => {
     const visibility = fields?.[name]?.visibility;

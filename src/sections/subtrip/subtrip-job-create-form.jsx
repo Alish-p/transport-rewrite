@@ -378,17 +378,21 @@ export function SubtripJobCreateForm() {
 
     const emptyRoute = isEmpty
       ? {
-        loadingPoint: (form.loadingPoint || '').trim() || undefined,
-        unloadingPoint: (form.unloadingPoint || '').trim() || undefined,
-      }
+          loadingPoint: (form.loadingPoint || '').trim() || undefined,
+          unloadingPoint: Array.isArray(form.unloadingPoint)
+            ? form.unloadingPoint.map((item) => item.value || item.label).filter(Boolean).join(' | ') || undefined
+            : (form.unloadingPoint || '').trim() || undefined,
+        }
       : {};
 
     const loadedFields = !isEmpty
       ? {
-        customerId: selectedCustomer?._id,
-        consignee: form.consignee?.value || form.consignee?.label,
-        loadingPoint: form.loadingPoint,
-        unloadingPoint: form.unloadingPoint,
+          customerId: selectedCustomer?._id,
+          consignee: form.consignee?.value || form.consignee?.label,
+          loadingPoint: form.loadingPoint,
+          unloadingPoint: Array.isArray(form.unloadingPoint)
+            ? form.unloadingPoint.map((item) => item.value || item.label).filter(Boolean).join(' | ') || undefined
+            : form.unloadingPoint,
         loadingWeight: toNumber(form.loadingWeight),
         freightDetails: {
           freightModel: form.freightModel,

@@ -130,7 +130,10 @@ export function SubtripJobCreateVehicleStep({
           setValue('loadingPoint', loadingPoint, { shouldDirty: true, shouldValidate: true });
         }
         if (unloadingPoint) {
-          setValue('unloadingPoint', unloadingPoint, { shouldDirty: true, shouldValidate: true });
+          const parsedUnloadingPoint = typeof unloadingPoint === 'string'
+            ? unloadingPoint.split(' | ').map((p) => ({ label: p, value: p }))
+            : unloadingPoint;
+          setValue('unloadingPoint', parsedUnloadingPoint, { shouldDirty: true, shouldValidate: true });
         }
         if (consignee) {
           setValue('consignee', consignee, { shouldDirty: true, shouldValidate: false });

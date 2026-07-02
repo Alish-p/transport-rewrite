@@ -150,7 +150,13 @@ export const jobCreateSchema = zod
     startKm: numericInputSchema,
     consignee: consigneeOptionSchema,
     loadingPoint: zod.string().optional(),
-    unloadingPoint: zod.string().optional(),
+    unloadingPoint: zod
+      .union([
+        zod.string(),
+        zod.array(zod.object({ label: zod.string(), value: zod.string() })),
+      ])
+      .nullable()
+      .optional(),
     loadingWeight: loadingWeightSchema,
     freightModel: zod.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
     freightAmount: numericInputSchema,
@@ -262,7 +268,7 @@ export const createJobDefaultValues = () => ({
   consignee: null,
   vehicleAssignment: 'schedule',
   loadingPoint: '',
-  unloadingPoint: '',
+  unloadingPoint: [],
   loadingWeight: '',
   freightModel: 'per_ton',
   freightAmount: '',

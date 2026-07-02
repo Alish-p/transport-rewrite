@@ -72,7 +72,10 @@ const freightDetailsSchema = z.object({
 const loadedSchemaBase = baseSchema.extend({
   consignee: z.string().max(100).nullable().optional(),
   loadingPoint: z.string().max(100).nullable().optional(),
-  unloadingPoint: z.string().max(100).nullable().optional(),
+  unloadingPoint: z.union([
+    z.string(),
+    z.array(z.object({ label: z.string(), value: z.string() })),
+  ]).nullable().optional(),
   loadingWeight: numericInputSchema,
   quantity: numericInputSchema,
   freightDetails: freightDetailsSchema.nullable().optional(),
@@ -163,6 +166,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const defaultValues = useMemo(
     () => ({
       ...currentSubtrip,
+      unloadingPoint: currentSubtrip?.unloadingPoint
+        ? currentSubtrip.unloadingPoint.split(' | ').map(x => ({ label: x, value: x }))
+        : [],
       hasShortage: currentSubtrip?.shortageWeight > 0 || false,
       customerId: currentSubtrip?.customerId?._id,
       driverId: currentSubtrip?.driverId?._id,
@@ -216,7 +222,8 @@ export default function SubtripEditForm({ currentSubtrip }) {
         Object.entries(fieldMappings).forEach(([formField, configField]) => {
           if (isRequired(configField)) {
             const val = values[formField];
-            if (val === undefined || val === null || val === '') {
+            const isEmpty = val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0);
+            if (isEmpty) {
               errors[formField] = { message: `${getLabel(configField, formField).replace(' *', '')} is required`, type: 'manual' };
             }
           }
@@ -298,6 +305,12 @@ export default function SubtripEditForm({ currentSubtrip }) {
           acc[key] = data[key];
           return acc;
         }, {});
+
+      if (changedFields.unloadingPoint !== undefined) {
+        changedFields.unloadingPoint = Array.isArray(data.unloadingPoint)
+          ? data.unloadingPoint.map((item) => item.value || item.label).filter(Boolean).join(' | ')
+          : data.unloadingPoint;
+      }
 
       if (dirtyFields.freightDetails) {
         changedFields.freightDetails = data.freightDetails;
@@ -460,9 +473,17 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     <Field.Text name="loadingPoint" label={getLabel('loadingPoint', 'Loading Point')} />
                   </Field.Configurable>
                   <Field.Configurable entity="subtrip" name="unloadingPoint" customerId={currentSubtrip?.customerId?._id}>
-                    <Field.Text
+                    <Field.MultiAutocompleteFreeSolo
                       name="unloadingPoint"
                       label={getLabel('unloadingPoint', 'Unloading Point')}
+                      placeholder="Add unloading points..."
+                      options={Array.from(
+                        new Set(
+                          (selectedCustomer?.consignees || [])
+                            .map(({ address }) => address)
+                            .filter(Boolean)
+                        )
+                      ).map((addr) => ({ label: addr, value: addr }))}
                       helperText="Consignee's address"
                     />
                   </Field.Configurable>
