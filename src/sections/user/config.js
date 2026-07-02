@@ -44,12 +44,7 @@ export const PERMISSIONS = [
     name: 'pump',
     group: 'Management',
   },
-  {
-    subheader: 'Route',
-    caption: 'Permissions for planning, modifying, and tracking vehicle routes.',
-    name: 'route',
-    group: 'Management',
-  },
+
   {
     subheader: 'Jobs',
     caption: 'Permissions for managing and tracking jobs as part of larger trip assignments.',
