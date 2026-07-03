@@ -142,10 +142,7 @@ export const TABLE_COLUMNS = [
       const isLowStock = row.totalQuantity < row.threshold;
       const isOutOfStock = row.totalQuantity === 0;
       return (
-        <Label
-          variant="soft"
-          color={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'}
-        >
+        <Label variant="soft" color={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'}>
           {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
         </Label>
       );
@@ -201,4 +198,3 @@ export const TABLE_COLUMNS = [
     },
   },
 ];
-

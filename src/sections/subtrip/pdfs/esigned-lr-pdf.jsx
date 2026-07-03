@@ -82,7 +82,14 @@ export default function ESignedLRPDF({ subtrip, tenant, mapImageUrl }) {
       'Grade',
     ];
     const goodsData = [
-      [customerId?.transporterCode, orderNo, vehicleId?.vehicleNo, loadingWeight, materialType, grade],
+      [
+        customerId?.transporterCode,
+        orderNo,
+        vehicleId?.vehicleNo,
+        loadingWeight,
+        materialType,
+        grade,
+      ],
     ];
 
     const driverHeaders = ['Driver Name', 'Mobile No.', 'DL No.', 'Vehicle Type'];
@@ -157,7 +164,9 @@ export default function ESignedLRPDF({ subtrip, tenant, mapImageUrl }) {
             </View>
             {podSigneeMobile && (
               <View style={{ marginBottom: 4 }}>
-                <Text style={{ fontSize: 6, fontWeight: 700, color: '#637381' }}>MOBILE NUMBER</Text>
+                <Text style={{ fontSize: 6, fontWeight: 700, color: '#637381' }}>
+                  MOBILE NUMBER
+                </Text>
                 <Text style={{ fontSize: 8, fontWeight: 700 }}>{podSigneeMobile}</Text>
               </View>
             )}

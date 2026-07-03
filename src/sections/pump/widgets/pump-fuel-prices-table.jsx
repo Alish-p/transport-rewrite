@@ -106,8 +106,8 @@ export function PumpDieselPricesWidget({ pump, title = 'Fuel Prices', ...other }
             ) : dieselPrices.length ? (
               dieselPrices.map((row, idx) => (
                 <TableRow key={row._id}>
-                  <TableCell align='center'>{table.page * table.rowsPerPage + idx + 1}</TableCell>
-                  <TableCell align='center'>
+                  <TableCell align="center">{table.page * table.rowsPerPage + idx + 1}</TableCell>
+                  <TableCell align="center">
                     <Label
                       color={
                         row.fuelType === 'Diesel'
@@ -122,8 +122,8 @@ export function PumpDieselPricesWidget({ pump, title = 'Fuel Prices', ...other }
                     >
                       {row.fuelType}
                     </Label>
-                  </TableCell >
-                  <TableCell align='center'>
+                  </TableCell>
+                  <TableCell align="center">
                     <Label
                       color={
                         new Date() >= new Date(row.fromDate) && new Date() <= new Date(row.toDate)
@@ -137,9 +137,11 @@ export function PumpDieselPricesWidget({ pump, title = 'Fuel Prices', ...other }
                         : 'Past'}
                     </Label>
                   </TableCell>
-                  <TableCell align='center'>{row.price}</TableCell>
-                  <TableCell align='center'>{fDateRangeShortLabel(row.fromDate, row.toDate)}</TableCell>
-                  <TableCell align='center'>
+                  <TableCell align="center">{row.price}</TableCell>
+                  <TableCell align="center">
+                    {fDateRangeShortLabel(row.fromDate, row.toDate)}
+                  </TableCell>
+                  <TableCell align="center">
                     <Stack direction="row" justifyContent="center">
                       <IconButton onClick={() => handleOpenEdit(row)}>
                         <Iconify icon="solar:pen-bold" />

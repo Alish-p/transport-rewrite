@@ -22,7 +22,11 @@ import {
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useFieldHelpers } from 'src/hooks/use-form-config';
 
-import { useSubtrip, useUpdateSubtripReceiveInfo, getSubtripDocumentUploadUrl } from 'src/query/use-subtrip';
+import {
+  useSubtrip,
+  useUpdateSubtripReceiveInfo,
+  getSubtripDocumentUploadUrl,
+} from 'src/query/use-subtrip';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -80,23 +84,33 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   // Initialize default freight details when selectedSubtrip loads/changes
   useEffect(() => {
     if (selectedSubtrip && selectedSubtrip.freightDetails) {
-      setValue('freightDetails', {
-        freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
-        endKm: (selectedSubtrip.freightDetails.endKm !== undefined && selectedSubtrip.freightDetails.endKm !== null)
-          ? selectedSubtrip.freightDetails.endKm
-          : undefined,
-        endTime: selectedSubtrip.freightDetails.endTime || null,
-      }, { shouldValidate: true });
+      setValue(
+        'freightDetails',
+        {
+          freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
+          endKm:
+            selectedSubtrip.freightDetails.endKm !== undefined &&
+            selectedSubtrip.freightDetails.endKm !== null
+              ? selectedSubtrip.freightDetails.endKm
+              : undefined,
+          endTime: selectedSubtrip.freightDetails.endTime || null,
+        },
+        { shouldValidate: true }
+      );
     }
   }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
   // Initialize default commission details when selectedSubtrip loads/changes
   useEffect(() => {
     if (selectedSubtrip && selectedSubtrip.commissionDetails) {
-      setValue('commissionDetails', {
-        commissionRate: selectedSubtrip.commissionDetails.commissionRate || 0,
-        commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
-      }, { shouldValidate: true });
+      setValue(
+        'commissionDetails',
+        {
+          commissionRate: selectedSubtrip.commissionDetails.commissionRate || 0,
+          commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
+        },
+        { shouldValidate: true }
+      );
     }
   }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
@@ -114,7 +128,8 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
   // Auto-calculate commission amount based on commissionRate and loadingWeight for per_ton / per_kl model
   useEffect(() => {
-    if (!selectedSubtrip || isOwn || (freightModel !== 'per_ton' && freightModel !== 'per_kl')) return;
+    if (!selectedSubtrip || isOwn || (freightModel !== 'per_ton' && freightModel !== 'per_kl'))
+      return;
 
     const rate = Number(commissionDetails?.commissionRate || 0);
     const weight = Number(selectedSubtrip.loadingWeight || 0);
@@ -131,7 +146,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
       const startKm = selectedSubtrip.freightDetails?.startKm || 0;
       const endKm = Number(freightDetails.endKm);
       if (endKm > startKm) {
-        setValue('freightDetails.freightAmount', (endKm - startKm) * rate, { shouldValidate: true });
+        setValue('freightDetails.freightAmount', (endKm - startKm) * rate, {
+          shouldValidate: true,
+        });
       }
     } else if (freightModel === 'hybrid' && freightDetails?.endKm) {
       const startKm = selectedSubtrip.freightDetails?.startKm || 0;
@@ -142,7 +159,9 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
       if (totalKm > baseKm && rate > 0) {
         const extraKm = totalKm - baseKm;
-        setValue('freightDetails.freightAmount', baseFreight + (extraKm * rate), { shouldValidate: true });
+        setValue('freightDetails.freightAmount', baseFreight + extraKm * rate, {
+          shouldValidate: true,
+        });
       }
     } else if (freightModel === 'per_hour' && endDate) {
       const startTime = selectedSubtrip.startDate;
@@ -220,20 +239,27 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={customerId}>
               <Field.Text
                 name="unloadingWeight"
-                label={getLabel('unloadingWeight', freightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight')}
+                label={getLabel(
+                  'unloadingWeight',
+                  freightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight'
+                )}
                 type="number"
-                required={freightModel === 'per_ton' || freightModel === 'per_kl' || isRequired('unloadingWeight')}
+                required={
+                  freightModel === 'per_ton' ||
+                  freightModel === 'per_kl' ||
+                  isRequired('unloadingWeight')
+                }
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'Units')}
+                      {freightModel === 'per_kl' ? 'KL' : loadingWeightUnit[vehicleType] || 'Units'}
                     </InputAdornment>
                   ),
                 }}
               />
             </Field.Configurable>
 
-            {isOwn ? null : (freightModel === 'per_ton' || freightModel === 'per_kl') ? (
+            {isOwn ? null : freightModel === 'per_ton' || freightModel === 'per_kl' ? (
               <Field.Configurable entity="subtrip" name="commissionRate" customerId={customerId}>
                 <Field.Text
                   name="commissionDetails.commissionRate"
@@ -311,13 +337,18 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 <Field.Configurable entity="subtrip" name="shortageWeight" customerId={customerId}>
                   <Field.Number
                     name="shortageWeight"
-                    label={getLabel('shortageWeight', freightModel === 'per_kl' ? 'Shortage Volume (KL)' : 'Shortage Weight')}
+                    label={getLabel(
+                      'shortageWeight',
+                      freightModel === 'per_kl' ? 'Shortage Volume (KL)' : 'Shortage Weight'
+                    )}
                     helperText=""
                     placeholder="0"
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          {freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'Units')}
+                          {freightModel === 'per_kl'
+                            ? 'KL'
+                            : loadingWeightUnit[vehicleType] || 'Units'}
                         </InputAdornment>
                       ),
                     }}
@@ -346,7 +377,13 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               <Typography variant="subtitle2" color="error.main" gutterBottom>
                 Error Details
               </Typography>
-              <Field.Text name="errorRemarks" label="Error Remarks *" type="text" multiline rows={3} />
+              <Field.Text
+                name="errorRemarks"
+                label="Error Remarks *"
+                type="text"
+                multiline
+                rows={3}
+              />
             </Box>
           )}
 
@@ -373,16 +410,21 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
             Unloading weight cannot be more than loading weight
           </Alert>
         )}
-        {(!isOwn && (freightModel === 'per_ton' || freightModel === 'per_kl') && commissionDetails?.commissionRate > selectedSubtrip?.freightDetails?.rate) && (
-          <Alert severity="error" variant="outlined">
-            Commission rate cannot be more than the freight rate
-          </Alert>
-        )}
-        {(!isOwn && freightModel !== 'per_ton' && freightModel !== 'per_kl' && commissionDetails?.commissionAmount > selectedSubtrip?.freightDetails?.freightAmount) && (
-          <Alert severity="error" variant="outlined">
-            Commission amount cannot be more than the freight amount
-          </Alert>
-        )}
+        {!isOwn &&
+          (freightModel === 'per_ton' || freightModel === 'per_kl') &&
+          commissionDetails?.commissionRate > selectedSubtrip?.freightDetails?.rate && (
+            <Alert severity="error" variant="outlined">
+              Commission rate cannot be more than the freight rate
+            </Alert>
+          )}
+        {!isOwn &&
+          freightModel !== 'per_ton' &&
+          freightModel !== 'per_kl' &&
+          commissionDetails?.commissionAmount > selectedSubtrip?.freightDetails?.freightAmount && (
+            <Alert severity="error" variant="outlined">
+              Commission amount cannot be more than the freight amount
+            </Alert>
+          )}
       </Stack>
     </Card>
   );
@@ -504,8 +546,16 @@ export function SubtripReceiveForm() {
                   isSubmitting ||
                   // local errors
                   unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  (!isOwn && (selectedSubtripData?.freightDetails?.freightModel === 'per_ton' || selectedSubtripData?.freightDetails?.freightModel === 'per_kl') && commissionDetails?.commissionRate > selectedSubtripData?.freightDetails?.rate) ||
-                  (!isOwn && selectedSubtripData?.freightDetails?.freightModel !== 'per_ton' && selectedSubtripData?.freightDetails?.freightModel !== 'per_kl' && commissionDetails?.commissionAmount > selectedSubtripData?.freightDetails?.freightAmount)
+                  (!isOwn &&
+                    (selectedSubtripData?.freightDetails?.freightModel === 'per_ton' ||
+                      selectedSubtripData?.freightDetails?.freightModel === 'per_kl') &&
+                    commissionDetails?.commissionRate >
+                      selectedSubtripData?.freightDetails?.rate) ||
+                  (!isOwn &&
+                    selectedSubtripData?.freightDetails?.freightModel !== 'per_ton' &&
+                    selectedSubtripData?.freightDetails?.freightModel !== 'per_kl' &&
+                    commissionDetails?.commissionAmount >
+                      selectedSubtripData?.freightDetails?.freightAmount)
                 }
               >
                 Save Changes

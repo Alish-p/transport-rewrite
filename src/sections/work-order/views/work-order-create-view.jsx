@@ -14,14 +14,14 @@ export function WorkOrderCreateView() {
   const vehicleNo = searchParams.get('vehicleNo');
   const vehicleType = searchParams.get('vehicleType');
 
-  const currentWorkOrder = vehicleId 
-    ? { 
-        vehicle: { 
-          _id: vehicleId, 
-          vehicleNo: vehicleNo || '', 
-          vehicleType: vehicleType || '' 
-        } 
-      } 
+  const currentWorkOrder = vehicleId
+    ? {
+        vehicle: {
+          _id: vehicleId,
+          vehicleNo: vehicleNo || '',
+          vehicleType: vehicleType || '',
+        },
+      }
     : undefined;
 
   return (
@@ -40,4 +40,3 @@ export function WorkOrderCreateView() {
     </DashboardContent>
   );
 }
-

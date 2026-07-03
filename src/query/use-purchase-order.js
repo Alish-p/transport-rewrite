@@ -169,7 +169,6 @@ export function usePayPurchaseOrder() {
   return mutateAsync;
 }
 
-
 export function useReceivePurchaseOrder() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -231,5 +230,3 @@ export function useDeletePurchaseOrder() {
 
   return mutateAsync;
 }
-
-

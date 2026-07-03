@@ -324,7 +324,7 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
 
   const { totalFreightAmount, totalExpense, totalAdditionalCharges, netIncome } = summary || {};
 
-  const totalDeductions = -totalAdditionalCharges + totalExpense
+  const totalDeductions = -totalAdditionalCharges + totalExpense;
 
   return (
     <Document>
@@ -457,7 +457,9 @@ export default function Template1TransporterPaymentPdf({ transporterPayment, ten
               <Text style={styles.tableDataCellText}>{fNumber(totalDeductions)}</Text>
             </View>
             <View style={[styles.tableCellLast, { width: '15%', alignItems: 'flex-end' }]}>
-              <Text style={styles.tableDataCellText}>{fNumber(totalFreightAmount - totalDeductions)}</Text>
+              <Text style={styles.tableDataCellText}>
+                {fNumber(totalFreightAmount - totalDeductions)}
+              </Text>
             </View>
           </View>
 

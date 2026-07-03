@@ -1,4 +1,3 @@
-
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -12,7 +11,11 @@ export default function TenantAdminEditView({ tenant, onUpdated }) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading={tenant?.name ? `Edit: ${tenant.name}` : 'Edit Tenant'}
-        links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Tenants', href: paths.dashboard.tenants.root }, { name: 'Edit' }]}
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Tenants', href: paths.dashboard.tenants.root },
+          { name: 'Edit' },
+        ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
@@ -20,4 +23,3 @@ export default function TenantAdminEditView({ tenant, onUpdated }) {
     </DashboardContent>
   );
 }
-

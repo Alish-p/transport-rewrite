@@ -61,7 +61,7 @@ export function SplitUpdatePasswordView() {
     }
     return () => clearTimeout(timer);
   }, [countdown]);
-  
+
   const password = useBoolean();
 
   const defaultValues = {
@@ -88,27 +88,27 @@ export function SplitUpdatePasswordView() {
         code: data.code,
         password: data.password,
       });
-      toast.success("Password updated successfully!");
+      toast.success('Password updated successfully!');
       router.push(paths.auth.jwt.signIn);
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Failed to update password");
+      toast.error(error.message || 'Failed to update password');
     }
   });
 
   const handleResendCode = async () => {
     const email = methods.getValues('email');
     if (!email) {
-      toast.error("Please enter an email address first.");
+      toast.error('Please enter an email address first.');
       return;
     }
     try {
       await axios.post(endpoints.auth.forgotPassword, { email });
-      toast.success("Code resent to email!");
+      toast.success('Code resent to email!');
       setCountdown(60);
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Failed to resend code");
+      toast.error(error.message || 'Failed to resend code');
     }
   };
 

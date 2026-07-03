@@ -13,7 +13,20 @@ import { useFinancialMonthlyData } from 'src/query/use-dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartSelect } from 'src/components/chart';
 
-const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ALL_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 // Only show months up to and including the current month to avoid future zero-value dips
 const CURRENT_MONTH_INDEX = new Date().getMonth(); // 0-based
@@ -50,7 +63,12 @@ export function FinancialMonthlyChart({ title, ...other }) {
 
   const chartSeries =
     data && currentOption
-      ? [{ name: currentOption.label, data: (data[currentOption.key] ?? []).slice(0, CURRENT_MONTH_INDEX + 1) }]
+      ? [
+          {
+            name: currentOption.label,
+            data: (data[currentOption.key] ?? []).slice(0, CURRENT_MONTH_INDEX + 1),
+          },
+        ]
       : [];
 
   const chartOptions = useChart({

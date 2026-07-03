@@ -134,15 +134,24 @@ export function PartOverviewTab({
                     }}
                   >
                     <LocationMetric label="Total Tyres" value={tyreStats?.all?.count || 0} />
-                    <LocationMetric label="In Stock" value={tyreStats?.In_Stock?.count || 0} highlightPositive />
-                    <LocationMetric label="Mounted" value={tyreStats?.Mounted?.count || 0} highlightPositive />
+                    <LocationMetric
+                      label="In Stock"
+                      value={tyreStats?.In_Stock?.count || 0}
+                      highlightPositive
+                    />
+                    <LocationMetric
+                      label="Mounted"
+                      value={tyreStats?.Mounted?.count || 0}
+                      highlightPositive
+                    />
                     <LocationMetric label="Scrapped" value={tyreStats?.Scrapped?.count || 0} />
                   </Stack>
                 )}
                 <Box sx={{ mt: 2 }}>
-                   <Typography variant="caption" color="text.secondary">
-                     Note: Inventory for tyres is managed entirely within the Tyre module. Standard inventory locations are ignored.
-                   </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Note: Inventory for tyres is managed entirely within the Tyre module. Standard
+                    inventory locations are ignored.
+                  </Typography>
                 </Box>
               </Box>
             </Card>

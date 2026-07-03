@@ -6,7 +6,11 @@ import { createCircleIcon } from './map-icons';
 // -----------------------------------------------------------------------
 
 function getBounds(from, to) {
-  if (from && to) return [[from.lat, from.lng], [to.lat, to.lng]];
+  if (from && to)
+    return [
+      [from.lat, from.lng],
+      [to.lat, to.lng],
+    ];
   return undefined;
 }
 
@@ -50,7 +54,10 @@ export default function MapWithRoute({ from, to, fromLabel, toLabel }) {
       {/* Dashed polyline from origin → destination */}
       {hasBoth && (
         <Polyline
-          positions={[[from.lat, from.lng], [to.lat, to.lng]]}
+          positions={[
+            [from.lat, from.lng],
+            [to.lat, to.lng],
+          ]}
           pathOptions={{ color: '#1976d2', weight: 3, dashArray: '10, 8', opacity: 0.8 }}
         />
       )}

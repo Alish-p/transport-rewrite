@@ -49,7 +49,7 @@ export default function TransporterPaymentTableRow({
     }
 
     return actions;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canMarkPaid, row?.status, onDeleteRow]);
 
   return (

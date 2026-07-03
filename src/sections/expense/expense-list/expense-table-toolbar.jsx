@@ -57,7 +57,7 @@ export default function ExpenseTableToolbar({
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
-  
+
   const { pumps: managesPumps } = useSystemFeatures();
   // removed unused tenant context
 

@@ -5,13 +5,13 @@ import { PartBulkImportView } from 'src/sections/part/views/part-bulk-import-vie
 // ----------------------------------------------------------------------
 
 export default function PartBulkImportPage() {
-    return (
-        <>
-            <Helmet>
-                <title> Dashboard: Part Import</title>
-            </Helmet>
+  return (
+    <>
+      <Helmet>
+        <title> Dashboard: Part Import</title>
+      </Helmet>
 
-            <PartBulkImportView />
-        </>
-    );
+      <PartBulkImportView />
+    </>
+  );
 }

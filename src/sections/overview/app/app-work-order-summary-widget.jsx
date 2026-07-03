@@ -96,10 +96,7 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
 
   return (
     <Card {...other}>
-      <CardHeader
-        title="Work Orders Overview"
-        subheader="Status distribution of service tasks"
-      />
+      <CardHeader title="Work Orders Overview" subheader="Status distribution of service tasks" />
 
       <Chart
         type="donut"

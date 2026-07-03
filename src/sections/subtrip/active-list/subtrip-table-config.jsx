@@ -427,7 +427,7 @@ export const TABLE_COLUMNS = [
           {fNumber(total)}
         </Label>
       );
-    }
+    },
   },
   {
     id: 'advances',
@@ -456,7 +456,7 @@ export const TABLE_COLUMNS = [
           {fNumber(total)}
         </Label>
       );
-    }
+    },
   },
   {
     id: 'profitAndLoss',
@@ -488,7 +488,7 @@ export const TABLE_COLUMNS = [
           {fNumber(pnl)}
         </Label>
       );
-    }
+    },
   },
   {
     id: 'transport',

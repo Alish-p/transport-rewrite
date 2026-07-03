@@ -106,7 +106,7 @@ export default function IncomeWidgetSummary({
         </Stack>
 
         <Typography variant="h3">
-          {typeof total === 'number' ? fCurrency(total) : (total || 0)}
+          {typeof total === 'number' ? fCurrency(total) : total || 0}
         </Typography>
 
         {description && (
@@ -114,7 +114,6 @@ export default function IncomeWidgetSummary({
             {description}
           </Typography>
         )}
-
       </Stack>
 
       <Chart type="area" series={[{ data: series }]} options={chartOptions} height={120} />

@@ -171,7 +171,12 @@ export function VehicleListView() {
       { value: 'own', label: 'Own', color: 'primary', count: data?.totalOwnVehicle },
     ];
     if (managesMarketVehicles) {
-      TABS.push({ value: 'market', label: 'Market', color: 'secondary', count: data?.totalMarketVehicle });
+      TABS.push({
+        value: 'market',
+        label: 'Market',
+        color: 'secondary',
+        count: data?.totalMarketVehicle,
+      });
     }
 
     return (
@@ -220,7 +225,10 @@ export function VehicleListView() {
                 animation: 'pulseGlow 2s ease-in-out infinite',
                 '@keyframes pulseGlow': {
                   '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
                 },
               }}
             >
@@ -376,21 +384,25 @@ export function VehicleListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} vehicles
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} vehicles
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -432,11 +444,18 @@ export function VehicleListView() {
                           toast.error('Failed to export vehicles.');
                         }
                       } else {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
 
                         exportToExcel(
-                          prepareDataForExport(selectedRows, tableColumns, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            tableColumns,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Vehicles-selected-list'
                         );
                       }
@@ -454,7 +473,9 @@ export function VehicleListView() {
                   <Tooltip title="Download PDF">
                     <PDFDownloadLink
                       document={(() => {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
                         return (
                           <VehicleListPdf
@@ -498,25 +519,25 @@ export function VehicleListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <VehicleTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
-                      onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
-                      onDeleteRow={() => deleteVehicle(row._id)}
-                      onToggleActive={(id, newStatus) =>
-                        updateVehicle({ id, data: { isActive: newStatus } })
-                      }
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <VehicleTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => router.push(paths.dashboard.vehicle.details(row._id))}
+                        onEditRow={() => navigate(paths.dashboard.vehicle.edit(paramCase(row._id)))}
+                        onDeleteRow={() => deleteVehicle(row._id)}
+                        onToggleActive={(id, newStatus) =>
+                          updateVehicle({ id, data: { isActive: newStatus } })
+                        }
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={!tableData.length && canReset} />
               </TableBody>
             </Table>
@@ -533,6 +554,6 @@ export function VehicleListView() {
       </Card>
 
       <VehicleCleanupDialog open={cleanupDialog.value} onClose={cleanupDialog.onFalse} />
-    </DashboardContent >
+    </DashboardContent>
   );
 }

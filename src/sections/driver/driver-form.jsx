@@ -7,14 +7,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Button, Divider, MenuItem, Typography, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  MenuItem,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useUpdateDriver, useCreateFullDriver, getDriverPhotoUploadUrl } from 'src/query/use-driver';
+import {
+  useUpdateDriver,
+  useCreateFullDriver,
+  getDriverPhotoUploadUrl,
+} from 'src/query/use-driver';
 
 // components
 import { Label } from 'src/components/label';
@@ -34,10 +48,9 @@ export const NewDriverSchema = zod.object({
   driverLicenceNo: zod
     .string()
     .optional()
-    .refine(
-      (val) => !val || /^[A-Za-z]{2}[0-9]{13}$/.test(val),
-      { message: 'Driver Licence No must be in the format: two letters followed by 13 digits' }
-    ),
+    .refine((val) => !val || /^[A-Za-z]{2}[0-9]{13}$/.test(val), {
+      message: 'Driver Licence No must be in the format: two letters followed by 13 digits',
+    }),
   driverPresentAddress: zod.string().optional(),
   driverCellNo: schemaHelper.phoneNumber({
     message: {
@@ -51,7 +64,11 @@ export const NewDriverSchema = zod.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/.test(val),
+      (val) =>
+        !val ||
+        /(^[0-9]{4}[0-9]{4}[0-9]{4}$)|(^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$)|(^[0-9]{4}-[0-9]{4}-[0-9]{4}$)/.test(
+          val
+        ),
       { message: 'Aadhar No must be a valid format ie (12 Digits)' }
     ),
   guarantorName: zod.string().optional(),
@@ -65,13 +82,15 @@ export const NewDriverSchema = zod.object({
   permanentAddress: zod.string().optional(),
   isActive: zod.boolean().optional(),
   type: zod.string().min(1, { message: 'Driver Type is required' }),
-  bankDetails: zod.object({
-    name: zod.string().optional(),
-    branch: zod.string().optional(),
-    ifsc: zod.string().optional(),
-    place: zod.string().optional(),
-    accNo: zod.string().optional(),
-  }).optional(),
+  bankDetails: zod
+    .object({
+      name: zod.string().optional(),
+      branch: zod.string().optional(),
+      ifsc: zod.string().optional(),
+      place: zod.string().optional(),
+      accNo: zod.string().optional(),
+    })
+    .optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -116,11 +135,15 @@ export default function DriverForm({ currentDriver }) {
     mode: 'all',
   });
 
-  const { reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
+  const {
+    reset,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = methods;
 
   const values = watch();
-
-
 
   const handleUploadPhoto = async (file) => {
     try {
@@ -154,7 +177,8 @@ export default function DriverForm({ currentDriver }) {
   const onSubmit = async (data) => {
     try {
       const { photoImage, ...restData } = data;
-      const uploadedPhotoUrl = photoImage instanceof File ? await handleUploadPhoto(photoImage) : photoImage;
+      const uploadedPhotoUrl =
+        photoImage instanceof File ? await handleUploadPhoto(photoImage) : photoImage;
 
       const sanitized = sanitizeDriverBeforeSubmit({ ...restData, photoImage: uploadedPhotoUrl });
       if (!currentDriver) {
@@ -324,8 +348,6 @@ export default function DriverForm({ currentDriver }) {
           onDelete={handleRemoveFile}
         />
       </Box>
-
-
     </Card>
   );
 

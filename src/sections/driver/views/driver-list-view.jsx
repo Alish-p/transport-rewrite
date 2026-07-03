@@ -183,7 +183,10 @@ export function DriverListView() {
                 animation: 'pulseGlow 2s ease-in-out infinite',
                 '@keyframes pulseGlow': {
                   '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
                 },
               }}
             >
@@ -288,21 +291,25 @@ export function DriverListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} drivers
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} drivers
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -342,11 +349,18 @@ export function DriverListView() {
                           toast.error('Failed to export drivers.');
                         }
                       } else {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
 
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Drivers-selected-list'
                         );
                       }
@@ -364,7 +378,9 @@ export function DriverListView() {
                   <Tooltip title="Download PDF">
                     <PDFDownloadLink
                       document={(() => {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
                         return (
                           <DriverListPdf
@@ -435,12 +451,7 @@ export function DriverListView() {
           </Scrollbar>
         </TableContainer>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-          sx={{ px: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ px: 2 }}>
           <TablePaginationCustom
             count={totalCount}
             page={table.page}

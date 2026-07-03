@@ -193,12 +193,7 @@ export function SubtripRouteMapWidget({ payload }) {
               borderColor: 'divider',
             }}
           >
-            <MapWithRoute
-              from={from}
-              to={to}
-              fromLabel={originPopup}
-              toLabel={destPopup}
-            />
+            <MapWithRoute from={from} to={to} fromLabel={originPopup} toLabel={destPopup} />
           </Box>
         )}
       </Box>

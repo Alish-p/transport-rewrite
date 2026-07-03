@@ -119,17 +119,31 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.actualReceivedValue,
     render: (row) => {
       const val = row.actualReceivedValue || 0;
-      if (val === 0) return <Typography variant="body2" sx={{ color: 'text.disabled' }}>-</Typography>;
+      if (val === 0)
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            -
+          </Typography>
+        );
       const poTotal = row.total || 0;
       const variance = val - poTotal;
       const color = variance > 0 ? 'error.main' : variance < 0 ? 'success.main' : 'text.primary';
       return (
-        <Tooltip title={variance !== 0 ? `Variance: ${variance > 0 ? '+' : ''}${fCurrency(variance)}` : 'No variance'}>
+        <Tooltip
+          title={
+            variance !== 0
+              ? `Variance: ${variance > 0 ? '+' : ''}${fCurrency(variance)}`
+              : 'No variance'
+          }
+        >
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>{fCurrency(val)}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {fCurrency(val)}
+            </Typography>
             {variance !== 0 && (
               <Typography variant="caption" sx={{ color }}>
-                {variance > 0 ? '+' : ''}{fCurrency(variance)}
+                {variance > 0 ? '+' : ''}
+                {fCurrency(variance)}
               </Typography>
             )}
           </Box>
@@ -150,7 +164,12 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       const ordered = row.totalQtyOrdered || 0;
       const received = row.totalQtyReceived || 0;
-      if (ordered === 0) return <Typography variant="body2" sx={{ color: 'text.disabled' }}>-</Typography>;
+      if (ordered === 0)
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            -
+          </Typography>
+        );
       const pct = Math.min((received / ordered) * 100, 100);
       const isOver = received > ordered;
       const color = isOver ? 'warning' : pct === 100 ? 'success' : 'primary';
@@ -184,14 +203,15 @@ export const TABLE_COLUMNS = [
     render: (row) => {
       const value = row.createdAt;
       if (!value) return '-';
-      return (<>
-        <Typography variant="body2" noWrap>
-          {fDate(value)}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
-          {fTime(value)}
-        </Typography>
-      </>
+      return (
+        <>
+          <Typography variant="body2" noWrap>
+            {fDate(value)}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
+            {fTime(value)}
+          </Typography>
+        </>
       );
     },
   },

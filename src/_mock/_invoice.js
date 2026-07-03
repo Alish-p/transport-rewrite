@@ -43,8 +43,7 @@ export const _invoices = [...Array(20)].map((_, index) => {
 
   const totalAmount = subtotal - shipping - discount + taxes;
 
-  const status =
-    (index % 2 && 'paid') || (index % 3 && 'pending') || 'draft';
+  const status = (index % 2 && 'paid') || (index % 3 && 'pending') || 'draft';
 
   return {
     id: _mock.id(index),

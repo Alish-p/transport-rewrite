@@ -26,7 +26,7 @@ export function SubtripReceiveSettlementSummary({
 
   const grossFreight = Number(freightDetails?.freightAmount || 0);
   const commission = isOwn ? 0 : Number(commissionDetails?.commissionAmount || 0);
-  const shortage = (hasShortage && shortageAmount) ? Number(shortageAmount) : 0;
+  const shortage = hasShortage && shortageAmount ? Number(shortageAmount) : 0;
   const netPayable = grossFreight - commission - shortage;
 
   const getFreightExplanation = () => {
@@ -54,7 +54,7 @@ export function SubtripReceiveSettlementSummary({
     }
     if (freightModel === 'per_ton' || freightModel === 'per_kl') {
       const weight = selectedSubtrip?.loadingWeight || 0;
-      const unit = freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'tons');
+      const unit = freightModel === 'per_kl' ? 'KL' : loadingWeightUnit[vehicleType] || 'tons';
       const rateLabel = freightModel === 'per_kl' ? 'KL' : 'ton';
       return `calculated for loading ${freightModel === 'per_kl' ? 'volume' : 'weight'} of ${weight} ${unit} at ₹${rate}/${rateLabel}`;
     }
@@ -70,7 +70,7 @@ export function SubtripReceiveSettlementSummary({
     if (freightModel === 'per_ton' || freightModel === 'per_kl') {
       const rate = commissionDetails?.commissionRate || 0;
       const weight = selectedSubtrip?.loadingWeight || 0;
-      const unit = freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'tons');
+      const unit = freightModel === 'per_kl' ? 'KL' : loadingWeightUnit[vehicleType] || 'tons';
       const rateLabel = freightModel === 'per_kl' ? 'KL' : 'ton';
       return `calculated at ₹${rate}/${rateLabel} for loading ${freightModel === 'per_kl' ? 'volume' : 'weight'} of ${weight} ${unit}`;
     }
@@ -80,7 +80,7 @@ export function SubtripReceiveSettlementSummary({
   const getShortageExplanation = () => {
     if (!hasShortage) return '';
     const weight = shortageWeight || 0;
-    const unit = freightModel === 'per_kl' ? 'KL' : (loadingWeightUnit[vehicleType] || 'tons');
+    const unit = freightModel === 'per_kl' ? 'KL' : loadingWeightUnit[vehicleType] || 'tons';
     return `deducted for shortage ${freightModel === 'per_kl' ? 'volume' : 'weight'} of ${weight} ${unit}`;
   };
 
@@ -163,4 +163,3 @@ export function SubtripReceiveSettlementSummary({
     </Paper>
   );
 }
-

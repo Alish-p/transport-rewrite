@@ -36,7 +36,7 @@ export default function DriverPayrollTableRow({
       });
     }
     return actions;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [row?.status, onDeleteRow]);
 
   return (

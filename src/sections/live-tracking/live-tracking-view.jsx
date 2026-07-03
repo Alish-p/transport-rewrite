@@ -231,11 +231,11 @@ export default function LiveTrackingView() {
         height: '100%',
         width: '100%',
         '& .leaflet-layer, & .leaflet-control-zoom-in, & .leaflet-control-zoom-out, & .leaflet-control-attribution':
-        {
-          filter: isDarkMode
-            ? 'invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) grayscale(60%)'
-            : 'none',
-        },
+          {
+            filter: isDarkMode
+              ? 'invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) grayscale(60%)'
+              : 'none',
+          },
       }}
     >
       {isLoading && (
@@ -277,11 +277,18 @@ export default function LiveTrackingView() {
             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <FlyToVehicle vehicle={selectedVehicle} markerRefs={markerRefs} center={center} resetTrigger={resetTrigger} />
+          <FlyToVehicle
+            vehicle={selectedVehicle}
+            markerRefs={markerRefs}
+            center={center}
+            resetTrigger={resetTrigger}
+          />
           {filtered.map((v) => (
             <Marker
               key={v.vehicleNumber}
-              ref={(ref) => { if (ref) markerRefs.current[v.vehicleNumber] = ref; }}
+              ref={(ref) => {
+                if (ref) markerRefs.current[v.vehicleNumber] = ref;
+              }}
               position={[v.latitude, v.longitude]}
               icon={getMarkerIcon(v._resolved)}
             >
@@ -313,12 +320,18 @@ export default function LiveTrackingView() {
                   <Stack spacing={0.75} sx={{ px: 1.5, py: 1.25 }}>
                     {activeTripsMap?.[v.vehicleNumber] && (
                       <Stack direction="row" alignItems="center" spacing={0.75}>
-                        <Iconify icon="mdi:highway" width={15} sx={{ color: 'info.main', flexShrink: 0 }} />
+                        <Iconify
+                          icon="mdi:highway"
+                          width={15}
+                          sx={{ color: 'info.main', flexShrink: 0 }}
+                        />
                         <Typography variant="caption" color="text.secondary">
                           Trip:{' '}
                           <Link
                             component={RouterLink}
-                            to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
+                            to={paths.dashboard.trip.details(
+                              activeTripsMap[v.vehicleNumber].tripId
+                            )}
                             color="primary"
                             underline="hover"
                             sx={{ fontWeight: 600 }}
@@ -331,7 +344,11 @@ export default function LiveTrackingView() {
 
                     {v.address && (
                       <Stack direction="row" spacing={0.75} alignItems="flex-start">
-                        <Iconify icon="mingcute:location-fill" width={15} sx={{ color: 'error.main', flexShrink: 0, mt: 0.15 }} />
+                        <Iconify
+                          icon="mingcute:location-fill"
+                          width={15}
+                          sx={{ color: 'error.main', flexShrink: 0, mt: 0.15 }}
+                        />
                         <Typography
                           variant="caption"
                           color="text.secondary"
@@ -352,7 +369,11 @@ export default function LiveTrackingView() {
                     <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
                       {v.speed != null && (
                         <Stack direction="row" alignItems="center" spacing={0.5}>
-                          <Iconify icon="solar:speedometer-bold" width={15} sx={{ color: 'text.disabled' }} />
+                          <Iconify
+                            icon="solar:speedometer-bold"
+                            width={15}
+                            sx={{ color: 'text.disabled' }}
+                          />
                           <Typography variant="caption" color="text.secondary">
                             {v.speed} km/h
                           </Typography>
@@ -370,7 +391,11 @@ export default function LiveTrackingView() {
 
                       {hasFuelData(v) && (
                         <Stack direction="row" alignItems="center" spacing={0.5}>
-                          <Iconify icon="solar:gas-station-bold" width={15} sx={{ color: getFuelIconColor(v) }} />
+                          <Iconify
+                            icon="solar:gas-station-bold"
+                            width={15}
+                            sx={{ color: getFuelIconColor(v) }}
+                          />
                           <Typography variant="caption" color="text.secondary">
                             {getFuelText(v)}
                           </Typography>
@@ -414,8 +439,17 @@ export default function LiveTrackingView() {
                   {v.lastUpdatedAt && (
                     <>
                       <Divider />
-                      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ px: 1.5, py: 1 }}>
-                        <Iconify icon="solar:clock-circle-bold" width={13} sx={{ color: 'text.disabled' }} />
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.5}
+                        sx={{ px: 1.5, py: 1 }}
+                      >
+                        <Iconify
+                          icon="solar:clock-circle-bold"
+                          width={13}
+                          sx={{ color: 'text.disabled' }}
+                        />
                         <Typography variant="caption" color="text.disabled">
                           {fToNow(v.lastUpdatedAt)} ago
                         </Typography>
@@ -478,9 +512,7 @@ export default function LiveTrackingView() {
           </Stack>
 
           {isListExpanded && (
-            <Box
-              sx={{ overflowY: 'auto', flexGrow: 1, p: 1 }}
-            >
+            <Box sx={{ overflowY: 'auto', flexGrow: 1, p: 1 }}>
               <Stack spacing={1}>
                 {filtered.map((v) => (
                   <Box
@@ -489,23 +521,31 @@ export default function LiveTrackingView() {
                     sx={{
                       p: 1.5,
                       borderRadius: 1.5,
-                      bgcolor: selectedVehicle?.vehicleNumber === v.vehicleNumber
-                        ? alpha(theme.palette.primary.main, 0.12)
-                        : 'background.neutral',
+                      bgcolor:
+                        selectedVehicle?.vehicleNumber === v.vehicleNumber
+                          ? alpha(theme.palette.primary.main, 0.12)
+                          : 'background.neutral',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                      border: selectedVehicle?.vehicleNumber === v.vehicleNumber
-                        ? `1.5px solid ${theme.palette.primary.main}`
-                        : '1.5px solid transparent',
+                      border:
+                        selectedVehicle?.vehicleNumber === v.vehicleNumber
+                          ? `1.5px solid ${theme.palette.primary.main}`
+                          : '1.5px solid transparent',
                       '&:hover': {
-                        bgcolor: selectedVehicle?.vehicleNumber === v.vehicleNumber
-                          ? alpha(theme.palette.primary.main, 0.16)
-                          : 'action.hover',
+                        bgcolor:
+                          selectedVehicle?.vehicleNumber === v.vehicleNumber
+                            ? alpha(theme.palette.primary.main, 0.16)
+                            : 'action.hover',
                         transform: 'translateX(4px)',
                       },
                     }}
                   >
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ mb: 1 }}
+                    >
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <Typography variant="subtitle2">{v.vehicleNumber}</Typography>
                         {activeTripsMap?.[v.vehicleNumber] && (
@@ -515,7 +555,9 @@ export default function LiveTrackingView() {
                             variant="outlined"
                             color="info"
                             component={RouterLink}
-                            to={paths.dashboard.trip.details(activeTripsMap[v.vehicleNumber].tripId)}
+                            to={paths.dashboard.trip.details(
+                              activeTripsMap[v.vehicleNumber].tripId
+                            )}
                             clickable
                             onClick={(e) => e.stopPropagation()}
                             sx={{ height: 20, fontSize: 10, cursor: 'pointer' }}
@@ -552,11 +594,29 @@ export default function LiveTrackingView() {
                       </Stack>
                     )}
                     {activeTripsMap?.[v.vehicleNumber]?.loadedSubtrips?.slice(-1)?.map((st, i) => (
-                      <Box key={i} sx={{ mt: 1, p: 1, bgcolor: 'background.paper', borderRadius: 1, border: (t) => `1px dashed ${t.palette.divider}` }}>
+                      <Box
+                        key={i}
+                        sx={{
+                          mt: 1,
+                          p: 1,
+                          bgcolor: 'background.paper',
+                          borderRadius: 1,
+                          border: (t) => `1px dashed ${t.palette.divider}`,
+                        }}
+                      >
                         {st.driverName && (
-                          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ mb: 0.5 }}
+                          >
                             <Stack direction="row" alignItems="center" spacing={0.5}>
-                              <Iconify icon="mdi:account" width={14} sx={{ color: 'text.disabled' }} />
+                              <Iconify
+                                icon="mdi:account"
+                                width={14}
+                                sx={{ color: 'text.disabled' }}
+                              />
                               <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
                                 {st.driverName}
                               </Typography>
@@ -578,14 +638,22 @@ export default function LiveTrackingView() {
                           </Stack>
                         )}
                         <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.5 }}>
-                          <Iconify icon="mdi:truck-delivery-outline" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                          <Iconify
+                            icon="mdi:truck-delivery-outline"
+                            width={14}
+                            sx={{ color: 'text.disabled', flexShrink: 0 }}
+                          />
                           <Typography variant="caption" color="text.secondary" noWrap>
                             {st.loadingPoint || 'N/A'} ➔ {st.unloadingPoint || 'N/A'}
                           </Typography>
                         </Stack>
                         {st.customerName && (
                           <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <Iconify icon="mdi:domain" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                            <Iconify
+                              icon="mdi:domain"
+                              width={14}
+                              sx={{ color: 'text.disabled', flexShrink: 0 }}
+                            />
                             <Typography variant="caption" color="text.secondary" noWrap>
                               {st.customerName}
                             </Typography>
@@ -596,19 +664,31 @@ export default function LiveTrackingView() {
                     <StatusInsight vehicle={v} />
                     <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1 }}>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <Iconify icon="solar:speedometer-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Iconify
+                          icon="solar:speedometer-bold"
+                          width={14}
+                          sx={{ color: 'text.disabled' }}
+                        />
                         <Typography variant="caption" color="text.secondary">
                           {v.speed != null ? `${v.speed} km/h` : '—'}
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <Iconify icon="solar:gas-station-bold" width={14} sx={{ color: getFuelIconColor(v) }} />
+                        <Iconify
+                          icon="solar:gas-station-bold"
+                          width={14}
+                          sx={{ color: getFuelIconColor(v) }}
+                        />
                         <Typography variant="caption" color="text.secondary">
                           {getFuelText(v)}
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <Iconify icon="solar:clock-circle-bold" width={14} sx={{ color: 'text.disabled' }} />
+                        <Iconify
+                          icon="solar:clock-circle-bold"
+                          width={14}
+                          sx={{ color: 'text.disabled' }}
+                        />
                         <Typography variant="caption" color="text.secondary">
                           {v.lastUpdatedAt ? `${fToNow(v.lastUpdatedAt)} ago` : '—'}
                         </Typography>
@@ -641,7 +721,12 @@ export default function LiveTrackingView() {
         boxShadow: theme.customShadows.z16,
       }}
     >
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2, pb: 0 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ p: 2, pb: 0 }}
+      >
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
           Live Tracking
         </Typography>
@@ -768,7 +853,7 @@ export default function LiveTrackingView() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Reset map">
-            <IconButton onClick={handleReset} size="small" >
+            <IconButton onClick={handleReset} size="small">
               <Iconify icon="mdi:refresh" width={22} />
             </IconButton>
           </Tooltip>
@@ -847,7 +932,14 @@ export default function LiveTrackingView() {
       )}
 
       {/* Map */}
-      <Card sx={{ position: 'relative', overflow: 'hidden', height: { xs: 500, md: 'calc(100vh - 350px)' }, mx: { xs: 2, md: 3 } }}>
+      <Card
+        sx={{
+          position: 'relative',
+          overflow: 'hidden',
+          height: { xs: 500, md: 'calc(100vh - 350px)' },
+          mx: { xs: 2, md: 3 },
+        }}
+      >
         {mapContent}
       </Card>
     </Box>

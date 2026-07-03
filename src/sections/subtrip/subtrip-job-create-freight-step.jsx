@@ -38,14 +38,21 @@ export function SubtripJobCreateFreightStep({
     <StepContent>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
         <Field.Select name="freightModel" label="Freight Model *">
-          {FREIGHT_MODELS
-            .filter((fm) => !freightConfig?.allowedModels?.length || freightConfig.allowedModels.includes(fm.value))
-            .map((fm) => (
-              <MenuItem key={fm.value} value={fm.value}>{fm.label}</MenuItem>
-            ))}
+          {FREIGHT_MODELS.filter(
+            (fm) =>
+              !freightConfig?.allowedModels?.length ||
+              freightConfig.allowedModels.includes(fm.value)
+          ).map((fm) => (
+            <MenuItem key={fm.value} value={fm.value}>
+              {fm.label}
+            </MenuItem>
+          ))}
         </Field.Select>
 
-        {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_kl' || watchedForm.freightModel === 'per_km' || watchedForm.freightModel === 'per_hour') && (
+        {(watchedForm.freightModel === 'per_ton' ||
+          watchedForm.freightModel === 'per_kl' ||
+          watchedForm.freightModel === 'per_km' ||
+          watchedForm.freightModel === 'per_hour') && (
           <>
             <Field.Text
               name="rate"
@@ -53,10 +60,10 @@ export function SubtripJobCreateFreightStep({
                 watchedForm.freightModel === 'per_km'
                   ? 'Rate (Per KM) *'
                   : watchedForm.freightModel === 'per_hour'
-                  ? 'Rate (Per Hour) *'
-                  : watchedForm.freightModel === 'per_kl'
-                  ? 'Rate (Per KL) *'
-                  : 'Rate (Per Ton) *'
+                    ? 'Rate (Per Hour) *'
+                    : watchedForm.freightModel === 'per_kl'
+                      ? 'Rate (Per KL) *'
+                      : 'Rate (Per Ton) *'
               }
               type="number"
               InputProps={{
@@ -124,26 +131,32 @@ export function SubtripJobCreateFreightStep({
           />
         )}
 
-        {(watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_kl') ? (
+        {watchedForm.freightModel === 'per_ton' || watchedForm.freightModel === 'per_kl' ? (
           <Field.Text
             name="loadingWeight"
-            label={getLabel('loadingWeight', watchedForm.freightModel === 'per_kl' ? 'Volume (KL)' : 'Loading Weight')}
+            label={getLabel(
+              'loadingWeight',
+              watchedForm.freightModel === 'per_kl' ? 'Volume (KL)' : 'Loading Weight'
+            )}
             type="number"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   {watchedForm.freightModel === 'per_kl'
                     ? 'KL'
-                    : loadingWeightUnit[
-                        (selectedVehicle?.vehicleType || '').toLowerCase()
-                      ] || 'Units'}
+                    : loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] ||
+                      'Units'}
                 </InputAdornment>
               ),
             }}
             inputProps={{ min: 0 }}
           />
         ) : (
-          <Field.Configurable entity="subtrip" name="loadingWeight" customerId={selectedCustomer?._id}>
+          <Field.Configurable
+            entity="subtrip"
+            name="loadingWeight"
+            customerId={selectedCustomer?._id}
+          >
             <Field.Text
               name="loadingWeight"
               label={getLabel('loadingWeight', 'Loading Weight')}
@@ -151,9 +164,8 @@ export function SubtripJobCreateFreightStep({
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    {loadingWeightUnit[
-                      (selectedVehicle?.vehicleType || '').toLowerCase()
-                    ] || 'Units'}
+                    {loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] ||
+                      'Units'}
                   </InputAdornment>
                 ),
               }}
@@ -164,7 +176,11 @@ export function SubtripJobCreateFreightStep({
       </Box>
 
       {freightAmountBanner && (
-        <Alert severity="info" variant="outlined" sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+        <Alert
+          severity="info"
+          variant="outlined"
+          sx={{ mt: 2, display: 'flex', alignItems: 'center' }}
+        >
           <Typography variant="subtitle2" component="div">
             Calculated Freight Amount: <strong>{freightAmountBanner.amount}</strong>
           </Typography>
@@ -178,11 +194,7 @@ export function SubtripJobCreateFreightStep({
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button onClick={onPrevStep}>Back</Button>
-        <Button
-          variant="contained"
-          onClick={onNextStep}
-          disabled={!canGoNextStep}
-        >
+        <Button variant="contained" onClick={onNextStep} disabled={!canGoNextStep}>
           Continue
         </Button>
       </Stack>
@@ -190,8 +202,18 @@ export function SubtripJobCreateFreightStep({
   );
 }
 
-export function getFreightStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
-  const routeStageError = getRouteStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields });
+export function getFreightStepError(
+  form,
+  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
+) {
+  const routeStageError = getRouteStepError(form, {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+    fields,
+  });
   if (routeStageError) return routeStageError;
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;
@@ -221,7 +243,10 @@ export function getFreightStepError(form, { selectedVehicle, fetchingActiveTrip,
     return false;
   };
 
-  const requiresLoadingWeight = form.freightModel === 'per_ton' || form.freightModel === 'per_kl' || isFieldRequired('loadingWeight');
+  const requiresLoadingWeight =
+    form.freightModel === 'per_ton' ||
+    form.freightModel === 'per_kl' ||
+    isFieldRequired('loadingWeight');
 
   if (requiresLoadingWeight && !form.loadingWeight) {
     return 'Please enter loading weight';

@@ -65,7 +65,7 @@ export default function PartInventoryActivityTableToolbar({
           gap: 2,
         }}
       >
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }} >
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
           <InputLabel id="type-select-label">Type</InputLabel>
           <Select
             value={filters.type || ''}
@@ -157,4 +157,3 @@ export default function PartInventoryActivityTableToolbar({
     </>
   );
 }
-

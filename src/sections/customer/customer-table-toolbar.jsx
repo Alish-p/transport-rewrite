@@ -119,10 +119,14 @@ export default function CustomerTableToolbar({
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
             <MenuItem value="true">
-              <Label variant="soft" color="success">Yes</Label>
+              <Label variant="soft" color="success">
+                Yes
+              </Label>
             </MenuItem>
             <MenuItem value="false">
-              <Label variant="soft" color="error">No</Label>
+              <Label variant="soft" color="error">
+                No
+              </Label>
             </MenuItem>
           </Select>
         </FormControl>

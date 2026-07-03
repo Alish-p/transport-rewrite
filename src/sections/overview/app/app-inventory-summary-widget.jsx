@@ -6,7 +6,7 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
-import { fShortenNumber, } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { useInventoryDashboardSummary } from 'src/query/use-dashboard';
 

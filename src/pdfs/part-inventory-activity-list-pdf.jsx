@@ -2,11 +2,7 @@ import { INVENTORY_ACTIVITY_TABLE_COLUMNS } from 'src/sections/part/part-details
 
 import GenericListPdf from './generic-list-pdf';
 
-export default function PartInventoryActivityListPdf({
-  activities,
-  tenant,
-  visibleColumns = [],
-}) {
+export default function PartInventoryActivityListPdf({ activities, tenant, visibleColumns = [] }) {
   const defaultIds = INVENTORY_ACTIVITY_TABLE_COLUMNS.map((c) => c.id);
 
   const ids = visibleColumns.length ? visibleColumns : defaultIds;
@@ -25,4 +21,3 @@ export default function PartInventoryActivityListPdf({
     />
   );
 }
-

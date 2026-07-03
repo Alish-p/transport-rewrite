@@ -17,15 +17,8 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export default function VehicleCard({ vehicle, sx }) {
-  const {
-    _id,
-    vehicleNo,
-    vehicleType,
-    noOfTyres,
-    trackingLink,
-    isOwn,
-    transporter,
-  } = vehicle || {};
+  const { _id, vehicleNo, vehicleType, noOfTyres, trackingLink, isOwn, transporter } =
+    vehicle || {};
 
   const handleTracking = () => {
     if (trackingLink) {
@@ -54,7 +47,7 @@ export default function VehicleCard({ vehicle, sx }) {
               color: 'text.secondary',
               fontWeight: 600,
               textTransform: 'uppercase',
-              letterSpacing: 0.5
+              letterSpacing: 0.5,
             }}
           >
             Vehicle Information
@@ -72,14 +65,10 @@ export default function VehicleCard({ vehicle, sx }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.16)}`
+              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.16)}`,
             }}
           >
-            <Iconify
-              icon="mdi:truck-outline"
-              width={32}
-              sx={{ color: 'primary.main' }}
-            />
+            <Iconify icon="mdi:truck-outline" width={32} sx={{ color: 'primary.main' }} />
           </Box>
 
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
@@ -89,7 +78,7 @@ export default function VehicleCard({ vehicle, sx }) {
               sx={{
                 fontWeight: 600,
                 fontSize: '1.125rem',
-                mb: 0.5
+                mb: 0.5,
               }}
             >
               {vehicleNo || 'Unknown Vehicle'}
@@ -98,16 +87,8 @@ export default function VehicleCard({ vehicle, sx }) {
             {/* Vehicle Type & Tyres */}
             {vehicleType && (
               <Stack direction="row" alignItems="center" sx={{ mb: 0.5 }}>
-                <Iconify
-                  icon="solar:car-bold"
-                  width={16}
-                  sx={{ color: 'text.secondary' }}
-                />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ fontWeight: 500 }}
-                >
+                <Iconify icon="solar:car-bold" width={16} sx={{ color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                   {vehicleType}
                   {noOfTyres && ` • ${noOfTyres} Tyres`}
                 </Typography>
@@ -134,8 +115,8 @@ export default function VehicleCard({ vehicle, sx }) {
                   color: 'text.secondary',
                   '&:hover': {
                     color: 'primary.main',
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08)
-                  }
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                  },
                 }}
               >
                 <Iconify icon="solar:arrow-right-linear" width={20} />
@@ -151,15 +132,11 @@ export default function VehicleCard({ vehicle, sx }) {
               bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08),
               borderRadius: 1.5,
               border: 1,
-              borderColor: (theme) => alpha(theme.palette.warning.main, 0.24)
+              borderColor: (theme) => alpha(theme.palette.warning.main, 0.24),
             }}
           >
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Iconify
-                icon="solar:user-bold"
-                width={18}
-                sx={{ color: 'warning.main' }}
-              />
+              <Iconify icon="solar:user-bold" width={18} sx={{ color: 'warning.main' }} />
               <Box>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                   Transporter
@@ -174,11 +151,7 @@ export default function VehicleCard({ vehicle, sx }) {
 
         {/* Action Button */}
         {trackingLink && (
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}
-          >
+          <Stack direction="row" spacing={1} sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}>
             <Tooltip title="Track vehicle location" arrow>
               <Box sx={{ flex: 1 }}>
                 <IconButton
@@ -195,9 +168,9 @@ export default function VehicleCard({ vehicle, sx }) {
                       borderColor: 'info.main',
                       bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
                       '& .MuiSvgIcon-root': {
-                        color: 'info.main'
-                      }
-                    }
+                        color: 'info.main',
+                      },
+                    },
                   }}
                 >
                   <Stack direction="row" alignItems="center" spacing={1}>

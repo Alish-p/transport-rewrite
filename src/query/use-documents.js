@@ -142,7 +142,9 @@ export function useSyncVehicleDocuments() {
     mutationFn: syncDocuments,
     onSuccess: async (res) => {
       const added = res?.addedCount ?? 0;
-      toast.success(added > 0 ? `Synced ${added} document${added > 1 ? 's' : ''}` : 'No new documents');
+      toast.success(
+        added > 0 ? `Synced ${added} document${added > 1 ? 's' : ''}` : 'No new documents'
+      );
       await invalidateDocumentQueries(queryClient);
     },
     onError: (error) => {

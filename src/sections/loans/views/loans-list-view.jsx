@@ -346,7 +346,9 @@ export function LoansListView() {
                             setIsDownloading(true);
                             toast.info('Export started... Please wait.');
                             const orderedIds = (
-                              columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                              columnOrder && columnOrder.length
+                                ? columnOrder
+                                : Object.keys(visibleColumns)
                             ).filter((id) => visibleColumns[id]);
 
                             const response = await axios.get('/api/loans/export', {
@@ -355,7 +357,8 @@ export function LoansListView() {
                                 driverId: filters.driverId || undefined,
                                 transporterId: filters.transporterId || undefined,
                                 loanReason: filters.loanReason || undefined,
-                                loanStatus: filters.loanStatus !== 'all' ? filters.loanStatus : undefined,
+                                loanStatus:
+                                  filters.loanStatus !== 'all' ? filters.loanStatus : undefined,
                                 fromDate: filters.fromDate || undefined,
                                 endDate: filters.endDate || undefined,
                                 columns: orderedIds.join(','),

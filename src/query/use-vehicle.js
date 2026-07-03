@@ -75,7 +75,6 @@ const bulkUpdateVehicleKm = async (payload) => {
   return data;
 };
 
-
 // Queries & Mutations
 export function usePaginatedVehicles(params, options = {}) {
   return useQuery({

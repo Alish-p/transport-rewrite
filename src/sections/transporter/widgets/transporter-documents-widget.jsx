@@ -103,7 +103,8 @@ function DocumentCard({ url, index, onDelete, isDeleting }) {
         sx={{
           px: 1,
           py: 0.75,
-          borderTop: (theme) => `1px solid ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+          borderTop: (theme) =>
+            `1px solid ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
         }}
       >
         <Typography
@@ -215,9 +216,11 @@ function AddMoreDropzone({ onDrop, disabled }) {
         gap: 0.5,
         borderRadius: 1.5,
         border: (theme) =>
-          `dashed 1px ${isDragActive
-            ? theme.vars.palette.primary.main
-            : varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
+          `dashed 1px ${
+            isDragActive
+              ? theme.vars.palette.primary.main
+              : varAlpha(theme.vars.palette.grey['500Channel'], 0.32)
+          }`,
         bgcolor: (theme) =>
           isDragActive
             ? varAlpha(theme.vars.palette.primary.mainChannel, 0.08)
@@ -268,9 +271,11 @@ function EmptyDropzone({ onDrop }) {
         gap: 1.5,
         borderRadius: 2,
         border: (theme) =>
-          `dashed 1.5px ${isDragActive
-            ? theme.vars.palette.primary.main
-            : varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
+          `dashed 1.5px ${
+            isDragActive
+              ? theme.vars.palette.primary.main
+              : varAlpha(theme.vars.palette.grey['500Channel'], 0.24)
+          }`,
         bgcolor: (theme) =>
           isDragActive
             ? varAlpha(theme.vars.palette.primary.mainChannel, 0.06)
@@ -466,8 +471,7 @@ export function TransporterDocumentsWidget({ transporter }) {
                     overflow: 'hidden',
                     border: (theme) =>
                       `1px dashed ${varAlpha(theme.vars.palette.warning.mainChannel, 0.6)}`,
-                    bgcolor: (theme) =>
-                      varAlpha(theme.vars.palette.warning.mainChannel, 0.04),
+                    bgcolor: (theme) => varAlpha(theme.vars.palette.warning.mainChannel, 0.04),
                   }}
                 >
                   {/* Thumbnail */}
@@ -488,7 +492,11 @@ export function TransporterDocumentsWidget({ transporter }) {
                         sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     ) : (
-                      <Iconify icon="solar:file-text-bold" width={32} sx={{ color: 'warning.main', opacity: 0.8 }} />
+                      <Iconify
+                        icon="solar:file-text-bold"
+                        width={32}
+                        sx={{ color: 'warning.main', opacity: 0.8 }}
+                      />
                     )}
                   </Box>
 

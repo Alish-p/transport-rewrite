@@ -70,7 +70,11 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
     <View style={[styles.gridContainer, styles.border]}>
       <View style={[styles.gridContainer, styles.col8, styles.p8, styles.borderRight]}>
         <View style={[styles.col4]}>
-          <TenantLogo tenant={tenant} size={48} src={getTenantLogoUrl(tenant, { fallback: false })} />
+          <TenantLogo
+            tenant={tenant}
+            size={48}
+            src={getTenantLogoUrl(tenant, { fallback: false })}
+          />
         </View>
 
         <View style={[styles.col8, { display: 'flex', alignItems: 'center' }]}>
@@ -289,7 +293,9 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
             <Text style={[styles.horizontalCellContent]}>{idx}</Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
-            <Text style={[styles.horizontalCellContent]}>{item?.advanceType || item?.expenseType}</Text>
+            <Text style={[styles.horizontalCellContent]}>
+              {item?.advanceType || item?.expenseType}
+            </Text>
           </View>
           <View style={[styles.col2, styles.horizontalCell, styles.borderRight]}>
             <Text style={[styles.horizontalCellContent]}>{fDate(item?.date)}</Text>

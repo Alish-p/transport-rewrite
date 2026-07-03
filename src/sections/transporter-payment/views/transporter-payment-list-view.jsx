@@ -122,10 +122,30 @@ export function TransporterPaymentListView() {
   const totalCount = totals.all?.count || 0;
 
   const TABS = [
-    { value: 'all', label: 'All', color: getTransporterPaymentStatusColor('all'), count: totalCount },
-    { value: 'generated', label: 'Generated', color: getTransporterPaymentStatusColor('generated'), count: totals.generated?.count || 0 },
-    { value: 'paid', label: 'Paid', color: getTransporterPaymentStatusColor('paid'), count: totals.paid?.count || 0 },
-    { value: 'cancelled', label: 'Cancelled', color: getTransporterPaymentStatusColor('cancelled'), count: totals.cancelled?.count || 0 },
+    {
+      value: 'all',
+      label: 'All',
+      color: getTransporterPaymentStatusColor('all'),
+      count: totalCount,
+    },
+    {
+      value: 'generated',
+      label: 'Generated',
+      color: getTransporterPaymentStatusColor('generated'),
+      count: totals.generated?.count || 0,
+    },
+    {
+      value: 'paid',
+      label: 'Paid',
+      color: getTransporterPaymentStatusColor('paid'),
+      count: totals.paid?.count || 0,
+    },
+    {
+      value: 'cancelled',
+      label: 'Cancelled',
+      color: getTransporterPaymentStatusColor('cancelled'),
+      count: totals.cancelled?.count || 0,
+    },
   ];
 
   const notFound = !isLoading && !tableData.length;
@@ -168,7 +188,10 @@ export function TransporterPaymentListView() {
                 animation: 'pulseGlow 2s ease-in-out infinite',
                 '@keyframes pulseGlow': {
                   '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
                 },
               }}
             >
@@ -253,21 +276,25 @@ export function TransporterPaymentListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} payments
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} payments
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -364,9 +391,7 @@ export function TransporterPaymentListView() {
                     >
                       {({ loading }) => (
                         <IconButton color="primary" disabled={selectAllMode}>
-                          <Iconify
-                            icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'}
-                          />
+                          <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
                         </IconButton>
                       )}
                     </PDFDownloadLink>
@@ -399,22 +424,22 @@ export function TransporterPaymentListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <TransporterPaymentTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <TransporterPaymentTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

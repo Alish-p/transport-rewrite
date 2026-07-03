@@ -21,7 +21,7 @@ export function PermissionDeniedView() {
 
   const { user } = useAuthContext();
 
-  // const 
+  // const
   // handleChangeRole = useCallback((event, newRole) => {
   //   if (newRole !== null) {
   //     setRole(newRole);

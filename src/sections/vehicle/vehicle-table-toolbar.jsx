@@ -157,10 +157,14 @@ export default function VehicleTableToolbar({
             labelId="is-active-select-label"
           >
             <MenuItem value="true">
-              <Label variant="soft" color="success">Active</Label>
+              <Label variant="soft" color="success">
+                Active
+              </Label>
             </MenuItem>
             <MenuItem value="false">
-              <Label variant="soft" color="error">In Active</Label>
+              <Label variant="soft" color="error">
+                In Active
+              </Label>
             </MenuItem>
           </Select>
         </FormControl>

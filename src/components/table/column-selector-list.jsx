@@ -224,11 +224,7 @@ export function ColumnSelectorList({
                   >
                     <Stack direction="row" alignItems="center" spacing={1.5}>
                       {isDisabled ? (
-                        <Iconify
-                          icon="mdi:lock"
-                          width={18}
-                          sx={{ color: 'text.disabled' }}
-                        />
+                        <Iconify icon="mdi:lock" width={18} sx={{ color: 'text.disabled' }} />
                       ) : (
                         <Box sx={{ width: 18 }} /> // Spacer for alignment
                       )}
@@ -266,7 +262,6 @@ export function ColumnSelectorList({
           )}
         </List>
       </Scrollbar>
-    </Drawer >
+    </Drawer>
   );
 }
-

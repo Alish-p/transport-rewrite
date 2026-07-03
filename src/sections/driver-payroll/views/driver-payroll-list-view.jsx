@@ -182,135 +182,141 @@ export function DriverPayrollListView() {
 
   return (
     <DashboardContent>
-        <DriverSalaryLearn open={learn.value} onClose={learn.onFalse} />
+      <DriverSalaryLearn open={learn.value} onClose={learn.onFalse} />
 
-        <CustomBreadcrumbs
-          heading={
-            <Stack direction="row" alignItems="center" spacing={1} component="span">
-              <span>Payslip List</span>
-              <IconButton
-                color="default"
-                onClick={learn.onTrue}
-                sx={{
-                  color: 'warning.main',
-                  animation: 'pulseGlow 2s ease-in-out infinite',
-                  '@keyframes pulseGlow': {
-                    '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                    '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+      <CustomBreadcrumbs
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Payslip List</span>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+              sx={{
+                color: 'warning.main',
+                animation: 'pulseGlow 2s ease-in-out infinite',
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
                   },
-                }}
-              >
-                <Iconify icon="mage:light-bulb" />
-              </IconButton>
-            </Stack>
-          }
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Driver Salary',
-              href: paths.dashboard.driverSalary.root,
-            },
-            {
-              name: 'List',
-            },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.driverSalary.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
+                },
+              }}
             >
-              New Payslip
-            </Button>
-          }
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Driver Salary',
+            href: paths.dashboard.driverSalary.root,
+          },
+          {
+            name: 'List',
+          },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.driverSalary.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            New Payslip
+          </Button>
+        }
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
+
+      {/* Table Section */}
+      <Card>
+        <Tabs
+          value={filters.status}
+          onChange={handleFilterStatus}
           sx={{
-            mb: { xs: 3, md: 5 },
+            px: 2.5,
+            boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
+        >
+          {TABS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              iconPosition="end"
+              icon={
+                <Label
+                  variant={
+                    ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                  }
+                  color={tab.color}
+                >
+                  {tab.count}
+                </Label>
+              }
+            />
+          ))}
+        </Tabs>
+
+        <DriverPayrollTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          visibleColumns={visibleColumns}
+          disabledColumns={disabledColumns}
+          onToggleColumn={toggleColumnVisibility}
+          onToggleAllColumns={toggleAllColumnsVisibility}
+          onResetColumns={resetColumns}
+          canResetColumns={canResetColumns}
+          selectedDriver={selectedDriver}
+          onSelectDriver={setSelectedDriver}
+          selectedSubtrip={selectedSubtrip}
+          onSelectSubtrip={setSelectedSubtrip}
         />
 
-        {/* Table Section */}
-        <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab
-                key={tab.value}
-                value={tab.value}
-                label={tab.label}
-                iconPosition="end"
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
-                      'soft'
-                    }
-                    color={tab.color}
-                  >
-                    {tab.count}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <DriverPayrollTableToolbar
+        {canReset && (
+          <DriverPayrollTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            visibleColumns={visibleColumns}
-            disabledColumns={disabledColumns}
-            onToggleColumn={toggleColumnVisibility}
-            onToggleAllColumns={toggleAllColumnsVisibility}
-            onResetColumns={resetColumns}
-            canResetColumns={canResetColumns}
-            selectedDriver={selectedDriver}
-            onSelectDriver={setSelectedDriver}
-            selectedSubtrip={selectedSubtrip}
-            onSelectSubtrip={setSelectedSubtrip}
+            onResetFilters={handleResetFilters}
+            results={totalCount}
+            selectedDriverName={selectedDriver?.driverName}
+            selectedSubtripNo={selectedSubtrip?.subtripNo}
+            sx={{ p: 2.5, pt: 0 }}
           />
+        )}
 
-          {canReset && (
-            <DriverPayrollTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={totalCount}
-              selectedDriverName={selectedDriver?.driverName}
-              selectedSubtripNo={selectedSubtrip?.subtripNo}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
+              }
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
+                </Typography>
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) => {
-                if (!checked) {
-                  setSelectAllMode(false);
-                }
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                );
-              }}
-              label={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="subtitle2">
-                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
-                  </Typography>
-
-                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
                     <Link
                       component="button"
                       variant="subtitle2"
@@ -322,127 +328,132 @@ export function DriverPayrollListView() {
                       Select all {totalCount} payrolls
                     </Link>
                   )}
-                </Stack>
-              }
-              action={
-                <Stack direction="row">
-                  <Tooltip title="Download Excel">
-                    <IconButton
-                      color="primary"
-                      onClick={async () => {
-                        if (selectAllMode) {
-                          try {
-                            setIsDownloading(true);
-                            toast.info('Export started... Please wait.');
-                            const orderedIds = getVisibleColumnsForExport();
+              </Stack>
+            }
+            action={
+              <Stack direction="row">
+                <Tooltip title="Download Excel">
+                  <IconButton
+                    color="primary"
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const orderedIds = getVisibleColumnsForExport();
 
-                            const response = await axios.get('/api/driverPayroll/export', {
-                              params: {
-                                driverId: filters.driverId || undefined,
-                                subtripId: filters.subtripId || undefined,
-                                paymentId: filters.paymentId || undefined,
-                                status: filters.status !== 'all' ? filters.status : undefined,
-                                issueFromDate: filters.fromDate || undefined,
-                                issueToDate: filters.endDate || undefined,
-                                billingFromDate: filters.billingFromDate || undefined,
-                                billingToDate: filters.billingToDate || undefined,
-                                columns: orderedIds.join(','),
-                                order: table.order,
-                                orderBy: table.orderBy,
-                              },
-                              responseType: 'blob',
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', 'Driver-Payrolls.xlsx');
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                            setIsDownloading(false);
-                            toast.success('Export completed!');
-                          } catch (error) {
-                            console.error('Failed to download excel', error);
-                            setIsDownloading(false);
-                            toast.error('Failed to export payrolls.');
-                          }
-                        } else {
-                          const selectedRows = tableData.filter(({ _id }) =>
-                            table.selected.includes(_id)
-                          );
-                          const visibleCols = getVisibleColumnsForExport();
-
-                          exportToExcel(
-                            prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
-                            'Driver-Payroll-selected-list'
-                          );
+                          const response = await axios.get('/api/driverPayroll/export', {
+                            params: {
+                              driverId: filters.driverId || undefined,
+                              subtripId: filters.subtripId || undefined,
+                              paymentId: filters.paymentId || undefined,
+                              status: filters.status !== 'all' ? filters.status : undefined,
+                              issueFromDate: filters.fromDate || undefined,
+                              issueToDate: filters.endDate || undefined,
+                              billingFromDate: filters.billingFromDate || undefined,
+                              billingToDate: filters.billingToDate || undefined,
+                              columns: orderedIds.join(','),
+                              order: table.order,
+                              orderBy: table.orderBy,
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Driver-Payrolls.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export payrolls.');
                         }
-                      }}
-                    >
-                      {isDownloading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        <Iconify icon="file-icons:microsoft-excel" />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
-            />
+                      } else {
+                        const selectedRows = tableData.filter(({ _id }) =>
+                          table.selected.includes(_id)
+                        );
+                        const visibleCols = getVisibleColumnsForExport();
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={visibleHeaders}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onOrderChange={moveColumn}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) => {
-                    if (!checked) {
-                      setSelectAllMode(false);
-                    }
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    );
-                  }}
-                />
-                <TableBody>
-                  {tableData.map((row) => (
-                      <DriverPayrollTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteDriverPayroll(row._id)}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={totalCount}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
+                          'Driver-Payroll-selected-list'
+                        );
+                      }
+                    }}
+                  >
+                    {isDownloading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <Iconify icon="file-icons:microsoft-excel" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            }
           />
-        </Card>
-      </DashboardContent>
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={visibleHeaders}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onOrderChange={moveColumn}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) => {
+                  if (!checked) {
+                    setSelectAllMode(false);
+                  }
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  );
+                }}
+              />
+              <TableBody>
+                {tableData.map((row) => (
+                  <DriverPayrollTableRow
+                    key={row._id}
+                    row={row}
+                    selected={table.selected.includes(row._id)}
+                    onSelectRow={() => table.onSelectRow(row._id)}
+                    onViewRow={() => handleViewRow(row._id)}
+                    onEditRow={() => handleEditRow(row._id)}
+                    onDeleteRow={() => deleteDriverPayroll(row._id)}
+                    visibleColumns={visibleColumns}
+                    disabledColumns={disabledColumns}
+                    columnOrder={columnOrder}
+                  />
+                ))}
+
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          //
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
+        />
+      </Card>
+    </DashboardContent>
   );
 }

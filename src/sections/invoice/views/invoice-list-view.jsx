@@ -235,8 +235,14 @@ export function InvoiceListView() {
                   color: 'warning.main',
                   animation: 'pulseGlow 2s ease-in-out infinite',
                   '@keyframes pulseGlow': {
-                    '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                    '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                    '0%, 100%': {
+                      transform: 'scale(1)',
+                      filter: 'drop-shadow(0 0 0px transparent)',
+                    },
+                    '50%': {
+                      transform: 'scale(1.18)',
+                      filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                    },
                   },
                 }}
               >
@@ -310,7 +316,6 @@ export function InvoiceListView() {
                 icon="mdi:clock-check-outline"
                 color={getStatusThemeColor(INVOICE_STATUS.PARTIAL_RECEIVED)}
               />
-
 
               <InvoiceAnalytic
                 title={INVOICE_STATUS.CANCELLED}
@@ -406,21 +411,25 @@ export function InvoiceListView() {
               label={
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <Typography variant="subtitle2">
-                    {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                    {selectAllMode
+                      ? `All ${totalCount} selected`
+                      : `${table.selected.length} selected`}
                   </Typography>
 
-                  {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                    <Link
-                      component="button"
-                      variant="subtitle2"
-                      onClick={() => {
-                        setSelectAllMode(true);
-                      }}
-                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                    >
-                      Select all {totalCount} invoices
-                    </Link>
-                  )}
+                  {!selectAllMode &&
+                    table.selected.length === tableData.length &&
+                    totalCount > tableData.length && (
+                      <Link
+                        component="button"
+                        variant="subtitle2"
+                        onClick={() => {
+                          setSelectAllMode(true);
+                        }}
+                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                      >
+                        Select all {totalCount} invoices
+                      </Link>
+                    )}
                 </Stack>
               }
               action={
@@ -455,14 +464,19 @@ export function InvoiceListView() {
                             setIsDownloading(true);
                             toast.info('Export started... Please wait.');
                             const orderedIds = (
-                              columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                              columnOrder && columnOrder.length
+                                ? columnOrder
+                                : Object.keys(visibleColumns)
                             ).filter((id) => visibleColumns[id]);
 
                             const response = await axios.get('/api/invoices/export', {
                               params: {
                                 customerId: filters.customerId || undefined,
                                 subtripId: filters.subtripId || undefined,
-                                invoiceStatus: filters.invoiceStatus !== 'all' ? filters.invoiceStatus : undefined,
+                                invoiceStatus:
+                                  filters.invoiceStatus !== 'all'
+                                    ? filters.invoiceStatus
+                                    : undefined,
                                 issueFromDate: filters.fromDate || undefined,
                                 issueToDate: filters.endDate || undefined,
                                 invoiceNo: filters.invoiceNo || undefined,

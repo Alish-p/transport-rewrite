@@ -360,79 +360,79 @@ export default function TenantForm({ currentTenant }) {
           ...data.integrations,
           whatsapp: data.integrations?.whatsapp
             ? {
-              ...data.integrations.whatsapp,
-            }
+                ...data.integrations.whatsapp,
+              }
             : undefined,
           ewayBill: data.integrations?.ewayBill
             ? {
-              ...data.integrations.ewayBill,
-            }
+                ...data.integrations.ewayBill,
+              }
             : undefined,
           vehicleApi: data.integrations?.vehicleApi
             ? {
-              ...data.integrations.vehicleApi,
-            }
+                ...data.integrations.vehicleApi,
+              }
             : undefined,
           challanApi: data.integrations?.challanApi
             ? {
-              ...data.integrations.challanApi,
-            }
+                ...data.integrations.challanApi,
+              }
             : undefined,
           gstApi: data.integrations?.gstApi
             ? {
-              ...data.integrations.gstApi,
-            }
+                ...data.integrations.gstApi,
+              }
             : undefined,
           vehicleGPS: data.integrations?.vehicleGPS
             ? {
-              ...data.integrations.vehicleGPS,
-              provider: data.integrations.vehicleGPS.provider || null,
-            }
+                ...data.integrations.vehicleGPS,
+                provider: data.integrations.vehicleGPS.provider || null,
+              }
             : undefined,
           accounting: data.integrations?.accounting
             ? (() => {
-              const acc = data.integrations.accounting;
-              const inv = acc?.config?.invoiceLedgerNames || {};
-              const tr = acc?.config?.transporterLedgerNames || {};
-              const invEnabled = !!inv.enabled;
-              const trEnabled = !!tr.enabled;
+                const acc = data.integrations.accounting;
+                const inv = acc?.config?.invoiceLedgerNames || {};
+                const tr = acc?.config?.transporterLedgerNames || {};
+                const invEnabled = !!inv.enabled;
+                const trEnabled = !!tr.enabled;
 
-              const pickNames = (obj) =>
-                Object.fromEntries(
-                  Object.entries(obj).filter(
-                    ([k, v]) => k !== 'enabled' && typeof v === 'string' && v.trim() !== ''
-                  )
-                );
+                const pickNames = (obj) =>
+                  Object.fromEntries(
+                    Object.entries(obj).filter(
+                      ([k, v]) => k !== 'enabled' && typeof v === 'string' && v.trim() !== ''
+                    )
+                  );
 
-              const cleaned = {
-                invoiceLedgerNames: invEnabled
-                  ? { enabled: true, ...pickNames(inv) }
-                  : { enabled: false },
-                transporterLedgerNames: trEnabled
-                  ? { enabled: true, ...pickNames(tr) }
-                  : { enabled: false },
-              };
-              return {
-                enabled: !!acc.enabled,
-                provider: acc.provider || null,
-                config: cleaned,
-              };
-            })()
+                const cleaned = {
+                  invoiceLedgerNames: invEnabled
+                    ? { enabled: true, ...pickNames(inv) }
+                    : { enabled: false },
+                  transporterLedgerNames: trEnabled
+                    ? { enabled: true, ...pickNames(tr) }
+                    : { enabled: false },
+                };
+                return {
+                  enabled: !!acc.enabled,
+                  provider: acc.provider || null,
+                  config: cleaned,
+                };
+              })()
             : undefined,
           maintenanceAndInventory: data.integrations?.maintenanceAndInventory
             ? {
-              ...data.integrations.maintenanceAndInventory,
-            }
+                ...data.integrations.maintenanceAndInventory,
+              }
             : undefined,
           tyre: data.integrations?.tyre
             ? {
-              ...data.integrations.tyre,
-            }
+                ...data.integrations.tyre,
+              }
             : undefined,
           epod: data.integrations?.epod
             ? {
-              ...data.integrations.epod,
-            }
+                ...data.integrations.epod,
+              }
             : undefined,
         },
       };
@@ -579,11 +579,7 @@ export default function TenantForm({ currentTenant }) {
     </Card>
   );
 
-  const renderBranding = () => (
-    <TenantLogoCard tenant={currentTenant} />
-  );
-
-
+  const renderBranding = () => <TenantLogoCard tenant={currentTenant} />;
 
   const renderIntegrations = () => (
     <Card>

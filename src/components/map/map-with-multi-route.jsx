@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import { useMemo, useEffect } from 'react';
-import { Popup , useMap, Marker, Polyline, TileLayer, MapContainer } from 'react-leaflet';
+import { Popup, useMap, Marker, Polyline, TileLayer, MapContainer } from 'react-leaflet';
 
 import { createCircleIcon } from './map-icons';
 

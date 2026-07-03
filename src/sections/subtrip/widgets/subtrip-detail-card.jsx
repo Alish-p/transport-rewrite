@@ -37,7 +37,11 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
     diNumber,
   } = selectedSubtrip;
 
-  const { freightModel = 'per_ton', rate: freightDetailsRate, freightAmount: serverFreightAmount } = selectedSubtrip?.freightDetails || {};
+  const {
+    freightModel = 'per_ton',
+    rate: freightDetailsRate,
+    freightAmount: serverFreightAmount,
+  } = selectedSubtrip?.freightDetails || {};
   const rate = freightDetailsRate ?? 0;
 
   const formatRateValue = (value) => {
@@ -139,7 +143,9 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
             </Typography>
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2">{freightModel === 'per_kl' ? 'Loading Volume' : 'Loading Weight'}</Typography>
+                <Typography variant="body2">
+                  {freightModel === 'per_kl' ? 'Loading Volume' : 'Loading Weight'}
+                </Typography>
                 <Typography variant="body2" fontWeight="bold" color="primary">
                   {loadingWeight || 0} {freightModel === 'per_kl' ? 'KL' : 'Ton'}
                 </Typography>

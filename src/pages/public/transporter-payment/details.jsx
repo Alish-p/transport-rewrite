@@ -61,7 +61,16 @@ export default function PublicTransporterPaymentDetailsPage() {
   }, [handleDownload, transporterPayment]);
 
   return (
-    <Box sx={{ px: 3, py: 8, minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Box
+      sx={{
+        px: 3,
+        py: 8,
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Stack spacing={2} alignItems="center" sx={{ textAlign: 'center', maxWidth: 520 }}>
         <Iconify icon="fa:file-pdf-o" width={56} sx={{ color: 'error.main' }} />
         <Typography variant="h5">
@@ -69,12 +78,21 @@ export default function PublicTransporterPaymentDetailsPage() {
           {transporterPayment?.paymentId ? ` — ${transporterPayment.paymentId}` : ''}
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Your download should start automatically. If it doesn’t, use the button below.
-          You can close this tab after the file downloads.
+          Your download should start automatically. If it doesn’t, use the button below. You can
+          close this tab after the file downloads.
         </Typography>
         {generating ? <CircularProgress /> : null}
         {error && (
-          <Typography variant="caption" sx={{ color: 'error.main', wordBreak: 'break-all', textAlign: 'left', fontFamily: 'monospace', fontSize: 11 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'error.main',
+              wordBreak: 'break-all',
+              textAlign: 'left',
+              fontFamily: 'monospace',
+              fontSize: 11,
+            }}
+          >
             ❌ {error}
           </Typography>
         )}

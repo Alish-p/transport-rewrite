@@ -85,22 +85,19 @@ export const PERMISSIONS = [
   },
   {
     subheader: 'Parts',
-    caption:
-      'Permissions for managing vehicle spare parts, including inventory and pricing.',
+    caption: 'Permissions for managing vehicle spare parts, including inventory and pricing.',
     name: 'part',
     group: 'Vehicle Maintenance',
   },
   {
     subheader: 'Part Locations',
-    caption:
-      'Permissions for managing part storage locations such as warehouses or godowns.',
+    caption: 'Permissions for managing part storage locations such as warehouses or godowns.',
     name: 'partLocation',
     group: 'Vehicle Maintenance',
   },
   {
     subheader: 'Vendors',
-    caption:
-      'Permissions for managing vendors, including contact details and bank information.',
+    caption: 'Permissions for managing vendors, including contact details and bank information.',
     name: 'vendor',
     group: 'Vehicle Maintenance',
   },
@@ -113,8 +110,7 @@ export const PERMISSIONS = [
   },
   {
     subheader: 'Work Orders',
-    caption:
-      'Permissions for creating and managing vehicle maintenance work orders.',
+    caption: 'Permissions for creating and managing vehicle maintenance work orders.',
     name: 'workOrder',
     group: 'Vehicle Maintenance',
   },

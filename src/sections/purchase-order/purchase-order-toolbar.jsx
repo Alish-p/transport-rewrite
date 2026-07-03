@@ -26,8 +26,7 @@ export function PurchaseOrderToolbar({ purchaseOrder, actions = [] }) {
   const router = useRouter();
   const view = useBoolean();
   const tenant = useTenantContext();
-  const fileName =
-    purchaseOrder?.purchaseOrderNo || purchaseOrder?._id || 'purchase-order';
+  const fileName = purchaseOrder?.purchaseOrderNo || purchaseOrder?._id || 'purchase-order';
 
   const handleEdit = useCallback(() => {
     if (!purchaseOrder?._id) return;

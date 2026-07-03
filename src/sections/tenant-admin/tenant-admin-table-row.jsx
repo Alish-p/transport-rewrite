@@ -90,4 +90,3 @@ export default function TenantAdminTableRow({ row, onViewRow, onEditRow, onDelet
     </>
   );
 }
-

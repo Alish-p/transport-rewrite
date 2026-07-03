@@ -79,7 +79,12 @@ export default function PumpForm({ currentPump }) {
     mode: 'all',
   });
 
-  const { reset, watch, handleSubmit, formState: { isSubmitting, errors } } = methods;
+  const {
+    reset,
+    watch,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = methods;
 
   const values = watch();
 

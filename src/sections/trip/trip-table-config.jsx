@@ -13,7 +13,6 @@ import { Label } from 'src/components/label';
 
 import { JobsPopoverCell } from './trip-jobs-popover-cell';
 
-
 export const TABLE_COLUMNS = [
   {
     id: 'tripId',
@@ -87,16 +86,20 @@ export const TABLE_COLUMNS = [
     },
     render: (row) => {
       if (!row.subtrips || row.subtrips.length === 0) return '-';
-      
+
       const driversMap = new Map();
       row.subtrips.forEach((st) => {
-        if (st.driverId && st.driverId.driverName && !driversMap.has(st.driverId._id || st.driverId.driverName)) {
+        if (
+          st.driverId &&
+          st.driverId.driverName &&
+          !driversMap.has(st.driverId._id || st.driverId.driverName)
+        ) {
           driversMap.set(st.driverId._id || st.driverId.driverName, st.driverId);
         }
       });
-      
+
       if (driversMap.size === 0) return '-';
-      
+
       const drivers = Array.from(driversMap.values());
       return drivers.map((driver, index) => (
         <React.Fragment key={driver._id || index}>

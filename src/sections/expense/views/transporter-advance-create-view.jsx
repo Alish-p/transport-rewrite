@@ -11,10 +11,7 @@ export function TransporterAdvanceCreateView({ currentSubtrip }) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Add New Advance to Job"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Add New Advance' },
-        ]}
+        links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Add New Advance' }]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 

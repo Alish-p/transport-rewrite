@@ -57,15 +57,24 @@ export default function PublicSubtripDetailsPage() {
   }, [handleDownload, subtrip]);
 
   return (
-    <Box sx={{ px: 3, py: 8, minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Box
+      sx={{
+        px: 3,
+        py: 8,
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Stack spacing={2} alignItems="center" sx={{ textAlign: 'center', maxWidth: 520 }}>
         <Iconify icon="fa:file-pdf-o" width={56} sx={{ color: 'error.main' }} />
         <Typography variant="h5">
           Preparing your LR PDF{subtrip?.subtripNo ? ` — ${subtrip.subtripNo}` : ''}
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Your download should start automatically. If it doesn’t, use the button below.
-          You can close this tab after the file downloads.
+          Your download should start automatically. If it doesn’t, use the button below. You can
+          close this tab after the file downloads.
         </Typography>
         {generating ? <CircularProgress /> : null}
         {error && (

@@ -75,8 +75,7 @@ export default function PurchaseOrderTableFiltersResult({
   );
 
   const selectedLocationName =
-    locations.find((loc) => loc._id === filters.partLocationId)?.name ||
-    filters.partLocationId;
+    locations.find((loc) => loc._id === filters.partLocationId)?.name || filters.partLocationId;
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -96,7 +95,11 @@ export default function PurchaseOrderTableFiltersResult({
 
         {filters.purchaseOrderNo && (
           <Block label="Purchase Order No :">
-            <Chip size="small" label={filters.purchaseOrderNo} onDelete={handleRemovePurchaseOrderNo} />
+            <Chip
+              size="small"
+              label={filters.purchaseOrderNo}
+              onDelete={handleRemovePurchaseOrderNo}
+            />
           </Block>
         )}
 
@@ -134,11 +137,7 @@ export default function PurchaseOrderTableFiltersResult({
 
         {filters.partLocationId && (
           <Block label="Part Location :">
-            <Chip
-              size="small"
-              label={selectedLocationName}
-              onDelete={handleRemovePartLocation}
-            />
+            <Chip size="small" label={selectedLocationName} onDelete={handleRemovePartLocation} />
           </Block>
         )}
 

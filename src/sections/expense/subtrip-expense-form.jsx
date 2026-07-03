@@ -363,13 +363,13 @@ function ExpenseCoreForm({ currentSubtrip }) {
       <Divider sx={{ my: 3 }} />
 
       {/* Show subtrip advances for market vehicles and subtrip expenses for own vehicles */}
-      {subtripData && hasExpensesToShow && (
-        isMarket ? (
+      {subtripData &&
+        hasExpensesToShow &&
+        (isMarket ? (
           <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
         ) : (
           <BasicExpenseTable selectedSubtrip={subtripData} withDelete />
-        )
-      )}
+        ))}
 
       {managesPumps && (
         <KanbanPumpDialog

@@ -14,7 +14,11 @@ export default function TenantAdminCreateView() {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="New Tenant"
-        links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Tenants', href: paths.dashboard.tenants.root }, { name: 'New' }]}
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Tenants', href: paths.dashboard.tenants.root },
+          { name: 'New' },
+        ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
       <TenantAdminForm

@@ -26,7 +26,11 @@ import axios from 'src/utils/axios';
 import { fDate } from 'src/utils/format-time';
 
 import { useTenant } from 'src/query/use-tenant';
-import { usePaginatedDocuments, useSyncVehicleDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
+import {
+  usePaginatedDocuments,
+  useSyncVehicleDocuments,
+  useDeleteVehicleDocument,
+} from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -47,19 +51,13 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
 
   // Fetch active and inactive documents separately so history includes isActive=false
-  const {
-    data: activeResp,
-    isLoading: isLoadingActive,
-  } = usePaginatedDocuments({
+  const { data: activeResp, isLoading: isLoadingActive } = usePaginatedDocuments({
     page: 1,
     rowsPerPage: 1000,
     vehicleId,
     isActive: true,
   });
-  const {
-    data: historyResp,
-    isLoading: isLoadingHistory,
-  } = usePaginatedDocuments({
+  const { data: historyResp, isLoading: isLoadingHistory } = usePaginatedDocuments({
     page: 1,
     rowsPerPage: 1000,
     vehicleId,
@@ -106,7 +104,11 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
                   <Button
                     variant="outlined"
                     color="primary"
-                    startIcon={<Iconify icon={isSyncing ? 'line-md:loading-twotone-loop' : 'mdi:cloud-sync-outline'} />}
+                    startIcon={
+                      <Iconify
+                        icon={isSyncing ? 'line-md:loading-twotone-loop' : 'mdi:cloud-sync-outline'}
+                      />
+                    }
                     onClick={handleSync}
                     disabled={!vehicleNo || isSyncing}
                     size="small"

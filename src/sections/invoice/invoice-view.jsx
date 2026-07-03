@@ -24,7 +24,12 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { fFreightRate, getWeightUnit, calculateTotalWeight, getFreightExplanation } from 'src/sections/subtrip/utils';
+import {
+  fFreightRate,
+  getWeightUnit,
+  calculateTotalWeight,
+  getFreightExplanation,
+} from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -170,9 +175,7 @@ function RenderTable({ invoice }) {
                 )}
               </TableCell>
               <TableCell align="right">
-                {st.loadingWeight
-                  ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}`
-                  : '-'}
+                {st.loadingWeight ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}` : '-'}
               </TableCell>
               <TableCell>
                 <Stack direction="row" alignItems="center" spacing={0.5}>

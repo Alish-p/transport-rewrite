@@ -37,21 +37,24 @@ export default function TripTableRow({
     });
   };
 
-  const customActions = useMemo(() => [
-    {
-      label: 'Add New Job',
-      icon: 'mdi:briefcase-plus',
-      color: 'primary.main',
-      onClick: () => {
-        if (tripStatus === 'billed' || tripStatus === 'closed') {
-          closedTripConfirm.onTrue();
-        } else {
-          navigateToJobCreate();
-        }
+  const customActions = useMemo(
+    () => [
+      {
+        label: 'Add New Job',
+        icon: 'mdi:briefcase-plus',
+        color: 'primary.main',
+        onClick: () => {
+          if (tripStatus === 'billed' || tripStatus === 'closed') {
+            closedTripConfirm.onTrue();
+          } else {
+            navigateToJobCreate();
+          }
+        },
       },
-    },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [tripStatus, row._id]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    ],
+    [tripStatus, row._id]
+  );
 
   return (
     <>

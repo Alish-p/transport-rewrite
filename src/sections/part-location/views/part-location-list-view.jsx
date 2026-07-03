@@ -17,10 +17,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import { paramCase } from 'src/utils/change-case';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import {
-  useDeletePartLocation,
-  usePaginatedPartLocations,
-} from 'src/query/use-part-location';
+import { useDeletePartLocation, usePaginatedPartLocations } from 'src/query/use-part-location';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

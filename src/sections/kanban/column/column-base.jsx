@@ -52,9 +52,9 @@ export const StyledRoot = styled(Stack)(({ theme }) => ({
 const ColumnBase = forwardRef(({ slots, stateProps, sx, ...other }, ref) => {
   const className = kanbanClasses.column.concat(
     (stateProps?.hover && ` ${kanbanClasses.state.hover}`) ||
-    (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-    (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
-    ''
+      (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
+      (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
+      ''
   );
 
   return (

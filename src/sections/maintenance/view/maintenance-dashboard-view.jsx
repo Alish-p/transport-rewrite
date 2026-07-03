@@ -119,16 +119,26 @@ function BarWidget({
   );
 }
 
-function HorizontalBarWidget({ title, subheader, categories, series, colors, height = 320, yAxisFormatter, tooltipYFormatter, action }) {
+function HorizontalBarWidget({
+  title,
+  subheader,
+  categories,
+  series,
+  colors,
+  height = 320,
+  yAxisFormatter,
+  tooltipYFormatter,
+  action,
+}) {
   const chartOptions = useChart({
     colors,
     xaxis: {
       categories,
-      ...(yAxisFormatter && { labels: { formatter: yAxisFormatter } })
+      ...(yAxisFormatter && { labels: { formatter: yAxisFormatter } }),
     },
     tooltip: {
       y: {
-        formatter: tooltipYFormatter || (yAxisFormatter || undefined),
+        formatter: tooltipYFormatter || yAxisFormatter || undefined,
       },
     },
     plotOptions: { bar: { borderRadius: 4, horizontal: true, barHeight: '60%' } },
@@ -256,7 +266,11 @@ export default function MaintenanceDashboardView() {
     workOrders.statusBreakdown.pending,
     workOrders.statusBreakdown.completed,
   ];
-  const woColors = [theme.palette.error.main, theme.palette.warning.main, theme.palette.success.main];
+  const woColors = [
+    theme.palette.error.main,
+    theme.palette.warning.main,
+    theme.palette.success.main,
+  ];
 
   // WO monthly trend bar chart
   const woMonthLabels = workOrders.monthlyTrend.map((m) => m.month);
@@ -267,9 +281,7 @@ export default function MaintenanceDashboardView() {
 
   // WO category bar chart
   const woCatLabels = workOrders.categoryBreakdown.map((c) => c.category);
-  const woCatSeries = [
-    { name: 'Count', data: workOrders.categoryBreakdown.map((c) => c.count) },
-  ];
+  const woCatSeries = [{ name: 'Count', data: workOrders.categoryBreakdown.map((c) => c.count) }];
 
   // Part category bar chart
   const partCatLabels = parts.categoryBreakdown.map((c) => c.category);
@@ -467,7 +479,9 @@ export default function MaintenanceDashboardView() {
                   {purchaseOrders.topVendors.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={3} align="center">
-                        <Typography variant="body2" color="text.secondary">No vendors yet</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          No vendors yet
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
@@ -499,9 +513,13 @@ export default function MaintenanceDashboardView() {
                     >
                       <Iconify
                         icon={
-                          activity.type.includes('PURCHASE') ? 'mdi:package-variant-closed' :
-                            activity.type.includes('WORK_ORDER') ? 'mdi:wrench' :
-                              activity.type.includes('TRANSFER') ? 'mdi:swap-horizontal' : 'mdi:history'
+                          activity.type.includes('PURCHASE')
+                            ? 'mdi:package-variant-closed'
+                            : activity.type.includes('WORK_ORDER')
+                              ? 'mdi:wrench'
+                              : activity.type.includes('TRANSFER')
+                                ? 'mdi:swap-horizontal'
+                                : 'mdi:history'
                         }
                         width={22}
                       />
@@ -511,13 +529,18 @@ export default function MaintenanceDashboardView() {
                         {activity.type.replace(/_/g, ' ')}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {activity.count} transactions · {fShortenNumber(activity.totalQtyChange)} units
+                        {activity.count} transactions · {fShortenNumber(activity.totalQtyChange)}{' '}
+                        units
                       </Typography>
                     </Box>
                   </Stack>
                 ))}
                 {recentActivity.length === 0 && (
-                  <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ textAlign: 'center', py: 4 }}
+                  >
                     No inventory activity in the last 30 days
                   </Typography>
                 )}
@@ -556,7 +579,12 @@ export default function MaintenanceDashboardView() {
                       </TableCell>
                       <TableCell>{po.vendor}</TableCell>
                       <TableCell>
-                        <Chip label={po.status} size="small" color={PO_STATUS_COLOR[po.status] || 'default'} variant="soft" />
+                        <Chip
+                          label={po.status}
+                          size="small"
+                          color={PO_STATUS_COLOR[po.status] || 'default'}
+                          variant="soft"
+                        />
                       </TableCell>
                       <TableCell align="right">{fCurrency(po.total)}</TableCell>
                       <TableCell>{fDate(po.createdAt)}</TableCell>
@@ -599,7 +627,12 @@ export default function MaintenanceDashboardView() {
                       <TableCell>{wo.vehicle}</TableCell>
                       <TableCell>{wo.category}</TableCell>
                       <TableCell>
-                        <Chip label={wo.status} size="small" color={WO_STATUS_COLOR[wo.status] || 'default'} variant="soft" />
+                        <Chip
+                          label={wo.status}
+                          size="small"
+                          color={WO_STATUS_COLOR[wo.status] || 'default'}
+                          variant="soft"
+                        />
                       </TableCell>
                       <TableCell align="right">{fCurrency(wo.totalCost)}</TableCell>
                     </TableRow>
@@ -616,7 +649,12 @@ export default function MaintenanceDashboardView() {
           ════════════════════════════════════════════════════════════════════ */}
       {analytics && (
         <>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 6, mb: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ mt: 6, mb: 3 }}
+          >
             <Typography variant="h4">Analytics &amp; Insights</Typography>
             <Stack direction="row" spacing={2} alignItems="center">
               <TextField
@@ -627,10 +665,19 @@ export default function MaintenanceDashboardView() {
                 onChange={(e) => setSlowMovingDays(Number(e.target.value) || 90)}
                 sx={{ width: 120 }}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start"><Iconify icon="mdi:calendar-clock" width={18} /></InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Iconify icon="mdi:calendar-clock" width={18} />
+                    </InputAdornment>
+                  ),
                 }}
               />
-              <Select size="small" value={months} onChange={(e) => setMonths(e.target.value)} sx={{ minWidth: 140 }}>
+              <Select
+                size="small"
+                value={months}
+                onChange={(e) => setMonths(e.target.value)}
+                sx={{ minWidth: 140 }}
+              >
                 <MenuItem value={3}>Last 3 Months</MenuItem>
                 <MenuItem value={6}>Last 6 Months</MenuItem>
                 <MenuItem value={12}>Last 12 Months</MenuItem>
@@ -642,20 +689,43 @@ export default function MaintenanceDashboardView() {
             {/* ---- Resolution Time Stats ---- */}
             <Grid xs={12} md={8}>
               <Card sx={{ height: '100%' }}>
-                <CardHeader title="Work Order Resolution Time" subheader={`Based on ${analytics.resolutionTime.completedCount} completed WOs`} />
+                <CardHeader
+                  title="Work Order Resolution Time"
+                  subheader={`Based on ${analytics.resolutionTime.completedCount} completed WOs`}
+                />
                 <Divider sx={{ borderStyle: 'dashed', my: 1 }} />
                 <Stack direction="row" spacing={2} sx={{ p: 3 }}>
                   <Box sx={{ flex: 1 }}>
-                    <StatCard title="Avg Resolution" value={`${analytics.resolutionTime.avgHours}h`} icon="mdi:timer-sand" color="primary" />
+                    <StatCard
+                      title="Avg Resolution"
+                      value={`${analytics.resolutionTime.avgHours}h`}
+                      icon="mdi:timer-sand"
+                      color="primary"
+                    />
                   </Box>
                   <Box sx={{ flex: 1 }}>
-                    <StatCard title="Fastest" value={`${analytics.resolutionTime.minHours}h`} icon="mdi:flash" color="success" />
+                    <StatCard
+                      title="Fastest"
+                      value={`${analytics.resolutionTime.minHours}h`}
+                      icon="mdi:flash"
+                      color="success"
+                    />
                   </Box>
                   <Box sx={{ flex: 1 }}>
-                    <StatCard title="Slowest" value={`${analytics.resolutionTime.maxHours}h`} icon="mdi:clock-alert-outline" color="error" />
+                    <StatCard
+                      title="Slowest"
+                      value={`${analytics.resolutionTime.maxHours}h`}
+                      icon="mdi:clock-alert-outline"
+                      color="error"
+                    />
                   </Box>
                   <Box sx={{ flex: 1 }}>
-                    <StatCard title="Completed" value={analytics.resolutionTime.completedCount} icon="mdi:check-circle-outline" color="info" />
+                    <StatCard
+                      title="Completed"
+                      value={analytics.resolutionTime.completedCount}
+                      icon="mdi:check-circle-outline"
+                      color="info"
+                    />
                   </Box>
                 </Stack>
               </Card>
@@ -666,9 +736,15 @@ export default function MaintenanceDashboardView() {
               <DonutWidget
                 title="WO Priority Split"
                 subheader={`Last ${months} months`}
-                labels={Object.keys(analytics.priorityDistribution).map((k) => k.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))}
+                labels={Object.keys(analytics.priorityDistribution).map((k) =>
+                  k.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+                )}
                 data={Object.values(analytics.priorityDistribution)}
-                colors={[theme.palette.info.main, theme.palette.warning.main, theme.palette.error.main]}
+                colors={[
+                  theme.palette.info.main,
+                  theme.palette.warning.main,
+                  theme.palette.error.main,
+                ]}
               />
             </Grid>
 
@@ -690,7 +766,12 @@ export default function MaintenanceDashboardView() {
                       </Tooltip>
                     }
                     categories={analytics.topPartsUsed.map((p) => p.partName)}
-                    series={[{ name: 'Qty Used', data: analytics.topPartsUsed.map((p) => p.totalQuantity) }]}
+                    series={[
+                      {
+                        name: 'Qty Used',
+                        data: analytics.topPartsUsed.map((p) => p.totalQuantity),
+                      },
+                    ]}
                     colors={[theme.palette.primary.main]}
                     tooltipYFormatter={(value, { dataPointIndex, w }) => {
                       const name = w?.globals?.labels?.[dataPointIndex];
@@ -717,7 +798,10 @@ export default function MaintenanceDashboardView() {
             {/* ---- Vehicles with Most WOs ---- */}
             <Grid xs={12} md={6}>
               <Card sx={{ height: '100%' }}>
-                <CardHeader title="Vehicles — Highest Work Orders" subheader="Fleet maintenance hotspots" />
+                <CardHeader
+                  title="Vehicles — Highest Work Orders"
+                  subheader="Fleet maintenance hotspots"
+                />
                 <TableContainer sx={{ p: 2 }}>
                   <Table size="small">
                     <TableHead>
@@ -733,20 +817,41 @@ export default function MaintenanceDashboardView() {
                         <TableRow key={v.vehicleId} hover sx={{ cursor: 'pointer' }}>
                           <TableCell>{i + 1}</TableCell>
                           <TableCell>
-                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(v.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                            <Link
+                              component={RouterLink}
+                              to={paths.dashboard.vehicle.details(v.vehicleId)}
+                              variant="subtitle2"
+                              sx={{ color: 'primary.main' }}
+                            >
                               {v.vehicleNo}
                             </Link>
                           </TableCell>
                           <TableCell align="right">
-                            <Link component={RouterLink} to={`${paths.dashboard.workOrder.root}?vehicleId=${v.vehicleId}`} sx={{ textDecoration: 'none' }}>
-                              <Chip label={v.workOrderCount} size="small" color="error" variant="soft" sx={{ cursor: 'pointer' }} />
+                            <Link
+                              component={RouterLink}
+                              to={`${paths.dashboard.workOrder.root}?vehicleId=${v.vehicleId}`}
+                              sx={{ textDecoration: 'none' }}
+                            >
+                              <Chip
+                                label={v.workOrderCount}
+                                size="small"
+                                color="error"
+                                variant="soft"
+                                sx={{ cursor: 'pointer' }}
+                              />
                             </Link>
                           </TableCell>
                           <TableCell align="right">{fCurrency(v.totalCost)}</TableCell>
                         </TableRow>
                       ))}
                       {analytics.vehiclesWithMostWOs.length === 0 && (
-                        <TableRow><TableCell colSpan={4} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            <Typography variant="body2" color="text.secondary">
+                              No data
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -757,7 +862,10 @@ export default function MaintenanceDashboardView() {
             {/* ---- Vehicles Consuming Most Parts ---- */}
             <Grid xs={12} md={6}>
               <Card sx={{ height: '100%' }}>
-                <CardHeader title="Vehicles — Parts Usage Intensity" subheader="Highest parts consumption" />
+                <CardHeader
+                  title="Vehicles — Parts Usage Intensity"
+                  subheader="Highest parts consumption"
+                />
                 <TableContainer sx={{ p: 2 }}>
                   <Table size="small">
                     <TableHead>
@@ -773,7 +881,12 @@ export default function MaintenanceDashboardView() {
                         <TableRow key={v.vehicleId} hover sx={{ cursor: 'pointer' }}>
                           <TableCell>{i + 1}</TableCell>
                           <TableCell>
-                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(v.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                            <Link
+                              component={RouterLink}
+                              to={paths.dashboard.vehicle.details(v.vehicleId)}
+                              variant="subtitle2"
+                              sx={{ color: 'primary.main' }}
+                            >
                               {v.vehicleNo}
                             </Link>
                           </TableCell>
@@ -782,7 +895,13 @@ export default function MaintenanceDashboardView() {
                         </TableRow>
                       ))}
                       {analytics.vehiclesConsumingMostParts.length === 0 && (
-                        <TableRow><TableCell colSpan={4} align="center"><Typography variant="body2" color="text.secondary">No data</Typography></TableCell></TableRow>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            <Typography variant="body2" color="text.secondary">
+                              No data
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -797,8 +916,14 @@ export default function MaintenanceDashboardView() {
                 subheader="Monthly parts issued via Work Orders"
                 categories={analytics.partsConsumptionTrend.map((t) => t.month)}
                 series={[
-                  { name: 'Qty Issued', data: analytics.partsConsumptionTrend.map((t) => t.totalQty) },
-                  { name: 'Transactions', data: analytics.partsConsumptionTrend.map((t) => t.transactionCount) },
+                  {
+                    name: 'Qty Issued',
+                    data: analytics.partsConsumptionTrend.map((t) => t.totalQty),
+                  },
+                  {
+                    name: 'Transactions',
+                    data: analytics.partsConsumptionTrend.map((t) => t.transactionCount),
+                  },
                 ]}
                 colors={[theme.palette.primary.main, theme.palette.info.main]}
               />
@@ -824,7 +949,9 @@ export default function MaintenanceDashboardView() {
                 <CardHeader
                   title="Repeat Part Failures"
                   subheader="Same part replaced on same vehicle 2+ times"
-                  avatar={<Iconify icon="mdi:alert-decagram" width={28} sx={{ color: 'error.main' }} />}
+                  avatar={
+                    <Iconify icon="mdi:alert-decagram" width={28} sx={{ color: 'error.main' }} />
+                  }
                   action={
                     <Tooltip title="Fluids and small generic items are not considered as used and part failures">
                       <IconButton color="default">
@@ -847,13 +974,20 @@ export default function MaintenanceDashboardView() {
                       {analytics.repeatFailures.map((r, i) => (
                         <TableRow key={i} hover>
                           <TableCell>
-                            <Link component={RouterLink} to={paths.dashboard.vehicle.details(r.vehicleId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                            <Link
+                              component={RouterLink}
+                              to={paths.dashboard.vehicle.details(r.vehicleId)}
+                              variant="subtitle2"
+                              sx={{ color: 'primary.main' }}
+                            >
                               {r.vehicleNo}
                             </Link>
                           </TableCell>
                           <TableCell>
                             <Typography variant="body2">{r.partName}</Typography>
-                            <Typography variant="caption" color="text.disabled">{r.partNumber}</Typography>
+                            <Typography variant="caption" color="text.disabled">
+                              {r.partNumber}
+                            </Typography>
                           </TableCell>
                           <TableCell align="right">
                             <Chip label={r.occurrences} size="small" color="error" variant="soft" />
@@ -862,9 +996,13 @@ export default function MaintenanceDashboardView() {
                         </TableRow>
                       ))}
                       {analytics.repeatFailures.length === 0 && (
-                        <TableRow><TableCell colSpan={4} align="center">
-                          <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>No repeat failures detected</Typography>
-                        </TableCell></TableRow>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
+                              No repeat failures detected
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -878,7 +1016,13 @@ export default function MaintenanceDashboardView() {
                 <CardHeader
                   title="Slow-Moving Inventory"
                   subheader={`Parts idle for ${slowMovingDays}+ days — capital tied up`}
-                  avatar={<Iconify icon="mdi:package-variant-closed-remove" width={28} sx={{ color: 'warning.main' }} />}
+                  avatar={
+                    <Iconify
+                      icon="mdi:package-variant-closed-remove"
+                      width={28}
+                      sx={{ color: 'warning.main' }}
+                    />
+                  }
                 />
                 <TableContainer sx={{ p: 2 }}>
                   <Table size="small">
@@ -894,27 +1038,48 @@ export default function MaintenanceDashboardView() {
                       {analytics.slowMovingParts.map((p) => (
                         <TableRow key={p.partId} hover sx={{ cursor: 'pointer' }}>
                           <TableCell>
-                            <Link component={RouterLink} to={paths.dashboard.part.details(p.partId)} variant="subtitle2" sx={{ color: 'primary.main' }}>
+                            <Link
+                              component={RouterLink}
+                              to={paths.dashboard.part.details(p.partId)}
+                              variant="subtitle2"
+                              sx={{ color: 'primary.main' }}
+                            >
                               {p.partName}
                             </Link>
-                            <Typography variant="caption" display="block" color="text.disabled">{p.partNumber}</Typography>
+                            <Typography variant="caption" display="block" color="text.disabled">
+                              {p.partNumber}
+                            </Typography>
                           </TableCell>
                           <TableCell align="right">{p.totalQuantity}</TableCell>
                           <TableCell align="right">{fCurrency(p.capitalTiedUp)}</TableCell>
                           <TableCell align="right">
                             <Chip
-                              label={p.daysSinceLastIssue >= 9999 ? 'Never used' : `${p.daysSinceLastIssue}d`}
+                              label={
+                                p.daysSinceLastIssue >= 9999
+                                  ? 'Never used'
+                                  : `${p.daysSinceLastIssue}d`
+                              }
                               size="small"
-                              color={p.daysSinceLastIssue >= 9999 ? 'error' : p.daysSinceLastIssue >= 180 ? 'warning' : 'default'}
+                              color={
+                                p.daysSinceLastIssue >= 9999
+                                  ? 'error'
+                                  : p.daysSinceLastIssue >= 180
+                                    ? 'warning'
+                                    : 'default'
+                              }
                               variant="soft"
                             />
                           </TableCell>
                         </TableRow>
                       ))}
                       {analytics.slowMovingParts.length === 0 && (
-                        <TableRow><TableCell colSpan={4} align="center">
-                          <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>No slow-moving inventory found</Typography>
-                        </TableCell></TableRow>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
+                              No slow-moving inventory found
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
                       )}
                     </TableBody>
                   </Table>

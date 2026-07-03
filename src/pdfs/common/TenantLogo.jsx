@@ -51,7 +51,8 @@ export default function TenantLogo({ tenant, size = 55, src }) {
   const fg = getPrimaryMainColor(tenant);
   const fontSize = Math.floor(size * 0.5);
   const radius = Math.floor(size / 2);
-  const initial = (tenant?.name || tenant?.company?.name || '?').trim().charAt(0).toUpperCase() || '?';
+  const initial =
+    (tenant?.name || tenant?.company?.name || '?').trim().charAt(0).toUpperCase() || '?';
 
   return (
     <View style={{ width: size, height: size, position: 'relative' }}>
@@ -75,4 +76,3 @@ export default function TenantLogo({ tenant, size = 55, src }) {
     </View>
   );
 }
-

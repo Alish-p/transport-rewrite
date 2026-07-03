@@ -103,8 +103,8 @@ export function HomeHero({ sx, ...other }) {
           [theme.breakpoints.up(lgKey)]: { fontSize: 20, lineHeight: '36px' },
         }}
       >
-        Tranzit helps transporters run fleet management, trip planning, fuel tracking,
-        maintenance, invoicing, and driver payments from one logistics platform.
+        Tranzit helps transporters run fleet management, trip planning, fuel tracking, maintenance,
+        invoicing, and driver payments from one logistics platform.
       </Typography>
     </MInview>
   );

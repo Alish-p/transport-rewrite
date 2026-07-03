@@ -27,8 +27,7 @@ export default function InvoiceTableRow({
 
   const { invoiceStatus } = row;
   const canRecordPayment =
-    invoiceStatus === INVOICE_STATUS.PENDING ||
-    invoiceStatus === INVOICE_STATUS.PARTIAL_RECEIVED;
+    invoiceStatus === INVOICE_STATUS.PENDING || invoiceStatus === INVOICE_STATUS.PARTIAL_RECEIVED;
 
   const customActions = useMemo(() => {
     const actions = [];
@@ -51,7 +50,7 @@ export default function InvoiceTableRow({
     }
 
     return actions;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRecordPayment, invoiceStatus, onDeleteRow]);
 
   return (
@@ -70,11 +69,7 @@ export default function InvoiceTableRow({
       />
 
       {canRecordPayment && (
-        <InvoicePaymentDialog
-          open={payDialog.value}
-          onClose={payDialog.onFalse}
-          invoice={row}
-        />
+        <InvoicePaymentDialog open={payDialog.value} onClose={payDialog.onFalse} invoice={row} />
       )}
     </>
   );

@@ -367,47 +367,47 @@ function filterNavByPermissions(navSections, user) {
       // 1) Filter items within the section first
       const items = Array.isArray(section.items)
         ? section.items
-          .map((item) => {
-            // Check roles if defined
-            if (item.roles && user?.role) {
-              if (!item.roles.includes(user.role)) {
-                return null;
+            .map((item) => {
+              // Check roles if defined
+              if (item.roles && user?.role) {
+                if (!item.roles.includes(user.role)) {
+                  return null;
+                }
               }
-            }
 
-            // Check resource permissions
-            if (item.resource) {
-              if (!canUserAccessAnyAction(user, item.resource)) {
-                return null;
+              // Check resource permissions
+              if (item.resource) {
+                if (!canUserAccessAnyAction(user, item.resource)) {
+                  return null;
+                }
               }
-            }
 
-            // Check children permissions
-            if (item.children) {
-              const childItems = item.children
-                .map((child) => {
-                  const resource = child.resource || item.resource;
-                  const { action } = child;
+              // Check children permissions
+              if (item.children) {
+                const childItems = item.children
+                  .map((child) => {
+                    const resource = child.resource || item.resource;
+                    const { action } = child;
 
-                  if (action && resource) {
-                    if (!canUserAccessAction(user, resource, action)) {
-                      return null;
+                    if (action && resource) {
+                      if (!canUserAccessAction(user, resource, action)) {
+                        return null;
+                      }
                     }
-                  }
-                  return child;
-                })
-                .filter(Boolean);
+                    return child;
+                  })
+                  .filter(Boolean);
 
-              if (childItems.length === 0) {
-                return null;
+                if (childItems.length === 0) {
+                  return null;
+                }
+
+                return { ...item, children: childItems };
               }
 
-              return { ...item, children: childItems };
-            }
-
-            return item;
-          })
-          .filter(Boolean)
+              return item;
+            })
+            .filter(Boolean)
         : section.items;
 
       // 2) If section has items but all were filtered out, hide the section

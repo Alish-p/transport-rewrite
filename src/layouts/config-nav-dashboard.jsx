@@ -73,7 +73,7 @@ export const navData = [
         title: 'Live Tracking',
         path: paths.dashboard.liveTracking,
         icon: <Iconify icon="mdi:map-marker-radius" />,
-        info: 'New'
+        info: 'New',
       },
     ],
   },
@@ -138,7 +138,6 @@ export const navData = [
             action: 'update',
             info: <Iconify icon="material-symbols:call-received" />,
           },
-
         ],
       },
       {
@@ -149,7 +148,12 @@ export const navData = [
         feature: 'marketVehicle',
         children: [
           { title: 'Expense List', path: paths.dashboard.expense.root, action: 'view' },
-          { title: 'Advance List', path: paths.dashboard.transporterAdvance.list, action: 'view', feature: 'marketVehicle' },
+          {
+            title: 'Advance List',
+            path: paths.dashboard.transporterAdvance.list,
+            action: 'view',
+            feature: 'marketVehicle',
+          },
           {
             title: 'Add Expense/Advance to Job',
             path: paths.dashboard.expense.new,
@@ -285,7 +289,6 @@ export const navData = [
           },
         ],
       },
-
 
       {
         title: 'Driver Payroll',

@@ -8,7 +8,8 @@ const metadata = {
   title: 'Free LR Generator - Create Lorry Receipts Online | Tranzit',
   description:
     'Generate professional lorry receipts (LR) for free. Fill in company, consignor, consignee, vehicle, and goods details to download a ready-to-use PDF.',
-  keywords: 'free LR generator, lorry receipt generator online, bilty maker, online bilty receipt, transport bilty, transport receipt, create lorry receipt, Tranzit tools',
+  keywords:
+    'free LR generator, lorry receipt generator online, bilty maker, online bilty receipt, transport bilty, transport receipt, create lorry receipt, Tranzit tools',
   url: 'https://tranzit.in/tools/lr-generator',
   image: 'https://tranzit.in/logo/tranzit-logo-full.png',
   author: 'Tranzit',

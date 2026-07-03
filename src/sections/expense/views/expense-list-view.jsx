@@ -159,12 +159,16 @@ export function ExpenseListView() {
 
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
-    ...(!isMarketVehicleSelected ? [{
-      value: 'subtrip',
-      label: 'Job Expenses',
-      color: 'primary',
-      count: totals.subtrip?.count || 0,
-    }] : []),
+    ...(!isMarketVehicleSelected
+      ? [
+          {
+            value: 'subtrip',
+            label: 'Job Expenses',
+            color: 'primary',
+            count: totals.subtrip?.count || 0,
+          },
+        ]
+      : []),
     {
       value: 'vehicle',
       label: 'Vehicle Expenses',
@@ -402,7 +406,6 @@ export function ExpenseListView() {
         )}
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-
           <TableSelectedAction
             dense={table.dense}
             numSelected={table.selected.length}
@@ -419,21 +422,25 @@ export function ExpenseListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} expenses
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} expenses
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -447,7 +454,9 @@ export function ExpenseListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : TABLE_COLUMNS.map((c) => c.id)
                           ).filter((id) => visibleColumns[id]);
 
                           const response = await axios.get('/api/expenses/export', {
@@ -458,8 +467,13 @@ export function ExpenseListView() {
                               transporterId: filters.transporterId || undefined,
                               tripId: filters.tripId || undefined,
                               vehicleType: filters.vehicleType || undefined,
-                              expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
-                              expenseType: filters.expenseType.length ? filters.expenseType : undefined,
+                              expenseCategory:
+                                filters.expenseCategory !== 'all'
+                                  ? filters.expenseCategory
+                                  : undefined,
+                              expenseType: filters.expenseType.length
+                                ? filters.expenseType
+                                : undefined,
                               startDate: filters.fromDate || undefined,
                               endDate: filters.endDate || undefined,
                               columns: orderedIds.join(','),
@@ -488,7 +502,12 @@ export function ExpenseListView() {
                         );
                         const visibleCols = getVisibleColumnsForExport();
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Expense-selected-list'
                         );
                       }
@@ -588,7 +607,7 @@ export function ExpenseListView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
-    </DashboardContent >
+    </DashboardContent>
   );
 }
 

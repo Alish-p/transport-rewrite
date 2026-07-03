@@ -281,11 +281,11 @@ export function SubtripTimeline({ events = [] }) {
                       {formatEventMessage(event, subtripExpenseTypes)}
                     </Typography>
                   )}
-              </TimelineContent>
-            </TimelineItem>
-          );
-        })}
-      </Timeline>
+                </TimelineContent>
+              </TimelineItem>
+            );
+          })}
+        </Timeline>
       </Scrollbar>
     </Card>
   );

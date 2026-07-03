@@ -38,19 +38,12 @@ export function PartLocationDetailView({ partLocation }) {
           <Tab value="activity" label="Activity" />
         </CustomTabs>
 
-        {currentTab === 'overview' && (
-          <PartLocationOverviewTab partLocation={partLocation} />
-        )}
+        {currentTab === 'overview' && <PartLocationOverviewTab partLocation={partLocation} />}
 
         {currentTab === 'activity' && (
-          <PartLocationInventoryActivityTab
-            locationId={locationId}
-            locationName={name}
-          />
+          <PartLocationInventoryActivityTab locationId={locationId} locationName={name} />
         )}
       </Box>
     </DashboardContent>
   );
 }
-
-

@@ -57,7 +57,11 @@ const QuickVehicleSchema = zod.object({
 // Custom hook for debounced search + infinite scroll
 // ----------------------------------------------------------------------
 // Custom hook for debounced search + infinite scroll
-function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = false, onlyActive = false } = {}) {
+function useVehicleSearch(
+  searchText,
+  enabled,
+  { onlyOwn = false, onlyMarket = false, onlyActive = false } = {}
+) {
   const debounced = useDebounce(searchText, 500);
   const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
 
@@ -66,7 +70,12 @@ function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = f
   else if (onlyMarket) isOwn = false;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteVehicles(
-    { vehicleNo: debounced || undefined, rowsPerPage: 50, isOwn, ...(onlyActive && { isActive: true }) },
+    {
+      vehicleNo: debounced || undefined,
+      rowsPerPage: 50,
+      isOwn,
+      ...(onlyActive && { isActive: true }),
+    },
     { enabled }
   );
 
@@ -92,7 +101,7 @@ function useVehicleSearch(searchText, enabled, { onlyOwn = false, onlyMarket = f
 const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error }) => {
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
   const vehicleTypes = useVehicleTypes();
-  
+
   const methods = useForm({
     resolver: zodResolver(QuickVehicleSchema),
     defaultValues: {
@@ -273,7 +282,9 @@ export function KanbanVehicleDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <DialogTitle
+        sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <Box>
           {showQuickCreate ? 'Create New Vehicle' : 'Vehicles'}{' '}
           {!showQuickCreate && (

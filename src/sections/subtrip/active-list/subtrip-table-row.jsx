@@ -72,10 +72,7 @@ export default function SubtripTableRow({
         label: 'Add Expense',
         icon: 'mdi:cash-plus',
         color: 'info.main',
-        onClick: () =>
-          navigate(
-            `${paths.dashboard.expense.new}?currentSubtrip=${row._id}`
-          ),
+        onClick: () => navigate(`${paths.dashboard.expense.new}?currentSubtrip=${row._id}`),
       });
     }
 
@@ -86,9 +83,7 @@ export default function SubtripTableRow({
         icon: 'mdi:cash-plus',
         color: 'info.main',
         onClick: () =>
-          navigate(
-            `${paths.dashboard.transporterAdvance.new}?currentSubtrip=${row._id}`
-          ),
+          navigate(`${paths.dashboard.transporterAdvance.new}?currentSubtrip=${row._id}`),
       });
     }
 

@@ -30,7 +30,10 @@ const getGpsSnapshots = async (vehicleNo, from, to) => {
  * @param {boolean} options.isActive  - If true, polls every 30s and uses current time as `to`
  * @param {boolean} options.enabled   - Override to disable the query
  */
-export function useGpsSnapshots(vehicleNo, { fromDate, toDate, isActive = false, enabled = true } = {}) {
+export function useGpsSnapshots(
+  vehicleNo,
+  { fromDate, toDate, isActive = false, enabled = true } = {}
+) {
   // Use a stable key for active trips — the actual "to" is computed inside queryFn.
   // This prevents the query key from changing every render which causes infinite re-fetches.
   const queryKeyTo = isActive ? 'live' : toDate;

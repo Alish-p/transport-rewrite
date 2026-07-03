@@ -28,7 +28,8 @@ export default function SubtripSettingForm() {
               Subtrip Settings
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Configure default freight models, visible fields, required constraints, custom labels, and customer-specific overrides for Subtrips (Jobs).
+              Configure default freight models, visible fields, required constraints, custom labels,
+              and customer-specific overrides for Subtrips (Jobs).
             </Typography>
           </Box>
 

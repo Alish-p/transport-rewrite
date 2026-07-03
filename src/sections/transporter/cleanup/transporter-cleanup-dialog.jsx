@@ -25,157 +25,157 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
 export default function TransporterCleanupDialog({ open, onClose }) {
-    const { data, isLoading, error, refetch } = useOrphanTransporters({ enabled: open });
-    const cleanupMutation = useCleanupTransporters();
+  const { data, isLoading, error, refetch } = useOrphanTransporters({ enabled: open });
+  const cleanupMutation = useCleanupTransporters();
 
-    const [selectedIds, setSelectedIds] = useState([]);
-    const confirmDialog = useBoolean();
+  const [selectedIds, setSelectedIds] = useState([]);
+  const confirmDialog = useBoolean();
 
-    const orphanTransporters = data?.orphanTransporters || [];
+  const orphanTransporters = data?.orphanTransporters || [];
 
-    const handleSelectAll = (event) => {
-        if (event.target.checked) {
-            setSelectedIds(orphanTransporters.map((transporter) => transporter._id));
-        } else {
-            setSelectedIds([]);
-        }
-    };
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedIds(orphanTransporters.map((transporter) => transporter._id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
 
-    const handleSelectOne = (id) => {
-        setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
-        );
-    };
-
-    const handleCleanup = async () => {
-        try {
-            await cleanupMutation.mutateAsync(selectedIds);
-            setSelectedIds([]);
-            confirmDialog.onFalse();
-            refetch();
-        } catch (err) {
-            // Error handled in mutation hook
-        }
-    };
-
-    const handleClose = () => {
-        setSelectedIds([]);
-        onClose();
-    };
-
-    const isAllSelected =
-        orphanTransporters.length > 0 && selectedIds.length === orphanTransporters.length;
-    const isIndeterminate = selectedIds.length > 0 && selectedIds.length < orphanTransporters.length;
-
-    return (
-        <>
-            <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Iconify icon="mdi:broom" width={24} />
-                    Transporter Cleanup
-                    <Box sx={{ flex: 1 }} />
-                    <IconButton onClick={handleClose} size="small">
-                        <Iconify icon="mdi:close" />
-                    </IconButton>
-                </DialogTitle>
-
-                <DialogContent dividers>
-                    {isLoading && <LinearProgress sx={{ mb: 2 }} />}
-
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
-                            Failed to load orphan transporters: {error.message}
-                        </Alert>
-                    )}
-
-                    {!isLoading && !error && orphanTransporters.length === 0 && (
-                        <Alert severity="success" icon={<Iconify icon="mdi:check-circle" />}>
-                            No orphan transporters found. All transporters are associated with at least one
-                            vehicle, payment, or loan.
-                        </Alert>
-                    )}
-
-                    {!isLoading && orphanTransporters.length > 0 && (
-                        <>
-                            <Alert severity="warning" sx={{ mb: 2 }}>
-                                Found {orphanTransporters.length} transporter(s) not associated with any vehicle,
-                                payment, or loan. These transporters may have been created by mistake.
-                            </Alert>
-
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                checked={isAllSelected}
-                                                indeterminate={isIndeterminate}
-                                                onChange={handleSelectAll}
-                                            />
-                                        </TableCell>
-                                        <TableCell>Transporter Name</TableCell>
-                                        <TableCell>Owner Name</TableCell>
-                                        <TableCell>Phone Number</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {orphanTransporters.map((transporter) => (
-                                        <TableRow
-                                            key={transporter._id}
-                                            hover
-                                            selected={selectedIds.includes(transporter._id)}
-                                            onClick={() => handleSelectOne(transporter._id)}
-                                            sx={{ cursor: 'pointer' }}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox checked={selectedIds.includes(transporter._id)} />
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={500}>
-                                                    {transporter.transportName}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>{transporter.ownerName}</TableCell>
-                                            <TableCell>{transporter.cellNo}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </>
-                    )}
-                </DialogContent>
-
-                <DialogActions>
-                    <Button onClick={handleClose} color="inherit">
-                        Close
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        disabled={selectedIds.length === 0 || cleanupMutation.isLoading}
-                        startIcon={<Iconify icon="mdi:delete-sweep" />}
-                        onClick={confirmDialog.onTrue}
-                    >
-                        Clean Selected ({selectedIds.length})
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <ConfirmDialog
-                open={confirmDialog.value}
-                onClose={confirmDialog.onFalse}
-                title="Confirm Cleanup"
-                content={`Are you sure you want to deactivate ${selectedIds.length} transporter(s)? This action will soft-delete them by setting isActive to false.`}
-                action={
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={handleCleanup}
-                        disabled={cleanupMutation.isLoading}
-                    >
-                        {cleanupMutation.isLoading ? 'Cleaning...' : 'Confirm Cleanup'}
-                    </Button>
-                }
-            />
-        </>
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
     );
+  };
+
+  const handleCleanup = async () => {
+    try {
+      await cleanupMutation.mutateAsync(selectedIds);
+      setSelectedIds([]);
+      confirmDialog.onFalse();
+      refetch();
+    } catch (err) {
+      // Error handled in mutation hook
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedIds([]);
+    onClose();
+  };
+
+  const isAllSelected =
+    orphanTransporters.length > 0 && selectedIds.length === orphanTransporters.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < orphanTransporters.length;
+
+  return (
+    <>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Iconify icon="mdi:broom" width={24} />
+          Transporter Cleanup
+          <Box sx={{ flex: 1 }} />
+          <IconButton onClick={handleClose} size="small">
+            <Iconify icon="mdi:close" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent dividers>
+          {isLoading && <LinearProgress sx={{ mb: 2 }} />}
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              Failed to load orphan transporters: {error.message}
+            </Alert>
+          )}
+
+          {!isLoading && !error && orphanTransporters.length === 0 && (
+            <Alert severity="success" icon={<Iconify icon="mdi:check-circle" />}>
+              No orphan transporters found. All transporters are associated with at least one
+              vehicle, payment, or loan.
+            </Alert>
+          )}
+
+          {!isLoading && orphanTransporters.length > 0 && (
+            <>
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                Found {orphanTransporters.length} transporter(s) not associated with any vehicle,
+                payment, or loan. These transporters may have been created by mistake.
+              </Alert>
+
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isAllSelected}
+                        indeterminate={isIndeterminate}
+                        onChange={handleSelectAll}
+                      />
+                    </TableCell>
+                    <TableCell>Transporter Name</TableCell>
+                    <TableCell>Owner Name</TableCell>
+                    <TableCell>Phone Number</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {orphanTransporters.map((transporter) => (
+                    <TableRow
+                      key={transporter._id}
+                      hover
+                      selected={selectedIds.includes(transporter._id)}
+                      onClick={() => handleSelectOne(transporter._id)}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox checked={selectedIds.includes(transporter._id)} />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={500}>
+                          {transporter.transportName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{transporter.ownerName}</TableCell>
+                      <TableCell>{transporter.cellNo}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleClose} color="inherit">
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={selectedIds.length === 0 || cleanupMutation.isLoading}
+            startIcon={<Iconify icon="mdi:delete-sweep" />}
+            onClick={confirmDialog.onTrue}
+          >
+            Clean Selected ({selectedIds.length})
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <ConfirmDialog
+        open={confirmDialog.value}
+        onClose={confirmDialog.onFalse}
+        title="Confirm Cleanup"
+        content={`Are you sure you want to deactivate ${selectedIds.length} transporter(s)? This action will soft-delete them by setting isActive to false.`}
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleCleanup}
+            disabled={cleanupMutation.isLoading}
+          >
+            {cleanupMutation.isLoading ? 'Cleaning...' : 'Confirm Cleanup'}
+          </Button>
+        }
+      />
+    </>
+  );
 }

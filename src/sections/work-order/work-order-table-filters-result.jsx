@@ -161,11 +161,7 @@ export default function WorkOrderTableFiltersResult({
 
         {filters.issue && (
           <Block label="Issue :">
-            <Chip
-              size="small"
-              label={filters.issue}
-              onDelete={handleRemoveIssue}
-            />
+            <Chip size="small" label={filters.issue} onDelete={handleRemoveIssue} />
           </Block>
         )}
 

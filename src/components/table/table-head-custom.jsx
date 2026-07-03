@@ -80,7 +80,10 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
             }),
             '& .MuiTableSortLabel-icon': {
               opacity: 1,
-              color: orderBy === headCell.id ? `${theme.palette.primary.main} !important` : 'text.disabled',
+              color:
+                orderBy === headCell.id
+                  ? `${theme.palette.primary.main} !important`
+                  : 'text.disabled',
             },
           })}
         >
@@ -98,7 +101,6 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
     </TableCell>
   );
 }
-
 
 export function TableHeadCustom({
   sx,
@@ -127,7 +129,10 @@ export function TableHeadCustom({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={headLabel.map((c) => c.id).filter((id) => id !== 'actions' && id !== '')} strategy={horizontalListSortingStrategy}>
+      <SortableContext
+        items={headLabel.map((c) => c.id).filter((id) => id !== 'actions' && id !== '')}
+        strategy={horizontalListSortingStrategy}
+      >
         <TableHead sx={sx}>
           <TableRow>
             {onSelectAllRows && (

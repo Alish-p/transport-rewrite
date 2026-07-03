@@ -7,7 +7,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Table, Button, Divider, MenuItem, Collapse, TableRow, TableHead, TableCell, TableBody, CardHeader, InputAdornment } from '@mui/material';
+import {
+  Card,
+  Stack,
+  Table,
+  Button,
+  Divider,
+  MenuItem,
+  Collapse,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableBody,
+  CardHeader,
+  InputAdornment,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -30,7 +44,13 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
 // assets
-import { useModelTypes, useEngineTypes, useVehicleTypes, vehicleTypeIcon, useVehicleCompanies } from './vehicle-config';
+import {
+  useModelTypes,
+  useEngineTypes,
+  useVehicleTypes,
+  vehicleTypeIcon,
+  useVehicleCompanies,
+} from './vehicle-config';
 
 // ----------------------------------------------------------------------
 
@@ -84,7 +104,7 @@ export default function VehicleForm({ currentVehicle }) {
   const managesMarketVehicles = tenant?.config?.marketVehicles !== false;
 
   const { data: gpsData, isLoading: isLoadingGps } = useGps(currentVehicle?.vehicleNo || '', {
-    enabled: gpsEnabled && !!(currentVehicle?.vehicleNo),
+    enabled: gpsEnabled && !!currentVehicle?.vehicleNo,
   });
 
   const { lookup, isLookingUp } = useVehicleLookup();
@@ -191,28 +211,28 @@ export default function VehicleForm({ currentVehicle }) {
           InputProps={
             integrationEnabled
               ? {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="primary"
-                      onClick={async () => {
-                        if (!vehicleNoValid(values.vehicleNo)) return;
-                        const resp = await lookup({ vehicleNo: values.vehicleNo });
-                        if (!resp) return;
-                        const { vehicle = {}, documentsSuggested = [] } = resp;
-                        const applied = applyVehicleLookupToForm({ vehicle, setValue, values });
-                        setAppliedFields(applied);
-                        setSuggestedDocs(documentsSuggested || []);
-                      }}
-                      disabled={!vehicleNoValid(values.vehicleNo) || isLookingUp}
-                    >
-                      {isLookingUp ? 'Looking…' : 'Lookup'}
-                    </Button>
-                  </InputAdornment>
-                ),
-              }
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        onClick={async () => {
+                          if (!vehicleNoValid(values.vehicleNo)) return;
+                          const resp = await lookup({ vehicleNo: values.vehicleNo });
+                          if (!resp) return;
+                          const { vehicle = {}, documentsSuggested = [] } = resp;
+                          const applied = applyVehicleLookupToForm({ vehicle, setValue, values });
+                          setAppliedFields(applied);
+                          setSuggestedDocs(documentsSuggested || []);
+                        }}
+                        disabled={!vehicleNoValid(values.vehicleNo) || isLookingUp}
+                      >
+                        {isLookingUp ? 'Looking…' : 'Lookup'}
+                      </Button>
+                    </InputAdornment>
+                  ),
+                }
               : undefined
           }
           helperText={
@@ -243,7 +263,9 @@ export default function VehicleForm({ currentVehicle }) {
           {gpsEnabled && (
             <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 1 }}>
               {isLoadingGps ? (
-                <Label variant="soft" color="default">Fetching GPS Data...</Label>
+                <Label variant="soft" color="default">
+                  Fetching GPS Data...
+                </Label>
               ) : gpsData?.totalOdometer != null ? (
                 <>
                   <Label variant="soft" color="warning">
@@ -253,7 +275,9 @@ export default function VehicleForm({ currentVehicle }) {
                   <Button
                     size="small"
                     variant="text"
-                    onClick={() => setValue('currentOdometer', gpsData.totalOdometer, { shouldValidate: true })}
+                    onClick={() =>
+                      setValue('currentOdometer', gpsData.totalOdometer, { shouldValidate: true })
+                    }
                   >
                     Use GPS
                   </Button>
@@ -267,13 +291,9 @@ export default function VehicleForm({ currentVehicle }) {
             </Stack>
           )}
         </Stack>
-        <Field.Text
-          name="noOfTyres"
-          label="No Of Tyres"
-          type="number"
-        />
+        <Field.Text name="noOfTyres" label="No Of Tyres" type="number" />
         {managesMarketVehicles && (
-          <Stack direction="row" spacing={2} alignItems="center" >
+          <Stack direction="row" spacing={2} alignItems="center">
             <Field.Switch
               name="isOwn"
               labelPlacement="start"
@@ -305,10 +325,7 @@ export default function VehicleForm({ currentVehicle }) {
   const optionalOpen = useBoolean(false);
   const renderAdditional = (
     <Card>
-      <CardHeader
-        title="Additional Details"
-        sx={{ mb: 3 }}
-      />
+      <CardHeader title="Additional Details" sx={{ mb: 3 }} />
       <Divider />
       <Collapse in={optionalOpen.value} timeout="auto">
         <Stack spacing={3} sx={{ p: 3 }}>
@@ -330,8 +347,16 @@ export default function VehicleForm({ currentVehicle }) {
               </MenuItem>
             ))}
           </Field.Select>
-          <Field.Text name="chasisNo" label="Chasis No (Optional)" placeholder="e.g. MAT12345678901234" />
-          <Field.Text name="engineNo" label="Engine No (Optional)" placeholder="e.g. 4D56UJE12345" />
+          <Field.Text
+            name="chasisNo"
+            label="Chasis No (Optional)"
+            placeholder="e.g. MAT12345678901234"
+          />
+          <Field.Text
+            name="engineNo"
+            label="Engine No (Optional)"
+            placeholder="e.g. 4D56UJE12345"
+          />
           <Field.Text
             name="manufacturingYear"
             label="Manufacturing Year (Optional)"
@@ -361,7 +386,11 @@ export default function VehicleForm({ currentVehicle }) {
             placeholder="e.g. 200 Ltr"
             InputProps={{ endAdornment: <InputAdornment position="end">Ltr</InputAdornment> }}
           />
-          <Field.Text name="trackingLink" label="Tracking Link (Optional)" placeholder="Paste GPS tracking URL" />
+          <Field.Text
+            name="trackingLink"
+            label="Tracking Link (Optional)"
+            placeholder="Paste GPS tracking URL"
+          />
         </Stack>
       </Collapse>
     </Card>
@@ -419,18 +448,16 @@ export default function VehicleForm({ currentVehicle }) {
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={{ xs: 2, }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+      <Stack spacing={{ xs: 2 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderBasicDetails}
 
         <Button
           size="small"
-          variant='text'
-          color='primary'
+          variant="text"
+          color="primary"
           onClick={optionalOpen.onToggle}
           sx={{ alignSelf: 'flex-start' }}
-          startIcon={
-            <Iconify icon={optionalOpen.value ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
-          }
+          startIcon={<Iconify icon={optionalOpen.value ? 'mdi:chevron-up' : 'mdi:chevron-down'} />}
           aria-expanded={optionalOpen.value}
         >
           {optionalOpen.value ? 'Hide Additional Fields' : 'Show Additional Fields'}

@@ -90,41 +90,38 @@ export function HomeLRGenerator() {
     appendGoods({ description: '', quantity: '', weight: '', unit: 'Kg', rate: '', amount: '' });
   };
 
-  const handleDownload = useCallback(
-    async (formData) => {
-      setGenerating(true);
-      try {
-        const doc = <LRPdf data={formData} />;
+  const handleDownload = useCallback(async (formData) => {
+    setGenerating(true);
+    try {
+      const doc = <LRPdf data={formData} />;
 
-        const container = document.createElement('div');
-        document.body.appendChild(container);
-        const root = createRoot(container);
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = createRoot(container);
 
-        const blob = await new Promise((resolve) => {
-          root.render(
-            <BlobProvider document={doc}>
-              {({ blob: generatedBlob }) => {
-                if (generatedBlob) {
-                  resolve(generatedBlob);
-                  root.unmount();
-                  container.remove();
-                }
-                return null;
-              }}
-            </BlobProvider>
-          );
-        });
+      const blob = await new Promise((resolve) => {
+        root.render(
+          <BlobProvider document={doc}>
+            {({ blob: generatedBlob }) => {
+              if (generatedBlob) {
+                resolve(generatedBlob);
+                root.unmount();
+                container.remove();
+              }
+              return null;
+            }}
+          </BlobProvider>
+        );
+      });
 
-        const fileName = `LR-${formData.lrNumber || 'receipt'}-${dayjs().format('DDMMYYYY')}.pdf`;
-        saveAs(blob, fileName);
-      } catch (error) {
-        console.error('Failed to generate LR PDF', error);
-      } finally {
-        setGenerating(false);
-      }
-    },
-    []
-  );
+      const fileName = `LR-${formData.lrNumber || 'receipt'}-${dayjs().format('DDMMYYYY')}.pdf`;
+      saveAs(blob, fileName);
+    } catch (error) {
+      console.error('Failed to generate LR PDF', error);
+    } finally {
+      setGenerating(false);
+    }
+  }, []);
 
   const handleReset = () => {
     reset();
@@ -538,7 +535,13 @@ export function HomeLRGenerator() {
         <DialogContent sx={{ pt: 2 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             <TextField fullWidth label="Company Name" {...register('companyName')} />
-            <TextField fullWidth label="Address" {...register('companyAddress')} multiline rows={2} />
+            <TextField
+              fullWidth
+              label="Address"
+              {...register('companyAddress')}
+              multiline
+              rows={2}
+            />
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField fullWidth label="Phone" {...register('companyPhone')} />
@@ -565,12 +568,23 @@ export function HomeLRGenerator() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={consignorDialog.value} onClose={consignorDialog.onFalse} fullWidth maxWidth="sm">
+      <Dialog
+        open={consignorDialog.value}
+        onClose={consignorDialog.onFalse}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Consignor (Sender) Details</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             <TextField fullWidth label="Consignor Name" {...register('consignorName')} />
-            <TextField fullWidth label="Address" {...register('consignorAddress')} multiline rows={3} />
+            <TextField
+              fullWidth
+              label="Address"
+              {...register('consignorAddress')}
+              multiline
+              rows={3}
+            />
             <TextField fullWidth label="GSTIN" {...register('consignorGst')} />
           </Stack>
         </DialogContent>
@@ -584,12 +598,23 @@ export function HomeLRGenerator() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={consigneeDialog.value} onClose={consigneeDialog.onFalse} fullWidth maxWidth="sm">
+      <Dialog
+        open={consigneeDialog.value}
+        onClose={consigneeDialog.onFalse}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Consignee (Receiver) Details</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             <TextField fullWidth label="Consignee Name" {...register('consigneeName')} />
-            <TextField fullWidth label="Address" {...register('consigneeAddress')} multiline rows={3} />
+            <TextField
+              fullWidth
+              label="Address"
+              {...register('consigneeAddress')}
+              multiline
+              rows={3}
+            />
             <TextField fullWidth label="GSTIN" {...register('consigneeGst')} />
           </Stack>
         </DialogContent>

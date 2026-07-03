@@ -193,11 +193,7 @@ function RenderLoanSummary({ loan }) {
           </Typography>
           <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
             <SummaryRow label="Loan Amount" value={fCurrency(principalAmount)} />
-            <SummaryRow
-              label="Total Paid"
-              value={fCurrency(totalPaid)}
-              color="success.main"
-            />
+            <SummaryRow label="Total Paid" value={fCurrency(totalPaid)} color="success.main" />
             <Divider sx={{ my: 0.5 }} />
             <SummaryRow
               label="Remaining Balance"
@@ -255,7 +251,12 @@ function RenderPayments({ loan }) {
                 </TableCell>
                 <TableCell>{p.remarks || '-'}</TableCell>
                 <TableCell align="right">
-                  <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                    spacing={0.5}
+                  >
                     <Iconify
                       icon="eva:checkmark-circle-2-fill"
                       sx={{ color: 'success.main' }}

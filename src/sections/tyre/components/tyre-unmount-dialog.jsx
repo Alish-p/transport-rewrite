@@ -11,53 +11,53 @@ import DialogContent from '@mui/material/DialogContent';
 import { useGps } from 'src/query/use-gps';
 
 export default function TyreUnmountDialog({ open, onClose, onUnmount, vehicleName }) {
-    const [odometer, setOdometer] = useState('');
+  const [odometer, setOdometer] = useState('');
 
-    const { data: gpsData } = useGps(vehicleName, { enabled: open && !!vehicleName });
+  const { data: gpsData } = useGps(vehicleName, { enabled: open && !!vehicleName });
 
-    useEffect(() => {
-        if (open) {
-            setOdometer(gpsData?.totalOdometer || '');
-        }
-    }, [open, gpsData]);
+  useEffect(() => {
+    if (open) {
+      setOdometer(gpsData?.totalOdometer || '');
+    }
+  }, [open, gpsData]);
 
-    const handleSubmit = () => {
-        if (!odometer) return;
-        onUnmount({
-            odometer: Number(odometer),
-        });
-    };
+  const handleSubmit = () => {
+    if (!odometer) return;
+    onUnmount({
+      odometer: Number(odometer),
+    });
+  };
 
-    return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>Unmount Tyre</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
-                    Please enter the current odometer reading of <b>{vehicleName}</b> to unmount this tyre.
-                </Typography>
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Unmount Tyre</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
+          Please enter the current odometer reading of <b>{vehicleName}</b> to unmount this tyre.
+        </Typography>
 
-                <TextField
-                    autoFocus
-                    fullWidth
-                    label="Odometer Reading"
-                    type="number"
-                    value={odometer}
-                    onChange={(e) => setOdometer(e.target.value)}
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose} color="inherit">
-                    Cancel
-                </Button>
-                <Button
-                    variant="contained"
-                    color="error" // Red color since it's an unmount/destructive-like action
-                    onClick={handleSubmit}
-                    disabled={!odometer}
-                >
-                    Unmount
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+        <TextField
+          autoFocus
+          fullWidth
+          label="Odometer Reading"
+          type="number"
+          value={odometer}
+          onChange={(e) => setOdometer(e.target.value)}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="error" // Red color since it's an unmount/destructive-like action
+          onClick={handleSubmit}
+          disabled={!odometer}
+        >
+          Unmount
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

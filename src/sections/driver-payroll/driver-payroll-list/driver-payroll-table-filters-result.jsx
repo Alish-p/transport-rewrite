@@ -57,13 +57,21 @@ export default function DriverPayrollTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.driverId && (
           <Block label="Driver">
-            <Chip size="small" label={selectedDriverName || filters.driverId} onDelete={handleRemoveDriver} />
+            <Chip
+              size="small"
+              label={selectedDriverName || filters.driverId}
+              onDelete={handleRemoveDriver}
+            />
           </Block>
         )}
 
         {filters.subtripId && (
           <Block label="Job:">
-            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={selectedSubtripNo || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 

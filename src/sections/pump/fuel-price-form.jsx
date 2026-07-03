@@ -42,9 +42,7 @@ export default function DieselPriceForm({ currentDieselPrice, pump, onSuccess })
     () => ({
       fuelType: currentDieselPrice?.fuelType || 'Diesel',
       price: currentDieselPrice?.price || 0,
-      startDate: currentDieselPrice?.fromDate
-        ? new Date(currentDieselPrice.fromDate)
-        : new Date(),
+      startDate: currentDieselPrice?.fromDate ? new Date(currentDieselPrice.fromDate) : new Date(),
       endDate: currentDieselPrice?.toDate ? new Date(currentDieselPrice.toDate) : new Date(),
     }),
     [currentDieselPrice]

@@ -89,13 +89,7 @@ function TyreBarChart({ title, subheader, categories, series, colors }) {
     <Card>
       <CardHeader title={title} subheader={subheader} />
       <Box sx={{ p: 3, pb: 1 }}>
-        <Chart
-          dir="ltr"
-          type="bar"
-          series={series}
-          options={chartOptions}
-          height={320}
-        />
+        <Chart dir="ltr" type="bar" series={series} options={chartOptions} height={320} />
       </Box>
     </Card>
   );
@@ -105,10 +99,30 @@ function TyreMetricsGrid({ topStats }) {
   const theme = useTheme();
 
   const STATS = [
-    { title: 'Total Value', value: fCurrency(topStats.totalValue), icon: 'mdi:currency-inr', color: theme.palette.success.main },
-    { title: 'Avg KM/Tyre', value: fShortenNumber(topStats.avgKmPerTyre), icon: 'mdi:speedometer', color: theme.palette.info.main },
-    { title: 'Remolded Configs', value: fShortenNumber(topStats.remoldedCount), icon: 'mdi:recycle', color: theme.palette.warning.main },
-    { title: 'Low Thread Alerts', value: topStats.lowThreadAlerts, icon: 'mdi:alert', color: topStats.lowThreadAlerts > 0 ? theme.palette.error.main : theme.palette.success.main },
+    {
+      title: 'Total Value',
+      value: fCurrency(topStats.totalValue),
+      icon: 'mdi:currency-inr',
+      color: theme.palette.success.main,
+    },
+    {
+      title: 'Avg KM/Tyre',
+      value: fShortenNumber(topStats.avgKmPerTyre),
+      icon: 'mdi:speedometer',
+      color: theme.palette.info.main,
+    },
+    {
+      title: 'Remolded Configs',
+      value: fShortenNumber(topStats.remoldedCount),
+      icon: 'mdi:recycle',
+      color: theme.palette.warning.main,
+    },
+    {
+      title: 'Low Thread Alerts',
+      value: topStats.lowThreadAlerts,
+      icon: 'mdi:alert',
+      color: topStats.lowThreadAlerts > 0 ? theme.palette.error.main : theme.palette.success.main,
+    },
   ];
 
   return (
@@ -151,9 +165,7 @@ function TyreMetricsGrid({ topStats }) {
             <Typography variant="subtitle2" color="text.secondary">
               {stat.title}
             </Typography>
-            <Typography variant="h6">
-              {stat.value}
-            </Typography>
+            <Typography variant="h6">{stat.value}</Typography>
           </Stack>
         ))}
       </Stack>
@@ -181,19 +193,19 @@ export default function TyreDashboardView() {
     threadHealthSummary,
     topStats,
     recentActivity,
-    liveKmSummary
+    liveKmSummary,
   } = data;
 
   // Formatting for Donut Charts
-  const typeData = typeSummary.map(t => t.count);
-  const typeLabels = typeSummary.map(t => t.type);
+  const typeData = typeSummary.map((t) => t.count);
+  const typeLabels = typeSummary.map((t) => t.type);
 
   const threadLabels = ['Healthy', 'Warning', 'Critical', 'Unknown'];
   const threadData = [
     threadHealthSummary.healthy || 0,
     threadHealthSummary.warning || 0,
     threadHealthSummary.critical || 0,
-    threadHealthSummary.unknown || 0
+    threadHealthSummary.unknown || 0,
   ];
   const threadColors = [
     theme.palette.success.main,
@@ -203,31 +215,32 @@ export default function TyreDashboardView() {
   ];
 
   // Formating for Bar Charts
-  const brandCategories = brandSummary.map(b => b.brand).slice(0, 7);
+  const brandCategories = brandSummary.map((b) => b.brand).slice(0, 7);
   const brandSeries = [
-    { name: 'Mounted', data: brandSummary.map(b => b.mounted).slice(0, 7) },
-    { name: 'In Stock', data: brandSummary.map(b => b.inStock).slice(0, 7) },
-    { name: 'Scrapped', data: brandSummary.map(b => b.scrapped).slice(0, 7) },
+    { name: 'Mounted', data: brandSummary.map((b) => b.mounted).slice(0, 7) },
+    { name: 'In Stock', data: brandSummary.map((b) => b.inStock).slice(0, 7) },
+    { name: 'Scrapped', data: brandSummary.map((b) => b.scrapped).slice(0, 7) },
   ];
 
-  const sizeCategories = sizeSummary.map(s => s.size).slice(0, 7);
+  const sizeCategories = sizeSummary.map((s) => s.size).slice(0, 7);
   const sizeSeries = [
-    { name: 'Mounted', data: sizeSummary.map(s => s.mounted).slice(0, 7) },
-    { name: 'In Stock', data: sizeSummary.map(s => s.inStock).slice(0, 7) },
-    { name: 'Scrapped', data: sizeSummary.map(s => s.scrapped).slice(0, 7) },
+    { name: 'Mounted', data: sizeSummary.map((s) => s.mounted).slice(0, 7) },
+    { name: 'In Stock', data: sizeSummary.map((s) => s.inStock).slice(0, 7) },
+    { name: 'Scrapped', data: sizeSummary.map((s) => s.scrapped).slice(0, 7) },
   ];
 
   const ageCategories = ['< 6 Months', '6-12 Months', '1-2 Years', '> 2 Years'];
-  const ageSeries = [{
-    name: 'Tyres',
-    data: [
-      agingSummary.lt6Months,
-      agingSummary.lt1Year,
-      agingSummary.lt2Years,
-      agingSummary.gt2Years
-    ]
-  }];
-
+  const ageSeries = [
+    {
+      name: 'Tyres',
+      data: [
+        agingSummary.lt6Months,
+        agingSummary.lt1Year,
+        agingSummary.lt2Years,
+        agingSummary.gt2Years,
+      ],
+    },
+  ];
 
   return (
     <DashboardContent>
@@ -253,7 +266,9 @@ export default function TyreDashboardView() {
             total={attachmentSummary.newlyAttached}
             color="success"
             icon={<Iconify icon="mdi:truck-check-outline" width={36} />}
-            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=newlyAttached`)}
+            onTotalClick={() =>
+              router.push(`${paths.dashboard.tyre.root}?attachmentStatus=newlyAttached`)
+            }
           />
         </Grid>
 
@@ -263,7 +278,9 @@ export default function TyreDashboardView() {
             total={attachmentSummary.oldAttached}
             color="warning"
             icon={<Iconify icon="mdi:refresh" width={36} />}
-            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=oldAttached`)}
+            onTotalClick={() =>
+              router.push(`${paths.dashboard.tyre.root}?attachmentStatus=oldAttached`)
+            }
           />
         </Grid>
 
@@ -273,10 +290,11 @@ export default function TyreDashboardView() {
             total={attachmentSummary.neverAttached}
             color="info"
             icon={<Iconify icon="mdi:box-variant-closed" width={36} />}
-            onTotalClick={() => router.push(`${paths.dashboard.tyre.root}?attachmentStatus=neverAttached`)}
+            onTotalClick={() =>
+              router.push(`${paths.dashboard.tyre.root}?attachmentStatus=neverAttached`)
+            }
           />
         </Grid>
-
 
         {/* Brand and Size breakdown */}
         <Grid xs={12} md={6}>
@@ -285,11 +303,7 @@ export default function TyreDashboardView() {
             subheader="Top brands by active count"
             categories={brandCategories}
             series={brandSeries}
-            colors={[
-              theme.palette.primary.main,
-              theme.palette.info.main,
-              theme.palette.error.main,
-            ]}
+            colors={[theme.palette.primary.main, theme.palette.info.main, theme.palette.error.main]}
           />
         </Grid>
 
@@ -299,11 +313,7 @@ export default function TyreDashboardView() {
             subheader="Top tyre sizes in fleet"
             categories={sizeCategories}
             series={sizeSeries}
-            colors={[
-              theme.palette.primary.main,
-              theme.palette.info.main,
-              theme.palette.error.main,
-            ]}
+            colors={[theme.palette.primary.main, theme.palette.info.main, theme.palette.error.main]}
           />
         </Grid>
 
@@ -342,7 +352,7 @@ export default function TyreDashboardView() {
               liveKmSummary?.fresh || 0,
               liveKmSummary?.warning || 0,
               liveKmSummary?.stale || 0,
-              liveKmSummary?.unknown || 0
+              liveKmSummary?.unknown || 0,
             ]}
             colors={[
               theme.palette.success.main,
@@ -372,11 +382,18 @@ export default function TyreDashboardView() {
                         color: 'primary.main',
                       }}
                     >
-                      <Iconify icon={
-                        activity.action === 'MOUNT' ? 'mdi:arrow-up-circle' :
-                          activity.action === 'UNMOUNT' ? 'mdi:arrow-down-circle' :
-                            activity.action === 'SCRAP' ? 'mdi:trash-can' : 'mdi:history'
-                      } width={24} />
+                      <Iconify
+                        icon={
+                          activity.action === 'MOUNT'
+                            ? 'mdi:arrow-up-circle'
+                            : activity.action === 'UNMOUNT'
+                              ? 'mdi:arrow-down-circle'
+                              : activity.action === 'SCRAP'
+                                ? 'mdi:trash-can'
+                                : 'mdi:history'
+                        }
+                        width={24}
+                      />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="subtitle2">{activity.action}</Typography>
@@ -387,7 +404,11 @@ export default function TyreDashboardView() {
                   </Stack>
                 ))}
                 {recentActivity.length === 0 && (
-                  <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', pt: 4 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ textAlign: 'center', pt: 4 }}
+                  >
                     No recent activity
                   </Typography>
                 )}

@@ -18,7 +18,12 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { TableNoData, TableSkeleton, TableHeadCustom, TablePaginationCustom } from 'src/components/table';
+import {
+  TableNoData,
+  TableSkeleton,
+  TableHeadCustom,
+  TablePaginationCustom,
+} from 'src/components/table';
 
 import TenantAdminTableRow from './tenant-admin-table-row';
 import { TENANT_TABLE_HEADERS } from './tenant-admin-table-config';

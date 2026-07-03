@@ -78,8 +78,7 @@ export function useCreateVendor() {
       toast.success('Vendor added successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -97,8 +96,7 @@ export function useUpdateVendor() {
       toast.success('Vendor updated successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -115,12 +113,10 @@ export function useDeleteVendor() {
       toast.success('Vendor deleted successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
 
   return mutate;
 }
-

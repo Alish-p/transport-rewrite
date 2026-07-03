@@ -27,7 +27,7 @@ export function PartDetailView({ part }) {
     inventoryLocation,
     inventory,
     locations: partLocations,
-    isActive
+    isActive,
   } = part || {};
 
   const [currentTab, setCurrentTab] = useState('overview');
@@ -37,20 +37,20 @@ export function PartDetailView({ part }) {
   const inventoryLocations =
     inventoryEntries.length > 0
       ? inventoryEntries.map((entry) => {
-        const loc = entry.inventoryLocation || {};
+          const loc = entry.inventoryLocation || {};
 
-        return {
-          id: entry._id || loc._id || loc.id || loc.name,
-          inventoryLocationId: loc._id || loc.id || loc.name,
-          name: loc.name,
-          address: loc.address,
-          currentQty: entry.quantity,
-          reorderPoint: entry.threshold,
-          pendingPoQty: entry.pendingPoQty,
-          workOrderQty: entry.workOrderQty,
-          averageUnitCost: entry.averageUnitCost,
-        };
-      })
+          return {
+            id: entry._id || loc._id || loc.id || loc.name,
+            inventoryLocationId: loc._id || loc.id || loc.name,
+            name: loc.name,
+            address: loc.address,
+            currentQty: entry.quantity,
+            reorderPoint: entry.threshold,
+            pendingPoQty: entry.pendingPoQty,
+            workOrderQty: entry.workOrderQty,
+            averageUnitCost: entry.averageUnitCost,
+          };
+        })
       : [];
 
   const locations =
@@ -60,26 +60,26 @@ export function PartDetailView({ part }) {
         ? inventoryLocations
         : inventoryLocation
           ? [
-            {
-              id: inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
-              inventoryLocationId:
-                inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
-              name: inventoryLocation.name,
-              currentQty: quantity,
-              reorderPoint: inventoryLocation.reorderPoint,
-              pendingPoQty: inventoryLocation.pendingPoQty,
-              workOrderQty: inventoryLocation.workOrderQty,
-            },
-          ]
+              {
+                id: inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
+                inventoryLocationId:
+                  inventoryLocation.id || inventoryLocation._id || inventoryLocation.name,
+                name: inventoryLocation.name,
+                currentQty: quantity,
+                reorderPoint: inventoryLocation.reorderPoint,
+                pendingPoQty: inventoryLocation.pendingPoQty,
+                workOrderQty: inventoryLocation.workOrderQty,
+              },
+            ]
           : [];
 
   const totalQuantity =
     typeof quantity === 'number' && !Number.isNaN(quantity)
       ? quantity
       : inventoryEntries.reduce(
-        (sum, entry) => sum + (typeof entry.quantity === 'number' ? entry.quantity : 0),
-        0
-      );
+          (sum, entry) => sum + (typeof entry.quantity === 'number' ? entry.quantity : 0),
+          0
+        );
 
   return (
     <DashboardContent>
@@ -102,11 +102,22 @@ export function PartDetailView({ part }) {
           variant="scrollable"
           allowScrollButtonsMobile
           sx={{ mb: 3, borderRadius: 1, boxShadow: 1 }}
-
         >
-          <Tab icon={<Iconify icon="mdi:information-outline" />} value="overview" label="Overview" />
-          <Tab icon={<Iconify icon="mdi:history" />} value="inventoryActivity" label="Inventory Activity" />
-          <Tab icon={<Iconify icon="mdi:currency-inr" />} value="purchaseHistory" label="Price History" />
+          <Tab
+            icon={<Iconify icon="mdi:information-outline" />}
+            value="overview"
+            label="Overview"
+          />
+          <Tab
+            icon={<Iconify icon="mdi:history" />}
+            value="inventoryActivity"
+            label="Inventory Activity"
+          />
+          <Tab
+            icon={<Iconify icon="mdi:currency-inr" />}
+            value="purchaseHistory"
+            label="Price History"
+          />
         </CustomTabs>
 
         {currentTab === 'overview' && (
@@ -128,8 +139,13 @@ export function PartDetailView({ part }) {
 
         {currentTab === 'inventoryActivity' && <PartInventoryActivityTab partId={partId} />}
 
-        {currentTab === 'purchaseHistory' && <PartPriceHistoryTab partId={partId} currentAverageCost={part.averageUnitCost || part.unitCost} />}
+        {currentTab === 'purchaseHistory' && (
+          <PartPriceHistoryTab
+            partId={partId}
+            currentAverageCost={part.averageUnitCost || part.unitCost}
+          />
+        )}
       </Box>
-    </DashboardContent >
+    </DashboardContent>
   );
 }

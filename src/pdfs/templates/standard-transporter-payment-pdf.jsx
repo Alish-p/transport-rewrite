@@ -11,11 +11,6 @@ import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 import { getWeightUnit, calculateTotalWeight } from 'src/sections/subtrip/utils';
 import { fEffectiveTransporterRate } from 'src/sections/transporter-payment/utils/transporter-payment-calculations';
 
-
-
-
-
-
 export default function StandardTransporterPaymentPdf({ transporterPayment, tenant }) {
   const {
     subtripSnapshot = [],
@@ -43,15 +38,44 @@ export default function StandardTransporterPaymentPdf({ transporterPayment, tena
         width: '10%',
         align: 'right',
         showTotal: true,
-        formatter: (v, row) => (typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-'),
+        formatter: (v, row) =>
+          typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-',
         totalFormatter: () => calculateTotalWeight(subtripSnapshot),
       },
       { header: 'Shortage Qty', accessor: 'shortageQty', width: '5%', align: 'right' },
-      { header: 'Shortage Amt.', accessor: 'shortageAmt', width: '5%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      {
+        header: 'Shortage Amt.',
+        accessor: 'shortageAmt',
+        width: '5%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
       { header: 'Freight Rate', accessor: 'freightRate', width: '8%', align: 'right' },
-      { header: 'Freight Amt.', accessor: 'frtAmt', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Advances', accessor: 'expense', width: '8%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
-      { header: 'Payable', accessor: 'totalPayable', width: '11%', align: 'right', showTotal: true, formatter: (v) => fNumber(v) },
+      {
+        header: 'Freight Amt.',
+        accessor: 'frtAmt',
+        width: '8%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      {
+        header: 'Advances',
+        accessor: 'expense',
+        width: '8%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
+      {
+        header: 'Payable',
+        accessor: 'totalPayable',
+        width: '11%',
+        align: 'right',
+        showTotal: true,
+        formatter: (v) => fNumber(v),
+      },
     ];
 
     const tableData = subtripSnapshot.map((st, idx) => ({

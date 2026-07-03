@@ -9,7 +9,20 @@ import { LoadingButton } from '@mui/lab';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
-import { Chip, Table, Stack, Alert, Button, Tooltip, Divider, TableRow, Checkbox, TableBody, TableCell, InputAdornment } from '@mui/material';
+import {
+  Chip,
+  Table,
+  Stack,
+  Alert,
+  Button,
+  Tooltip,
+  Divider,
+  TableRow,
+  Checkbox,
+  TableBody,
+  TableCell,
+  InputAdornment,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -106,13 +119,22 @@ export function UserNewEditForm({ currentUser }) {
   const tenant = useTenantContext();
   const { marketVehicles, pumps } = useSystemFeatures();
 
-  const filteredPermissions = useMemo(() => PERMISSIONS.filter((perm) => {
-      if (!marketVehicles && (perm.name === 'transporter' || perm.name === 'transporterPayment')) return false;
-      if (!pumps && perm.name === 'pump') return false;
-      if (!tenant?.integrations?.tyre?.enabled && perm.group === 'Tyre Management') return false;
-      if (!tenant?.integrations?.maintenanceAndInventory?.enabled && perm.group === 'Vehicle Maintenance') return false;
-      return true;
-    }), [marketVehicles, pumps, tenant]);
+  const filteredPermissions = useMemo(
+    () =>
+      PERMISSIONS.filter((perm) => {
+        if (!marketVehicles && (perm.name === 'transporter' || perm.name === 'transporterPayment'))
+          return false;
+        if (!pumps && perm.name === 'pump') return false;
+        if (!tenant?.integrations?.tyre?.enabled && perm.group === 'Tyre Management') return false;
+        if (
+          !tenant?.integrations?.maintenanceAndInventory?.enabled &&
+          perm.group === 'Vehicle Maintenance'
+        )
+          return false;
+        return true;
+      }),
+    [marketVehicles, pumps, tenant]
+  );
 
   const groupedPermissions = filteredPermissions.reduce((acc, permission) => {
     const group = permission.group || 'Other';
@@ -225,8 +247,6 @@ export function UserNewEditForm({ currentUser }) {
       console.error(error);
     }
   });
-
-
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
@@ -364,7 +384,8 @@ export function UserNewEditForm({ currentUser }) {
                 </Stack>
 
                 <Alert severity="info" icon={<Iconify icon="mdi:information" />}>
-                  <strong>Tip:</strong> Use column checkboxes to quickly assign permissions across all modules, or use group checkboxes for section-specific access.
+                  <strong>Tip:</strong> Use column checkboxes to quickly assign permissions across
+                  all modules, or use group checkboxes for section-specific access.
                 </Alert>
               </Stack>
 
@@ -377,12 +398,13 @@ export function UserNewEditForm({ currentUser }) {
 
                   <TableBody>
                     {Object.keys(groupedPermissions).map((group) => {
-                      const groupIcon = {
-                        'Management': 'mdi:cog',
-                        'Billing': 'mdi:currency-usd',
-                        'Vehicle Maintenance': 'mdi:car-wrench',
-                        'Tyre Management': 'mingcute:tyre-line',
-                      }[group] || 'mdi:folder';
+                      const groupIcon =
+                        {
+                          Management: 'mdi:cog',
+                          Billing: 'mdi:currency-usd',
+                          'Vehicle Maintenance': 'mdi:car-wrench',
+                          'Tyre Management': 'mingcute:tyre-line',
+                        }[group] || 'mdi:folder';
 
                       return (
                         <>
@@ -390,7 +412,7 @@ export function UserNewEditForm({ currentUser }) {
                             key={group}
                             sx={{
                               bgcolor: 'background.neutral',
-                              '&:hover': { bgcolor: 'action.hover' }
+                              '&:hover': { bgcolor: 'action.hover' },
                             }}
                           >
                             <TableCell>
@@ -410,10 +432,12 @@ export function UserNewEditForm({ currentUser }) {
                                       size="small"
                                       checked={all}
                                       indeterminate={some && !all}
-                                      onChange={(e) => handleGroupToggle(group, action, e.target.checked)}
+                                      onChange={(e) =>
+                                        handleGroupToggle(group, action, e.target.checked)
+                                      }
                                       sx={{
                                         color: 'primary.main',
-                                        '&.Mui-checked': { color: 'primary.main' }
+                                        '&.Mui-checked': { color: 'primary.main' },
                                       }}
                                     />
                                   </Tooltip>
@@ -427,21 +451,25 @@ export function UserNewEditForm({ currentUser }) {
                               key={permission.name}
                               sx={{
                                 '&:hover': { bgcolor: 'action.hover' },
-                                transition: 'background-color 0.2s'
+                                transition: 'background-color 0.2s',
                               }}
                             >
                               <TableCell>
                                 <ListItemText
                                   primary={permission.subheader}
                                   secondary={permission.caption}
-                                  primaryTypographyProps={{ typography: 'body2', fontWeight: 500, mb: 0.25 }}
+                                  primaryTypographyProps={{
+                                    typography: 'body2',
+                                    fontWeight: 500,
+                                    mb: 0.25,
+                                  }}
                                   secondaryTypographyProps={{
                                     component: 'span',
                                     sx: {
                                       typography: 'caption',
                                       color: 'text.secondary',
                                       display: 'block',
-                                      mt: 0.5
+                                      mt: 0.5,
                                     },
                                   }}
                                 />

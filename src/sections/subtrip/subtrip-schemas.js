@@ -21,15 +21,21 @@ export const receiveSchema = zod
     endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
     commissionDetails: zod
       .object({
-        commissionRate: preprocessOptionalNumber(zod.number().min(0, { message: 'Commission rate cannot be negative' }).optional()),
-        commissionAmount: preprocessOptionalNumber(zod.number().min(0, { message: 'Commission amount cannot be negative' }).optional()),
+        commissionRate: preprocessOptionalNumber(
+          zod.number().min(0, { message: 'Commission rate cannot be negative' }).optional()
+        ),
+        commissionAmount: preprocessOptionalNumber(
+          zod.number().min(0, { message: 'Commission amount cannot be negative' }).optional()
+        ),
       })
       .optional(),
     freightDetails: zod
       .object({
         freightAmount: preprocessOptionalNumber(zod.number().optional()),
         endKm: preprocessOptionalNumber(zod.number().optional()),
-        endTime: schemaHelper.dateOptional({ message: { invalid_type_error: 'Invalid End Time!' } }),
+        endTime: schemaHelper.dateOptional({
+          message: { invalid_type_error: 'Invalid End Time!' },
+        }),
       })
       .optional(),
     hasError: zod.boolean().optional(),
@@ -49,9 +55,16 @@ export const receiveSchema = zod
     remarksRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
-    const isUnloadingWeightRequired = values.freightModel === 'per_ton' || values.freightModel === 'per_kl' || values.unloadingWeightRequired === true;
+    const isUnloadingWeightRequired =
+      values.freightModel === 'per_ton' ||
+      values.freightModel === 'per_kl' ||
+      values.unloadingWeightRequired === true;
     if (isUnloadingWeightRequired) {
-      if (values.unloadingWeight === undefined || values.unloadingWeight === null || values.unloadingWeight <= 0) {
+      if (
+        values.unloadingWeight === undefined ||
+        values.unloadingWeight === null ||
+        values.unloadingWeight <= 0
+      ) {
         ctx.addIssue({
           code: zod.ZodIssueCode.custom,
           message: 'Unloading weight is required',
@@ -120,14 +133,14 @@ const numericInputSchema = zod.preprocess((val) => {
 }, zod.number().optional());
 
 // Loading weight: 0 or more
-const loadingWeightSchema = zod.preprocess((val) => {
-  if (val === '' || val === null || val === undefined) return undefined;
-  const n = typeof val === 'number' ? val : Number(val);
-  return Number.isFinite(n) ? n : undefined;
-}, zod
-  .number()
-  .min(0, { message: 'Loading weight must be at least 0' })
-  .optional());
+const loadingWeightSchema = zod.preprocess(
+  (val) => {
+    if (val === '' || val === null || val === undefined) return undefined;
+    const n = typeof val === 'number' ? val : Number(val);
+    return Number.isFinite(n) ? n : undefined;
+  },
+  zod.number().min(0, { message: 'Loading weight must be at least 0' }).optional()
+);
 
 const consigneeOptionSchema = zod
   .object({ label: zod.string().optional(), value: zod.string().optional() })
@@ -151,14 +164,13 @@ export const jobCreateSchema = zod
     consignee: consigneeOptionSchema,
     loadingPoint: zod.string().optional(),
     unloadingPoint: zod
-      .union([
-        zod.string(),
-        zod.array(zod.object({ label: zod.string(), value: zod.string() })),
-      ])
+      .union([zod.string(), zod.array(zod.object({ label: zod.string(), value: zod.string() }))])
       .nullable()
       .optional(),
     loadingWeight: loadingWeightSchema,
-    freightModel: zod.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
+    freightModel: zod
+      .enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid'])
+      .optional(),
     freightAmount: numericInputSchema,
     baseKm: numericInputSchema,
     rate: numericInputSchema,
@@ -290,4 +302,3 @@ export const createJobDefaultValues = () => ({
   initialAdvanceDieselUnit: 'litre',
   pumpCd: '',
 });
-

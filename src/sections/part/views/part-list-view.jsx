@@ -307,21 +307,25 @@ export function PartListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} parts
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} parts
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -335,16 +339,23 @@ export function PartListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : Object.keys(visibleColumns)
                           ).filter((id) => visibleColumns[id]);
 
                           const response = await axios.get('/api/maintenance/parts/export', {
                             params: {
                               search: filters.search || undefined,
                               inventoryLocation: activeLocationId || undefined,
-                              category: filters.category && filters.category !== 'all' ? filters.category : undefined,
+                              category:
+                                filters.category && filters.category !== 'all'
+                                  ? filters.category
+                                  : undefined,
                               manufacturer:
-                                filters.manufacturer && filters.manufacturer !== 'all' ? filters.manufacturer : undefined,
+                                filters.manufacturer && filters.manufacturer !== 'all'
+                                  ? filters.manufacturer
+                                  : undefined,
                               status: filters.status || undefined,
                               columns: orderedIds.join(','),
                               order: table.order,
@@ -417,22 +428,22 @@ export function PartListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <PartTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => deletePart(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <PartTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => deletePart(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

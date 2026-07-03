@@ -18,14 +18,16 @@ import { Form, Field } from 'src/components/hook-form';
 
 const InvoiceSettingSchema = zod.object({
   config: zod.object({
-    invoice: zod.object({
-      defaultTaxRates: zod.object({
-        cgst: zod.number().min(0).max(100),
-        sgst: zod.number().min(0).max(100),
-        igst: zod.number().min(0).max(100),
-      }),
-      termsAndConditions: zod.string().optional(),
-    }).optional(),
+    invoice: zod
+      .object({
+        defaultTaxRates: zod.object({
+          cgst: zod.number().min(0).max(100),
+          sgst: zod.number().min(0).max(100),
+          igst: zod.number().min(0).max(100),
+        }),
+        termsAndConditions: zod.string().optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -90,7 +92,12 @@ export default function InvoiceSettingForm({ currentTenant }) {
                   name="config.invoice.defaultTaxRates.cgst"
                   label="Default CGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.cgst', Number(event.target.value))}
+                  onChange={(event) =>
+                    methods.setValue(
+                      'config.invoice.defaultTaxRates.cgst',
+                      Number(event.target.value)
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -98,7 +105,12 @@ export default function InvoiceSettingForm({ currentTenant }) {
                   name="config.invoice.defaultTaxRates.sgst"
                   label="Default SGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.sgst', Number(event.target.value))}
+                  onChange={(event) =>
+                    methods.setValue(
+                      'config.invoice.defaultTaxRates.sgst',
+                      Number(event.target.value)
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -106,7 +118,12 @@ export default function InvoiceSettingForm({ currentTenant }) {
                   name="config.invoice.defaultTaxRates.igst"
                   label="Default IGST (%)"
                   type="number"
-                  onChange={(event) => methods.setValue('config.invoice.defaultTaxRates.igst', Number(event.target.value))}
+                  onChange={(event) =>
+                    methods.setValue(
+                      'config.invoice.defaultTaxRates.igst',
+                      Number(event.target.value)
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={12}>

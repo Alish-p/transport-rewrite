@@ -57,18 +57,14 @@ export default function DriverCard({ driver, sx }) {
       <Stack spacing={2}>
         {/* Category Badge */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Iconify
-            icon="solar:steering-wheel-bold"
-            width={18}
-            sx={{ color: 'primary.main' }}
-          />
+          <Iconify icon="solar:steering-wheel-bold" width={18} sx={{ color: 'primary.main' }} />
           <Typography
             variant="caption"
             sx={{
               color: 'text.secondary',
               fontWeight: 600,
               textTransform: 'uppercase',
-              letterSpacing: 0.5
+              letterSpacing: 0.5,
             }}
           >
             Driver Information
@@ -84,7 +80,7 @@ export default function DriverCard({ driver, sx }) {
               bgcolor: 'primary.main',
               fontSize: '1.25rem',
               fontWeight: 600,
-              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.24)}`
+              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.24)}`,
             }}
           >
             {initials}
@@ -97,7 +93,7 @@ export default function DriverCard({ driver, sx }) {
               sx={{
                 fontWeight: 600,
                 mb: 0.5,
-                fontSize: '1.125rem'
+                fontSize: '1.125rem',
               }}
             >
               {driverName || 'Unknown Driver'}
@@ -105,16 +101,8 @@ export default function DriverCard({ driver, sx }) {
 
             {hasPhone ? (
               <Stack direction="row" alignItems="center" spacing={0.5}>
-                <Iconify
-                  icon="solar:phone-bold"
-                  width={16}
-                  sx={{ color: 'text.secondary' }}
-                />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ fontWeight: 500 }}
-                >
+                <Iconify icon="solar:phone-bold" width={16} sx={{ color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                   {driverCellNo}
                 </Typography>
               </Stack>
@@ -139,8 +127,8 @@ export default function DriverCard({ driver, sx }) {
                   color: 'text.secondary',
                   '&:hover': {
                     color: 'primary.main',
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08)
-                  }
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                  },
                 }}
               >
                 <Iconify icon="solar:arrow-right-linear" width={20} />
@@ -151,11 +139,7 @@ export default function DriverCard({ driver, sx }) {
 
         {/* Action Buttons */}
         {hasPhone && (
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}
-          >
+          <Stack direction="row" spacing={1} sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}>
             <Tooltip title="Call driver" arrow>
               <Box sx={{ flex: 1 }}>
                 <IconButton
@@ -172,9 +156,9 @@ export default function DriverCard({ driver, sx }) {
                       borderColor: 'primary.main',
                       bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
                       '& .MuiSvgIcon-root': {
-                        color: 'primary.main'
-                      }
-                    }
+                        color: 'primary.main',
+                      },
+                    },
                   }}
                 >
                   <Stack direction="row" alignItems="center" spacing={1}>
@@ -208,12 +192,12 @@ export default function DriverCard({ driver, sx }) {
                       borderColor: 'success.main',
                       bgcolor: (theme) => alpha(theme.palette.success.main, 0.08),
                       '& .MuiSvgIcon-root': {
-                        color: 'success.main'
-                      }
+                        color: 'success.main',
+                      },
                     },
                     '&.Mui-disabled': {
-                      opacity: 0.5
-                    }
+                      opacity: 0.5,
+                    },
                   }}
                 >
                   <Stack direction="row" alignItems="center" spacing={1}>

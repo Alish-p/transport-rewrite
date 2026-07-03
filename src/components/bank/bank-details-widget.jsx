@@ -2,7 +2,17 @@ import axios from 'axios';
 import { useFormContext } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 
-import { Box, Stack, Button, Dialog, Typography, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Button,
+  Dialog,
+  Typography,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
 
 import { Field } from 'src/components/hook-form';
 
@@ -72,9 +82,7 @@ export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open,
         setError(ifscField, {
           type: 'manual',
           message:
-            err?.response?.status === 404
-              ? 'Invalid IFSC code'
-              : 'Network error, please try again',
+            err?.response?.status === 404 ? 'Invalid IFSC code' : 'Network error, please try again',
         });
         // eslint-disable-next-line no-console
         console.error('IFSC lookup failed:', err);
@@ -84,7 +92,6 @@ export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open,
 
   const Content = (
     <Stack spacing={2} sx={{ pt: variant === 'dialog' ? 1 : 0 }}>
-
       {/* IFSC input with auto-lookup */}
       {ifscField && (
         <Field.Text
@@ -103,7 +110,9 @@ export function BankDetailsWidget({ title, fieldNames, variant = 'inline', open,
         gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }}
         sx={{ mt: 1 }}
       >
-        {accNoField && <Field.Text name={accNoField} label="Account No" placeholder="Enter account number" />}
+        {accNoField && (
+          <Field.Text name={accNoField} label="Account No" placeholder="Enter account number" />
+        )}
         {nameField && <Field.Text name={nameField} label="Bank Name" />}
         {branchField && <Field.Text name={branchField} label="Branch" />}
         {placeField && <Field.Text name={placeField} label="Place" />}

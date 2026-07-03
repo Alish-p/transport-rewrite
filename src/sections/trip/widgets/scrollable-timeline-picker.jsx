@@ -151,11 +151,10 @@ export function ScrollableTimelinePicker({
   const granularity = 'minute';
 
   // Compute ticks and mapping
-  const ticks = useMemo(() => getTicksForGranularity(startDate, endDate, granularity), [
-    startDate,
-    endDate,
-    granularity,
-  ]);
+  const ticks = useMemo(
+    () => getTicksForGranularity(startDate, endDate, granularity),
+    [startDate, endDate, granularity]
+  );
 
   const totalDuration = endDate.getTime() - startDate.getTime();
 
@@ -250,12 +249,15 @@ export function ScrollableTimelinePicker({
   }, [isPlaying]);
 
   // Clean up animations and timeouts on component unmount
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       cancelAnimationFrame(rafRef.current);
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
-    }, []);
+    },
+    []
+  );
 
   // Center mark date mapping
   const getCenterDateAtScroll = useCallback(
@@ -372,7 +374,16 @@ export function ScrollableTimelinePicker({
 
       ctx.restore();
     });
-  }, [ticksWithColors, granularity, isDark, theme, snapshots, startDate, totalDuration, pixelsPerMs]);
+  }, [
+    ticksWithColors,
+    granularity,
+    isDark,
+    theme,
+    snapshots,
+    startDate,
+    totalDuration,
+    pixelsPerMs,
+  ]);
 
   // Update center date and notify parent
   const updateCenterSelection = useCallback(
@@ -488,20 +499,30 @@ export function ScrollableTimelinePicker({
     updateCenterSelection(scrollXRef.current);
 
     rafRef.current = requestAnimationFrame(inertiaLoop);
-  }, [drawCanvas, updateCenterSelection, snapToNearest, animateToScrollX, totalDuration, pixelsPerMs]);
+  }, [
+    drawCanvas,
+    updateCenterSelection,
+    snapToNearest,
+    animateToScrollX,
+    totalDuration,
+    pixelsPerMs,
+  ]);
 
   // Pointer Interaction
-  const onPointerDown = useCallback((e) => {
-    if (isPlaying) {
-      onPlayToggle(); // Pause playback on manual drag
-    }
-    cancelAnimationFrame(rafRef.current);
-    isDraggingRef.current = true;
-    isUserInteractingRef.current = true;
-    lastXRef.current = e.clientX;
-    velRef.current = 0;
-    trackRef.current.setPointerCapture(e.pointerId);
-  }, [isPlaying, onPlayToggle]);
+  const onPointerDown = useCallback(
+    (e) => {
+      if (isPlaying) {
+        onPlayToggle(); // Pause playback on manual drag
+      }
+      cancelAnimationFrame(rafRef.current);
+      isDraggingRef.current = true;
+      isUserInteractingRef.current = true;
+      lastXRef.current = e.clientX;
+      velRef.current = 0;
+      trackRef.current.setPointerCapture(e.pointerId);
+    },
+    [isPlaying, onPlayToggle]
+  );
 
   const onPointerMove = useCallback(
     (e) => {
@@ -552,7 +573,16 @@ export function ScrollableTimelinePicker({
         animateToScrollX(snap);
       }, 150);
     },
-    [isPlaying, onPlayToggle, drawCanvas, updateCenterSelection, snapToNearest, animateToScrollX, totalDuration, pixelsPerMs]
+    [
+      isPlaying,
+      onPlayToggle,
+      drawCanvas,
+      updateCenterSelection,
+      snapToNearest,
+      animateToScrollX,
+      totalDuration,
+      pixelsPerMs,
+    ]
   );
 
   // Setup Wheel Event Listener

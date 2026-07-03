@@ -12,7 +12,11 @@ export const safeStr = (val) => {
     // Mongoose-style populated doc or any object with _id
     if (val._id) return String(val._id);
     // Best-effort JSON for other objects
-    try { return JSON.stringify(val); } catch { return String(val); }
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return String(val);
+    }
   }
   return String(val);
 };

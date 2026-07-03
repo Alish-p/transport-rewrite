@@ -167,18 +167,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
   // For market vehicles, use advances; for own vehicles, use expenses
   const isMarketVehicle = subtrip?.vehicleId?.isOwn === false;
-  const deductionItems = isMarketVehicle
-    ? (subtrip?.advances || [])
-    : (subtrip?.expenses || []);
+  const deductionItems = isMarketVehicle ? subtrip?.advances || [] : subtrip?.expenses || [];
 
   const totalExpenses = deductionItems.reduce((sum, item) => sum + (item.amount || 0), 0);
-  const totalDieselLtr = deductionItems.reduce(
-    (sum, item) => {
-      const itemType = item.advanceType || item.expenseType;
-      return sum + (itemType === SUBTRIP_EXPENSE_TYPES.DIESEL ? (item.dieselLtr || 0) : 0);
-    },
-    0
-  );
+  const totalDieselLtr = deductionItems.reduce((sum, item) => {
+    const itemType = item.advanceType || item.expenseType;
+    return sum + (itemType === SUBTRIP_EXPENSE_TYPES.DIESEL ? item.dieselLtr || 0 : 0);
+  }, 0);
 
   const freightDisplay = getFreightDisplay(subtrip);
   const commissionDisplay = isMarketVehicle ? getCommissionDisplay(subtrip) : null;
@@ -270,7 +265,9 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
           meta={[
             {
               icon: 'mdi:truck-outline',
-              label: isMarketVehicle ? `${vehicleId?.vehicleNo} ( Market )` : `${vehicleId?.vehicleNo} ( Own )`,
+              label: isMarketVehicle
+                ? `${vehicleId?.vehicleNo} ( Market )`
+                : `${vehicleId?.vehicleNo} ( Own )`,
               href: vehicleId?._id ? paths.dashboard.vehicle.details(vehicleId._id) : undefined,
             },
             {
@@ -281,12 +278,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                {
-                  icon: 'mdi:routes',
-                  label: `Trip #${subtrip.tripId.tripNo}`,
-                  href: paths.dashboard.trip.details(subtrip.tripId._id),
-                },
-              ]
+                  {
+                    icon: 'mdi:routes',
+                    label: `Trip #${subtrip.tripId.tripNo}`,
+                    href: paths.dashboard.trip.details(subtrip.tripId._id),
+                  },
+                ]
               : []),
           ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
@@ -491,7 +488,9 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   label: 'E-Signed LR (EPOD)',
                   render: ({ close }) => (
                     <PDFDownloadLink
-                      document={<ESignedLRPDF subtrip={subtrip} tenant={tenant} mapImageUrl={mapImageUrl} />}
+                      document={
+                        <ESignedLRPDF subtrip={subtrip} tenant={tenant} mapImageUrl={mapImageUrl} />
+                      }
                       fileName={`${subtrip.subtripNo}_esigned_lr.pdf`}
                       style={{
                         textDecoration: 'none',
@@ -520,13 +519,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
           actions={
             !publicMode
               ? [
-                {
-                  label: 'Edit',
-                  icon: 'solar:pen-bold',
-                  onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-                  disabled: !isEditingAllowed(),
-                },
-              ]
+                  {
+                    label: 'Edit',
+                    icon: 'solar:pen-bold',
+                    onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+                    disabled: !isEditingAllowed(),
+                  },
+                ]
               : undefined
           }
         />
@@ -709,9 +708,10 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                     series: expenseChartData || [],
                   }}
                   sx={{ flexGrow: { xs: 0, sm: 1 }, flexBasis: { xs: 'auto', sm: 0 } }}
-                  noDataMessage={isMarketVehicle ? 'No advances recorded yet' : 'No expenses recorded yet'}
+                  noDataMessage={
+                    isMarketVehicle ? 'No advances recorded yet' : 'No expenses recorded yet'
+                  }
                 />
-
               </Stack>
               <Stack>
                 <SubtripRouteMapWidget payload={ewaybillData} />

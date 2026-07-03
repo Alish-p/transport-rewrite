@@ -2,7 +2,15 @@ import 'leaflet/dist/leaflet.css';
 
 import L from 'leaflet';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
-import { Popup, useMap, Marker, Polyline, TileLayer, MapContainer, CircleMarker } from 'react-leaflet';
+import {
+  Popup,
+  useMap,
+  Marker,
+  Polyline,
+  TileLayer,
+  MapContainer,
+  CircleMarker,
+} from 'react-leaflet';
 
 import {
   Box,
@@ -231,11 +239,14 @@ function computeStats(snapshots) {
 
   // Distance from odometer
   const totalDistance =
-    first.odometer != null && last.odometer != null ? Math.max(0, last.odometer - first.odometer) : 0;
+    first.odometer != null && last.odometer != null
+      ? Math.max(0, last.odometer - first.odometer)
+      : 0;
 
   // Speed stats (non-zero readings)
   const movingSpeeds = snapshots.map((s) => s.speed || 0).filter((s) => s > 0);
-  const avgSpeed = movingSpeeds.length > 0 ? movingSpeeds.reduce((a, b) => a + b, 0) / movingSpeeds.length : 0;
+  const avgSpeed =
+    movingSpeeds.length > 0 ? movingSpeeds.reduce((a, b) => a + b, 0) / movingSpeeds.length : 0;
   const maxSpeed = movingSpeeds.length > 0 ? Math.max(...movingSpeeds) : 0;
 
   // Duration
@@ -245,7 +256,13 @@ function computeStats(snapshots) {
   const fuelConsumed =
     first.fuel != null && last.fuel != null ? Math.max(0, first.fuel - last.fuel) : null;
 
-  return { totalDistance, avgSpeed: Math.round(avgSpeed), maxSpeed: Math.round(maxSpeed), duration, fuelConsumed };
+  return {
+    totalDistance,
+    avgSpeed: Math.round(avgSpeed),
+    maxSpeed: Math.round(maxSpeed),
+    duration,
+    fuelConsumed,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -351,16 +368,51 @@ function StatsBar({ stats, haltCount, refuels = [] }) {
   const totalRefueled = refuels.reduce((acc, r) => acc + r.volumeAdded, 0);
 
   const items = [
-    { icon: 'mdi:map-marker-distance', label: 'Distance', value: `${stats.totalDistance} km`, color: '#3b82f6' },
-    { icon: 'mdi:speedometer', label: 'Avg Speed', value: `${stats.avgSpeed} km/h`, color: '#22c55e' },
-    { icon: 'mdi:speedometer-medium', label: 'Max Speed', value: `${stats.maxSpeed} km/h`, color: '#f97316' },
-    { icon: 'mdi:timer-outline', label: 'Duration', value: formatDuration(stats.duration), color: '#8b5cf6' },
-    { icon: 'mdi:pause-circle-outline', label: 'Stops', value: String(haltCount), color: '#ef4444' },
-    { icon: 'mdi:gas-station', label: 'Refuels', value: `${refuelsCount} (${totalRefueled} L)`, color: '#0284c7' },
+    {
+      icon: 'mdi:map-marker-distance',
+      label: 'Distance',
+      value: `${stats.totalDistance} km`,
+      color: '#3b82f6',
+    },
+    {
+      icon: 'mdi:speedometer',
+      label: 'Avg Speed',
+      value: `${stats.avgSpeed} km/h`,
+      color: '#22c55e',
+    },
+    {
+      icon: 'mdi:speedometer-medium',
+      label: 'Max Speed',
+      value: `${stats.maxSpeed} km/h`,
+      color: '#f97316',
+    },
+    {
+      icon: 'mdi:timer-outline',
+      label: 'Duration',
+      value: formatDuration(stats.duration),
+      color: '#8b5cf6',
+    },
+    {
+      icon: 'mdi:pause-circle-outline',
+      label: 'Stops',
+      value: String(haltCount),
+      color: '#ef4444',
+    },
+    {
+      icon: 'mdi:gas-station',
+      label: 'Refuels',
+      value: `${refuelsCount} (${totalRefueled} L)`,
+      color: '#0284c7',
+    },
   ];
 
   if (stats.fuelConsumed != null) {
-    items.push({ icon: 'mdi:fuel', label: 'Fuel Used', value: `${stats.fuelConsumed} L`, color: '#eab308' });
+    items.push({
+      icon: 'mdi:fuel',
+      label: 'Fuel Used',
+      value: `${stats.fuelConsumed} L`,
+      color: '#eab308',
+    });
   }
 
   return (
@@ -442,10 +494,7 @@ function GpsTrailMap({ snapshots, halts, refuels = [], currentIndex }) {
   const vehiclePosition = currentSnap ? [currentSnap.latitude, currentSnap.longitude] : null;
 
   // All points for bounds fitting
-  const allPoints = useMemo(
-    () => snapshots.map((s) => [s.latitude, s.longitude]),
-    [snapshots]
-  );
+  const allPoints = useMemo(() => snapshots.map((s) => [s.latitude, s.longitude]), [snapshots]);
 
   // Trail up to current index (for animation effect)
   const trailUpToCurrent = useMemo(
@@ -518,7 +567,10 @@ function GpsTrailMap({ snapshots, halts, refuels = [], currentIndex }) {
       {/* End marker (only if not at start) */}
       {snapshots.length > 1 && (
         <CircleMarker
-          center={[snapshots[snapshots.length - 1].latitude, snapshots[snapshots.length - 1].longitude]}
+          center={[
+            snapshots[snapshots.length - 1].latitude,
+            snapshots[snapshots.length - 1].longitude,
+          ]}
           radius={8}
           pathOptions={{ fillColor: '#ef4444', fillOpacity: 1, color: '#fff', weight: 2 }}
         >
@@ -542,14 +594,13 @@ function GpsTrailMap({ snapshots, halts, refuels = [], currentIndex }) {
           icon={haltIcon}
         >
           <Popup>
-            <strong>
-              Stop ({formatDuration(halt.duration)})
-            </strong>
+            <strong>Stop ({formatDuration(halt.duration)})</strong>
             <br />
             {halt.address}
             <br />
             {formatDate(halt.startTime)} {formatTime(halt.startTime)} –{' '}
-            {formatDate(halt.startTime) !== formatDate(halt.endTime) && `${formatDate(halt.endTime)} `}
+            {formatDate(halt.startTime) !== formatDate(halt.endTime) &&
+              `${formatDate(halt.endTime)} `}
             {formatTime(halt.endTime)}
           </Popup>
         </Marker>
@@ -577,7 +628,8 @@ function GpsTrailMap({ snapshots, halts, refuels = [], currentIndex }) {
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {formatDate(refuel.startTime)} {formatTime(refuel.startTime)} –{' '}
-                {formatDate(refuel.startTime) !== formatDate(refuel.endTime) && `${formatDate(refuel.endTime)} `}
+                {formatDate(refuel.startTime) !== formatDate(refuel.endTime) &&
+                  `${formatDate(refuel.endTime)} `}
                 {formatTime(refuel.endTime)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -598,7 +650,11 @@ function GpsTrailMap({ snapshots, halts, refuels = [], currentIndex }) {
 export function TripGpsTimelineWidget({ vehicleNo, fromDate, toDate, tripStatus }) {
   const isActive = tripStatus === 'open';
 
-  const { data: snapshots = [], isLoading, isError } = useGpsSnapshots(vehicleNo, {
+  const {
+    data: snapshots = [],
+    isLoading,
+    isError,
+  } = useGpsSnapshots(vehicleNo, {
     fromDate,
     toDate: isActive ? undefined : toDate,
     isActive,
@@ -628,7 +684,7 @@ export function TripGpsTimelineWidget({ vehicleNo, fromDate, toDate, tripStatus 
       return new Date(toDate);
     }
     if (snapshots.length === 0) return new Date();
-    
+
     let baseEnd;
     if (snapshots.length === 1) {
       baseEnd = new Date(new Date(snapshots[0].timestamp).getTime() + 60 * 60 * 1000);
@@ -738,8 +794,8 @@ export function TripGpsTimelineWidget({ vehicleNo, fromDate, toDate, tripStatus 
               GPS journey data is not available for this trip
             </Typography>
             <Typography variant="body2" color="text.disabled" textAlign="center" maxWidth={400}>
-              GPS tracking data will appear here automatically for trips with GPS enabled.
-              Data is recorded every 10 minutes.
+              GPS tracking data will appear here automatically for trips with GPS enabled. Data is
+              recorded every 10 minutes.
             </Typography>
           </Stack>
         </CardContent>
@@ -750,7 +806,8 @@ export function TripGpsTimelineWidget({ vehicleNo, fromDate, toDate, tripStatus 
   // Main view with data
   return (
     <Card variant="outlined">
-      <CardHeader sx={{ mb: 2 }}
+      <CardHeader
+        sx={{ mb: 2 }}
         title={
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:map-marker-path" width={22} sx={{ color: 'primary.main' }} />
@@ -786,7 +843,12 @@ export function TripGpsTimelineWidget({ vehicleNo, fromDate, toDate, tripStatus 
             borderColor: 'divider',
           }}
         >
-          <GpsTrailMap snapshots={snapshots} halts={halts} refuels={refuels} currentIndex={currentIndex} />
+          <GpsTrailMap
+            snapshots={snapshots}
+            halts={halts}
+            refuels={refuels}
+            currentIndex={currentIndex}
+          />
         </Box>
       </Box>
 

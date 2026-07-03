@@ -64,12 +64,7 @@ export function PartInventoryActivityTab({ partId }) {
     defaultRowsPerPage: 10,
   });
 
-  const {
-    filters,
-    handleFilters,
-    handleResetFilters,
-    canReset,
-  } = useFilters(defaultFilters, {
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -139,15 +134,12 @@ export function PartInventoryActivityTab({ partId }) {
       ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
       : 'Date range';
 
-  const selectedLocation =
-    locations.find((loc) => loc._id === filters.inventoryLocation) || null;
+  const selectedLocation = locations.find((loc) => loc._id === filters.inventoryLocation) || null;
 
   const selectedLocationName = selectedLocation?.name || '';
 
   const selectedPerformedByLabel =
-    filters.performedBy && performedByAssignees[0]
-      ? performedByLabel
-      : '';
+    filters.performedBy && performedByAssignees[0] ? performedByLabel : '';
 
   const getVisibleColumnsForExport = () => {
     const orderedIds = (
@@ -210,9 +202,7 @@ export function PartInventoryActivityTab({ partId }) {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const visibleCols = getVisibleColumnsForExport();
 
                       exportToExcel(
@@ -233,9 +223,7 @@ export function PartInventoryActivityTab({ partId }) {
                 <Tooltip title="Download PDF">
                   <PDFDownloadLink
                     document={(() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const visibleCols = getVisibleColumnsForExport();
                       return (
                         <PartInventoryActivityListPdf
@@ -250,11 +238,7 @@ export function PartInventoryActivityTab({ partId }) {
                   >
                     {({ loading }) => (
                       <IconButton color="primary">
-                        <Iconify
-                          icon={
-                            loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'
-                          }
-                        />
+                        <Iconify icon={loading ? 'line-md:loading-loop' : 'fa:file-pdf-o'} />
                       </IconButton>
                     )}
                   </PDFDownloadLink>

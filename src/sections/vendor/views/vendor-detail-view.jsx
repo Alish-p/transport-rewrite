@@ -74,16 +74,8 @@ export function VendorDetailView({ vendor }) {
         ]}
       />
 
-      <Tabs
-        value={currentTab}
-        onChange={handleChangeTab}
-        sx={{ my: { xs: 3, md: 2 } }}
-      >
-        <Tab
-          value="overview"
-          label="Overview"
-          icon={<Iconify icon="mdi:eye" width={20} />}
-        />
+      <Tabs value={currentTab} onChange={handleChangeTab} sx={{ my: { xs: 3, md: 2 } }}>
+        <Tab value="overview" label="Overview" icon={<Iconify icon="mdi:eye" width={20} />} />
         <Tab
           value="purchaseOrders"
           label="Purchase Orders"
@@ -128,18 +120,13 @@ export function VendorDetailView({ vendor }) {
 
             {/* Recent Purchase Orders */}
             <Grid xs={12}>
-              <VendorRecentOrdersWidget
-                vendorId={vendor._id}
-                onViewMore={handleViewMoreOrders}
-              />
+              <VendorRecentOrdersWidget vendorId={vendor._id} onViewMore={handleViewMoreOrders} />
             </Grid>
           </Grid>
         </>
       )}
 
-      {currentTab === 'purchaseOrders' && (
-        <VendorPurchaseOrdersWidget vendorId={vendor._id} />
-      )}
+      {currentTab === 'purchaseOrders' && <VendorPurchaseOrdersWidget vendorId={vendor._id} />}
     </DashboardContent>
   );
 }

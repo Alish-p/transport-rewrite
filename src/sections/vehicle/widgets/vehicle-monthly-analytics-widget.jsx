@@ -44,7 +44,9 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
   const currentYear = dayjs().year();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1].map((y) => String(y));
+  const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1].map((y) =>
+    String(y)
+  );
 
   const { data: analyticsData, isLoading } = useVehicleAnalytics(vehicleId, selectedYear);
 
@@ -121,7 +123,13 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
   const summaryItems = [
     { label: 'Jobs', value: totals.jobs, color: 'primary.main', isCurrency: false, link: jobsLink },
     { label: 'Income', value: totals.income, color: 'primary.main', isCurrency: true, link: null },
-    { label: 'Expense', value: totals.expense, color: 'error.main', isCurrency: true, link: expenseLink },
+    {
+      label: 'Expense',
+      value: totals.expense,
+      color: 'error.main',
+      isCurrency: true,
+      link: expenseLink,
+    },
     {
       label: 'Profit',
       value: totals.profit,

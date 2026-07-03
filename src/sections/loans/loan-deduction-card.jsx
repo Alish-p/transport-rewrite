@@ -50,7 +50,13 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
       const copy = [...prev];
       copy[index] = { ...copy[index], checked: !copy[index].checked };
       onChange?.(
-        copy.filter((s) => s.checked && Number(s.amount) > 0).map(({ loanId, amount, loan }) => ({ loanId, amount: Number(amount), loanNo: loan?.loanNo }))
+        copy
+          .filter((s) => s.checked && Number(s.amount) > 0)
+          .map(({ loanId, amount, loan }) => ({
+            loanId,
+            amount: Number(amount),
+            loanNo: loan?.loanNo,
+          }))
       );
       return copy;
     });
@@ -61,7 +67,13 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
       const copy = [...prev];
       copy[index] = { ...copy[index], amount: value === '' ? '' : Number(value) };
       onChange?.(
-        copy.filter((s) => s.checked && Number(s.amount) > 0).map(({ loanId, amount, loan }) => ({ loanId, amount: Number(amount), loanNo: loan?.loanNo }))
+        copy
+          .filter((s) => s.checked && Number(s.amount) > 0)
+          .map(({ loanId, amount, loan }) => ({
+            loanId,
+            amount: Number(amount),
+            loanNo: loan?.loanNo,
+          }))
       );
       return copy;
     });
@@ -76,9 +88,11 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
     .reduce((sum, s) => sum + Number(s.amount), 0);
 
   return (
-    <Card sx={{ p: 3, my: 3, border: (theme) => `dashed 1px ${theme.palette.warning.main}`, }}>
+    <Card sx={{ p: 3, my: 3, border: (theme) => `dashed 1px ${theme.palette.warning.main}` }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <Typography variant="h6" color="warning.dark">Active Loans Detected</Typography>
+        <Typography variant="h6" color="warning.dark">
+          Active Loans Detected
+        </Typography>
         <Chip label={`${loans.length} active`} color="warning" size="small" />
       </Stack>
 
@@ -98,7 +112,9 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
                 <TableCell>Principal</TableCell>
                 <TableCell>Issued On</TableCell>
                 <TableCell align="right">Outstanding</TableCell>
-                <TableCell align="right" sx={{ width: 220 }}>Deduction Amount</TableCell>
+                <TableCell align="right" sx={{ width: 220 }}>
+                  Deduction Amount
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -107,8 +123,7 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
                 const isError = Number(sel.amount) > loan.outstandingBalance;
 
                 return (
-                  <TableRow
-                    key={sel.loanId}>
+                  <TableRow key={sel.loanId}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={sel.checked}
@@ -152,7 +167,8 @@ export default function LoanDeductionCard({ loans = [], isLoading, onChange }) {
 
       {!isLoading && totalDeduction > 0 && (
         <Alert severity="warning" sx={{ mt: 2 }}>
-          Total loan deduction: <strong>{fCurrency(totalDeduction)}</strong> will be subtracted from the payment.
+          Total loan deduction: <strong>{fCurrency(totalDeduction)}</strong> will be subtracted from
+          the payment.
         </Alert>
       )}
     </Card>

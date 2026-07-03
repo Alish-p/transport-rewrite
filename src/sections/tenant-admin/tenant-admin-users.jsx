@@ -71,7 +71,9 @@ export function TenantUserFormDialog({ open, onClose, onSubmit }) {
             <Field.Text
               name="mobile"
               label="Mobile number"
-              InputProps={{ startAdornment: <InputAdornment position="start">+91 - </InputAdornment> }}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">+91 - </InputAdornment>,
+              }}
             />
             <Field.Text name="address" label="Address" />
             <Field.Text name="designation" label="Designation" />
@@ -94,4 +96,3 @@ export function TenantUserFormDialog({ open, onClose, onSubmit }) {
 }
 
 export default TenantUserFormDialog;
-

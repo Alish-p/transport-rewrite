@@ -27,7 +27,7 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }) {
 
   const isOverContainer = over
     ? (column.id === over.id && active?.data.current?.type !== 'container') ||
-    tasksIds.includes(over.id)
+      tasksIds.includes(over.id)
     : false;
 
   const handleAddTask = useCallback(

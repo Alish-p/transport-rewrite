@@ -47,7 +47,7 @@ export const vehicleTypeIcon = {
   bulker: 'mdi:truck-cargo-container',
   localBulker: 'mdi:truck-fast',
   tanker: 'mdi:tanker-truck',
-  canter: 'streamline-cyber:delivery-truck-5'
+  canter: 'streamline-cyber:delivery-truck-5',
 };
 
 // ----------------------------------------------------------------------
@@ -93,4 +93,3 @@ export function useEngineTypes() {
   }
   return engineType;
 }
-

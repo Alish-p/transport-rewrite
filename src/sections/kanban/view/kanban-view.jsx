@@ -85,7 +85,7 @@ export function KanbanView({ tasks }) {
       const intersections =
         pointerIntersections.length > 0
           ? // If there are droppables intersecting with the pointer, return those
-          pointerIntersections
+            pointerIntersections
           : rectIntersection(args);
       let overId = getFirstCollision(intersections, 'id');
 
@@ -264,7 +264,8 @@ export function KanbanView({ tasks }) {
       // Or just the one column if same.
       // Easiest is to recalculate order for all tasks in the affected column(s)
       const updates = [];
-      const columnsToUpdate = activeColumn === overColumn ? [activeColumn] : [activeColumn, overColumn];
+      const columnsToUpdate =
+        activeColumn === overColumn ? [activeColumn] : [activeColumn, overColumn];
 
       columnsToUpdate.forEach((colId) => {
         newLocalTasks[colId].forEach((task, index) => {
@@ -345,11 +346,7 @@ export function KanbanView({ tasks }) {
           >
             <Stack direction="row" sx={{ gap: 'var(--column-gap)' }}>
               {COLUMNS.map((column) => (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  tasks={filteredColumns[column.id]}
-                >
+                <KanbanColumn key={column.id} column={column} tasks={filteredColumns[column.id]}>
                   <SortableContext
                     items={filteredColumns[column.id].map((t) => t._id)}
                     strategy={verticalListSortingStrategy}

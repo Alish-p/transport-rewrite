@@ -8,7 +8,7 @@ import LoansToolbar from '../loans-toolbar';
 import LoansPreview from '../loans-preview';
 
 export function LoanDetailView({ loan }) {
-  const { loanNo, } = loan || {};
+  const { loanNo } = loan || {};
 
   return (
     <DashboardContent>

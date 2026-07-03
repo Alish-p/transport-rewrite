@@ -87,10 +87,14 @@ export default function DriverTableToolbar({
             onChange={handleFilterDriverType}
           >
             <MenuItem value="Own">
-              <Label variant="soft" color="primary">Own</Label>
+              <Label variant="soft" color="primary">
+                Own
+              </Label>
             </MenuItem>
             <MenuItem value="Market">
-              <Label variant="soft" color="secondary">Market</Label>
+              <Label variant="soft" color="secondary">
+                Market
+              </Label>
             </MenuItem>
           </TextField>
 
@@ -102,10 +106,14 @@ export default function DriverTableToolbar({
             onChange={handleFilterIsActive}
           >
             <MenuItem value="true">
-              <Label variant="soft" color="success">Active</Label>
+              <Label variant="soft" color="success">
+                Active
+              </Label>
             </MenuItem>
             <MenuItem value="false">
-              <Label variant="soft" color="error">In Active</Label>
+              <Label variant="soft" color="error">
+                In Active
+              </Label>
             </MenuItem>
           </TextField>
         </Box>

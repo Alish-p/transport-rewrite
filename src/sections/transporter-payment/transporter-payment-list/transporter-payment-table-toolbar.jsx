@@ -108,7 +108,6 @@ export default function TransporterPaymentTableToolbar({
         direction={{ xs: 'column', md: 'row' }}
         sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
       >
-
         <TextField
           fullWidth
           value={filters.paymentId}

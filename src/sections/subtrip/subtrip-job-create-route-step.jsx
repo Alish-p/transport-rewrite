@@ -33,22 +33,19 @@ export function SubtripJobCreateRouteStep({
           </Field.Configurable>
         )}
         <Field.Configurable entity="subtrip" name="loadingPoint" customerId={selectedCustomer?._id}>
-          <Field.Text
-            name="loadingPoint"
-            label={getLabel('loadingPoint', 'Loading Point')}
-          />
+          <Field.Text name="loadingPoint" label={getLabel('loadingPoint', 'Loading Point')} />
         </Field.Configurable>
-        <Field.Configurable entity="subtrip" name="unloadingPoint" customerId={selectedCustomer?._id}>
+        <Field.Configurable
+          entity="subtrip"
+          name="unloadingPoint"
+          customerId={selectedCustomer?._id}
+        >
           <Field.MultiAutocompleteFreeSolo
             name="unloadingPoint"
             label={getLabel('unloadingPoint', 'Unloading Point')}
             placeholder="Add unloading points..."
             options={Array.from(
-              new Set(
-                (consignees || [])
-                  .map(({ address }) => address)
-                  .filter(Boolean)
-              )
+              new Set((consignees || []).map(({ address }) => address).filter(Boolean))
             ).map((addr) => ({ label: addr, value: addr }))}
             helperText={isLoadedJob ? "Consignee's Address" : undefined}
           />
@@ -58,11 +55,7 @@ export function SubtripJobCreateRouteStep({
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button onClick={onPrevStep}>Back</Button>
         {isLoadedJob ? (
-          <Button
-            variant="contained"
-            onClick={onNextStep}
-            disabled={!canGoNextStep}
-          >
+          <Button variant="contained" onClick={onNextStep} disabled={!canGoNextStep}>
             Continue
           </Button>
         ) : (
@@ -80,8 +73,17 @@ export function SubtripJobCreateRouteStep({
   );
 }
 
-export function getRouteStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
-  const jobStageError = getJobStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer });
+export function getRouteStepError(
+  form,
+  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
+) {
+  const jobStageError = getJobStepError(form, {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+  });
   if (jobStageError) return jobStageError;
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;

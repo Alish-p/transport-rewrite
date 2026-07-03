@@ -103,9 +103,24 @@ export function HomeTestimonials({ sx, ...other }) {
         {_testimonials.map((item, index) => (
           <Stack key={item.name} component={m.div} variants={varFade().in}>
             <Stack spacing={1} sx={{ typography: 'subtitle2' }}>
-              <Rating size="small" name="read-only" value={item.ratingNumber} precision={0.5} readOnly />
+              <Rating
+                size="small"
+                name="read-only"
+                value={item.ratingNumber}
+                precision={0.5}
+                readOnly
+              />
               {/* Fallback category based on index since _testimonials doesn't have it */}
-              {['Fleet Management', 'Fuel Management', 'Driver Management', 'Customer Support', 'Tyre Management', 'Accounting'][index % 6]}
+              {
+                [
+                  'Fleet Management',
+                  'Fuel Management',
+                  'Driver Management',
+                  'Customer Support',
+                  'Tyre Management',
+                  'Accounting',
+                ][index % 6]
+              }
             </Stack>
 
             <Typography

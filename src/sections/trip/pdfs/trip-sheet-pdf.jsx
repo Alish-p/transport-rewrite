@@ -106,9 +106,7 @@ export default function TripSheetPdf({ trip, tenant }) {
       id: st.subtripNo || '-',
       customer: st.customerId?.customerName || '-',
       route:
-        st.loadingPoint && st.unloadingPoint
-          ? `${st.loadingPoint} → ${st.unloadingPoint}`
-          : '-',
+        st.loadingPoint && st.unloadingPoint ? `${st.loadingPoint} → ${st.unloadingPoint}` : '-',
       startDate: fDate(st.startDate),
       endDate: fDate(st.endDate),
       timeTaken: fDateTimeDuration(st.startDate, st.endDate) || '-',
@@ -169,9 +167,9 @@ export default function TripSheetPdf({ trip, tenant }) {
       sum +
       (Array.isArray(st.expenses)
         ? st.expenses.reduce(
-          (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
-          0
-        )
+            (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
+            0
+          )
         : 0),
     0
   );
@@ -207,7 +205,10 @@ export default function TripSheetPdf({ trip, tenant }) {
           <View style={[PDFStyles.border, { flex: 1, padding: 8 }]}>
             <Text style={PDFStyles.subtitle1}>Trip Details</Text>
             <Text>Trip ID: {tripNo}</Text>
-            <Text>Durations: {fDateRangeShortLabel(fromDate, toDate)} ({fDateTimeDuration(fromDate, toDate)}) </Text>
+            <Text>
+              Durations: {fDateRangeShortLabel(fromDate, toDate)} (
+              {fDateTimeDuration(fromDate, toDate)}){' '}
+            </Text>
             <Text>Start Km: {tripStartKm !== undefined ? fNumber(tripStartKm) : 'N/A'}</Text>
             <Text>End Km: {tripEndKm !== undefined ? fNumber(tripEndKm) : 'N/A'}</Text>
             <Text>Total Distance: {fNumber(totalKm)} Km</Text>

@@ -114,16 +114,43 @@ export function fCurrencyInWords(inputValue) {
     val = parseFloat(val);
   }
   if (Number.isNaN(val) || val === 0) return 'ZERO RUPEES ONLY';
-  
+
   val = Math.round(val);
-  
+
   const ones = [
-    '', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN',
-    'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'
+    '',
+    'ONE',
+    'TWO',
+    'THREE',
+    'FOUR',
+    'FIVE',
+    'SIX',
+    'SEVEN',
+    'EIGHT',
+    'NINE',
+    'TEN',
+    'ELEVEN',
+    'TWELVE',
+    'THIRTEEN',
+    'FOURTEEN',
+    'FIFTEEN',
+    'SIXTEEN',
+    'SEVENTEEN',
+    'EIGHTEEN',
+    'NINETEEN',
   ];
-  
+
   const tens = [
-    '', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'
+    '',
+    '',
+    'TWENTY',
+    'THIRTY',
+    'FORTY',
+    'FIFTY',
+    'SIXTY',
+    'SEVENTY',
+    'EIGHTY',
+    'NINETY',
   ];
 
   function convertLessThanThousand(n) {
@@ -145,28 +172,28 @@ export function fCurrencyInWords(inputValue) {
   }
 
   let words = '';
-  
+
   const crore = Math.floor(val / 10000000);
   val %= 10000000;
   if (crore > 0) {
     words += `${convertLessThanThousand(crore)} CRORE `;
   }
-  
+
   const lakh = Math.floor(val / 100000);
   val %= 100000;
   if (lakh > 0) {
     words += `${convertLessThanThousand(lakh)} LAKH `;
   }
-  
+
   const thousand = Math.floor(val / 1000);
   val %= 1000;
   if (thousand > 0) {
     words += `${convertLessThanThousand(thousand)} THOUSAND `;
   }
-  
+
   if (val > 0) {
     words += `${convertLessThanThousand(val)}`;
   }
-  
+
   return `${words.trim()} RUPEES ONLY`.replace(/\s+/g, ' ');
 }

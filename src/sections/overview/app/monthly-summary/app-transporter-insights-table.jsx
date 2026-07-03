@@ -32,7 +32,10 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
   const totalLoadingWeight = summary.reduce((acc, row) => acc + (row.totalLoadingWeight || 0), 0);
   const totalCommission = summary.reduce((acc, row) => acc + (row.totalCommission || 0), 0);
   const totalPaymentDone = summary.reduce((acc, row) => acc + (row.paymentDone || 0), 0);
-  const totalPendingForPayment = summary.reduce((acc, row) => acc + (row.pendingForPayment || 0), 0);
+  const totalPendingForPayment = summary.reduce(
+    (acc, row) => acc + (row.pendingForPayment || 0),
+    0
+  );
 
   return (
     <Box {...other}>
@@ -86,7 +89,12 @@ export function TransporterInsightsTable({ month: controlledMonth, ...other }) {
                   </TableRow>
                 ))}
 
-                <TableRow sx={{ '& td': { typography: 'subtitle2', color: 'text.primary' }, bgcolor: 'background.neutral' }}>
+                <TableRow
+                  sx={{
+                    '& td': { typography: 'subtitle2', color: 'text.primary' },
+                    bgcolor: 'background.neutral',
+                  }}
+                >
                   <TableCell colSpan={2}>Total</TableCell>
                   <TableCell>{totalSubtripCount}</TableCell>
                   <TableCell>{fNumber(totalLoadingWeight)}</TableCell>

@@ -129,7 +129,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   }, [payDialog]);
 
   const allFullyReceived =
-    Array.isArray(lines) && lines.every((l) => (l.quantityReceived || 0) >= (l.quantityOrdered || 0));
+    Array.isArray(lines) &&
+    lines.every((l) => (l.quantityReceived || 0) >= (l.quantityOrdered || 0));
 
   const actions = [];
 
@@ -237,9 +238,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
 
   const handleToggleReceiveLine = useCallback((lineId) => {
     setReceiveLines((prev) =>
-      prev.map((line) =>
-        line.lineId === lineId ? { ...line, checked: !line.checked } : line
-      )
+      prev.map((line) => (line.lineId === lineId ? { ...line, checked: !line.checked } : line))
     );
   }, []);
 
@@ -327,9 +326,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
 
   const handleReceiveAll = useCallback(async () => {
     try {
-      const selectedLines = receiveLines.filter(
-        (line) => line.checked && line.receiveQty > 0
-      );
+      const selectedLines = receiveLines.filter((line) => line.checked && line.receiveQty > 0);
       if (!selectedLines.length) {
         receiveDialog.onFalse();
         return;
@@ -459,25 +456,23 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           <Stack
             spacing={{ xs: 3, md: 5 }}
             direction={{ xs: 'column', md: 'row' }}
-            divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />}
+            divider={
+              <Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />
+            }
             sx={{ mt: 4 }}
           >
             <Stack sx={{ width: 1 }}>
               <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
                 Delivery Location
               </Typography>
-              <Typography variant="subtitle2">
-                {displayLocation?.name || '-'}
-              </Typography>
+              <Typography variant="subtitle2">{displayLocation?.name || '-'}</Typography>
             </Stack>
 
             <Stack sx={{ width: 1 }}>
               <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
                 Order Date
               </Typography>
-              <Typography variant="subtitle2">
-                {displayDate ? fDate(displayDate) : '-'}
-              </Typography>
+              <Typography variant="subtitle2">{displayDate ? fDate(displayDate) : '-'}</Typography>
             </Stack>
           </Stack>
           <Box sx={{ mt: 4 }}>
@@ -533,9 +528,15 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   }
 
                   const poCost = line.unitCost || 0;
-                  const hasVariance = avgActualCost !== null && Math.abs(avgActualCost - poCost) > 0.001;
+                  const hasVariance =
+                    avgActualCost !== null && Math.abs(avgActualCost - poCost) > 0.001;
                   const variancePct = hasVariance ? ((avgActualCost - poCost) / poCost) * 100 : 0;
-                  const varianceColor = variancePct > 5 ? 'warning.main' : variancePct > 0 ? 'text.secondary' : 'success.main';
+                  const varianceColor =
+                    variancePct > 5
+                      ? 'warning.main'
+                      : variancePct > 0
+                        ? 'text.secondary'
+                        : 'success.main';
 
                   return (
                     <TableRow key={line._id || idx}>
@@ -574,16 +575,25 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                                 <Typography variant="body2">{fCurrency(avgActualCost)}</Typography>
                                 {hasVariance && (
                                   <Typography variant="caption" sx={{ color: varianceColor }}>
-                                    {variancePct > 0 ? '+' : ''}{variancePct.toFixed(1)}%
+                                    {variancePct > 0 ? '+' : ''}
+                                    {variancePct.toFixed(1)}%
                                   </Typography>
                                 )}
                               </Box>
                             ) : (
-                              <Typography variant="body2" sx={{ color: 'text.disabled' }}>—</Typography>
+                              <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                                —
+                              </Typography>
                             )}
                           </TableCell>
                           <TableCell align="right">
-                            {actualAmount !== null ? fCurrency(actualAmount) : <Typography variant="body2" sx={{ color: 'text.disabled' }}>—</Typography>}
+                            {actualAmount !== null ? (
+                              fCurrency(actualAmount)
+                            ) : (
+                              <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                                —
+                              </Typography>
+                            )}
                           </TableCell>
                         </>
                       )}
@@ -602,10 +612,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               gap: 3,
             }}
           >
-            <Card
-              variant="outlined"
-              sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}
-            >
+            <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
               <Stack spacing={1.5} sx={{ height: 1 }}>
                 <Typography variant="subtitle2" color="green">
                   Order Description
@@ -642,61 +649,67 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                       label={`Discount ${discountType === 'percentage' ? `(${discount}%)` : ''}`}
                       value={`- ${fCurrency(
                         discountAmount ??
-                        (discountType === 'percentage'
-                          ? ((subtotal || 0) * (discount || 0)) / 100
-                          : discount || 0)
+                          (discountType === 'percentage'
+                            ? ((subtotal || 0) * (discount || 0)) / 100
+                            : discount || 0)
                       )}`}
                       color="success.main"
                     />
                   )}
-                  {shipping > 0 && (
-                    <SummaryRow label="Shipping" value={fCurrency(shipping || 0)} />
-                  )}
+                  {shipping > 0 && <SummaryRow label="Shipping" value={fCurrency(shipping || 0)} />}
                   {tax > 0 && (
                     <SummaryRow
                       label={`Tax ${taxType === 'percentage' ? `(${tax}%)` : ''}`}
                       value={fCurrency(
                         taxAmount ??
-                        (() => {
-                          const effectiveDiscount =
-                            discountAmount ??
-                            (discountType === 'percentage'
-                              ? ((subtotal || 0) * (discount || 0)) / 100
-                              : discount || 0);
-                          const taxableBase = Math.max((subtotal || 0) - (effectiveDiscount || 0), 0);
-                          return taxType === 'percentage'
-                            ? (taxableBase * (tax || 0)) / 100
-                            : tax || 0;
-                        })()
+                          (() => {
+                            const effectiveDiscount =
+                              discountAmount ??
+                              (discountType === 'percentage'
+                                ? ((subtotal || 0) * (discount || 0)) / 100
+                                : discount || 0);
+                            const taxableBase = Math.max(
+                              (subtotal || 0) - (effectiveDiscount || 0),
+                              0
+                            );
+                            return taxType === 'percentage'
+                              ? (taxableBase * (tax || 0)) / 100
+                              : tax || 0;
+                          })()
                       )}
                     />
                   )}
                   <Divider sx={{ my: 0.5 }} />
-                  <SummaryRow
-                    label="PO Total"
-                    value={fCurrency(total || 0)}
-                    bold
-                    highlight
-                  />
-                  {receipts.length > 0 && (() => {
-                    const actualReceivedTotal = receipts.reduce((sum, grn) => sum + (grn.totalAmount || 0), 0);
-                    const totalVariance = actualReceivedTotal - (total || 0);
-                    return (
-                      <>
-                        <SummaryRow
-                          label="Actual Received Total"
-                          value={fCurrency(actualReceivedTotal)}
-                          bold
-                          color="info.main"
-                        />
-                        <SummaryRow
-                          label="Variance"
-                          value={`${totalVariance > 0 ? '+' : ''}${fCurrency(totalVariance)}`}
-                          color={totalVariance > 0 ? 'warning.main' : totalVariance < 0 ? 'success.main' : 'text.secondary'}
-                        />
-                      </>
-                    );
-                  })()}
+                  <SummaryRow label="PO Total" value={fCurrency(total || 0)} bold highlight />
+                  {receipts.length > 0 &&
+                    (() => {
+                      const actualReceivedTotal = receipts.reduce(
+                        (sum, grn) => sum + (grn.totalAmount || 0),
+                        0
+                      );
+                      const totalVariance = actualReceivedTotal - (total || 0);
+                      return (
+                        <>
+                          <SummaryRow
+                            label="Actual Received Total"
+                            value={fCurrency(actualReceivedTotal)}
+                            bold
+                            color="info.main"
+                          />
+                          <SummaryRow
+                            label="Variance"
+                            value={`${totalVariance > 0 ? '+' : ''}${fCurrency(totalVariance)}`}
+                            color={
+                              totalVariance > 0
+                                ? 'warning.main'
+                                : totalVariance < 0
+                                  ? 'success.main'
+                                  : 'text.secondary'
+                            }
+                          />
+                        </>
+                      );
+                    })()}
                 </Stack>
               </Stack>
             </Card>
@@ -771,9 +784,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         fullWidth
         content={
           <>
-            <Typography sx={{ mb: 2 }}>
-              Check the box to receive parts into inventory.
-            </Typography>
+            <Typography sx={{ mb: 2 }}>Check the box to receive parts into inventory.</Typography>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -788,10 +799,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               </TableHead>
               <TableBody>
                 {receiveLines.map((line) => {
-                  const remaining = Math.max(
-                    line.totalOrdered - line.totalReceived,
-                    0
-                  );
+                  const remaining = Math.max(line.totalOrdered - line.totalReceived, 0);
                   return (
                     <>
                       <TableRow key={line.lineId}>
@@ -804,7 +812,10 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                         <TableCell>
                           {line.partName}
                           {line.isTyre && (
-                            <Typography variant="caption" sx={{ ml: 1, color: 'info.main', fontWeight: 600 }}>
+                            <Typography
+                              variant="caption"
+                              sx={{ ml: 1, color: 'info.main', fontWeight: 600 }}
+                            >
                               (Tyre)
                             </Typography>
                           )}
@@ -817,9 +828,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                           {line.totalOrdered}
                           {line.unit !== '-' ? ` ${line.unit}` : ''}
                         </TableCell>
-                        <TableCell align="right">
-                          {fCurrency(line.poUnitCost)}
-                        </TableCell>
+                        <TableCell align="right">{fCurrency(line.poUnitCost)}</TableCell>
                         <TableCell align="right">
                           <Stack spacing={0.5} alignItems="flex-end">
                             <TextField
@@ -827,10 +836,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                               size="small"
                               value={line.actualUnitCost}
                               onChange={(event) =>
-                                handleChangeActualCost(
-                                  line.lineId,
-                                  event.target.value
-                                )
+                                handleChangeActualCost(line.lineId, event.target.value)
                               }
                               inputProps={{
                                 min: 0,
@@ -842,12 +848,18 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                               <Label
                                 variant="soft"
                                 color={
-                                  Math.abs(line.actualUnitCost - line.poUnitCost) / line.poUnitCost > 0.05
+                                  Math.abs(line.actualUnitCost - line.poUnitCost) /
+                                    line.poUnitCost >
+                                  0.05
                                     ? 'warning'
                                     : 'default'
                                 }
                               >
-                                {((line.actualUnitCost - line.poUnitCost) / line.poUnitCost * 100).toFixed(1)}%
+                                {(
+                                  ((line.actualUnitCost - line.poUnitCost) / line.poUnitCost) *
+                                  100
+                                ).toFixed(1)}
+                                %
                               </Label>
                             )}
                           </Stack>
@@ -858,18 +870,15 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                             size="small"
                             value={line.receiveQty}
                             onChange={(event) =>
-                              handleChangeReceiveQty(
-                                line.lineId,
-                                event.target.value
-                              )
+                              handleChangeReceiveQty(line.lineId, event.target.value)
                             }
                             inputProps={{
                               min: 0,
                               step: 1,
                             }}
                             sx={{ width: 100 }}
-                            color={line.receiveQty > remaining ? "warning" : "primary"}
-                            helperText={line.receiveQty > remaining ? "Over-receiving" : ""}
+                            color={line.receiveQty > remaining ? 'warning' : 'primary'}
+                            helperText={line.receiveQty > remaining ? 'Over-receiving' : ''}
                             FormHelperTextProps={{ sx: { mx: 0, textAlign: 'right' } }}
                           />
                         </TableCell>
@@ -881,89 +890,119 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                           <TableCell colSpan={7} sx={{ py: 0 }}>
                             <Collapse in timeout="auto" unmountOnExit>
                               <Box sx={{ py: 2 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'text.secondary' }}>
-                                  Enter tyre details for {line.receiveQty} unit{line.receiveQty > 1 ? 's' : ''}
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{ mb: 1.5, color: 'text.secondary' }}
+                                >
+                                  Enter tyre details for {line.receiveQty} unit
+                                  {line.receiveQty > 1 ? 's' : ''}
                                   {line.manufacturer && ` — Brand: ${line.manufacturer}`}
                                 </Typography>
                                 <Stack spacing={2}>
-                                  {(line.tyreDetails || []).slice(0, line.receiveQty).map((td, idx) => (
-                                    <Stack
-                                      key={idx}
-                                      direction={{ xs: 'column', sm: 'row' }}
-                                      spacing={1.5}
-                                      alignItems={{ sm: 'center' }}
-                                      sx={{
-                                        p: 1.5,
-                                        borderRadius: 1,
-                                        bgcolor: 'background.neutral',
-                                        border: (theme) => `1px solid ${theme.palette.divider}`,
-                                      }}
-                                    >
-                                      <Typography
-                                        variant="caption"
-                                        sx={{ fontWeight: 700, minWidth: 24, color: 'text.secondary' }}
+                                  {(line.tyreDetails || [])
+                                    .slice(0, line.receiveQty)
+                                    .map((td, idx) => (
+                                      <Stack
+                                        key={idx}
+                                        direction={{ xs: 'column', sm: 'row' }}
+                                        spacing={1.5}
+                                        alignItems={{ sm: 'center' }}
+                                        sx={{
+                                          p: 1.5,
+                                          borderRadius: 1,
+                                          bgcolor: 'background.neutral',
+                                          border: (theme) => `1px solid ${theme.palette.divider}`,
+                                        }}
                                       >
-                                        #{idx + 1}
-                                      </Typography>
-                                      <TextField
-                                        size="small"
-                                        label="Serial No. *"
-                                        value={td.serialNumber}
-                                        onChange={(e) =>
-                                          handleChangeTyreDetail(line.lineId, idx, 'serialNumber', e.target.value)
-                                        }
-                                        sx={{ minWidth: 140 }}
-                                      />
-                                      <TextField
-                                        size="small"
-                                        label="Model"
-                                        value={td.model}
-                                        onChange={(e) =>
-                                          handleChangeTyreDetail(line.lineId, idx, 'model', e.target.value)
-                                        }
-                                        sx={{ minWidth: 120 }}
-                                      />
-                                      <TextField
-                                        size="small"
-                                        label="Size"
-                                        value={td.size}
-                                        onChange={(e) =>
-                                          handleChangeTyreDetail(line.lineId, idx, 'size', e.target.value)
-                                        }
-                                        sx={{ minWidth: 120 }}
-                                      />
-                                      <TextField
-                                        size="small"
-                                        select
-                                        label="Type"
-                                        value={td.type}
-                                        onChange={(e) =>
-                                          handleChangeTyreDetail(line.lineId, idx, 'type', e.target.value)
-                                        }
-                                        sx={{ minWidth: 100 }}
-                                      >
-                                        <MenuItem value="New">New</MenuItem>
-                                        <MenuItem value="Remolded">Remolded</MenuItem>
-                                        <MenuItem value="Used">Used</MenuItem>
-                                      </TextField>
-                                      <TextField
-                                        size="small"
-                                        label="Thread (mm)"
-                                        type="number"
-                                        value={td.originalThreadDepth}
-                                        onChange={(e) =>
-                                          handleChangeTyreDetail(
-                                            line.lineId,
-                                            idx,
-                                            'originalThreadDepth',
-                                            Number(e.target.value) || 0
-                                          )
-                                        }
-                                        inputProps={{ min: 0 }}
-                                        sx={{ minWidth: 100 }}
-                                      />
-                                    </Stack>
-                                  ))}
+                                        <Typography
+                                          variant="caption"
+                                          sx={{
+                                            fontWeight: 700,
+                                            minWidth: 24,
+                                            color: 'text.secondary',
+                                          }}
+                                        >
+                                          #{idx + 1}
+                                        </Typography>
+                                        <TextField
+                                          size="small"
+                                          label="Serial No. *"
+                                          value={td.serialNumber}
+                                          onChange={(e) =>
+                                            handleChangeTyreDetail(
+                                              line.lineId,
+                                              idx,
+                                              'serialNumber',
+                                              e.target.value
+                                            )
+                                          }
+                                          sx={{ minWidth: 140 }}
+                                        />
+                                        <TextField
+                                          size="small"
+                                          label="Model"
+                                          value={td.model}
+                                          onChange={(e) =>
+                                            handleChangeTyreDetail(
+                                              line.lineId,
+                                              idx,
+                                              'model',
+                                              e.target.value
+                                            )
+                                          }
+                                          sx={{ minWidth: 120 }}
+                                        />
+                                        <TextField
+                                          size="small"
+                                          label="Size"
+                                          value={td.size}
+                                          onChange={(e) =>
+                                            handleChangeTyreDetail(
+                                              line.lineId,
+                                              idx,
+                                              'size',
+                                              e.target.value
+                                            )
+                                          }
+                                          sx={{ minWidth: 120 }}
+                                        />
+                                        <TextField
+                                          size="small"
+                                          select
+                                          label="Type"
+                                          value={td.type}
+                                          onChange={(e) =>
+                                            handleChangeTyreDetail(
+                                              line.lineId,
+                                              idx,
+                                              'type',
+                                              e.target.value
+                                            )
+                                          }
+                                          sx={{ minWidth: 100 }}
+                                        >
+                                          <MenuItem value="New">New</MenuItem>
+                                          <MenuItem value="Remolded">Remolded</MenuItem>
+                                          <MenuItem value="Used">Used</MenuItem>
+                                        </TextField>
+                                        <TextField
+                                          size="small"
+                                          label="Thread (mm)"
+                                          type="number"
+                                          value={td.originalThreadDepth}
+                                          onChange={(e) =>
+                                            handleChangeTyreDetail(
+                                              line.lineId,
+                                              idx,
+                                              'originalThreadDepth',
+                                              Number(e.target.value) || 0
+                                            )
+                                          }
+                                          inputProps={{ min: 0 }}
+                                          sx={{ minWidth: 100 }}
+                                        />
+                                      </Stack>
+                                    ))}
                                 </Stack>
                               </Box>
                             </Collapse>
@@ -1001,7 +1040,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         content={
           <>
             <Typography sx={{ mb: 2 }}>
-              Are you sure you want to close this purchase order? You will not be able to receive any more items or make further changes.
+              Are you sure you want to close this purchase order? You will not be able to receive
+              any more items or make further changes.
             </Typography>
             <TextField
               autoFocus
@@ -1015,7 +1055,14 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           </>
         }
         action={
-          <Button variant="contained" color="primary" onClick={() => { console.log('Button clicked!'); handleClosePo(); }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              console.log('Button clicked!');
+              handleClosePo();
+            }}
+          >
             Close PO
           </Button>
         }
@@ -1029,7 +1076,12 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
           sx: { width: { xs: 1, sm: 480 }, p: 0, display: 'flex', flexDirection: 'column' },
         }}
       >
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5, pb: 1 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ p: 2.5, pb: 1 }}
+        >
           <Typography variant="h6">Goods Receipt Notes (GRN)</Typography>
           <IconButton onClick={grnDrawer.onFalse}>
             <Iconify icon="eva:close-fill" />
@@ -1039,47 +1091,74 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         <Divider />
 
         <Scrollbar sx={{ p: 3 }}>
-          {(!receipts || receipts.length === 0) ? (
-            <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', mt: 5 }}>
+          {!receipts || receipts.length === 0 ? (
+            <Typography
+              variant="body2"
+              sx={{ color: 'text.secondary', textAlign: 'center', mt: 5 }}
+            >
               No items have been received yet.
             </Typography>
           ) : (
             <Stack spacing={4}>
               {receipts.map((grn) => (
-                <Card key={grn._id} sx={{ p: 2, border: (theme) => `1px solid ${theme.palette.divider}` }} elevation={0}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2">
-                      GRN #{grn.grnNumber}
-                    </Typography>
+                <Card
+                  key={grn._id}
+                  sx={{ p: 2, border: (theme) => `1px solid ${theme.palette.divider}` }}
+                  elevation={0}
+                >
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+                  >
+                    <Typography variant="subtitle2">GRN #{grn.grnNumber}</Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                       {fDate(grn.receivedAt)}
                     </Typography>
                   </Stack>
-                  
+
                   {grn.receivedBy?.name && (
-                    <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'text.secondary' }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ display: 'block', mb: 1, color: 'text.secondary' }}
+                    >
                       Received by: {grn.receivedBy.name}
                     </Typography>
                   )}
 
                   <Stack spacing={1} sx={{ mt: 2 }}>
                     {grn.lines?.map((line, idx) => (
-                      <Stack key={idx} direction="row" justifyContent="space-between" sx={{ p: 1, bgcolor: 'background.neutral', borderRadius: 1 }}>
+                      <Stack
+                        key={idx}
+                        direction="row"
+                        justifyContent="space-between"
+                        sx={{ p: 1, bgcolor: 'background.neutral', borderRadius: 1 }}
+                      >
                         <Stack>
                           <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
                             {line.partSnapshot?.name || 'Unknown Item'}
                           </Typography>
                           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            Qty: {line.quantityReceived} {line.partSnapshot?.measurementUnit !== '-' ? line.partSnapshot?.measurementUnit : ''}
+                            Qty: {line.quantityReceived}{' '}
+                            {line.partSnapshot?.measurementUnit !== '-'
+                              ? line.partSnapshot?.measurementUnit
+                              : ''}
                           </Typography>
                         </Stack>
                         <Stack alignItems="flex-end">
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {fCurrency(line.amount || (line.actualUnitCost * line.quantityReceived))}
+                            {fCurrency(line.amount || line.actualUnitCost * line.quantityReceived)}
                           </Typography>
-                          {(line.priceVariance !== 0) && (
-                            <Label size="small" color={line.priceVariance > 0 ? 'error' : 'success'} sx={{ mt: 0.5 }}>
-                              {line.priceVariance > 0 ? '+' : ''}{fCurrency(line.priceVariance)} ({(line.priceVariancePercent || 0).toFixed(1)}%)
+                          {line.priceVariance !== 0 && (
+                            <Label
+                              size="small"
+                              color={line.priceVariance > 0 ? 'error' : 'success'}
+                              sx={{ mt: 0.5 }}
+                            >
+                              {line.priceVariance > 0 ? '+' : ''}
+                              {fCurrency(line.priceVariance)} (
+                              {(line.priceVariancePercent || 0).toFixed(1)}%)
                             </Label>
                           )}
                         </Stack>
@@ -1088,23 +1167,44 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   </Stack>
 
                   <Divider sx={{ my: 2, borderStyle: 'dashed' }} />
-                  
+
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Typography variant="subtitle2">Total Value</Typography>
                     <Typography variant="subtitle2">{fCurrency(grn.totalAmount)}</Typography>
                   </Stack>
-                  
-                  {(grn.totalVariance !== 0) && (
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 0.5 }}>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>Total Variance</Typography>
-                      <Typography variant="body2" color={grn.totalVariance > 0 ? 'error' : 'success'} sx={{ fontWeight: 600 }}>
-                        {grn.totalVariance > 0 ? '+' : ''}{fCurrency(grn.totalVariance)}
+
+                  {grn.totalVariance !== 0 && (
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      sx={{ mt: 0.5 }}
+                    >
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Total Variance
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color={grn.totalVariance > 0 ? 'error' : 'success'}
+                        sx={{ fontWeight: 600 }}
+                      >
+                        {grn.totalVariance > 0 ? '+' : ''}
+                        {fCurrency(grn.totalVariance)}
                       </Typography>
                     </Stack>
                   )}
 
                   {grn.notes && (
-                    <Typography variant="body2" sx={{ mt: 2, p: 1, bgcolor: 'warning.lighter', color: 'warning.darker', borderRadius: 1 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mt: 2,
+                        p: 1,
+                        bgcolor: 'warning.lighter',
+                        color: 'warning.darker',
+                        borderRadius: 1,
+                      }}
+                    >
                       <strong>Notes:</strong> {grn.notes}
                     </Typography>
                   )}

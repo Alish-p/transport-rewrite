@@ -55,7 +55,6 @@ export default function LoansAnalytic({ title, icon, color, percent, price }) {
         <Box component="span" sx={{ color: 'text.disabled', typography: 'body2' }}>
           ₹ {fShortenNumber(price)}
         </Box>
-
       </Stack>
     </Stack>
   );

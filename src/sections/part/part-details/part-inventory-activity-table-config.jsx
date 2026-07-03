@@ -16,15 +16,10 @@ import { Iconify } from 'src/components/iconify';
 
 import { ACTIVITY_TYPES } from '../part-constant';
 
-
-const getDateValue = (activity) =>
-  activity.activityDate || activity.date || activity.createdAt;
+const getDateValue = (activity) => activity.activityDate || activity.date || activity.createdAt;
 
 const getQtyChange = (activity) =>
-  activity.quantityChange ??
-  activity.delta ??
-  activity.change ??
-  activity.quantityDelta;
+  activity.quantityChange ?? activity.delta ?? activity.change ?? activity.quantityDelta;
 
 const getQtyAfter = (activity) =>
   activity.quantityAfter ?? activity.newQuantity ?? activity.currentQuantity;
@@ -34,9 +29,7 @@ function QuantityChangeVisual({ activity }) {
   const qtyAfter = getQtyAfter(activity);
 
   const previousQty =
-    typeof qtyChange === 'number' && typeof qtyAfter === 'number'
-      ? qtyAfter - qtyChange
-      : null;
+    typeof qtyChange === 'number' && typeof qtyAfter === 'number' ? qtyAfter - qtyChange : null;
 
   if (typeof previousQty !== 'number' || typeof qtyAfter !== 'number') {
     return '-';
@@ -146,7 +139,12 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
           <Link
             component={RouterLink}
             href={paths.dashboard.purchaseOrder.details(sourceDocumentId)}
-            sx={{ typography: 'caption', fontWeight: 'fontWeightMedium', display: 'block', mt: 0.5 }}
+            sx={{
+              typography: 'caption',
+              fontWeight: 'fontWeightMedium',
+              display: 'block',
+              mt: 0.5,
+            }}
           >
             {sourceDocumentNumber}
           </Link>
@@ -156,7 +154,12 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
           <Link
             component={RouterLink}
             href={paths.dashboard.workOrder.details(sourceDocumentId)}
-            sx={{ typography: 'caption', fontWeight: 'fontWeightMedium', display: 'block', mt: 0.5 }}
+            sx={{
+              typography: 'caption',
+              fontWeight: 'fontWeightMedium',
+              display: 'block',
+              mt: 0.5,
+            }}
           >
             {sourceDocumentNumber}
           </Link>
@@ -166,7 +169,7 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
       return (
         <Stack spacing={0} alignItems="flex-start">
           <Label variant="soft" color={color}>
-            {activityType ? activityType.label : (type || '-')}
+            {activityType ? activityType.label : type || '-'}
           </Label>
           {docLink}
         </Stack>
@@ -197,7 +200,8 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
     disabled: false,
     align: 'right',
     getter: (row) => row.averageUnitCost,
-    render: (row) => (row.averageUnitCost != null ? `₹ ${Number(row.averageUnitCost).toFixed(2)}` : '-'),
+    render: (row) =>
+      row.averageUnitCost != null ? `₹ ${Number(row.averageUnitCost).toFixed(2)}` : '-',
   },
   {
     id: 'totalCost',
@@ -214,9 +218,7 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
     label: 'Performed By',
     defaultVisible: true,
     disabled: false,
-    getter: (row) =>
-      row.performedBy?.name ||
-      '',
+    getter: (row) => row.performedBy?.name || '',
     render: (row) => {
       const performer = row.performedBy;
       if (!performer) {
@@ -224,15 +226,10 @@ export const INVENTORY_ACTIVITY_TABLE_COLUMNS = [
       }
       return (
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Avatar
-            alt={performer.name}
-            src={performer.avatarUrl}
-            sx={{ width: 32, height: 32 }}
-          />
+          <Avatar alt={performer.name} src={performer.avatarUrl} sx={{ width: 32, height: 32 }} />
           <Typography variant="body2">{performer.name}</Typography>
         </Stack>
       );
-    }
+    },
   },
 ];
-

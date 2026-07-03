@@ -36,7 +36,6 @@ const getCustomerSubtripMonthlyData = async (id, year) => {
   return data;
 };
 
-
 const getCustomerInvoiceAmountSummary = async (id, year) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}/invoice-amount-summary`, {
     params: { year },

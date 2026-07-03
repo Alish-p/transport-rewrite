@@ -227,7 +227,11 @@ export default function SubtripTableFiltersResult({
 
         {filters.unloadingPoint && (
           <Block label="Unloading Point:">
-            <Chip size="small" label={filters.unloadingPoint} onDelete={handleRemoveUnloadingPoint} />
+            <Chip
+              size="small"
+              label={filters.unloadingPoint}
+              onDelete={handleRemoveUnloadingPoint}
+            />
           </Block>
         )}
 

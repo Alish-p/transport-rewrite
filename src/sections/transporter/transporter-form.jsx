@@ -93,8 +93,6 @@ export const NewTransporterSchema = zod
 export default function TransporterForm({ currentTransporter }) {
   const navigate = useNavigate();
 
-
-
   const createTransporter = useCreateTransporter();
   const updateTransporter = useUpdateTransporter();
   const { data: tenant } = useTenant();
@@ -105,7 +103,10 @@ export default function TransporterForm({ currentTransporter }) {
   const isEditMode = Boolean(currentTransporter);
 
   const paymentModes = useMemo(() => {
-    if (tenant?.config?.transporterPaymentModes && tenant.config.transporterPaymentModes.length > 0) {
+    if (
+      tenant?.config?.transporterPaymentModes &&
+      tenant.config.transporterPaymentModes.length > 0
+    ) {
       return tenant.config.transporterPaymentModes;
     }
     return [
@@ -139,8 +140,14 @@ export default function TransporterForm({ currentTransporter }) {
       gstEnabled: currentTransporter?.gstEnabled ?? false,
       transportType: currentTransporter?.transportType || '',
       agreementNo: currentTransporter?.agreementNo || '',
-      tdsPercentage: currentTransporter?.tdsPercentage ?? tenant?.config?.transporterPayment?.defaultTdsPercentage ?? 2,
-      podCharges: currentTransporter?.podCharges ?? tenant?.config?.transporterPayment?.defaultPodCharges ?? 0,
+      tdsPercentage:
+        currentTransporter?.tdsPercentage ??
+        tenant?.config?.transporterPayment?.defaultTdsPercentage ??
+        2,
+      podCharges:
+        currentTransporter?.podCharges ??
+        tenant?.config?.transporterPayment?.defaultPodCharges ??
+        0,
       isActive: currentTransporter?.isActive ?? true,
     }),
     [currentTransporter, tenant]
@@ -152,7 +159,13 @@ export default function TransporterForm({ currentTransporter }) {
     mode: 'all',
   });
 
-  const { reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
+  const {
+    reset,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = methods;
   const bankDialog = useBoolean();
 
   const values = watch();
@@ -226,7 +239,6 @@ export default function TransporterForm({ currentTransporter }) {
         />
         <Field.Text name="ownerName" label="Owner Name" />
         <Field.Text name="emailId" label="Email ID (Optional)" />
-
       </Stack>
     </Card>
   );
@@ -325,42 +337,60 @@ export default function TransporterForm({ currentTransporter }) {
   const renderDialogues = () => null; // Bank list dialog removed
 
   // GST Quick Lookup banner (like customer form)
-  const renderGstLookup = integrationEnabled && !isEditMode ? (
-    <Card variant="outlined">
-      <CardHeader
-        sx={{ mb: 1 }}
-        title={
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
-            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
-            <Label color="success" variant="soft">
-              Recommended
-            </Label>
-          </Stack>
-        }
-        subheader={
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
-            Enter a GST number to automatically prefill transporter details and save time
-          </Typography>
-        }
-      />
-      <Divider />
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={1.5}
-        alignItems={{ sm: 'center' }}
-        sx={{ p: 3 }}
-      >
-        <TextField
-          fullWidth
-          label="GST Number"
-          placeholder="e.g., 27ABCDE1234F1Z5"
-          value={gstInput}
-          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+  const renderGstLookup =
+    integrationEnabled && !isEditMode ? (
+      <Card variant="outlined">
+        <CardHeader
+          sx={{ mb: 1 }}
+          title={
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+              <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+              <Label color="success" variant="soft">
+                Recommended
+              </Label>
+            </Stack>
+          }
+          subheader={
+            <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+              Enter a GST number to automatically prefill transporter details and save time
+            </Typography>
+          }
+        />
+        <Divider />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          alignItems={{ sm: 'center' }}
+          sx={{ p: 3 }}
+        >
+          <TextField
+            fullWidth
+            label="GST Number"
+            placeholder="e.g., 27ABCDE1234F1Z5"
+            value={gstInput}
+            onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+                const resp = await lookupGst({ gstin: gstInput.trim() });
+                if (!resp?.canonical) return;
+                const applied = applyGstLookupToTransporterForm({
+                  canonical: resp.canonical,
+                  setValue,
+                  values,
+                });
+                setAppliedFields(applied);
+              }
+            }}
+          />
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            loading={isLookingUpGst}
+            disabled={!gstInput || gstInput.trim().length !== 15}
+            onClick={async () => {
               const resp = await lookupGst({ gstin: gstInput.trim() });
               if (!resp?.canonical) return;
               const applied = applyGstLookupToTransporterForm({
@@ -369,42 +399,25 @@ export default function TransporterForm({ currentTransporter }) {
                 values,
               });
               setAppliedFields(applied);
-            }
-          }}
-        />
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          loading={isLookingUpGst}
-          disabled={!gstInput || gstInput.trim().length !== 15}
-          onClick={async () => {
-            const resp = await lookupGst({ gstin: gstInput.trim() });
-            if (!resp?.canonical) return;
-            const applied = applyGstLookupToTransporterForm({
-              canonical: resp.canonical,
-              setValue,
-              values,
-            });
-            setAppliedFields(applied);
-          }}
-          startIcon={<Iconify icon="mdi:magnify-scan" />}
-        >
-          Lookup & Prefill
-        </LoadingButton>
-      </Stack>
+            }}
+            startIcon={<Iconify icon="mdi:magnify-scan" />}
+          >
+            Lookup & Prefill
+          </LoadingButton>
+        </Stack>
 
-      <Collapse in={appliedFields > 0}>
-        <Alert
-          severity="success"
-          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
-          sx={{ mx: 3, mb: 3 }}
-          onClose={() => setAppliedFields(0)}
-        >
-          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
-        </Alert>
-      </Collapse>
-    </Card>
-  ) : null;
+        <Collapse in={appliedFields > 0}>
+          <Alert
+            severity="success"
+            iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+            sx={{ mx: 3, mb: 3 }}
+            onClose={() => setAppliedFields(0)}
+          >
+            Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+          </Alert>
+        </Collapse>
+      </Card>
+    ) : null;
 
   return (
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>

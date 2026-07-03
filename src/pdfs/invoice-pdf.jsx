@@ -52,7 +52,8 @@ export default function InvoicePdf({ invoice, tenant }) {
         width: '8%',
         align: 'right',
         showTotal: true,
-        formatter: (v, row) => (typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-'),
+        formatter: (v, row) =>
+          typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row.weightUnit || 'Ton'}` : '-',
         totalFormatter: () => calculateTotalWeight(subtripSnapshot),
       },
       {
@@ -95,7 +96,11 @@ export default function InvoicePdf({ invoice, tenant }) {
         rateModel,
         weight: subtrip.loadingWeight || 0,
         weightUnit,
-        freightAmount: subtrip.freightDetails?.freightAmount || (subtrip.freightDetails?.rate && subtrip.loadingWeight ? subtrip.freightDetails.rate * subtrip.loadingWeight : 0),
+        freightAmount:
+          subtrip.freightDetails?.freightAmount ||
+          (subtrip.freightDetails?.rate && subtrip.loadingWeight
+            ? subtrip.freightDetails.rate * subtrip.loadingWeight
+            : 0),
         shortageWeight: subtrip.shortageWeight,
       };
     });

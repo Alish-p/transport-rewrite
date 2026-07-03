@@ -60,9 +60,8 @@ export default function VehiclePnlPdf({ vehicleNo, startDate, endDate, subtrips 
     id: st._id || '-',
     customer: st.customerName || '-',
     route:
-      (st.loadingPoint && st.unloadingPoint
-        ? `${st.loadingPoint} → ${st.unloadingPoint}`
-        : '-') || '-',
+      (st.loadingPoint && st.unloadingPoint ? `${st.loadingPoint} → ${st.unloadingPoint}` : '-') ||
+      '-',
     date: fDateRangeShortLabel(st.startDate, st.endDate),
     weight: st.loadingWeight,
     rate: st.freightDetails?.rate || 0,

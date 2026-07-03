@@ -24,7 +24,8 @@ export default function TransporterTableRow({
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
   const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
 
-  const customActions = useMemo(() => [
+  const customActions = useMemo(
+    () => [
       {
         label: 'Create Payment',
         icon: 'solar:wallet-bold-duotone',
@@ -39,7 +40,9 @@ export default function TransporterTableRow({
           router.push(`${paths.dashboard.transporterPayment.new}?${query}`);
         },
       },
-    ], [router, row]);
+    ],
+    [router, row]
+  );
 
   return (
     <GenericTableRow

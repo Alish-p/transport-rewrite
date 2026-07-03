@@ -30,7 +30,10 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { useVehicle } from 'src/query/use-vehicle';
 import { useSubtrip } from 'src/query/use-subtrip';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedAdvances, useDeleteTransporterAdvance } from 'src/query/use-transporter-advance';
+import {
+  usePaginatedAdvances,
+  useDeleteTransporterAdvance,
+} from 'src/query/use-transporter-advance';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -73,10 +76,9 @@ export default function TransporterAdvanceListView() {
   const navigate = useNavigate();
   const deleteAdvance = useDeleteTransporterAdvance();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(
-    defaultFilters,
-    { onResetPage: table.onResetPage }
-  );
+  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+    onResetPage: table.onResetPage,
+  });
 
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -168,9 +170,10 @@ export default function TransporterAdvanceListView() {
     }
   }, [subtripData]);
 
-  const getVisibleColumnsForExport = () => (columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)).filter(
-    (id) => visibleColumns[id]
-  );
+  const getVisibleColumnsForExport = () =>
+    (columnOrder && columnOrder.length ? columnOrder : TABLE_COLUMNS.map((c) => c.id)).filter(
+      (id) => visibleColumns[id]
+    );
 
   const handleEditRow = (id) => {
     navigate(paths.dashboard.expense.edit(id)); // Assuming edit uses the same form logic
@@ -178,11 +181,11 @@ export default function TransporterAdvanceListView() {
 
   const handleDeleteRow = (row) => {
     if (row.status === 'Recovered') {
-      toast.error("Cannot delete a recovered advance.");
+      toast.error('Cannot delete a recovered advance.');
       return;
     }
     deleteAdvance(row._id);
-  }
+  };
 
   return (
     <DashboardContent>
@@ -223,7 +226,7 @@ export default function TransporterAdvanceListView() {
             />
             <ExpenseAnalytic
               title="Total Recovered"
-              total={tableData.filter(d => d.status === 'Recovered').length} // Approximate count from current page
+              total={tableData.filter((d) => d.status === 'Recovered').length} // Approximate count from current page
               percent={totals.totalGiven ? (totals.totalRecovered / totals.totalGiven) * 100 : 0}
               price={totals.totalRecovered || 0}
               icon="solar:check-circle-bold-duotone"
@@ -232,7 +235,7 @@ export default function TransporterAdvanceListView() {
             />
             <ExpenseAnalytic
               title="Total Pending"
-              total={tableData.filter(d => d.status === 'Pending').length}
+              total={tableData.filter((d) => d.status === 'Pending').length}
               percent={totals.totalGiven ? (totals.totalPending / totals.totalGiven) * 100 : 0}
               price={totals.totalPending || 0}
               icon="solar:clock-circle-bold-duotone"
@@ -322,12 +325,17 @@ export default function TransporterAdvanceListView() {
               if (!checked) {
                 setSelectAllMode(false);
               }
-              table.onSelectAllRows(checked, tableData.map((row) => row._id));
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              );
             }}
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
                 {!selectAllMode &&
@@ -397,7 +405,12 @@ export default function TransporterAdvanceListView() {
                         );
                         const visibleCols = getVisibleColumnsForExport();
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Advances-selected-list'
                         );
                       }
@@ -425,7 +438,10 @@ export default function TransporterAdvanceListView() {
                   if (!checked) {
                     setSelectAllMode(false);
                   }
-                  table.onSelectAllRows(checked, tableData.map((row) => row._id));
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  );
                 }}
               />
               <TableBody>
@@ -442,8 +458,12 @@ export default function TransporterAdvanceListView() {
                         columns={TABLE_COLUMNS}
                         selected={table.selected.includes(row._id)}
                         onSelectRow={() => table.onSelectRow(row._id)}
-                        onEditRow={row.status === 'Pending' ? () => handleEditRow(row._id) : undefined}
-                        onDeleteRow={row.status === 'Pending' ? () => handleDeleteRow(row) : undefined}
+                        onEditRow={
+                          row.status === 'Pending' ? () => handleEditRow(row._id) : undefined
+                        }
+                        onDeleteRow={
+                          row.status === 'Pending' ? () => handleDeleteRow(row) : undefined
+                        }
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}

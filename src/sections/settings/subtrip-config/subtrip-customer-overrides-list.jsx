@@ -89,7 +89,11 @@ export default function SubtripCustomerOverridesList() {
               bgcolor: 'background.neutral',
             }}
           >
-            <Iconify icon="mdi:account-off-outline" width={48} sx={{ mb: 1, color: 'text.disabled' }} />
+            <Iconify
+              icon="mdi:account-off-outline"
+              width={48}
+              sx={{ mb: 1, color: 'text.disabled' }}
+            />
             <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
               No Customer Overrides
             </Typography>

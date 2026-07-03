@@ -12,7 +12,7 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export function PricingCard({ card, sx, ...other }) {
-  const { subscription, price, caption, lists, } = card;
+  const { subscription, price, caption, lists } = card;
 
   const basic = subscription === 'basic';
 
@@ -127,8 +127,6 @@ export function PricingCard({ card, sx, ...other }) {
       <Divider sx={{ borderStyle: 'dashed' }} />
 
       {renderList}
-
-
     </Stack>
   );
 }

@@ -4,7 +4,18 @@ import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Card, Stack, Alert, Button, Divider, MenuItem, Collapse, TextField, CardHeader, Typography } from '@mui/material';
+import {
+  Card,
+  Stack,
+  Alert,
+  Button,
+  Divider,
+  MenuItem,
+  Collapse,
+  TextField,
+  CardHeader,
+  Typography,
+} from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -12,10 +23,7 @@ import COLORS from 'src/theme/core/colors.json';
 import { useTenant } from 'src/query/use-tenant';
 import { useCustomerGstLookup } from 'src/query/use-customer';
 import PRIMARY_COLOR from 'src/theme/with-settings/primary-color.json';
-import {
-  useCreateTenant,
-  useUpdateTenantById,
-} from 'src/query/use-tenant-admin';
+import { useCreateTenant, useUpdateTenantById } from 'src/query/use-tenant-admin';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -73,7 +81,10 @@ export const TenantAdminSchema = zod
           .object({
             enabled: zod.boolean().optional(),
             provider: zod
-              .preprocess((val) => (val === '' ? null : val), zod.enum(['Fleetx', 'LocoNav', 'BlackBuck', 'Other']).nullable())
+              .preprocess(
+                (val) => (val === '' ? null : val),
+                zod.enum(['Fleetx', 'LocoNav', 'BlackBuck', 'Other']).nullable()
+              )
               .optional(),
           })
           .optional(),
@@ -81,7 +92,10 @@ export const TenantAdminSchema = zod
           .object({
             enabled: zod.boolean().optional(),
             provider: zod
-              .preprocess((val) => (val === '' ? null : val), zod.enum(['Tally', 'Mark', 'Zoho']).nullable())
+              .preprocess(
+                (val) => (val === '' ? null : val),
+                zod.enum(['Tally', 'Mark', 'Zoho']).nullable()
+              )
               .optional(),
           })
           .optional(),
@@ -90,10 +104,18 @@ export const TenantAdminSchema = zod
   })
   .superRefine((data, ctx) => {
     if (data.integrations?.vehicleGPS?.enabled && !data.integrations.vehicleGPS.provider) {
-      ctx.addIssue({ path: ['integrations', 'vehicleGPS', 'provider'], code: zod.ZodIssueCode.custom, message: 'Provider is required when Vehicle GPS is enabled' });
+      ctx.addIssue({
+        path: ['integrations', 'vehicleGPS', 'provider'],
+        code: zod.ZodIssueCode.custom,
+        message: 'Provider is required when Vehicle GPS is enabled',
+      });
     }
     if (data.integrations?.accounting?.enabled && !data.integrations.accounting.provider) {
-      ctx.addIssue({ path: ['integrations', 'accounting', 'provider'], code: zod.ZodIssueCode.custom, message: 'Provider is required when Accounting is enabled' });
+      ctx.addIssue({
+        path: ['integrations', 'accounting', 'provider'],
+        code: zod.ZodIssueCode.custom,
+        message: 'Provider is required when Accounting is enabled',
+      });
     }
   });
 
@@ -203,9 +225,10 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       tagline: data.tagline || undefined,
       theme: data.theme || undefined,
       address: data.address?.line1 ? data.address : undefined,
-      contactDetails: data.contactDetails?.email || data.contactDetails?.phone || data.contactDetails?.website
-        ? clean(data.contactDetails, ['email', 'phone', 'website'])
-        : undefined,
+      contactDetails:
+        data.contactDetails?.email || data.contactDetails?.phone || data.contactDetails?.website
+          ? clean(data.contactDetails, ['email', 'phone', 'website'])
+          : undefined,
       legalInfo:
         data.legalInfo?.panNumber || data.legalInfo?.gstNumber || data.legalInfo?.registeredState
           ? clean(data.legalInfo, ['panNumber', 'gstNumber', 'registeredState'])
@@ -223,31 +246,35 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
       })(),
       integrations: data.integrations
         ? {
-          whatsapp: data.integrations?.whatsapp?.enabled ? { enabled: true } : { enabled: false },
-          ewayBill: data.integrations?.ewayBill?.enabled
-            ? {
-                enabled: true,
-                username: data.integrations.ewayBill.username || '',
-                password: data.integrations.ewayBill.password || '',
-              }
-            : { enabled: false },
-          vehicleApi: data.integrations?.vehicleApi?.enabled ? { enabled: true } : { enabled: false },
-          challanApi: data.integrations?.challanApi?.enabled ? { enabled: true } : { enabled: false },
-          gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
-          tyre: data.integrations?.tyre?.enabled ? { enabled: true } : { enabled: false },
-          vehicleGPS: data.integrations?.vehicleGPS
-            ? {
-              enabled: !!data.integrations.vehicleGPS.enabled,
-              provider: data.integrations.vehicleGPS.provider || null,
-            }
-            : undefined,
-          accounting: data.integrations?.accounting
-            ? {
-              enabled: !!data.integrations.accounting.enabled,
-              provider: data.integrations.accounting.provider || null,
-            }
-            : undefined,
-        }
+            whatsapp: data.integrations?.whatsapp?.enabled ? { enabled: true } : { enabled: false },
+            ewayBill: data.integrations?.ewayBill?.enabled
+              ? {
+                  enabled: true,
+                  username: data.integrations.ewayBill.username || '',
+                  password: data.integrations.ewayBill.password || '',
+                }
+              : { enabled: false },
+            vehicleApi: data.integrations?.vehicleApi?.enabled
+              ? { enabled: true }
+              : { enabled: false },
+            challanApi: data.integrations?.challanApi?.enabled
+              ? { enabled: true }
+              : { enabled: false },
+            gstApi: data.integrations?.gstApi?.enabled ? { enabled: true } : { enabled: false },
+            tyre: data.integrations?.tyre?.enabled ? { enabled: true } : { enabled: false },
+            vehicleGPS: data.integrations?.vehicleGPS
+              ? {
+                  enabled: !!data.integrations.vehicleGPS.enabled,
+                  provider: data.integrations.vehicleGPS.provider || null,
+                }
+              : undefined,
+            accounting: data.integrations?.accounting
+              ? {
+                  enabled: !!data.integrations.accounting.enabled,
+                  provider: data.integrations.accounting.provider || null,
+                }
+              : undefined,
+          }
         : undefined,
     };
 
@@ -268,84 +295,98 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
   const pending = isSubmitting || creatingTenant || updatingTenant;
 
   // GST Quick Lookup banner (like customer form)
-  const renderGstLookup = integrationEnabled && !isEditing ? (
-    <Card variant="outlined">
-      <CardHeader
-        sx={{ mb: 1 }}
-        title={
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
-            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
-            <Label color="success" variant="soft">Recommended</Label>
-          </Stack>
-        }
-        subheader={
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
-            Enter a GST number to automatically prefill tenant details and save time
-          </Typography>
-        }
-      />
-      <Divider />
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ p: 3 }}>
-        <TextField
-          fullWidth
-          label="GST Number"
-          placeholder="e.g., 27ABCDE1234F1Z5"
-          value={gstInput}
-          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+  const renderGstLookup =
+    integrationEnabled && !isEditing ? (
+      <Card variant="outlined">
+        <CardHeader
+          sx={{ mb: 1 }}
+          title={
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+              <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+              <Label color="success" variant="soft">
+                Recommended
+              </Label>
+            </Stack>
+          }
+          subheader={
+            <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+              Enter a GST number to automatically prefill tenant details and save time
+            </Typography>
+          }
+        />
+        <Divider />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          alignItems={{ sm: 'center' }}
+          sx={{ p: 3 }}
+        >
+          <TextField
+            fullWidth
+            label="GST Number"
+            placeholder="e.g., 27ABCDE1234F1Z5"
+            value={gstInput}
+            onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+                const resp = await lookupGst({ gstin: gstInput.trim() });
+                if (!resp?.canonical) return;
+                const applied = applyGstLookupToTenantAdminForm({
+                  canonical: resp.canonical,
+                  setValue,
+                  values,
+                });
+                setAppliedFields(applied);
+              }
+            }}
+          />
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            loading={isLookingUpGst}
+            disabled={!gstInput || gstInput.trim().length !== 15}
+            onClick={async () => {
               const resp = await lookupGst({ gstin: gstInput.trim() });
               if (!resp?.canonical) return;
-              const applied = applyGstLookupToTenantAdminForm({ canonical: resp.canonical, setValue, values });
+              const applied = applyGstLookupToTenantAdminForm({
+                canonical: resp.canonical,
+                setValue,
+                values,
+              });
               setAppliedFields(applied);
-            }
-          }}
-        />
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          loading={isLookingUpGst}
-          disabled={!gstInput || gstInput.trim().length !== 15}
-          onClick={async () => {
-            const resp = await lookupGst({ gstin: gstInput.trim() });
-            if (!resp?.canonical) return;
-            const applied = applyGstLookupToTenantAdminForm({ canonical: resp.canonical, setValue, values });
-            setAppliedFields(applied);
-          }}
-          startIcon={<Iconify icon="mdi:magnify-scan" />}
-        >
-          Lookup & Prefill
-        </LoadingButton>
-      </Stack>
+            }}
+            startIcon={<Iconify icon="mdi:magnify-scan" />}
+          >
+            Lookup & Prefill
+          </LoadingButton>
+        </Stack>
 
-      <Collapse in={appliedFields > 0}>
-        <Alert
-          severity="success"
-          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
-          sx={{ mx: 3, mb: 3 }}
-          onClose={() => setAppliedFields(0)}
-        >
-          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
-        </Alert>
-      </Collapse>
-    </Card>
-  ) : null;
+        <Collapse in={appliedFields > 0}>
+          <Alert
+            severity="success"
+            iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+            sx={{ mx: 3, mb: 3 }}
+            onClose={() => setAppliedFields(0)}
+          >
+            Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+          </Alert>
+        </Collapse>
+      </Card>
+    ) : null;
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderGstLookup}
         {/* Branding */}
-        {currentTenant?._id && (
-          <TenantLogoCardAdmin tenant={currentTenant} onUpdated={onSaved} />
-        )}
+        {currentTenant?._id && <TenantLogoCardAdmin tenant={currentTenant} onUpdated={onSaved} />}
 
         {/* Basic details */}
         <Card>
-          <CardHeader title='Basic Details' sx={{ mb: 3 }} />
+          <CardHeader title="Basic Details" sx={{ mb: 3 }} />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Text name="name" label="Company name" />
@@ -353,7 +394,11 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
               name="slug"
               label="Slug"
               disabled
-              helperText={isEditing ? 'Slug is locked after creation' : 'Auto-generated from name; locked after creation'}
+              helperText={
+                isEditing
+                  ? 'Slug is locked after creation'
+                  : 'Auto-generated from name; locked after creation'
+              }
             />
             <Field.Text name="tagline" label="Tagline" />
           </Stack>
@@ -655,9 +700,7 @@ function applyGstLookupToTenantAdminForm({ canonical, setValue, values }) {
 
   // Address & location
   const a = canonical.address || {};
-  const addrLine = [a.buildingNumber, a.line1, a.streetName, a.location]
-    .filter(Boolean)
-    .join(', ');
+  const addrLine = [a.buildingNumber, a.line1, a.streetName, a.location].filter(Boolean).join(', ');
   assignIfEmpty('address.line1', addrLine);
   assignIfEmpty('address.city', a.city || a.district);
   assignIfEmpty('address.state', a.state);

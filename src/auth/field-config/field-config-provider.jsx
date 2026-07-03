@@ -51,9 +51,5 @@ export function FieldConfigProvider({ children }) {
     [fieldConfigs, loading, refreshFieldConfigs]
   );
 
-  return (
-    <FieldConfigContext.Provider value={contextValue}>
-      {children}
-    </FieldConfigContext.Provider>
-  );
+  return <FieldConfigContext.Provider value={contextValue}>{children}</FieldConfigContext.Provider>;
 }

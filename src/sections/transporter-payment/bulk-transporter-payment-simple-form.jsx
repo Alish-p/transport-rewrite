@@ -73,8 +73,8 @@ function BulkTransporterPaymentIndividualCard({
   );
 
   const podCharge = subtrips.length * (transporter.podCharges || 0);
-  
-  const loanChargesForSummary = selected 
+
+  const loanChargesForSummary = selected
     ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: -ld.amount }))
     : [];
 
@@ -386,27 +386,29 @@ export default function BulkTransporterPaymentSimpleForm() {
   };
 
   const executeBulkCreate = async (payloadItems) => {
-    const payload = payloadItems.map(({ transporter, subtrips, additionalCharges, loanDeductions = [] }) => {
-      const loanCharges = loanDeductions.map((ld) => ({
-        label: 'Loan Repayment',
-        amount: -ld.amount,
-      }));
+    const payload = payloadItems.map(
+      ({ transporter, subtrips, additionalCharges, loanDeductions = [] }) => {
+        const loanCharges = loanDeductions.map((ld) => ({
+          label: 'Loan Repayment',
+          amount: -ld.amount,
+        }));
 
-      return {
-        transporterId: transporter._id,
-        billingPeriod: dateRange,
-        associatedSubtrips: subtrips.map((st) => st._id),
-        additionalCharges: [
-          {
-            label: 'POD Charges',
-            amount: subtrips.length * (transporter.podCharges || 0) * -1,
-          },
-          ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
-          ...loanCharges,
-        ],
-        loanDeductions,
-      };
-    });
+        return {
+          transporterId: transporter._id,
+          billingPeriod: dateRange,
+          associatedSubtrips: subtrips.map((st) => st._id),
+          additionalCharges: [
+            {
+              label: 'POD Charges',
+              amount: subtrips.length * (transporter.podCharges || 0) * -1,
+            },
+            ...additionalCharges.map((c) => ({ label: c.label, amount: Number(c.amount) || 0 })),
+            ...loanCharges,
+          ],
+          loanDeductions,
+        };
+      }
+    );
 
     if (payload.length === 0) return;
     try {

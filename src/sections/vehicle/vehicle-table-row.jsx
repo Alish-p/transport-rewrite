@@ -43,7 +43,10 @@ export default function VehicleTableRow({
       actions.push({
         label: 'Create Work Order',
         icon: 'mdi:tools',
-        onClick: () => router.push(`${paths.dashboard.workOrder.new}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}&vehicleType=${row.vehicleType}`),
+        onClick: () =>
+          router.push(
+            `${paths.dashboard.workOrder.new}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}&vehicleType=${row.vehicleType}`
+          ),
       });
     }
 
@@ -51,7 +54,10 @@ export default function VehicleTableRow({
       actions.push({
         label: 'Create Expense',
         icon: 'mdi:cash-plus',
-        onClick: () => router.push(`${paths.dashboard.expense.newVehicleExpense}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}`),
+        onClick: () =>
+          router.push(
+            `${paths.dashboard.expense.newVehicleExpense}?vehicle=${row._id}&vehicleNo=${row.vehicleNo}`
+          ),
       });
     }
 
@@ -65,7 +71,7 @@ export default function VehicleTableRow({
     }
 
     return actions;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onToggleActive, isActive, tenant, router, row]);
 
   return (

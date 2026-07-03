@@ -118,11 +118,7 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
         }
       />
 
-      <Tabs
-        value={statusFilter}
-        onChange={handleFilterStatus}
-        sx={{ p: 2.5 }}
-      >
+      <Tabs value={statusFilter} onChange={handleFilterStatus} sx={{ p: 2.5 }}>
         {STATUS_TABS.map((tab) => {
           const count = tab.value === 'all' ? totalCount : getCount(tab.value);
           return (
@@ -156,9 +152,7 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
           />
           <TableBody>
             {isLoading ? (
-              Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                <TableSkeleton key={i} />
-              ))
+              Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
             ) : tableData.length ? (
               tableData.map((wo) => (
                 <TableRow key={wo._id} hover sx={{ cursor: 'pointer' }}>
@@ -184,7 +178,10 @@ export function VehicleWorkOrdersWidget({ vehicleId, vehicleNo }) {
                     </Label>
                   </TableCell>
                   <TableCell>
-                    <Label variant="soft" color={WORK_ORDER_PRIORITY_COLORS[wo.priority] || 'default'}>
+                    <Label
+                      variant="soft"
+                      color={WORK_ORDER_PRIORITY_COLORS[wo.priority] || 'default'}
+                    >
                       {WORK_ORDER_PRIORITY_LABELS[wo.priority] || wo.priority || '-'}
                     </Label>
                   </TableCell>

@@ -2,9 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import Box from '@mui/material/Box';
-import {
-  Stack,
-} from '@mui/material';
+import { Stack } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -22,7 +20,14 @@ import { LoadingSpinner } from 'src/components/loading-spinner';
 
 const ITEM_HEIGHT = 64;
 
-export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartChange, hideQuantity = false, hideCustomItem = false }) {
+export function KanbanPartsDialog({
+  selectedPart = null,
+  open,
+  onClose,
+  onPartChange,
+  hideQuantity = false,
+  hideCustomItem = false,
+}) {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 400);
 
@@ -150,7 +155,8 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
               {parts.length === 0 && !debouncedSearch && (
                 <Box sx={{ textAlign: 'center', mt: 3, mb: 3 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Start typing to search for a part{hideCustomItem ? '.' : ' or create a custom item.'}
+                    Start typing to search for a part
+                    {hideCustomItem ? '.' : ' or create a custom item.'}
                   </Typography>
                 </Box>
               )}
@@ -158,7 +164,10 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
               {parts.map((part) => {
                 const isSelected = selectedPart?._id === part._id;
                 const category =
-                  part.category?.name || part.category || part.partCategory?.name || 'Uncategorized';
+                  part.category?.name ||
+                  part.category ||
+                  part.partCategory?.name ||
+                  'Uncategorized';
                 const quantity =
                   part.totalQuantity ?? part.quantity ?? part.availableQuantity ?? part.stock ?? 0;
                 const unit =
@@ -183,7 +192,10 @@ export function KanbanPartsDialog({ selectedPart = null, open, onClose, onPartCh
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       bgcolor: isSelected ? 'action.selected' : 'transparent',
-                      transition: (theme) => theme.transitions.create(['background-color'], { duration: theme.transitions.duration.shorter }),
+                      transition: (theme) =>
+                        theme.transitions.create(['background-color'], {
+                          duration: theme.transitions.duration.shorter,
+                        }),
                       '&:hover': {
                         bgcolor: 'action.hover',
                       },

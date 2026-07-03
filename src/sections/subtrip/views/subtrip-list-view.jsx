@@ -233,7 +233,6 @@ export function SubtripListView() {
         if (name === 'vehicleNo') setSelectedVehicle(null);
         if (name === 'driverId') setSelectedDriver(null);
         if (name === 'transportName') setSelectedTransporter(null);
-
       }
     },
     [handleFilters]
@@ -382,10 +381,7 @@ export function SubtripListView() {
                   isCountLoading ? (
                     <CircularProgress size={16} />
                   ) : (
-                    <Label
-                      variant={isActive ? 'filled' : 'soft'}
-                      color={tab.color}
-                    >
+                    <Label variant={isActive ? 'filled' : 'soft'} color={tab.color}>
                       {tab.count}
                     </Label>
                   )
@@ -412,7 +408,6 @@ export function SubtripListView() {
           onSelectVehicle={handleSelectVehicle}
           selectedDriver={selectedDriver}
           onSelectDriver={handleSelectDriver}
-
           onResetColumns={resetColumns}
           canResetColumns={canResetColumns}
           tableColumns={tableColumns}
@@ -428,7 +423,6 @@ export function SubtripListView() {
             selectedCustomerName={selectedCustomer?.customerName}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedDriverName={selectedDriver?.driverName}
-
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -451,21 +445,25 @@ export function SubtripListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} jobs
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} jobs
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -479,12 +477,16 @@ export function SubtripListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : tableColumns.map((c) => c.id)
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : tableColumns.map((c) => c.id)
                           ).filter((id) => visibleColumns[id]);
 
                           const response = await axios.get('/api/subtrips/export', {
                             params: {
-                              subtripStatus: filters.subtripStatus.length ? filters.subtripStatus : undefined,
+                              subtripStatus: filters.subtripStatus.length
+                                ? filters.subtripStatus
+                                : undefined,
                               subtripNo: filters.subtripNo || undefined,
                               referenceSubtripNo: filters.referenceSubtripNo || undefined,
                               ewayBill: filters.ewayBill || undefined,
@@ -501,7 +503,8 @@ export function SubtripListView() {
                               materials: filters.materials.length ? filters.materials : undefined,
                               loadingPoint: filters.loadingPoint || undefined,
                               unloadingPoint: filters.unloadingPoint || undefined,
-                              transporterPaymentGenerated: filters.transporterPaymentGenerated || undefined,
+                              transporterPaymentGenerated:
+                                filters.transporterPaymentGenerated || undefined,
                               epodSigned: filters.epodSigned || undefined,
                               shortage: filters.shortage || undefined,
                               commissionRateMin: filters.commissionRateMin || undefined,

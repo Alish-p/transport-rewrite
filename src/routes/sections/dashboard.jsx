@@ -16,9 +16,7 @@ import { AuthGuard, RoleBasedGuard, PermissionBasedGuard } from 'src/auth/guard'
 const IndexPage = lazy(() => import('src/pages/dashboard'));
 
 // Live Tracking
-const LiveTrackingPage = lazy(() =>
-  import('src/sections/live-tracking/live-tracking-view')
-);
+const LiveTrackingPage = lazy(() => import('src/sections/live-tracking/live-tracking-view'));
 
 // Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
@@ -27,7 +25,11 @@ const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
 const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
 const VehicleDocumentsListPage = lazy(() => import('src/pages/dashboard/vehicle/documents'));
 const VehicleDocumentsGridPage = lazy(() => import('src/pages/dashboard/vehicle/documents-grid'));
-const VehicleKmBulkImportPage = lazy(() => import('src/sections/vehicle/views/vehicle-km-bulk-import-view').then(module => ({ default: module.VehicleKmBulkImportView })));
+const VehicleKmBulkImportPage = lazy(() =>
+  import('src/sections/vehicle/views/vehicle-km-bulk-import-view').then((module) => ({
+    default: module.VehicleKmBulkImportView,
+  }))
+);
 
 // Driver
 const DriverDetailsPage = lazy(() => import('src/pages/dashboard/driver/details'));
@@ -54,7 +56,6 @@ const TransporterCreatePage = lazy(() => import('src/pages/dashboard/transporter
 const TransporterEditPage = lazy(() => import('src/pages/dashboard/transporter/edit'));
 
 // Route (removed)
-
 
 // Expense
 const ExpenseDetailsPage = lazy(() => import('src/pages/dashboard/expense/details'));
@@ -92,9 +93,7 @@ const PartEditPage = lazy(() => import('src/pages/dashboard/part/edit'));
 const PartBulkImportPage = lazy(() => import('src/pages/dashboard/part/bulk-import'));
 
 // Vehicle Maintenance - Part Locations
-const PartLocationDetailsPage = lazy(
-  () => import('src/pages/dashboard/part-location/details')
-);
+const PartLocationDetailsPage = lazy(() => import('src/pages/dashboard/part-location/details'));
 const PartLocationListPage = lazy(() => import('src/pages/dashboard/part-location/list'));
 const PartLocationCreatePage = lazy(() => import('src/pages/dashboard/part-location/new'));
 const PartLocationEditPage = lazy(() => import('src/pages/dashboard/part-location/edit'));
@@ -106,18 +105,10 @@ const VendorCreatePage = lazy(() => import('src/pages/dashboard/vendor/new'));
 const VendorEditPage = lazy(() => import('src/pages/dashboard/vendor/edit'));
 
 // Vehicle Maintenance - Purchase Orders
-const PurchaseOrderListPage = lazy(
-  () => import('src/pages/dashboard/purchaseOrder/list')
-);
-const PurchaseOrderCreatePage = lazy(
-  () => import('src/pages/dashboard/purchaseOrder/new')
-);
-const PurchaseOrderDetailsPage = lazy(
-  () => import('src/pages/dashboard/purchaseOrder/details')
-);
-const PurchaseOrderEditPage = lazy(
-  () => import('src/pages/dashboard/purchaseOrder/edit')
-);
+const PurchaseOrderListPage = lazy(() => import('src/pages/dashboard/purchaseOrder/list'));
+const PurchaseOrderCreatePage = lazy(() => import('src/pages/dashboard/purchaseOrder/new'));
+const PurchaseOrderDetailsPage = lazy(() => import('src/pages/dashboard/purchaseOrder/details'));
+const PurchaseOrderEditPage = lazy(() => import('src/pages/dashboard/purchaseOrder/edit'));
 
 // Vehicle Maintenance - Work Orders
 const WorkOrderListPage = lazy(() => import('src/pages/dashboard/workOrder/list'));
@@ -190,7 +181,9 @@ const TyreEditPage = lazy(() => import('src/sections/tyre/view/tyre-edit-view'))
 const TyreBulkImportPage = lazy(() => import('src/pages/dashboard/tyre/bulk-import'));
 
 // Maintenance Dashboard
-const MaintenanceDashboardPage = lazy(() => import('src/sections/maintenance/view/maintenance-dashboard-view'));
+const MaintenanceDashboardPage = lazy(
+  () => import('src/sections/maintenance/view/maintenance-dashboard-view')
+);
 
 // ----------------------------------------------------------------------
 
@@ -214,8 +207,7 @@ function SuperGuard({ children }) {
 // ----------------------------------------------------------------------
 
 const ROUTE_FEATURE_CHECKERS = {
-  maintenanceAndInventory: (tenant) =>
-    !!tenant?.integrations?.maintenanceAndInventory?.enabled,
+  maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
   tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
 };
 
@@ -498,7 +490,6 @@ export const dashboardRoutes = [
         ],
       },
 
-
       {
         path: 'expense',
         children: [
@@ -603,7 +594,6 @@ export const dashboardRoutes = [
               </PermissionBasedGuard>
             ),
           },
-
         ],
       },
       {

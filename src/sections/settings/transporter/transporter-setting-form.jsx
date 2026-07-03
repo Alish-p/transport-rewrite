@@ -19,11 +19,13 @@ import { Form, Field } from 'src/components/hook-form';
 
 const TransporterSettingSchema = zod.object({
   config: zod.object({
-    transporterPayment: zod.object({
-      defaultTdsPercentage: zod.number().min(0).max(100),
-      defaultPodCharges: zod.number().min(0),
-      template: zod.string().min(1),
-    }).optional(),
+    transporterPayment: zod
+      .object({
+        defaultTdsPercentage: zod.number().min(0).max(100),
+        defaultPodCharges: zod.number().min(0),
+        template: zod.string().min(1),
+      })
+      .optional(),
   }),
 });
 
@@ -34,7 +36,8 @@ export default function TransporterSettingForm({ currentTenant }) {
     () => ({
       config: {
         transporterPayment: {
-          defaultTdsPercentage: currentTenant?.config?.transporterPayment?.defaultTdsPercentage ?? 2,
+          defaultTdsPercentage:
+            currentTenant?.config?.transporterPayment?.defaultTdsPercentage ?? 2,
           defaultPodCharges: currentTenant?.config?.transporterPayment?.defaultPodCharges ?? 0,
           template: currentTenant?.config?.transporterPayment?.template ?? 'standard',
         },
@@ -86,7 +89,10 @@ export default function TransporterSettingForm({ currentTenant }) {
                   label="Default TDS Percentage (%)"
                   type="number"
                   onChange={(event) =>
-                    methods.setValue('config.transporterPayment.defaultTdsPercentage', Number(event.target.value))
+                    methods.setValue(
+                      'config.transporterPayment.defaultTdsPercentage',
+                      Number(event.target.value)
+                    )
                   }
                 />
               </Grid>
@@ -96,12 +102,18 @@ export default function TransporterSettingForm({ currentTenant }) {
                   label="Default POD Charges"
                   type="number"
                   onChange={(event) =>
-                    methods.setValue('config.transporterPayment.defaultPodCharges', Number(event.target.value))
+                    methods.setValue(
+                      'config.transporterPayment.defaultPodCharges',
+                      Number(event.target.value)
+                    )
                   }
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Field.Select name="config.transporterPayment.template" label="Transporter Payment Template">
+                <Field.Select
+                  name="config.transporterPayment.template"
+                  label="Transporter Payment Template"
+                >
                   <MenuItem value="standard">Standard Template</MenuItem>
                   <MenuItem value="template-1">Template 1</MenuItem>
                 </Field.Select>

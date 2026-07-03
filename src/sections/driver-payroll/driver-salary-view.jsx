@@ -224,7 +224,6 @@ export default function DriverSalaryView({ driverSalary }) {
               {driver.driverPresentAddress}
               <br />
               Phone: {driver.driverCellNo}
-
               {driver.bankDetails?.name && (
                 <>
                   <br />
@@ -247,9 +246,7 @@ export default function DriverSalaryView({ driverSalary }) {
           )}
         </RenderAddress>
 
-        <RenderAddress title="Issue Date">
-          {issueDate && fDate(issueDate)}
-        </RenderAddress>
+        <RenderAddress title="Issue Date">{issueDate && fDate(issueDate)}</RenderAddress>
 
         <RenderAddress title="Billing Period">
           {billingPeriod && fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}

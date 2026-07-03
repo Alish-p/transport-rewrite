@@ -54,7 +54,6 @@ export const DEFAULT_PAYMENT_METHODS = [
   { label: 'Other', value: 'Other' },
 ];
 
-
 export function useSubtripExpenseTypes() {
   const { data: tenant } = useTenant();
   const dbTypes = tenant?.config?.expense?.['subtrip-expense-types'];

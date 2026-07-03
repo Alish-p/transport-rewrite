@@ -147,12 +147,14 @@ export const TABLE_COLUMNS = [
     align: 'center',
     getter: (row) => {
       if (!row.parts || row.parts.length === 0) return '-';
-      return row.parts.map((p) => {
-        const name = p.partSnapshot?.name ?? p.part?.name ?? 'Unknown Part';
-        const qty = p.quantity || 0;
-        const unit = p.partSnapshot?.measurementUnit ?? p.part?.measurementUnit ?? '';
-        return `${name}(${qty}${unit ? ` ${unit}` : ''})`;
-      }).join(', ');
+      return row.parts
+        .map((p) => {
+          const name = p.partSnapshot?.name ?? p.part?.name ?? 'Unknown Part';
+          const qty = p.quantity || 0;
+          const unit = p.partSnapshot?.measurementUnit ?? p.part?.measurementUnit ?? '';
+          return `${name}(${qty}${unit ? ` ${unit}` : ''})`;
+        })
+        .join(', ');
     },
     render: (row) => <WorkOrderPartsPopoverCell row={row} />,
   },
@@ -163,12 +165,16 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => {
       const issues = row.issues || [];
-      const values = issues.map((issue) => typeof issue?.issue === 'object' ? issue.issue.value : issue.issue).filter(Boolean);
+      const values = issues
+        .map((issue) => (typeof issue?.issue === 'object' ? issue.issue.value : issue.issue))
+        .filter(Boolean);
       return values.join(', ') || '-';
     },
     render: (row) => {
       const issues = row.issues || [];
-      const values = issues.map((issue) => typeof issue?.issue === 'object' ? issue.issue.value : issue.issue).filter(Boolean);
+      const values = issues
+        .map((issue) => (typeof issue?.issue === 'object' ? issue.issue.value : issue.issue))
+        .filter(Boolean);
       const text = values.join(', ') || '-';
       return (
         <Tooltip title={text}>
@@ -188,10 +194,12 @@ export const TABLE_COLUMNS = [
       const issues = row.issues || [];
       const names = issues.flatMap((issue) => {
         if (!issue || typeof issue !== 'object' || !Array.isArray(issue.assignedTo)) return [];
-        return issue.assignedTo.map((user) => {
-          if (!user) return null;
-          return user.name || user.customerName || null;
-        }).filter(Boolean);
+        return issue.assignedTo
+          .map((user) => {
+            if (!user) return null;
+            return user.name || user.customerName || null;
+          })
+          .filter(Boolean);
       });
       const unique = Array.from(new Set(names));
       return unique.join(', ');

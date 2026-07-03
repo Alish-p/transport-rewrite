@@ -25,10 +25,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
-export function EwaybillByStateWidget({
-  title = 'E-Waybills',
-  ...other
-}) {
+export function EwaybillByStateWidget({ title = 'E-Waybills', ...other }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [forceRefresh, setForceRefresh] = useState(false);
 
@@ -121,7 +118,7 @@ export function EwaybillByStateWidget({
                 height: 48,
                 borderRadius: 1,
                 border: (theme) => `solid 1px ${theme.palette.divider}`,
-                animation: (isLoading || isFetching) ? 'spin 1.5s linear infinite' : 'none',
+                animation: isLoading || isFetching ? 'spin 1.5s linear infinite' : 'none',
                 '@keyframes spin': {
                   '0%': { transform: 'rotate(0deg)' },
                   '100%': { transform: 'rotate(360deg)' },
@@ -160,7 +157,10 @@ export function EwaybillByStateWidget({
                         {ewbNo ? (
                           <Link
                             component={RouterLink}
-                            to={{ pathname: paths.dashboard.subtrip.jobCreate, search: `?ewayBill=${encodeURIComponent(ewbNo)}` }}
+                            to={{
+                              pathname: paths.dashboard.subtrip.jobCreate,
+                              search: `?ewayBill=${encodeURIComponent(ewbNo)}`,
+                            }}
                             variant="body2"
                             noWrap
                             sx={{ color: 'primary.main' }}
@@ -188,7 +188,9 @@ export function EwaybillByStateWidget({
                                 size="small"
                                 color="primary"
                                 component={subtripId ? RouterLink : 'button'}
-                                to={subtripId ? paths.dashboard.subtrip.details(subtripId) : undefined}
+                                to={
+                                  subtripId ? paths.dashboard.subtrip.details(subtripId) : undefined
+                                }
                                 disabled={!subtripId}
                               >
                                 <Iconify icon="mdi:open-in-new" width={18} />
@@ -202,7 +204,10 @@ export function EwaybillByStateWidget({
                                 size="small"
                                 color="success"
                                 component={RouterLink}
-                                to={{ pathname: paths.dashboard.subtrip.jobCreate, search: ewbNo ? `?ewayBill=${encodeURIComponent(ewbNo)}` : '' }}
+                                to={{
+                                  pathname: paths.dashboard.subtrip.jobCreate,
+                                  search: ewbNo ? `?ewayBill=${encodeURIComponent(ewbNo)}` : '',
+                                }}
                               >
                                 <Iconify icon="mdi:plus-circle" width={18} />
                               </IconButton>

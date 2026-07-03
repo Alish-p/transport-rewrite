@@ -7,15 +7,7 @@ import { useRef, useMemo, useState, useEffect } from 'react';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Stack,
-  Divider,
-  MenuItem,
-  CardHeader,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Card, Stack, Divider, MenuItem, CardHeader, InputAdornment } from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -86,10 +78,14 @@ export default function LoanForm({ currentLoan }) {
 
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
-  const availableBorrowerTypes = useMemo(() => BORROWER_TYPES.filter((type) => {
-      if (!managesMarketVehicles && type.key === 'Transporter') return false;
-      return true;
-    }), [managesMarketVehicles]);
+  const availableBorrowerTypes = useMemo(
+    () =>
+      BORROWER_TYPES.filter((type) => {
+        if (!managesMarketVehicles && type.key === 'Transporter') return false;
+        return true;
+      }),
+    [managesMarketVehicles]
+  );
 
   // Dialog controls
   const driverDialog = useBoolean(false);
@@ -136,7 +132,8 @@ export default function LoanForm({ currentLoan }) {
     try {
       const data = { ...formData };
       if (data.loanReason && typeof data.loanReason === 'object') {
-        data.loanReason = data.loanReason.inputValue || data.loanReason.value || data.loanReason.label || '';
+        data.loanReason =
+          data.loanReason.inputValue || data.loanReason.value || data.loanReason.label || '';
       }
 
       if (currentLoan) {
@@ -157,9 +154,7 @@ export default function LoanForm({ currentLoan }) {
       <CardHeader title="Loan / Advance Details" sx={{ mb: 3 }} />
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
-        {currentLoan && (
-          <Field.Text name="loanNo" label="Loan No" disabled />
-        )}
+        {currentLoan && <Field.Text name="loanNo" label="Loan No" disabled />}
 
         <Field.Select name="borrowerType" label="Borrower Type">
           <MenuItem value="">None</MenuItem>
@@ -185,7 +180,7 @@ export default function LoanForm({ currentLoan }) {
                 ? driverDialog.onTrue
                 : borrowerType === 'Transporter'
                   ? transporterDialog.onTrue
-                  : () => { }
+                  : () => {}
             }
             disabled={!borrowerType}
             placeholder={

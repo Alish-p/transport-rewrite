@@ -49,18 +49,20 @@ const FIELDS_KEYS = [
 ];
 
 const SubtripGlobalSettingSchema = zod.object({
-  freightConfig: zod.object({
-    allowedModels: zod.array(zod.string()).min(1, 'At least one freight model must be allowed'),
-    defaultModel: zod.string().min(1, 'Default freight model is required'),
-  }).superRefine((data, ctx) => {
-    if (data.allowedModels && !data.allowedModels.includes(data.defaultModel)) {
-      ctx.addIssue({
-        path: ['defaultModel'],
-        code: zod.ZodIssueCode.custom,
-        message: 'Default model must be one of the allowed models',
-      });
-    }
-  }),
+  freightConfig: zod
+    .object({
+      allowedModels: zod.array(zod.string()).min(1, 'At least one freight model must be allowed'),
+      defaultModel: zod.string().min(1, 'Default freight model is required'),
+    })
+    .superRefine((data, ctx) => {
+      if (data.allowedModels && !data.allowedModels.includes(data.defaultModel)) {
+        ctx.addIssue({
+          path: ['defaultModel'],
+          code: zod.ZodIssueCode.custom,
+          message: 'Default model must be one of the allowed models',
+        });
+      }
+    }),
   fields: zod.record(
     zod.string(),
     zod.object({
@@ -98,12 +100,7 @@ export default function SubtripGlobalSettingForm() {
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    control,
-    watch,
-    reset,
-  } = methods;
+  const { handleSubmit, control, watch, reset } = methods;
 
   useEffect(() => {
     if (data) {
@@ -226,13 +223,22 @@ export default function SubtripGlobalSettingForm() {
                             size="small"
                             color="primary"
                           >
-                            <ToggleButton value="required" sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}>
+                            <ToggleButton
+                              value="required"
+                              sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}
+                            >
                               Required
                             </ToggleButton>
-                            <ToggleButton value="optional" sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}>
+                            <ToggleButton
+                              value="optional"
+                              sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}
+                            >
                               Optional
                             </ToggleButton>
-                            <ToggleButton value="hidden" sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}>
+                            <ToggleButton
+                              value="hidden"
+                              sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem' }}
+                            >
                               Hidden
                             </ToggleButton>
                           </ToggleButtonGroup>

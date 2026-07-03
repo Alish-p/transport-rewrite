@@ -22,9 +22,7 @@ export const navData = [
       },
       {
         subheader: 'Blog',
-        items: [
-          { title: 'All Posts', path: paths.comingSoon },
-        ],
+        items: [{ title: 'All Posts', path: paths.comingSoon }],
       },
     ],
   },

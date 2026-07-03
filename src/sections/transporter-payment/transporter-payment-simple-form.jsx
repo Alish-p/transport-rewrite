@@ -42,7 +42,11 @@ import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { getWeightUnit, calculateTotalWeight, getFreightExplanation } from 'src/sections/subtrip/utils';
+import {
+  getWeightUnit,
+  calculateTotalWeight,
+  getFreightExplanation,
+} from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -227,13 +231,13 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
     }
   };
 
-
   const selectedSubtrips = subtrips.filter((st) => st.selected);
   const podCharge = selectedSubtrips.length * (transporter?.podCharges || 0);
 
-  const loanChargesForSummary = selectedSubtrips.length > 0
-    ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: -ld.amount }))
-    : [];
+  const loanChargesForSummary =
+    selectedSubtrips.length > 0
+      ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: -ld.amount }))
+      : [];
 
   const summary = calculateTransporterPaymentSummary(selectedSubtrips, transporter, [
     { label: 'POD Charges', amount: -podCharge },
@@ -456,11 +460,20 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                       <TableCell align="right">{st.shortageWeight}</TableCell>
                       <TableCell align="right">{fCurrency(shortageAmount)}</TableCell>
                       <TableCell align="right">
-                        <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={0.5}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          justifyContent="flex-end"
+                          spacing={0.5}
+                        >
                           <span>{fCurrency(freightAmount)}</span>
                           <Tooltip title={getFreightExplanation(st, true)} arrow placement="top">
                             <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
-                              <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                              <Iconify
+                                icon="eva:info-outline"
+                                width={16}
+                                sx={{ color: 'text.disabled' }}
+                              />
                             </Box>
                           </Tooltip>
                         </Stack>
@@ -611,7 +624,6 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
           Create Payment
         </LoadingButton>
       </Stack>
-
     </Form>
   );
 }

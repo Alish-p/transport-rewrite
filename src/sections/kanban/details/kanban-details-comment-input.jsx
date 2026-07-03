@@ -48,12 +48,12 @@ export function KanbanDetailsCommentInput({ taskId }) {
       </Avatar>
 
       <Paper variant="outlined" sx={{ p: 1, flexGrow: 1, bgcolor: 'transparent' }}>
-        <InputBase 
-          fullWidth 
-          multiline 
-          rows={2} 
-          placeholder="Type a message" 
-          sx={{ px: 1 }} 
+        <InputBase
+          fullWidth
+          multiline
+          rows={2}
+          placeholder="Type a message"
+          sx={{ px: 1 }}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           onKeyDown={handleKeyDown}

@@ -29,7 +29,12 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
       }}
       {...other}
     >
-      <Box component="img" alt={workspace?.name} src={getTenantLogoUrl(tenant)} sx={{ width: 36, height: 36, borderRadius: '50%' }} />
+      <Box
+        component="img"
+        alt={workspace?.name}
+        src={getTenantLogoUrl(tenant)}
+        sx={{ width: 36, height: 36, borderRadius: '50%' }}
+      />
 
       <Box
         component="span"

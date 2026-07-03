@@ -17,7 +17,6 @@ const getLoans = async () => {
   return data;
 };
 
-
 const getLoan = async (id) => {
   const { data } = await axios.get(`${ENDPOINT}/${id}`);
   return data;

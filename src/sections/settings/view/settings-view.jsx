@@ -117,8 +117,14 @@ export function SettingsView({ tenant }) {
         itemId={item.id}
         label={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
-            {item.icon && <Box component="span" sx={{ display: 'flex' }}>{item.icon}</Box>}
-            <Box component="span" sx={{ typography: 'body2' }}>{item.label}</Box>
+            {item.icon && (
+              <Box component="span" sx={{ display: 'flex' }}>
+                {item.icon}
+              </Box>
+            )}
+            <Box component="span" sx={{ typography: 'body2' }}>
+              {item.label}
+            </Box>
           </Box>
         }
       >
@@ -130,10 +136,7 @@ export function SettingsView({ tenant }) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Company Settings"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Company Settings' },
-        ]}
+        links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Company Settings' }]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 

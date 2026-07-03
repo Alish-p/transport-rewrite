@@ -179,7 +179,6 @@ export default function DriverPayrollTableToolbar({
         </Stack>
       </Stack>
 
-
       <ColumnSelectorList
         open={Boolean(columnsPopover.open)}
         onClose={columnsPopover.onClose}

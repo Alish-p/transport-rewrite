@@ -152,7 +152,7 @@ export function useFinancialMonthlyData() {
 
 const getInvoiceAmountSummary = async (year) => {
   const { data } = await axios.get(`${ENDPOINT}/invoice-amount-summary`, {
-    params: { year }
+    params: { year },
   });
   return data;
 };
@@ -170,7 +170,7 @@ export function useInvoiceAmountSummary(year, options = {}) {
 
 const getTransporterPaymentSummary = async (year) => {
   const { data } = await axios.get(`${ENDPOINT}/transporter-payment-summary`, {
-    params: { year }
+    params: { year },
   });
   return data;
 };

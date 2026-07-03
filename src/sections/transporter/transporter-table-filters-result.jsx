@@ -47,11 +47,7 @@ export default function TransportTableFiltersResult({
 
         {filters.status && filters.status !== 'all' && (
           <Block label="Status:">
-            <Chip
-              size="small"
-              label={filters.status}
-              onDelete={() => onFilters('status', 'all')}
-            />
+            <Chip size="small" label={filters.status} onDelete={() => onFilters('status', 'all')} />
           </Block>
         )}
 
@@ -106,21 +102,13 @@ export default function TransportTableFiltersResult({
 
         {filters.gstNo && (
           <Block label="GST No:">
-            <Chip
-              size="small"
-              label={filters.gstNo}
-              onDelete={() => onFilters('gstNo', '')}
-            />
+            <Chip size="small" label={filters.gstNo} onDelete={() => onFilters('gstNo', '')} />
           </Block>
         )}
 
         {filters.panNo && (
           <Block label="PAN No:">
-            <Chip
-              size="small"
-              label={filters.panNo}
-              onDelete={() => onFilters('panNo', '')}
-            />
+            <Chip size="small" label={filters.panNo} onDelete={() => onFilters('panNo', '')} />
           </Block>
         )}
 

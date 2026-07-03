@@ -423,7 +423,11 @@ export default function SimplerNewInvoiceForm() {
                           <span>{fCurrency(totalAmount)}</span>
                           <Tooltip title={getFreightExplanation(st, false)} arrow placement="top">
                             <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
-                              <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+                              <Iconify
+                                icon="eva:info-outline"
+                                width={16}
+                                sx={{ color: 'text.disabled' }}
+                              />
                             </Box>
                           </Tooltip>
                         </Stack>

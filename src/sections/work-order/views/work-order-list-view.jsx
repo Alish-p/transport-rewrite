@@ -50,10 +50,6 @@ import WorkOrderTableToolbar from '../work-order-table-toolbar';
 import { WORK_ORDER_STATUS_OPTIONS } from '../work-order-config';
 import WorkOrderTableFiltersResult from '../work-order-table-filters-result';
 
-  ;
-
-;
-
 const STORAGE_KEY = 'work-order-table-columns';
 
 const defaultFilters = {
@@ -131,9 +127,15 @@ export function WorkOrderListView() {
     issue: filters.issue || undefined,
     expenseAdded: filters.expenseAdded || undefined,
     workOrderNo: filters.workOrderNo || undefined,
-    startDateStart: filters.startDateStart ? dayjs(filters.startDateStart).format('YYYY-MM-DD') : undefined,
-    startDateEnd: filters.startDateEnd ? dayjs(filters.startDateEnd).format('YYYY-MM-DD') : undefined,
-    endDateStart: filters.endDateStart ? dayjs(filters.endDateStart).format('YYYY-MM-DD') : undefined,
+    startDateStart: filters.startDateStart
+      ? dayjs(filters.startDateStart).format('YYYY-MM-DD')
+      : undefined,
+    startDateEnd: filters.startDateEnd
+      ? dayjs(filters.startDateEnd).format('YYYY-MM-DD')
+      : undefined,
+    endDateStart: filters.endDateStart
+      ? dayjs(filters.endDateStart).format('YYYY-MM-DD')
+      : undefined,
     endDateEnd: filters.endDateEnd ? dayjs(filters.endDateEnd).format('YYYY-MM-DD') : undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
@@ -261,7 +263,10 @@ export function WorkOrderListView() {
                 animation: 'pulseGlow 2s ease-in-out infinite',
                 '@keyframes pulseGlow': {
                   '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
                 },
               }}
             >
@@ -306,8 +311,7 @@ export function WorkOrderListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') ||
-                      'soft'
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={tab.color}
                   >
@@ -372,21 +376,25 @@ export function WorkOrderListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} work orders
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} work orders
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -400,7 +408,9 @@ export function WorkOrderListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : Object.keys(visibleColumns)
                           ).filter((id) => visibleColumns[id]);
 
                           const response = await axios.get('/api/maintenance/work-orders/export', {
@@ -416,10 +426,18 @@ export function WorkOrderListView() {
                               issue: filters.issue || undefined,
                               expenseAdded: filters.expenseAdded || undefined,
                               workOrderNo: filters.workOrderNo || undefined,
-                              startDateStart: filters.startDateStart ? dayjs(filters.startDateStart).format('YYYY-MM-DD') : undefined,
-                              startDateEnd: filters.startDateEnd ? dayjs(filters.startDateEnd).format('YYYY-MM-DD') : undefined,
-                              endDateStart: filters.endDateStart ? dayjs(filters.endDateStart).format('YYYY-MM-DD') : undefined,
-                              endDateEnd: filters.endDateEnd ? dayjs(filters.endDateEnd).format('YYYY-MM-DD') : undefined,
+                              startDateStart: filters.startDateStart
+                                ? dayjs(filters.startDateStart).format('YYYY-MM-DD')
+                                : undefined,
+                              startDateEnd: filters.startDateEnd
+                                ? dayjs(filters.startDateEnd).format('YYYY-MM-DD')
+                                : undefined,
+                              endDateStart: filters.endDateStart
+                                ? dayjs(filters.endDateStart).format('YYYY-MM-DD')
+                                : undefined,
+                              endDateEnd: filters.endDateEnd
+                                ? dayjs(filters.endDateEnd).format('YYYY-MM-DD')
+                                : undefined,
                               columns: orderedIds.join(','),
                             },
                             responseType: 'blob',
@@ -489,22 +507,22 @@ export function WorkOrderListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <WorkOrderTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <WorkOrderTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

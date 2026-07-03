@@ -20,21 +20,15 @@ import { Form, Field } from 'src/components/hook-form';
 
 const VehicleSettingSchema = zod.object({
   config: zod.object({
-    vehicle: zod.object({
-      marketVehicles: zod.boolean().optional(),
-      types: zod
-        .array(zod.object({ label: zod.string(), value: zod.string() }))
-        .optional(),
-      companies: zod
-        .array(zod.object({ label: zod.string(), value: zod.string() }))
-        .optional(),
-      models: zod
-        .array(zod.object({ label: zod.string(), value: zod.string() }))
-        .optional(),
-      engineTypes: zod
-        .array(zod.object({ label: zod.string(), value: zod.string() }))
-        .optional(),
-    }).optional(),
+    vehicle: zod
+      .object({
+        marketVehicles: zod.boolean().optional(),
+        types: zod.array(zod.object({ label: zod.string(), value: zod.string() })).optional(),
+        companies: zod.array(zod.object({ label: zod.string(), value: zod.string() })).optional(),
+        models: zod.array(zod.object({ label: zod.string(), value: zod.string() })).optional(),
+        engineTypes: zod.array(zod.object({ label: zod.string(), value: zod.string() })).optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -97,11 +91,15 @@ export default function VehicleSettingForm({ currentTenant }) {
               labelPlacement="start"
               label={
                 <Stack direction="row" spacing={1} alignItems="center">
-                   <Iconify icon="mdi:truck-fast" />
+                  <Iconify icon="mdi:truck-fast" />
                   Manages Market & Supplier Vehicles
                   <Tooltip title="If disabled, all transporter-related functionality (advances, payments, tracking, filtering) will be hidden, streamlining the interface for operators who only manage their own vehicles.">
                     <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled', ml: 0.5 }} />
+                      <Iconify
+                        icon="eva:info-outline"
+                        width={16}
+                        sx={{ color: 'text.disabled', ml: 0.5 }}
+                      />
                     </Box>
                   </Tooltip>
                 </Stack>
@@ -112,7 +110,11 @@ export default function VehicleSettingForm({ currentTenant }) {
         </Card>
 
         <Card>
-          <CardHeader title="Vehicle Configurations" subheader="Configure custom vehicle types, companies, models, and engine types for your fleet." sx={{ mb: 3 }} />
+          <CardHeader
+            title="Vehicle Configurations"
+            subheader="Configure custom vehicle types, companies, models, and engine types for your fleet."
+            sx={{ mb: 3 }}
+          />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.MultiAutocompleteFreeSolo

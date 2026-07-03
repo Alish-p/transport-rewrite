@@ -79,8 +79,7 @@ export function useCreatePartLocation() {
       toast.success('Part location added successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -98,8 +97,7 @@ export function useUpdatePartLocation() {
       toast.success('Part location updated successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -116,8 +114,7 @@ export function useDeletePartLocation() {
       toast.success('Part location deleted successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });

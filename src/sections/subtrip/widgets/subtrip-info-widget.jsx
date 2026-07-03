@@ -143,7 +143,9 @@ export default function LRInfoCard({ subtrip }) {
                   {vehicleNo}
                 </Link>
               ) : (
-                <Box component="span" sx={{ color: 'text.secondary' }}>{vehicleNo}</Box>
+                <Box component="span" sx={{ color: 'text.secondary' }}>
+                  {vehicleNo}
+                </Box>
               )}
             </Typography>
           </Stack>
@@ -163,7 +165,9 @@ export default function LRInfoCard({ subtrip }) {
                   {driverName}
                 </Link>
               ) : (
-                <Box component="span" sx={{ color: 'text.secondary' }}>{driverName}</Box>
+                <Box component="span" sx={{ color: 'text.secondary' }}>
+                  {driverName}
+                </Box>
               )}
             </Typography>
           </Stack>

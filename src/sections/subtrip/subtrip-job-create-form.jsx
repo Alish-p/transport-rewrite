@@ -33,10 +33,22 @@ import { SubtripJobCreateDialogs } from './subtrip-job-create-dialogs';
 import { jobCreateSchema, createJobDefaultValues } from './subtrip-schemas';
 import { getRouteStepError, SubtripJobCreateRouteStep } from './subtrip-job-create-route-step';
 import { getJobStepError, SubtripJobCreateDetailsStep } from './subtrip-job-create-details-step';
-import { getVehicleStepError, SubtripJobCreateVehicleStep } from './subtrip-job-create-vehicle-step';
-import { getFreightStepError, SubtripJobCreateFreightStep } from './subtrip-job-create-freight-step';
-import { getAdvanceStepError, SubtripJobCreateAdvanceStep } from './subtrip-job-create-advance-step';
-import { getMaterialStepError, SubtripJobCreateMaterialStep } from './subtrip-job-create-material-step';
+import {
+  getVehicleStepError,
+  SubtripJobCreateVehicleStep,
+} from './subtrip-job-create-vehicle-step';
+import {
+  getFreightStepError,
+  SubtripJobCreateFreightStep,
+} from './subtrip-job-create-freight-step';
+import {
+  getAdvanceStepError,
+  SubtripJobCreateAdvanceStep,
+} from './subtrip-job-create-advance-step';
+import {
+  getMaterialStepError,
+  SubtripJobCreateMaterialStep,
+} from './subtrip-job-create-material-step';
 
 // ----------------------------------------------------------------------
 
@@ -153,16 +165,20 @@ export function SubtripJobCreateForm() {
     let detail = '';
     if (model === 'per_ton' || model === 'per_kl') {
       calculatedAmount = rateVal * weightVal;
-      detail = model === 'per_kl'
-        ? `calculated for loading volume of ${fNumber(weightVal)} KL at ${fCurrency(rateVal)}/KL`
-        : `calculated for loading weight of ${fNumber(weightVal)} MT at ${fCurrency(rateVal)}/ton`;
+      detail =
+        model === 'per_kl'
+          ? `calculated for loading volume of ${fNumber(weightVal)} KL at ${fCurrency(rateVal)}/KL`
+          : `calculated for loading weight of ${fNumber(weightVal)} MT at ${fCurrency(rateVal)}/ton`;
     } else if (model === 'fixed') {
       calculatedAmount = amountVal;
       detail = `fixed freight amount of ${fCurrency(amountVal)}`;
     }
 
     return {
-      amount: typeof calculatedAmount === 'number' && !Number.isNaN(calculatedAmount) ? fCurrency(calculatedAmount) : fCurrency(0),
+      amount:
+        typeof calculatedAmount === 'number' && !Number.isNaN(calculatedAmount)
+          ? fCurrency(calculatedAmount)
+          : fCurrency(0),
       detail,
     };
   }, [watchedForm]);
@@ -186,7 +202,8 @@ export function SubtripJobCreateForm() {
   // Pre-populate eWay Bill from URL query or navigation state
   useEffect(() => {
     const fromQuery = searchParams.get('ewayBill');
-    const fromState = location?.state && typeof location.state === 'object' ? location.state.ewayBill : undefined;
+    const fromState =
+      location?.state && typeof location.state === 'object' ? location.state.ewayBill : undefined;
     const incoming = (fromQuery || fromState || '').toString().trim();
     if (incoming && !getValues('ewayBill')) {
       setValue('ewayBill', incoming, { shouldDirty: true, shouldValidate: true });
@@ -199,10 +216,11 @@ export function SubtripJobCreateForm() {
     (dieselAdvanceValue !== undefined && dieselAdvanceValue > 0);
 
   // Customer lookup using dedicated search API (GSTIN prioritized)
-  const { data: customerLookupData } = useSearchCustomer(
-    searchCustomerParams,
-    { enabled: Boolean(searchCustomerParams && (searchCustomerParams.gstinNumber || searchCustomerParams.name)) }
-  );
+  const { data: customerLookupData } = useSearchCustomer(searchCustomerParams, {
+    enabled: Boolean(
+      searchCustomerParams && (searchCustomerParams.gstinNumber || searchCustomerParams.name)
+    ),
+  });
 
   useEffect(() => {
     if (!searchCustomerParams) return;
@@ -212,7 +230,11 @@ export function SubtripJobCreateForm() {
       candidate = arr[0];
     } else if (customerLookupData?.customer) {
       candidate = customerLookupData.customer;
-    } else if (customerLookupData && typeof customerLookupData === 'object' && customerLookupData._id) {
+    } else if (
+      customerLookupData &&
+      typeof customerLookupData === 'object' &&
+      customerLookupData._id
+    ) {
       candidate = customerLookupData;
     }
 
@@ -300,10 +322,10 @@ export function SubtripJobCreateForm() {
   const { data: recentSubtripsData } = usePaginatedSubtrips(
     selectedVehicle?._id
       ? {
-        page: 1,
-        rowsPerPage: 10,
-        vehicleId: selectedVehicle._id,
-      }
+          page: 1,
+          rowsPerPage: 10,
+          vehicleId: selectedVehicle._id,
+        }
       : null,
     { enabled: !!selectedVehicle?._id }
   );
@@ -351,7 +373,15 @@ export function SubtripJobCreateForm() {
       fields,
       isEwayIntegrationEnabled,
     }),
-    [selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, isEwayIntegrationEnabled]
+    [
+      selectedVehicle,
+      fetchingActiveTrip,
+      activeTrip,
+      selectedDriver,
+      selectedCustomer,
+      fields,
+      isEwayIntegrationEnabled,
+    ]
   );
 
   // Build API payload consistently
@@ -380,7 +410,10 @@ export function SubtripJobCreateForm() {
       ? {
           loadingPoint: (form.loadingPoint || '').trim() || undefined,
           unloadingPoint: Array.isArray(form.unloadingPoint)
-            ? form.unloadingPoint.map((item) => item.value || item.label).filter(Boolean).join(' | ') || undefined
+            ? form.unloadingPoint
+                .map((item) => item.value || item.label)
+                .filter(Boolean)
+                .join(' | ') || undefined
             : (form.unloadingPoint || '').trim() || undefined,
         }
       : {};
@@ -391,31 +424,34 @@ export function SubtripJobCreateForm() {
           consignee: form.consignee?.value || form.consignee?.label,
           loadingPoint: form.loadingPoint,
           unloadingPoint: Array.isArray(form.unloadingPoint)
-            ? form.unloadingPoint.map((item) => item.value || item.label).filter(Boolean).join(' | ') || undefined
+            ? form.unloadingPoint
+                .map((item) => item.value || item.label)
+                .filter(Boolean)
+                .join(' | ') || undefined
             : form.unloadingPoint,
-        loadingWeight: toNumber(form.loadingWeight),
-        freightDetails: {
-          freightModel: form.freightModel,
-          freightAmount: toNumber(form.freightAmount),
-          baseKm: toNumber(form.baseKm),
-          rate: toNumber(form.rate),
-          startKm: toNumber(form.freightStartKm),
-        },
-        invoiceNo: form.invoiceNo,
-        shipmentNo: form.shipmentNo || undefined,
-        orderNo: form.orderNo || undefined,
-        referenceSubtripNo: form.referenceSubtripNo || undefined,
-        ewayBill: form.ewayBill || undefined,
-        ewayExpiryDate: form.ewayExpiryDate,
-        materialType: form.materialType,
-        quantity: toNumber(form.quantity),
-        grade: form.grade || undefined,
-        driverAdvance: toNumber(form.driverAdvance),
-        driverAdvanceGivenBy: form.driverAdvanceGivenBy,
-        initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
-        initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
-        pumpCd: form.pumpCd || undefined,
-      }
+          loadingWeight: toNumber(form.loadingWeight),
+          freightDetails: {
+            freightModel: form.freightModel,
+            freightAmount: toNumber(form.freightAmount),
+            baseKm: toNumber(form.baseKm),
+            rate: toNumber(form.rate),
+            startKm: toNumber(form.freightStartKm),
+          },
+          invoiceNo: form.invoiceNo,
+          shipmentNo: form.shipmentNo || undefined,
+          orderNo: form.orderNo || undefined,
+          referenceSubtripNo: form.referenceSubtripNo || undefined,
+          ewayBill: form.ewayBill || undefined,
+          ewayExpiryDate: form.ewayExpiryDate,
+          materialType: form.materialType,
+          quantity: toNumber(form.quantity),
+          grade: form.grade || undefined,
+          driverAdvance: toNumber(form.driverAdvance),
+          driverAdvanceGivenBy: form.driverAdvanceGivenBy,
+          initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
+          initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
+          pumpCd: form.pumpCd || undefined,
+        }
       : {};
 
     return {
@@ -460,8 +496,12 @@ export function SubtripJobCreateForm() {
 
   const canGoRouteStep = !getJobStepError(watchedForm, validatorContext);
   const canGoFreightStep = isLoadedJob ? !getRouteStepError(watchedForm, validatorContext) : false;
-  const canGoMaterialStep = isLoadedJob ? !getFreightStepError(watchedForm, validatorContext) : false;
-  const canGoAdvanceStep = isLoadedJob ? !getMaterialStepError(watchedForm, validatorContext) : false;
+  const canGoMaterialStep = isLoadedJob
+    ? !getFreightStepError(watchedForm, validatorContext)
+    : false;
+  const canGoAdvanceStep = isLoadedJob
+    ? !getMaterialStepError(watchedForm, validatorContext)
+    : false;
 
   const canSubmit = isLoadedJob
     ? activeStep === 5

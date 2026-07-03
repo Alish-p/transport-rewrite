@@ -108,7 +108,13 @@ export const TABLE_COLUMNS = [
           arrow
           placement="top"
         >
-          <span style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dashed' }}>
+          <span
+            style={{
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              textDecorationStyle: 'dashed',
+            }}
+          >
             {layoutId}
           </span>
         </Tooltip>

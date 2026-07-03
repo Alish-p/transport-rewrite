@@ -98,7 +98,12 @@ export function PaymentFormDialog({ open, onClose, initial, onSubmit }) {
           <Button onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!isValid}>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+            disabled={!isValid}
+          >
             {isEdit ? 'Save' : 'Add'}
           </LoadingButton>
         </DialogActions>

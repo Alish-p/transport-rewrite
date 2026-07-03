@@ -76,7 +76,9 @@ function ChallanPopoverContent({ challans, title, labelColor, theme, isPending }
       <Scrollbar sx={{ maxHeight: 400 }}>
         {(!challans || challans.length === 0) && (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>No challans found.</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              No challans found.
+            </Typography>
           </Box>
         )}
         {challans?.map((challan, index) => (
@@ -97,7 +99,12 @@ function ChallanPopoverContent({ challans, title, labelColor, theme, isPending }
                   {challan.challanNo}
                 </Typography>
                 {challan.challanDateTime && (
-                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ color: 'text.secondary', typography: 'caption' }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.5}
+                    sx={{ color: 'text.secondary', typography: 'caption' }}
+                  >
                     <Iconify icon="solar:calendar-date-bold" width={14} />
                     <span>{fDateTime(challan.challanDateTime)}</span>
                   </Stack>
@@ -107,23 +114,46 @@ function ChallanPopoverContent({ challans, title, labelColor, theme, isPending }
                 {challan.fineImposed != null ? `₹${challan.fineImposed}` : '-'}
               </Label>
             </Stack>
-            
+
             {challan.place && challan.place !== '-' && (
-              <Stack direction="row" alignItems="flex-start" spacing={0.5} sx={{ color: 'text.secondary', typography: 'body2' }}>
+              <Stack
+                direction="row"
+                alignItems="flex-start"
+                spacing={0.5}
+                sx={{ color: 'text.secondary', typography: 'body2' }}
+              >
                 <Iconify icon="solar:map-point-bold" width={16} sx={{ mt: 0.25, flexShrink: 0 }} />
                 <span>{challan.place}</span>
               </Stack>
             )}
 
-            {(challan.offenceDetails && challan.offenceDetails.length > 0) && (
-              <Box sx={{ mt: 0.5, p: 1.5, bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08), borderRadius: 1 }}>
-                <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 0.5 }}>
+            {challan.offenceDetails && challan.offenceDetails.length > 0 && (
+              <Box
+                sx={{
+                  mt: 0.5,
+                  p: 1.5,
+                  bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                  borderRadius: 1,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 0.5 }}
+                >
                   Offenses:
                 </Typography>
                 <Stack spacing={0.5}>
                   {challan.offenceDetails.map((o, idx) => (
-                    <Typography key={idx} variant="caption" display="flex" alignItems="flex-start" sx={{ color: 'text.primary' }}>
-                      <Box component="span" sx={{ mr: 0.75, color: 'text.disabled' }}>•</Box>
+                    <Typography
+                      key={idx}
+                      variant="caption"
+                      display="flex"
+                      alignItems="flex-start"
+                      sx={{ color: 'text.primary' }}
+                    >
+                      <Box component="span" sx={{ mr: 0.75, color: 'text.disabled' }}>
+                        •
+                      </Box>
                       {o?.name || o?.act || 'Unknown offense'}
                     </Typography>
                   ))}
@@ -218,10 +248,13 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
     return next.getTime() > now.getTime();
   }, [cooldownInfo]);
 
-  const counts = useMemo(() => ({
-    pending: data?.pendingCount ?? (data?.pending?.length || 0),
-    disposed: data?.disposedCount ?? (data?.disposed?.length || 0),
-  }), [data]);
+  const counts = useMemo(
+    () => ({
+      pending: data?.pendingCount ?? (data?.pending?.length || 0),
+      disposed: data?.disposedCount ?? (data?.disposed?.length || 0),
+    }),
+    [data]
+  );
 
   const handleOpenPopover = (event, type) => {
     setPopoverType(type);
@@ -232,8 +265,8 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
     setAnchorEl(null);
   };
 
-  const hasData = (counts.pending > 0 || counts.disposed > 0);
-  const color = counts.pending > 0 ? 'error' : (hasData ? 'success' : 'info');
+  const hasData = counts.pending > 0 || counts.disposed > 0;
+  const color = counts.pending > 0 ? 'error' : hasData ? 'success' : 'info';
 
   const getLinkSx = (typeColor) => ({
     cursor: 'pointer',
@@ -241,8 +274,8 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
     p: 1,
     mx: -1,
     transition: 'all 0.2s ease-in-out',
-    display: 'flex', 
-    alignItems: 'baseline', 
+    display: 'flex',
+    alignItems: 'baseline',
     gap: 1,
     justifyContent: 'flex-start',
     '&:hover': {
@@ -252,14 +285,33 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
 
   return (
     <>
-      <Card sx={{ py: 3, pl: 3, pr: 2.5, position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', ...sx }} {...other}>
+      <Card
+        sx={{
+          py: 3,
+          pl: 3,
+          pr: 2.5,
+          position: 'relative',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          ...sx,
+        }}
+        {...other}
+      >
         <Box sx={{ flexGrow: 1, zIndex: 1 }}>
           <ButtonBase
             onClick={(e) => counts.pending > 0 && handleOpenPopover(e, 'pending')}
             disableRipple={counts.pending === 0}
-            sx={{ ...getLinkSx('error'), ...(!hasData && { mb: 1, display: 'inline-flex' }), width: 'auto' }}
+            sx={{
+              ...getLinkSx('error'),
+              ...(!hasData && { mb: 1, display: 'inline-flex' }),
+              width: 'auto',
+            }}
           >
-            <Box sx={{ typography: 'h3', color: counts.pending > 0 ? `error.main` : 'text.primary' }}>
+            <Box
+              sx={{ typography: 'h3', color: counts.pending > 0 ? `error.main` : 'text.primary' }}
+            >
               {counts.pending}
             </Box>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
@@ -273,9 +325,7 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
               disableRipple={counts.disposed === 0}
               sx={{ ...getLinkSx('success'), mt: 0.5, gap: 0.75, width: 'auto' }}
             >
-              <Box sx={{ typography: 'subtitle1', color: 'success.main' }}>
-                {counts.disposed}
-              </Box>
+              <Box sx={{ typography: 'subtitle1', color: 'success.main' }}>{counts.disposed}</Box>
               <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
                 Paid
               </Typography>
@@ -292,7 +342,8 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
         {/* Refresh icon button at bottom right */}
         <Tooltip
           title={
-            disabledReason || (cooldownActive && cooldownInfo?.nextAllowedAt
+            disabledReason ||
+            (cooldownActive && cooldownInfo?.nextAllowedAt
               ? `Next sync allowed at ${fDateTime(cooldownInfo.nextAllowedAt)}`
               : 'Refresh challans')
           }
@@ -308,7 +359,10 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
                 '&:hover': { bgcolor: 'action.selected' },
               }}
             >
-              <Iconify icon={isFetching ? 'line-md:loading-twotone-loop' : 'solar:refresh-bold-duotone'} width={18} />
+              <Iconify
+                icon={isFetching ? 'line-md:loading-twotone-loop' : 'solar:refresh-bold-duotone'}
+                width={18}
+              />
             </IconButton>
           </span>
         </Tooltip>

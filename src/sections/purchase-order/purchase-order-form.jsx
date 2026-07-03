@@ -100,8 +100,11 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   const defaultValues = useMemo(
     () => ({
       vendorId: currentPurchaseOrder?.vendor?._id || currentPurchaseOrder?.vendor || '',
-      partLocationId: currentPurchaseOrder?.partLocation?._id || currentPurchaseOrder?.partLocation || '',
-      orderDate: currentPurchaseOrder?.orderDate ? new Date(currentPurchaseOrder.orderDate) : new Date(),
+      partLocationId:
+        currentPurchaseOrder?.partLocation?._id || currentPurchaseOrder?.partLocation || '',
+      orderDate: currentPurchaseOrder?.orderDate
+        ? new Date(currentPurchaseOrder.orderDate)
+        : new Date(),
       description: currentPurchaseOrder?.description || '',
       discountType: currentPurchaseOrder?.discountType || 'percentage',
       discount: currentPurchaseOrder?.discount || 0,
@@ -145,7 +148,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
       if (currentPurchaseOrder._id) {
         reset(defaultValues);
       }
-      const {vendor} = currentPurchaseOrder;
+      const { vendor } = currentPurchaseOrder;
       if (vendor?._id && vendor?.name) {
         setSelectedVendor(vendor);
         setValue('vendorId', vendor._id, { shouldValidate: true });
@@ -161,19 +164,13 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const parts = useMemo(
-    () => partsResponse?.parts || [],
-    [partsResponse]
-  );
+  const parts = useMemo(() => partsResponse?.parts || [], [partsResponse]);
 
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
   );
-  const locations = useMemo(
-    () => locationsResponse?.locations || [],
-    [locationsResponse]
-  );
+  const locations = useMemo(() => locationsResponse?.locations || [], [locationsResponse]);
 
   const createPurchaseOrder = useCreatePurchaseOrder();
   const updatePurchaseOrder = useUpdatePurchaseOrder();
@@ -226,7 +223,8 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     closePartDialog();
   };
 
-  const getLinePart = (fieldId, partId) => lineParts[fieldId] || parts.find((p) => p._id === partId) || null;
+  const getLinePart = (fieldId, partId) =>
+    lineParts[fieldId] || parts.find((p) => p._id === partId) || null;
 
   const activeLineSelectedPart =
     activeLineIndex >= 0
@@ -259,9 +257,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
     const taxableBase = Math.max(subtotal - discountAmount, 0);
 
     const taxAmount =
-      values.taxType === 'percentage'
-        ? (taxableBase * (values.tax || 0)) / 100
-        : values.tax || 0;
+      values.taxType === 'percentage' ? (taxableBase * (values.tax || 0)) / 100 : values.tax || 0;
 
     const total = taxableBase + taxAmount + (values.shipping || 0);
 
@@ -274,10 +270,10 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
   }, [values]);
 
   const headerStatusLabel = currentPurchaseOrder?._id
-    ? (STATUS_LABELS[currentPurchaseOrder.status] || currentPurchaseOrder.status)
+    ? STATUS_LABELS[currentPurchaseOrder.status] || currentPurchaseOrder.status
     : 'Draft';
   const headerStatusColor = currentPurchaseOrder?._id
-    ? (STATUS_COLORS[currentPurchaseOrder.status] || 'warning')
+    ? STATUS_COLORS[currentPurchaseOrder.status] || 'warning'
     : 'warning';
 
   const onSubmit = async (formData) => {
@@ -384,12 +380,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
 
         <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:warehouse" width={20} />
             <Typography variant="h6">Delivery Location & Issue Date</Typography>
@@ -434,12 +425,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:file-table-outline" width={20} />
             <Typography variant="h6">Line Items</Typography>
@@ -448,9 +434,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
             size="small"
             color="primary"
             startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={() =>
-              append({ partId: '', quantityOrdered: 1, unitCost: 0 })
-            }
+            onClick={() => append({ partId: '', quantityOrdered: 1, unitCost: 0 })}
           >
             Add Line
           </Button>
@@ -458,8 +442,8 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
 
         {fields.length === 0 ? (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No line items added yet. Use &quot;Add Line&quot; to include parts in this
-            purchase order.
+            No line items added yet. Use &quot;Add Line&quot; to include parts in this purchase
+            order.
           </Typography>
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
@@ -481,7 +465,8 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                   const line = values.lines?.[index] || {};
                   const amount = (line.quantityOrdered || 0) * (line.unitCost || 0);
                   const selectedPart = getLinePart(field.id, line.partId);
-                  const unit = line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
+                  const unit =
+                    line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
                   return (
                     <TableRow key={field.id}>
                       <TableCell>{index + 1}</TableCell>
@@ -516,10 +501,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
                           inputProps={{ min: 1 }}
                           InputProps={{
                             endAdornment: unit ? (
-                              <Typography
-                                variant="caption"
-                                sx={{ ml: 1, color: 'text.secondary' }}
-                              >
+                              <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
                                 {unit}
                               </Typography>
                             ) : undefined,
@@ -560,12 +542,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="solar:wallet-bold-duotone" width={24} />
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -715,7 +692,7 @@ export default function PurchaseOrderForm({ currentPurchaseOrder }) {
           sx={{
             '& .MuiOutlinedInput-root': {
               bgcolor: 'background.neutral',
-            }
+            },
           }}
         />
       </Box>

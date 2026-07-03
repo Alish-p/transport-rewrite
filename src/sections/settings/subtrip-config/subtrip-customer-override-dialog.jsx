@@ -27,7 +27,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { useCustomersSummary } from 'src/query/use-customer';
-import { useGetFieldConfig, useUpsertCustomerOverride, useDeleteCustomerOverride } from 'src/query/use-field-config';
+import {
+  useGetFieldConfig,
+  useUpsertCustomerOverride,
+  useDeleteCustomerOverride,
+} from 'src/query/use-field-config';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
@@ -53,7 +57,10 @@ const FIELDS_KEYS = [
 ];
 
 const SubtripCustomerOverrideSchema = zod.object({
-  customer: zod.any().nullable().refine((val) => val !== null, 'Customer is required'),
+  customer: zod
+    .any()
+    .nullable()
+    .refine((val) => val !== null, 'Customer is required'),
   fields: zod.record(
     zod.string(),
     zod.object({
@@ -63,7 +70,12 @@ const SubtripCustomerOverrideSchema = zod.object({
   ),
 });
 
-export default function SubtripCustomerOverrideDialog({ open, onClose, override, existingCustomerIds }) {
+export default function SubtripCustomerOverrideDialog({
+  open,
+  onClose,
+  override,
+  existingCustomerIds,
+}) {
   const isEdit = !!override;
 
   const { data: globalConfig, isLoading: isLoadingGlobal } = useGetFieldConfig('subtrip');
@@ -76,7 +88,8 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
     if (!customersData) return [];
     return customersData.filter((customer) => {
       const isAlreadyOverridden = existingCustomerIds.includes(customer._id);
-      const isCurrentCustomer = isEdit && (override.customerId?._id || override.customerId) === customer._id;
+      const isCurrentCustomer =
+        isEdit && (override.customerId?._id || override.customerId) === customer._id;
       return !isAlreadyOverridden || isCurrentCustomer;
     });
   }, [customersData, existingCustomerIds, override, isEdit]);
@@ -114,13 +127,7 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    control,
-    reset,
-    watch,
-    setValue,
-  } = methods;
+  const { handleSubmit, control, reset, watch, setValue } = methods;
 
   const watchedFields = watch('fields');
 
@@ -172,7 +179,11 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
 
     if (Object.keys(customizedFields).length === 0) {
       if (isEdit) {
-        if (window.confirm('All fields match global settings. Saving will remove this customer override. Do you want to proceed?')) {
+        if (
+          window.confirm(
+            'All fields match global settings. Saving will remove this customer override. Do you want to proceed?'
+          )
+        ) {
           await deleteOverride({ entity: 'subtrip', customerId });
           onClose();
         }
@@ -206,12 +217,7 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
             <Stack spacing={3}>
               <Box>
                 {isEdit ? (
-                  <Field.Text
-                    name="customer.customerName"
-                    label="Customer"
-                    disabled
-                    fullWidth
-                  />
+                  <Field.Text name="customer.customerName" label="Customer" disabled fullWidth />
                 ) : (
                   <Field.Autocomplete
                     name="customer"
@@ -230,7 +236,12 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
                 Customize Subtrip Fields for this Customer
               </Typography>
 
-              <TableContainer sx={{ border: (theme) => `solid 1px ${theme.vars.palette.divider}`, borderRadius: 1 }}>
+              <TableContainer
+                sx={{
+                  border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+                  borderRadius: 1,
+                }}
+              >
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -310,13 +321,22 @@ export default function SubtripCustomerOverrideDialog({ open, onClose, override,
                                   size="small"
                                   color="primary"
                                 >
-                                  <ToggleButton value="required" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                  <ToggleButton
+                                    value="required"
+                                    sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}
+                                  >
                                     Req
                                   </ToggleButton>
-                                  <ToggleButton value="optional" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                  <ToggleButton
+                                    value="optional"
+                                    sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}
+                                  >
                                     Opt
                                   </ToggleButton>
-                                  <ToggleButton value="hidden" sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}>
+                                  <ToggleButton
+                                    value="hidden"
+                                    sx={{ px: 1, py: 0.25, fontSize: '0.7rem' }}
+                                  >
                                     Hide
                                   </ToggleButton>
                                 </ToggleButtonGroup>

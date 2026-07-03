@@ -44,11 +44,7 @@ export function SubtripJobCreateAdvanceStep({
             bgcolor: 'background.default',
           }}
         >
-          <Box
-            display="grid"
-            gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
-            gap={1.5}
-          >
+          <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
             <Field.Text
               name="driverAdvance"
               label="Driver Advance (Amount)"
@@ -60,7 +56,9 @@ export function SubtripJobCreateAdvanceStep({
             />
             <Field.Select name="driverAdvanceGivenBy" label="Given By">
               {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
-                .filter(option => managesPumps || option !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP)
+                .filter(
+                  (option) => managesPumps || option !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
+                )
                 .map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
@@ -80,11 +78,7 @@ export function SubtripJobCreateAdvanceStep({
               bgcolor: 'background.default',
             }}
           >
-            <Box
-              display="grid"
-              gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }}
-              gap={1.5}
-            >
+            <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '2fr 1fr' }} gap={1.5}>
               <Field.InputWithUnit
                 name="initialAdvanceDiesel"
                 unitName="initialAdvanceDieselUnit"
@@ -106,11 +100,7 @@ export function SubtripJobCreateAdvanceStep({
                   error={Boolean(errors.pumpCd)}
                 />
                 {errors.pumpCd && (
-                  <Typography
-                    variant="caption"
-                    color="error"
-                    sx={{ mt: 0.75, display: 'block' }}
-                  >
+                  <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
                     {errors.pumpCd.message}
                   </Typography>
                 )}
@@ -119,8 +109,8 @@ export function SubtripJobCreateAdvanceStep({
             <Stack spacing={0.75} sx={{ mt: 1 }}>
               {initialAdvanceDieselUnit === 'litre' && (
                 <Alert variant="outlined" severity="info">
-                  In case of Litre Diesel Intent, expense will not be added automatically.
-                  Actuals need to be added.
+                  In case of Litre Diesel Intent, expense will not be added automatically. Actuals
+                  need to be added.
                 </Alert>
               )}
             </Stack>
@@ -149,8 +139,18 @@ const toNumber = (val) => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-export function getAdvanceStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
-  const materialStageError = getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields });
+export function getAdvanceStepError(
+  form,
+  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
+) {
+  const materialStageError = getMaterialStepError(form, {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+    fields,
+  });
   if (materialStageError) return materialStageError;
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;

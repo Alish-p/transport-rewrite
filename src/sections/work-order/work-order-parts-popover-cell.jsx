@@ -126,9 +126,7 @@ export function WorkOrderPartsPopoverCell({ row }) {
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                      <Typography variant="subtitle2">
-                        {fCurrency(line.amount || 0)}
-                      </Typography>
+                      <Typography variant="subtitle2">{fCurrency(line.amount || 0)}</Typography>
                     </TableCell>
                   </TableRow>
                 );

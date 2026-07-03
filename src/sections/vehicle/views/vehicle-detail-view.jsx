@@ -56,20 +56,24 @@ export function VehicleDetailView({ vehicle }) {
     return VALID_TABS.includes(tabParam) ? tabParam : 'overview';
   }, [searchParams]);
 
-  const handleChangeTab = useCallback((_event, newValue) => {
-    const next = new URLSearchParams(searchParams);
-    if (newValue === 'overview') {
-      next.delete('tab');
-    } else {
-      next.set('tab', newValue);
-    }
-    const qs = next.toString();
-    navigate(qs ? `?${qs}` : '.', { replace: true });
-  }, [searchParams, navigate]);
+  const handleChangeTab = useCallback(
+    (_event, newValue) => {
+      const next = new URLSearchParams(searchParams);
+      if (newValue === 'overview') {
+        next.delete('tab');
+      } else {
+        next.set('tab', newValue);
+      }
+      const qs = next.toString();
+      navigate(qs ? `?${qs}` : '.', { replace: true });
+    },
+    [searchParams, navigate]
+  );
 
   const { data: gpsData } = useGps(vehicleNo, { enabled: !!vehicleNo && vehicle.isOwn });
   const odometer = gpsData?.totalOdometer || 0;
-  const fuelValue = Math.round(parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, ''))) || 0;
+  const fuelValue =
+    Math.round(parseFloat(String(gpsData?.fuel || '0').replace(/[^0-9.]/g, ''))) || 0;
 
   // Show Work Orders tab for own vehicles OR when maintenance & inventory is enabled
   const showWorkOrdersTab = vehicle.isOwn || tenant?.integrations?.maintenanceAndInventory?.enabled;
@@ -226,12 +230,12 @@ export function VehicleDetailView({ vehicle }) {
           // Show transporter (linked) only for non-own vehicles
           ...(!vehicle.isOwn && transporter?._id
             ? [
-              {
-                icon: 'mdi:account',
-                label: transporter?.transportName,
-                href: paths.dashboard.transporter.details(transporter._id),
-              },
-            ]
+                {
+                  icon: 'mdi:account',
+                  label: transporter?.transportName,
+                  href: paths.dashboard.transporter.details(transporter._id),
+                },
+              ]
             : []),
         ]}
         actions={[
@@ -253,12 +257,16 @@ export function VehicleDetailView({ vehicle }) {
         <Tab value="overview" label="Overview" icon={<Iconify icon="mdi:eye" width={20} />} />
         <Tab value="tyres" label="Tyres" icon={<Iconify icon="mingcute:wheel-line" width={20} />} />
         {showWorkOrdersTab && (
-          <Tab value="workOrders" label="Work Orders" icon={<Iconify icon="mdi:wrench" width={20} />} />
+          <Tab
+            value="workOrders"
+            label="Work Orders"
+            icon={<Iconify icon="mdi:wrench" width={20} />}
+          />
         )}
       </Tabs>
 
       {currentTab === 'overview' && (
-        <Grid container spacing={3} >
+        <Grid container spacing={3}>
           <Grid xs={12} md={7} container spacing={3} item>
             <Grid xs={12} sm={6} item>
               <VehicleOdometerWidget total={Math.round(odometer)} />
@@ -266,9 +274,11 @@ export function VehicleDetailView({ vehicle }) {
             <Grid xs={12} sm={6} item>
               <VehicleFuelWidget value={fuelValue} total={400} />
             </Grid>
-            {tenant?.integrations?.challanApi?.enabled && <Grid xs={12} sm={6} item>
-              <VehicleChallanWidget vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
-            </Grid>}
+            {tenant?.integrations?.challanApi?.enabled && (
+              <Grid xs={12} sm={6} item>
+                <VehicleChallanWidget vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
+              </Grid>
+            )}
             <Grid xs={12} item>
               <VehicleLocationMap vehicleNo={vehicleNo} isOwn={vehicle.isOwn} />
             </Grid>
@@ -308,4 +318,3 @@ export function VehicleDetailView({ vehicle }) {
     </DashboardContent>
   );
 }
-

@@ -192,7 +192,9 @@ export function KanbanSubtripDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <DialogTitle
+        sx={{ pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <Box>
           Jobs{' '}
           <Typography component="span" sx={{ color: 'text.secondary' }}>

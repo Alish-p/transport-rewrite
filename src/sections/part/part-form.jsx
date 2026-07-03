@@ -29,11 +29,14 @@ import { Form, Field } from 'src/components/hook-form';
 import { PART_CATEGORIES, PART_MANUFACTURERS, MEASUREMENT_UNIT_GROUPS } from './part-constant';
 
 const stringOrObjectSchema = (requiredMessage) =>
-  zod.preprocess((val) => {
-    if (typeof val === 'string') return val;
-    if (val && typeof val === 'object' && 'value' in val) return val.value;
-    return val;
-  }, zod.string().min(1, { message: requiredMessage }).optional());
+  zod.preprocess(
+    (val) => {
+      if (typeof val === 'string') return val;
+      if (val && typeof val === 'object' && 'value' in val) return val.value;
+      return val;
+    },
+    zod.string().min(1, { message: requiredMessage }).optional()
+  );
 
 export const PartSchema = zod.object({
   partNumber: zod.string().min(1, { message: 'Part Number is required' }),
@@ -44,8 +47,24 @@ export const PartSchema = zod.object({
   photo: zod.any().optional(),
   unitCost: zod.coerce.number().min(0, { message: 'Unit Cost cannot be negative' }),
   measurementUnit: zod.string().min(1, { message: 'Measurement Unit is required' }),
-  locationQuantities: zod.record(zod.string(), zod.preprocess((val) => (val === '' || val === undefined || val === null ? 0 : val), zod.coerce.number().min(0))).optional(),
-  locationThresholds: zod.record(zod.string(), zod.preprocess((val) => (val === '' || val === undefined || val === null ? 0 : val), zod.coerce.number().min(0))).optional(),
+  locationQuantities: zod
+    .record(
+      zod.string(),
+      zod.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? 0 : val),
+        zod.coerce.number().min(0)
+      )
+    )
+    .optional(),
+  locationThresholds: zod
+    .record(
+      zod.string(),
+      zod.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? 0 : val),
+        zod.coerce.number().min(0)
+      )
+    )
+    .optional(),
   quantity: zod.coerce.number().min(0).optional(),
 });
 
@@ -107,7 +126,7 @@ export default function PartForm({ currentPart }) {
     formState: { isSubmitting, errors },
   } = methods;
 
-  console.log({ errors })
+  console.log({ errors });
   const measurementUnit = watch('measurementUnit');
 
   const { data: locationsResponse } = usePaginatedPartLocations(
@@ -190,14 +209,15 @@ export default function PartForm({ currentPart }) {
               entry.inventoryLocation && typeof entry.inventoryLocation === 'object'
                 ? entry.inventoryLocation
                 : null;
-            const entryLocId = entryLoc?._id || entry.inventoryLocationId || entry.inventoryLocation;
+            const entryLocId =
+              entryLoc?._id || entry.inventoryLocationId || entry.inventoryLocation;
             return entryLocId === locId;
           });
 
           const threshold =
             rawThreshold !== undefined && rawThreshold !== ''
               ? Number(rawThreshold)
-              : existing?.threshold ?? 0;
+              : (existing?.threshold ?? 0);
 
           if (threshold < 0) {
             setError(`locationThresholds.${locId}`, {
@@ -259,7 +279,8 @@ export default function PartForm({ currentPart }) {
         // We include the location if the user has entered a quantity (including 0)
         if (rawQty !== undefined && rawQty !== '' && rawQty !== null) {
           const qty = Number(rawQty);
-          const threshold = rawThreshold !== undefined && rawThreshold !== '' ? Number(rawThreshold) : 0;
+          const threshold =
+            rawThreshold !== undefined && rawThreshold !== '' ? Number(rawThreshold) : 0;
 
           if (qty < 0) {
             setError(`locationQuantities.${loc._id}`, {
@@ -373,11 +394,7 @@ export default function PartForm({ currentPart }) {
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Select name="measurementUnit" label="Measurement Unit">
           {MEASUREMENT_UNIT_GROUPS.map((group) => [
-            <ListSubheader
-              key={`${group.label}-subheader`}
-              disableSticky
-              disableGutters
-            >
+            <ListSubheader key={`${group.label}-subheader`} disableSticky disableGutters>
               {group.label}
             </ListSubheader>,
             group.options.map((unit) => (
@@ -407,7 +424,8 @@ export default function PartForm({ currentPart }) {
 
         {!hasActiveLocations && (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            No active Part Locations found. Please create at least one Part Location before adding parts.
+            No active Part Locations found. Please create at least one Part Location before adding
+            parts.
           </Alert>
         )}
 
@@ -506,4 +524,3 @@ export default function PartForm({ currentPart }) {
     </Form>
   );
 }
-

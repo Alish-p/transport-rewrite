@@ -64,32 +64,37 @@ import {
 } from './work-order-config';
 
 const stringOrObjectSchema = (requiredMessage) =>
-  zod.preprocess((val) => {
-    if (typeof val === 'string') return val;
-    if (val && typeof val === 'object' && 'value' in val) return val.value;
-    return val;
-  }, zod.string().min(1, { message: requiredMessage }));
+  zod.preprocess(
+    (val) => {
+      if (typeof val === 'string') return val;
+      if (val && typeof val === 'object' && 'value' in val) return val.value;
+      return val;
+    },
+    zod.string().min(1, { message: requiredMessage })
+  );
 
-const WorkOrderLineSchema = zod.object({
-  part: zod.string().optional(),
-  name: zod.string().optional(), // For custom items
-  partLocation: zod.string().optional(),
-  quantity: zod
-    .number({ required_error: 'Quantity is required' })
-    .min(1, { message: 'Quantity must be at least 1' }),
-  price: zod
-    .number({ required_error: 'Price is required' })
-    .min(0, { message: 'Price cannot be negative' }),
-  partSnapshot: zod.any().optional(),
-}).superRefine((data, ctx) => {
-  if (data.part && (!data.partLocation || data.partLocation.trim() === '')) {
-    ctx.addIssue({
-      code: zod.ZodIssueCode.custom,
-      path: ['partLocation'],
-      message: 'Location is required',
-    });
-  }
-});
+const WorkOrderLineSchema = zod
+  .object({
+    part: zod.string().optional(),
+    name: zod.string().optional(), // For custom items
+    partLocation: zod.string().optional(),
+    quantity: zod
+      .number({ required_error: 'Quantity is required' })
+      .min(1, { message: 'Quantity must be at least 1' }),
+    price: zod
+      .number({ required_error: 'Price is required' })
+      .min(0, { message: 'Price cannot be negative' }),
+    partSnapshot: zod.any().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.part && (!data.partLocation || data.partLocation.trim() === '')) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        path: ['partLocation'],
+        message: 'Location is required',
+      });
+    }
+  });
 
 const WorkOrderIssueSchema = zod.object({
   issue: stringOrObjectSchema('Issue cannot be empty'),
@@ -98,18 +103,17 @@ const WorkOrderIssueSchema = zod.object({
 
 export const WorkOrderSchema = zod.object({
   vehicleId: zod.string().min(1, { message: 'Vehicle is required' }),
-  category: zod.preprocess((val) => {
-    if (!val) return '';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'object' && 'value' in val) return val.value;
-    return val;
-  }, zod.string().min(1, { message: 'Category is required' })),
-  status: zod
-    .enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value))
-    .optional(),
-  priority: zod
-    .enum(WORK_ORDER_PRIORITY_OPTIONS.map((p) => p.value))
-    .default('non-scheduled'),
+  category: zod.preprocess(
+    (val) => {
+      if (!val) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'object' && 'value' in val) return val.value;
+      return val;
+    },
+    zod.string().min(1, { message: 'Category is required' })
+  ),
+  status: zod.enum(WORK_ORDER_STATUS_OPTIONS.map((s) => s.value)).optional(),
+  priority: zod.enum(WORK_ORDER_PRIORITY_OPTIONS.map((p) => p.value)).default('non-scheduled'),
   scheduledStartDate: schemaHelper.date({ message: 'Scheduled start date is required' }),
   actualStartDate: schemaHelper.dateOptional().optional(),
   odometerReading: zod.preprocess(
@@ -135,9 +139,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   const scheduledDateDialog = useBoolean(false);
   const actualDateDialog = useBoolean(false);
 
-  const [selectedVehicle, setSelectedVehicle] = useState(
-    currentWorkOrder?.vehicle || null
-  );
+  const [selectedVehicle, setSelectedVehicle] = useState(currentWorkOrder?.vehicle || null);
   const [issueAssignees, setIssueAssignees] = useState({});
   const [activeIssueFieldId, setActiveIssueFieldId] = useState(null);
   const assigneeDialog = useBoolean(false);
@@ -147,10 +149,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
   const defaultValues = useMemo(
     () => ({
-      vehicleId:
-        currentWorkOrder?.vehicle?._id ||
-        currentWorkOrder?.vehicle ||
-        '',
+      vehicleId: currentWorkOrder?.vehicle?._id || currentWorkOrder?.vehicle || '',
       category: currentWorkOrder?.category || '',
       status: currentWorkOrder?.status || 'open',
       priority: currentWorkOrder?.priority || 'non-scheduled',
@@ -165,9 +164,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           ? currentWorkOrder.odometerReading
           : undefined,
       labourCharge:
-        typeof currentWorkOrder?.labourCharge === 'number'
-          ? currentWorkOrder.labourCharge
-          : 0,
+        typeof currentWorkOrder?.labourCharge === 'number' ? currentWorkOrder.labourCharge : 0,
       description: currentWorkOrder?.description || '',
       workshopName: currentWorkOrder?.workshopName || '',
       billNo: currentWorkOrder?.billNo || '',
@@ -181,15 +178,16 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             issue: issue.issue || '',
             assignedTo: Array.isArray(issue.assignedTo)
               ? issue.assignedTo.map((u) => u?._id || u || '')
-              : (issue.assignedTo ? [issue.assignedTo?._id || issue.assignedTo] : []),
+              : issue.assignedTo
+                ? [issue.assignedTo?._id || issue.assignedTo]
+                : [],
           };
         });
       })(),
       parts: (currentWorkOrder?.parts || []).map((line) => ({
         part: line.part?._id || line.part || '',
         name: line.name || '',
-        partLocation:
-          line.partLocation?._id || line.partLocation || '',
+        partLocation: line.partLocation?._id || line.partLocation || '',
         quantity: line.quantity || 1,
         price: line.price || 0,
         partSnapshot: line.partSnapshot,
@@ -234,9 +232,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   const values = watch();
   const priorityMenuOpen = Boolean(priorityAnchorEl);
 
-  const isExternalWorkshop = typeof values.category === 'object'
-    ? values.category?.value === 'External Workshop'
-    : values.category === 'External Workshop';
+  const isExternalWorkshop =
+    typeof values.category === 'object'
+      ? values.category?.value === 'External Workshop'
+      : values.category === 'External Workshop';
 
   const vehicleNo = selectedVehicle?.vehicleNo;
   const selectedVehicleId = selectedVehicle?._id || selectedVehicle || '';
@@ -361,10 +360,14 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       [activeIssueFieldId]: assignees,
     }));
 
-    setValue(`issues.${index}.assignedTo`, assignees.map((user) => user?._id || '').filter(Boolean), {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    setValue(
+      `issues.${index}.assignedTo`,
+      assignees.map((user) => user?._id || '').filter(Boolean),
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      }
+    );
   };
 
   const handleScheduledDateChange = (newDate) => {
@@ -436,34 +439,38 @@ export default function WorkOrderForm({ currentWorkOrder }) {
     try {
       const payload = {
         vehicle: formData.vehicleId,
-        category: typeof formData.category === 'object' ? formData.category?.value : (formData.category || undefined),
+        category:
+          typeof formData.category === 'object'
+            ? formData.category?.value
+            : formData.category || undefined,
         status: formData.status || undefined,
         priority: formData.priority || undefined,
-        scheduledStartDate:
-          formData.scheduledStartDate || undefined,
+        scheduledStartDate: formData.scheduledStartDate || undefined,
         actualStartDate: formData.actualStartDate || undefined,
         odometerReading: formData.odometerReading || undefined,
-        labourCharge:
-          typeof formData.labourCharge === 'number'
-            ? formData.labourCharge
-            : 0,
+        labourCharge: typeof formData.labourCharge === 'number' ? formData.labourCharge : 0,
         parts: (formData.parts || []).map((line) => ({
           part: line.part || undefined,
           name: line.name || undefined,
-          partLocation: line.part ? (line.partLocation || undefined) : undefined,
+          partLocation: line.part ? line.partLocation || undefined : undefined,
           quantity: line.quantity,
           price: line.price,
         })),
         issues: (formData.issues || [])
           .filter((item) => {
             const issueText = typeof item?.issue === 'object' ? item.issue.value : item?.issue;
-            return item && issueText && typeof issueText === 'string' && issueText.trim().length > 0;
+            return (
+              item && issueText && typeof issueText === 'string' && issueText.trim().length > 0
+            );
           })
           .map((item) => {
             const issueText = typeof item?.issue === 'object' ? item.issue.value : item?.issue;
             return {
               issue: issueText.trim(),
-              assignedTo: Array.isArray(item.assignedTo) && item.assignedTo.length > 0 ? item.assignedTo : undefined,
+              assignedTo:
+                Array.isArray(item.assignedTo) && item.assignedTo.length > 0
+                  ? item.assignedTo
+                  : undefined,
             };
           }),
         description: formData.description || undefined,
@@ -531,9 +538,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
             <Typography variant="body2">{tenant?.address?.line1}</Typography>
             <Typography variant="body2">{tenant?.address?.line2}</Typography>
             <Typography variant="body2">{tenant?.address?.state}</Typography>
-            <Typography variant="body2">
-              Phone: {tenant?.contactDetails?.phone}
-            </Typography>
+            <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
           </Stack>
         </Stack>
 
@@ -546,11 +551,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               <Typography variant="body2" sx={{ minWidth: 72 }}>
                 Vehicle:
               </Typography>
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={vehicleDialog.onTrue}
-              >
+              <IconButton size="small" color="primary" onClick={vehicleDialog.onTrue}>
                 <Iconify icon={selectedVehicle ? 'solar:pen-bold' : 'mingcute:add-line'} />
               </IconButton>
               {selectedVehicle ? (
@@ -576,21 +577,14 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                         size="small"
                         inputProps={{ min: 0 }}
                         InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              KM
-                            </InputAdornment>
-                          ),
+                          endAdornment: <InputAdornment position="end">KM</InputAdornment>,
                         }}
                       />
                     </Box>
                   </Box>
                 </>
               ) : (
-                <Typography
-                  variant="caption"
-                  sx={{ color: 'error.main', ml: 0.5 }}
-                >
+                <Typography variant="caption" sx={{ color: 'error.main', ml: 0.5 }}>
                   Select a vehicle
                 </Typography>
               )}
@@ -603,7 +597,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               <IconButton size="small" color="primary" onClick={scheduledDateDialog.onTrue}>
                 <Iconify icon="solar:calendar-linear" />
               </IconButton>
-              <Typography variant="body2" sx={{ color: values.scheduledStartDate ? 'text.primary' : 'text.secondary' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: values.scheduledStartDate ? 'text.primary' : 'text.secondary' }}
+              >
                 {values.scheduledStartDate ? fDate(values.scheduledStartDate) : 'Select date'}
               </Typography>
               {methods.formState.errors.scheduledStartDate && (
@@ -620,11 +617,13 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               <IconButton size="small" color="primary" onClick={actualDateDialog.onTrue}>
                 <Iconify icon="solar:calendar-linear" />
               </IconButton>
-              <Typography variant="body2" sx={{ color: values.actualStartDate ? 'text.primary' : 'text.secondary' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: values.actualStartDate ? 'text.primary' : 'text.secondary' }}
+              >
                 {values.actualStartDate ? fDate(values.actualStartDate) : 'Select date'}
               </Typography>
             </Stack>
-
           </Stack>
         </Stack>
       </Stack>
@@ -640,12 +639,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
           options={WORK_ORDER_CATEGORY_OPTIONS.map((option) => ({ label: option, value: option }))}
         />
 
-        <Field.Select
-          name="priority"
-          label="Priority"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-        >
+        <Field.Select name="priority" label="Priority" fullWidth InputLabelProps={{ shrink: true }}>
           {WORK_ORDER_PRIORITY_OPTIONS.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -668,15 +662,18 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
         {isExternalWorkshop && (
           <>
-            <Field.Text name="workshopName" label="Workshop Name" placeholder="Optional" fullWidth />
+            <Field.Text
+              name="workshopName"
+              label="Workshop Name"
+              placeholder="Optional"
+              fullWidth
+            />
             <Field.Text name="billNo" label="Bill No." placeholder="Optional" fullWidth />
           </>
         )}
       </Stack>
     </Card>
   );
-
-
 
   const renderIssues = (
     <Card
@@ -686,12 +683,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:alert-circle-outline" width={20} />
             <Typography variant="h6">Issues</Typography>
@@ -713,8 +705,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
         {issueFields.length === 0 ? (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No issues added. Use &quot;Add Issue&quot; to capture reported problems or
-            observations.
+            No issues added. Use &quot;Add Issue&quot; to capture reported problems or observations.
           </Typography>
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
@@ -744,7 +735,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                         <Field.AutocompleteFreeSolo
                           name={`issues.${index}.issue`}
                           label={`Issue ${index + 1}`}
-                          options={WORK_ORDER_ISSUE_OPTIONS.map((option) => ({ label: option, value: option }))}
+                          options={WORK_ORDER_ISSUE_OPTIONS.map((option) => ({
+                            label: option,
+                            value: option,
+                          }))}
                         />
                       </TableCell>
                       <TableCell sx={{ minWidth: 220 }}>
@@ -793,12 +787,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="mdi:cube-outline" width={20} />
             <Typography variant="h6">Parts</Typography>
@@ -823,14 +812,15 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
         {isExternalWorkshop && (
           <Alert severity="info" sx={{ mb: 3 }}>
-            Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;, inventory for attached parts will not be deducted.
+            Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;, inventory
+            for attached parts will not be deducted.
           </Alert>
         )}
 
         {fields.length === 0 ? (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No parts added yet. Use &quot;Add Part&quot; to attach parts and pricing to
-            this work order.
+            No parts added yet. Use &quot;Add Part&quot; to attach parts and pricing to this work
+            order.
           </Typography>
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
@@ -851,11 +841,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               <TableBody>
                 {fields.map((field, index) => {
                   const line = values.parts?.[index] || {};
-                  const amount =
-                    (Number(line.quantity) || 0) *
-                    (Number(line.price) || 0);
+                  const amount = (Number(line.quantity) || 0) * (Number(line.price) || 0);
                   const selectedPart = getLinePart(field.id, line.part);
-                  const unit = line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
+                  const unit =
+                    line.partSnapshot?.measurementUnit || selectedPart?.measurementUnit || '';
 
                   return (
                     <TableRow key={field.id}>
@@ -912,7 +901,10 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                           </Field.Select>
                         )}
                         {!line.part && (
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', px: 1 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: 'text.secondary', display: 'block', px: 1 }}
+                          >
                             -
                           </Typography>
                         )}
@@ -924,10 +916,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                           inputProps={{ min: 1 }}
                           InputProps={{
                             endAdornment: unit ? (
-                              <Typography
-                                variant="caption"
-                                sx={{ ml: 1, color: 'text.secondary' }}
-                              >
+                              <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
                                 {unit}
                               </Typography>
                             ) : undefined,
@@ -942,9 +931,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ minWidth: 120 }}>
-                        <Typography variant="body2">
-                          {fCurrency(amount)}
-                        </Typography>
+                        <Typography variant="body2">{fCurrency(amount)}</Typography>
                       </TableCell>
                       <TableCell align="center">
                         <IconButton
@@ -953,10 +940,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
                             remove(index);
                           }}
                         >
-                          <Iconify
-                            icon="solar:trash-bin-trash-bold"
-                            width={16}
-                          />
+                          <Iconify icon="solar:trash-bin-trash-bold" width={16} />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -978,12 +962,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Iconify icon="solar:wallet-bold-duotone" width={24} />
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -993,24 +972,14 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         </Stack>
 
         <Stack spacing={1.5}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Parts Cost
             </Typography>
-            <Typography variant="subtitle2">
-              {fCurrency(computed.partsCost)}
-            </Typography>
+            <Typography variant="subtitle2">{fCurrency(computed.partsCost)}</Typography>
           </Stack>
 
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Labour Charge
             </Typography>
@@ -1024,11 +993,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
 
           <Divider sx={{ my: 1 }} />
 
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               Total Cost
             </Typography>
@@ -1056,12 +1021,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{ mb: 2 }}
-        >
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
           <Iconify icon="solar:document-text-bold-duotone" width={24} />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Description / Notes
@@ -1109,12 +1069,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         >
           Cancel
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          size="large"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
           {currentWorkOrder ? 'Save Changes' : 'Create Work Order'}
         </Button>
       </Stack>

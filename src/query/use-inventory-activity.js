@@ -20,4 +20,3 @@ export function usePaginatedInventoryActivities(params, options = {}) {
     ...options,
   });
 }
-

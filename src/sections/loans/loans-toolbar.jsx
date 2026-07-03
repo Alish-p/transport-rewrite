@@ -61,12 +61,7 @@ export default function LoansToolbar({ loan, onActionSuccess }) {
 
   return (
     <>
-      <Stack
-        spacing={2}
-        direction={{ xs: 'column', sm: 'row' }}
-        alignItems="center"
-        sx={{ mb: 1 }}
-      >
+      <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems="center" sx={{ mb: 1 }}>
         <Stack direction="row" spacing={1} flexGrow={1}>
           <Tooltip title="View PDF">
             <IconButton onClick={view.onTrue}>

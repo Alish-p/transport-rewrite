@@ -250,7 +250,11 @@ export default function LRPdf({ data }) {
                 {companyAddress}
                 {companyPhone ? ` | Ph: ${companyPhone}` : ''}
               </Text>
-              {companyGst ? <Text style={[styles.companyAddress, { fontWeight: 700 }]}>GSTIN: {companyGst}</Text> : null}
+              {companyGst ? (
+                <Text style={[styles.companyAddress, { fontWeight: 700 }]}>
+                  GSTIN: {companyGst}
+                </Text>
+              ) : null}
             </View>
             <View style={styles.titleBox}>
               <Text style={styles.title}>Lorry Receipt</Text>
@@ -284,27 +288,51 @@ export default function LRPdf({ data }) {
               <Text style={styles.partyLabel}>CONSIGNOR (SENDER)</Text>
               <Text style={styles.partyName}>{consignorName || '-'}</Text>
               <Text style={styles.partyAddress}>{consignorAddress}</Text>
-              {consignorGst ? <Text style={[styles.partyAddress, { marginTop: 4 }]}>GST: {consignorGst}</Text> : null}
+              {consignorGst ? (
+                <Text style={[styles.partyAddress, { marginTop: 4 }]}>GST: {consignorGst}</Text>
+              ) : null}
             </View>
             <View style={[styles.partyBox, { borderRight: 0 }]}>
               <Text style={styles.partyLabel}>CONSIGNEE (RECEIVER)</Text>
               <Text style={styles.partyName}>{consigneeName || '-'}</Text>
               <Text style={styles.partyAddress}>{consigneeAddress}</Text>
-              {consigneeGst ? <Text style={[styles.partyAddress, { marginTop: 4 }]}>GST: {consigneeGst}</Text> : null}
+              {consigneeGst ? (
+                <Text style={[styles.partyAddress, { marginTop: 4 }]}>GST: {consigneeGst}</Text>
+              ) : null}
             </View>
           </View>
 
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.sno, color: '#FFF' }]}>S.No</Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.description, color: '#FFF', textAlign: 'left' }]}>
+            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.sno, color: '#FFF' }]}>
+              S.No
+            </Text>
+            <Text
+              style={[
+                styles.tableCellBold,
+                { width: COL_WIDTHS.description, color: '#FFF', textAlign: 'left' },
+              ]}
+            >
               Particulars of Goods
             </Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.qty, color: '#FFF' }]}>Qty</Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.weight, color: '#FFF' }]}>Weight</Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.unit, color: '#FFF' }]}>Unit</Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.rate, color: '#FFF' }]}>Rate (₹)</Text>
-            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.amount, color: '#FFF', textAlign: 'right', paddingRight: 8 }]}>
+            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.qty, color: '#FFF' }]}>
+              Qty
+            </Text>
+            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.weight, color: '#FFF' }]}>
+              Weight
+            </Text>
+            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.unit, color: '#FFF' }]}>
+              Unit
+            </Text>
+            <Text style={[styles.tableCellBold, { width: COL_WIDTHS.rate, color: '#FFF' }]}>
+              Rate (₹)
+            </Text>
+            <Text
+              style={[
+                styles.tableCellBold,
+                { width: COL_WIDTHS.amount, color: '#FFF', textAlign: 'right', paddingRight: 8 },
+              ]}
+            >
               Amount (₹)
             </Text>
           </View>
@@ -314,12 +342,25 @@ export default function LRPdf({ data }) {
             {goods.map((item, index) => (
               <View key={index} style={styles.tableRow}>
                 <Text style={[styles.tableCell, { width: COL_WIDTHS.sno }]}>{index + 1}</Text>
-                <Text style={[styles.tableCell, { width: COL_WIDTHS.description, textAlign: 'left' }]}>{item.description}</Text>
+                <Text
+                  style={[styles.tableCell, { width: COL_WIDTHS.description, textAlign: 'left' }]}
+                >
+                  {item.description}
+                </Text>
                 <Text style={[styles.tableCell, { width: COL_WIDTHS.qty }]}>{item.quantity}</Text>
                 <Text style={[styles.tableCell, { width: COL_WIDTHS.weight }]}>{item.weight}</Text>
                 <Text style={[styles.tableCell, { width: COL_WIDTHS.unit }]}>{item.unit}</Text>
-                <Text style={[styles.tableCell, { width: COL_WIDTHS.rate }]}>{fNumber(item.rate)}</Text>
-                <Text style={[styles.tableCell, { width: COL_WIDTHS.amount, textAlign: 'right', paddingRight: 8 }]}>{fNumber(item.amount)}</Text>
+                <Text style={[styles.tableCell, { width: COL_WIDTHS.rate }]}>
+                  {fNumber(item.rate)}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    { width: COL_WIDTHS.amount, textAlign: 'right', paddingRight: 8 },
+                  ]}
+                >
+                  {fNumber(item.amount)}
+                </Text>
               </View>
             ))}
           </View>
@@ -327,9 +368,12 @@ export default function LRPdf({ data }) {
           {/* Footer Summary */}
           <View style={styles.footerSection}>
             <View style={styles.declarationBox}>
-              <Text style={[styles.metaLabel, { color: '#000', marginBottom: 4 }]}>Terms & Conditions / Declaration:</Text>
+              <Text style={[styles.metaLabel, { color: '#000', marginBottom: 4 }]}>
+                Terms & Conditions / Declaration:
+              </Text>
               <Text style={{ fontSize: 6.5, color: '#454F5B', lineHeight: 1.5 }}>
-                {declaration || "Notice: Under SEC. 10 of Carrier's act 1865, the company is not responsible for any damage / leakage unless registered within 3 days. Goods booked at owner's risk."}
+                {declaration ||
+                  "Notice: Under SEC. 10 of Carrier's act 1865, the company is not responsible for any damage / leakage unless registered within 3 days. Goods booked at owner's risk."}
               </Text>
             </View>
             <View style={styles.chargesBox}>
@@ -347,7 +391,9 @@ export default function LRPdf({ data }) {
               </View>
               <View style={styles.totalRow}>
                 <Text style={[styles.metaLabel, { color: '#000', fontSize: 8 }]}>Grand Total</Text>
-                <Text style={{ fontSize: 10, fontWeight: 700, color: '#000' }}>{fCurrency(grandTotal)}</Text>
+                <Text style={{ fontSize: 10, fontWeight: 700, color: '#000' }}>
+                  {fCurrency(grandTotal)}
+                </Text>
               </View>
             </View>
           </View>

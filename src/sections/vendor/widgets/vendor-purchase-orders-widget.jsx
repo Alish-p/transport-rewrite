@@ -133,11 +133,7 @@ export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
         }
       />
 
-      <Tabs
-        value={statusFilter}
-        onChange={handleFilterStatus}
-        sx={{ p: 2 }}
-      >
+      <Tabs value={statusFilter} onChange={handleFilterStatus} sx={{ p: 2 }}>
         {STATUS_TABS.map((tab) => {
           const count = tab.value === 'all' ? totalCount : getCount(tab.value);
           return (
@@ -171,9 +167,7 @@ export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
           />
           <TableBody>
             {isLoading ? (
-              Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                <TableSkeleton key={i} />
-              ))
+              Array.from({ length: table.rowsPerPage }).map((_, i) => <TableSkeleton key={i} />)
             ) : tableData.length ? (
               tableData.map((po) => (
                 <TableRow key={po._id} hover sx={{ cursor: 'pointer' }}>
@@ -194,17 +188,12 @@ export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
                     />
                   </TableCell>
                   <TableCell>
-                    <Label
-                      variant="soft"
-                      color={STATUS_CONFIG[po.status]?.color || 'default'}
-                    >
+                    <Label variant="soft" color={STATUS_CONFIG[po.status]?.color || 'default'}>
                       {STATUS_CONFIG[po.status]?.label || po.status}
                     </Label>
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="subtitle2">
-                      {fCurrency(po.total || 0)}
-                    </Typography>
+                    <Typography variant="subtitle2">{fCurrency(po.total || 0)}</Typography>
                   </TableCell>
                   <TableCell>
                     {po.createdAt ? (
@@ -212,11 +201,7 @@ export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
                         <Typography variant="body2" noWrap>
                           {fDate(po.createdAt)}
                         </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{ color: 'text.secondary' }}
-                          noWrap
-                        >
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                           {fTime(po.createdAt)}
                         </Typography>
                       </>
@@ -231,10 +216,7 @@ export function VendorPurchaseOrdersWidget({ vendorId, maxRows }) {
                 </TableRow>
               ))
             ) : (
-              <TableNoData
-                notFound={notFound}
-                sx={{ py: 10 }}
-              />
+              <TableNoData notFound={notFound} sx={{ py: 10 }} />
             )}
           </TableBody>
         </Table>

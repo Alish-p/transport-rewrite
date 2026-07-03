@@ -64,10 +64,10 @@ export default function DriverTableFiltersResult({
 
         {filters.isActive && (
           <Block label="Active:">
-            <Chip 
-              size="small" 
-              label={filters.isActive === 'true' ? 'Active' : 'Inactive'} 
-              onDelete={handleRemoveIsActive} 
+            <Chip
+              size="small"
+              label={filters.isActive === 'true' ? 'Active' : 'Inactive'}
+              onDelete={handleRemoveIsActive}
             />
           </Block>
         )}

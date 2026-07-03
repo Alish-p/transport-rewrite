@@ -75,7 +75,14 @@ export default function LRPDF({ subtrip, tenant }) {
       'Grade',
     ];
     const goodsData = [
-      [customerId?.transporterCode, orderNo, vehicleId?.vehicleNo, loadingWeight, materialType, grade],
+      [
+        customerId?.transporterCode,
+        orderNo,
+        vehicleId?.vehicleNo,
+        loadingWeight,
+        materialType,
+        grade,
+      ],
     ];
 
     const driverHeaders = ['Driver Name', 'Mobile No.', 'DL No.', 'Vehicle Type', 'Signature'];

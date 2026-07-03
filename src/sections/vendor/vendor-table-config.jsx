@@ -89,4 +89,3 @@ export const TABLE_COLUMNS = [
     getter: (row) => row.bankDetails?.accNo,
   },
 ];
-

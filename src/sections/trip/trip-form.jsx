@@ -72,8 +72,14 @@ const NewTripSchema = zod
       }
     }
 
-    const sKm = data.startKm !== '' && data.startKm !== null && data.startKm !== undefined ? Number(data.startKm) : null;
-    const eKm = data.endKm !== '' && data.endKm !== null && data.endKm !== undefined ? Number(data.endKm) : null;
+    const sKm =
+      data.startKm !== '' && data.startKm !== null && data.startKm !== undefined
+        ? Number(data.startKm)
+        : null;
+    const eKm =
+      data.endKm !== '' && data.endKm !== null && data.endKm !== undefined
+        ? Number(data.endKm)
+        : null;
 
     if (sKm !== null && eKm !== null && eKm < sKm) {
       ctx.addIssue({
@@ -242,8 +248,20 @@ export default function TripForm({ currentTrip }) {
                 />
               </Box>
 
-              <Field.DatePicker name="fromDate" label="From Date" maxDate={dayjs()} disabled={!!currentTrip} />
-              {!!currentTrip && <Field.DatePicker name="toDate" label="To Date" maxDate={dayjs()} disabled={!!currentTrip} />}
+              <Field.DatePicker
+                name="fromDate"
+                label="From Date"
+                maxDate={dayjs()}
+                disabled={!!currentTrip}
+              />
+              {!!currentTrip && (
+                <Field.DatePicker
+                  name="toDate"
+                  label="To Date"
+                  maxDate={dayjs()}
+                  disabled={!!currentTrip}
+                />
+              )}
               {!!currentTrip && <Field.Text name="startKm" label="Start KM" type="number" />}
               {!!currentTrip && <Field.Text name="endKm" label="End KM" type="number" />}
 

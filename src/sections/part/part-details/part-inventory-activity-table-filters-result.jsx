@@ -11,7 +11,6 @@ import { Iconify } from 'src/components/iconify';
 
 import { ACTIVITY_TYPES } from '../part-constant';
 
-
 export default function PartInventoryActivityTableFiltersResult({
   filters,
   onFilters,
@@ -44,9 +43,7 @@ export default function PartInventoryActivityTableFiltersResult({
 
   const hasDateRange = filters.fromDate && filters.toDate;
 
-  const dateRangeLabel = hasDateRange
-    ? fDateRangeShortLabel(filters.fromDate, filters.toDate)
-    : '';
+  const dateRangeLabel = hasDateRange ? fDateRangeShortLabel(filters.fromDate, filters.toDate) : '';
 
   const selectedTypeLabel = filters.type
     ? ACTIVITY_TYPES.find((opt) => opt.value === filters.type)?.label || filters.type
@@ -132,4 +129,3 @@ function Block({ label, children, sx, ...other }) {
     </Stack>
   );
 }
-

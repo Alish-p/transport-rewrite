@@ -78,13 +78,7 @@ export default function TransporterTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={2}
-          flexGrow={1}
-          sx={{ width: 1 }}
-        >
+        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             value={filters.search}
             onChange={handleFilterSearch}
@@ -132,21 +126,20 @@ export default function TransporterTableToolbar({
               MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
             >
               <MenuItem value="true">
-                <Label variant="soft" color="success">Yes</Label>
+                <Label variant="soft" color="success">
+                  Yes
+                </Label>
               </MenuItem>
               <MenuItem value="false">
-                <Label variant="soft" color="error">No</Label>
+                <Label variant="soft" color="error">
+                  No
+                </Label>
               </MenuItem>
             </Select>
           </FormControl>
         </Stack>
 
-        <Stack
-          direction="row"
-          spacing={1}
-          flexShrink={0}
-          sx={{ width: { xs: 1, md: 'auto' } }}
-        >
+        <Stack direction="row" spacing={1} flexShrink={0} sx={{ width: { xs: 1, md: 'auto' } }}>
           <Button
             color="inherit"
             variant="outlined"

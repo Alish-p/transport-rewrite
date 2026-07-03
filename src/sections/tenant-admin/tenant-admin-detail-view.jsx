@@ -24,7 +24,11 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useTenantPayments, useCreateTenantUser, useUpdateTenantById } from 'src/query/use-tenant-admin';
+import {
+  useTenantPayments,
+  useCreateTenantUser,
+  useUpdateTenantById,
+} from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
@@ -63,14 +67,16 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
     contact?.email ? { icon: 'mdi:email', label: contact.email } : null,
     addr?.city || addr?.state || addr?.pincode
       ? {
-        icon: 'mdi:map-marker',
-        label: [addr.city, addr.state, addr.pincode].filter(Boolean).join(', '),
-      }
+          icon: 'mdi:map-marker',
+          label: [addr.city, addr.state, addr.pincode].filter(Boolean).join(', '),
+        }
       : null,
   ].filter(Boolean);
 
   const ICONS = useMemo(() => {
-    const icon = (name) => <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />;
+    const icon = (name) => (
+      <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />
+    );
     return {
       vehicle: icon('ic_vehicle'),
       driver: icon('ic-user'),
@@ -116,8 +122,6 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
               }
             />
           </Grid>
-
-
 
           <Grid xs={12} md={3}>
             <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
@@ -166,27 +170,62 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
 
           {/* Totals (reuse DashboardTotalWidget) */}
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="Drivers" total={counts?.drivers ?? 0} color="primary" icon={ICONS.driver} />
+            <DashboardTotalWidget
+              title="Drivers"
+              total={counts?.drivers ?? 0}
+              color="primary"
+              icon={ICONS.driver}
+            />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="Customers" total={counts?.customers ?? 0} color="secondary" icon={ICONS.customer} />
+            <DashboardTotalWidget
+              title="Customers"
+              total={counts?.customers ?? 0}
+              color="secondary"
+              icon={ICONS.customer}
+            />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="Jobs" total={counts?.subtrips ?? 0} color="success" icon={ICONS.subtrip} />
+            <DashboardTotalWidget
+              title="Jobs"
+              total={counts?.subtrips ?? 0}
+              color="success"
+              icon={ICONS.subtrip}
+            />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="Transporters" total={counts?.transporters ?? 0} color="warning" icon={ICONS.transporter} />
+            <DashboardTotalWidget
+              title="Transporters"
+              total={counts?.transporters ?? 0}
+              color="warning"
+              icon={ICONS.transporter}
+            />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="TP" total={counts?.transporterPayments ?? 0} color="error" icon={ICONS.invoice} />
+            <DashboardTotalWidget
+              title="TP"
+              total={counts?.transporterPayments ?? 0}
+              color="error"
+              icon={ICONS.invoice}
+            />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
-            <DashboardTotalWidget title="Invoice Generated" total={totals?.invoiceGenerated ?? 0} color="error" icon={ICONS.invoice} />
+            <DashboardTotalWidget
+              title="Invoice Generated"
+              total={totals?.invoiceGenerated ?? 0}
+              color="error"
+              icon={ICONS.invoice}
+            />
           </Grid>
 
-          <Grid xs={12} >
+          <Grid xs={12}>
             <Card sx={{ p: 2.5 }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: 1.5 }}
+              >
                 <Typography variant="h6">Payment History</Typography>
                 <Button
                   size="small"
@@ -224,10 +263,19 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                         <TableCell>{p.status || '-'}</TableCell>
                         <TableCell>{p.notes || '-'}</TableCell>
                         <TableCell align="right">
-                          <IconButton color="primary" onClick={() => { setEditPayment(p); setFormOpen(true); }}>
+                          <IconButton
+                            color="primary"
+                            onClick={() => {
+                              setEditPayment(p);
+                              setFormOpen(true);
+                            }}
+                          >
                             <Iconify icon="solar:pen-bold" />
                           </IconButton>
-                          <IconButton color="error" onClick={() => setConfirm({ open: true, payment: p })}>
+                          <IconButton
+                            color="error"
+                            onClick={() => setConfirm({ open: true, payment: p })}
+                          >
                             <Iconify icon="solar:trash-bin-trash-bold" />
                           </IconButton>
                         </TableCell>
@@ -249,7 +297,12 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
           {/* Users List */}
           <Grid xs={12}>
             <Card sx={{ p: 2.5 }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: 1.5 }}
+              >
                 <Typography variant="h6">Users</Typography>
                 <Button
                   size="small"
@@ -304,7 +357,11 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
         initial={editPayment}
         onSubmit={async (values) => {
           if (editPayment?._id) {
-            const updated = await updatePayment({ tenantId: localTenant._id, paymentId: editPayment._id, patch: values });
+            const updated = await updatePayment({
+              tenantId: localTenant._id,
+              paymentId: editPayment._id,
+              patch: values,
+            });
             setLocalTenant(updated);
           } else {
             const updated = await addPayment({ tenantId: localTenant._id, payment: values });
@@ -336,7 +393,10 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             variant="contained"
             color="error"
             onClick={async () => {
-              const updated = await deletePayment({ tenantId: localTenant._id, paymentId: confirm.payment._id });
+              const updated = await deletePayment({
+                tenantId: localTenant._id,
+                paymentId: confirm.payment._id,
+              });
               setLocalTenant(updated);
               setConfirm({ open: false, payment: null });
             }}
@@ -351,12 +411,14 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
         onClose={() => setSubFormOpen(false)}
         initial={localTenant?.subscription}
         onSubmit={async (values) => {
-          const updated = await updateTenantById({ id: localTenant._id, data: { subscription: values } });
+          const updated = await updateTenantById({
+            id: localTenant._id,
+            data: { subscription: values },
+          });
           setLocalTenant(updated);
           setSubFormOpen(false);
         }}
       />
-
     </DashboardContent>
   );
 }

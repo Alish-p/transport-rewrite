@@ -41,7 +41,7 @@ export default function LoansTableToolbar({
 }) {
   const columnsPopover = usePopover();
   const dateDialog = useBoolean();
-  
+
   const driverDialog = useBoolean();
   const transporterDialog = useBoolean();
 

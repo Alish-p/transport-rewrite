@@ -71,14 +71,12 @@ export function UploadAvatar({ sx, error, value, disabled, helperText, fallback,
         }),
       }}
     >
-      {(!hasFile || !fallback) && (
-        <Iconify icon="solar:camera-add-bold" width={32} />
-      )}
+      {(!hasFile || !fallback) && <Iconify icon="solar:camera-add-bold" width={32} />}
 
       {hasFile ? (
         <Typography variant="caption">Update photo</Typography>
-      ) : fallback || (
-        <Typography variant="caption">Upload photo</Typography>
+      ) : (
+        fallback || <Typography variant="caption">Upload photo</Typography>
       )}
     </Box>
   );

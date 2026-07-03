@@ -19,7 +19,11 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
-import { WORK_ORDER_ISSUE_OPTIONS, WORK_ORDER_PRIORITY_OPTIONS, WORK_ORDER_CATEGORY_OPTIONS } from './work-order-config';
+import {
+  WORK_ORDER_ISSUE_OPTIONS,
+  WORK_ORDER_PRIORITY_OPTIONS,
+  WORK_ORDER_CATEGORY_OPTIONS,
+} from './work-order-config';
 
 export default function WorkOrderFiltersDrawer({
   open,
@@ -116,7 +120,9 @@ export default function WorkOrderFiltersDrawer({
               fullWidth
               options={WORK_ORDER_PRIORITY_OPTIONS}
               getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-              value={WORK_ORDER_PRIORITY_OPTIONS.find((opt) => opt.value === filters.priority) || null}
+              value={
+                WORK_ORDER_PRIORITY_OPTIONS.find((opt) => opt.value === filters.priority) || null
+              }
               onChange={(event, newValue) => {
                 onFilters('priority', newValue?.value || 'all');
               }}

@@ -170,7 +170,8 @@ export default function CustomerNewForm({ currentCustomer }) {
 
       // Additional Details
       transporterCode: currentCustomer?.transporterCode || '',
-      invoiceDueInDays: currentCustomer?.invoiceDueInDays ?? tenant?.config?.invoice?.defaultDueInDays ?? 10,
+      invoiceDueInDays:
+        currentCustomer?.invoiceDueInDays ?? tenant?.config?.invoice?.defaultDueInDays ?? 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
       invoiceSuffix: currentCustomer?.invoiceSuffix ?? tenant?.config?.defaultInvoiceSuffix ?? '',
       currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,
@@ -264,8 +265,8 @@ export default function CustomerNewForm({ currentCustomer }) {
     const fy = getCurrentFiscalYearShort();
 
     // Compose: e.g. "JKC/25-26/"
-    const newPrefix = tenant?.config?.defaultInvoicePrefix 
-      ? `${tenant.config.defaultInvoicePrefix}${firstThree}/${fy}/` 
+    const newPrefix = tenant?.config?.defaultInvoicePrefix
+      ? `${tenant.config.defaultInvoicePrefix}${firstThree}/${fy}/`
       : `${firstThree}/${fy}/`;
     setValue('invoicePrefix', newPrefix);
   }, [values.customerName, currentCustomer, setValue, tenant]);
@@ -273,73 +274,83 @@ export default function CustomerNewForm({ currentCustomer }) {
   // ----------------------
   // 4. Render each section as a Card
   // ----------------------
-  const renderGstLookup = integrationEnabled && !isEditMode ? (
-    <Card
-      variant="outlined"
-    >
-      <CardHeader
-        sx={{ mb: 1 }}
-        title={
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
-            <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
-            <Label color="success" variant="soft">Recommended</Label>
-          </Stack>
-        }
-        subheader={
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
-            Enter a GST number to automatically prefill customer details and save time
-          </Typography>
-        }
-      />
-      <Divider />
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ p: 3 }}>
-        <TextField
-          fullWidth
-          label="GST Number"
-          placeholder="e.g., 27ABCDE1234F1Z5"
-          value={gstInput}
-          onChange={(e) => setGstInput(e.target.value.toUpperCase())}
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+  const renderGstLookup =
+    integrationEnabled && !isEditMode ? (
+      <Card variant="outlined">
+        <CardHeader
+          sx={{ mb: 1 }}
+          title={
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Iconify icon="mdi:clipboard-text-search-outline" width={22} />
+              <Typography variant="subtitle1">Quick Start with GST Lookup</Typography>
+              <Label color="success" variant="soft">
+                Recommended
+              </Label>
+            </Stack>
+          }
+          subheader={
+            <Typography variant="body2" sx={{ color: 'text.secondary' }} my={1}>
+              Enter a GST number to automatically prefill customer details and save time
+            </Typography>
+          }
+        />
+        <Divider />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          alignItems={{ sm: 'center' }}
+          sx={{ p: 3 }}
+        >
+          <TextField
+            fullWidth
+            label="GST Number"
+            placeholder="e.g., 27ABCDE1234F1Z5"
+            value={gstInput}
+            onChange={(e) => setGstInput(e.target.value.toUpperCase())}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!gstInput || gstInput.trim().length !== 15 || isLookingUpGst) return;
+                const resp = await lookupGst({ gstin: gstInput.trim() });
+                if (!resp?.canonical) return;
+                const applied = applyGstLookupToForm({
+                  canonical: resp.canonical,
+                  setValue,
+                  values,
+                });
+                setAppliedFields(applied);
+              }
+            }}
+          />
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            loading={isLookingUpGst}
+            disabled={!gstInput || gstInput.trim().length !== 15}
+            onClick={async () => {
               const resp = await lookupGst({ gstin: gstInput.trim() });
               if (!resp?.canonical) return;
               const applied = applyGstLookupToForm({ canonical: resp.canonical, setValue, values });
               setAppliedFields(applied);
-            }
-          }}
-        />
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          loading={isLookingUpGst}
-          disabled={!gstInput || gstInput.trim().length !== 15}
-          onClick={async () => {
-            const resp = await lookupGst({ gstin: gstInput.trim() });
-            if (!resp?.canonical) return;
-            const applied = applyGstLookupToForm({ canonical: resp.canonical, setValue, values });
-            setAppliedFields(applied);
-          }}
-          startIcon={<Iconify icon="mdi:magnify-scan" />}
-        >
-          Lookup & Prefill
-        </LoadingButton>
-      </Stack>
+            }}
+            startIcon={<Iconify icon="mdi:magnify-scan" />}
+          >
+            Lookup & Prefill
+          </LoadingButton>
+        </Stack>
 
-      <Collapse in={appliedFields > 0}>
-        <Alert
-          severity="success"
-          iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
-          sx={{ mx: 3, mb: 3 }}
-          onClose={() => setAppliedFields(0)}
-        >
-          Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
-        </Alert>
-      </Collapse>
-    </Card>
-  ) : null;
+        <Collapse in={appliedFields > 0}>
+          <Alert
+            severity="success"
+            iconMapping={{ success: <Iconify icon="mdi:check-circle" /> }}
+            sx={{ mx: 3, mb: 3 }}
+            onClose={() => setAppliedFields(0)}
+          >
+            Prefilled {appliedFields} field{appliedFields > 1 ? 's' : ''} from GST records.
+          </Alert>
+        </Collapse>
+      </Card>
+    ) : null;
 
   const renderBasicDetails = (
     <Card>
@@ -473,8 +484,6 @@ export default function CustomerNewForm({ currentCustomer }) {
             </Box>
           </Stack>
         </Paper>
-
-
       </Stack>
     </Card>
   );

@@ -48,13 +48,13 @@ export function SplitResetPasswordView() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       await axios.post(endpoints.auth.forgotPassword, { email: data.email });
-      toast.success("Code sent to email!");
-      
+      toast.success('Code sent to email!');
+
       const searchParams = new URLSearchParams({ email: data.email }).toString();
       router.push(`${paths.authDemo.split.updatePassword}?${searchParams}`);
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Failed to send code");
+      toast.error(error.message || 'Failed to send code');
     }
   });
 

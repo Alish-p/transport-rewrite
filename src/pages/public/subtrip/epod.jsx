@@ -90,27 +90,25 @@ export default function PublicEpodPage() {
       const uploadPromises = evidenceImages.map(async (file) => {
         const ext = file.name.split('.').pop() || 'png';
         const type = file.type || 'image/png';
-        const { data: uploadData } = await axios.get(
-          `${PUBLIC_ENDPOINT}/${id}/epod/upload-url`,
-          { params: { contentType: type, fileExtension: ext } }
-        );
+        const { data: uploadData } = await axios.get(`${PUBLIC_ENDPOINT}/${id}/epod/upload-url`, {
+          params: { contentType: type, fileExtension: ext },
+        });
 
         await fetch(uploadData.uploadUrl, {
           method: 'PUT',
           headers: { 'Content-Type': type },
           body: file,
         });
-        
+
         return uploadData.publicUrl;
       });
 
       const uploadedImageUrls = await Promise.all(uploadPromises);
 
       // 2. Get pre-signed S3 URL for signature
-      const { data: uploadData } = await axios.get(
-        `${PUBLIC_ENDPOINT}/${id}/epod/upload-url`,
-        { params: { contentType: 'image/png', fileExtension: 'png' } }
-      );
+      const { data: uploadData } = await axios.get(`${PUBLIC_ENDPOINT}/${id}/epod/upload-url`, {
+        params: { contentType: 'image/png', fileExtension: 'png' },
+      });
 
       // 3. Upload signature image to S3
       const blob = await sigPadRef.current.toBlob('image/png');
@@ -197,7 +195,8 @@ export default function PublicEpodPage() {
           <Iconify icon="mdi:check-circle" width={64} sx={{ color: 'success.main' }} />
           <Typography variant="h5">Already Signed</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            This delivery has already been signed by <strong>{subtrip.podSignedBy}</strong>{subtrip.podSigneeMobile ? ` (${subtrip.podSigneeMobile})` : ''} on{' '}
+            This delivery has already been signed by <strong>{subtrip.podSignedBy}</strong>
+            {subtrip.podSigneeMobile ? ` (${subtrip.podSigneeMobile})` : ''} on{' '}
             {new Date(subtrip.podSignedAt).toLocaleString()}.
           </Typography>
           <Box
@@ -404,9 +403,7 @@ export default function PublicEpodPage() {
               label="Sign Below *"
               error={error === 'Please draw your signature'}
               helperText={
-                error === 'Please draw your signature'
-                  ? error
-                  : 'Use your finger or stylus to sign'
+                error === 'Please draw your signature' ? error : 'Use your finger or stylus to sign'
               }
             />
 
@@ -495,7 +492,11 @@ export default function PublicEpodPage() {
                     '&:hover': { bgcolor: 'action.hover' },
                   }}
                 >
-                  <Iconify icon="mdi:camera-plus" width={24} sx={{ color: 'text.secondary', mb: 0.5 }} />
+                  <Iconify
+                    icon="mdi:camera-plus"
+                    width={24}
+                    sx={{ color: 'text.secondary', mb: 0.5 }}
+                  />
                   <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: 10 }}>
                     Add Photo
                   </Typography>
@@ -517,11 +518,14 @@ export default function PublicEpodPage() {
               </Alert>
             )}
 
-            {error && error !== 'Please enter your name' && error !== 'Please enter your mobile number' && error !== 'Please draw your signature' && (
-              <Alert severity="error" variant="outlined">
-                {error}
-              </Alert>
-            )}
+            {error &&
+              error !== 'Please enter your name' &&
+              error !== 'Please enter your mobile number' &&
+              error !== 'Please draw your signature' && (
+                <Alert severity="error" variant="outlined">
+                  {error}
+                </Alert>
+              )}
           </Stack>
         </Card>
 

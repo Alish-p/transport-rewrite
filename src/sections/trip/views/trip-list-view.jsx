@@ -274,21 +274,25 @@ export function TripListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} trips
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} trips
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -311,7 +315,8 @@ export function TripListView() {
                               subtripId: filters.subtripId || undefined,
                               fromDate: filters.fromDate || undefined,
                               toDate: filters.toDate || undefined,
-                              status: filters.tripStatus !== 'all' ? [filters.tripStatus] : undefined,
+                              status:
+                                filters.tripStatus !== 'all' ? [filters.tripStatus] : undefined,
                               isTripSheetReady: filters.isTripSheetReady ? 'true' : undefined,
                               numberOfSubtrips: filters.numberOfSubtrips || undefined,
                               columns: visibleCols.join(','),
@@ -339,7 +344,12 @@ export function TripListView() {
                         );
                         const visibleCols = getVisibleColumnsForExport();
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Trips-selected'
                         );
                       }
@@ -380,7 +390,6 @@ export function TripListView() {
                     </PDFDownloadLink>
                   </Tooltip>
                 )}
-
               </Stack>
             }
           />
@@ -404,22 +413,22 @@ export function TripListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, index) => (
-                    <TableSkeleton key={index} />
-                  ))
+                      <TableSkeleton key={index} />
+                    ))
                   : tableData.map((row) => (
-                    <TripTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={handleViewRow}
-                      onEditRow={handleEditRow}
-                      onDeleteRow={deleteTrip}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <TripTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={handleViewRow}
+                        onEditRow={handleEditRow}
+                        onDeleteRow={deleteTrip}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

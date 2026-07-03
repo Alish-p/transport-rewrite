@@ -168,4 +168,3 @@ export function KanbanVendorDialog({ selectedVendor = null, open, onClose, onVen
     </Dialog>
   );
 }
-

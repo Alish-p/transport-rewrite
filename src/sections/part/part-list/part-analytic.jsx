@@ -7,12 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { Iconify } from 'src/components/iconify';
 
-export default function PartAnalytic({
-  title,
-  icon,
-  color,
-  subtitle,
-}) {
+export default function PartAnalytic({ title, icon, color, subtitle }) {
   return (
     <Stack
       spacing={2.5}
@@ -55,9 +50,7 @@ export default function PartAnalytic({
             {subtitle}
           </Box>
         )}
-
       </Stack>
     </Stack>
   );
 }
-

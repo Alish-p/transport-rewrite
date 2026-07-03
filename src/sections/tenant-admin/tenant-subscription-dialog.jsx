@@ -16,69 +16,74 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 const SubscriptionSchema = zod.object({
-    planName: zod.string().min(1, { message: 'Plan name is required' }),
-    validTill: schemaHelper.date({}),
-    isActive: zod.boolean(),
+  planName: zod.string().min(1, { message: 'Plan name is required' }),
+  validTill: schemaHelper.date({}),
+  isActive: zod.boolean(),
 });
 
 export function TenantSubscriptionDialog({ open, onClose, initial, onSubmit }) {
-    const defaultValues = useMemo(
-        () => ({
-            planName: initial?.planName || initial?.plan || '',
-            validTill: initial?.validTill ? new Date(initial.validTill) : new Date(),
-            isActive: initial?.isActive ?? true,
-        }),
-        [initial]
-    );
+  const defaultValues = useMemo(
+    () => ({
+      planName: initial?.planName || initial?.plan || '',
+      validTill: initial?.validTill ? new Date(initial.validTill) : new Date(),
+      isActive: initial?.isActive ?? true,
+    }),
+    [initial]
+  );
 
-    const methods = useForm({
-        resolver: zodResolver(SubscriptionSchema),
-        defaultValues,
-        mode: 'onChange',
-    });
+  const methods = useForm({
+    resolver: zodResolver(SubscriptionSchema),
+    defaultValues,
+    mode: 'onChange',
+  });
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { isSubmitting, isValid },
-    } = methods;
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting, isValid },
+  } = methods;
 
-    useEffect(() => {
-        if (open) {
-            reset(defaultValues);
-        }
-    }, [open, reset, defaultValues]);
+  useEffect(() => {
+    if (open) {
+      reset(defaultValues);
+    }
+  }, [open, reset, defaultValues]);
 
-    const submit = handleSubmit((values) => {
-        onSubmit(values);
-    });
+  const submit = handleSubmit((values) => {
+    onSubmit(values);
+  });
 
-    return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>Edit Subscription</DialogTitle>
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Edit Subscription</DialogTitle>
 
-            <Form methods={methods} onSubmit={submit}>
-                <DialogContent dividers>
-                    <Stack spacing={2}>
-                        <Field.Text name="planName" label="Plan Name" />
+      <Form methods={methods} onSubmit={submit}>
+        <DialogContent dividers>
+          <Stack spacing={2}>
+            <Field.Text name="planName" label="Plan Name" />
 
-                        <Field.DatePicker name="validTill" label="Valid Till" />
+            <Field.DatePicker name="validTill" label="Valid Till" />
 
-                        <Field.Switch name="isActive" label="Subscription Active?" />
-                    </Stack>
-                </DialogContent>
+            <Field.Switch name="isActive" label="Subscription Active?" />
+          </Stack>
+        </DialogContent>
 
-                <DialogActions>
-                    <Button onClick={onClose} disabled={isSubmitting}>
-                        Cancel
-                    </Button>
-                    <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={!isValid}>
-                        Save
-                    </LoadingButton>
-                </DialogActions>
-            </Form>
-        </Dialog>
-    );
+        <DialogActions>
+          <Button onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+            disabled={!isValid}
+          >
+            Save
+          </LoadingButton>
+        </DialogActions>
+      </Form>
+    </Dialog>
+  );
 }
 
 export default TenantSubscriptionDialog;

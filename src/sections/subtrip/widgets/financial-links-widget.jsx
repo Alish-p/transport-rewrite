@@ -101,17 +101,16 @@ export function FinancialLinksWidget({ subtrip, isMarketVehicle, sx }) {
     >
       {/* Header */}
       <Stack direction="row" alignItems="center" spacing={1} mb={2.5}>
-        <Iconify
-          icon="mdi:file-document-multiple-outline"
-          width={20}
-          sx={{ opacity: 0.7 }}
-        />
+        <Iconify icon="mdi:file-document-multiple-outline" width={20} sx={{ opacity: 0.7 }} />
         <Typography variant="subtitle2" sx={{ opacity: 0.64 }}>
           Financial Documents
         </Typography>
       </Stack>
 
-      <Stack spacing={2} divider={<Divider flexItem sx={{ borderStyle: 'dashed', opacity: 0.4 }} />}>
+      <Stack
+        spacing={2}
+        divider={<Divider flexItem sx={{ borderStyle: 'dashed', opacity: 0.4 }} />}
+      >
         {/* Invoice */}
         <LinkRow
           icon="mdi:receipt-text-outline"
@@ -128,7 +127,11 @@ export function FinancialLinksWidget({ subtrip, isMarketVehicle, sx }) {
             icon="mdi:bank-transfer-out"
             label="Transporter Payment"
             linkText={transporterPayment?.paymentId}
-            href={transporterPayment?._id ? `/dashboard/transporterPayment/${transporterPayment._id}` : null}
+            href={
+              transporterPayment?._id
+                ? `/dashboard/transporterPayment/${transporterPayment._id}`
+                : null
+            }
             color="warning"
             generated={Boolean(transporterPayment)}
           />

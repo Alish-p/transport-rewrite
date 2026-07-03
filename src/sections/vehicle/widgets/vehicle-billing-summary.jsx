@@ -51,7 +51,9 @@ const TABLE_HEAD = [
 export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
   const rangePicker = useDateRangePicker(dayjs().startOf('month'), dayjs().endOf('month'));
 
-  const start = rangePicker.startDate ? dayjs(rangePicker.startDate).format('YYYY-MM-DD') : undefined;
+  const start = rangePicker.startDate
+    ? dayjs(rangePicker.startDate).format('YYYY-MM-DD')
+    : undefined;
   const end = rangePicker.endDate ? dayjs(rangePicker.endDate).format('YYYY-MM-DD') : undefined;
 
   const { data, isLoading } = usePaginatedSubtrips(
@@ -119,14 +121,30 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
               title={
                 <Typography variant="caption" sx={{ lineHeight: 1.7, display: 'block' }}>
                   Only jobs with completed billing are listed below. Jobs still in{' '}
-                  <Label color="warning" variant="soft" sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}>Receive</Label>
-                  {' '}or{' '}
-                  <Label color="info" variant="soft" sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}>Loaded</Label>
-                  {' '}status are not included.
+                  <Label
+                    color="warning"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Receive
+                  </Label>{' '}
+                  or{' '}
+                  <Label
+                    color="info"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Loaded
+                  </Label>{' '}
+                  status are not included.
                 </Typography>
               }
             >
-              <Iconify icon="eva:info-outline" width={18} sx={{ color: 'text.disabled', cursor: 'help' }} />
+              <Iconify
+                icon="eva:info-outline"
+                width={18}
+                sx={{ color: 'text.disabled', cursor: 'help' }}
+              />
             </Tooltip>
           </Stack>
         }
@@ -216,17 +234,37 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
           mt: 2,
         }}
       >
-        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Net Job Profit</Typography>
+        <Stack
+          spacing={0.5}
+          sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}
+        >
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+            Net Job Profit
+          </Typography>
           <Typography variant="subtitle1">{fCurrency(totalNetProfit)}</Typography>
         </Stack>
-        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Vehicle Expense</Typography>
-          <Typography variant="subtitle1" sx={{ color: 'error.main' }}>{fCurrency(totalLoss)}</Typography>
+        <Stack
+          spacing={0.5}
+          sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}
+        >
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+            Vehicle Expense
+          </Typography>
+          <Typography variant="subtitle1" sx={{ color: 'error.main' }}>
+            {fCurrency(totalLoss)}
+          </Typography>
         </Stack>
-        <Stack spacing={0.5} sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>Overall P&L</Typography>
-          <Typography variant="subtitle1" sx={{ color: overall >= 0 ? 'success.main' : 'error.main' }}>
+        <Stack
+          spacing={0.5}
+          sx={{ p: 1.5, bgcolor: 'background.neutral', borderRadius: 1.5, position: 'relative' }}
+        >
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+            Overall P&L
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: overall >= 0 ? 'success.main' : 'error.main' }}
+          >
             {fCurrency(overall)}
           </Typography>
         </Stack>

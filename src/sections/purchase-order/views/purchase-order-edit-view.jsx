@@ -57,9 +57,10 @@ export function PurchaseOrderEditView() {
             <Stack spacing={2}>
               <Typography variant="subtitle1">Purchase Order Editing Not Available</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                For data integrity reasons, purchase orders cannot be edited once they have been approved or processed.
-                This purchase order is currently in &apos;{purchaseOrder.status}&apos; status. Only purchase orders in
-                &apos;Pending Approval&apos; status can be edited.
+                For data integrity reasons, purchase orders cannot be edited once they have been
+                approved or processed. This purchase order is currently in &apos;
+                {purchaseOrder.status}&apos; status. Only purchase orders in &apos;Pending
+                Approval&apos; status can be edited.
               </Typography>
             </Stack>
           </Alert>
@@ -68,4 +69,3 @@ export function PurchaseOrderEditView() {
     </DashboardContent>
   );
 }
-

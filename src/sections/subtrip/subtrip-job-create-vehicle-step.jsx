@@ -68,7 +68,9 @@ export function SubtripJobCreateVehicleStep({
 
   const fetchVehicleByNo = async (vehicleNo) => {
     try {
-      const { data } = await axios.get('/api/vehicles', { params: { vehicleNo, isActive: true, rowsPerPage: 1 } });
+      const { data } = await axios.get('/api/vehicles', {
+        params: { vehicleNo, isActive: true, rowsPerPage: 1 },
+      });
       const results = data?.results || [];
       return results[0];
     } catch (e) {
@@ -130,10 +132,14 @@ export function SubtripJobCreateVehicleStep({
           setValue('loadingPoint', loadingPoint, { shouldDirty: true, shouldValidate: true });
         }
         if (unloadingPoint) {
-          const parsedUnloadingPoint = typeof unloadingPoint === 'string'
-            ? unloadingPoint.split(' | ').map((p) => ({ label: p, value: p }))
-            : unloadingPoint;
-          setValue('unloadingPoint', parsedUnloadingPoint, { shouldDirty: true, shouldValidate: true });
+          const parsedUnloadingPoint =
+            typeof unloadingPoint === 'string'
+              ? unloadingPoint.split(' | ').map((p) => ({ label: p, value: p }))
+              : unloadingPoint;
+          setValue('unloadingPoint', parsedUnloadingPoint, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
         }
         if (consignee) {
           setValue('consignee', consignee, { shouldDirty: true, shouldValidate: false });
@@ -252,11 +258,7 @@ export function SubtripJobCreateVehicleStep({
                   Trip found: <strong>{targetTrip.tripNo}</strong>
                 </span>
                 <Tooltip title="View recent jobs" arrow>
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={handleOpenSubtripPopover}
-                  >
+                  <IconButton size="small" color="primary" onClick={handleOpenSubtripPopover}>
                     <Iconify icon="mdi:format-list-bulleted" width={18} />
                   </IconButton>
                 </Tooltip>
@@ -309,7 +311,11 @@ export function SubtripJobCreateVehicleStep({
                   <Box sx={{ maxHeight: 380, overflow: 'auto', px: 2, py: 1.5 }}>
                     {(targetTripDetails?.subtrips || []).length === 0 ? (
                       <Box sx={{ py: 3, textAlign: 'center' }}>
-                        <Iconify icon="mdi:clipboard-off-outline" width={36} sx={{ color: 'text.disabled', mb: 1 }} />
+                        <Iconify
+                          icon="mdi:clipboard-off-outline"
+                          width={36}
+                          sx={{ color: 'text.disabled', mb: 1 }}
+                        />
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                           No jobs found in this trip.
                         </Typography>
@@ -337,7 +343,8 @@ export function SubtripJobCreateVehicleStep({
                               settled: 'default',
                               default: 'default',
                             };
-                            const statusColor = statusColorMap[statusRaw.toLowerCase()] || statusColorMap.default;
+                            const statusColor =
+                              statusColorMap[statusRaw.toLowerCase()] || statusColorMap.default;
 
                             return (
                               <Box key={st._id}>
@@ -350,7 +357,8 @@ export function SubtripJobCreateVehicleStep({
                                     bgcolor: 'background.paper',
                                     transition: 'box-shadow 0.15s',
                                     '&:hover': {
-                                      boxShadow: (theme) => theme.customShadows?.z8 || theme.shadows[4],
+                                      boxShadow: (theme) =>
+                                        theme.customShadows?.z8 || theme.shadows[4],
                                     },
                                   }}
                                 >
@@ -362,8 +370,15 @@ export function SubtripJobCreateVehicleStep({
                                     sx={{ mb: 1 }}
                                   >
                                     <Stack direction="row" alignItems="center" spacing={0.75}>
-                                      <Iconify icon="mdi:file-document-outline" width={15} sx={{ color: 'text.secondary' }} />
-                                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      <Iconify
+                                        icon="mdi:file-document-outline"
+                                        width={15}
+                                        sx={{ color: 'text.secondary' }}
+                                      />
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ color: 'text.secondary' }}
+                                      >
                                         LR
                                       </Typography>
                                       <Typography variant="body2" sx={{ fontWeight: 700 }}>
@@ -375,21 +390,50 @@ export function SubtripJobCreateVehicleStep({
                                       label={statusRaw || '-'}
                                       color={statusColor}
                                       variant="soft"
-                                      sx={{ textTransform: 'capitalize', height: 20, fontSize: '0.68rem' }}
+                                      sx={{
+                                        textTransform: 'capitalize',
+                                        height: 20,
+                                        fontSize: '0.68rem',
+                                      }}
                                     />
                                   </Stack>
 
                                   {/* Customer */}
-                                  <Stack direction="row" alignItems="flex-start" spacing={0.75} sx={{ mb: 0.75 }}>
-                                    <Iconify icon="mdi:domain" width={14} sx={{ color: 'text.disabled', mt: '2px', flexShrink: 0 }} />
-                                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500, lineHeight: 1.4 }}>
+                                  <Stack
+                                    direction="row"
+                                    alignItems="flex-start"
+                                    spacing={0.75}
+                                    sx={{ mb: 0.75 }}
+                                  >
+                                    <Iconify
+                                      icon="mdi:domain"
+                                      width={14}
+                                      sx={{ color: 'text.disabled', mt: '2px', flexShrink: 0 }}
+                                    />
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: 'text.primary',
+                                        fontWeight: 500,
+                                        lineHeight: 1.4,
+                                      }}
+                                    >
                                       {st.customerId?.customerName || '-'}
                                     </Typography>
                                   </Stack>
 
                                   {/* Route */}
-                                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.75 }}>
-                                    <Iconify icon="mdi:map-marker-outline" width={14} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                                  <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={0.5}
+                                    sx={{ mb: 0.75 }}
+                                  >
+                                    <Iconify
+                                      icon="mdi:map-marker-outline"
+                                      width={14}
+                                      sx={{ color: 'text.disabled', flexShrink: 0 }}
+                                    />
                                     <Typography
                                       variant="caption"
                                       sx={{
@@ -402,7 +446,11 @@ export function SubtripJobCreateVehicleStep({
                                     >
                                       {st.loadingPoint || '—'}
                                     </Typography>
-                                    <Iconify icon="mdi:arrow-right" width={13} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+                                    <Iconify
+                                      icon="mdi:arrow-right"
+                                      width={13}
+                                      sx={{ color: 'text.disabled', flexShrink: 0 }}
+                                    />
                                     <Typography
                                       variant="caption"
                                       sx={{
@@ -420,8 +468,15 @@ export function SubtripJobCreateVehicleStep({
                                   {/* Dispatch + Driver */}
                                   <Stack direction="row" alignItems="center" spacing={2}>
                                     <Stack direction="row" alignItems="center" spacing={0.5}>
-                                      <Iconify icon="mdi:calendar-outline" width={13} sx={{ color: 'text.disabled' }} />
-                                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      <Iconify
+                                        icon="mdi:calendar-outline"
+                                        width={13}
+                                        sx={{ color: 'text.disabled' }}
+                                      />
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ color: 'text.secondary' }}
+                                      >
                                         {st.startDate ? fDateTime(new Date(st.startDate)) : '-'}
                                       </Typography>
                                     </Stack>
@@ -437,16 +492,17 @@ export function SubtripJobCreateVehicleStep({
                                       >
                                         {driverName.charAt(0).toUpperCase()}
                                       </Avatar>
-                                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ color: 'text.secondary' }}
+                                      >
                                         {driverName}
                                       </Typography>
                                     </Stack>
                                   </Stack>
                                 </Box>
 
-                                {idx < arr.length - 1 && (
-                                  <Divider sx={{ mt: 1.25 }} />
-                                )}
+                                {idx < arr.length - 1 && <Divider sx={{ mt: 1.25 }} />}
                               </Box>
                             );
                           })}
@@ -485,22 +541,25 @@ export function SubtripJobCreateVehicleStep({
               </Field.Select>
             )}
 
-            {selectedVehicle?.isOwn &&
-              (tripDecision === 'new' || (!activeTrip && !fromTripId)) && (
-                <Field.Configurable entity="subtrip" name="startKm" customerId={selectedCustomer?._id}>
-                  <Field.Text
-                    name="startKm"
-                    label={getLabel('startKm', 'Start Km')}
-                    type="number"
-                    helperText="Previous trip will be closed with this starting km of current trip"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end">km</InputAdornment>,
-                    }}
-                    inputProps={{ min: 0 }}
-                    sx={{ mt: 1 }}
-                  />
-                </Field.Configurable>
-              )}
+            {selectedVehicle?.isOwn && (tripDecision === 'new' || (!activeTrip && !fromTripId)) && (
+              <Field.Configurable
+                entity="subtrip"
+                name="startKm"
+                customerId={selectedCustomer?._id}
+              >
+                <Field.Text
+                  name="startKm"
+                  label={getLabel('startKm', 'Start Km')}
+                  type="number"
+                  helperText="Previous trip will be closed with this starting km of current trip"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                  }}
+                  inputProps={{ min: 0 }}
+                  sx={{ mt: 1 }}
+                />
+              </Field.Configurable>
+            )}
 
             <Field.Select name="loadType" label="Load Type" sx={{ mt: 1 }}>
               <MenuItem value="loaded">
@@ -526,8 +585,16 @@ export function SubtripJobCreateVehicleStep({
         )}
 
         {selectedVehicle && (
-          <Field.Configurable entity="subtrip" name="vehicleAssignment" customerId={selectedCustomer?._id}>
-            <Field.Select name="vehicleAssignment" label={getLabel('vehicleAssignment', 'Vehicle Assignment')} sx={{ mt: 1 }}>
+          <Field.Configurable
+            entity="subtrip"
+            name="vehicleAssignment"
+            customerId={selectedCustomer?._id}
+          >
+            <Field.Select
+              name="vehicleAssignment"
+              label={getLabel('vehicleAssignment', 'Vehicle Assignment')}
+              sx={{ mt: 1 }}
+            >
               <MenuItem value="schedule">Schedule Vehicle</MenuItem>
               <MenuItem value="adhock">Adhock Vehicle</MenuItem>
             </Field.Select>
@@ -536,11 +603,7 @@ export function SubtripJobCreateVehicleStep({
       </Box>
 
       <Box sx={{ mt: 2 }}>
-        <Button
-          variant="contained"
-          onClick={onNextStep}
-          disabled={!canGoNextStep}
-        >
+        <Button variant="contained" onClick={onNextStep} disabled={!canGoNextStep}>
           Continue
         </Button>
       </Box>

@@ -47,8 +47,6 @@ const transferPartStock = async ({ id, data }) => {
   return response;
 };
 
-
-
 export const getPartPhotoUploadUrl = async ({ contentType, fileExtension }) => {
   const { data } = await axios.get(`${ENDPOINT}/photo/upload-url`, {
     params: { contentType, fileExtension },
@@ -102,8 +100,7 @@ export function useCreatePart() {
       toast.success('Part added successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -125,8 +122,7 @@ export function useCreateBulkParts() {
       toast.success('Parts imported successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -144,8 +140,7 @@ export function useUpdatePart() {
       toast.success('Part updated successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -162,8 +157,7 @@ export function useDeletePart() {
       toast.success('Part deleted successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -184,8 +178,7 @@ export function useAdjustPartStock() {
       toast.success('Inventory adjusted successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
@@ -206,13 +199,10 @@ export function useTransferPartStock() {
       toast.success('Stock transferred successfully!');
     },
     onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
 
   return mutateAsync;
 }
-
-

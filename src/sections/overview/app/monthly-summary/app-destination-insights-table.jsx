@@ -17,66 +17,66 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton, TableHeadCustom } from 'src/components/table';
 
 export function AppDestinationInsightsTable({ month, ...other }) {
-    const effectiveMonth = month || dayjs().format('YYYY-MM');
+  const effectiveMonth = month || dayjs().format('YYYY-MM');
 
-    const { data: summary = [], isLoading } = useMonthlyDestinationSubtrips(effectiveMonth);
+  const { data: summary = [], isLoading } = useMonthlyDestinationSubtrips(effectiveMonth);
 
-    return (
-        <Box {...other}>
-            <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
-                <Table sx={{ minWidth: 680 }}>
-                    <TableHeadCustom
-                        headLabel={[
-                            { id: 'index', label: 'No.' },
-                            { id: 'destination', label: 'Destination' },
-                            { id: 'totalWeight', label: 'Total Weight', align: 'center' },
-                            { id: 'received', label: 'completed Jobs', align: 'center' },
-                        ]}
-                    />
-                    <TableBody>
-                        {isLoading ? (
-                            <TableSkeleton />
-                        ) : summary.length ? (
-                            <>
-                                {summary.map((row, idx) => (
-                                    <TableRow key={row.destination}>
-                                        <TableCell>{idx + 1}</TableCell>
-                                        <TableCell>{row.destination}</TableCell>
-                                        <TableCell align="center">{fNumber(row.totalLoadingWeight)}</TableCell>
-                                        <TableCell align="center">
-                                            <Link
-                                                component={RouterLink}
-                                                href={`${paths.dashboard.subtrip.list}?unloadingPoint=${encodeURIComponent(
-                                                    row.destination
-                                                )}&fromDate=${dayjs(effectiveMonth)
-                                                    .startOf('month')
-                                                    .format('YYYY-MM-DD')}&toDate=${dayjs(effectiveMonth)
-                                                        .endOf('month')
-                                                        .format('YYYY-MM-DD')}&subtripStatus=received,billed`}
-                                                underline="always"
-                                                color="primary"
-                                            >
-                                                {row.received}
-                                            </Link>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                <TableRow>
-                                    <TableCell colSpan={2}>Totals</TableCell>
-                                    <TableCell align="center">
-                                        {fNumber(summary.reduce((sum, r) => sum + r.totalLoadingWeight, 0))}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        {summary.reduce((sum, r) => sum + r.received, 0)}
-                                    </TableCell>
-                                </TableRow>
-                            </>
-                        ) : (
-                            <TableNoData notFound />
-                        )}
-                    </TableBody>
-                </Table>
-            </Scrollbar>
-        </Box>
-    );
+  return (
+    <Box {...other}>
+      <Scrollbar sx={{ minHeight: 402, maxHeight: 402 }}>
+        <Table sx={{ minWidth: 680 }}>
+          <TableHeadCustom
+            headLabel={[
+              { id: 'index', label: 'No.' },
+              { id: 'destination', label: 'Destination' },
+              { id: 'totalWeight', label: 'Total Weight', align: 'center' },
+              { id: 'received', label: 'completed Jobs', align: 'center' },
+            ]}
+          />
+          <TableBody>
+            {isLoading ? (
+              <TableSkeleton />
+            ) : summary.length ? (
+              <>
+                {summary.map((row, idx) => (
+                  <TableRow key={row.destination}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>{row.destination}</TableCell>
+                    <TableCell align="center">{fNumber(row.totalLoadingWeight)}</TableCell>
+                    <TableCell align="center">
+                      <Link
+                        component={RouterLink}
+                        href={`${paths.dashboard.subtrip.list}?unloadingPoint=${encodeURIComponent(
+                          row.destination
+                        )}&fromDate=${dayjs(effectiveMonth)
+                          .startOf('month')
+                          .format('YYYY-MM-DD')}&toDate=${dayjs(effectiveMonth)
+                          .endOf('month')
+                          .format('YYYY-MM-DD')}&subtripStatus=received,billed`}
+                        underline="always"
+                        color="primary"
+                      >
+                        {row.received}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={2}>Totals</TableCell>
+                  <TableCell align="center">
+                    {fNumber(summary.reduce((sum, r) => sum + r.totalLoadingWeight, 0))}
+                  </TableCell>
+                  <TableCell align="center">
+                    {summary.reduce((sum, r) => sum + r.received, 0)}
+                  </TableCell>
+                </TableRow>
+              </>
+            ) : (
+              <TableNoData notFound />
+            )}
+          </TableBody>
+        </Table>
+      </Scrollbar>
+    </Box>
+  );
 }

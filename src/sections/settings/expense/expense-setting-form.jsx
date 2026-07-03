@@ -17,26 +17,28 @@ import { Form, Field } from 'src/components/hook-form';
 
 const ExpenseSettingSchema = zod.object({
   config: zod.object({
-    expense: zod.object({
-      'subtrip-expense-types': zod
-        .array(
-          zod.object({
-            label: zod.string(),
-            value: zod.string(),
-            icon: zod.string().optional(),
-          })
-        )
-        .optional(),
-      'vehicle-expense-types': zod
-        .array(
-          zod.object({
-            label: zod.string(),
-            value: zod.string(),
-            icon: zod.string().optional(),
-          })
-        )
-        .optional(),
-    }).optional(),
+    expense: zod
+      .object({
+        'subtrip-expense-types': zod
+          .array(
+            zod.object({
+              label: zod.string(),
+              value: zod.string(),
+              icon: zod.string().optional(),
+            })
+          )
+          .optional(),
+        'vehicle-expense-types': zod
+          .array(
+            zod.object({
+              label: zod.string(),
+              value: zod.string(),
+              icon: zod.string().optional(),
+            })
+          )
+          .optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -84,7 +86,11 @@ export default function ExpenseSettingForm({ currentTenant }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         <Card>
-          <CardHeader title="Expense Configurations" subheader="Configure Job/Subtrip expense types and internal vehicle expense types." sx={{ mb: 3 }} />
+          <CardHeader
+            title="Expense Configurations"
+            subheader="Configure Job/Subtrip expense types and internal vehicle expense types."
+            sx={{ mb: 3 }}
+          />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.MultiAutocompleteFreeSolo

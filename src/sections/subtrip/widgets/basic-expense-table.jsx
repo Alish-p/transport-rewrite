@@ -46,9 +46,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
 
   // Determine if this is a market vehicle subtrip (use advances) or own vehicle (use expenses)
   const isMarketVehicle = selectedSubtrip?.vehicleId?.isOwn === false;
-  const items = isMarketVehicle
-    ? (selectedSubtrip?.advances || [])
-    : (selectedSubtrip?.expenses || []);
+  const items = isMarketVehicle ? selectedSubtrip?.advances || [] : selectedSubtrip?.expenses || [];
   const totalAmount = items.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   const label = isMarketVehicle ? 'Advances' : 'Expenses';
@@ -80,9 +78,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
               color="primary"
               startIcon={<Iconify icon="mdi:plus" />}
               onClick={() => {
-                navigate(
-                  `${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`
-                );
+                navigate(`${paths.dashboard.expense.new}?currentSubtrip=${selectedSubtrip._id}`);
               }}
             >
               Add {isMarketVehicle ? 'Advance' : 'Expense'}
@@ -131,8 +127,8 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
                       <Iconify
                         icon={
-                          subtripExpenseTypes.find((type) => type.label === itemType)
-                            ?.icon || 'mdi:help-circle'
+                          subtripExpenseTypes.find((type) => type.label === itemType)?.icon ||
+                          'mdi:help-circle'
                         }
                         sx={{ color: 'primary.main' }}
                       />

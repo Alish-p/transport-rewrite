@@ -31,13 +31,35 @@ import { AppWorkOrderSummaryWidget } from '../app-work-order-summary-widget';
 import { AppTransporterPaymentSummary } from '../app-transporter-payment-summary';
 
 // Lazy load heavy chart and map widgets
-const EwaybillByStateWidget = lazy(() => import('src/sections/ewaybill/ewaybill-by-state-widget').then(m => ({ default: m.EwaybillByStateWidget })));
-const FinancialMonthlyChart = lazy(() => import('../app-finance-charts').then(m => ({ default: m.FinancialMonthlyChart })));
-const InvoicePiechartWidget = lazy(() => import('../app-invoice-pie-chart').then(m => ({ default: m.InvoicePiechartWidget })));
-const SubtripExpiryTable = lazy(() => import('../app-subtrip-expiry-table').then(m => ({ default: m.SubtripExpiryTable })));
-const VehicleDocumentsPieChart = lazy(() => import('../app-vehicle-documents-pie-chart').then(m => ({ default: m.VehicleDocumentsPieChart })));
-const AppVehicleDocumentsExpiryTable = lazy(() => import('../app-vehicle-documents-expiry-table').then(m => ({ default: m.AppVehicleDocumentsExpiryTable })));
-const DashboardSubtripCompletedWidget = lazy(() => import('../dashboard-subtrip-completed-widget').then(m => ({ default: m.DashboardSubtripCompletedWidget })));
+const EwaybillByStateWidget = lazy(() =>
+  import('src/sections/ewaybill/ewaybill-by-state-widget').then((m) => ({
+    default: m.EwaybillByStateWidget,
+  }))
+);
+const FinancialMonthlyChart = lazy(() =>
+  import('../app-finance-charts').then((m) => ({ default: m.FinancialMonthlyChart }))
+);
+const InvoicePiechartWidget = lazy(() =>
+  import('../app-invoice-pie-chart').then((m) => ({ default: m.InvoicePiechartWidget }))
+);
+const SubtripExpiryTable = lazy(() =>
+  import('../app-subtrip-expiry-table').then((m) => ({ default: m.SubtripExpiryTable }))
+);
+const VehicleDocumentsPieChart = lazy(() =>
+  import('../app-vehicle-documents-pie-chart').then((m) => ({
+    default: m.VehicleDocumentsPieChart,
+  }))
+);
+const AppVehicleDocumentsExpiryTable = lazy(() =>
+  import('../app-vehicle-documents-expiry-table').then((m) => ({
+    default: m.AppVehicleDocumentsExpiryTable,
+  }))
+);
+const DashboardSubtripCompletedWidget = lazy(() =>
+  import('../dashboard-subtrip-completed-widget').then((m) => ({
+    default: m.DashboardSubtripCompletedWidget,
+  }))
+);
 
 // ----------------------------------------------------------------------
 
@@ -75,7 +97,14 @@ export function OverviewAppView({
   const { user, tenant } = useAuthContext();
   const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
 
-  const { invoices = 0, vehicles = 0, transporters = 0, customers = 0, drivers = 0, subtrips = 0 } = counts;
+  const {
+    invoices = 0,
+    vehicles = 0,
+    transporters = 0,
+    customers = 0,
+    drivers = 0,
+    subtrips = 0,
+  } = counts;
 
   const tyreEnabled = tenant?.integrations?.tyre?.enabled;
   const inventoryEnabled = tenant?.integrations?.maintenanceAndInventory?.enabled;
@@ -103,7 +132,9 @@ export function OverviewAppView({
         {/* Total's section */}
         <>
           <Grid xs={6} sm={4} md={2}>
-            {loading.counts ? <TotalWidgetSkeleton /> : (
+            {loading.counts ? (
+              <TotalWidgetSkeleton />
+            ) : (
               <DashboardTotalWidget
                 title="Total Vehicles"
                 total={vehicles}
@@ -114,7 +145,9 @@ export function OverviewAppView({
           </Grid>
 
           <Grid xs={6} sm={4} md={2}>
-            {loading.counts ? <TotalWidgetSkeleton /> : (
+            {loading.counts ? (
+              <TotalWidgetSkeleton />
+            ) : (
               <DashboardTotalWidget
                 title="Total Drivers"
                 total={drivers}
@@ -125,7 +158,9 @@ export function OverviewAppView({
           </Grid>
 
           <Grid xs={6} sm={4} md={2}>
-            {loading.counts ? <TotalWidgetSkeleton /> : (
+            {loading.counts ? (
+              <TotalWidgetSkeleton />
+            ) : (
               <DashboardTotalWidget
                 title="Total Customers"
                 total={customers}
@@ -137,7 +172,9 @@ export function OverviewAppView({
 
           {managesMarketVehicles && (
             <Grid xs={6} sm={4} md={2}>
-              {loading.counts ? <TotalWidgetSkeleton /> : (
+              {loading.counts ? (
+                <TotalWidgetSkeleton />
+              ) : (
                 <DashboardTotalWidget
                   title="Total Transporters"
                   total={transporters}
@@ -149,7 +186,9 @@ export function OverviewAppView({
           )}
 
           <Grid xs={6} sm={4} md={2}>
-            {loading.counts ? <TotalWidgetSkeleton /> : (
+            {loading.counts ? (
+              <TotalWidgetSkeleton />
+            ) : (
               <DashboardTotalWidget
                 title="Total Invoice Generated"
                 total={invoices}
@@ -160,7 +199,9 @@ export function OverviewAppView({
           </Grid>
 
           <Grid xs={6} sm={4} md={2}>
-            {loading.counts ? <TotalWidgetSkeleton /> : (
+            {loading.counts ? (
+              <TotalWidgetSkeleton />
+            ) : (
               <DashboardTotalWidget
                 title="Total Jobs Completed"
                 total={subtrips}
@@ -183,7 +224,9 @@ export function OverviewAppView({
 
         {(loading.counts || invoices > 0) && (
           <Grid xs={12} md={6} lg={4}>
-            {loading.invoiceStatus ? <WidgetSkeleton height={420} /> : (
+            {loading.invoiceStatus ? (
+              <WidgetSkeleton height={420} />
+            ) : (
               <Suspense fallback={<WidgetSkeleton height={420} />}>
                 <InvoicePiechartWidget
                   title="Invoices"
@@ -231,7 +274,9 @@ export function OverviewAppView({
 
         {(loading.vehicleDocs || vehicleDocsSummary) && (
           <Grid xs={12} md={6} lg={4}>
-            {loading.vehicleDocs ? <WidgetSkeleton height={420} /> : (
+            {loading.vehicleDocs ? (
+              <WidgetSkeleton height={420} />
+            ) : (
               <Suspense fallback={<WidgetSkeleton height={420} />}>
                 <VehicleDocumentsPieChart
                   title="Vehicle Documents"

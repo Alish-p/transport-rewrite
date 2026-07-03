@@ -51,7 +51,11 @@ export function SubtripJobCreateMaterialStep({
           </Field.Configurable>
         )}
 
-        <Field.Configurable entity="subtrip" name="ewayExpiryDate" customerId={selectedCustomer?._id}>
+        <Field.Configurable
+          entity="subtrip"
+          name="ewayExpiryDate"
+          customerId={selectedCustomer?._id}
+        >
           <Field.DatePicker
             name="ewayExpiryDate"
             label={getLabel('ewayExpiryDate', 'Eway Expiry Date')}
@@ -67,7 +71,11 @@ export function SubtripJobCreateMaterialStep({
         <Field.Configurable entity="subtrip" name="orderNo" customerId={selectedCustomer?._id}>
           <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
         </Field.Configurable>
-        <Field.Configurable entity="subtrip" name="referenceSubtripNo" customerId={selectedCustomer?._id}>
+        <Field.Configurable
+          entity="subtrip"
+          name="referenceSubtripNo"
+          customerId={selectedCustomer?._id}
+        >
           <Field.Text
             name="referenceSubtripNo"
             label={getLabel('referenceSubtripNo', 'Reference Job No')}
@@ -98,11 +106,7 @@ export function SubtripJobCreateMaterialStep({
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button onClick={onPrevStep}>Back</Button>
-        <Button
-          variant="contained"
-          onClick={onNextStep}
-          disabled={!canGoNextStep}
-        >
+        <Button variant="contained" onClick={onNextStep} disabled={!canGoNextStep}>
           Continue
         </Button>
       </Stack>
@@ -110,8 +114,26 @@ export function SubtripJobCreateMaterialStep({
   );
 }
 
-export function getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, isEwayIntegrationEnabled }) {
-  const freightStageError = getFreightStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields });
+export function getMaterialStepError(
+  form,
+  {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+    fields,
+    isEwayIntegrationEnabled,
+  }
+) {
+  const freightStageError = getFreightStepError(form, {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+    fields,
+  });
   if (freightStageError) return freightStageError;
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;
@@ -134,7 +156,10 @@ export function getMaterialStepError(form, { selectedVehicle, fetchingActiveTrip
   if (isFieldRequired('materialType') && !form.materialType) {
     return 'Please select material type';
   }
-  if (isFieldRequired('quantity') && (form.quantity === undefined || form.quantity === null || form.quantity === '')) {
+  if (
+    isFieldRequired('quantity') &&
+    (form.quantity === undefined || form.quantity === null || form.quantity === '')
+  ) {
     return 'Please enter quantity';
   }
   if (!isEwayIntegrationEnabled && isFieldRequired('ewayBill') && !form.ewayBill) {

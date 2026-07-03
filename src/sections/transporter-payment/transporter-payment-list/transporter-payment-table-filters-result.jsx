@@ -83,7 +83,11 @@ export default function TransporterPayrollTableFiltersResult({
 
         {filters.vehicleId && (
           <Block label="Vehicle:">
-            <Chip size="small" label={vehicle?.vehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+            <Chip
+              size="small"
+              label={vehicle?.vehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicle}
+            />
           </Block>
         )}
 

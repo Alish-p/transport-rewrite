@@ -17,7 +17,11 @@ export function TenantSubscriptionWidget({ subscription, sx, action, ...other })
         <Typography variant="h6">Subscription</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
           {isActive != null && (
-            <Chip size="small" color={isActive ? 'success' : 'default'} label={isActive ? 'Active' : 'Inactive'} />
+            <Chip
+              size="small"
+              color={isActive ? 'success' : 'default'}
+              label={isActive ? 'Active' : 'Inactive'}
+            />
           )}
           {action}
         </Stack>
@@ -37,10 +41,11 @@ function Row({ label, value }) {
       <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 120 }}>
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>{value}</Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        {value}
+      </Typography>
     </Stack>
   );
 }
 
 export default TenantSubscriptionWidget;
-

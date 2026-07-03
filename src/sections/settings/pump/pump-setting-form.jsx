@@ -20,9 +20,11 @@ import { Form, Field } from 'src/components/hook-form';
 
 const PumpSettingSchema = zod.object({
   config: zod.object({
-    pump: zod.object({
-      enabled: zod.boolean().optional(),
-    }).optional(),
+    pump: zod
+      .object({
+        enabled: zod.boolean().optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -69,7 +71,11 @@ export default function PumpSettingForm({ currentTenant }) {
     <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         <Card>
-          <CardHeader title="Pump Settings" subheader="Configure pump management and fuel logging features." sx={{ mb: 3 }} />
+          <CardHeader
+            title="Pump Settings"
+            subheader="Configure pump management and fuel logging features."
+            sx={{ mb: 3 }}
+          />
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Switch
@@ -81,7 +87,11 @@ export default function PumpSettingForm({ currentTenant }) {
                   Manages Fuel Pumps
                   <Tooltip title="If disabled, all Pump-related functionality (pump list, fuel indent, pump expense forms, filters) will be hidden, streamlining the interface.">
                     <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled', ml: 0.5 }} />
+                      <Iconify
+                        icon="eva:info-outline"
+                        width={16}
+                        sx={{ color: 'text.disabled', ml: 0.5 }}
+                      />
                     </Box>
                   </Tooltip>
                 </Stack>

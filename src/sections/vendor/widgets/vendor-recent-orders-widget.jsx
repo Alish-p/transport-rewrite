@@ -107,10 +107,7 @@ export function VendorRecentOrdersWidget({ vendorId, onViewMore }) {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <Label
-                      variant="soft"
-                      color={STATUS_CONFIG[po.status]?.color || 'default'}
-                    >
+                    <Label variant="soft" color={STATUS_CONFIG[po.status]?.color || 'default'}>
                       {STATUS_CONFIG[po.status]?.label || po.status}
                     </Label>
                   </TableCell>
@@ -120,11 +117,8 @@ export function VendorRecentOrdersWidget({ vendorId, onViewMore }) {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="subtitle2">
-                      {fCurrency(po.total || 0)}
-                    </Typography>
+                    <Typography variant="subtitle2">{fCurrency(po.total || 0)}</Typography>
                   </TableCell>
-
                 </TableRow>
               ))
             ) : (

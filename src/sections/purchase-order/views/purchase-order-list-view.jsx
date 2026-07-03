@@ -1,6 +1,5 @@
-import { toast } from 'sonner'
-import { useState, useEffect, useCallback } from 'react'
-  ;
+import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -49,8 +48,6 @@ import PurchaseOrderTableRow from '../purchase-order-table-row';
 import PurchaseOrderTableToolbar from '../purchase-order-table-toolbar';
 import PurchaseOrderTableFiltersResult from '../purchase-order-table-filters-result';
 
-;
-
 const STORAGE_KEY = 'purchase-order-table-columns';
 
 const defaultFilters = {
@@ -78,7 +75,6 @@ const STATUS_TABS = [
 ];
 
 export function PurchaseOrderListView() {
-
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
   const learn = useBoolean();
@@ -155,10 +151,6 @@ export function PurchaseOrderListView() {
     if (!key) return 0;
     return totals[key]?.count || 0;
   };
-
-
-
-
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
@@ -254,7 +246,10 @@ export function PurchaseOrderListView() {
                 animation: 'pulseGlow 2s ease-in-out infinite',
                 '@keyframes pulseGlow': {
                   '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
-                  '50%': { transform: 'scale(1.18)', filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
                 },
               }}
             >
@@ -361,21 +356,25 @@ export function PurchaseOrderListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} purchase orders
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} purchase orders
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -389,27 +388,32 @@ export function PurchaseOrderListView() {
                           setIsDownloading(true);
                           toast.info('Export started... Please wait.');
                           const orderedIds = (
-                            columnOrder && columnOrder.length ? columnOrder : Object.keys(visibleColumns)
+                            columnOrder && columnOrder.length
+                              ? columnOrder
+                              : Object.keys(visibleColumns)
                           ).filter((id) => visibleColumns[id]);
 
-                           const response = await axios.get('/api/maintenance/purchase-orders/export', {
-                            params: {
-                              status: filters.status === 'all' ? undefined : filters.status,
-                              vendor: filters.vendorId || undefined,
-                              fromDate: filters.fromDate || undefined,
-                              toDate: filters.toDate || undefined,
-                              part: filters.partId || undefined,
-                              partLocation: filters.partLocationId || undefined,
-                              createdBy: filters.createdBy || undefined,
-                              approvedBy: filters.approvedBy || undefined,
-                              purchasedBy: filters.purchasedBy || undefined,
-                              purchaseOrderNo: filters.purchaseOrderNo || undefined,
-                              columns: orderedIds.join(','),
-                              order: table.order,
-                              orderBy: table.orderBy,
-                            },
-                            responseType: 'blob',
-                          });
+                          const response = await axios.get(
+                            '/api/maintenance/purchase-orders/export',
+                            {
+                              params: {
+                                status: filters.status === 'all' ? undefined : filters.status,
+                                vendor: filters.vendorId || undefined,
+                                fromDate: filters.fromDate || undefined,
+                                toDate: filters.toDate || undefined,
+                                part: filters.partId || undefined,
+                                partLocation: filters.partLocationId || undefined,
+                                createdBy: filters.createdBy || undefined,
+                                approvedBy: filters.approvedBy || undefined,
+                                purchasedBy: filters.purchasedBy || undefined,
+                                purchaseOrderNo: filters.purchaseOrderNo || undefined,
+                                columns: orderedIds.join(','),
+                                order: table.order,
+                                orderBy: table.orderBy,
+                              },
+                              responseType: 'blob',
+                            }
+                          );
                           const url = window.URL.createObjectURL(new Blob([response.data]));
                           const link = document.createElement('a');
                           link.href = url;
@@ -475,22 +479,26 @@ export function PurchaseOrderListView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                    <TableSkeleton key={i} />
-                  ))
+                      <TableSkeleton key={i} />
+                    ))
                   : tableData.map((row) => (
-                    <PurchaseOrderTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onViewRow={() => handleViewRow(row._id)}
-                      onEditRow={row.status === 'pending-approval' ? () => handleEditRow(row._id) : undefined}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
-                      visibleColumns={visibleColumns}
-                      disabledColumns={disabledColumns}
-                      columnOrder={columnOrder}
-                    />
-                  ))}
+                      <PurchaseOrderTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={
+                          row.status === 'pending-approval'
+                            ? () => handleEditRow(row._id)
+                            : undefined
+                        }
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                 <TableNoData notFound={notFound} />
               </TableBody>
             </Table>

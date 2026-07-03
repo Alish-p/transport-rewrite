@@ -53,8 +53,8 @@ export const getFreightExplanation = (st, isTransporter = false) => {
   let grossAmount = 0;
 
   if (freightModel === 'per_hour') {
-    const {startDate} = st;
-    const {endDate} = st;
+    const { startDate } = st;
+    const { endDate } = st;
     if (startDate && endDate) {
       const start = dayjs(startDate);
       const end = dayjs(endDate);
@@ -83,7 +83,7 @@ export const getFreightExplanation = (st, isTransporter = false) => {
     const baseFreight = freightDetails.freightAmount || 0;
     const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
     if (extraKm > 0) {
-      grossAmount = baseFreight + (extraKm * rate);
+      grossAmount = baseFreight + extraKm * rate;
       grossExplanation = `calculated using base freight of ₹${fNumber(baseFreight)} (${baseKm} km) + extra ${extraKm} km at ₹${fNumber(rate)}/km`;
     } else {
       grossAmount = baseFreight;
@@ -117,7 +117,7 @@ export const getFreightExplanation = (st, isTransporter = false) => {
  * Resolves the weight/volume unit of a subtrip.
  * Returns 'KL' if the freight model is per kilolitre ('per_kl'),
  * otherwise falls back to the unit configured for the vehicle type, defaulting to 'Ton'.
- * 
+ *
  * @param {object} st - The subtrip object
  * @returns {string} - The weight or volume unit ('Ton' or 'KL')
  */
@@ -132,7 +132,7 @@ export const getWeightUnit = (st) => {
  * Aggregates loading weights from multiple subtrips and formats the total grouped by unit.
  * Outputs a comma-separated string of totals (e.g. "10.00 Ton, 5.00 KL").
  * Defaults to "0 Ton" if no weights are found.
- * 
+ *
  * @param {Array} items - Array of subtrip objects
  * @returns {string} - Formatted total weights by unit
  */
@@ -153,6 +153,3 @@ export const calculateTotalWeight = (items) => {
   if (klSum > 0) parts.push(`${fNumber(klSum)} KL`);
   return parts.join(', ') || '0 Ton';
 };
-
-
-

@@ -1,4 +1,3 @@
-
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -64,7 +63,8 @@ export function HomePricing({ sx, ...other }) {
         }}
       >
         {_pricingPlans.map(
-          (tab) => tab.subscription === tabs.value && <PricingCard key={tab.subscription} card={tab} />
+          (tab) =>
+            tab.subscription === tabs.value && <PricingCard key={tab.subscription} card={tab} />
         )}
       </Box>
     </Stack>

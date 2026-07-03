@@ -45,7 +45,10 @@ export function useFieldConfig(entity, customerId = null) {
       );
       if (override) {
         let overrideFields = override.fields || {};
-        if (overrideFields instanceof Map || (overrideFields && typeof overrideFields.entries === 'function')) {
+        if (
+          overrideFields instanceof Map ||
+          (overrideFields && typeof overrideFields.entries === 'function')
+        ) {
           overrideFields = Object.fromEntries(overrideFields);
         }
         fields = mergeFieldConfigs(fields, overrideFields);
@@ -82,9 +85,10 @@ export function useFieldLabel(entity, fieldName, customerId = null, fallback = '
 export function useVisibleFields(entity, customerId = null) {
   const { fields } = useFieldConfig(entity, customerId);
   return useMemo(
-    () => Object.entries(fields)
-      .filter(([, config]) => config.visibility !== 'hidden')
-      .map(([name, config]) => ({ name, ...config })),
+    () =>
+      Object.entries(fields)
+        .filter(([, config]) => config.visibility !== 'hidden')
+        .map(([name, config]) => ({ name, ...config })),
     [fields]
   );
 }
@@ -95,9 +99,10 @@ export function useVisibleFields(entity, customerId = null) {
 export function useRequiredFields(entity, customerId = null) {
   const { fields } = useFieldConfig(entity, customerId);
   return useMemo(
-    () => Object.entries(fields)
-      .filter(([, config]) => config.visibility === 'required')
-      .map(([name]) => name),
+    () =>
+      Object.entries(fields)
+        .filter(([, config]) => config.visibility === 'required')
+        .map(([name]) => name),
     [fields]
   );
 }

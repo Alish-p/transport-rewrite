@@ -83,11 +83,7 @@ export function SubtripJobCreateDetailsStep({
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button onClick={onPrevStep}>Back</Button>
-        <Button
-          variant="contained"
-          onClick={onNextStep}
-          disabled={!canGoNextStep}
-        >
+        <Button variant="contained" onClick={onNextStep} disabled={!canGoNextStep}>
           Continue
         </Button>
       </Stack>
@@ -95,8 +91,15 @@ export function SubtripJobCreateDetailsStep({
   );
 }
 
-export function getJobStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }) {
-  const vehicleStageError = getVehicleStepError(form, { selectedVehicle, fetchingActiveTrip, activeTrip });
+export function getJobStepError(
+  form,
+  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
+) {
+  const vehicleStageError = getVehicleStepError(form, {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+  });
   if (vehicleStageError) return vehicleStageError;
 
   if (!selectedDriver?._id) return 'Please select a driver';

@@ -43,7 +43,7 @@ export function resolveStatus(vehicle) {
   if (cs === 'RUNNING') return 'running';
   if (cs === 'IDLE') return 'idle';
   if (cs === 'PARKED') return 'parked';
-  
+
   return 'inactive';
 }
 

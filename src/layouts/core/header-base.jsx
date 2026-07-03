@@ -146,8 +146,6 @@ export function HeaderBase({
               {/* -- Contacts popover -- */}
               {contacts && <ContactsPopover data-slot="contacts" />}
 
-
-
               {/* -- Account drawer -- */}
               {account && <AccountDrawer data-slot="account" data={data?.account} />}
 

@@ -62,7 +62,13 @@ export default function PartTableFiltersResult({
           <Block label="Stock Status:">
             <Chip
               size="small"
-              label={filters.status === 'inStock' ? 'In stock' : filters.status === 'lowStock' ? 'Low stock' : 'Out Of Stock'}
+              label={
+                filters.status === 'inStock'
+                  ? 'In stock'
+                  : filters.status === 'lowStock'
+                    ? 'Low stock'
+                    : 'Out Of Stock'
+              }
               onDelete={handleRemoveStatus}
             />
           </Block>

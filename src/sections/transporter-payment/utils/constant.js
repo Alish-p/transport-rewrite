@@ -12,4 +12,3 @@ export const TRANSPORTER_PAYMENT_STATUS_COLORS = {
 
 export const getTransporterPaymentStatusColor = (status) =>
   TRANSPORTER_PAYMENT_STATUS_COLORS[status] || 'default';
-

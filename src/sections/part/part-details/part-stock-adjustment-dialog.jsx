@@ -31,18 +31,18 @@ const AdjustmentSchema = zod.object({
 });
 
 const ADJUSTMENT_REASONS = [
-  "Broken",
-  "Checked Inventory",
-  "Expired",
-  "Found",
-  "Lost",
-  "Received",
-  "Sold",
-  "Stolen",
-  "Transferred",
-  "Used",
-  "Other Reason",
-]
+  'Broken',
+  'Checked Inventory',
+  'Expired',
+  'Found',
+  'Lost',
+  'Received',
+  'Sold',
+  'Stolen',
+  'Transferred',
+  'Used',
+  'Other Reason',
+];
 
 export function PartStockAdjustmentDialog({ open, onClose, part, location, partId }) {
   const adjustPartStock = useAdjustPartStock();
@@ -125,10 +125,11 @@ export function PartStockAdjustmentDialog({ open, onClose, part, location, partI
   };
 
   const locationLabel = location
-    ? `${location.name || 'Unnamed location'}${typeof location.currentQty === 'number'
-      ? ` • Current: ${location.currentQty} ${measurementUnit || ''}`
-      : ''
-    }`
+    ? `${location.name || 'Unnamed location'}${
+        typeof location.currentQty === 'number'
+          ? ` • Current: ${location.currentQty} ${measurementUnit || ''}`
+          : ''
+      }`
     : '';
 
   return (
@@ -286,4 +287,3 @@ export function PartStockAdjustmentDialog({ open, onClose, part, location, partI
     </Dialog>
   );
 }
-

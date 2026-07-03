@@ -11,7 +11,15 @@ import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
 
-export function DashboardTotalWidget({ icon, title, total, color = 'primary', onTotalClick, sx, ...other }) {
+export function DashboardTotalWidget({
+  icon,
+  title,
+  total,
+  color = 'primary',
+  onTotalClick,
+  sx,
+  ...other
+}) {
   const theme = useTheme();
 
   return (

@@ -94,7 +94,13 @@ export function TransporterListView() {
   const navigate = useNavigate();
   const deleteTransporter = useDeleteTransporter();
 
-  const { filters, handleFilters, handleResetFilters: baseHandleResetFilters, canReset, setFilters } = useFilters(defaultFilters, {
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters: baseHandleResetFilters,
+    canReset,
+    setFilters,
+  } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -308,21 +314,25 @@ export function TransporterListView() {
             label={
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="subtitle2">
-                  {selectAllMode ? `All ${totalCount} selected` : `${table.selected.length} selected`}
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
                 </Typography>
 
-                {!selectAllMode && table.selected.length === tableData.length && totalCount > tableData.length && (
-                  <Link
-                    component="button"
-                    variant="subtitle2"
-                    onClick={() => {
-                      setSelectAllMode(true);
-                    }}
-                    sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                  >
-                    Select all {totalCount} transporters
-                  </Link>
-                )}
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
+                      }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                    >
+                      Select all {totalCount} transporters
+                    </Link>
+                  )}
               </Stack>
             }
             action={
@@ -344,7 +354,9 @@ export function TransporterListView() {
                               vehicleCountMax: filters.vehicleCountMax || undefined,
                               state: filters.state || undefined,
                               paymentMode: filters.paymentMode || undefined,
-                              gstEnabled: filters.gstEnabled ? filters.gstEnabled === 'true' : undefined,
+                              gstEnabled: filters.gstEnabled
+                                ? filters.gstEnabled === 'true'
+                                : undefined,
                               status: filters.status,
                               gstNo: filters.gstNo || undefined,
                               panNo: filters.panNo || undefined,
@@ -371,10 +383,17 @@ export function TransporterListView() {
                           toast.error('Failed to export transporters.');
                         }
                       } else {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
                         exportToExcel(
-                          prepareDataForExport(selectedRows, TABLE_COLUMNS, visibleCols, columnOrder),
+                          prepareDataForExport(
+                            selectedRows,
+                            TABLE_COLUMNS,
+                            visibleCols,
+                            columnOrder
+                          ),
                           'Transporters-selected'
                         );
                       }
@@ -392,7 +411,9 @@ export function TransporterListView() {
                   <Tooltip title="Download PDF">
                     <PDFDownloadLink
                       document={(() => {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
                         const visibleCols = getVisibleColumnsForExport();
                         return (
                           <TransporterListPdf
@@ -467,12 +488,7 @@ export function TransporterListView() {
           </Scrollbar>
         </TableContainer>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-          sx={{ px: 2 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ px: 2 }}>
           <TablePaginationCustom
             count={totalCount}
             page={table.page}

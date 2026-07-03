@@ -121,7 +121,10 @@ export default function ChatInput({
   // Keep selectedOptions keys in sync when optionGroups change
   useEffect(() => {
     setSelectedOptions((prev) => ({ ...ensureSelectedShape(optionGroups), ...prev }));
-    setSearchTerms((prev) => ({ ...optionGroups.reduce((a, g) => ({ ...a, [g.id]: '' }), {}), ...prev }));
+    setSearchTerms((prev) => ({
+      ...optionGroups.reduce((a, g) => ({ ...a, [g.id]: '' }), {}),
+      ...prev,
+    }));
   }, [optionGroups]);
 
   const totalActiveSelections = useMemo(
@@ -202,8 +205,7 @@ export default function ChatInput({
           </Box>
         )}
 
-        {/* Input row */
-        }
+        {/* Input row */}
         <Box sx={{ position: 'relative' }}>
           <TextField
             fullWidth
@@ -257,7 +259,10 @@ export default function ChatInput({
           </Typography>
           {!!totalActiveSelections && (
             <Tooltip title="Clear all selections">
-              <IconButton color="error" onClick={() => setSelectedOptions(ensureSelectedShape(optionGroups))}>
+              <IconButton
+                color="error"
+                onClick={() => setSelectedOptions(ensureSelectedShape(optionGroups))}
+              >
                 <Iconify icon="solar:trash-bin-trash-bold" />
               </IconButton>
             </Tooltip>
@@ -299,7 +304,10 @@ export default function ChatInput({
                             {group.label}
                           </Typography>
                           {!!selectedCount && (
-                            <Typography variant="caption" sx={{ display: 'block', fontWeight: 600 }}>
+                            <Typography
+                              variant="caption"
+                              sx={{ display: 'block', fontWeight: 600 }}
+                            >
                               {selectedCount} selected
                             </Typography>
                           )}
@@ -337,15 +345,30 @@ export default function ChatInput({
                             filtered.map((opt) => {
                               const isSelected = (selectedOptions[group.id] || []).includes(opt.id);
                               return (
-                                <MenuItem key={opt.id} onClick={() => toggleOption(group.id, opt.id)}>
-                                  <Checkbox edge="start" checked={isSelected} tabIndex={-1} disableRipple />
+                                <MenuItem
+                                  key={opt.id}
+                                  onClick={() => toggleOption(group.id, opt.id)}
+                                >
+                                  <Checkbox
+                                    edge="start"
+                                    checked={isSelected}
+                                    tabIndex={-1}
+                                    disableRipple
+                                  />
                                   {opt.iconName && <Iconify icon={opt.iconName} width={18} />}
                                   <ListItemText primary={opt.label} />
                                 </MenuItem>
                               );
                             })
                           ) : (
-                            <Box sx={{ p: 2, color: 'text.secondary', typography: 'caption', textAlign: 'center' }}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                color: 'text.secondary',
+                                typography: 'caption',
+                                textAlign: 'center',
+                              }}
+                            >
                               No options found
                             </Box>
                           )}
@@ -354,7 +377,11 @@ export default function ChatInput({
                         {!!selectedCount && (
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
                             <Tooltip title="Clear group">
-                              <IconButton size="small" color="error" onClick={() => clearGroup(group.id)}>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => clearGroup(group.id)}
+                              >
                                 <Iconify icon="mdi:delete-outline" />
                               </IconButton>
                             </Tooltip>

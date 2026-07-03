@@ -24,7 +24,11 @@ import { fDate, fDateRangeShortLabel } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { getWeightUnit, calculateTotalWeight, getFreightExplanation } from 'src/sections/subtrip/utils';
+import {
+  getWeightUnit,
+  calculateTotalWeight,
+  getFreightExplanation,
+} from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -64,10 +68,7 @@ function RenderHeader({ transporterPayment }) {
         }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label
-          variant="soft"
-          color={getTransporterPaymentStatusColor(status)}
-        >
+        <Label variant="soft" color={getTransporterPaymentStatusColor(status)}>
           {status || 'Draft'}
         </Label>
         <Typography variant="h6">{paymentId || 'TPR - XXX'}</Typography>
@@ -144,9 +145,7 @@ function RenderTable({ transporterPayment }) {
               <TableCell>{st.unloadingPoint}</TableCell>
               <TableCell>{st.invoiceNo}</TableCell>
               <TableCell align="right">
-                {st.loadingWeight
-                  ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}`
-                  : '-'}
+                {st.loadingWeight ? `${fNumber(st.loadingWeight)} ${getWeightUnit(st)}` : '-'}
               </TableCell>
               <TableCell align="right">{st.shortageWeight}</TableCell>
               <TableCell align="right">{fCurrency(st.shortageAmount)}</TableCell>

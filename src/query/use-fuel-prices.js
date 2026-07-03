@@ -68,10 +68,9 @@ const getCurrentFuelPrice = async ({ pumpId, fuelType, date }) => {
       params.date = asDate.toISOString();
     }
 
-    const { data } = await axios.get(
-      `${ENDPOINT}/${pumpId}/fuel-prices/${fuelType}/current`,
-      { params }
-    );
+    const { data } = await axios.get(`${ENDPOINT}/${pumpId}/fuel-prices/${fuelType}/current`, {
+      params,
+    });
     return data;
   } catch (error) {
     console.error('API Error:', error);
@@ -158,4 +157,3 @@ export function useDeleteFuelPrice() {
   });
   return mutate;
 }
-

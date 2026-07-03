@@ -61,11 +61,7 @@ export default function TransporterAdvanceTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.status !== 'all' && (
           <Block label="Status :">
-            <Chip
-              size="small"
-              label={filters.status}
-              onDelete={() => onFilters('status', 'all')}
-            />
+            <Chip size="small" label={filters.status} onDelete={() => onFilters('status', 'all')} />
           </Block>
         )}
 
@@ -81,19 +77,31 @@ export default function TransporterAdvanceTableFiltersResult({
 
         {filters.vehicleId && (
           <Block label="Vehicle:">
-            <Chip size="small" label={selectedVehicleNo || filters.vehicleId} onDelete={handleRemoveVehicle} />
+            <Chip
+              size="small"
+              label={selectedVehicleNo || filters.vehicleId}
+              onDelete={handleRemoveVehicle}
+            />
           </Block>
         )}
 
         {filters.subtripId && (
           <Block label="Job:">
-            <Chip size="small" label={selectedSubtripNo || filters.subtripId} onDelete={handleRemoveSubtrip} />
+            <Chip
+              size="small"
+              label={selectedSubtripNo || filters.subtripId}
+              onDelete={handleRemoveSubtrip}
+            />
           </Block>
         )}
 
         {filters.pumpId && (
           <Block label="Pump:">
-            <Chip size="small" label={selectedPumpName || filters.pumpId} onDelete={handleRemovePump} />
+            <Chip
+              size="small"
+              label={selectedPumpName || filters.pumpId}
+              onDelete={handleRemovePump}
+            />
           </Block>
         )}
 

@@ -2,7 +2,6 @@ import { fNumber } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/config-global';
 
-
 export const calculateTaxBreakup = (transporter, totalAmountBeforeTax) => {
   const taxRate = CONFIG.transporterInvoiceTax || 9;
   const tdsRate = transporter?.tdsPercentage || 0;
@@ -68,8 +67,8 @@ export const calculateTransporterPayment = (subtrip) => {
     Array.isArray(subtrip.advances) && subtrip.advances.length > 0
       ? subtrip.advances
       : Array.isArray(subtrip.expenses)
-      ? subtrip.expenses
-      : [];
+        ? subtrip.expenses
+        : [];
   const totalExpense = deductionSource.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   // 📉 Shortage Deduction
@@ -149,4 +148,3 @@ export const fEffectiveTransporterRate = (st) => {
   const netFreightAmount = freightAmount - commissionAmount;
   return `Fixed (${fNumber(netFreightAmount)} ₹)`;
 };
-

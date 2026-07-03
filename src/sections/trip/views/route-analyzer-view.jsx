@@ -31,12 +31,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import {
-  useTable,
-  TableNoData,
-  TableSkeleton,
-  TablePaginationCustom,
-} from 'src/components/table';
+import { useTable, TableNoData, TableSkeleton, TablePaginationCustom } from 'src/components/table';
 
 import { useVehicleTypes } from 'src/sections/vehicle/vehicle-config';
 
@@ -77,8 +72,12 @@ function DeviationLabel({ value, invertColor = false, avgValue, currentValue, fo
 
     tooltipText = (
       <Stack spacing={0.5} sx={{ p: 0.5, typography: 'caption' }}>
-        <Box>Average is <strong>{formattedAvg}</strong></Box>
-        <Box>This Trip value is <strong>{formattedCur}</strong></Box>
+        <Box>
+          Average is <strong>{formattedAvg}</strong>
+        </Box>
+        <Box>
+          This Trip value is <strong>{formattedCur}</strong>
+        </Box>
         <Box sx={{ mt: 0.5 }}>
           <strong>{formattedDiff}</strong> {diffText} than Average
         </Box>
@@ -90,7 +89,8 @@ function DeviationLabel({ value, invertColor = false, avgValue, currentValue, fo
     <Tooltip title={tooltipText || ''} placement="top" arrow>
       <Box sx={{ cursor: tooltipText ? 'help' : 'inherit', display: 'inline-flex' }}>
         <Typography variant="caption" sx={{ color, fontSize: 11, fontWeight: 600 }}>
-          {sign}{value}%
+          {sign}
+          {value}%
         </Typography>
       </Box>
     </Tooltip>
@@ -133,7 +133,11 @@ function RouteRow({ route, index }) {
         {/* Route */}
         <TableCell>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 200 }}>
-            <Iconify icon="mdi:map-marker-path" width={20} sx={{ color: 'primary.main', flexShrink: 0 }} />
+            <Iconify
+              icon="mdi:map-marker-path"
+              width={20}
+              sx={{ color: 'primary.main', flexShrink: 0 }}
+            />
             <Tooltip title={route.routeSignature} placement="top" arrow>
               <Typography variant="subtitle2" noWrap sx={{ maxWidth: 400 }}>
                 {route.routeSignature}
@@ -206,10 +210,15 @@ function RouteRow({ route, index }) {
                     <TableCell sx={{ verticalAlign: 'bottom' }}>Vehicle</TableCell>
                     <TableCell sx={{ verticalAlign: 'bottom' }}>Driver</TableCell>
                     <TableCell sx={{ verticalAlign: 'bottom' }}>Date</TableCell>
-                    <TableCell align="center" sx={{ verticalAlign: 'bottom' }}>Jobs</TableCell>
+                    <TableCell align="center" sx={{ verticalAlign: 'bottom' }}>
+                      Jobs
+                    </TableCell>
                     <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
                       <Stack alignItems="flex-end">
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}
+                        >
                           Avg: ₹{fNumber(route.avgIncome)}
                         </Typography>
                         Income
@@ -217,7 +226,10 @@ function RouteRow({ route, index }) {
                     </TableCell>
                     <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
                       <Stack alignItems="flex-end">
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}
+                        >
                           Avg: ₹{fNumber(route.avgExpense)}
                         </Typography>
                         Expense
@@ -225,7 +237,10 @@ function RouteRow({ route, index }) {
                     </TableCell>
                     <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
                       <Stack alignItems="flex-end">
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}
+                        >
                           Avg: ₹{fNumber(route.avgProfit)}
                         </Typography>
                         Profit
@@ -233,7 +248,10 @@ function RouteRow({ route, index }) {
                     </TableCell>
                     <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
                       <Stack alignItems="flex-end">
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}
+                        >
                           Avg: {fNumber(route.avgDieselLtr)} Ltr
                         </Typography>
                         Diesel
@@ -241,7 +259,10 @@ function RouteRow({ route, index }) {
                     </TableCell>
                     <TableCell align="right" sx={{ verticalAlign: 'bottom' }}>
                       <Stack alignItems="flex-end">
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.secondary', fontWeight: 'normal', lineHeight: 1.2 }}
+                        >
                           Avg: {fNumber(route.avgKm)} km
                         </Typography>
                         KM
@@ -261,10 +282,21 @@ function RouteRow({ route, index }) {
                     return (
                       <TableRow key={trip._id} hover>
                         <TableCell>
-                          <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 60 }}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            sx={{ minWidth: 60 }}
+                          >
                             {hasHighDeviation && (
-                              <Tooltip title="High deviation in one or more metrics (>50%)" placement="top">
-                                <Box component="span" sx={{ display: 'flex', color: 'warning.main' }}>
+                              <Tooltip
+                                title="High deviation in one or more metrics (>50%)"
+                                placement="top"
+                              >
+                                <Box
+                                  component="span"
+                                  sx={{ display: 'flex', color: 'warning.main' }}
+                                >
                                   <Iconify icon="eva:alert-triangle-fill" width={18} />
                                 </Box>
                               </Tooltip>
@@ -337,7 +369,9 @@ function RouteRow({ route, index }) {
                         </TableCell>
                         <TableCell align="right">
                           <Stack alignItems="flex-end">
-                            <Typography variant="body2">{fNumber(trip.totalDieselLtr)} Ltr</Typography>
+                            <Typography variant="body2">
+                              {fNumber(trip.totalDieselLtr)} Ltr
+                            </Typography>
                             <DeviationLabel
                               value={trip.deviations?.diesel}
                               invertColor
@@ -407,14 +441,8 @@ export function RouteAnalyzerView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-
-
       {/* Stats summary */}
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        sx={{ mb: 3 }}
-      >
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <Card sx={{ p: 2.5, flex: 1 }}>
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <Iconify icon="solar:route-bold-duotone" width={28} sx={{ color: 'primary.main' }} />
@@ -443,9 +471,7 @@ export function RouteAnalyzerView() {
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <Iconify icon="solar:star-bold-duotone" width={28} sx={{ color: 'warning.main' }} />
             <Box>
-              <Typography variant="h4">
-                {routes.length ? routes[0]?.tripCount : '—'}
-              </Typography>
+              <Typography variant="h4">{routes.length ? routes[0]?.tripCount : '—'}</Typography>
               <Typography variant="body2" color="text.secondary">
                 Most Frequent Route
               </Typography>
@@ -489,15 +515,15 @@ export function RouteAnalyzerView() {
               <TableBody>
                 {isLoading
                   ? Array.from({ length: table.rowsPerPage }).map((_, idx) => (
-                    <TableSkeleton key={idx} sx={{ height: 56 }} />
-                  ))
+                      <TableSkeleton key={idx} sx={{ height: 56 }} />
+                    ))
                   : routes.map((route, idx) => (
-                    <RouteRow
-                      key={route.routeSignature}
-                      route={route}
-                      index={(table.page * table.rowsPerPage) + idx}
-                    />
-                  ))}
+                      <RouteRow
+                        key={route.routeSignature}
+                        route={route}
+                        index={table.page * table.rowsPerPage + idx}
+                      />
+                    ))}
 
                 <TableNoData notFound={notFound} />
               </TableBody>

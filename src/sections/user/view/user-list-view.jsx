@@ -78,7 +78,8 @@ export function UserListView({ users }) {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!filters.state.name || !!filters.state.designation || !!filters.state.permission;
+  const canReset =
+    !!filters.state.name || !!filters.state.designation || !!filters.state.permission;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -159,7 +160,9 @@ export function UserListView({ users }) {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        const selectedRows = tableData.filter((r) => table.selected.includes(r._id) || table.selected.includes(r.id));
+                        const selectedRows = tableData.filter(
+                          (r) => table.selected.includes(r._id) || table.selected.includes(r.id)
+                        );
                         exportToExcel(
                           prepareDataForExport(
                             selectedRows,
@@ -167,7 +170,11 @@ export function UserListView({ users }) {
                               { id: 'name', label: 'Name', getter: (r) => r.name },
                               { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
                               { id: 'address', label: 'Address', getter: (r) => r.address },
-                              { id: 'designation', label: 'Designation', getter: (r) => r.designation },
+                              {
+                                id: 'designation',
+                                label: 'Designation',
+                                getter: (r) => r.designation,
+                              },
                             ],
                             ['name', 'mobile', 'address', 'designation'],
                             []
@@ -289,7 +296,10 @@ function applyFilter({ inputData, comparator, filters }) {
     );
   }
   if (permission) {
-    const searchTerms = permission.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+    const searchTerms = permission
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
     if (searchTerms.length > 0) {
       inputData = inputData.filter((user) => {
         const userPerms = [];

@@ -139,7 +139,8 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     sortable: true,
     disabled: false,
-    getter: (row) => (row.lastSubtripDate ? new Date(row.lastSubtripDate).toLocaleDateString() : 'Never'),
+    getter: (row) =>
+      row.lastSubtripDate ? new Date(row.lastSubtripDate).toLocaleDateString() : 'Never',
     render: (row) => {
       const value = row.lastSubtripDate;
       if (!value) return 'Never';
@@ -174,7 +175,8 @@ export const TABLE_COLUMNS = [
     sortable: true,
     disabled: false,
     getter: (row) => row.tdsPercentage,
-    render: (row) => (row.tdsPercentage !== undefined && row.tdsPercentage !== null ? `${row.tdsPercentage}%` : ''),
+    render: (row) =>
+      row.tdsPercentage !== undefined && row.tdsPercentage !== null ? `${row.tdsPercentage}%` : '',
   },
   {
     id: 'podCharges',

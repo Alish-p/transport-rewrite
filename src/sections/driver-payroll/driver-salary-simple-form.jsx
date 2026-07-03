@@ -221,7 +221,6 @@ export default function DriverSalarySimpleForm() {
     }
   };
 
-
   const selectedSubtrips = associatedSubtrips.filter((st) => st.selected);
 
   const summary = calculateDriverSalarySummary(
@@ -232,8 +231,11 @@ export default function DriverSalarySimpleForm() {
       .map((c) => ({ label: c.label, amount: Number(c.amount) })),
     additionalCharges
       .filter((c) => Number(c.amount) < 0)
-      .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) })).concat(
-        selectedSubtrips.length > 0 ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: ld.amount })) : []
+      .map((c) => ({ label: c.label, amount: Math.abs(Number(c.amount)) }))
+      .concat(
+        selectedSubtrips.length > 0
+          ? loanDeductions.map((ld) => ({ label: 'Loan Repayment', amount: ld.amount }))
+          : []
       )
   );
 
@@ -466,7 +468,7 @@ export default function DriverSalarySimpleForm() {
                       onClick={handleAddCharge}
                       sx={{ width: { sm: 'auto', xs: 1 } }}
                     >
-                       Add Extra Charge
+                      Add Extra Charge
                     </Button>
                   </TableCell>
                 </StyledTableRow>
@@ -506,7 +508,6 @@ export default function DriverSalarySimpleForm() {
           Create Salary
         </LoadingButton>
       </Stack>
-
     </Form>
   );
 }

@@ -42,10 +42,7 @@ const addPayment = async ({ tenantId, payment }) => {
 };
 
 const updatePayment = async ({ tenantId, paymentId, patch }) => {
-  const { data } = await axios.put(
-    `${ENDPOINT}/${tenantId}/payments/${paymentId}`,
-    patch
-  );
+  const { data } = await axios.put(`${ENDPOINT}/${tenantId}/payments/${paymentId}`, patch);
   return data; // returns updated tenant
 };
 

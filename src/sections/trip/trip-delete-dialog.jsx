@@ -63,11 +63,16 @@ function JobRow({ subtrip, blocking = false }) {
           width: 48,
           height: 48,
           borderRadius: '50%',
-          bgcolor: blocking ? (theme) => alpha(theme.palette.error.main, 0.16) : 'background.neutral',
+          bgcolor: blocking
+            ? (theme) => alpha(theme.palette.error.main, 0.16)
+            : 'background.neutral',
           color: blocking ? 'error.main' : 'text.secondary',
         }}
       >
-        <Iconify icon={blocking ? 'solar:danger-triangle-bold' : 'solar:box-minimalistic-bold'} width={24} />
+        <Iconify
+          icon={blocking ? 'solar:danger-triangle-bold' : 'solar:box-minimalistic-bold'}
+          width={24}
+        />
       </Box>
 
       <Stack spacing={0.5} sx={{ flexGrow: 1, minWidth: 0 }}>
@@ -90,33 +95,43 @@ function JobRow({ subtrip, blocking = false }) {
           </Label>
         </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ typography: 'caption', color: 'text.secondary' }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{ typography: 'caption', color: 'text.secondary' }}
+        >
           <Iconify icon="solar:route-bold" width={14} />
           <Typography variant="caption" noWrap>
             {subtrip.loadingPoint || '?'} → {subtrip.unloadingPoint || '?'}
           </Typography>
         </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ typography: 'caption', color: 'text.disabled' }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1.5}
+          sx={{ typography: 'caption', color: 'text.disabled' }}
+        >
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <Iconify icon="solar:user-bold" width={14} />
             <Typography variant="caption" noWrap maxWidth={100}>
-               {subtrip.driverId?.driverName || '—'}
+              {subtrip.driverId?.driverName || '—'}
             </Typography>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <Iconify icon="solar:users-group-rounded-bold" width={14} />
             <Typography variant="caption" noWrap maxWidth={100}>
-               {subtrip.customerId?.customerName || '—'}
+              {subtrip.customerId?.customerName || '—'}
             </Typography>
           </Stack>
           {expenseCount > 0 && (
-             <Stack direction="row" alignItems="center" spacing={0.5}>
-               <Iconify icon="solar:wallet-bold" width={14} />
-               <Typography variant="caption" noWrap>
-                 {expenseCount} exp
-               </Typography>
-             </Stack>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Iconify icon="solar:wallet-bold" width={14} />
+              <Typography variant="caption" noWrap>
+                {expenseCount} exp
+              </Typography>
+            </Stack>
           )}
         </Stack>
       </Stack>
@@ -125,7 +140,14 @@ function JobRow({ subtrip, blocking = false }) {
       <Stack spacing={0.5} alignItems="flex-end" sx={{ ml: 2 }}>
         {blocking ? (
           blockingReasons.map((r) => (
-            <Chip key={r} label={r} size="small" color="error" variant="soft" sx={{ height: 20, fontSize: 10, fontWeight: 600 }} />
+            <Chip
+              key={r}
+              label={r}
+              size="small"
+              color="error"
+              variant="soft"
+              sx={{ height: 20, fontSize: 10, fontWeight: 600 }}
+            />
           ))
         ) : (
           <Box
@@ -140,7 +162,7 @@ function JobRow({ subtrip, blocking = false }) {
               color: 'error.main',
             }}
           >
-             <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
           </Box>
         )}
       </Stack>
@@ -166,7 +188,13 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
   const totalExpenses = subtripsArr.reduce((sum, st) => sum + (st.expenses?.length || 0), 0);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 2 } }}
+    >
       <DialogTitle sx={{ pb: 3, pt: 3, px: 3 }}>
         <Stack direction="row" alignItems="center" spacing={2.5}>
           <Box
@@ -177,7 +205,9 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              bgcolor: canDelete ? alpha(theme.palette.error.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
+              bgcolor: canDelete
+                ? alpha(theme.palette.error.main, 0.1)
+                : alpha(theme.palette.warning.main, 0.1),
               color: canDelete ? 'error.main' : 'warning.main',
             }}
           >
@@ -187,9 +217,15 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
             />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ mb: 0.5 }}>Delete Trip {trip.tripNo}</Typography>
+            <Typography variant="h5" sx={{ mb: 0.5 }}>
+              Delete Trip {trip.tripNo}
+            </Typography>
             <Typography variant="body2" color="text.secondary">
-              {fDate(trip.fromDate)} • <Typography component="span" variant="subtitle2" color="text.primary">{subtripsArr.length}</Typography> job{subtripsArr.length !== 1 ? 's' : ''} attached
+              {fDate(trip.fromDate)} •{' '}
+              <Typography component="span" variant="subtitle2" color="text.primary">
+                {subtripsArr.length}
+              </Typography>{' '}
+              job{subtripsArr.length !== 1 ? 's' : ''} attached
             </Typography>
           </Box>
         </Stack>
@@ -201,8 +237,8 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
         {/* ── Cannot delete ─────────────────────────────────────────── */}
         {!canDelete && (
           <Stack spacing={3}>
-            <Alert 
-              severity="error" 
+            <Alert
+              severity="error"
               icon={<Iconify icon="solar:danger-bold" />}
               sx={{ borderRadius: 1.5 }}
             >
@@ -241,12 +277,13 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
         {/* ── Can delete ────────────────────────────────────────────── */}
         {canDelete && (
           <Stack spacing={3}>
-            <Alert 
-              severity="warning" 
+            <Alert
+              severity="warning"
               icon={<Iconify icon="solar:danger-triangle-bold" />}
               sx={{ borderRadius: 1.5 }}
             >
-              This action is <strong>irreversible</strong>. The following items will be permanently removed from the system.
+              This action is <strong>irreversible</strong>. The following items will be permanently
+              removed from the system.
             </Alert>
 
             {/* Summary chips */}
@@ -330,7 +367,13 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
       <Divider />
 
       <DialogActions sx={{ px: 3, py: 2.5, bgcolor: 'background.neutral' }}>
-        <Button variant="outlined" color="inherit" onClick={onClose} disabled={isDeleting} sx={{ fontWeight: 600 }}>
+        <Button
+          variant="outlined"
+          color="inherit"
+          onClick={onClose}
+          disabled={isDeleting}
+          sx={{ fontWeight: 600 }}
+        >
           Cancel
         </Button>
 
@@ -339,9 +382,11 @@ export function TripDeleteDialog({ trip, open, onClose, onConfirm, isDeleting })
             variant="contained"
             color="error"
             startIcon={
-              isDeleting
-                ? <Iconify icon="line-md:loading-loop" />
-                : <Iconify icon="solar:trash-bin-trash-bold" />
+              isDeleting ? (
+                <Iconify icon="line-md:loading-loop" />
+              ) : (
+                <Iconify icon="solar:trash-bin-trash-bold" />
+              )
             }
             onClick={onConfirm}
             disabled={isDeleting}

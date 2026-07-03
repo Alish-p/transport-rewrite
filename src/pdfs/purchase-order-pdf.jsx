@@ -48,8 +48,18 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
     { header: 'S.No', accessor: 'sno', width: '5%' },
     { header: 'Part', accessor: 'part', width: hasReceipts ? '20%' : '30%' },
     { header: 'Part No.', accessor: 'partNumber', width: hasReceipts ? '12%' : '15%' },
-    { header: 'Qty Ord.', accessor: 'qtyOrdered', width: hasReceipts ? '9%' : '12%', align: 'right' },
-    { header: 'Qty Rec.', accessor: 'qtyReceived', width: hasReceipts ? '9%' : '12%', align: 'right' },
+    {
+      header: 'Qty Ord.',
+      accessor: 'qtyOrdered',
+      width: hasReceipts ? '9%' : '12%',
+      align: 'right',
+    },
+    {
+      header: 'Qty Rec.',
+      accessor: 'qtyReceived',
+      width: hasReceipts ? '9%' : '12%',
+      align: 'right',
+    },
     {
       header: 'PO Cost',
       accessor: 'unitCost',
@@ -97,9 +107,7 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
       let totalReceivedCost = 0;
       let totalReceivedQty = 0;
       receipts.forEach((grn) => {
-        const grnLine = grn.lines?.find(
-          (l) => l.lineId?.toString() === line._id?.toString()
-        );
+        const grnLine = grn.lines?.find((l) => l.lineId?.toString() === line._id?.toString());
         if (grnLine && grnLine.quantityReceived > 0) {
           totalReceivedCost += (grnLine.actualUnitCost || 0) * grnLine.quantityReceived;
           totalReceivedQty += grnLine.quantityReceived;
@@ -133,8 +141,7 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
   const taxableBase = Math.max(subtotal - (effectiveDiscountAmount || 0), 0);
 
   const effectiveTaxAmount =
-    taxAmount ??
-    (taxType === 'percentage' ? (taxableBase * (tax || 0)) / 100 : tax || 0);
+    taxAmount ?? (taxType === 'percentage' ? (taxableBase * (tax || 0)) / 100 : tax || 0);
 
   // Extra rows show PO cost summary columns
   // Column count differs: 7 without receipts, 9 with receipts
@@ -224,7 +231,12 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
       cells: [
         { startIndex: 0, colspan: labelStart - 1, value: '', align: 'left' },
         { startIndex: labelStart - 1, colspan: 2, value: 'Actual Received Total', align: 'right' },
-        { startIndex: labelStart + 1, colspan: 1, value: fCurrency(actualReceivedTotal), align: 'right' },
+        {
+          startIndex: labelStart + 1,
+          colspan: 1,
+          value: fCurrency(actualReceivedTotal),
+          align: 'right',
+        },
       ],
       highlight: false,
     });
@@ -252,11 +264,7 @@ export default function PurchaseOrderPdf({ purchaseOrder, tenant }) {
 
         <PDFBillToSection
           title="Vendor"
-          billToDetails={[
-            displayVendor?.name,
-            displayVendor?.address,
-            displayVendor?.phone,
-          ]}
+          billToDetails={[displayVendor?.name, displayVendor?.address, displayVendor?.phone]}
           metaDetails={[
             ['PO No.', displayPoNo],
             ['Date', displayDate && fDate(displayDate)],

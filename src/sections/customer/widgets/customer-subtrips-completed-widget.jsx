@@ -41,13 +41,13 @@ export function CustomerSubtripCompletedWidget({ customer }) {
       data:
         isSelected && subtripMonthlyData
           ? [
-            { name: 'Own', data: subtripMonthlyData.own },
-            { name: 'Market', data: subtripMonthlyData.market },
-          ]
+              { name: 'Own', data: subtripMonthlyData.own },
+              { name: 'Market', data: subtripMonthlyData.market },
+            ]
           : [
-            { name: 'Own', data: Array(12).fill(0) },
-            { name: 'Market', data: Array(12).fill(0) },
-          ],
+              { name: 'Own', data: Array(12).fill(0) },
+              { name: 'Market', data: Array(12).fill(0) },
+            ],
     };
   });
 

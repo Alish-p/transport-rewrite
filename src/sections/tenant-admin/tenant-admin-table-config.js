@@ -6,4 +6,3 @@ export const TENANT_TABLE_HEADERS = [
   { id: 'email', label: 'Email' },
   { id: 'actions', label: '', align: 'right' },
 ];
-

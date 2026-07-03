@@ -92,10 +92,8 @@ export function WorkOrderDetailView({ workOrder }) {
   const statusLabel = WORK_ORDER_STATUS_LABELS[status] || status || 'Unknown';
   const statusColor = WORK_ORDER_STATUS_COLORS[status] || 'default';
 
-  const priorityLabel =
-    WORK_ORDER_PRIORITY_LABELS[priority] || priority || 'Unknown';
-  const priorityColor =
-    WORK_ORDER_PRIORITY_COLORS[priority] || 'default';
+  const priorityLabel = WORK_ORDER_PRIORITY_LABELS[priority] || priority || 'Unknown';
+  const priorityColor = WORK_ORDER_PRIORITY_COLORS[priority] || 'default';
 
   const computed = useMemo(
     () => ({
@@ -323,7 +321,9 @@ export function WorkOrderDetailView({ workOrder }) {
         <Stack
           spacing={{ xs: 3, md: 5 }}
           direction={{ xs: 'column', md: 'row' }}
-          divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />}
+          divider={
+            <Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />
+          }
           sx={{ mt: 4 }}
         >
           <Stack sx={{ width: 1 }}>
@@ -383,10 +383,7 @@ export function WorkOrderDetailView({ workOrder }) {
             <Stack spacing={1.5}>
               {issues.map((issue, index) => (
                 <Stack key={index} direction="row" spacing={1} alignItems="flex-start">
-                  <Typography
-                    variant="body2"
-                    sx={{ color: 'text.secondary', minWidth: 20 }}
-                  >
+                  <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 20 }}>
                     {index + 1}.
                   </Typography>
                   <Box sx={{ flexGrow: 1 }}>
@@ -421,7 +418,8 @@ export function WorkOrderDetailView({ workOrder }) {
           </Typography>
           {category === 'External Workshop' && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;, inventory for these parts will not be deducted.
+              Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;,
+              inventory for these parts will not be deducted.
             </Alert>
           )}
           <Table size="small">
@@ -494,10 +492,7 @@ export function WorkOrderDetailView({ workOrder }) {
             gap: 3,
           }}
         >
-          <Card
-            variant="outlined"
-            sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}
-          >
+          <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
             <Stack spacing={1.5} sx={{ height: 1 }}>
               <Typography variant="subtitle2" color="green">
                 Description / Notes
@@ -543,12 +538,7 @@ export function WorkOrderDetailView({ workOrder }) {
         </Box>
       </Card>
 
-      <Dialog
-        open={closeDialog.value}
-        onClose={closeDialog.onFalse}
-        maxWidth="xs"
-        fullWidth
-      >
+      <Dialog open={closeDialog.value} onClose={closeDialog.onFalse} maxWidth="xs" fullWidth>
         <DialogTitle>Close Work Order</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>
@@ -566,11 +556,7 @@ export function WorkOrderDetailView({ workOrder }) {
               value={closeMode}
               onChange={(e) => setCloseMode(e.target.value)}
             >
-              <FormControlLabel
-                value="closeOnly"
-                control={<Radio />}
-                label="Close Only"
-              />
+              <FormControlLabel value="closeOnly" control={<Radio />} label="Close Only" />
               <FormControlLabel
                 value="closeAndExpense"
                 control={<Radio />}
@@ -581,10 +567,10 @@ export function WorkOrderDetailView({ workOrder }) {
 
           {closeMode === 'closeAndExpense' && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-              An expense of <strong>{fCurrency(computed.totalCost)}</strong> will be added to this vehicle.
+              An expense of <strong>{fCurrency(computed.totalCost)}</strong> will be added to this
+              vehicle.
             </Typography>
           )}
-
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDialog.onFalse} disabled={isClosing}>
@@ -616,8 +602,9 @@ export function WorkOrderDetailView({ workOrder }) {
       >
         <DialogTitle>Add Final Expense</DialogTitle>
         <DialogContent sx={{ typography: 'body2' }}>
-          Are you sure you want to add an expense of <strong>{fCurrency(computed.totalCost)}</strong> to this vehicle?
-          This will use the work order closed date.
+          Are you sure you want to add an expense of{' '}
+          <strong>{fCurrency(computed.totalCost)}</strong> to this vehicle? This will use the work
+          order closed date.
         </DialogContent>
         <DialogActions>
           <Button onClick={addExpenseDialog.onFalse} disabled={isAddingExpense}>

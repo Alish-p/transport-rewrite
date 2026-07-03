@@ -9,10 +9,7 @@ import { Card, Stack, Divider, CardHeader } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import {
-  useCreatePartLocation,
-  useUpdatePartLocation,
-} from 'src/query/use-part-location';
+import { useCreatePartLocation, useUpdatePartLocation } from 'src/query/use-part-location';
 
 import { Form, Field } from 'src/components/hook-form';
 
@@ -69,12 +66,7 @@ export default function PartLocationForm({ currentPartLocation }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="name" label="Location Name" />
-        <Field.Text
-          name="address"
-          label="Address"
-          multiline
-          rows={3}
-        />
+        <Field.Text name="address" label="Address" multiline rows={3} />
       </Stack>
     </Card>
   );
@@ -96,4 +88,3 @@ export default function PartLocationForm({ currentPartLocation }) {
     </Form>
   );
 }
-

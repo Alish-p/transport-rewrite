@@ -218,4 +218,3 @@ export function VendorListView() {
     </DashboardContent>
   );
 }
-

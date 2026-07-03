@@ -20,4 +20,3 @@ export function ConfigurableField({ entity, name, customerId = null, children })
 
   return children;
 }
-

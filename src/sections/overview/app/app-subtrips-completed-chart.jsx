@@ -48,24 +48,24 @@ export function AppSubtripCompletedChart({
     },
     tooltip: tooltipDetails
       ? {
-        shared: false,
-        intersect: true,
-        custom: ({ dataPointIndex, seriesIndex, series }) =>
-          renderSubtripTooltip({
-            dataPointIndex,
-            seriesIndex,
-            series,
-            categories: chart.categories,
-            tooltipDetails,
-            colors: chartColors,
-            theme,
-          }),
-      }
+          shared: false,
+          intersect: true,
+          custom: ({ dataPointIndex, seriesIndex, series }) =>
+            renderSubtripTooltip({
+              dataPointIndex,
+              seriesIndex,
+              series,
+              categories: chart.categories,
+              tooltipDetails,
+              colors: chartColors,
+              theme,
+            }),
+        }
       : {
-        y: {
-          formatter: (value) => value,
+          y: {
+            formatter: (value) => value,
+          },
         },
-      },
     // Show total (own + market) labels on top of each stacked bar
     plotOptions: {
       bar: {
