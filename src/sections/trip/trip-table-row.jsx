@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import React, { useMemo, useCallback } from 'react';
 
 import Button from '@mui/material/Button';
 
@@ -30,12 +30,12 @@ export default function TripTableRow({
 
   const { tripStatus } = row;
 
-  const navigateToJobCreate = () => {
+  const navigateToJobCreate = useCallback(() => {
     navigate({
       pathname: paths.dashboard.subtrip.jobCreate,
       search: `?id=${row._id}`,
     });
-  };
+  }, [navigate, row._id]);
 
   const customActions = useMemo(
     () => [
@@ -53,7 +53,7 @@ export default function TripTableRow({
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
     ],
-    [tripStatus, row._id]
+    [tripStatus, closedTripConfirm, navigateToJobCreate]
   );
 
   return (
