@@ -138,6 +138,11 @@ export const fEffectiveTransporterRate = (st) => {
     return `${fNumber(effRate)} ₹ / Ton`;
   }
 
+  if (freightModel === 'per_kl') {
+    const effRate = rate - commissionRate;
+    return `${fNumber(effRate)} ₹ / KL`;
+  }
+
   // For rest, show freight amount - commission amount (fixed)
   const freightAmount = freightDetails.freightAmount || st.freightAmount || 0;
   const commissionAmount = commissionDetails.commissionAmount || 0;
