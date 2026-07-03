@@ -312,7 +312,7 @@ export function SubtripListView() {
   };
 
   // Filter the table head based on visible columns and order
-  const visibleTableHead = visibleHeaders;
+  const visibleTableHead = [...visibleHeaders, { id: 'actions', align: 'right' }];
 
   const getVisibleColumnsForExport = () => {
     const orderedIds = (

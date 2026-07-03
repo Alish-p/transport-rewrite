@@ -381,7 +381,7 @@ export function TransporterPaymentListView() {
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                headLabel={visibleHeaders}
+                headLabel={[...visibleHeaders, { id: 'actions', align: 'right' }]}
                 rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onOrderChange={moveColumn}

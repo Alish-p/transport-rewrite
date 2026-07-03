@@ -34,11 +34,13 @@ const visuallyHidden = {
 // ----------------------------------------------------------------------
 
 function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) {
+  const isActions = headCell.id === 'actions' || headCell.id === '';
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: headCell.id,
+    disabled: !isDraggable || isActions,
   });
 
-  const dragProps = isDraggable ? { ...attributes, ...listeners } : {};
+  const dragProps = isDraggable && !isActions ? { ...attributes, ...listeners } : {};
 
   return (
     <TableCell
@@ -51,17 +53,17 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
         transition,
         transform: CSS.Translate.toString(transform),
         // Visual affordance for draggable header cells
-        cursor: isDraggable ? 'grab' : 'default',
-        userSelect: isDraggable ? 'none' : 'auto',
+        cursor: isDraggable && !isActions ? 'grab' : 'default',
+        userSelect: isDraggable && !isActions ? 'none' : 'auto',
         '&:active': {
-          cursor: isDraggable ? 'grabbing' : 'default',
+          cursor: isDraggable && !isActions ? 'grabbing' : 'default',
         },
         // Keep pointer cursor on sortable label text
         '& .MuiTableSortLabel-root': {
           cursor: onSort ? 'pointer' : 'inherit',
         },
       }}
-      title={isDraggable ? 'Drag to reorder columns' : undefined}
+      title={isDraggable && !isActions ? 'Drag to reorder columns' : undefined}
       {...dragProps}
     >
       {onSort && headCell.sortable === true ? (
@@ -97,6 +99,7 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
   );
 }
 
+
 export function TableHeadCustom({
   sx,
   order,
@@ -124,7 +127,7 @@ export function TableHeadCustom({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={headLabel.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
+      <SortableContext items={headLabel.map((c) => c.id).filter((id) => id !== 'actions' && id !== '')} strategy={horizontalListSortingStrategy}>
         <TableHead sx={sx}>
           <TableRow>
             {onSelectAllRows && (
