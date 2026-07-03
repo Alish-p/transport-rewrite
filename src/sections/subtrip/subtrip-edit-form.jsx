@@ -367,7 +367,12 @@ export default function SubtripEditForm({ currentSubtrip }) {
       }
 
       if (dirtyFields.freightDetails) {
-        changedFields.freightDetails = data.freightDetails;
+        changedFields.freightDetails = { ...data.freightDetails };
+        // Strip freightAmount for dynamically calculated models so the backend recalculates it correctly
+        const fm = changedFields.freightDetails.freightModel || 'per_ton';
+        if (fm !== 'fixed' && fm !== 'hybrid') {
+          delete changedFields.freightDetails.freightAmount;
+        }
       }
 
       if (dirtyFields.commissionDetails) {
