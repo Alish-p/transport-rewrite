@@ -1,15 +1,17 @@
-import { Link, Tooltip, Typography, ListItemText } from '@mui/material';
+import { Box, Link, Stack, Tooltip, Typography, ListItemText } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
-import { fNumber } from 'src/utils/format-number';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 import { fDate, fTime, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
 import { SUBTRIP_STATUS_COLORS } from '../constants';
+import { fFreightRate, getFreightExplanation } from '../utils';
 
 export const TABLE_COLUMNS = [
   {
@@ -370,7 +372,10 @@ export const TABLE_COLUMNS = [
     label: 'Rate',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.freightDetails?.rate || '-',
+    getter: (row) => {
+      const { rate, freightModel, freightAmount } = row?.freightDetails || {};
+      return fFreightRate(rate || 0, freightModel, freightAmount);
+    },
     align: 'center',
   },
   {
@@ -381,16 +386,37 @@ export const TABLE_COLUMNS = [
     getter: (row) => {
       const freightAmount = row?.freightDetails?.freightAmount;
       if (typeof freightAmount === 'number') {
-        return fNumber(freightAmount);
-      }
-      const rate = row?.freightDetails?.rate;
-      if (rate && row?.loadingWeight) {
-        return fNumber(rate * row.loadingWeight);
+        return fCurrency(freightAmount);
       }
       return '-';
     },
     align: 'center',
     showTotal: true,
+    render: (row) => {
+      let amount = 0;
+      const freightAmount = row?.freightDetails?.freightAmount;
+      if (typeof freightAmount === 'number') {
+        amount = freightAmount;
+      } else {
+        const rate = row?.freightDetails?.rate;
+        if (rate && row?.loadingWeight) {
+          amount = rate * row.loadingWeight;
+        }
+      }
+
+      if (amount === 0 && typeof freightAmount !== 'number') return '-';
+
+      return (
+        <Stack direction="row" alignItems="center" spacing={0.5} justifyContent="center">
+          <span>{fCurrency(amount)}</span>
+          <Tooltip title={getFreightExplanation(row, false)} arrow placement="top">
+            <Box component="span" sx={{ display: 'inline-flex', cursor: 'help' }}>
+              <Iconify icon="eva:info-outline" width={16} sx={{ color: 'text.disabled' }} />
+            </Box>
+          </Tooltip>
+        </Stack>
+      );
+    },
   },
   {
     id: 'commissionRate',
