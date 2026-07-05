@@ -36,14 +36,14 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { FREIGHT_MODELS } from 'src/auth/field-config/field-config-defaults';
+// import { FREIGHT_MODELS } removed
 
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
-// Route dialog removed
-import { SUBTRIP_STATUS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
+// Route dialog removed
+import { SUBTRIP_STATUS, FREIGHT_MODEL_OPTIONS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
 
 // Base schema for common fields
 const baseSchema = z.object({
@@ -604,7 +604,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            {vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
+                            {freightModel === 'per_kl' ? 'KL' : freightModel === 'per_ton' ? 'Ton' : vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
                           </InputAdornment>
                         ),
                       }}
@@ -631,7 +631,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
                   <Field.Select name="freightDetails.freightModel" label="Freight Model *">
-                    {FREIGHT_MODELS.filter(
+                    {FREIGHT_MODEL_OPTIONS.filter(
                       (fm) =>
                         !freightConfig?.allowedModels?.length ||
                         freightConfig.allowedModels.includes(fm.value)

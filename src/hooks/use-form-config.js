@@ -1,35 +1,18 @@
 import { useMemo, useCallback } from 'react';
 
-import { useFieldConfigContext } from 'src/auth/field-config';
-import { FIELD_CONFIG_DEFAULTS } from 'src/auth/field-config/field-config-defaults';
+import { useTenant } from 'src/query/use-tenant';
 
 /**
- * Merge base fields with customer override fields.
- * Override fields take precedence for any field they specify.
- */
-function mergeFieldConfigs(baseFields, overrideFields) {
-  if (!overrideFields) return baseFields;
-  const merged = { ...baseFields };
-  Object.entries(overrideFields).forEach(([fieldName, override]) => {
-    if (merged[fieldName]) {
-      merged[fieldName] = { ...merged[fieldName], ...override };
-    }
-  });
-  return merged;
-}
-
-/**
- * Get the merged field config for a specific entity and optional customer.
+ * Get the field config for a specific entity.
  * @param {string} entity - 'subtrip' | 'vehicle' | 'driver'
- * @param {string|null} customerId - Optional customer ID for overrides
  * @returns {{ fields: Object, freightConfig: Object }}
  */
-export function useFieldConfig(entity, customerId = null) {
-  const { fieldConfigs } = useFieldConfigContext();
+export function useFieldConfig(entity) {
+  const { data: currentTenant } = useTenant();
 
   return useMemo(() => {
-    const config = fieldConfigs?.[entity] || FIELD_CONFIG_DEFAULTS[entity];
-    if (!config) return { fields: {}, freightConfig: {} };
+    const config = currentTenant?.config?.[entity] || {};
+    if (!config) return { fields: {}, allowedFreightModels: [], defaultFreightModel: '' };
 
     let fields = config.fields || {};
 
@@ -38,52 +21,36 @@ export function useFieldConfig(entity, customerId = null) {
       fields = Object.fromEntries(fields);
     }
 
-    // Merge customer overrides if applicable
-    if (customerId && config.customerOverrides) {
-      const override = config.customerOverrides.find(
-        (o) => (o.customerId?._id || o.customerId) === customerId
-      );
-      if (override) {
-        let overrideFields = override.fields || {};
-        if (
-          overrideFields instanceof Map ||
-          (overrideFields && typeof overrideFields.entries === 'function')
-        ) {
-          overrideFields = Object.fromEntries(overrideFields);
-        }
-        fields = mergeFieldConfigs(fields, overrideFields);
-      }
-    }
-
     return {
       fields,
-      freightConfig: config.freightConfig || FIELD_CONFIG_DEFAULTS[entity]?.freightConfig || {},
+      allowedFreightModels: config.allowedFreightModels || [],
+      defaultFreightModel: config.defaultFreightModel || '',
     };
-  }, [fieldConfigs, entity, customerId]);
+  }, [currentTenant, entity]);
 }
 
 /**
  * Get visibility for a specific field.
  * @returns 'required' | 'optional' | 'hidden'
  */
-export function useFieldVisibility(entity, fieldName, customerId = null) {
-  const { fields } = useFieldConfig(entity, customerId);
+export function useFieldVisibility(entity, fieldName) {
+  const { fields } = useFieldConfig(entity);
   return fields[fieldName]?.visibility || 'optional';
 }
 
 /**
  * Get the label for a specific field with fallback.
  */
-export function useFieldLabel(entity, fieldName, customerId = null, fallback = '') {
-  const { fields } = useFieldConfig(entity, customerId);
+export function useFieldLabel(entity, fieldName, fallback = '') {
+  const { fields } = useFieldConfig(entity);
   return fields[fieldName]?.label || fallback;
 }
 
 /**
  * Get all visible fields (not hidden) for an entity.
  */
-export function useVisibleFields(entity, customerId = null) {
-  const { fields } = useFieldConfig(entity, customerId);
+export function useVisibleFields(entity) {
+  const { fields } = useFieldConfig(entity);
   return useMemo(
     () =>
       Object.entries(fields)
@@ -96,8 +63,8 @@ export function useVisibleFields(entity, customerId = null) {
 /**
  * Get all required fields for an entity.
  */
-export function useRequiredFields(entity, customerId = null) {
-  const { fields } = useFieldConfig(entity, customerId);
+export function useRequiredFields(entity) {
+  const { fields } = useFieldConfig(entity);
   return useMemo(
     () =>
       Object.entries(fields)
@@ -110,17 +77,20 @@ export function useRequiredFields(entity, customerId = null) {
 /**
  * Get freight config (default model + allowed models).
  */
-export function useFreightConfig(entity = 'subtrip', customerId = null) {
-  const { freightConfig } = useFieldConfig(entity, customerId);
-  return freightConfig;
+export function useFreightConfig(entity = 'subtrip') {
+  const { allowedFreightModels, defaultFreightModel } = useFieldConfig(entity);
+  return {
+    allowedModels: allowedFreightModels,
+    defaultModel: defaultFreightModel,
+  };
 }
 
 /**
  * Helper hook that returns utility functions for field config.
  * Use this in form components for cleaner code.
  */
-export function useFieldHelpers(entity, customerId = null) {
-  const { fields, freightConfig } = useFieldConfig(entity, customerId);
+export function useFieldHelpers(entity) {
+  const { fields, allowedFreightModels, defaultFreightModel } = useFieldConfig(entity);
 
   const isVisible = useCallback(
     (fieldName) => {
@@ -147,5 +117,5 @@ export function useFieldHelpers(entity, customerId = null) {
     [fields, isRequired]
   );
 
-  return { isVisible, isRequired, getLabel, fields, freightConfig };
+  return { isVisible, isRequired, getLabel, fields, freightConfig: { allowedModels: allowedFreightModels, defaultModel: defaultFreightModel } };
 }

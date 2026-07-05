@@ -9,8 +9,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { Field } from 'src/components/hook-form';
 
-import { FREIGHT_MODELS } from 'src/auth/field-config/field-config-defaults';
-
+import { FREIGHT_MODEL_OPTIONS } from './constants';
 import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { getRouteStepError } from './subtrip-job-create-route-step';
 
@@ -38,7 +37,7 @@ export function SubtripJobCreateFreightStep({
     <StepContent>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
         <Field.Select name="freightModel" label="Freight Model *">
-          {FREIGHT_MODELS.filter(
+          {FREIGHT_MODEL_OPTIONS.filter(
             (fm) =>
               !freightConfig?.allowedModels?.length ||
               freightConfig.allowedModels.includes(fm.value)
@@ -144,8 +143,10 @@ export function SubtripJobCreateFreightStep({
                 <InputAdornment position="end">
                   {watchedForm.freightModel === 'per_kl'
                     ? 'KL'
-                    : loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] ||
-                      'Units'}
+                    : watchedForm.freightModel === 'per_ton'
+                      ? 'Ton'
+                      : loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] ||
+                        'Units'}
                 </InputAdornment>
               ),
             }}

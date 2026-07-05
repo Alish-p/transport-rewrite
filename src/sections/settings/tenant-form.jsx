@@ -7,7 +7,6 @@ import { LoadingButton } from '@mui/lab';
 import { Card, Stack, Button, Divider, MenuItem, CardHeader } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import COLORS from 'src/theme/core/colors.json';
 import { useUpdateTenant } from 'src/query/use-tenant';
@@ -62,13 +61,6 @@ export const TenantSchema = zod
         pump: zod
           .object({
             enabled: zod.boolean().optional(),
-          })
-          .optional(),
-        subtrip: zod
-          .object({
-            materialOptions: zod
-              .array(zod.object({ label: zod.string(), value: zod.string() }))
-              .optional(),
           })
           .optional(),
       })
@@ -219,7 +211,6 @@ export const TenantSchema = zod
 
 export default function TenantForm({ currentTenant }) {
   const updateTenant = useUpdateTenant();
-  const materialOptions = useMaterialOptions();
   const bankDialog = useBoolean();
 
   const defaultValues = useMemo(
@@ -257,9 +248,6 @@ export default function TenantForm({ currentTenant }) {
         },
         pump: {
           enabled: currentTenant?.config?.pump?.enabled ?? true,
-        },
-        subtrip: {
-          materialOptions: currentTenant?.config?.subtrip?.materialOptions || materialOptions,
         },
       },
       integrations: {
@@ -336,7 +324,7 @@ export default function TenantForm({ currentTenant }) {
         },
       },
     }),
-    [currentTenant, materialOptions]
+    [currentTenant]
   );
 
   const methods = useForm({ resolver: zodResolver(TenantSchema), defaultValues });
@@ -561,20 +549,6 @@ export default function TenantForm({ currentTenant }) {
             </MenuItem>
           ))}
         </Field.Select>
-      </Stack>
-    </Card>
-  );
-
-  const renderConfig = () => (
-    <Card>
-      <CardHeader title="Configuration" sx={{ mb: 3 }} />
-      <Divider />
-      <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.MultiAutocompleteFreeSolo
-          name="config.subtrip.materialOptions"
-          label="Material Options"
-          options={materialOptions}
-        />
       </Stack>
     </Card>
   );
@@ -877,7 +851,6 @@ export default function TenantForm({ currentTenant }) {
         {renderAddress()}
         {renderTheme()}
         {renderBank()}
-        {renderConfig()}
         {renderIntegrations()}
         {renderActions()}
       </Stack>

@@ -252,7 +252,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {freightModel === 'per_kl' ? 'KL' : loadingWeightUnit[vehicleType] || 'Units'}
+                      {freightModel === 'per_kl' ? 'KL' : freightModel === 'per_ton' ? 'Ton' : loadingWeightUnit[vehicleType] || 'Units'}
                     </InputAdornment>
                   ),
                 }}
