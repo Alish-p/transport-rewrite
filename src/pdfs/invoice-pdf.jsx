@@ -41,7 +41,7 @@ export default function InvoicePdf({ invoice, tenant }) {
       { header: 'Vehicle', accessor: 'vehicle', width: '7%' },
       { header: 'Material', accessor: 'material', width: '7%' },
       {
-        header: 'Rate / Model',
+        header: 'Rate',
         accessor: 'rateModel',
         width: '8%',
         align: 'right',

@@ -33,6 +33,9 @@ export function fFreightRate(rate, model, freightAmount) {
   if (model === 'per_ton') {
     return `${fNumber(rate || 0)} ₹ / Ton`;
   }
+  if (model === 'per_kl') {
+    return `${fNumber(rate || 0)} ₹ / KL`;
+  }
   if (rate !== undefined && rate !== null) {
     return `${fNumber(rate)} ₹`;
   }

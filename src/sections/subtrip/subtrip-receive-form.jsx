@@ -33,13 +33,13 @@ import { Form, Field } from 'src/components/hook-form';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { getWeightUnit } from './utils';
 import { SUBTRIP_STATUS } from './constants';
 import { receiveSchema } from './subtrip-schemas';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 import { SubtripReceiveSettlementSummary } from './widgets/subtrip-receive-settlement-summary';
-import { getWeightUnit } from './utils';
 
 const defaultValues = {
   subtripId: '',
@@ -75,7 +75,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
     shortageAmount,
     shortageWeight,
   } = watch();
-  const { isOwn, vehicleType } = selectedSubtrip?.vehicleId || {};
+  const { isOwn } = selectedSubtrip?.vehicleId || {};
   const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
 
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
@@ -90,7 +90,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
           endKm:
             selectedSubtrip.freightDetails.endKm !== undefined &&
-            selectedSubtrip.freightDetails.endKm !== null
+              selectedSubtrip.freightDetails.endKm !== null
               ? selectedSubtrip.freightDetails.endKm
               : undefined,
           endTime: selectedSubtrip.freightDetails.endTime || null,
@@ -548,12 +548,12 @@ export function SubtripReceiveForm() {
                     (selectedSubtripData?.freightDetails?.freightModel === 'per_ton' ||
                       selectedSubtripData?.freightDetails?.freightModel === 'per_kl') &&
                     commissionDetails?.commissionRate >
-                      selectedSubtripData?.freightDetails?.rate) ||
+                    selectedSubtripData?.freightDetails?.rate) ||
                   (!isOwn &&
                     selectedSubtripData?.freightDetails?.freightModel !== 'per_ton' &&
                     selectedSubtripData?.freightDetails?.freightModel !== 'per_kl' &&
                     commissionDetails?.commissionAmount >
-                      selectedSubtripData?.freightDetails?.freightAmount)
+                    selectedSubtripData?.freightDetails?.freightAmount)
                 }
               >
                 Save Changes

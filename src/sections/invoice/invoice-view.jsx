@@ -28,8 +28,8 @@ import {
   fFreightRate,
   getWeightUnit,
   calculateTotalWeight,
-  calculateTotalShortageWeight,
   getFreightExplanation,
+  calculateTotalShortageWeight,
 } from 'src/sections/subtrip/utils';
 
 import { useTenantContext } from 'src/auth/tenant';
@@ -145,7 +145,7 @@ function RenderTable({ invoice }) {
             <StyledTableCell>DI/DC No</StyledTableCell>
             <StyledTableCell>Vehicle No</StyledTableCell>
             <StyledTableCell>Material</StyledTableCell>
-            <StyledTableCell>Rate / Model</StyledTableCell>
+            <StyledTableCell>Rate</StyledTableCell>
             <StyledTableCell align="right">Weight</StyledTableCell>
             <StyledTableCell>Freight Amount</StyledTableCell>
             <StyledTableCell>Shortage</StyledTableCell>
