@@ -35,11 +35,11 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { SUBTRIP_STATUS } from './constants';
 import { receiveSchema } from './subtrip-schemas';
-import { loadingWeightUnit } from '../vehicle/vehicle-config';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 import { SubtripReceiveSettlementSummary } from './widgets/subtrip-receive-settlement-summary';
+import { getWeightUnit } from './utils';
 
 const defaultValues = {
   subtripId: '',
@@ -252,7 +252,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {freightModel === 'per_kl' ? 'KL' : freightModel === 'per_ton' ? 'Ton' : loadingWeightUnit[vehicleType] || 'Units'}
+                      {getWeightUnit(selectedSubtrip)}
                     </InputAdornment>
                   ),
                 }}
@@ -346,9 +346,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          {freightModel === 'per_kl'
-                            ? 'KL'
-                            : loadingWeightUnit[vehicleType] || 'Units'}
+                          {getWeightUnit(selectedSubtrip)}
                         </InputAdornment>
                       ),
                     }}

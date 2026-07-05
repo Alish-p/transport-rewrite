@@ -28,6 +28,7 @@ import {
   fFreightRate,
   getWeightUnit,
   calculateTotalWeight,
+  calculateTotalShortageWeight,
   getFreightExplanation,
 } from 'src/sections/subtrip/utils';
 
@@ -147,7 +148,7 @@ function RenderTable({ invoice }) {
             <StyledTableCell>Rate / Model</StyledTableCell>
             <StyledTableCell align="right">Weight</StyledTableCell>
             <StyledTableCell>Freight Amount</StyledTableCell>
-            <StyledTableCell>Shortage Weight</StyledTableCell>
+            <StyledTableCell>Shortage</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -188,7 +189,7 @@ function RenderTable({ invoice }) {
                 </Stack>
               </TableCell>
               <TableCell sx={{ color: st.shortageWeight > 0 ? '#FF5630' : 'inherit' }}>
-                {st.shortageWeight ? `${fNumber(st.shortageWeight)} Kg` : '-'}
+                {st.shortageWeight ? `${fNumber(st.shortageWeight)} ${getWeightUnit(st)}` : '-'}
               </TableCell>
             </TableRow>
           ))}
@@ -200,7 +201,9 @@ function RenderTable({ invoice }) {
               {calculateTotalWeight(subtripSnapshot)}
             </TableCell>
             <TableCell>{fCurrency(totalAmountBeforeTax)}</TableCell>
-            <TableCell />
+            <TableCell sx={{ color: '#FF5630', fontWeight: 'bold' }}>
+              {calculateTotalShortageWeight(subtripSnapshot)}
+            </TableCell>
           </StyledTableRow>
 
           {cgst?.rate > 0 && (

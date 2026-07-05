@@ -6,7 +6,7 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
-import { fFreightRate, getWeightUnit, calculateTotalWeight } from 'src/sections/subtrip/utils';
+import { fFreightRate, getWeightUnit, calculateTotalWeight, calculateTotalShortageWeight } from 'src/sections/subtrip/utils';
 
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';
@@ -65,12 +65,14 @@ export default function InvoicePdf({ invoice, tenant }) {
         formatter: (v) => fNumber(v),
       },
       {
-        header: 'Shortage Weight',
+        header: 'Shortage',
         accessor: 'shortageWeight',
         width: '9%',
         align: 'right',
         showTotal: true,
-        formatter: (v) => fNumber(v),
+        formatter: (v, row) =>
+          typeof v === 'number' && v > 0 ? `${fNumber(v)} ${row?.weightUnit || 'Ton'}` : '-',
+        totalFormatter: () => calculateTotalShortageWeight(subtripSnapshot),
       },
     ];
 

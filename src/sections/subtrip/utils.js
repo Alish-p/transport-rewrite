@@ -153,3 +153,29 @@ export const calculateTotalWeight = (items) => {
   if (klSum > 0) parts.push(`${fNumber(klSum)} KL`);
   return parts.join(', ') || '0 Ton';
 };
+
+/**
+ * Aggregates shortage weights from multiple subtrips and formats the total grouped by unit.
+ * Outputs a comma-separated string of totals (e.g. "10.00 Ton, 5.00 KL").
+ * Defaults to "-" if no shortage weights are found.
+ *
+ * @param {Array} items - Array of subtrip objects
+ * @returns {string} - Formatted total shortage weights by unit
+ */
+export const calculateTotalShortageWeight = (items) => {
+  let tonSum = 0;
+  let klSum = 0;
+  items?.forEach((st) => {
+    const w = Number(st.shortageWeight) || 0;
+    const unit = getWeightUnit(st);
+    if (unit === 'KL') {
+      klSum += w;
+    } else {
+      tonSum += w;
+    }
+  });
+  const parts = [];
+  if (tonSum > 0) parts.push(`${fNumber(tonSum)} Ton`);
+  if (klSum > 0) parts.push(`${fNumber(klSum)} KL`);
+  return parts.join(', ') || '-';
+};
