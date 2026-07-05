@@ -22,8 +22,8 @@ import DialogContent from '@mui/material/DialogContent';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useMaterialOptions } from 'src/hooks/use-material-options';
 
-import { useTenant } from 'src/query/use-tenant';
 import {
   useGetTargets,
   useCreateTarget,
@@ -72,7 +72,7 @@ const getStatusLabel = (percentage) => {
 };
 
 export function LoadingTargetWidget({ sx, ...other }) {
-  const { data: tenant } = useTenant();
+
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const dialog = useBoolean();
@@ -97,7 +97,7 @@ export function LoadingTargetWidget({ sx, ...other }) {
   const updateTarget = useUpdateTarget();
   const deleteTarget = useDeleteTarget();
 
-  const materialOptions = tenant?.config?.materialOptions || [];
+  const materialOptions = useMaterialOptions();
 
   const handleMonthChange = (event) => {
     const newMonth = MONTHS.indexOf(event.target.value);
