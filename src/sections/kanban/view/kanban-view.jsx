@@ -29,11 +29,12 @@ import { useReorderTasks } from 'src/query/use-task';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
+import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
-import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
+import { COLUMNS, DEPARTMENTS } from '../config';
 import { KanbanColumn } from '../column/kanban-column';
 import { KanbanTaskItem } from '../item/kanban-task-item';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
@@ -55,6 +56,7 @@ const cssVars = {
 export function KanbanView({ tasks }) {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
   const [openContacts, setOpenContacts] = useState(false);
   const [localTasks, setLocalTasks] = useState(tasks);
   const reorderTasks = useReorderTasks();
@@ -308,6 +310,7 @@ export function KanbanView({ tasks }) {
     const filters = {
       priority: priorityFilter,
       assignee: assigneeFilter,
+      department: departmentFilter,
     };
 
     const result = {};
@@ -318,12 +321,14 @@ export function KanbanView({ tasks }) {
         const priorityMatch = filters.priority === 'all' || task.priority === filters.priority;
         const assigneeMatch =
           filters.assignee === 'all' || task.assignees.some(({ _id }) => _id === filters.assignee);
-        return priorityMatch && assigneeMatch;
+        const departmentMatch =
+          filters.department === 'all' || (task.departments || []).includes(filters.department);
+        return priorityMatch && assigneeMatch && departmentMatch;
       });
     });
 
     return result;
-  }, [localTasks, priorityFilter, assigneeFilter]);
+  }, [localTasks, priorityFilter, assigneeFilter, departmentFilter]);
 
   const renderList = (
     <DndContext
@@ -415,9 +420,38 @@ export function KanbanView({ tasks }) {
         onClick={() => setOpenContacts(true)}
         selected={selectedUser?.name}
         placeholder="Assignee"
-        iconName="solar:user"
+        iconName={APP_ICONS.user}
         sx={{ minWidth: 140, maxWidth: 200, height: 40 }}
       />
+
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <InputLabel id="kanban-department-filter-label">Department</InputLabel>
+        <Select
+          labelId="kanban-department-filter-label"
+          value={departmentFilter === 'all' ? '' : departmentFilter}
+          onChange={(e) => setDepartmentFilter(e.target.value || 'all')}
+          input={<OutlinedInput label="Department" />}
+          MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+        >
+          <MenuItem value="">All</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {DEPARTMENTS.map((dept) => {
+            const colors = {
+              sales: 'primary',
+              marketing: 'secondary',
+              dispatch: 'info',
+              warehouse: 'success',
+            };
+            return (
+              <MenuItem key={dept.id} value={dept.id}>
+                <Label variant="soft" color={colors[dept.id] || 'default'}>
+                  {dept.name}
+                </Label>
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
     </Box>
   );
 
