@@ -8,7 +8,12 @@ const QUERY_KEY = 'users';
 
 // Fetchers
 const getUsers = async () => {
-  const { data } = await axios.get(ENDPOINT);
+  const { data } = await axios.get(ENDPOINT, { params: { rowsPerPage: 10000 } });
+  return data?.users || [];
+};
+
+const getPaginatedUsers = async (params) => {
+  const { data } = await axios.get(ENDPOINT, { params });
   return data;
 };
 
@@ -41,6 +46,16 @@ const deleteUser = async (id) => {
 // Queries & Mutations
 export function useUsers() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: getUsers });
+}
+
+export function usePaginatedUsers(params, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'paginated', params],
+    queryFn: () => getPaginatedUsers(params),
+    keepPreviousData: true,
+    enabled: !!params,
+    ...options,
+  });
 }
 
 export function useUser(id) {

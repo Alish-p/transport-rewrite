@@ -8,29 +8,26 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function UserTableToolbar({ filters, onResetPage }) {
+export function UserTableToolbar({ filters, onFilters }) {
   const handleFilterName = useCallback(
     (event) => {
-      onResetPage();
-      filters.setState({ name: event.target.value });
+      onFilters('name', event.target.value);
     },
-    [filters, onResetPage]
+    [onFilters]
   );
 
   const handleFilterDesignation = useCallback(
     (event) => {
-      onResetPage();
-      filters.setState({ designation: event.target.value });
+      onFilters('designation', event.target.value);
     },
-    [filters, onResetPage]
+    [onFilters]
   );
 
   const handleFilterPermission = useCallback(
     (event) => {
-      onResetPage();
-      filters.setState({ permission: event.target.value });
+      onFilters('permission', event.target.value);
     },
-    [filters, onResetPage]
+    [onFilters]
   );
 
   return (
@@ -43,7 +40,7 @@ export function UserTableToolbar({ filters, onResetPage }) {
       <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
         <TextField
           fullWidth
-          value={filters.state.name}
+          value={filters.name}
           onChange={handleFilterName}
           placeholder="Search..."
           InputProps={{
@@ -57,7 +54,7 @@ export function UserTableToolbar({ filters, onResetPage }) {
 
         <TextField
           fullWidth
-          value={filters.state.designation}
+          value={filters.designation}
           onChange={handleFilterDesignation}
           placeholder="Designation"
           InputProps={{
@@ -70,7 +67,7 @@ export function UserTableToolbar({ filters, onResetPage }) {
         />
         <TextField
           fullWidth
-          value={filters.state.permission || ''}
+          value={filters.permission || ''}
           onChange={handleFilterPermission}
           placeholder="Permission (e.g. tyre.update)"
           InputProps={{

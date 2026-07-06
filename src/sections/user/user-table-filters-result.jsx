@@ -6,30 +6,31 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
-export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx }) {
+export function UserTableFiltersResult({ filters, onFilters, onResetFilters, totalResults, sx }) {
   const handleRemoveName = useCallback(() => {
-    onResetPage();
-    filters.setState({ name: '' });
-  }, [filters, onResetPage]);
+    onFilters('name', '');
+  }, [onFilters]);
 
   const handleRemoveDesignation = useCallback(() => {
-    onResetPage();
-    filters.setState({ designation: '' });
-  }, [filters, onResetPage]);
+    onFilters('designation', '');
+  }, [onFilters]);
 
-  const handleReset = useCallback(() => {
-    onResetPage();
-    filters.onResetState();
-  }, [filters, onResetPage]);
+  const handleRemovePermission = useCallback(() => {
+    onFilters('permission', '');
+  }, [onFilters]);
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Name:" isShow={!!filters.state.name}>
-        <Chip {...chipProps} label={filters.state.name} onDelete={handleRemoveName} />
+    <FiltersResult totalResults={totalResults} onReset={onResetFilters} sx={sx}>
+      <FiltersBlock label="Name:" isShow={!!filters.name}>
+        <Chip {...chipProps} label={filters.name} onDelete={handleRemoveName} />
       </FiltersBlock>
 
-      <FiltersBlock label="Designation:" isShow={!!filters.state.designation}>
-        <Chip {...chipProps} label={filters.state.designation} onDelete={handleRemoveDesignation} />
+      <FiltersBlock label="Designation:" isShow={!!filters.designation}>
+        <Chip {...chipProps} label={filters.designation} onDelete={handleRemoveDesignation} />
+      </FiltersBlock>
+
+      <FiltersBlock label="Permission:" isShow={!!filters.permission}>
+        <Chip {...chipProps} label={filters.permission} onDelete={handleRemovePermission} />
       </FiltersBlock>
     </FiltersResult>
   );

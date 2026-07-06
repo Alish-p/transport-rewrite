@@ -2,10 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
@@ -15,23 +18,24 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios from 'src/utils/axios';
 import { fDateTime } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
-import { useDeleteUser } from 'src/query/use-user';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteUser, usePaginatedUsers } from 'src/query/use-user';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -45,58 +49,66 @@ import { UserTableFiltersResult } from '../user-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Details', width: 200 },
+  { id: 'name', label: 'Details', width: 200, sortable: true },
   { id: 'mobile', label: 'Mobile', width: 100 },
   { id: 'address', label: 'Address', width: 250 },
   { id: 'designation', label: 'Designation', width: 150 },
-  { id: 'lastSeen', label: 'Last seen', width: 140 },
+  { id: 'lastSeen', label: 'Last seen', width: 140, sortable: true },
   { id: '', width: 20 },
 ];
 
 // ----------------------------------------------------------------------
 
-export function UserListView({ users }) {
-  const table = useTable({ syncToUrl: true });
+export function UserListView() {
+  const table = useTable({ defaultOrderBy: 'name', defaultOrder: 'asc', syncToUrl: true });
 
   const router = useRouter();
-
   const confirm = useBoolean();
-
   const deleteUser = useDeleteUser();
 
-  const [tableData, setTableData] = useState(users);
-
-  useEffect(() => {
-    setTableData(users);
-  }, [users]);
+  const [selectAllMode, setSelectAllMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const filters = useSetState({ name: '', designation: '', permission: '' });
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: filters.state,
+  const { data, isLoading, isError } = usePaginatedUsers({
+    page: table.page + 1,
+    rowsPerPage: table.rowsPerPage,
+    orderBy: table.orderBy,
+    order: table.order,
+    name: filters.state.name || undefined,
+    designation: filters.state.designation || undefined,
+    permission: filters.state.permission || undefined,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const users = data?.users;
+  const totalCount = data?.total || 0;
+
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    if (users) {
+      setTableData(users);
+    }
+  }, [users]);
 
   const canReset =
     !!filters.state.name || !!filters.state.designation || !!filters.state.permission;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !isLoading && !tableData.length;
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    const deleteRows = tableData.filter((row) => !table.selected.includes(row._id));
 
     toast.success('Delete success!');
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
+      totalRowsInPage: tableData.length,
+      totalRowsFiltered: totalCount,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [table, tableData, totalCount]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -104,6 +116,14 @@ export function UserListView({ users }) {
     },
     [router]
   );
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isError) {
+    return <EmptyContent filled title="Something went wrong!" />;
+  }
 
   return (
     <>
@@ -134,7 +154,7 @@ export function UserListView({ users }) {
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
-              totalResults={dataFiltered.length}
+              totalResults={totalCount}
               onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -144,12 +164,39 @@ export function UserListView({ users }) {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
+              rowCount={tableData.length}
+              onSelectAllRows={(checked) => {
+                if (!checked) {
+                  setSelectAllMode(false);
+                }
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row.id)
-                )
+                  tableData.map((row) => row._id)
+                );
+              }}
+              label={
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="subtitle2">
+                    {selectAllMode
+                      ? `All ${totalCount} selected`
+                      : `${table.selected.length} selected`}
+                  </Typography>
+
+                  {!selectAllMode &&
+                    table.selected.length === tableData.length &&
+                    totalCount > tableData.length && (
+                      <Link
+                        component="button"
+                        variant="subtitle2"
+                        onClick={() => {
+                          setSelectAllMode(true);
+                        }}
+                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
+                      >
+                        Select all {totalCount} users
+                      </Link>
+                    )}
+                </Stack>
               }
               action={
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -161,33 +208,64 @@ export function UserListView({ users }) {
                   <Tooltip title="Export to Excel">
                     <IconButton
                       color="primary"
-                      onClick={() => {
-                        const selectedRows = tableData.filter(
-                          (r) => table.selected.includes(r._id) || table.selected.includes(r.id)
-                        );
-                        exportToExcel(
-                          prepareDataForExport(
-                            selectedRows,
-                            [
-                              { id: 'name', label: 'Name', getter: (r) => r.name },
-                              { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
-                              { id: 'address', label: 'Address', getter: (r) => r.address },
-                              {
-                                id: 'designation',
-                                label: 'Designation',
-                                getter: (r) => r.designation,
+                      disabled={isDownloading}
+                      onClick={async () => {
+                        if (selectAllMode) {
+                          try {
+                            setIsDownloading(true);
+                            toast.info('Export started... Please wait.');
+                            const response = await axios.get('/api/users/export', {
+                              params: {
+                                name: filters.state.name || undefined,
+                                designation: filters.state.designation || undefined,
+                                permission: filters.state.permission || undefined,
+                                order: table.order,
+                                orderBy: table.orderBy,
                               },
-                              {
-                                id: 'lastSeen',
-                                label: 'Last Seen',
-                                getter: (r) => r.lastSeen ? fDateTime(r.lastSeen) : 'Never',
-                              },
-                            ],
-                            ['name', 'mobile', 'address', 'designation', 'lastSeen'],
-                            []
-                          ),
-                          'Users-selected-list'
-                        );
+                              responseType: 'blob',
+                            });
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', 'Users.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            setIsDownloading(false);
+                            toast.success('Export completed!');
+                          } catch (error) {
+                            console.error('Failed to download excel', error);
+                            setIsDownloading(false);
+                            toast.error('Failed to export users.');
+                          }
+                        } else {
+                          const selectedRows = tableData.filter(
+                            (r) => table.selected.includes(r._id) || table.selected.includes(r.id)
+                          );
+                          exportToExcel(
+                            prepareDataForExport(
+                              selectedRows,
+                              [
+                                { id: 'name', label: 'Name', getter: (r) => r.name },
+                                { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
+                                { id: 'address', label: 'Address', getter: (r) => r.address },
+                                {
+                                  id: 'designation',
+                                  label: 'Designation',
+                                  getter: (r) => r.designation,
+                                },
+                                {
+                                  id: 'lastSeen',
+                                  label: 'Last Seen',
+                                  getter: (r) => r.lastSeen ? fDateTime(r.lastSeen) : 'Never',
+                                },
+                              ],
+                              ['name', 'mobile', 'address', 'designation', 'lastSeen'],
+                              []
+                            ),
+                            'Users-selected-list'
+                          );
+                        }
                       }}
                     >
                       <Iconify icon="file-icons:microsoft-excel" />
@@ -203,36 +281,32 @@ export function UserListView({ users }) {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
+                  onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row.id)
+                      tableData.map((row) => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <UserTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onDeleteRow={() => deleteUser(row._id)}
-                        onEditRow={() => handleEditRow(row._id)}
-                      />
-                    ))}
+                  {tableData.map((row) => (
+                    <UserTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onDeleteRow={() => deleteUser(row._id)}
+                      onEditRow={() => handleEditRow(row._id)}
+                    />
+                  ))}
 
                   <TableEmptyRows
                     height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
                   />
 
                   <TableNoData notFound={notFound} />
@@ -244,7 +318,7 @@ export function UserListView({ users }) {
           <TablePaginationCustom
             page={table.page}
             dense={table.dense}
-            count={dataFiltered.length}
+            count={totalCount}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onChangeDense={table.onChangeDense}
@@ -277,50 +351,4 @@ export function UserListView({ users }) {
       />
     </>
   );
-}
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { name, designation, permission } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    );
-  }
-  if (designation) {
-    inputData = inputData.filter(
-      (user) => user.designation.toLowerCase().indexOf(designation.toLowerCase()) !== -1
-    );
-  }
-  if (permission) {
-    const searchTerms = permission
-      .split(',')
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean);
-    if (searchTerms.length > 0) {
-      inputData = inputData.filter((user) => {
-        const userPerms = [];
-        if (user.permissions) {
-          Object.entries(user.permissions).forEach(([mod, actions]) => {
-            Object.entries(actions).forEach(([act, val]) => {
-              if (val === true) userPerms.push(`${mod}.${act}`.toLowerCase());
-            });
-          });
-        }
-        return searchTerms.every((term) => userPerms.some((p) => p.includes(term)));
-      });
-    }
-  }
-
-  return inputData;
 }
