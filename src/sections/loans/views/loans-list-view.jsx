@@ -77,7 +77,7 @@ export function LoansListView() {
   const navigate = useNavigate();
 
   const deleteLoan = useDeleteLoan();
-  const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const confirm = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
