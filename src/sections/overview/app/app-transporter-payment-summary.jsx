@@ -7,6 +7,7 @@ import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import Skeleton from '@mui/material/Skeleton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -33,35 +34,33 @@ export function AppTransporterPaymentSummary({ ...other }) {
 
   const { data: summary } = useTransporterPaymentSummary(selectedYear);
 
-  if (!summary) {
-    return null;
-  }
+  const ITEMS = summary
+    ? [
+        {
+          title: 'Not Billed Amount',
+          description: 'Amount for subtrips completed but payment not yet generated',
+          amount: summary.pendingAmount,
+          icon: 'mdi:clock-outline',
+          color: theme.palette.warning.main,
+        },
+        {
+          title: 'Payable Amount',
+          description: 'Payment generated and pending to pay the transporter',
+          amount: summary.payableAmount,
+          icon: 'mdi:clipboard-list-outline',
+          color: theme.palette.info.main,
+        },
+        {
+          title: 'Paid Amount',
+          description: 'Payment amount successfully paid to transporter',
+          amount: summary.paidAmount,
+          icon: 'mdi:check-decagram-outline',
+          color: theme.palette.success.main,
+        },
+      ]
+    : [];
 
-  const ITEMS = [
-    {
-      title: 'Not Billed Amount',
-      description: 'Amount for subtrips completed but payment not yet generated',
-      amount: summary.pendingAmount,
-      icon: 'mdi:clock-outline',
-      color: theme.palette.warning.main,
-    },
-    {
-      title: 'Payable Amount',
-      description: 'Payment generated and pending to pay the transporter',
-      amount: summary.payableAmount,
-      icon: 'mdi:clipboard-list-outline',
-      color: theme.palette.info.main,
-    },
-    {
-      title: 'Paid Amount',
-      description: 'Payment amount successfully paid to transporter',
-      amount: summary.paidAmount,
-      icon: 'mdi:check-decagram-outline',
-      color: theme.palette.success.main,
-    },
-  ];
-
-  const totalOutstanding = summary.pendingAmount + summary.payableAmount;
+  const totalOutstanding = summary ? summary.pendingAmount + summary.payableAmount : 0;
 
   return (
     <Card {...other}>
@@ -83,9 +82,14 @@ export function AppTransporterPaymentSummary({ ...other }) {
               ))}
             </Select>
             <Tooltip title="Download Excel">
-              <IconButton onClick={() => exportTransporterPaymentSummaryToExcel(summary)}>
-                <Iconify icon="file-icons:microsoft-excel" />
-              </IconButton>
+              <span>
+                <IconButton
+                  onClick={() => exportTransporterPaymentSummaryToExcel(summary)}
+                  disabled={!summary}
+                >
+                  <Iconify icon="file-icons:microsoft-excel" />
+                </IconButton>
+              </span>
             </Tooltip>
             <Tooltip title="Breakdown of payment amounts for transporters">
               <IconButton>
@@ -95,73 +99,119 @@ export function AppTransporterPaymentSummary({ ...other }) {
           </Stack>
         }
       />
-      <Scrollbar>
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          alignItems="center"
-          justifyContent="space-around"
-          flexWrap="wrap"
-          divider={
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ borderStyle: 'dashed', display: { xs: 'none', md: 'block' } }}
-            />
-          }
-          sx={{ px: 3, py: 2, gap: 2 }}
-        >
-          {ITEMS.map((item) => (
-            <Tooltip key={item.title} title={item.description}>
-              <Stack
-                spacing={1}
-                alignItems="center"
-                sx={{
-                  minWidth: { xs: 1, md: 160 },
-                  p: 2,
-                  borderRadius: 2,
-                  textAlign: 'center',
-                  transition: (t) =>
-                    t.transitions.create(['box-shadow', 'transform', 'background-color'], {
-                      duration: t.transitions.duration.shorter,
-                    }),
-                  '&:hover': {
-                    bgcolor: alpha(item.color, 0.08),
-                    boxShadow: (t) => t.shadows[4],
-                    transform: 'translateY(-4px)',
-                  },
-                }}
-              >
-                <Box
+
+      {!summary ? (
+        <>
+          <Scrollbar>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              alignItems="center"
+              justifyContent="space-around"
+              flexWrap="wrap"
+              divider={
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{ borderStyle: 'dashed', display: { xs: 'none', md: 'block' } }}
+                />
+              }
+              sx={{ px: 3, py: 2, gap: 2 }}
+            >
+              {[...Array(3)].map((_, index) => (
+                <Stack
+                  key={index}
+                  spacing={1.5}
+                  alignItems="center"
                   sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: item.color,
-                    border: `1px solid ${alpha(item.color, 0.4)}`,
-                    bgcolor: alpha(item.color, 0.1),
+                    minWidth: { xs: 1, md: 160 },
+                    p: 2,
+                    borderRadius: 2,
+                    textAlign: 'center',
                   }}
                 >
-                  <Iconify icon={item.icon} width={24} />
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  {item.title}
-                </Typography>
-                <Typography variant="h6">₹ {fShortenNumber(item.amount)}</Typography>
-              </Stack>
-            </Tooltip>
-          ))}
-        </Stack>
-      </Scrollbar>
-      <Divider sx={{ borderStyle: 'dashed', mt: 1 }} />
-      <Stack direction="row" justifyContent="flex-end" sx={{ px: 3, py: 2 }}>
-        <Typography variant="subtitle2" sx={{ mr: 1 }}>
-          Total Outstanding:
-        </Typography>
-        <Typography variant="subtitle2">{fShortenNumber(totalOutstanding)}</Typography>
-      </Stack>
+                  <Skeleton variant="circular" width={40} height={40} />
+                  <Skeleton variant="text" width={100} height={20} />
+                  <Skeleton variant="text" width={80} height={24} />
+                </Stack>
+              ))}
+            </Stack>
+          </Scrollbar>
+          <Divider sx={{ borderStyle: 'dashed', mt: 1 }} />
+          <Stack direction="row" justifyContent="flex-end" sx={{ px: 3, py: 2 }}>
+            <Skeleton variant="text" width={140} height={20} />
+          </Stack>
+        </>
+      ) : (
+        <>
+          <Scrollbar>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              alignItems="center"
+              justifyContent="space-around"
+              flexWrap="wrap"
+              divider={
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{ borderStyle: 'dashed', display: { xs: 'none', md: 'block' } }}
+                />
+              }
+              sx={{ px: 3, py: 2, gap: 2 }}
+            >
+              {ITEMS.map((item) => (
+                <Tooltip key={item.title} title={item.description}>
+                  <Stack
+                    spacing={1}
+                    alignItems="center"
+                    sx={{
+                      minWidth: { xs: 1, md: 160 },
+                      p: 2,
+                      borderRadius: 2,
+                      textAlign: 'center',
+                      transition: (t) =>
+                        t.transitions.create(['box-shadow', 'transform', 'background-color'], {
+                          duration: t.transitions.duration.shorter,
+                        }),
+                      '&:hover': {
+                        bgcolor: alpha(item.color, 0.08),
+                        boxShadow: (t) => t.shadows[4],
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: item.color,
+                        border: `1px solid ${alpha(item.color, 0.4)}`,
+                        bgcolor: alpha(item.color, 0.1),
+                      }}
+                    >
+                      <Iconify icon={item.icon} width={24} />
+                    </Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {item.title}
+                    </Typography>
+                    <Typography variant="h6">₹ {fShortenNumber(item.amount)}</Typography>
+                  </Stack>
+                </Tooltip>
+              ))}
+            </Stack>
+          </Scrollbar>
+          <Divider sx={{ borderStyle: 'dashed', mt: 1 }} />
+          <Stack direction="row" justifyContent="flex-end" sx={{ px: 3, py: 2 }}>
+            <Typography variant="subtitle2" sx={{ mr: 1 }}>
+              Total Outstanding:
+            </Typography>
+            <Typography variant="subtitle2">{fShortenNumber(totalOutstanding)}</Typography>
+          </Stack>
+        </>
+      )}
     </Card>
   );
 }
