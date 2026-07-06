@@ -10,13 +10,17 @@ import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import { alpha, useTheme } from '@mui/material/styles';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -732,35 +736,73 @@ export default function LiveTrackingView() {
         </Typography>
 
         <Stack direction="row" spacing={1} alignItems="center">
-          <TextField
-            select
-            size="small"
-            label="Fuel"
-            value={fuelFilter}
-            onChange={(e) => setFuelFilter(e.target.value)}
-            sx={{ width: 100, display: { xs: 'none', md: 'inline-flex' } }}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="high">High</MenuItem>
-            <MenuItem value="medium">Medium</MenuItem>
-            <MenuItem value="low">Low</MenuItem>
-            <MenuItem value="none">No Data</MenuItem>
-          </TextField>
+          <FormControl size="small" sx={{ width: 130, display: { xs: 'none', md: 'inline-flex' } }}>
+            <InputLabel id="toolbar-fuel-label">Fuel</InputLabel>
+            <Select
+              labelId="toolbar-fuel-label"
+              value={fuelFilter === 'all' ? '' : fuelFilter}
+              onChange={(e) => setFuelFilter(e.target.value || 'all')}
+              input={<OutlinedInput label="Fuel" />}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              <MenuItem value="high">
+                <Label variant="soft" color="success">
+                  High
+                </Label>
+              </MenuItem>
+              <MenuItem value="medium">
+                <Label variant="soft" color="warning">
+                  Medium
+                </Label>
+              </MenuItem>
+              <MenuItem value="low">
+                <Label variant="soft" color="error">
+                  Low
+                </Label>
+              </MenuItem>
+              <MenuItem value="none">
+                <Label variant="soft" color="default">
+                  No Data
+                </Label>
+              </MenuItem>
+            </Select>
+          </FormControl>
 
-          <TextField
-            select
-            size="small"
-            label="Last Seen"
-            value={lastSeenFilter}
-            onChange={(e) => setLastSeenFilter(e.target.value)}
-            sx={{ width: 110, display: { xs: 'none', md: 'inline-flex' } }}
-          >
-            <MenuItem value="all">Any</MenuItem>
-            <MenuItem value="1h">&le; 1h</MenuItem>
-            <MenuItem value="12h">&le; 12h</MenuItem>
-            <MenuItem value="24h">&le; 24h</MenuItem>
-            <MenuItem value="older">&gt; 24h</MenuItem>
-          </TextField>
+          <FormControl size="small" sx={{ width: 140, display: { xs: 'none', md: 'inline-flex' } }}>
+            <InputLabel id="toolbar-last-seen-label">Last Seen</InputLabel>
+            <Select
+              labelId="toolbar-last-seen-label"
+              value={lastSeenFilter === 'all' ? '' : lastSeenFilter}
+              onChange={(e) => setLastSeenFilter(e.target.value || 'all')}
+              input={<OutlinedInput label="Last Seen" />}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              <MenuItem value="1h">
+                <Label variant="soft" color="success">
+                  &le; 1h
+                </Label>
+              </MenuItem>
+              <MenuItem value="12h">
+                <Label variant="soft" color="info">
+                  &le; 12h
+                </Label>
+              </MenuItem>
+              <MenuItem value="24h">
+                <Label variant="soft" color="warning">
+                  &le; 24h
+                </Label>
+              </MenuItem>
+              <MenuItem value="older">
+                <Label variant="soft" color="error">
+                  &gt; 24h
+                </Label>
+              </MenuItem>
+            </Select>
+          </FormControl>
 
           <TextField
             size="small"
@@ -890,37 +932,73 @@ export default function LiveTrackingView() {
             }}
           />
 
-          <TextField
-            select
-            fullWidth
-            size="small"
-            label="Fuel Level"
-            value={fuelFilter}
-            onChange={(e) => setFuelFilter(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
-          >
-            <MenuItem value="all">All Fuel Levels</MenuItem>
-            <MenuItem value="high">High (&gt; 70%)</MenuItem>
-            <MenuItem value="medium">Medium (40-70%)</MenuItem>
-            <MenuItem value="low">Low (&lt; 40%)</MenuItem>
-            <MenuItem value="none">No Fuel Data</MenuItem>
-          </TextField>
+          <FormControl fullWidth size="small" sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}>
+            <InputLabel id="live-tracking-fuel-level-label">Fuel Level</InputLabel>
+            <Select
+              labelId="live-tracking-fuel-level-label"
+              value={fuelFilter === 'all' ? '' : fuelFilter}
+              onChange={(e) => setFuelFilter(e.target.value || 'all')}
+              input={<OutlinedInput label="Fuel Level" />}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              <MenuItem value="high">
+                <Label variant="soft" color="success">
+                  High (&gt; 70%)
+                </Label>
+              </MenuItem>
+              <MenuItem value="medium">
+                <Label variant="soft" color="warning">
+                  Medium (40-70%)
+                </Label>
+              </MenuItem>
+              <MenuItem value="low">
+                <Label variant="soft" color="error">
+                  Low (&lt; 40%)
+                </Label>
+              </MenuItem>
+              <MenuItem value="none">
+                <Label variant="soft" color="default">
+                  No Fuel Data
+                </Label>
+              </MenuItem>
+            </Select>
+          </FormControl>
 
-          <TextField
-            select
-            fullWidth
-            size="small"
-            label="Last Seen"
-            value={lastSeenFilter}
-            onChange={(e) => setLastSeenFilter(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
-          >
-            <MenuItem value="all">Any Time</MenuItem>
-            <MenuItem value="1h">Last 1 Hour</MenuItem>
-            <MenuItem value="12h">Last 12 Hours</MenuItem>
-            <MenuItem value="24h">Last 24 Hours</MenuItem>
-            <MenuItem value="older">Older than 24h</MenuItem>
-          </TextField>
+          <FormControl fullWidth size="small" sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}>
+            <InputLabel id="live-tracking-last-seen-label">Last Seen</InputLabel>
+            <Select
+              labelId="live-tracking-last-seen-label"
+              value={lastSeenFilter === 'all' ? '' : lastSeenFilter}
+              onChange={(e) => setLastSeenFilter(e.target.value || 'all')}
+              input={<OutlinedInput label="Last Seen" />}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <Divider sx={{ borderStyle: 'dashed' }} />
+              <MenuItem value="1h">
+                <Label variant="soft" color="success">
+                  Last 1 Hour
+                </Label>
+              </MenuItem>
+              <MenuItem value="12h">
+                <Label variant="soft" color="info">
+                  Last 12 Hours
+                </Label>
+              </MenuItem>
+              <MenuItem value="24h">
+                <Label variant="soft" color="warning">
+                  Last 24 Hours
+                </Label>
+              </MenuItem>
+              <MenuItem value="older">
+                <Label variant="soft" color="error">
+                  Older than 24h
+                </Label>
+              </MenuItem>
+            </Select>
+          </FormControl>
         </Stack>
       </Card>
 
