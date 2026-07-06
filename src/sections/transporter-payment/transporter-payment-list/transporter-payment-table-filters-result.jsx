@@ -103,6 +103,18 @@ export default function TransporterPayrollTableFiltersResult({
           </Block>
         )}
 
+        {filters.hasTds && (
+          <Block label="TDS:">
+            <Chip size="small" label="Yes" onDelete={() => onFilters('hasTds', false)} />
+          </Block>
+        )}
+
+        {filters.hasGst && (
+          <Block label="GST:">
+            <Chip size="small" label="Yes" onDelete={() => onFilters('hasGst', false)} />
+          </Block>
+        )}
+
         <Button
           color="error"
           onClick={onResetFilters}

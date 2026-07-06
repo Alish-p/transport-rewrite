@@ -169,6 +169,17 @@ export default function TransporterPaymentTableToolbar({
           }
         />
 
+        <FormControlLabel
+          label="GST"
+          labelPlacement="top"
+          control={
+            <Switch
+              checked={filters.hasGst}
+              onChange={(e) => onFilters('hasGst', e.target.checked)}
+            />
+          }
+        />
+
         <Stack direction="row" spacing={1}>
           <Button
             color="inherit"

@@ -68,6 +68,7 @@ const defaultFilters = {
   issueFromDate: null,
   issueToDate: null,
   hasTds: false,
+  hasGst: false,
 };
 
 export function TransporterPaymentListView() {
@@ -100,6 +101,7 @@ export function TransporterPaymentListView() {
     paymentId: filters.paymentId || undefined,
     status: filters.status !== 'all' ? filters.status : undefined,
     hasTds: filters.hasTds || undefined,
+    hasGst: filters.hasGst || undefined,
     issueFromDate: filters.issueFromDate || undefined,
     issueToDate: filters.issueToDate || undefined,
     page: table.page + 1,
@@ -320,6 +322,7 @@ export function TransporterPaymentListView() {
                               paymentId: filters.paymentId || undefined,
                               status: filters.status !== 'all' ? filters.status : undefined,
                               hasTds: filters.hasTds || undefined,
+                              hasGst: filters.hasGst || undefined,
                               issueFromDate: filters.issueFromDate || undefined,
                               issueToDate: filters.issueToDate || undefined,
                               columns: visibleCols.join(','),
