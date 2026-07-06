@@ -3,7 +3,6 @@ import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
-import Chip from '@mui/material/Chip';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -25,6 +24,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { varAlpha } from 'src/theme/styles';
 import { useAddSubtask, useToggleSubtask, useDeleteSubtask } from 'src/query/use-task';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
@@ -313,25 +313,46 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex' }}>
         <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Departments</StyledLabel>
 
-        <Select
+         <Select
           multiple
           size="small"
           value={selectedDepartments}
           onChange={handleLabelChange}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((value) => (
-                <Chip key={value} label={value} size="small" />
-              ))}
+              {selected.map((value) => {
+                const colors = {
+                  sales: 'primary',
+                  marketing: 'secondary',
+                  dispatch: 'info',
+                  warehouse: 'success',
+                };
+                const dept = DEPARTMENTS.find((d) => d.id === value);
+                return (
+                  <Label key={value} variant="soft" color={colors[value] || 'default'}>
+                    {dept ? dept.name : value}
+                  </Label>
+                );
+              })}
             </Box>
           )}
           sx={{ minWidth: 200 }}
         >
-          {DEPARTMENTS.map(({ id, name }) => (
-            <MenuItem key={id} value={id}>
-              {name}
-            </MenuItem>
-          ))}
+          {DEPARTMENTS.map(({ id, name }) => {
+            const colors = {
+              sales: 'primary',
+              marketing: 'secondary',
+              dispatch: 'info',
+              warehouse: 'success',
+            };
+            return (
+              <MenuItem key={id} value={id}>
+                <Label variant="soft" color={colors[id] || 'default'}>
+                  {name}
+                </Label>
+              </MenuItem>
+            );
+          })}
         </Select>
       </Box>
 
