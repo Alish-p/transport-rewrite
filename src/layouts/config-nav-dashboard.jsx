@@ -43,7 +43,6 @@ const ICONS = {
   pump: <Iconify icon={APP_ICONS.pump} />,
   customer: <Iconify icon={APP_ICONS.customer} />,
   transporter: <Iconify icon={APP_ICONS.transporter} />,
-  route: icon('ic_map'),
   bank: icon('ic_bank'),
   expense: <Iconify icon={APP_ICONS.expense} />,
   subtrip: <Iconify icon={APP_ICONS.job} />,
