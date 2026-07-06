@@ -509,43 +509,40 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
 
                 {taxBreakup?.tds?.rate > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={12} align="right">
+                    <TableCell colSpan={13} align="right">
                       TDS ({taxBreakup.tds.rate}%)
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
                       -{fCurrency(taxBreakup.tds.amount)}
                     </TableCell>
-                    <TableCell />
                   </StyledTableRow>
                 )}
 
                 {[taxBreakup.cgst, taxBreakup.sgst, taxBreakup.igst].map(({ rate, amount }, idx) =>
                   rate > 0 ? (
                     <StyledTableRow key={idx}>
-                      <TableCell colSpan={12} align="right">
+                      <TableCell colSpan={13} align="right">
                         {['CGST', 'SGST', 'IGST'][idx]} ({rate}%)
                       </TableCell>
                       <TableCell align="right">{fCurrency(amount)}</TableCell>
-                      <TableCell />
                     </StyledTableRow>
                   ) : null
                 )}
 
                 {podCharge > 0 && (
                   <StyledTableRow>
-                    <TableCell colSpan={12} align="right">
+                    <TableCell colSpan={13} align="right">
                       POD Charges
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
                       -{fCurrency(podCharge)}
                     </TableCell>
-                    <TableCell />
                   </StyledTableRow>
                 )}
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>
-                    <TableCell colSpan={12} align="right">
+                    <TableCell colSpan={13} align="right">
                       <Field.Text
                         size="small"
                         name={`additionalCharges[${idx}].label`}
@@ -557,20 +554,20 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Field.Text
-                        size="small"
-                        name={`additionalCharges[${idx}].amount`}
-                        label="Amount"
-                        required
-                        placeholder="100, -50"
-                        sx={{ width: 100 }}
-                        variant="filled"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton color="error" onClick={() => handleRemoveCharge(idx)}>
-                        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                      </IconButton>
+                      <Stack direction="row" alignItems="center" spacing={1} justifyContent="flex-end">
+                        <Field.Text
+                          size="small"
+                          name={`additionalCharges[${idx}].amount`}
+                          label="Amount"
+                          required
+                          placeholder="100, -50"
+                          sx={{ width: 100 }}
+                          variant="filled"
+                        />
+                        <IconButton color="error" onClick={() => handleRemoveCharge(idx)}>
+                          <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                        </IconButton>
+                      </Stack>
                     </TableCell>
                   </StyledTableRow>
                 ))}
@@ -591,24 +588,22 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
 
                 {loanDeductions.map((ld, idx) => (
                   <StyledTableRow key={`loan-${idx}`}>
-                    <TableCell colSpan={12} align="right">
+                    <TableCell colSpan={13} align="right">
                       Loan Repayment (LN-{ld.loanNo})
                     </TableCell>
                     <TableCell sx={{ color: 'error.main' }} align="right">
                       -{fCurrency(ld.amount)}
                     </TableCell>
-                    <TableCell />
                   </StyledTableRow>
                 ))}
 
                 <StyledTableRow>
-                  <TableCell colSpan={12} align="right">
+                  <TableCell colSpan={13} align="right">
                     <strong>Net Total</strong>
                   </TableCell>
                   <TableCell align="right" sx={{ color: 'success.main' }}>
                     {fCurrency(netIncome)}
                   </TableCell>
-                  <TableCell />
                 </StyledTableRow>
               </TableBody>
             )}

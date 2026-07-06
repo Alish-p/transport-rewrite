@@ -214,7 +214,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {taxBreakup?.tds?.rate > 0 && (
               <StyledTableRow>
-                <TableCell colSpan={10} align="right">
+                <TableCell colSpan={11} align="right">
                   TDS ({taxBreakup.tds.rate}%)
                 </TableCell>
                 <TableCell sx={{ color: 'error.main' }} align="right">
@@ -228,7 +228,7 @@ function BulkTransporterPaymentIndividualCard({
               const item = taxBreakup[k];
               return item?.rate > 0 ? (
                 <StyledTableRow key={k}>
-                  <TableCell colSpan={10} align="right">
+                  <TableCell colSpan={11} align="right">
                     {k.toUpperCase()} ({item.rate}%)
                   </TableCell>
                   <TableCell align="right">{fCurrency(item.amount)}</TableCell>
@@ -239,7 +239,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {podCharge > 0 && (
               <StyledTableRow>
-                <TableCell colSpan={10} align="right">
+                <TableCell colSpan={11} align="right">
                   POD Charges
                 </TableCell>
                 <TableCell sx={{ color: 'error.main' }} align="right">
@@ -251,7 +251,7 @@ function BulkTransporterPaymentIndividualCard({
 
             {additionalCharges.map((ch, ci) => (
               <StyledTableRow key={ci}>
-                <TableCell colSpan={10} align="right">
+                <TableCell colSpan={11} align="right">
                   <TextField
                     style={{ width: 150 }}
                     value={ch.label}
@@ -262,20 +262,21 @@ function BulkTransporterPaymentIndividualCard({
                   />
                 </TableCell>
                 <TableCell align="right">
-                  <TextField
-                    style={{ width: 100 }}
-                    value={ch.amount}
-                    onChange={(e) => onChangeCharge(index, ci, 'amount', e.target.value)}
-                    placeholder="Amount"
-                    size="small"
-                    variant="filled"
-                  />
+                  <Stack direction="row" alignItems="center" spacing={1} justifyContent="flex-end">
+                    <TextField
+                      style={{ width: 100 }}
+                      value={ch.amount}
+                      onChange={(e) => onChangeCharge(index, ci, 'amount', e.target.value)}
+                      placeholder="Amount"
+                      size="small"
+                      variant="filled"
+                    />
+                    <IconButton color="error" onClick={() => onRemoveCharge(index, ci)}>
+                      <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                    </IconButton>
+                  </Stack>
                 </TableCell>
-                <TableCell>
-                  <IconButton color="error" onClick={() => onRemoveCharge(index, ci)}>
-                    <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                  </IconButton>
-                </TableCell>
+                <TableCell />
               </StyledTableRow>
             ))}
 
@@ -288,7 +289,7 @@ function BulkTransporterPaymentIndividualCard({
             </StyledTableRow>
 
             <StyledTableRow>
-              <TableCell colSpan={10} align="right">
+              <TableCell colSpan={11} align="right">
                 <strong>Net Total</strong>
               </TableCell>
               <TableCell align="right" sx={{ color: 'success.main' }}>
