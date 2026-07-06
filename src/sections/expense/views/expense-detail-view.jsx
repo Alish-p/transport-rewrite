@@ -88,7 +88,7 @@ export function ExpenseDetailView({ expense }) {
 | **Trip ID**            | ${tripId || 'N/A'}       |
 | **Subtrip**            | ${subtripId || 'N/A'}    |
 | **Vehicle ID**         | ${vehicleId || 'N/A'}    |
-| **Pump Code**          | ${pumpCd || 'N/A'}       |
+| **Pump**          | ${pumpCd || 'N/A'}       |
 
 `;
 

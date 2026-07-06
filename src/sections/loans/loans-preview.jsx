@@ -172,7 +172,7 @@ function RenderBorrowerInfo({ loan }) {
 // ----------------------------------------------------------------------
 
 function RenderLoanSummary({ loan }) {
-  const { principalAmount, outstandingBalance, payments = [] } = loan;
+  const { principalAmount, outstandingBalance, remarks, payments = [] } = loan;
   const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return (
@@ -184,7 +184,30 @@ function RenderLoanSummary({ loan }) {
         gap: 3,
       }}
     >
-      <div />
+      <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+        <Stack spacing={1.5} sx={{ height: 1 }}>
+          <Typography variant="subtitle2" color="green">
+            Remarks
+          </Typography>
+          <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+            <Typography
+              variant="body2"
+              sx={{
+                whiteSpace: 'pre-wrap',
+                color: remarks ? 'text.primary' : 'text.disabled',
+                lineHeight: 1.7,
+                display: '-webkit-box',
+                WebkitLineClamp: 8,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {remarks || 'No remarks provided'}
+            </Typography>
+          </Box>
+        </Stack>
+      </Card>
 
       <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
         <Stack spacing={2} sx={{ height: 1 }}>

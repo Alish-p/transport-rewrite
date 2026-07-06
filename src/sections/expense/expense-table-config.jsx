@@ -38,6 +38,31 @@ function ExpenseTypeCell({ expenseType = '-' }) {
 }
 
 export const TABLE_COLUMNS = [
+
+  {
+    id: 'vehicleNo',
+    label: 'Vehicle No',
+    defaultVisible: true,
+    disabled: true,
+    getter: (row) => row?.vehicleId?.vehicleNo || row?.vehicleNo || '-',
+    align: 'left',
+    render: (row) => {
+      const value = row?.vehicleId?._id;
+      const vehicleNo = row?.vehicleId?.vehicleNo || row?.vehicleNo || '-';
+      if (!value) return vehicleNo;
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.vehicle.details(value)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main' }}
+        >
+          {vehicleNo}
+        </Link>
+      );
+    },
+  },
   {
     id: 'subtripId',
     label: 'LR No',
@@ -67,31 +92,6 @@ export const TABLE_COLUMNS = [
       );
     },
   },
-  {
-    id: 'vehicleNo',
-    label: 'Vehicle No',
-    defaultVisible: true,
-    disabled: true,
-    getter: (row) => row?.vehicleId?.vehicleNo || row?.vehicleNo || '-',
-    align: 'left',
-    render: (row) => {
-      const value = row?.vehicleId?._id;
-      const vehicleNo = row?.vehicleId?.vehicleNo || row?.vehicleNo || '-';
-      if (!value) return vehicleNo;
-      return (
-        <Link
-          component={RouterLink}
-          to={paths.dashboard.vehicle.details(value)}
-          variant="body2"
-          noWrap
-          sx={{ color: 'primary.main' }}
-        >
-          {vehicleNo}
-        </Link>
-      );
-    },
-  },
-
   {
     id: 'expenseType',
     label: 'Expense Type',
@@ -173,7 +173,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'pumpCd',
-    label: 'Pump Code',
+    label: 'Pump',
     defaultVisible: false,
     disabled: false,
     align: 'left',
