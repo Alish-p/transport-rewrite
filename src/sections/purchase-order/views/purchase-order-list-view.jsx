@@ -76,7 +76,7 @@ const STATUS_TABS = [
 
 export function PurchaseOrderListView() {
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'createdAt', syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
