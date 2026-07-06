@@ -39,7 +39,7 @@ export function AppVehicleDocumentsExpiryTable({ title, subheader, ...other }) {
   const displayedDocs = showAll ? expiredOrExpiringDocs : expiredOrExpiringDocs.slice(0, 5);
 
   return (
-    <Card {...other}>
+    <Card sx={{ display: 'flex', flexDirection: 'column', ...other.sx }} {...other}>
       <CardHeader
         title={
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -56,8 +56,8 @@ export function AppVehicleDocumentsExpiryTable({ title, subheader, ...other }) {
         sx={{ mb: 3 }}
       />
 
-      <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 600 }) }}>
-        <Table sx={{ minWidth: 720 }}>
+      <Scrollbar sx={{ flexGrow: 1, minHeight: 0 }}>
+        <Table size="small" sx={{ minWidth: 720 }}>
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },

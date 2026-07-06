@@ -273,17 +273,18 @@ export function OverviewAppView({
           </Suspense>
         </Grid>
 
-        <Grid xs={12} lg={8}>
-          <Suspense fallback={<WidgetSkeleton height={320} />}>
+        <Grid xs={12} lg={8} sx={{ display: 'flex' }}>
+          <Suspense fallback={<WidgetSkeleton height={420} />}>
             <AppVehicleDocumentsExpiryTable
               title="Critical: Expired/Expiring Documents"
               subheader="Vehicle documents that need immediate attention to maintain compliance."
+              sx={{ height: 420, display: 'flex', flexDirection: 'column', width: 1 }}
             />
           </Suspense>
         </Grid>
 
         {(loading.vehicleDocs || vehicleDocsSummary) && (
-          <Grid xs={12} md={6} lg={4}>
+          <Grid xs={12} md={6} lg={4} sx={{ display: 'flex' }}>
             {loading.vehicleDocs ? (
               <WidgetSkeleton height={420} />
             ) : (
@@ -299,6 +300,7 @@ export function OverviewAppView({
                       { label: 'Valid', value: vehicleDocsSummary?.valid ?? 0 },
                     ],
                   }}
+                  sx={{ height: 420, display: 'flex', flexDirection: 'column', width: 1 }}
                 />
               </Suspense>
             )}
