@@ -178,30 +178,30 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'left',
     getter: (row) => row?.pumpCd?.name || '-',
+    render: (row) => {
+      const pumpId = row?.pumpCd?._id;
+      const pumpName = row?.pumpCd?.name || '-';
+      if (!pumpId) return pumpName;
+      return (
+        <Link
+          component={RouterLink}
+          to={paths.dashboard.pump.details(pumpId)}
+          variant="body2"
+          noWrap
+          sx={{ color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+        >
+          {pumpName}
+        </Link>
+      );
+    },
   },
   {
-    id: 'transporter',
-    label: 'Transporter',
+    id: 'createdBy',
+    label: 'Created By',
     defaultVisible: false,
     disabled: false,
     align: 'left',
-    getter: (row) => row?.vehicleId?.transporter?.transportName || '-',
-  },
-  {
-    id: 'slipNo',
-    label: 'Slip No',
-    defaultVisible: false,
-    disabled: false,
-    align: 'left',
-    getter: (row) => row?.slipNo || '-',
-  },
-  {
-    id: 'authorisedBy',
-    label: 'Authorised By',
-    defaultVisible: false,
-    disabled: false,
-    align: 'left',
-    getter: (row) => row?.authorisedBy || '-',
+    getter: (row) => row?.createdBy?.name || '-',
   },
   {
     id: 'amount',

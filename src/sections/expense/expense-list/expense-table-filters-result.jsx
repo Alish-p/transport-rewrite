@@ -21,7 +21,6 @@ export default function ExpenseTableFiltersResult({
   selectedVehicleNo,
   selectedSubtripNo,
   selectedPumpName,
-  selectedTransporterName,
   selectedTripNo,
   ...other
 }) {
@@ -36,10 +35,6 @@ export default function ExpenseTableFiltersResult({
 
   const handleRemovePump = () => {
     onFilters('pumpId', '');
-  };
-
-  const handleRemoveTransporter = () => {
-    onFilters('transporterId', '');
   };
 
   const handleRemoveTripId = () => {
@@ -105,16 +100,6 @@ export default function ExpenseTableFiltersResult({
               size="small"
               label={selectedPumpName || filters.pumpId}
               onDelete={handleRemovePump}
-            />
-          </Block>
-        )}
-
-        {filters.transporterId && (
-          <Block label="Transporter">
-            <Chip
-              size="small"
-              label={selectedTransporterName || filters.transporterId}
-              onDelete={handleRemoveTransporter}
             />
           </Block>
         )}

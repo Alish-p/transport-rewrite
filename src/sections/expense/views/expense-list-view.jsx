@@ -66,7 +66,6 @@ const defaultFilters = {
   vehicleId: '',
   subtripId: '',
   pumpId: '',
-  transporterId: '',
   tripId: '',
   vehicleType: '',
   expenseCategory: 'all',
@@ -81,7 +80,7 @@ export function ExpenseListView() {
   const tenant = useTenantContext();
   const theme = useTheme();
   const router = useRouter();
-  const table = useTable({ defaultOrderBy: 'date', syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc', syncToUrl: true });
   const navigate = useNavigate();
   const deleteExpense = useDeleteExpense();
   const subtripExpenseTypes = useSubtripExpenseTypes();
@@ -97,7 +96,6 @@ export function ExpenseListView() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
-  const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -120,7 +118,6 @@ export function ExpenseListView() {
     vehicleId: filters.vehicleId || undefined,
     subtripId: filters.subtripId || undefined,
     pumpId: filters.pumpId || undefined,
-    transporterId: filters.transporterId || undefined,
     tripId: filters.tripId || undefined,
     vehicleType: filters.vehicleType || undefined,
     expenseCategory: filters.expenseCategory !== 'all' ? filters.expenseCategory : undefined,
@@ -206,9 +203,6 @@ export function ExpenseListView() {
   useEffect(() => {
     if (!filters.pumpId) setSelectedPump(null);
   }, [filters.pumpId]);
-  useEffect(() => {
-    if (!filters.transporterId) setSelectedTransporter(null);
-  }, [filters.transporterId]);
   useEffect(() => {
     if (!filters.tripId) setSelectedTrip(null);
   }, [filters.tripId]);
@@ -371,11 +365,6 @@ export function ExpenseListView() {
             setSelectedPump(p);
             handleFilters('pumpId', p?._id || '');
           }}
-          selectedTransporter={selectedTransporter}
-          onSelectTransporter={(t) => {
-            setSelectedTransporter(t);
-            handleFilters('transporterId', t?._id || '');
-          }}
           selectedTrip={selectedTrip}
           onSelectTrip={(t) => {
             setSelectedTrip(t);
@@ -392,14 +381,12 @@ export function ExpenseListView() {
               setSelectedVehicle(null);
               setSelectedSubtrip(null);
               setSelectedPump(null);
-              setSelectedTransporter(null);
               setSelectedTrip(null);
             }}
             results={totalCount}
             selectedVehicleNo={selectedVehicle?.vehicleNo}
             selectedSubtripNo={selectedSubtrip?.subtripNo}
             selectedPumpName={selectedPump?.name}
-            selectedTransporterName={selectedTransporter?.transportName}
             selectedTripNo={selectedTrip?.tripNo}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -464,7 +451,6 @@ export function ExpenseListView() {
                               vehicleId: filters.vehicleId || undefined,
                               subtripId: filters.subtripId || undefined,
                               pumpId: filters.pumpId || undefined,
-                              transporterId: filters.transporterId || undefined,
                               tripId: filters.tripId || undefined,
                               vehicleType: filters.vehicleType || undefined,
                               expenseCategory:
