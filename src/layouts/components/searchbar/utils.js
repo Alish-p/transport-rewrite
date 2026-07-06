@@ -1,18 +1,32 @@
-import { flattenArray } from 'src/utils/helper';
-
-// ----------------------------------------------------------------------
-
 export function getAllItems({ data }) {
-  const reduceItems = data.map((list) => handleLoop(list.items, list.subheader)).flat();
+  const items = [];
 
-  const items = flattenArray(reduceItems).map((option) => {
-    const group = splitPath(reduceItems, option.path);
+  function traverse(item, parentTitles, subheader, icon) {
+    const currentBreadcrumbs = [...parentTitles, item.title];
+    const itemIcon = item.icon || item.info || icon;
 
-    return {
-      group: group && group.length > 1 ? group[0] : option.subheader,
-      title: option.title,
-      path: option.path,
-    };
+    // Only index leaf nodes (items without children) to avoid search result duplication
+    if (!item.children || item.children.length === 0) {
+      items.push({
+        group: parentTitles[0] || subheader,
+        title: item.title,
+        path: item.path,
+        icon: itemIcon,
+        breadcrumbs: [subheader, ...currentBreadcrumbs].join(' > '),
+      });
+    }
+
+    if (item.children && item.children.length > 0) {
+      item.children.forEach((child) => {
+        traverse(child, currentBreadcrumbs, subheader, itemIcon);
+      });
+    }
+  }
+
+  data.forEach((group) => {
+    group.items?.forEach((item) => {
+      traverse(item, [], group.subheader, item.icon);
+    });
   });
 
   return items;
@@ -25,7 +39,7 @@ export function applyFilter({ inputData, query }) {
     inputData = inputData.filter(
       (item) =>
         item.title.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        item.path.toLowerCase().indexOf(query.toLowerCase()) !== -1
+        item.breadcrumbs.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
 
@@ -33,38 +47,6 @@ export function applyFilter({ inputData, query }) {
 }
 
 // ----------------------------------------------------------------------
-
-export function splitPath(array, key) {
-  let stack = array.map((item) => ({ path: [item.title], currItem: item }));
-
-  while (stack.length) {
-    const { path, currItem } = stack.pop();
-
-    if (currItem.path === key) {
-      return path;
-    }
-
-    if (currItem.children?.length) {
-      stack = stack.concat(
-        currItem.children.map((item) => ({
-          path: path.concat(item.title),
-          currItem: item,
-        }))
-      );
-    }
-  }
-  return null;
-}
-
-// ----------------------------------------------------------------------
-
-export function handleLoop(array, subheader) {
-  return array?.map((list) => ({
-    subheader,
-    ...list,
-    ...(list.children && { children: handleLoop(list.children, subheader) }),
-  }));
-}
 
 export function groupItems(array) {
   const group = array.reduce((groups, item) => {
@@ -77,3 +59,4 @@ export function groupItems(array) {
 
   return group;
 }
+

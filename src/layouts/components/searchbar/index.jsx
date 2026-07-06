@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
+import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -37,15 +37,19 @@ export function Searchbar({ data: navItems = [], sx, ...other }) {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const handleClose = useCallback(() => {
     search.onFalse();
     setSearchQuery('');
+    setActiveIndex(0);
   }, [search]);
 
   const handleKeyDown = (event) => {
     if (event.key === 'k' && event.metaKey) {
       search.onToggle();
       setSearchQuery('');
+      setActiveIndex(0);
     }
   };
 
@@ -65,6 +69,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }) {
 
   const handleSearch = useCallback((event) => {
     setSearchQuery(event.target.value);
+    setActiveIndex(0);
   }, []);
 
   const dataFiltered = applyFilter({
@@ -72,35 +77,101 @@ export function Searchbar({ data: navItems = [], sx, ...other }) {
     query: searchQuery,
   });
 
-  const notFound = searchQuery && !dataFiltered.length;
+  const visualOrderedFiltered = useMemo(() => {
+    const dataGroups = groupItems(dataFiltered);
+    const orderedGroups = Array.from(new Set(dataFiltered.map((item) => item.group)));
+    return orderedGroups.flatMap((group) => dataGroups[group]);
+  }, [dataFiltered]);
+
+  const handleInputKeyDown = useCallback(
+    (event) => {
+      if (visualOrderedFiltered.length === 0) return;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setActiveIndex((prev) => Math.min(prev + 1, visualOrderedFiltered.length - 1));
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setActiveIndex((prev) => Math.max(prev - 1, 0));
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        const activeItem = visualOrderedFiltered[activeIndex];
+        if (activeItem) {
+          handleClick(activeItem.path);
+        }
+      }
+    },
+    [visualOrderedFiltered, activeIndex, handleClick]
+  );
+
+  const notFound = searchQuery && !visualOrderedFiltered.length;
 
   const renderItems = () => {
-    const dataGroups = groupItems(dataFiltered);
+    const dataGroups = groupItems(visualOrderedFiltered);
+    const orderedGroups = Array.from(new Set(visualOrderedFiltered.map((item) => item.group)));
 
-    return Object.keys(dataGroups)
-      .sort((a, b) => -b.localeCompare(a))
-      .map((group, index) => (
-        <Box component="ul" key={`${group}-${index}`}>
-          {dataGroups[group].map((item) => {
-            const { title, path } = item;
-
-            const partsTitle = parse(title, match(title, searchQuery));
-
-            const partsPath = parse(path, match(path, searchQuery));
-
-            return (
-              <Box component="li" key={`${title}${path}`} sx={{ display: 'flex' }}>
-                <ResultItem
-                  path={partsPath}
-                  title={partsTitle}
-                  groupLabel={searchQuery && group}
-                  onClickItem={() => handleClick(path)}
-                />
-              </Box>
-            );
-          })}
+    return orderedGroups.map((group, index) => (
+      <Box
+        component="ul"
+        key={`${group}-${index}`}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5,
+          p: 0,
+          m: 0,
+          mb: 2.5,
+          listStyle: 'none',
+        }}
+      >
+        <Box
+          component="li"
+          sx={{
+            px: 1.5,
+            py: 0.5,
+            typography: 'overline',
+            fontSize: 10,
+            color: 'primary.main',
+            fontWeight: 'bold',
+            letterSpacing: 1.2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '&::after': {
+              content: '""',
+              flexGrow: 1,
+              height: '1px',
+              bgcolor: varAlpha(theme.vars.palette.divider, 0.5),
+            },
+          }}
+        >
+          {group}
         </Box>
-      ));
+
+        {dataGroups[group].map((item) => {
+          const { title, path, breadcrumbs, icon } = item;
+
+          const flatIndex = visualOrderedFiltered.indexOf(item);
+          const isActive = flatIndex === activeIndex;
+
+          const partsTitle = parse(title, match(title, searchQuery));
+
+          const partsBreadcrumbs = parse(breadcrumbs, match(breadcrumbs, searchQuery));
+
+          return (
+            <Box component="li" key={`${title}${path}`} sx={{ display: 'flex' }}>
+              <ResultItem
+                isActive={isActive}
+                icon={icon}
+                breadcrumbs={partsBreadcrumbs}
+                title={partsTitle}
+                onClickItem={() => handleClick(path)}
+              />
+            </Box>
+          );
+        })}
+      </Box>
+    ));
   };
 
   const renderButton = (
@@ -165,6 +236,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }) {
             placeholder="Search..."
             value={searchQuery}
             onChange={handleSearch}
+            onKeyDown={handleInputKeyDown}
             startAdornment={
               <InputAdornment position="start">
                 <Iconify icon="eva:search-fill" width={24} sx={{ color: 'text.disabled' }} />
