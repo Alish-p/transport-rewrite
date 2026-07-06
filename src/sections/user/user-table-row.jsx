@@ -1,8 +1,11 @@
+import dayjs from 'dayjs';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -11,6 +14,8 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { fToNow, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -23,6 +28,15 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
   const confirm = useBoolean();
 
   const popover = usePopover();
+
+  const lastSeenLabel = (() => {
+    if (!row.lastSeen) {
+      return { text: 'Never', color: 'error' };
+    }
+    const diffInDays = dayjs().diff(dayjs(row.lastSeen), 'day');
+    const color = diffInDays < 30 ? 'success' : 'warning';
+    return { text: `${fToNow(row.lastSeen)} ago`, color };
+  })();
 
   return (
     <>
@@ -64,6 +78,20 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
           >
             {row.designation}
           </Label>
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {row.lastSeen ? (
+            <Tooltip title={fDateTime(row.lastSeen)} placement="top" arrow>
+              <Label variant="soft" color={lastSeenLabel.color}>
+                {lastSeenLabel.text}
+              </Label>
+            </Tooltip>
+          ) : (
+            <Label variant="soft" color={lastSeenLabel.color}>
+              {lastSeenLabel.text}
+            </Label>
+          )}
         </TableCell>
 
         <TableCell>

@@ -76,7 +76,7 @@ export function TransporterPaymentListView() {
   const theme = useTheme();
   const router = useRouter();
   const navigate = useNavigate();
-  const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
+  const table = useTable({ defaultOrderBy: 'createDate', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
   const deleteTransporterPayment = useDeleteTransporterPayment();
 

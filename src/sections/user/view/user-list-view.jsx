@@ -15,6 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { fDateTime } from 'src/utils/format-time';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { useDeleteUser } from 'src/query/use-user';
@@ -48,6 +49,7 @@ const TABLE_HEAD = [
   { id: 'mobile', label: 'Mobile', width: 100 },
   { id: 'address', label: 'Address', width: 250 },
   { id: 'designation', label: 'Designation', width: 150 },
+  { id: 'lastSeen', label: 'Last seen', width: 140 },
   { id: '', width: 20 },
 ];
 
@@ -175,8 +177,13 @@ export function UserListView({ users }) {
                                 label: 'Designation',
                                 getter: (r) => r.designation,
                               },
+                              {
+                                id: 'lastSeen',
+                                label: 'Last Seen',
+                                getter: (r) => r.lastSeen ? fDateTime(r.lastSeen) : 'Never',
+                              },
                             ],
-                            ['name', 'mobile', 'address', 'designation'],
+                            ['name', 'mobile', 'address', 'designation', 'lastSeen'],
                             []
                           ),
                           'Users-selected-list'
