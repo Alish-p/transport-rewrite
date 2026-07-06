@@ -27,14 +27,14 @@ export function SubtripExpiryTable({ title, subheader, ...other }) {
   const { data: subtrips = [], isLoading } = useSubtripsExpiry();
   const [showAll, setShowAll] = useState(false);
 
-  const displayedSubtrips = showAll ? subtrips : subtrips.slice(0, 6);
+  const displayedSubtrips = showAll ? subtrips : subtrips.slice(0, 5);
 
   return (
-    <Card {...other}>
+    <Card sx={{ display: 'flex', flexDirection: 'column', ...other.sx }} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
-      <Scrollbar sx={{ minHeight: 402, ...(showAll && { maxHeight: 402 }) }}>
-        <Table sx={{ minWidth: 680 }}>
+      <Scrollbar sx={{ flexGrow: 1, minHeight: 0 }}>
+        <Table size="small" sx={{ minWidth: 680 }}>
           <TableHeadCustom
             headLabel={[
               { id: 'index', label: 'No.' },
@@ -84,7 +84,7 @@ export function SubtripExpiryTable({ title, subheader, ...other }) {
         </Table>
       </Scrollbar>
 
-      {subtrips.length > 6 && (
+      {subtrips.length > 5 && (
         <>
           <Divider sx={{ borderStyle: 'dashed' }} />
 

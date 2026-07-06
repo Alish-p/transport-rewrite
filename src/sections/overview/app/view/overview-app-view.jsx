@@ -254,11 +254,21 @@ export function OverviewAppView({
           <AppMonthlySummaryTabs />
         </Grid>
 
-        <Grid xs={12} lg={8}>
-          <Suspense fallback={<WidgetSkeleton height={320} />}>
+        <Grid xs={12} lg={8} sx={{ display: 'flex' }}>
+          <Suspense fallback={<WidgetSkeleton height={420} />}>
             <SubtripExpiryTable
               title="⚠️ Expiring Eway Bills"
               subheader="Active jobs with Eway Bills expiring within the next 24 hours. Please take timely action."
+              sx={{ height: 420, display: 'flex', flexDirection: 'column', width: 1 }}
+            />
+          </Suspense>
+        </Grid>
+
+        <Grid xs={12} lg={4} sx={{ display: 'flex' }}>
+          <Suspense fallback={<WidgetSkeleton height={420} />}>
+            <FinancialMonthlyChart
+              title="Financial overview"
+              sx={{ height: 420, display: 'flex', flexDirection: 'column', width: 1 }}
             />
           </Suspense>
         </Grid>
@@ -322,11 +332,7 @@ export function OverviewAppView({
           <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
 
-        <Grid xs={12} lg={6}>
-          <Suspense fallback={<WidgetSkeleton height={400} />}>
-            <FinancialMonthlyChart title="Financial overview" />
-          </Suspense>
-        </Grid>
+
 
         {tenant?.integrations?.ewayBill?.enabled && (
           <Grid xs={12}>
