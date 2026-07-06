@@ -17,14 +17,19 @@ import {
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
+import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
 import { useUsers } from 'src/query/use-user';
 import { useReorderTasks } from 'src/query/use-task';
 import { DashboardContent } from 'src/layouts/dashboard';
+
+import { Label } from 'src/components/label';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { COLUMNS } from '../config';
 import { kanbanClasses } from '../classes';
@@ -32,6 +37,7 @@ import { coordinateGetter } from '../utils';
 import { KanbanColumn } from '../column/kanban-column';
 import { KanbanTaskItem } from '../item/kanban-task-item';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
+import { KanbanContactsDialog } from '../components/kanban-contacts-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -49,9 +55,21 @@ const cssVars = {
 export function KanbanView({ tasks }) {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [openContacts, setOpenContacts] = useState(false);
   const [localTasks, setLocalTasks] = useState(tasks);
   const reorderTasks = useReorderTasks();
   const { data: users = [] } = useUsers();
+
+  const selectedUser = useMemo(() => {
+    if (assigneeFilter === 'all') return null;
+    return users.find((u) => u._id === assigneeFilter) || null;
+  }, [users, assigneeFilter]);
+
+  const handleAssigneeChange = useCallback((newAssignees) => {
+    const contact = newAssignees[0];
+    setAssigneeFilter(contact ? contact._id : 'all');
+    setOpenContacts(false);
+  }, []);
 
   const recentlyMovedToNewContainer = useRef(false);
 
@@ -285,14 +303,6 @@ export function KanbanView({ tasks }) {
     setActiveId(null);
   };
 
-  const handlePriorityFilterChange = (event) => {
-    setPriorityFilter(event.target.value);
-  };
-
-  const handleAssigneeFilterChange = (event) => {
-    setAssigneeFilter(event.target.value);
-  };
-
   // Optimization: Memoize the filtered tasks per column
   const filteredColumns = useMemo(() => {
     const filters = {
@@ -370,44 +380,44 @@ export function KanbanView({ tasks }) {
       <KanbanDragOverlay columns={COLUMNS} tasks={localTasks} activeId={activeId} sx={cssVars} />
     </DndContext>
   );
-
-  const priorities = ['low', 'medium', 'high'];
-
   const renderFilters = () => (
-    <Box sx={{ display: 'flex', gap: 2 }}>
-      <FormControl sx={{ minWidth: 120 }}>
-        <InputLabel>Priority</InputLabel>
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <InputLabel id="kanban-priority-filter-label">Priority</InputLabel>
         <Select
-          value={priorityFilter}
-          label="Priority"
-          onChange={handlePriorityFilterChange}
-          size="small"
+          labelId="kanban-priority-filter-label"
+          value={priorityFilter === 'all' ? '' : priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value || 'all')}
+          input={<OutlinedInput label="Priority" />}
+          MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
         >
-          <MenuItem value="all">All</MenuItem>
-          {priorities.map((priority) => (
-            <MenuItem key={priority} value={priority}>
-              {priority.charAt(0).toUpperCase() + priority.slice(1)}
-            </MenuItem>
-          ))}
+          <MenuItem value="">All</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          <MenuItem value="low">
+            <Label variant="soft" color="info">
+              Low
+            </Label>
+          </MenuItem>
+          <MenuItem value="medium">
+            <Label variant="soft" color="warning">
+              Medium
+            </Label>
+          </MenuItem>
+          <MenuItem value="high">
+            <Label variant="soft" color="error">
+              High
+            </Label>
+          </MenuItem>
         </Select>
       </FormControl>
 
-      <FormControl sx={{ minWidth: 120 }}>
-        <InputLabel>Assignee</InputLabel>
-        <Select
-          value={assigneeFilter}
-          label="Assignee"
-          onChange={handleAssigneeFilterChange}
-          size="small"
-        >
-          <MenuItem value="all">All</MenuItem>
-          {users.map((user) => (
-            <MenuItem key={user._id} value={user._id}>
-              {user.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <DialogSelectButton
+        onClick={() => setOpenContacts(true)}
+        selected={selectedUser?.name}
+        placeholder="Assignee"
+        iconName="solar:user"
+        sx={{ minWidth: 140, maxWidth: 200, height: 40 }}
+      />
     </Box>
   );
 
@@ -436,6 +446,14 @@ export function KanbanView({ tasks }) {
       </Stack>
 
       <>{renderList}</>
+
+      <KanbanContactsDialog
+        assignees={selectedUser ? [selectedUser] : []}
+        open={openContacts}
+        onClose={() => setOpenContacts(false)}
+        onAssigneeChange={handleAssigneeChange}
+        single
+      />
     </DashboardContent>
   );
 }
