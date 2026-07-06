@@ -101,11 +101,7 @@ export function AppInvoiceAmountSummary({ customerId, ...other }) {
                 </IconButton>
               </span>
             </Tooltip>
-            <Tooltip title="Breakdown of billing amounts for customer invoices">
-              <IconButton>
-                <Iconify icon="mdi:information-outline" sx={{ color: 'text.secondary' }} />
-              </IconButton>
-            </Tooltip>
+
           </Stack>
         }
       />

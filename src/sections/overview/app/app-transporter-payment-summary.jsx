@@ -91,11 +91,7 @@ export function AppTransporterPaymentSummary({ ...other }) {
                 </IconButton>
               </span>
             </Tooltip>
-            <Tooltip title="Breakdown of payment amounts for transporters">
-              <IconButton>
-                <Iconify icon="mdi:information-outline" sx={{ color: 'text.secondary' }} />
-              </IconButton>
-            </Tooltip>
+
           </Stack>
         }
       />
