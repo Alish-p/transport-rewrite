@@ -15,7 +15,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useFilters } from 'src/hooks/use-filters';
 
 import axios from 'src/utils/axios';
@@ -29,7 +28,6 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { EmptyContent } from 'src/components/empty-content';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -49,7 +47,8 @@ import { UserTableFiltersResult } from '../user-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Details', width: 200, sortable: true },
+  { id: 'name', label: 'Name', width: 150, sortable: true },
+  { id: 'email', label: 'Email', width: 200, sortable: true },
   { id: 'mobile', label: 'Mobile', width: 100 },
   { id: 'address', label: 'Address', width: 250 },
   { id: 'designation', label: 'Designation', width: 150 },
@@ -60,7 +59,7 @@ const TABLE_HEAD = [
 const defaultFilters = {
   name: '',
   designation: '',
-  permission: '',
+  permission: [],
 };
 
 // ----------------------------------------------------------------------
@@ -69,7 +68,6 @@ export function UserListView() {
   const table = useTable({ defaultOrderBy: 'name', defaultOrder: 'asc', syncToUrl: true });
 
   const router = useRouter();
-  const confirm = useBoolean();
   const deleteUser = useDeleteUser();
 
   const [selectAllMode, setSelectAllMode] = useState(false);
@@ -89,7 +87,7 @@ export function UserListView() {
     order: table.order,
     name: filters.name || undefined,
     designation: filters.designation || undefined,
-    permission: filters.permission || undefined,
+    permission: (filters.permission && filters.permission.length) ? filters.permission.join(',') : undefined,
   });
 
   const users = data?.users;
@@ -105,18 +103,7 @@ export function UserListView() {
 
   const notFound = !isLoading && !tableData.length;
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row._id));
 
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: tableData.length,
-      totalRowsFiltered: totalCount,
-    });
-  }, [table, tableData, totalCount]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -130,8 +117,7 @@ export function UserListView() {
   }
 
   return (
-    <>
-      <DashboardContent>
+    <DashboardContent>
         <CustomBreadcrumbs
           heading="List"
           links={[
@@ -205,11 +191,6 @@ export function UserListView() {
               }
               action={
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
                   <Tooltip title="Export to Excel">
                     <IconButton
                       color="primary"
@@ -223,7 +204,7 @@ export function UserListView() {
                               params: {
                                 name: filters.name || undefined,
                                 designation: filters.designation || undefined,
-                                permission: filters.permission || undefined,
+                                permission: (filters.permission && filters.permission.length) ? filters.permission.join(',') : undefined,
                                 order: table.order,
                                 orderBy: table.orderBy,
                               },
@@ -252,6 +233,7 @@ export function UserListView() {
                               selectedRows,
                               [
                                 { id: 'name', label: 'Name', getter: (r) => r.name },
+                                { id: 'email', label: 'Email', getter: (r) => r.email },
                                 { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
                                 { id: 'address', label: 'Address', getter: (r) => r.address },
                                 {
@@ -265,7 +247,7 @@ export function UserListView() {
                                   getter: (r) => r.lastSeen ? fDateTime(r.lastSeen) : 'Never',
                                 },
                               ],
-                              ['name', 'mobile', 'address', 'designation', 'lastSeen'],
+                              ['name', 'email', 'mobile', 'address', 'designation', 'lastSeen'],
                               []
                             ),
                             'Users-selected-list'
@@ -336,28 +318,5 @@ export function UserListView() {
         </Card>
       </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
   );
 }

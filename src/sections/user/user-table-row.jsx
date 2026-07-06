@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 
-import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -51,16 +50,17 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
               {row.name?.charAt(0).toUpperCase()}
             </Avatar>
 
-            <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
-              <Link color="inherit" onClick={onEditRow} sx={{ cursor: 'pointer' }}>
-                {row.name}
-              </Link>
-              <Box component="span" sx={{ color: 'text.disabled' }}>
-                {row.email}
-              </Box>
-            </Stack>
+            <Link
+              color="inherit"
+              onClick={onEditRow}
+              sx={{ cursor: 'pointer', typography: 'body2' }}
+            >
+              {row.name}
+            </Link>
           </Stack>
         </TableCell>
+
+        <TableCell>{row.email}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.mobile}</TableCell>
 
