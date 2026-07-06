@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -10,6 +11,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
+
+import { Iconify } from 'src/components/iconify';
 
 export const TABLE_COLUMNS = [
   {
@@ -87,5 +90,62 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     getter: (row) => row.bankDetails?.accNo,
+  },
+  {
+    id: 'dieselPrice',
+    label: 'Diesel Price',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => (row.currentPrices?.Diesel ? `₹${row.currentPrices.Diesel}` : '-'),
+    render: (row) => {
+      const price = row.currentPrices?.Diesel;
+      if (!price) return '-';
+      return (
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Iconify icon="solar:gas-station-bold" width={18} sx={{ color: 'info.main' }} />
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>
+            ₹{price}
+          </Typography>
+        </Stack>
+      );
+    },
+  },
+  {
+    id: 'petrolPrice',
+    label: 'Petrol Price',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => (row.currentPrices?.Petrol ? `₹${row.currentPrices.Petrol}` : '-'),
+    render: (row) => {
+      const price = row.currentPrices?.Petrol;
+      if (!price) return '-';
+      return (
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Iconify icon="solar:gas-station-bold" width={18} sx={{ color: 'warning.main' }} />
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>
+            ₹{price}
+          </Typography>
+        </Stack>
+      );
+    },
+  },
+  {
+    id: 'cngPrice',
+    label: 'CNG Price',
+    defaultVisible: true,
+    disabled: false,
+    getter: (row) => (row.currentPrices?.CNG ? `₹${row.currentPrices.CNG}` : '-'),
+    render: (row) => {
+      const price = row.currentPrices?.CNG;
+      if (!price) return '-';
+      return (
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Iconify icon="solar:gas-station-bold" width={18} sx={{ color: 'success.main' }} />
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>
+            ₹{price}
+          </Typography>
+        </Stack>
+      );
+    },
   },
 ];

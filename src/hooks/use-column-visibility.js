@@ -38,7 +38,10 @@ export function useColumnVisibility(TABLE_COLUMNS, storageKey) {
   );
   const [columnOrder, setColumnOrder] = useState(
     stored?.columnOrder?.length
-      ? stored.columnOrder.filter((id) => defaultColumnOrder.includes(id))
+      ? [
+          ...stored.columnOrder.filter((id) => defaultColumnOrder.includes(id)),
+          ...defaultColumnOrder.filter((id) => !stored.columnOrder.includes(id)),
+        ]
       : defaultColumnOrder
   );
 

@@ -19,7 +19,6 @@ const getFuelPrices = async ({ pumpId, ...params }) => {
   } catch (error) {
     console.error('API Error:', error);
     const errorMessage = error?.message || 'Failed to fetch fuel prices.';
-    toast.error(errorMessage);
     throw new Error(errorMessage);
   }
 };
@@ -75,7 +74,6 @@ const getCurrentFuelPrice = async ({ pumpId, fuelType, date }) => {
   } catch (error) {
     console.error('API Error:', error);
     const errorMessage = error?.message || 'Failed to fetch current fuel price.';
-    toast.error(errorMessage);
     throw new Error(errorMessage);
   }
 };
