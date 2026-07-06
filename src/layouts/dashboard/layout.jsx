@@ -24,6 +24,7 @@ import { NavVertical } from './nav-vertical';
 import { NavHorizontal } from './nav-horizontal';
 import { _account } from '../config-nav-account';
 import { HeaderBase } from '../core/header-base';
+import { useNavBadges } from './hooks/use-nav-badges';
 import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
@@ -45,12 +46,16 @@ export function DashboardLayout({ sx, children, data }) {
 
   const { user } = useAuthContext();
 
+  const { injectBadges } = useNavBadges();
+
   const rawNavData = data?.nav ?? dashboardNavData;
 
   const navData = useMemo(() => {
     const featureFiltered = filterNavByFeatures(rawNavData, tenant);
-    return filterNavByPermissions(featureFiltered, user);
-  }, [rawNavData, tenant, user]);
+    const permissionFiltered = filterNavByPermissions(featureFiltered, user);
+
+    return injectBadges(permissionFiltered);
+  }, [rawNavData, tenant, user, injectBadges]);
 
   // Read optional announcement banner from env (Vite: VITE_*)
   const announcementMessage = import.meta.env.VITE_ANNOUNCEMENT_MESSAGE?.trim?.();
