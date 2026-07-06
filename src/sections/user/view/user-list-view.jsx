@@ -16,7 +16,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
+import { useFilters } from 'src/hooks/use-filters';
 
 import axios from 'src/utils/axios';
 import { fDateTime } from 'src/utils/format-time';
@@ -30,12 +30,12 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   emptyRows,
   TableNoData,
+  TableSkeleton,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -57,6 +57,12 @@ const TABLE_HEAD = [
   { id: '', width: 20 },
 ];
 
+const defaultFilters = {
+  name: '',
+  designation: '',
+  permission: '',
+};
+
 // ----------------------------------------------------------------------
 
 export function UserListView() {
@@ -69,16 +75,21 @@ export function UserListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const filters = useSetState({ name: '', designation: '', permission: '' });
+  const {
+    filters,
+    handleFilters,
+    handleResetFilters: resetFilters,
+    canReset,
+  } = useFilters(defaultFilters, { onResetPage: table.onResetPage });
 
   const { data, isLoading, isError } = usePaginatedUsers({
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     orderBy: table.orderBy,
     order: table.order,
-    name: filters.state.name || undefined,
-    designation: filters.state.designation || undefined,
-    permission: filters.state.permission || undefined,
+    name: filters.name || undefined,
+    designation: filters.designation || undefined,
+    permission: filters.permission || undefined,
   });
 
   const users = data?.users;
@@ -91,9 +102,6 @@ export function UserListView() {
       setTableData(users);
     }
   }, [users]);
-
-  const canReset =
-    !!filters.state.name || !!filters.state.designation || !!filters.state.permission;
 
   const notFound = !isLoading && !tableData.length;
 
@@ -116,10 +124,6 @@ export function UserListView() {
     },
     [router]
   );
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   if (isError) {
     return <EmptyContent filled title="Something went wrong!" />;
@@ -149,13 +153,14 @@ export function UserListView() {
         />
 
         <Card>
-          <UserTableToolbar filters={filters} onResetPage={table.onResetPage} />
+          <UserTableToolbar filters={filters} onFilters={handleFilters} />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
+              onFilters={handleFilters}
+              onResetFilters={resetFilters}
               totalResults={totalCount}
-              onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -216,9 +221,9 @@ export function UserListView() {
                             toast.info('Export started... Please wait.');
                             const response = await axios.get('/api/users/export', {
                               params: {
-                                name: filters.state.name || undefined,
-                                designation: filters.state.designation || undefined,
-                                permission: filters.state.permission || undefined,
+                                name: filters.name || undefined,
+                                designation: filters.designation || undefined,
+                                permission: filters.permission || undefined,
                                 order: table.order,
                                 orderBy: table.orderBy,
                               },
@@ -293,16 +298,20 @@ export function UserListView() {
                 />
 
                 <TableBody>
-                  {tableData.map((row) => (
-                    <UserTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onDeleteRow={() => deleteUser(row._id)}
-                      onEditRow={() => handleEditRow(row._id)}
-                    />
-                  ))}
+                  {isLoading
+                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                        <TableSkeleton key={i} />
+                      ))
+                    : tableData.map((row) => (
+                        <UserTableRow
+                          key={row._id}
+                          row={row}
+                          selected={table.selected.includes(row._id)}
+                          onSelectRow={() => table.onSelectRow(row._id)}
+                          onDeleteRow={() => deleteUser(row._id)}
+                          onEditRow={() => handleEditRow(row._id)}
+                        />
+                      ))}
 
                   <TableEmptyRows
                     height={table.dense ? 56 : 56 + 20}
