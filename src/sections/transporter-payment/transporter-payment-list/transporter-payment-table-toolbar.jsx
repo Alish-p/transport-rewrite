@@ -1,13 +1,16 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import Switch from '@mui/material/Switch';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -18,6 +21,7 @@ import { useSubtrip } from 'src/query/use-subtrip';
 import { useVehicle } from 'src/query/use-vehicle';
 import { useTransporter } from 'src/query/use-transporter';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 import { APP_ICONS } from 'src/components/iconify/icons';
@@ -158,27 +162,51 @@ export default function TransporterPaymentTableToolbar({
           iconName={APP_ICONS.calendar}
         />
 
-        <FormControlLabel
-          label="TDS"
-          labelPlacement="top"
-          control={
-            <Switch
-              checked={filters.hasTds}
-              onChange={(e) => onFilters('hasTds', e.target.checked)}
-            />
-          }
-        />
+        <FormControl sx={{ minWidth: 140 }}>
+          <InputLabel id="transporter-payment-tds-select-label">TDS</InputLabel>
+          <Select
+            value={filters.hasTds}
+            onChange={(e) => onFilters('hasTds', e.target.value)}
+            input={<OutlinedInput label="TDS" />}
+            labelId="transporter-payment-tds-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="true">
+              <Label variant="soft" color="success">
+                Has TDS
+              </Label>
+            </MenuItem>
+            <MenuItem value="false">
+              <Label variant="soft" color="error">
+                No TDS
+              </Label>
+            </MenuItem>
+          </Select>
+        </FormControl>
 
-        <FormControlLabel
-          label="GST"
-          labelPlacement="top"
-          control={
-            <Switch
-              checked={filters.hasGst}
-              onChange={(e) => onFilters('hasGst', e.target.checked)}
-            />
-          }
-        />
+        <FormControl sx={{ minWidth: 140 }}>
+          <InputLabel id="transporter-payment-gst-select-label">GST</InputLabel>
+          <Select
+            value={filters.hasGst}
+            onChange={(e) => onFilters('hasGst', e.target.value)}
+            input={<OutlinedInput label="GST" />}
+            labelId="transporter-payment-gst-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="true">
+              <Label variant="soft" color="success">
+                Has GST
+              </Label>
+            </MenuItem>
+            <MenuItem value="false">
+              <Label variant="soft" color="error">
+                No GST
+              </Label>
+            </MenuItem>
+          </Select>
+        </FormControl>
 
         <Stack direction="row" spacing={1}>
           <Button

@@ -67,8 +67,8 @@ const defaultFilters = {
   status: 'all',
   issueFromDate: null,
   issueToDate: null,
-  hasTds: false,
-  hasGst: false,
+  hasTds: '',
+  hasGst: '',
 };
 
 export function TransporterPaymentListView() {

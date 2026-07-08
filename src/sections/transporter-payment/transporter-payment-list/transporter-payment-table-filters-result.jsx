@@ -105,13 +105,21 @@ export default function TransporterPayrollTableFiltersResult({
 
         {filters.hasTds && (
           <Block label="TDS:">
-            <Chip size="small" label="Yes" onDelete={() => onFilters('hasTds', false)} />
+            <Chip
+              size="small"
+              label={filters.hasTds === 'true' ? 'Yes' : 'No'}
+              onDelete={() => onFilters('hasTds', '')}
+            />
           </Block>
         )}
 
         {filters.hasGst && (
           <Block label="GST:">
-            <Chip size="small" label="Yes" onDelete={() => onFilters('hasGst', false)} />
+            <Chip
+              size="small"
+              label={filters.hasGst === 'true' ? 'Yes' : 'No'}
+              onDelete={() => onFilters('hasGst', '')}
+            />
           </Block>
         )}
 
