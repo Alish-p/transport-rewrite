@@ -16,6 +16,7 @@ import TableHead from '@mui/material/TableHead';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import LoadingButton from '@mui/lab/LoadingButton';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -27,13 +28,17 @@ import axios from 'src/utils/axios';
 import { fDate, fDateTime } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
+import {
+  usePaginatedDocuments,
+  useSyncVehicleDocuments,
+  useDeleteVehicleDocument,
+} from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { FileThumbnail } from 'src/components/file-thumbnail';
 import { HeroHeader } from 'src/components/hero-header-card';
+import { FileThumbnail } from 'src/components/file-thumbnail';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { getStatusMeta, getExpiryStatus } from '../../utils/document-utils';
@@ -43,6 +48,7 @@ export function VehicleDocumentDetailsView({ doc }) {
   const confirmDelete = useBoolean();
   const [deleting, setDeleting] = useState(false);
   const del = useDeleteVehicleDocument();
+  const { syncDocuments, isSyncing } = useSyncVehicleDocuments();
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
@@ -147,6 +153,17 @@ export function VehicleDocumentDetailsView({ doc }) {
     }
   };
 
+  const isExpiringOrExpired = status === 'Expired' || status === 'Expiring';
+
+  const handleSync = async () => {
+    const vehicleNo = doc?.vehicle?.vehicleNo || doc?.vehicleNo;
+    if (vehicleNo && doc?.docType) {
+      await syncDocuments({ vehicleNo, docType: doc.docType });
+    } else {
+      toast.error('Vehicle number or document type missing');
+    }
+  };
+
   const headerMeta = [
     {
       label: `Vehicle: ${doc?.vehicle?.vehicleNo || doc?.vehicleNo || '-'}`,
@@ -160,6 +177,21 @@ export function VehicleDocumentDetailsView({ doc }) {
 
   const headerAction = (
     <Stack direction="row" spacing={1.5}>
+      {isExpiringOrExpired && (
+        <LoadingButton
+          variant="contained"
+          startIcon={<Iconify icon="solar:import-bold" />}
+          onClick={handleSync}
+          loading={isSyncing}
+          sx={{
+            bgcolor: 'info.lighter',
+            color: 'info.main',
+            '&:hover': { bgcolor: 'info.light', color: 'info.contrastText' },
+          }}
+        >
+          Fetch from Portal
+        </LoadingButton>
+      )}
       <Button
         variant="contained"
         startIcon={<Iconify icon="solar:pen-bold" />}

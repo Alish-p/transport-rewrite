@@ -1,9 +1,14 @@
 import React from 'react';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 
 import { paths } from 'src/routes/paths';
 
+import { useSyncVehicleDocuments } from 'src/query/use-documents';
+
 import { GenericTableRow } from 'src/components/table';
+
+import { getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
 import { TABLE_COLUMNS } from './config/table-columns';
 
@@ -17,6 +22,7 @@ export default function DocumentsTableRow({
   columnOrder,
 }) {
   const navigate = useNavigate();
+  const { syncDocuments } = useSyncVehicleDocuments();
 
   const handleView = (r) => {
     navigate(paths.dashboard.vehicle.documentDetails(r._id));
@@ -30,6 +36,25 @@ export default function DocumentsTableRow({
     onDeleteRow?.(r);
   };
 
+  const status = getExpiryStatus(row?.expiryDate);
+  const isExpiringOrExpired = status === 'Expired' || status === 'Expiring';
+
+  const customActions = [];
+  if (isExpiringOrExpired) {
+    customActions.push({
+      label: 'Fetch from Portal',
+      icon: 'solar:import-bold',
+      onClick: async (r) => {
+        const vehicleNo = r?.vehicle?.vehicleNo || r?.vehicleNo;
+        if (vehicleNo && r?.docType) {
+          await syncDocuments({ vehicleNo, docType: r.docType });
+        } else {
+          toast.error('Vehicle number or document type missing');
+        }
+      },
+    });
+  }
+
   return (
     <GenericTableRow
       row={row}
@@ -39,6 +64,7 @@ export default function DocumentsTableRow({
       onViewRow={handleView}
       onEditRow={handleEdit}
       onDeleteRow={handleDelete}
+      customActions={customActions}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}

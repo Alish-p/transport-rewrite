@@ -40,8 +40,8 @@ export const deleteVehicleDocument = async ({ vehicleId, docId }) => {
 };
 
 // Sync from Government Portal for a vehicle number
-const syncDocuments = async ({ vehicleNo }) => {
-  const { data } = await axios.post(`${ENDPOINT}/sync`, { vehicleNo });
+const syncDocuments = async ({ vehicleNo, docType }) => {
+  const { data } = await axios.post(`${ENDPOINT}/sync`, { vehicleNo, docType });
   return data; // { addedCount }
 };
 
