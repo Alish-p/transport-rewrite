@@ -126,6 +126,9 @@ export const paths = {
       bulkKmImport: `${ROOTS.DASHBOARD}/vehicle/bulk-km-import`,
       edit: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}/edit`,
       details: (id) => `${ROOTS.DASHBOARD}/vehicle/${id}`,
+      newDocument: `${ROOTS.DASHBOARD}/vehicle/documents/new`,
+      editDocument: (id) => `${ROOTS.DASHBOARD}/vehicle/documents/${id}/edit`,
+      documentDetails: (id) => `${ROOTS.DASHBOARD}/vehicle/documents/${id}`,
     },
     driver: {
       root: `${ROOTS.DASHBOARD}/driver`,

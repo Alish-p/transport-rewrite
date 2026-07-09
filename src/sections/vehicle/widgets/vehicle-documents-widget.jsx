@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -20,6 +21,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
@@ -38,14 +42,11 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { TableNoData, TableSkeleton } from 'src/components/table';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
-import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import { REQUIRED_DOC_TYPES } from '../documents/config/constants';
 
-// Document add/edit form moved to a reusable component
-
 export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
-  const addDialog = useBoolean();
+  const navigate = useNavigate();
   const [tab, setTab] = useState('current');
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
@@ -92,6 +93,10 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
     }
   };
 
+  const handleUpload = () => {
+    navigate(`${paths.dashboard.vehicle.newDocument}?vehicleId=${vehicleId}`);
+  };
+
   return (
     <Card>
       <CardHeader
@@ -122,7 +127,7 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
             <Button
               variant="contained"
               startIcon={<Iconify icon="bytesize:upload" />}
-              onClick={addDialog.onTrue}
+              onClick={handleUpload}
               size="small"
             >
               Upload
@@ -228,25 +233,15 @@ export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
           )}
         </Box>
       )}
-
-      <VehicleDocumentFormDialog
-        open={addDialog.value}
-        onClose={addDialog.onFalse}
-        vehicleId={vehicleId}
-        mode="create"
-        disableVehicleSelection
-      />
     </Card>
   );
 }
 
 function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No data' }) {
   const hasRows = Array.isArray(rows) && rows.length > 0;
-  const [editing, setEditing] = useState(null);
   const confirmDelete = useBoolean();
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  const onEdit = (row) => setEditing(row);
   const onDelete = (row) => {
     setSelectedDoc(row);
     confirmDelete.onTrue();
@@ -307,11 +302,26 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
                   </Tooltip>
                 )}
 
+                <Tooltip title="View">
+                  <IconButton
+                    size="small"
+                    component={RouterLink}
+                    to={paths.dashboard.vehicle.documentDetails(d._id)}
+                  >
+                    <Iconify icon="solar:eye-bold" />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Edit">
-                  <IconButton size="small" onClick={() => onEdit(d)}>
+                  <IconButton
+                    size="small"
+                    component={RouterLink}
+                    to={paths.dashboard.vehicle.editDocument(d._id)}
+                  >
                     <Iconify icon="eva:edit-2-outline" />
                   </IconButton>
                 </Tooltip>
+
                 <Tooltip title="Delete">
                   <IconButton size="small" color="error" onClick={() => onDelete(d)}>
                     <Iconify icon="eva:trash-2-outline" />
@@ -333,14 +343,6 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
           ))}
         </TableBody>
       </Table>
-      <VehicleDocumentFormDialog
-        open={!!editing}
-        onClose={() => setEditing(null)}
-        vehicleId={vehicleId}
-        doc={editing}
-        mode="edit"
-        disableVehicleSelection
-      />
       <ConfirmDeleteDocument
         open={confirmDelete.value}
         onClose={confirmDelete.onFalse}

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { useState, useCallback } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
@@ -11,21 +12,21 @@ import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import ToggleButton from '@mui/material/ToggleButton';
-// @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+import { paths } from 'src/routes/paths';
+
 import { useFilters } from 'src/hooks/use-filters';
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import GenericListPdf from 'src/pdfs/generic-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { usePaginatedDocuments } from 'src/query/use-documents';
+import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -40,9 +41,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { DocumentDetailsDrawer } from 'src/sections/vehicle/documents/document-details-drawer';
 import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
-import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -69,6 +68,7 @@ const defaultFilters = {
 export function VehicleDocumentsListView() {
   const theme = useTheme();
   const tenant = useTenantContext();
+  const navigate = useNavigate();
   const table = useTable({ syncToUrl: true });
   const [view, setView] = useState('list');
 
@@ -77,7 +77,7 @@ export function VehicleDocumentsListView() {
   });
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const addDialog = useBoolean();
+  const del = useDeleteVehicleDocument();
 
   const {
     visibleColumns,
@@ -109,9 +109,7 @@ export function VehicleDocumentsListView() {
     { enabled: view === 'list' }
   );
 
-  const [detailsDoc, setDetailsDoc] = useState(null);
   const tableData = data?.results || [];
-
   const totalCount = data?.total ?? data?.docsTotal ?? 0;
 
   const handleFilterStatus = useCallback(
@@ -139,6 +137,21 @@ export function VehicleDocumentsListView() {
     return orderedIds;
   };
 
+  const handleUploadClick = () => {
+    const qs = selectedVehicle?._id ? `?vehicleId=${selectedVehicle._id}` : '';
+    navigate(`${paths.dashboard.vehicle.newDocument}${qs}`);
+  };
+
+  const handleDeleteRow = useCallback(
+    async (row) => {
+      const vehicleId = row?.vehicleId || row?.vehicle?._id || row?.vehicle;
+      if (vehicleId && row?._id) {
+        await del({ vehicleId, docId: row._id });
+      }
+    },
+    [del]
+  );
+
   const TABS = [
     { value: 'all', label: 'All', color: 'default', count: totalCount },
     { value: 'valid', label: 'Valid', color: 'success', count: data?.totalValid || 0 },
@@ -155,7 +168,7 @@ export function VehicleDocumentsListView() {
             <Button
               variant="contained"
               startIcon={<Iconify icon="bytesize:upload" />}
-              onClick={addDialog.onTrue}
+              onClick={handleUploadClick}
               size="small"
             >
               Upload
@@ -310,7 +323,7 @@ export function VehicleDocumentsListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={visibleHeaders}
+                  headLabel={[...visibleHeaders, { id: 'actions', label: 'Actions', align: 'right' }]}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onOrderChange={moveColumn}
@@ -332,7 +345,7 @@ export function VehicleDocumentsListView() {
                           row={row}
                           selected={table.selected.includes(row._id)}
                           onSelectRow={() => table.onSelectRow(row._id)}
-                          onOpenDetails={(r) => setDetailsDoc(r)}
+                          onDeleteRow={handleDeleteRow}
                           visibleColumns={visibleColumns}
                           disabledColumns={disabledColumns}
                           columnOrder={columnOrder}
@@ -354,21 +367,6 @@ export function VehicleDocumentsListView() {
         </Card>
       ) : (
         <VehicleDocumentsGridContent />
-      )}
-
-      <VehicleDocumentFormDialog
-        open={addDialog.value}
-        onClose={addDialog.onFalse}
-        mode="create"
-        initialVehicle={selectedVehicle || null}
-      />
-
-      {view === 'list' && (
-        <DocumentDetailsDrawer
-          open={!!detailsDoc}
-          onClose={() => setDetailsDoc(null)}
-          doc={detailsDoc}
-        />
       )}
     </DashboardContent>
   );

@@ -25,6 +25,9 @@ const VehicleCreatePage = lazy(() => import('src/pages/dashboard/vehicle/new'));
 const VehicleEditPage = lazy(() => import('src/pages/dashboard/vehicle/edit'));
 const VehicleDocumentsListPage = lazy(() => import('src/pages/dashboard/vehicle/documents'));
 const VehicleDocumentsGridPage = lazy(() => import('src/pages/dashboard/vehicle/documents-grid'));
+const VehicleDocumentCreatePage = lazy(() => import('src/pages/dashboard/vehicle/document-new'));
+const VehicleDocumentEditPage = lazy(() => import('src/pages/dashboard/vehicle/document-edit'));
+const VehicleDocumentDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/document-details'));
 const VehicleKmBulkImportPage = lazy(() =>
   import('src/sections/vehicle/views/vehicle-km-bulk-import-view').then((module) => ({
     default: module.VehicleKmBulkImportView,
@@ -268,6 +271,30 @@ export const dashboardRoutes = [
             element: (
               <PermissionBasedGuard resource="vehicle" action="view" hasContent>
                 <VehicleDocumentsGridPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'documents/new',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="create" hasContent>
+                <VehicleDocumentCreatePage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'documents/:id/edit',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="update" hasContent>
+                <VehicleDocumentEditPage />
+              </PermissionBasedGuard>
+            ),
+          },
+          {
+            path: 'documents/:id',
+            element: (
+              <PermissionBasedGuard resource="vehicle" action="view" hasContent>
+                <VehicleDocumentDetailsPage />
               </PermissionBasedGuard>
             ),
           },

@@ -154,3 +154,15 @@ export function useSyncVehicleDocuments() {
   });
   return { syncDocuments: mutateAsync, isSyncing: isPending };
 }
+
+export function useVehicleDocument(docId, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, docId],
+    queryFn: async () => {
+      const { data } = await axios.get(`${ENDPOINT}/${docId}`);
+      return data;
+    },
+    enabled: !!docId,
+    ...options,
+  });
+}

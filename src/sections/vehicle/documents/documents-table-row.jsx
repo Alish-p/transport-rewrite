@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router';
 
-import Checkbox from '@mui/material/Checkbox';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import ListItemText from '@mui/material/ListItemText';
+import { paths } from 'src/routes/paths';
+
+import { GenericTableRow } from 'src/components/table';
 
 import { TABLE_COLUMNS } from './config/table-columns';
 
@@ -11,52 +11,37 @@ export default function DocumentsTableRow({
   row,
   selected,
   onSelectRow,
-  onOpenDetails,
+  onDeleteRow,
   visibleColumns,
   disabledColumns,
   columnOrder,
 }) {
-  const orderedColumns = useMemo(
-    () =>
-      columnOrder?.length
-        ? columnOrder.map((id) => TABLE_COLUMNS.find((c) => c.id === id)).filter(Boolean)
-        : TABLE_COLUMNS,
-    [columnOrder]
-  );
+  const navigate = useNavigate();
 
-  const handleRowClick = (e) => {
-    const { target } = e;
-    if (target && typeof target.closest === 'function') {
-      const isInteractive = target.closest(
-        'a, button, input, textarea, select, [role="button"], .MuiIconButton-root, .MuiCheckbox-root, .MuiLink-root'
-      );
-      if (isInteractive) return;
-    }
-    if (onOpenDetails) onOpenDetails(row);
+  const handleView = (r) => {
+    navigate(paths.dashboard.vehicle.documentDetails(r._id));
+  };
+
+  const handleEdit = (r) => {
+    navigate(paths.dashboard.vehicle.editDocument(r._id));
+  };
+
+  const handleDelete = (r) => {
+    onDeleteRow?.(r);
   };
 
   return (
-    <TableRow hover selected={!!selected} onClick={handleRowClick} sx={{ cursor: 'pointer' }}>
-      {onSelectRow ? (
-        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-          <Checkbox checked={!!selected} onClick={onSelectRow} />
-        </TableCell>
-      ) : null}
-
-      {orderedColumns.map((column) =>
-        visibleColumns[column.id] || disabledColumns[column.id] ? (
-          <TableCell key={column.id} align={column.align}>
-            {column.render ? (
-              column.render(row)
-            ) : (
-              <ListItemText
-                primary={column.getter(row) || '-'}
-                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-              />
-            )}
-          </TableCell>
-        ) : null
-      )}
-    </TableRow>
+    <GenericTableRow
+      row={row}
+      columns={TABLE_COLUMNS}
+      selected={selected}
+      onSelectRow={onSelectRow}
+      onViewRow={handleView}
+      onEditRow={handleEdit}
+      onDeleteRow={handleDelete}
+      visibleColumns={visibleColumns}
+      disabledColumns={disabledColumns}
+      columnOrder={columnOrder}
+    />
   );
 }

@@ -1,58 +1,55 @@
+import { useNavigate } from 'react-router';
 import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
+
+import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
 import { fDateTime } from 'src/utils/format-time';
 
+import { DashboardContent } from 'src/layouts/dashboard';
 import { usePaginatedDocuments, useDeleteVehicleDocument } from 'src/query/use-documents';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
-import { CustomTabs } from 'src/components/custom-tabs';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { FileThumbnail } from 'src/components/file-thumbnail';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import VehicleDocumentFormDialog from 'src/sections/vehicle/documents/components/vehicle-document-form-dialog';
+import { getStatusMeta, getExpiryStatus } from '../../utils/document-utils';
+import { DocumentHistoryChatList } from '../components/document-history-chat-list';
 
-import { getStatusMeta, getExpiryStatus } from '../utils/document-utils';
-import { DocumentHistoryChatList } from './components/document-history-chat-list';
-
-export function DocumentDetailsDrawer({ open, onClose, doc }) {
-  const [tab, setTab] = useState('overview');
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [loadingUrl, setLoadingUrl] = useState(false);
+export function VehicleDocumentDetailsView({ doc }) {
+  const navigate = useNavigate();
   const confirmDelete = useBoolean();
   const [deleting, setDeleting] = useState(false);
   const del = useDeleteVehicleDocument();
-  const [editOpen, setEditOpen] = useState(false);
+
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [loadingUrl, setLoadingUrl] = useState(false);
 
   const vehicleId = useMemo(() => {
     const raw = doc?.vehicleId || doc?.vehicle?._id || doc?.vehicle?.id || doc?.vehicle;
     if (!raw) return null;
     if (typeof raw === 'string') return raw;
-    if (typeof raw === 'object') return raw?._id || raw?.id || null;
-    return String(raw);
+    return raw?._id || raw?.id || null;
   }, [doc]);
-
-  useEffect(() => {
-    setTab('overview');
-  }, [open]);
 
   useEffect(() => {
     let active = true;
     const loadUrl = async () => {
-      if (!open || !doc?._id || !vehicleId) {
+      if (!doc?._id || !vehicleId) {
         setPreviewUrl(doc?.fileUrl || null);
         return;
       }
@@ -72,7 +69,7 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
     return () => {
       active = false;
     };
-  }, [open, doc?._id, doc?.fileUrl, vehicleId]);
+  }, [doc?._id, doc?.fileUrl, vehicleId]);
 
   const status = getExpiryStatus(doc?.expiryDate);
   const statusMeta = status ? getStatusMeta(status) : null;
@@ -80,9 +77,7 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
   // History (inactive documents of same type for this vehicle)
   const [histPage, setHistPage] = useState(1);
   const rowsPerPage = 10;
-  useEffect(() => {
-    if (open) setHistPage(1);
-  }, [open, vehicleId, doc?.docType, tab]);
+
   const {
     data: historyResp,
     isLoading: historyLoading,
@@ -98,10 +93,11 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
         }
       : undefined,
     {
-      enabled: open && tab === 'history' && !!vehicleId && !!doc?.docType,
+      enabled: !!vehicleId && !!doc?.docType,
       keepPreviousData: true,
     }
   );
+
   const historyList = historyResp?.results || [];
   const historyTotal = historyResp?.total || 0;
 
@@ -110,7 +106,7 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
       setDeleting(true);
       await del({ vehicleId, docId: doc?._id });
       confirmDelete.onFalse();
-      onClose();
+      navigate(paths.dashboard.vehicle.documents);
     } catch (e) {
       // handled by hook toast
     } finally {
@@ -125,58 +121,55 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
   };
 
   return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      anchor="right"
-      slotProps={{ backdrop: { invisible: true } }}
-      PaperProps={{ sx: { width: 360 } }}
-    >
-      <Scrollbar>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-          <Typography variant="h6"> Info </Typography>
-          <Stack direction="row" spacing={1}>
-            <IconButton onClick={onClose}>
-              <Iconify icon="eva:close-fill" />
-            </IconButton>
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Vehicle Document Details"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Documents List', href: paths.dashboard.vehicle.documents },
+          { name: doc?.docType || 'Document Details' },
+        ]}
+        action={
+          <Stack direction="row" spacing={1.5}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Iconify icon="eva:edit-2-outline" />}
+              onClick={() => navigate(paths.dashboard.vehicle.editDocument(doc._id))}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+              onClick={confirmDelete.onTrue}
+              disabled={deleting}
+            >
+              Delete
+            </Button>
           </Stack>
-        </Stack>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
 
-        <CustomTabs
-          value={tab}
-          onChange={(_e, v) => setTab(v)}
-          variant="scrollable"
-          allowScrollButtonsMobile
-          sx={{ px: 2.5 }}
-        >
-          <Tab
-            label="Overview"
-            value="overview"
-            icon={<Iconify icon="solar:info-circle-bold" />}
-            iconPosition="start"
-          />
-          <Tab
-            label="History"
-            value="history"
-            icon={<Iconify icon="mdi:history" />}
-            iconPosition="start"
-          />
-        </CustomTabs>
-
-        {tab === 'overview' && (
-          <Stack spacing={2.5} justifyContent="center" sx={{ p: 2.5 }}>
+      <Grid container spacing={3}>
+        {/* Left Column: Preview */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+            <CardHeader title="Document Attachment" sx={{ width: '100%', px: 0, pt: 0, mb: 3 }} />
             {loadingUrl ? (
-              <CircularProgress size={24} />
+              <CircularProgress />
             ) : previewUrl ? (
               <FileThumbnail
                 imageView
                 tooltip
                 onDownload={handleDownload}
                 file={previewUrl}
-                sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
+                sx={{ width: '100%', height: 'auto', maxHeight: 400, alignSelf: 'center' }}
                 slotProps={{
-                  img: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' },
-                  icon: { width: 64, height: 64 },
+                  img: { width: '100%', height: 'auto', maxHeight: 400, objectFit: 'contain' },
+                  icon: { width: 96, height: 96 },
                 }}
               />
             ) : (
@@ -184,47 +177,61 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
                 No file attached
               </Typography>
             )}
+          </Card>
+        </Grid>
 
-            <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
-              {doc?.docType || 'Document'}
-            </Typography>
-
-            <Divider sx={{ borderStyle: 'dashed' }} />
-
-            <Stack spacing={1.5}>
-              <SectionHeader title="Properties" />
-
+        {/* Right Column: Properties */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <CardHeader title="Properties" sx={{ px: 0, pt: 0, mb: 3 }} />
+            <Stack spacing={2}>
               <PropRow label="Vehicle" value={doc?.vehicle?.vehicleNo || doc?.vehicleNo || '-'} />
+              <Divider />
               <PropRow label="Type" value={doc?.docType || '-'} />
+              <Divider />
               <PropRow label="Number" value={doc?.docNumber || '-'} />
+              <Divider />
               <PropRow label="Issuer" value={doc?.issuer || '-'} />
-              <PropRow label="Issue" value={doc?.issueDate ? fDateTime(doc.issueDate) : '-'} />
-              <PropRow label="Expiry" value={doc?.expiryDate ? fDateTime(doc.expiryDate) : '-'} />
+              <Divider />
+              <PropRow label="Issue Date" value={doc?.issueDate ? fDateTime(doc.issueDate) : '-'} />
+              <Divider />
+              <PropRow label="Expiry Date" value={doc?.expiryDate ? fDateTime(doc.expiryDate) : '-'} />
+              <Divider />
               <PropRow
                 label="Status"
                 value={
                   statusMeta ? (
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Iconify icon={statusMeta.icon} sx={{ color: `${statusMeta.color}.main` }} />
-                      <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                        {status}
-                      </Typography>
-                    </Stack>
+                    <Label color={statusMeta.color} startIcon={<Iconify icon={statusMeta.icon} />}>
+                      {status}
+                    </Label>
                   ) : (
                     '-'
                   )
                 }
               />
+              <Divider />
               <PropRow
                 label="Created By"
                 value={doc?.createdBy?.name || doc?.createdByName || '-'}
               />
+              <Divider />
+              <PropRow
+                label="Active Status"
+                value={
+                  <Label color={doc?.isActive ? 'success' : 'error'} variant="soft">
+                    {doc?.isActive ? 'Active' : 'Inactive'}
+                  </Label>
+                }
+              />
             </Stack>
-          </Stack>
-        )}
+          </Card>
+        </Grid>
 
-        {tab === 'history' && (
-          <Box sx={{ p: 2.5 }}>
+        {/* Bottom Section: History */}
+        <Grid item xs={12}>
+          <Card sx={{ p: 3 }}>
+            <CardHeader title="Version History" sx={{ px: 0, pt: 0, mb: 3 }} />
+            
             {historyLoading && (
               <Stack alignItems="center" sx={{ py: 3 }}>
                 <CircularProgress size={24} />
@@ -273,33 +280,9 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
                 )}
               </>
             )}
-          </Box>
-        )}
-      </Scrollbar>
-
-      <Box sx={{ p: 2.5 }}>
-        <Stack spacing={1.5}>
-          <Button
-            fullWidth
-            variant="soft"
-            startIcon={<Iconify icon="eva:edit-2-outline" />}
-            onClick={() => setEditOpen(true)}
-            disabled={!doc?._id}
-          >
-            Edit
-          </Button>
-          <Button
-            fullWidth
-            variant="soft"
-            color="error"
-            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-            onClick={confirmDelete.onTrue}
-            disabled={!doc?._id || !vehicleId || deleting}
-          >
-            Delete
-          </Button>
-        </Stack>
-      </Box>
+          </Card>
+        </Grid>
+      </Grid>
 
       <ConfirmDialog
         open={confirmDelete.value}
@@ -312,46 +295,23 @@ export function DocumentDetailsDrawer({ open, onClose, doc }) {
           </Button>
         }
       />
-
-      <VehicleDocumentFormDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        vehicleId={vehicleId || undefined}
-        mode="edit"
-        doc={doc}
-      />
-    </Drawer>
-  );
-}
-
-function SectionHeader({ title }) {
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ typography: 'subtitle2' }}
-    >
-      {title}
-    </Stack>
+    </DashboardContent>
   );
 }
 
 function PropRow({ label, value }) {
   return (
-    <Stack direction="row" sx={{ typography: 'caption', textTransform: 'capitalize' }}>
-      <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
+    <Stack direction="row" alignItems="center" sx={{ typography: 'body2' }}>
+      <Box component="span" sx={{ width: 120, color: 'text.secondary', fontWeight: 'fontWeightMedium', flexShrink: 0 }}>
         {label}
       </Box>
-      {typeof value === 'string' || typeof value === 'number' ? (
-        <Typography variant="caption" sx={{ flexGrow: 1 }}>
-          {value}
-        </Typography>
-      ) : (
-        <Box sx={{ flexGrow: 1 }}>{value}</Box>
-      )}
+      <Box sx={{ flexGrow: 1 }}>
+        {typeof value === 'string' || typeof value === 'number' ? (
+          <Typography variant="body2">{value}</Typography>
+        ) : (
+          value
+        )}
+      </Box>
     </Stack>
   );
 }
-
-export default DocumentDetailsDrawer;
